@@ -45,6 +45,15 @@ export const websiteBuilderService = {
     }
   },
 
+  
+  clearSession: async (sessionId: string) => {
+    try {
+      const response = await api.post(`/api/v1/website-builder/session/${sessionId}/clear`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
   getSession: async (sessionId: string) => {
     try {
       const response = await api.get(`/api/v1/website-builder/session/${sessionId}`);

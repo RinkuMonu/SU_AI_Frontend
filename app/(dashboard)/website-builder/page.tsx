@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight } from "lucide-react";
+import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { websiteBuilderService, ChatMessage } from "@/services/website-builder.service";
 
 const CONVERSATION_STEPS = [
@@ -282,6 +282,35 @@ export default function WebsiteBuilderPage() {
      return Math.min(Math.floor(userMsgCount / 2), CONVERSATION_STEPS.length - 1);
   };
 
+  const handleNewChat = () => {
+    localStorage.removeItem("website_builder_session_id");
+    setSessionId(null);
+    setSiteId(null);
+    setLanguage(null);
+    setMessages([]);
+    setGeneratedSiteData(null);
+    setGenerationProgress([]);
+    setIsGenerating(false);
+  };
+
+  const handleClearChat = async () => {
+    if (!sessionId) return;
+    try {
+      setLoading(true);
+      const res = await websiteBuilderService.clearSession(sessionId);
+      if (res.messages) {
+         setMessages(res.messages);
+      }
+      setGeneratedSiteData(null);
+      setGenerationProgress([]);
+      setIsGenerating(false);
+    } catch(e) {
+      console.error("Failed to clear chat", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const activeConvStepIdx = getActiveConversationStep();
 
   return (
@@ -300,6 +329,24 @@ export default function WebsiteBuilderPage() {
                  <h2 className="font-bold text-base leading-tight text-white">AI Website Builder</h2>
                  <p className="text-xs text-text-muted">SevenUnique AI Assistant</p>
               </div>
+           </div>
+
+           <div className="flex gap-2">
+              <button 
+                 onClick={handleClearChat}
+                 disabled={!sessionId || loading}
+                 className="flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-elevated border border-border rounded-lg text-xs font-medium text-text-muted hover:text-red-400 transition-colors disabled:opacity-50"
+              >
+                 <Trash2 size={14} />
+                 Clear
+              </button>
+              <button 
+                 onClick={handleNewChat}
+                 className="flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-elevated border border-border rounded-lg text-xs font-medium text-text-muted hover:text-white transition-colors"
+              >
+                 <Plus size={14} />
+                 New Chat
+              </button>
            </div>
         </div>
 
@@ -456,27 +503,60 @@ export default function WebsiteBuilderPage() {
                  <Clock size={12} /> Generation Completed
               </p>
 
-              {/* Compact Website Preview Frame */}
-              <div className="w-full h-40 bg-white rounded-lg shadow-inner overflow-hidden flex flex-col relative text-black font-sans mb-4 border border-border/50">
-                 <div className="bg-gray-100 p-2 flex justify-between items-center border-b">
-                    <div className="font-bold text-[9px] tracking-tight text-gray-800">YourBrand</div>
-                    <div className="flex gap-1.5 text-[7px] font-medium text-gray-600">
-                       <span>Home</span>
-                       <span>About</span>
-                    </div>
-                 </div>
-                 <div className="flex-1 bg-gray-900 text-white p-3 text-center flex flex-col items-center justify-center">
-                    <h1 className="text-xs font-extrabold mb-1">Welcome</h1>
-                    <p className="text-[8px] text-gray-300 max-w-[120px] mx-auto mb-2 leading-tight">AI generated site preview.</p>
-                    <button className="bg-white text-black px-2 py-0.5 rounded-full font-bold text-[7px]">Shop</button>
-                 </div>
-              </div>
+               {/* Dynamic Website Preview Frame */}
+               {(() => {
+                 const pagesList = Array.isArray(generatedSiteData?.pages) 
+                   ? generatedSiteData.pages 
+                   : (Array.isArray(generatedSiteData) ? generatedSiteData : []);
+                 const previewName = generatedSiteData?.business_name || (pagesList[0]?.sections?.[0]?.title?.replace("Welcome to ", "") || "Your Brand");
+                 const previewHero = pagesList[0]?.sections?.find((s: any) => s.type === "hero") || pagesList[0]?.sections?.[0] || {};
+                 const previewTitle = previewHero?.title || `Welcome to ${previewName}`;
+                 const previewSubtitle = previewHero?.subtitle || "AI generated site preview.";
+                 const previewCta = previewHero?.cta || "Explore";
+                 const previewBg = `https://image.pollinations.ai/prompt/${encodeURIComponent(previewName + " " + previewTitle)}?width=400&height=200&nologo=true`;
+
+                 return (
+                   <div 
+                     onClick={() => window.open(`/preview/${siteId || 'demo'}`, '_blank')}
+                     className="w-full h-44 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col relative text-black font-sans mb-4 border border-border/50 group cursor-pointer hover:border-brand-purple transition-all duration-300"
+                   >
+                      <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b shrink-0">
+                         <div className="font-extrabold text-[10px] tracking-tight text-brand-purple truncate max-w-[110px]">
+                           {previewName}
+                         </div>
+                         <div className="flex gap-1.5 text-[7px] font-medium text-gray-600">
+                            {pagesList.slice(0, 3).map((p: any, i: number) => (
+                              <span key={i}>{p.name || `Page ${i+1}`}</span>
+                            ))}
+                         </div>
+                      </div>
+                      <div 
+                        className="flex-1 p-3 text-center flex flex-col items-center justify-center relative bg-cover bg-center text-white"
+                        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), url(${previewBg})` }}
+                      >
+                         <h1 className="text-xs font-black mb-1 text-white drop-shadow line-clamp-1">{previewTitle}</h1>
+                         <p className="text-[8px] text-gray-200 max-w-[140px] mx-auto mb-2 leading-tight line-clamp-2">{previewSubtitle}</p>
+                         <button className="bg-gradient-to-r from-brand-purple to-brand-pink text-white px-3 py-1 rounded-full font-bold text-[8px] shadow hover:scale-105 transition-transform">
+                           {previewCta}
+                         </button>
+                      </div>
+                   </div>
+                 );
+               })()}
+
 
               <div className="mt-auto space-y-2">
-                 <button className="w-full py-2 bg-brand-purple text-white rounded-lg text-xs font-medium hover:bg-brand-purple/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-purple/20">
+                 <button 
+                    onClick={() => window.open(`/preview/${siteId || 'demo'}`, '_blank')}
+                    className="w-full py-2 bg-brand-purple text-white rounded-lg text-xs font-medium hover:bg-brand-purple/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-purple/20">
                     <Globe size={14} /> Preview Website
                  </button>
-                 <button className="w-full py-2 bg-surface-elevated text-white rounded-lg text-xs font-medium hover:bg-surface-elevated/80 transition-colors border border-border flex items-center justify-center gap-2">
+                 <button 
+                    onClick={() => {
+                       const inputEl = document.querySelector('input[type="text"]') as HTMLInputElement;
+                       if (inputEl) inputEl.focus();
+                    }}
+                    className="w-full py-2 bg-surface-elevated text-white rounded-lg text-xs font-medium hover:bg-surface-elevated/80 transition-colors border border-border flex items-center justify-center gap-2">
                     Continue Editing <ArrowRight size={14} />
                  </button>
               </div>
