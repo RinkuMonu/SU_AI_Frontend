@@ -85,6 +85,7 @@ const navigation = [
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
     ]
   },
+  { name: "Billing & Plans", href: "/subscription", icon: Store },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
