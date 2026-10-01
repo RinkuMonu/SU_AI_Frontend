@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getBrandKit, createBrandKit, updateBrandKit, uploadBrandLogo } from "@/services/brand.service";
+import { getBrandKit, createBrandKit, updateBrandKit } from "@/services/brand.service";
+import { imageService } from "@/services/image.service";
 import { BrandKit, BrandCreate } from "@/types/brand";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Palette, Sparkles, Loader2, Save, Upload, Globe, AtSign, Phone, Mail, MapPin } from "lucide-react";
+import { Palette, Sparkles, Loader2, Save, Download, Globe, AtSign, Phone, Mail, MapPin } from "lucide-react";
 
 export default function BrandKitPage() {
   const [brand, setBrand] = useState<BrandKit | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [logoPrompt, setLogoPrompt] = useState("");
+  const [logoGenerating, setLogoGenerating] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -60,18 +63,39 @@ export default function BrandKitPage() {
     }
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setLogoUploading(true);
-      const url = await uploadBrandLogo(file);
-      setForm((prev) => ({ ...prev, logo_url: url }));
-    } catch {
-      setErrorMsg("Logo upload failed. Please try again.");
-    } finally {
-      setLogoUploading(false);
+  const handleGenerateLogo = async () => {
+    if (!logoPrompt.trim()) {
+      setErrorMsg("Please enter a prompt to generate the logo.");
+      return;
     }
+    try {
+      setLogoGenerating(true);
+      setErrorMsg("");
+      const res = await imageService.generateImage({
+        prompt: logoPrompt + " logo design, vector, flat, minimalist, clean background",
+      });
+      if (res.success && res.data?.image_url) {
+        setForm((prev) => ({ ...prev, logo_url: res.data!.image_url }));
+        setSuccessMsg("Logo generated successfully!");
+      } else {
+        setErrorMsg(res.message || "Failed to generate logo.");
+      }
+    } catch {
+      setErrorMsg("Logo generation failed. Please try again.");
+    } finally {
+      setLogoGenerating(false);
+    }
+  };
+
+  const handleDownloadLogo = () => {
+    if (!form.logo_url) return;
+    const link = document.createElement("a");
+    link.href = getLogoUrl(form.logo_url);
+    link.download = "brand_logo.png";
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const handleSave = async () => {
@@ -154,29 +178,36 @@ export default function BrandKitPage() {
           <Card className="bg-surface border-border shadow-lg">
             <CardHeader>
               <CardTitle className="text-white">Brand Logo</CardTitle>
-              <CardDescription>Upload your logo to use in AI-generated content.</CardDescription>
+              <CardDescription>Generate your logo using Groq AI to use in content.</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                 {form.logo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={getLogoUrl(form.logo_url)} alt="Brand Logo" className="h-20 w-20 rounded-xl object-contain border border-border bg-surface-elevated" />
                 ) : (
-                  <div className="h-20 w-20 rounded-xl border-2 border-dashed border-border bg-surface-elevated flex items-center justify-center">
+                  <div className="h-20 w-20 rounded-xl border-2 border-dashed border-border bg-surface-elevated flex items-center justify-center shrink-0">
                     <Palette className="h-8 w-8 text-text-muted" />
                   </div>
                 )}
-                <div>
-                  <label htmlFor="logo-upload">
-                    <Button variant="outline" className="cursor-pointer" asChild>
-                      <span>
-                        {logoUploading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-                        {logoUploading ? "Uploading..." : "Upload Logo"}
-                      </span>
+                <div className="flex-1 space-y-3 w-full">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full">
+                    <Input 
+                      placeholder="Describe your logo (e.g. minimalist tech startup logo)" 
+                      value={logoPrompt}
+                      onChange={(e) => setLogoPrompt(e.target.value)}
+                      className="flex-1"
+                    />
+                    <Button onClick={handleGenerateLogo} disabled={logoGenerating} className="bg-brand-purple hover:bg-brand-purple/90 text-white whitespace-nowrap">
+                      {logoGenerating ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                      {logoGenerating ? "Generating..." : "Generate Logo"}
                     </Button>
-                  </label>
-                  <input id="logo-upload" type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
-                  <p className="text-xs text-text-muted mt-1">PNG, JPG, SVG up to 5MB</p>
+                  </div>
+                  {form.logo_url && (
+                    <Button variant="outline" size="sm" onClick={handleDownloadLogo} className="mt-2">
+                      <Download className="h-4 w-4 mr-2" /> Download Logo
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
