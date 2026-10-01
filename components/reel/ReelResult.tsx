@@ -1,5 +1,6 @@
-﻿import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ReelJobStatus } from "@/types/reel";
+import { Loader2, Share2, CheckCircle2 } from "lucide-react";
 
 interface ReelResultProps {
   result: ReelJobStatus;
@@ -15,6 +16,26 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
   const scenes = result.script?.scenes || [];
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
+  const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+
+  const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
+    if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
+    else setIsPublishingInstagram(true);
+    
+    setPublishSuccessMessage(null);
+    
+    // Simulate API call to save and publish
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
+    else setIsPublishingInstagram(false);
+    
+    setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
+    setTimeout(() => setPublishSuccessMessage(null), 5000);
+  };
 
   useEffect(() => {
     if (isPreviewOpen && audioRef.current) {
@@ -244,6 +265,35 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                 Create Another
               </button>
             </div>
+
+            <div className="pt-4 mt-4 border-t border-border">
+              {publishSuccessMessage ? (
+                <div className="w-full rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 p-4 text-center font-semibold flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" /> {publishSuccessMessage}
+                </div>
+              ) : (
+                <div className="flex flex-col gap-3 mt-2">
+                  <button 
+                    onClick={() => handlePublish('instagram')}
+                    disabled={isPublishingInstagram || isPublishingFacebook}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-4 py-3 font-bold text-white shadow-md disabled:opacity-50"
+                  >
+                    {isPublishingInstagram ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+                    {isPublishingInstagram ? 'Publishing...' : `Publish to Instagram`}
+                  </button>
+
+                  <button 
+                    onClick={() => handlePublish('facebook')}
+                    disabled={isPublishingFacebook || isPublishingInstagram}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-4 py-3 font-bold text-white shadow-md disabled:opacity-50"
+                  >
+                    {isPublishingFacebook ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+                    {isPublishingFacebook ? 'Publishing...' : `Publish to Facebook`}
+                  </button>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </div>

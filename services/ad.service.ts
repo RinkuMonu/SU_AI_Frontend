@@ -1,4 +1,5 @@
 import { AdRequest, AdResponse } from "@/types/ad";
+import api from "@/lib/api";
 
 export async function generateAd(
   data: AdRequest
@@ -55,7 +56,7 @@ Return ONLY a raw JSON object with NO markdown formatting, NO backticks, and NO 
 
     const adData = JSON.parse(content);
 
-    return {
+    const resultAd = {
       id: "ad-" + Date.now(),
       headline: adData.headline || "Amazing Product",
       primary_text: adData.primary_text || "Check out this amazing product today.",
@@ -65,6 +66,27 @@ Return ONLY a raw JSON object with NO markdown formatting, NO backticks, and NO 
       // Groq cannot generate images, so we use a static placeholder
       creative_url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&q=80&w=1000"
     };
+
+    try {
+      // Save to database
+      await api.put("/api/v1/content/update", {
+        type: "ad",
+        platform: data.platform,
+        title: resultAd.headline,
+        caption: resultAd.primary_text,
+        description: resultAd.description,
+        hashtags: resultAd.hashtags,
+        creative_url: resultAd.creative_url,
+        status: "Draft",
+        language: data.language,
+        objective: data.objective,
+        callToAction: resultAd.cta
+      });
+    } catch (dbErr) {
+      console.error("Failed to save ad to db:", dbErr);
+    }
+
+    return resultAd;
 
   } catch (error: any) {
     console.error("Groq Ad Generation Error:", error);

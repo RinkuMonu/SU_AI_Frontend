@@ -1,51 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Loader2, CheckCircle2, Share2 } from "lucide-react";
 
-import { getProducts } from "@/services/product.service";
 import { Product } from "@/types/product";
-
-import PlatformSelector from "@/components/create-ad/PlatformSelector";
-import ObjectiveSelector from "@/components/create-ad/ObjectiveSelector";
-
 import { useCreateAd } from "@/hooks/useCreateAd";
 
 export default function CreateAdPage() {
 
-  const [productId, setProductId] =
-    useState("");
-
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        setProducts(data);
-      } catch (err) {
-        console.error("Failed to load products");
-      }
-    };
-    fetchProducts();
-  }, []);
-
-  const [platform, setPlatform] =
-    useState("instagram");
-
-  const [objective, setObjective] =
-    useState("product_promotion");
-
-  const [language, setLanguage] =
-    useState("English");
-
-  const [audience, setAudience] =
-    useState("");
-
-  const [instruction, setInstruction] =
-    useState("");
-
-  const [cta, setCta] =
-    useState("Shop Now");
+  const [prompt, setPrompt] = useState("");
 
   const {
     create,
@@ -57,15 +20,42 @@ export default function CreateAdPage() {
   const handleGenerate = async () => {
 
     await create({
-      product_id: productId,
-      platform,
-      objective,
-      language,
-      target_audience: audience,
-      additional_instruction: instruction,
-      cta,
+      prompt: prompt,
     });
 
+  };
+
+  const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
+  const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+
+  const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
+    if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
+    else setIsPublishingInstagram(true);
+    
+    setPublishSuccessMessage(null);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${baseUrl}/api/v1/social/publish-${publishPlatform}/${result?.id}`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error('Publish failed');
+      
+      setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
+      setTimeout(() => setPublishSuccessMessage(null), 5000);
+    } catch (err) {
+      console.error(err);
+      alert('Failed to publish. Please ensure you have linked your account.');
+    } finally {
+      if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
+      else setIsPublishingInstagram(false);
+    }
   };
 
   return (
@@ -87,117 +77,16 @@ export default function CreateAdPage() {
 
         <div className="space-y-6 rounded-2xl border border-border bg-surface p-6 lg:col-span-2 shadow-lg">
 
-          {/* Product */}
-
           <div>
-
             <label className="mb-2 block font-semibold text-white">
-              Product
+              Ad Prompt
             </label>
-
-            <select
-              value={productId}
-              onChange={(e) =>
-                setProductId(e.target.value)
-              }
-              className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none"
-            >
-              <option value="">Select a Product</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
-
-          </div>
-
-          <PlatformSelector
-            value={platform}
-            onChange={setPlatform}
-          />
-
-          <ObjectiveSelector
-            value={objective}
-            onChange={setObjective}
-          />
-
-          <div className="grid gap-5 md:grid-cols-2">
-
-            <div>
-
-              <label className="mb-2 block font-semibold text-white">
-                Language
-              </label>
-
-              <select
-                value={language}
-                onChange={(e) =>
-                  setLanguage(e.target.value)
-                }
-                className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none"
-              >
-                <option>English</option>
-                <option>Hindi</option>
-                <option>Hinglish</option>
-              </select>
-
-            </div>
-
-            <div>
-
-              <label className="mb-2 block font-semibold text-white">
-                CTA
-              </label>
-
-              <select
-                value={cta}
-                onChange={(e) =>
-                  setCta(e.target.value)
-                }
-                className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none"
-              >
-                <option>Shop Now</option>
-                <option>Buy Now</option>
-                <option>Learn More</option>
-                <option>Contact Us</option>
-                <option>Get Offer</option>
-              </select>
-
-            </div>
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block font-semibold text-white">
-              Target Audience
-            </label>
-
-            <input
-              value={audience}
-              onChange={(e) =>
-                setAudience(e.target.value)
-              }
-              placeholder="Example: Women aged 18-35 interested in fashion"
-              className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none"
-            />
-
-          </div>
-
-          <div>
-
-            <label className="mb-2 block font-semibold text-white">
-              Additional Instructions
-            </label>
-
             <textarea
-              value={instruction}
-              onChange={(e) =>
-                setInstruction(e.target.value)
-              }
-              placeholder="Describe the style you want..."
-              className="min-h-28 w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Describe the ad you want to generate in detail..."
+              className="min-h-[200px] w-full rounded-lg border border-border bg-surface-elevated text-white p-4 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
             />
-
           </div>
 
           {error && (
@@ -249,7 +138,9 @@ export default function CreateAdPage() {
               </p>
 
               <a 
-                href="/products"
+                href={"/products"}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="block text-center w-full rounded-lg bg-brand-gradient p-3 font-semibold text-white hover:opacity-90 transition-opacity active:scale-[0.98]"
               >
                 {result.cta}
@@ -270,6 +161,34 @@ export default function CreateAdPage() {
                   )
                 )}
 
+              </div>
+
+              <div className="pt-4 mt-4 border-t border-border">
+                {publishSuccessMessage ? (
+                  <div className="w-full rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 p-4 text-center font-semibold flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-5 h-5" /> {publishSuccessMessage}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3 mt-2">
+                    <button 
+                      onClick={() => handlePublish('instagram')}
+                      disabled={isPublishingInstagram || isPublishingFacebook}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-4 py-3 font-bold text-white shadow-md disabled:opacity-50"
+                    >
+                      {isPublishingInstagram ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+                      {isPublishingInstagram ? 'Publishing...' : `Publish to Instagram`}
+                    </button>
+
+                    <button 
+                      onClick={() => handlePublish('facebook')}
+                      disabled={isPublishingFacebook || isPublishingInstagram}
+                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-4 py-3 font-bold text-white shadow-md disabled:opacity-50"
+                    >
+                      {isPublishingFacebook ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+                      {isPublishingFacebook ? 'Publishing...' : `Publish to Facebook`}
+                    </button>
+                  </div>
+                )}
               </div>
 
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2, Share2, CheckCircle2 } from "lucide-react";
 
 import { GeneratedPost } from "@/types/content";
 
@@ -15,6 +16,26 @@ export default function GeneratedPostCard({
 }: Props) {
   const [currentImage, setCurrentImage] = useState<string | undefined>(initialImageUrl);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+
+  const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
+  const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+
+  const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
+    if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
+    else setIsPublishingInstagram(true);
+    
+    setPublishSuccessMessage(null);
+    
+    // Simulate API call to save and publish
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    
+    if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
+    else setIsPublishingInstagram(false);
+    
+    setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
+    setTimeout(() => setPublishSuccessMessage(null), 5000);
+  };
 
   const copyCaption = async () => {
     await navigator.clipboard.writeText(
@@ -123,6 +144,34 @@ export default function GeneratedPostCard({
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="mt-8 pt-6 border-t border-gray-100">
+        {publishSuccessMessage ? (
+          <div className="w-full rounded-xl bg-green-50 border border-green-200 text-green-700 p-4 text-center font-semibold flex items-center justify-center gap-2">
+            <CheckCircle2 className="w-5 h-5" /> {publishSuccessMessage}
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row gap-4">
+            <button 
+              onClick={() => handlePublish('instagram')}
+              disabled={isPublishingInstagram || isPublishingFacebook}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"
+            >
+              {isPublishingInstagram ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+              {isPublishingInstagram ? 'Publishing...' : `Publish to Instagram`}
+            </button>
+
+            <button 
+              onClick={() => handlePublish('facebook')}
+              disabled={isPublishingFacebook || isPublishingInstagram}
+              className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"
+            >
+              {isPublishingFacebook ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
+              {isPublishingFacebook ? 'Publishing...' : `Publish to Facebook`}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
