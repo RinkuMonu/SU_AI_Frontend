@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata } from "next";
 
 import "./globals.css";
@@ -20,9 +21,10 @@ export default function RootLayout({
       <body
         className="font-sans antialiased min-h-screen bg-background text-foreground"
       >
-        <AuthProvider>
+                <AuthProvider>
           {children}
         </AuthProvider>
+        
       </body>
     </html>
   );

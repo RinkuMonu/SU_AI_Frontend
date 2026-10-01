@@ -110,7 +110,7 @@ export default function FacebookIntegrationPage() {
   };
 
   return (
-    <div className="max-w-4xl space-y-6 animate-in fade-in duration-500">
+    <div className="max-w-4xl space-y-6 animate-in fade-in duration-500 mx-auto p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-blue-500 via-blue-600 to-indigo-600 text-white shadow-lg">

@@ -3,7 +3,126 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "@/services/product.service";
 import { generateCalendar, DayPlan } from "@/services/calendar.service";
-import { Loader2, Wand2 } from "lucide-react";
+import { Loader2, Wand2, ChevronDown, ChevronUp, Play, Minus, Plus } from "lucide-react";
+
+function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [festivals, setFestivals] = useState([
+    { date: 5, month: 8, name: "Teacher's Day", type: "occasion" },
+    { date: 7, month: 8, name: "Ganesh Chaturthi", type: "festival" },
+    { date: 15, month: 8, name: "Onam", type: "festival" },
+    { date: 27, month: 8, name: "World Tourism Day", type: "occasion" }
+  ]);
+
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const paddingDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
+  const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+
+  const handlePrevMonth = () => setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+  const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+
+  const handleAddEvent = (defaultDate?: number) => {
+    const name = window.prompt("Enter event name:");
+    if (!name) return;
+    const type = window.prompt("Event type (festival/occasion):", "occasion");
+    const dateInput = defaultDate || window.prompt("Enter date number (1-31):");
+    const dateNum = parseInt(dateInput as string);
+    if (!isNaN(dateNum) && dateNum >= 1 && dateNum <= 31) {
+      setFestivals([...festivals, { date: dateNum, month: currentMonth, name, type: type || 'occasion' }]);
+    }
+  };
+
+  const currentMonthFestivals = festivals.filter(f => f.month === currentMonth);
+
+  return (
+    <div className="w-full flex flex-col xl:flex-row gap-6 bg-[#121212] rounded-3xl p-6 shadow-2xl border border-white/5">
+      {/* Calendar Grid */}
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <h2 className="text-3xl font-bold text-white tracking-tight">
+              {currentDate.toLocaleDateString('en-US', { month: 'long' })} <span className="text-brand-purple">{currentYear}</span>
+            </h2>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handlePrevMonth} className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10">
+              <ChevronUp className="w-5 h-5 -rotate-90" />
+            </button>
+            <button onClick={handleNextMonth} className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10">
+              <ChevronDown className="w-5 h-5 -rotate-90" />
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-7 gap-y-4 gap-x-2 text-center">
+          {weekDays.map(day => (
+            <div key={day} className="text-white/50 font-semibold text-sm uppercase tracking-wider pb-2 border-b border-white/10">
+              {day}
+            </div>
+          ))}
+          {paddingDays.map(day => (
+            <div key={`padding-${day}`} className="flex items-center justify-center h-12 w-full text-sm text-white/20 font-medium">
+              {prevMonthDays - paddingDays.length + day + 1}
+            </div>
+          ))}
+          {days.map(day => {
+            const isToday = new Date().getDate() === day && new Date().getMonth() === currentMonth && new Date().getFullYear() === currentYear;
+            const hasPlan = plan && plan.find(p => p.day_number === day);
+            const festival = currentMonthFestivals.find(f => f.date === day);
+            
+            return (
+              <div key={day} className="relative flex items-center justify-center h-12 w-full group">
+                <button 
+                  onClick={() => handleAddEvent(day)}
+                  className={`flex items-center justify-center h-10 w-10 rounded-xl text-sm font-semibold transition-all cursor-pointer z-10 ${isToday ? 'bg-brand-purple text-white shadow-[0_0_15px_rgba(190,50,255,0.4)]' : 'text-white/90 hover:bg-white/10'} ${hasPlan && !isToday ? 'border border-brand-purple text-brand-purple' : ''} ${festival && !isToday ? 'bg-brand-coral/10 text-brand-coral border border-brand-coral/20' : ''}`}
+                >
+                  {day}
+                </button>
+                {festival && (
+                  <div className="absolute -bottom-1 w-1 h-1 rounded-full bg-brand-coral" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Events Side Panel */}
+      <div className="w-full xl:w-72 flex-shrink-0 bg-surface-elevated rounded-2xl p-5 border border-white/5">
+        <h3 className="text-white font-bold text-lg mb-4 flex items-center gap-2">
+          <Wand2 className="w-5 h-5 text-brand-coral" />
+          Upcoming Events
+        </h3>
+        <div className="space-y-4 mt-6">
+          {currentMonthFestivals.length === 0 && (
+            <p className="text-white/40 text-sm text-center py-4">No events this month.</p>
+          )}
+          {currentMonthFestivals.map((fest, idx) => (
+            <div key={idx} className="flex gap-4 items-start p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
+              <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 font-bold text-lg ${fest.type === 'festival' ? 'bg-brand-coral/20 text-brand-coral' : 'bg-brand-purple/20 text-brand-purple'}`}>
+                {fest.date}
+              </div>
+              <div>
+                <p className="text-white font-medium group-hover:text-brand-purple transition-colors">{fest.name}</p>
+                <p className="text-white/50 text-xs capitalize mt-1">{fest.type}</p>
+              </div>
+            </div>
+          ))}
+          <div className="pt-4 mt-2 border-t border-white/5">
+             <button onClick={() => handleAddEvent()} className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2 active:scale-95">
+               <Plus className="w-4 h-4" /> Add Custom Event
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DayCard({ day, initialProductImage }: { day: DayPlan, initialProductImage: string | null }) {
   const [currentImage, setCurrentImage] = useState<string | null>(initialProductImage);
@@ -87,7 +206,6 @@ export default function AICalendarPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [productId, setProductId] = useState("");
   const [productImage, setProductImage] = useState<string | null>(null);
-  const [prompt, setPrompt] = useState("Mere liye September ka Instagram calendar bana do");
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -103,32 +221,6 @@ export default function AICalendarPage() {
     }).catch(console.error);
   }, []);
 
-  const handleProductChange = (id: string) => {
-    setProductId(id);
-    const prod = products.find(p => p.id === id);
-    if (prod) {
-      setProductImage(prod.image_url || null);
-    }
-  };
-
-  const handleGenerate = async () => {
-    if (!productId) {
-      alert("Please select a product");
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setPlan(null);
-    try {
-      const data = await generateCalendar({ product_id: productId, prompt });
-      setPlan(data);
-    } catch (err: any) {
-      setError(err?.response?.data?.detail || "Failed to generate calendar");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="mx-auto max-w-7xl p-6">
       <div className="mb-8">
@@ -136,76 +228,27 @@ export default function AICalendarPage() {
         <p className="mt-2 text-text-muted">Generate a full 30-day content plan instantly.</p>
       </div>
 
-      <div className="grid gap-8 md:grid-cols-3">
-        
-        {/* Left Column: Input Form */}
-        <div className="col-span-1 space-y-6 rounded-2xl border border-border bg-surface p-6 shadow-lg h-fit">
-          
-          <div>
-            <label className="mb-2 block font-medium text-white">Select Product</label>
-            <select
-              value={productId}
-              onChange={(e) => handleProductChange(e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 focus:ring-2 focus:ring-brand-purple outline-none"
-            >
-              <option value="" disabled>Select a product</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+      <div className="w-full">
+        {loading && (
+          <div className="flex h-64 items-center justify-center rounded-2xl border border-border bg-surface shadow-lg">
+            <div className="flex flex-col items-center gap-4">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-purple/20 border-t-brand-purple"></div>
+              <p className="text-text-muted font-medium animate-pulse">Designing your strategy... this takes a few seconds.</p>
+            </div>
           </div>
+        )}
 
-          <div>
-            <label className="mb-2 block font-medium text-white">Your Request</label>
-            <textarea
-              rows={4}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="e.g. Mere liye September ka Instagram calendar bana do"
-              className="w-full rounded-lg border border-border bg-surface-elevated text-white p-3 resize-none focus:ring-2 focus:ring-brand-purple outline-none"
-            />
+        {!loading && plan && (
+          <div className="space-y-6">
+            {plan.map((day) => (
+              <DayCard key={day.day_number} day={day} initialProductImage={productImage} />
+            ))}
           </div>
+        )}
 
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleGenerate}
-            className="w-full rounded-xl bg-brand-gradient px-8 py-3 font-semibold text-white disabled:opacity-50 hover:opacity-90 transition-opacity"
-          >
-            {loading ? "Generating 30-Day Plan..." : "Generate Calendar"}
-          </button>
-          
-          {error && <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-red-400 text-sm">{error}</div>}
-        </div>
-
-        {/* Right Column: Calendar View */}
-        <div className="col-span-2">
-          {loading && (
-            <div className="flex h-64 items-center justify-center rounded-2xl border border-border bg-surface shadow-lg">
-              <div className="flex flex-col items-center gap-4">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-purple/20 border-t-brand-purple"></div>
-                <p className="text-text-muted font-medium animate-pulse">Designing your strategy... this takes a few seconds.</p>
-              </div>
-            </div>
-          )}
-
-          {!loading && plan && (
-            <div className="space-y-6">
-              {plan.map((day) => (
-                <DayCard key={day.day_number} day={day} initialProductImage={productImage} />
-              ))}
-            </div>
-          )}
-
-          {!loading && !plan && (
-            <div className="flex h-64 items-center justify-center rounded-2xl border border-border border-dashed bg-surface/50">
-              <p className="text-text-muted font-medium">Your calendar will appear here.</p>
-            </div>
-          )}
-        </div>
-        
+        {!loading && !plan && (
+          <FestiveCalendar plan={plan} />
+        )}
       </div>
     </div>
   );
