@@ -41,7 +41,7 @@ function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
             </div>
           ))}
           {paddingDays.map(day => (
-            <div key={padding-} className="flex items-center justify-center h-12 w-full text-sm text-white/20 font-medium">
+            <div key={`padding-${day}`} className="flex items-center justify-center h-12 w-full text-sm text-white/20 font-medium">
               {prevMonthDays - paddingDays.length + day + 1}
             </div>
           ))}
@@ -52,12 +52,7 @@ function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
             
             return (
               <div key={day} className="relative flex items-center justify-center h-12 w-full group">
-                <div className={
-                  flex items-center justify-center h-10 w-10 rounded-xl text-sm font-semibold transition-all cursor-pointer z-10
-                  
-                  
-                  
-                }>
+                <div className={`flex items-center justify-center h-10 w-10 rounded-xl text-sm font-semibold transition-all cursor-pointer z-10 ${isToday ? 'bg-brand-purple text-white shadow-lg shadow-brand-purple/20' : hasPlan ? 'bg-brand-purple/20 text-brand-purple border border-brand-purple/30' : 'text-white hover:bg-white/10'}`}>
                   {day}
                 </div>
                 {festival && (
@@ -78,9 +73,7 @@ function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
         <div className="space-y-4 mt-6">
           {festivals.map((fest, idx) => (
             <div key={idx} className="flex gap-4 items-start p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer group">
-              <div className={lex flex-col items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 font-bold text-lg
-                
-              }>
+              <div className={`flex flex-col items-center justify-center w-12 h-12 rounded-xl flex-shrink-0 font-bold text-lg ${fest.type === 'festival' ? 'bg-brand-coral/20 text-brand-coral' : 'bg-white/10 text-white group-hover:bg-brand-purple/20 group-hover:text-brand-purple'}`}>
                 {fest.date}
               </div>
               <div>

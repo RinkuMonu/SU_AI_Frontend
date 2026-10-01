@@ -6,6 +6,7 @@ import { Loader2, Zap, CheckCircle2, AlertCircle, ArrowUpRight, Check } from "lu
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { subscriptionService } from "@/services/subscription.service";
+import { paymentService } from "@/services/payment.service";
 import { Subscription, CreditTransaction, PlanConfig } from "@/types/subscription";
 
 export default function SubscriptionPage() {
@@ -44,15 +45,21 @@ export default function SubscriptionPage() {
   const handleUpgrade = async (planId: string) => {
     try {
       setUpgradingPlan(planId);
-      await subscriptionService.upgradePlan(planId);
-      const fullyPopulatedSub = await subscriptionService.getMySubscription();
-      setSubscription(fullyPopulatedSub);
-      setUpgradeSuccess(`Successfully upgraded to ${planId}!`);
-      setTimeout(() => setUpgradeSuccess(null), 5000);
-    } catch (err) {
-      console.error("Failed to upgrade", err);
-      // In a real app we might show a toast error here
-    } finally {
+      const response = await paymentService.createPayment(planId);
+      
+      if (response.payment_url) {
+        window.location.href = response.payment_url;
+      } else {
+        throw new Error("Invalid payment URL returned");
+      }
+    } catch (err: any) {
+      console.error("Failed to initiate payment", err);
+      
+      if (err?.response?.status === 401) {
+        window.location.href = '/login/user';
+      } else {
+        alert("Failed to initiate secure payment. Please try again.");
+      }
       setUpgradingPlan(null);
     }
   };
@@ -211,12 +218,16 @@ export default function SubscriptionPage() {
                     </Button>
                   ) : (
                     <Button 
-                      className="w-full bg-brand-gradient text-white hover:opacity-90" 
+                      className="w-full bg-brand-gradient text-white hover:opacity-90 disabled:opacity-70" 
                       onClick={() => handleUpgrade(planId)}
-                      disabled={upgradingPlan === planId}
+                      disabled={upgradingPlan !== null}
                     >
-                      {upgradingPlan === planId ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                      Upgrade
+                      {upgradingPlan === planId ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          Preparing Payment...
+                        </>
+                      ) : "Upgrade"}
                     </Button>
                   )}
                 </CardFooter>
