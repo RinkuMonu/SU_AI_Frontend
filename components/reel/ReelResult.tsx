@@ -8,10 +8,17 @@ interface ReelResultProps {
 }
 
 export function ReelResult({ result, onReset }: ReelResultProps) {
-  const hasRealVideo = !!result.video_url;
-  const productImage = result.thumbnail_url;
+  const isVideo = (url?: string) => {
+    if (!url) return false;
+    // pollinations.ai returns images, not videos.
+    if (url.includes("pollinations.ai")) return false;
+    return true;
+  };
+  const hasRealVideo = isVideo(result.video_url);
+  
+  const productImage = result.thumbnail_url || (result.video_url?.includes("pollinations") ? result.video_url : null);
   const productName = result.product_name || result.script?.title || "Product";
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
   const scenes = result.script?.scenes || [];
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -92,13 +99,14 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
           {/* Left: Video Player or Product Reel Card */}
           <div className="w-full xl:w-1/2 flex justify-center">
             {hasRealVideo ? (
-              <div className="w-full bg-black/5 rounded-3xl overflow-hidden shadow-inner border border-border/50 p-2 relative group">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-3xl" />
+              <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-black/10 flex justify-center items-center z-50 pointer-events-auto">
                 <video
                   src={result.video_url!}
                   controls
                   autoPlay
-                  className="w-full max-h-[650px] object-contain rounded-2xl shadow-lg"
+                  playsInline
+                  className="w-full max-h-[650px] object-contain relative z-[60] rounded-3xl cursor-pointer pointer-events-auto"
+                  style={{ pointerEvents: 'auto' }}
                   poster={productImage ?? undefined}
                 >
                   Your browser does not support the video tag.
@@ -182,7 +190,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
           </div>
 
           {/* Right: Script details */}
-          <div className="w-full xl:w-1/2 flex flex-col">
+          <div className="w-full xl:w-1/2 flex flex-col relative z-50 pointer-events-auto">
             <div className="flex-grow space-y-6">
 
               {/* Product info */}

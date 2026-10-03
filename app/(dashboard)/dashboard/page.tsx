@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { analyticsService } from "@/services/analytics.service";
 import { AnalyticsData } from "@/types/analytics";
 import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
+import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -152,6 +153,9 @@ export default function DashboardPage() {
           </Button>
         </div>
       </div>
+
+      {/* Today's Marketing */}
+      <TodaysMarketing />
 
       {/* Bottom Section */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
