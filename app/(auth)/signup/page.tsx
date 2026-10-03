@@ -73,7 +73,7 @@ export default function SignupPage() {
     setIsLoading(true);
     setError("");
     try {
-      await authService.signup(data.name, data.email, data.password);
+      await authService.signup(data.name, data.email, data.password, data.role);
       router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -96,6 +96,19 @@ export default function SignupPage() {
         <Card className="bg-card shadow-lg border-border">
           <CardContent className="pt-6">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Account Type</Label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="business" {...register("role")} className="accent-brand-purple" />
+                    <span className="text-sm text-white">Business</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" value="influencer" {...register("role")} className="accent-brand-purple" />
+                    <span className="text-sm text-white">Influencer</span>
+                  </label>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <Input
@@ -170,3 +183,4 @@ export default function SignupPage() {
     </div>
   );
 }
+

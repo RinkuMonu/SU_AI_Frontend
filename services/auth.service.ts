@@ -18,12 +18,13 @@ export const authService = {
     }
   },
 
-  signup: async (name: string, email: string, password: string):Promise<{token: string, user: User}> => {
+  signup: async (name: string, email: string, password: string, role: string = 'business'):Promise<{token?: string, user?: User, detail?: string}> => {
     try {
-      const response = await api.post('/api/v1/auth/signup', { name, email, password });
+      const response = await api.post('/api/v1/auth/signup', { name, email, password, role });
       return {
         token: response.data.access_token,
-        user: response.data.user
+        user: response.data.user,
+        detail: response.data.detail
       };
     } catch (error: any) {
       if (error.response?.data?.detail) {
@@ -69,3 +70,4 @@ export const authService = {
     }
   }
 };
+

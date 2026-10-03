@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isAuthRoute = pathname === '/login/user' || pathname === '/signup';
       const isVerifyEmailRoute = pathname === '/verify-email';
       const isAdminLoginRoute = pathname === '/login/admin';
-      const isProtectedRoute = ['/dashboard', '/business', '/brand', '/products', '/settings', '/onboarding', '/content', '/content-library', '/campaigns', '/messages', '/reviews', '/social-platforms', '/create', '/create-ad', '/ai-'].some(route => pathname.startsWith(route));
+      const isProtectedRoute = ['/dashboard', '/business', '/brand', '/products', '/settings', '/onboarding', '/content', '/content-library', '/campaigns', '/messages', '/reviews', '/social-platforms', '/create', '/create-ad', '/ai-', '/influencer'].some(route => pathname.startsWith(route));
       const isAdminRoute = pathname.startsWith('/admin');
 
       if (!user) {
@@ -110,3 +110,4 @@ export function useAuth() {
   }
   return context;
 }
+
