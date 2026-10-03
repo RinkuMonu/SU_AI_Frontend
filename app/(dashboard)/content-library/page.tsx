@@ -21,14 +21,6 @@ export default function ContentLibraryPage() {
   const [filter, setFilter] = useState('All');
 
   const [selectedContent, setSelectedContent] = useState<GeneratedContent | null>(null);
-  
-  // WhatsApp State
-  const [waPhone, setWaPhone] = useState("");
-  const [isPublishingWa, setIsPublishingWa] = useState(false);
-  const [showWaRegister, setShowWaRegister] = useState(false);
-  const [waRegPhoneId, setWaRegPhoneId] = useState("");
-  const [waRegToken, setWaRegToken] = useState("");
-  const [isRegisteringWa, setIsRegisteringWa] = useState(false);
 
   // Instagram State
   const [isPublishingIg, setIsPublishingIg] = useState(false);
@@ -99,44 +91,6 @@ export default function ContentLibraryPage() {
     }
   };
 
-  // WhatsApp Publishing Flow
-  const handlePublishWa = async () => {
-    if (!selectedContent || !waPhone) return;
-    setIsPublishingWa(true);
-    try {
-      await socialService.publishToWhatsApp(selectedContent._id, waPhone);
-      await markAsPublished();
-      alert("Successfully sent to WhatsApp!");
-      setShowWaRegister(false); // Hide just in case it was open
-    } catch (error: any) {
-      const msg = error.response?.data?.detail || error.message;
-      if (msg.toLowerCase().includes("not connected")) {
-        setShowWaRegister(true);
-      } else {
-        alert("Failed to publish: " + msg);
-      }
-    } finally {
-      setIsPublishingWa(false);
-    }
-  };
-
-  const handleWaRegisterAndPublish = async () => {
-    setIsRegisteringWa(true);
-    try {
-      await api.put('/api/v1/businesses/me', {
-        whatsapp_phone_id: waRegPhoneId,
-        whatsapp_token: waRegToken
-      });
-      setShowWaRegister(false);
-      // Automatically retry the publish!
-      await handlePublishWa();
-    } catch (error) {
-      alert("Failed to register WhatsApp credentials");
-    } finally {
-      setIsRegisteringWa(false);
-    }
-  };
-  
   // Instagram Publishing Flow
   const handlePublishIg = async () => {
     if (!selectedContent) return;
@@ -329,46 +283,9 @@ export default function ContentLibraryPage() {
                   onSave={handleSave} 
                 />
                 
-                <div className="grid md:grid-cols-4 gap-4 mt-4">
-                  {/* WhatsApp Publish Section */}
-                  <div className="p-4 border-t md:border-t-0 md:border-r border-border bg-surface-secondary">
-                    <h3 className="font-semibold text-white mb-2">WhatsApp</h3>
-                    <p className="text-xs text-text-muted mb-4">Send directly to target number.</p>
-                    
-                    {!showWaRegister ? (
-                      <div className="flex flex-col gap-2 w-full">
-                        <Input 
-                          placeholder="Phone Number" 
-                          value={waPhone} 
-                          onChange={(e) => setWaPhone(e.target.value)}
-                          className="h-8 text-xs"
-                        />
-                        <Button onClick={handlePublishWa} disabled={isPublishingWa || !waPhone} className="bg-green-600 hover:bg-green-700 h-8 text-xs">
-                          {isPublishingWa ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3 mr-2" />}
-                          Send Message
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-3 bg-white p-3 rounded-md border border-green-200 shadow-sm animate-in fade-in">
-                        <p className="text-xs font-medium text-red-600">Please register API credentials.</p>
-                        <div>
-                          <Label className="text-[10px]">Phone Number ID</Label>
-                          <Input value={waRegPhoneId} onChange={(e) => setWaRegPhoneId(e.target.value)} className="mt-1 h-7 text-xs" />
-                        </div>
-                        <div>
-                          <Label className="text-[10px]">Access Token</Label>
-                          <Input type="password" value={waRegToken} onChange={(e) => setWaRegToken(e.target.value)} className="mt-1 h-7 text-xs" />
-                        </div>
-                        <div className="flex gap-2">
-                          <Button onClick={handleWaRegisterAndPublish} disabled={isRegisteringWa} className="w-full h-7 text-[10px] bg-green-600 hover:bg-green-700 px-1">
-                            {isRegisteringWa ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null} Save & Publish
-                          </Button>
-                          <Button variant="outline" onClick={() => setShowWaRegister(false)} className="h-7 text-[10px] px-2">Cancel</Button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                  
+                <div className="grid md:grid-cols-3 gap-4 mt-4">
+
+
                   {/* Instagram Publish Section */}
                   <div className="p-4 border-t md:border-t-0 md:border-r border-border bg-surface-secondary">
                     <h3 className="font-semibold text-white mb-2">Instagram</h3>

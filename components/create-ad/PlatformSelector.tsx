@@ -13,10 +13,7 @@ const platforms = [
     id: "google",
     label: "Google",
   },
-  {
-    id: "whatsapp",
-    label: "WhatsApp",
-  },
+
 ];
 
 interface Props {

@@ -1,18 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import festivalService from "@/services/festival.service";
 import { getProducts } from "@/services/product.service";
 import { generateCalendar, DayPlan } from "@/services/calendar.service";
 import { Loader2, Wand2, ChevronDown, ChevronUp, Play, Minus, Plus } from "lucide-react";
 
 function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [festivals, setFestivals] = useState([
-    { date: 5, month: 8, name: "Teacher's Day", type: "occasion" },
-    { date: 7, month: 8, name: "Ganesh Chaturthi", type: "festival" },
-    { date: 15, month: 8, name: "Onam", type: "festival" },
-    { date: 27, month: 8, name: "World Tourism Day", type: "occasion" }
-  ]);
+  const [festivals, setFestivals] = useState<any[]>([]);
+
+  useEffect(() => {
+    festivalService.getUpcoming().then((data) => {
+      const mapped = data.upcoming_festivals.map((f: any) => {
+        const d = new Date(f.date);
+        return {
+          date: d.getDate(),
+          month: d.getMonth(),
+          name: f.name,
+          type: 'festival'
+        };
+      });
+      setFestivals(mapped);
+    }).catch(console.error);
+  }, []);
 
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
@@ -37,7 +48,7 @@ function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
     }
   };
 
-  const currentMonthFestivals = festivals.filter(f => f.month === currentMonth);
+  const currentMonthFestivals = festivals.filter(f => f.month === currentMonth && f.year === currentYear);
 
   return (
     <div className="w-full flex flex-col xl:flex-row gap-6 bg-[#121212] rounded-3xl p-6 shadow-2xl border border-white/5">
@@ -253,3 +264,4 @@ export default function AICalendarPage() {
     </div>
   );
 }
+

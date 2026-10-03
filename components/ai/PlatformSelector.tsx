@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 const platforms = [
   {
@@ -13,10 +13,7 @@ const platforms = [
     id: "facebook",
     name: "Facebook",
   },
-  {
-    id: "whatsapp",
-    name: "WhatsApp Status",
-  },
+
   {
     id: "google_business",
     name: "Google Business Post",

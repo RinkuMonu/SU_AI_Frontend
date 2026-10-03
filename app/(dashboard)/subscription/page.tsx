@@ -163,7 +163,7 @@ export default function SubscriptionPage() {
           "xl:grid-cols-5"
         }`}>
           {Object.entries(plans).map(([planId, plan]) => {
-            const isCurrentPlan = currentPlanId === planId;
+            const isCurrentPlan = String(currentPlanId).toLowerCase() === String(planId).toLowerCase();
             return (
               <Card 
                 key={planId} 

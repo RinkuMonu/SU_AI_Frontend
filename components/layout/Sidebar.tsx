@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper } from "lucide-react";
+import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
@@ -74,6 +74,7 @@ const navigation = [
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
   { name: "Plan Content", href: "/content-library", icon: Library },
   { name: "Campaigns", href: "/campaigns", icon: Megaphone },
+  { name: "Influencers", href: "/influencers", icon: Users },
   { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Reviews", href: "/reviews", icon: Star },
   {

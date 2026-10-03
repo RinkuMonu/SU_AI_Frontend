@@ -127,7 +127,7 @@ export function TodaysMarketing() {
                 </Link>
               </div>
               <div className="flex-1 flex items-center justify-center pt-6">
-                 <Star className="w-16 h-16 text-yellow-400 fill-current drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
+                 <Star className="w-16 h-16 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
               </div>
             </div>
             <div className="bg-[#8b5cf6] p-4 text-center border-t border-white/10">
