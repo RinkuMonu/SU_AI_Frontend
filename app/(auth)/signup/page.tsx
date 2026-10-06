@@ -73,8 +73,14 @@ export default function SignupPage() {
     setIsLoading(true);
     setError("");
     try {
-      await authService.signup(data.name, data.email, data.password, data.role);
-      router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      const response = await authService.signup(data.name, data.email, data.password, data.role);
+      if (response.token && response.user) {
+        localStorage.setItem("access_token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        window.location.href = "/dashboard";
+      } else {
+        router.push("/login/user");
+      }
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {

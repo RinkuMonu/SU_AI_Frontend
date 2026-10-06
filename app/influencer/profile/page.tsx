@@ -98,6 +98,14 @@ export default function ProfilePage() {
                 <Label>YouTube URL</Label>
                 <Input {...register("youtube_url")} placeholder="https://youtube.com/..." />
               </div>
+              <div className="space-y-2">
+                <Label>Facebook URL</Label>
+                <Input {...register("facebook_url")} placeholder="https://facebook.com/..." />
+              </div>
+              <div className="space-y-2">
+                <Label>LinkedIn URL</Label>
+                <Input {...register("linkedin_url")} placeholder="https://linkedin.com/in/..." />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">

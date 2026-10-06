@@ -12,6 +12,7 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
   const navigation = [
     { name: 'Dashboard', href: '/influencer', icon: LayoutDashboard },
     { name: 'Profile', href: '/influencer/profile', icon: User },
+    { name: 'Marketplace', href: '/influencer/marketplace', icon: Briefcase },
     { name: 'My Content', href: '/influencer/content', icon: FileImage },
     { name: 'Earnings', href: '/influencer/earnings', icon: DollarSign },
     { name: 'Messages', href: '/influencer/messages', icon: MessageSquare },
