@@ -3,6 +3,169 @@ import { useState, useRef, useEffect } from "react";
 import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2 } from "lucide-react";
 import { websiteBuilderService, ChatMessage } from "@/services/website-builder.service";
 
+const generateHtmlFromJSON = (rawData: any) => {
+  if (!rawData) return "";
+  
+  let data = rawData;
+  if (typeof rawData === 'string') {
+    try {
+      data = JSON.parse(rawData);
+    } catch (e) {
+      // If it's just an HTML string or plain text, return as is
+      return rawData;
+    }
+  }
+
+  if (data.html) return data.html;
+
+  let pages = Array.isArray(data) ? data : data.pages ? data.pages : [data];
+  if (!pages || pages.length === 0) return "<h1>No data available</h1>";
+
+  let bodyHtml = "";
+  
+  pages.forEach((page: any) => {
+    if (page.sections) {
+      page.sections.forEach((section: any) => {
+        if (section.type === "hero") {
+          bodyHtml += `
+            <section class="relative bg-white overflow-hidden border-b border-gray-100">
+              <div class="max-w-7xl mx-auto">
+                <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 px-4 sm:px-6 lg:px-8">
+                  <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
+                    <div class="sm:text-center lg:text-left">
+                      <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
+                        <span class="block xl:inline text-indigo-600">${section.title || ''}</span>
+                      </h1>
+                      <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
+                        ${section.subtitle || section.description || ''}
+                      </p>
+                      <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
+                        ${section.cta ? `
+                        <div class="rounded-md shadow">
+                          <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+                            ${section.cta}
+                          </a>
+                        </div>` : ''}
+                      </div>
+                    </div>
+                  </main>
+                </div>
+              </div>
+              <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
+                <img class="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full shadow-2xl" src="${section.image_url || 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80'}" alt="">
+              </div>
+            </section>
+          `;
+        } else if (section.type === "features" || section.type === "services" || section.items) {
+          bodyHtml += `
+            <section class="py-16 bg-gray-50 border-b border-gray-100">
+              <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center">
+                  <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">${section.title || section.type || ''}</h2>
+                  ${section.subtitle ? `<p class="mt-4 text-lg text-gray-500">${section.subtitle}</p>` : ''}
+                </div>
+                <div class="mt-12">
+                  <div class="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
+                    ${(section.items || []).map((item: any) => `
+                      <div class="bg-white rounded-xl shadow-lg overflow-hidden transition hover:-translate-y-1 hover:shadow-xl duration-300">
+                        ${item.image_url ? `<img class="w-full h-48 object-cover" src="${item.image_url}" alt="${item.title || ''}">` : ''}
+                        <div class="p-6">
+                          <h3 class="text-xl font-bold text-gray-900">${item.title || ''}</h3>
+                          <p class="mt-2 text-sm text-gray-600">${item.description || ''}</p>
+                          ${item.price ? `<p class="mt-4 text-lg font-bold text-indigo-600">${item.price}</p>` : ''}
+                        </div>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            </section>
+          `;
+        } else {
+           bodyHtml += `
+             <section class="py-16 bg-white overflow-hidden border-b border-gray-100">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
+                    <div>
+                      <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">${section.title || section.type || ''}</h2>
+                      <p class="mt-4 text-lg text-gray-500">${section.description || section.content || ''}</p>
+                    </div>
+                    ${section.image_url ? `
+                    <div class="mt-10 lg:mt-0">
+                      <img class="rounded-xl shadow-2xl" src="${section.image_url}" alt="">
+                    </div>
+                    ` : ''}
+                  </div>
+                </div>
+             </section>
+           `;
+        }
+      });
+    }
+  });
+
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Generated Website</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        body { font-family: 'Outfit', sans-serif; }
+      </style>
+    </head>
+    <body class="bg-gray-50 text-gray-900 antialiased">
+      <nav class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-20 items-center">
+            <div class="flex-shrink-0 flex items-center">
+              <span class="text-2xl font-black text-indigo-600 tracking-tight">Food<span class="text-gray-900">Delivery</span></span>
+            </div>
+            <div class="hidden md:flex items-center space-x-8">
+              ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="#" class="text-gray-600 hover:text-indigo-600 text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
+              <button class="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-indigo-700 transition shadow-lg hover:shadow-indigo-500/30">Order Now</button>
+            </div>
+          </div>
+        </div>
+      </nav>
+      
+      ${bodyHtml}
+      
+      <footer class="bg-gray-900 text-white border-t border-gray-800">
+        <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
+            <div>
+               <h3 class="text-2xl font-black mb-4">Food<span class="text-indigo-500">Delivery</span></h3>
+               <p class="text-gray-400 text-sm leading-relaxed">Delivering happiness to your doorstep in 30 minutes or less. Fresh, fast, and always delicious.</p>
+            </div>
+            <div>
+               <h3 class="text-lg font-bold mb-4 text-white">Quick Links</h3>
+               <ul class="space-y-3 text-sm text-gray-400">
+                  <li><a href="#" class="hover:text-indigo-400 transition">About Us</a></li>
+                  <li><a href="#" class="hover:text-indigo-400 transition">Careers</a></li>
+                  <li><a href="#" class="hover:text-indigo-400 transition">Contact</a></li>
+               </ul>
+            </div>
+            <div>
+               <h3 class="text-lg font-bold mb-4 text-white">Contact Us</h3>
+               <p class="text-gray-400 text-sm leading-relaxed">support@fooddelivery.com<br/>+1 (555) 123-4567</p>
+            </div>
+          </div>
+          <div class="border-t border-gray-800 mt-12 pt-8 text-center">
+            <p class="text-sm text-gray-500">
+              &copy; 2026 FoodDelivery, Inc. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </body>
+    </html>
+  `;
+}
+
 const CONVERSATION_STEPS = [
   "Understanding Business",
   "Collecting Requirements",
@@ -34,11 +197,23 @@ export default function WebsiteBuilderPage() {
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const savedSessionId = localStorage.getItem("website_builder_session_id");
-    if (savedSessionId) {
-      setSessionId(savedSessionId);
-      loadSession(savedSessionId);
-    }
+    const initSession = async () => {
+      const savedSessionId = localStorage.getItem("website_builder_session_id");
+      if (savedSessionId) {
+        setSessionId(savedSessionId);
+        loadSession(savedSessionId);
+      } else {
+        try {
+          const data = await websiteBuilderService.startSession("English");
+          setSessionId(data.sessionId);
+          localStorage.setItem("website_builder_session_id", data.sessionId);
+          if (data.messages) setMessages(data.messages);
+        } catch (e) {
+          console.error("Failed to start session", e);
+        }
+      }
+    };
+    initSession();
   }, []);
 
   const loadSession = async (id: string) => {
@@ -155,415 +330,119 @@ export default function WebsiteBuilderPage() {
 
   const simulateBackendResponse = (text: string, data?: any) => {
      setTimeout(() => {
-        if (text.toLowerCase().includes("recommend")) {
-           setMessages(prev => [...prev, {
-              id: Date.now().toString(), role: "ai", content: "Here are some recommendations:", type: "recommendation",
-              options: [
-                 { id: "rec1", name: "Modern Tech", description: "Sleek and clean", palette: "Dark", style: "Minimal" },
-                 { id: "rec2", name: "Vibrant E-commerce", description: "Colorful and bright", palette: "Colorful", style: "Vibrant" },
-                 { id: "rec3", name: "Elegant Corporate", description: "Professional and trustworthy", palette: "Blue", style: "Corporate" }
-              ]
-           }]);
-        } else if (data?.action === 'select_template') {
-           setMessages(prev => [...prev, {
-              id: Date.now().toString(), role: "ai", content: `You selected ${data.templateName}. Here is the final summary:`, type: "summary",
-              data: { business: "My Business", theme: data.templateName, language: language }
-           }]);
-        } else if (data?.action === 'generate') {
-           
-           // Mocking step-by-step generation progress
-           let step = 0;
-           const interval = setInterval(() => {
-              step++;
-              if (step < GENERATION_STEPS.length) {
-                 setGenerationProgress(GENERATION_STEPS.slice(0, step + 1));
-              } else {
-                 clearInterval(interval);
-                 setIsGenerating(false);
-                 setGeneratedSiteData({
-                    home: { hero: "Welcome", features: [] },
-                    about: { content: "About us" }
-                 });
-                 setSiteId("fake_site_id");
-                 setMessages(prev => [...prev, {
-                    id: Date.now().toString(), role: "ai", content: "Website generated successfully! You can now preview it and ask for revisions."
-                 }]);
-              }
-           }, 1200);
-
-        } else if (messages.length === 1) {
-           setMessages(prev => [...prev, {
-              id: Date.now().toString(), role: "ai", content: `I already have your business name as 'Royal Threads'. Should I use it?`, type: "confirmation",
-              options: [{ label: "Yes", action: "yes" }, { label: "Change", action: "change" }, { label: "Skip", action: "skip" }]
-           }]);
-        } else {
-           setMessages(prev => [...prev, {
-              id: Date.now().toString(), role: "ai", content: "I understand. Let me check the templates for you.", type: "template_selection",
-              options: [
-                 { id: "tpl1", name: "Premium", style: "Luxury", palette: "Gold/Black", bestFor: "Jewelry" },
-                 { id: "tpl2", name: "Modern", style: "Clean", palette: "White/Blue", bestFor: "Tech" },
-                 { id: "tpl3", name: "Elegant", style: "Soft", palette: "Pastel", bestFor: "Fashion" }
-              ]
-           }]);
-        }
+        setMessages(prev => [...prev, {
+           id: Date.now().toString(), role: "ai", content: "Error: The AI Backend is currently unreachable or your session failed to initialize. Please check your connection or refresh the page."
+        }]);
      }, 1000);
   };
 
-  const renderMessageContent = (msg: ChatMessage) => {
-    if (msg.type === "confirmation" && msg.options) {
-       return (
-          <div className="space-y-4">
-             <p>{msg.content}</p>
-             <div className="flex flex-wrap gap-2">
-                {msg.options.map((opt: any, i: number) => (
-                   <button key={i} onClick={() => handleSend(opt.label)} className="px-4 py-2 bg-surface-elevated hover:bg-brand-purple/20 border border-border rounded-lg text-sm font-medium transition-colors">
-                      {opt.label}
-                   </button>
-                ))}
-             </div>
-          </div>
-       )
-    }
 
-    if (msg.type === "recommendation" || msg.type === "template_selection") {
-       return (
-          <div className="space-y-4">
-             <p>{msg.content}</p>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {msg.options?.map((opt: any, i: number) => (
-                   <div key={i} className="p-4 bg-surface-elevated border border-border rounded-xl space-y-2 hover:border-brand-purple/50 transition-colors cursor-pointer" onClick={() => handleSend(`Selected ${opt.name}`, { action: "select_template", templateId: opt.id, templateName: opt.name })}>
-                      <div className="h-24 bg-surface rounded-lg mb-3 flex items-center justify-center text-xs text-text-muted">Preview</div>
-                      <h4 className="font-semibold text-white">{opt.name}</h4>
-                      <p className="text-xs text-text-muted">{opt.description || opt.style}</p>
-                      <div className="flex gap-2">
-                         <span className="text-[10px] px-2 py-1 bg-background rounded-md text-text-muted">{opt.palette}</span>
-                         {opt.bestFor && <span className="text-[10px] px-2 py-1 bg-background rounded-md text-text-muted">{opt.bestFor}</span>}
-                      </div>
-                      <button className="w-full mt-2 py-1.5 bg-brand-purple/20 text-brand-purple rounded-md text-xs font-semibold hover:bg-brand-purple hover:text-white transition-colors">Select</button>
-                   </div>
-                ))}
-             </div>
-          </div>
-       )
-    }
 
-    if (msg.type === "summary") {
-       return (
-          <div className="space-y-4">
-             <p>{msg.content}</p>
-             <div className="p-4 bg-surface-elevated border border-border rounded-xl space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-text-muted">Business</span><span className="font-medium">{msg.data?.business}</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">Language</span><span className="font-medium">{msg.data?.language}</span></div>
-                <div className="flex justify-between"><span className="text-text-muted">Theme</span><span className="font-medium">{msg.data?.theme}</span></div>
-             </div>
-             <div className="flex flex-col gap-2">
-                <button onClick={() => handleSend("Build My Website", { action: "generate" })} className="w-full py-2 bg-gradient-to-r from-brand-purple to-brand-pink text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
-                   Build My Website
-                </button>
-                <button onClick={() => handleSend("Edit Information")} className="w-full py-2 bg-surface hover:bg-surface-elevated text-white rounded-lg font-medium transition-colors text-sm border border-border">
-                   Edit Information
-                </button>
-             </div>
-          </div>
-       )
-    }
-
-    if (msg.type === "generation_status") {
-       // Generation status now handled in the right panel UI synchronously with isGenerating
-       return null;
-    }
-
-    return <p className="whitespace-pre-wrap">{msg.content}</p>;
-  };
-
-  const getActiveConversationStep = () => {
-     if (isGenerating || generatedSiteData) return CONVERSATION_STEPS.length;
-     const userMsgCount = messages.filter(m => m.role === 'user').length;
-     return Math.min(Math.floor(userMsgCount / 2), CONVERSATION_STEPS.length - 1);
-  };
-
-  const handleNewChat = () => {
-    localStorage.removeItem("website_builder_session_id");
-    setSessionId(null);
-    setSiteId(null);
-    setLanguage(null);
-    setMessages([]);
-    setGeneratedSiteData(null);
-    setGenerationProgress([]);
-    setIsGenerating(false);
-  };
-
-  const handleClearChat = async () => {
-    if (!sessionId) return;
-    try {
-      setLoading(true);
-      const res = await websiteBuilderService.clearSession(sessionId);
-      if (res.messages) {
-         setMessages(res.messages);
-      }
-      setGeneratedSiteData(null);
-      setGenerationProgress([]);
-      setIsGenerating(false);
-    } catch(e) {
-      console.error("Failed to clear chat", e);
-    } finally {
-      setLoading(false);
+       
+  
+  const handleOptionSelect = (option: any, msgType?: string) => {
+    if (msgType === "template_selection") {
+      handleSend(`I select the ${option.name} template.`, { action: "select_template", templateId: option.id, templateName: option.name });
+    } else if (msgType === "recommendation") {
+      handleSend(`Recommend template: ${option.name}`, { action: "recommend", templateId: option.id });
+    } else {
+      handleSend(option.label, { action: option.action });
     }
   };
 
-  const activeConvStepIdx = getActiveConversationStep();
+  // Phase 3: Two-Pane Layout Architecture
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-100px)] gap-4 -mt-2">
+    <div className="flex h-[calc(100vh-64px)] w-full bg-[#0B0F19] overflow-hidden text-gray-200">
       
-      {/* ── LEFT: Chatbot (75-80%) ── */}
-      <div className="w-full lg:w-[75%] xl:w-[80%] flex flex-col bg-surface border border-border rounded-2xl overflow-hidden shadow-2xl relative">
+      {/* LEFT PANE: AI EDITOR CHAT */}
+      <div className="w-[400px] min-w-[400px] flex flex-col border-r border-white/10 bg-[#111827] z-10 relative shadow-xl">
+        <div className="p-4 border-b border-white/10 bg-gradient-to-r from-purple-900/40 to-pink-900/40 flex justify-between items-center">
+          <div>
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Globe className="w-5 h-5 text-purple-400" />
+            AI Website Editor
+          </h2>
+          <p className="text-xs text-gray-400 mt-1">Chat to build & modify your site</p>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={() => setMessages([])} className="text-xs px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-gray-200">Clear</button>
+            <button onClick={() => { setMessages([]); setGeneratedSiteData(null); setSiteId(null); setSessionId(null); localStorage.removeItem("website_builder_session_id"); }} className="text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-white">New Chat</button>
+          </div>
+        </div>
         
-        {/* Header */}
-        <div className="px-5 py-4 border-b border-border bg-surface-elevated flex items-center justify-between shrink-0">
-           <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-brand-purple to-brand-pink flex items-center justify-center shadow-lg">
-                 <Globe className="text-white" size={18} />
-              </div>
-              <div>
-                 <h2 className="font-bold text-base leading-tight text-white">AI Website Builder</h2>
-                 <p className="text-xs text-text-muted">SevenUnique AI Assistant</p>
-              </div>
-           </div>
-
-           <div className="flex gap-2">
-              <button 
-                 onClick={handleClearChat}
-                 disabled={!sessionId || loading}
-                 className="flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-elevated border border-border rounded-lg text-xs font-medium text-text-muted hover:text-red-400 transition-colors disabled:opacity-50"
-              >
-                 <Trash2 size={14} />
-                 Clear
-              </button>
-              <button 
-                 onClick={handleNewChat}
-                 className="flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-elevated border border-border rounded-lg text-xs font-medium text-text-muted hover:text-white transition-colors"
-              >
-                 <Plus size={14} />
-                 New Chat
-              </button>
-           </div>
+        {/* Chat History Area */}
+        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar space-y-4">
+          <div className="bg-white/5 p-3 rounded-lg border border-white/10 text-sm">
+            <p className="text-gray-300">👋 Welcome! Tell me what kind of website you want to build, or ask me to edit an existing section.</p>
+          </div>
+          {messages.map((msg, i) => (
+             <div key={i} className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'} mb-4`}>
+               <div className={`p-3 rounded-lg max-w-[85%] text-sm ${msg.role === 'user' ? 'bg-[#7C3AED] text-white' : 'bg-white/10 text-gray-200'}`}>
+                 {msg.content}
+               </div>
+               {msg.options && msg.options.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {msg.options.map((opt: any, idx: number) => (
+                      <button 
+                        key={idx} 
+                        onClick={() => handleOptionSelect(opt, msg.type)}
+                        className="px-4 py-2 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/40 border border-[#7C3AED]/30 text-[#A78BFA] rounded-lg text-xs transition"
+                      >
+                        {opt.label || opt.name || 'Select'}
+                      </button>
+                    ))}
+                  </div>
+               )}
+             </div>
+          ))}
+          {loading && <div className="text-sm text-purple-400 animate-pulse">AI is thinking...</div>}
         </div>
 
-        {!language ? (
-           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6 overflow-y-auto">
-              <div className="w-20 h-20 bg-brand-purple/10 rounded-full flex items-center justify-center mb-2">
-                 <Globe className="text-brand-purple" size={40} />
-              </div>
-              <div>
-                 <h3 className="text-2xl font-bold text-white mb-2">Choose your language</h3>
-                 <p className="text-text-muted text-sm max-w-sm">To start building your website, please select the language you are most comfortable with.</p>
-              </div>
-              <div className="flex flex-col w-full max-w-xs gap-3 mt-4">
-                 <button onClick={() => selectLanguage("English")} className="p-3 bg-surface-elevated hover:bg-brand-purple/20 border border-border rounded-xl font-medium transition-all hover:scale-[1.02]">English</button>
-                 <button onClick={() => selectLanguage("Hindi")} className="p-3 bg-surface-elevated hover:bg-brand-purple/20 border border-border rounded-xl font-medium transition-all hover:scale-[1.02]">हिन्दी (Hindi)</button>
-                 <button onClick={() => selectLanguage("Hinglish")} className="p-3 bg-surface-elevated hover:bg-brand-purple/20 border border-border rounded-xl font-medium transition-all hover:scale-[1.02]">Hinglish</button>
-              </div>
-           </div>
-        ) : (
-           <>
-              {/* Messages Area - Independently Scrollable */}
-              <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-5 custom-scrollbar">
-                 {messages.map((msg, i) => (
-                    msg.type !== 'generation_status' && (
-                    <div key={msg.id || i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                       <div className={`max-w-[85%] md:max-w-[75%] rounded-2xl p-4 ${msg.role === 'user' ? 'bg-gradient-to-r from-brand-purple to-brand-pink text-white rounded-br-sm' : 'bg-surface-elevated border border-border text-gray-200 rounded-bl-sm shadow-sm'}`}>
-                          {renderMessageContent(msg)}
-                       </div>
-                    </div>
-                    )
-                 ))}
-                 {loading && !isGenerating && (
-                    <div className="flex justify-start">
-                       <div className="max-w-[75%] rounded-2xl p-4 bg-surface-elevated border border-border text-gray-400 rounded-bl-sm flex gap-2 items-center shadow-sm">
-                          <span className="w-2 h-2 rounded-full bg-brand-purple animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-brand-pink animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="w-2 h-2 rounded-full bg-brand-coral animate-bounce" style={{ animationDelay: '300ms' }} />
-                       </div>
-                    </div>
-                 )}
-                 <div ref={endRef} />
-              </div>
-
-              {/* Input Area - Fixed at Bottom */}
-              <div className="p-4 bg-surface border-t border-border shrink-0">
-                 <div className="flex items-center gap-2 bg-background border border-border rounded-full p-1.5 pl-4 focus-within:border-brand-purple/50 transition-colors">
-                    <input
-                       type="text"
-                       value={input}
-                       onChange={e => setInput(e.target.value)}
-                       onKeyDown={e => e.key === 'Enter' && handleSend()}
-                       placeholder={generatedSiteData ? "Ask for revisions (e.g. Change color to blue)" : "Type your message..."}
-                       className="flex-1 bg-transparent border-none outline-none text-sm text-white placeholder-text-muted"
-                       disabled={loading || isGenerating}
-                    />
-                    <button
-                       onClick={startListening}
-                       className={`p-2 rounded-full transition-colors ${isListening ? 'bg-red-500/20 text-red-500' : 'text-text-muted hover:bg-surface-elevated'}`}
-                       disabled={loading || isGenerating}
-                    >
-                       <Mic size={18} />
-                    </button>
-                    <button
-                       onClick={() => handleSend(undefined, generatedSiteData ? { action: 'revise' } : undefined)}
-                       disabled={!input.trim() || loading || isGenerating}
-                       className="p-2.5 bg-gradient-to-r from-brand-purple to-brand-pink text-white rounded-full disabled:opacity-50 transition-opacity"
-                    >
-                       <Send size={16} className="ml-0.5" />
-                    </button>
-                 </div>
-              </div>
-           </>
-        )}
+        {/* Input Area */}
+        <div className="p-4 border-t border-white/10 bg-[#0B0F19]">
+          <div className="relative flex items-center">
+            <input 
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="E.g., Change the navbar color to blue..."
+              className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            />
+            <button onClick={handleSend} className="absolute right-2 p-2 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition">
+              <Send className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* ── RIGHT: Progress / Preview (20-25%) ── */}
-      <div className="w-full lg:w-[25%] xl:w-[20%] flex flex-col gap-4 mt-4 lg:mt-0 h-full shrink-0">
-         
-         {!generatedSiteData && !isGenerating ? (
-           /* ── PRE-GENERATION: Detailed Conversation Progress ── */
-           <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-xl flex flex-col h-full max-h-[100%]">
-              <div className="p-4 border-b border-border bg-surface-elevated shrink-0">
-                 <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
-                    <Layout size={16} className="text-brand-pink" />
-                    Build Progress
-                 </h3>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
-                  {CONVERSATION_STEPS.map((step, idx) => {
-                     const isDone = idx < activeConvStepIdx;
-                     const isCurrent = idx === activeConvStepIdx && language;
-                     
-                     return (
-                        <div key={idx} className={`p-2.5 rounded-lg flex items-center gap-3 transition-all ${isDone ? 'bg-surface/50' : isCurrent ? 'bg-brand-purple/10 border border-brand-purple/30' : 'opacity-50'}`}>
-                           <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isDone ? 'bg-green-500/20 text-green-400' : isCurrent ? 'bg-brand-purple text-white animate-pulse' : 'bg-surface-elevated text-text-muted'}`}>
-                                 {isDone ? <CheckCircle2 size={12} /> : isCurrent ? <RotateCcw size={10} className="animate-spin" /> : <div className="w-1.5 h-1.5 rounded-full bg-text-muted" />}
-                           </div>
-                           <span className={`text-[11px] font-medium leading-tight ${isDone || isCurrent ? 'text-white' : 'text-text-muted'}`}>{step}</span>
-                        </div>
-                     );
-                  })}
-                  <div className="pt-2 mt-2 border-t border-border/50 opacity-40">
-                     <div className="p-2.5 flex items-center gap-3">
-                        <div className="w-5 h-5 rounded-full bg-surface-elevated flex items-center justify-center shrink-0">
-                           <div className="w-1.5 h-1.5 rounded-full bg-text-muted" />
-                        </div>
-                        <span className="text-[11px] font-medium text-text-muted">Website Generation</span>
-                     </div>
-                  </div>
-              </div>
-           </div>
-         ) : isGenerating ? (
-           /* ── DURING GENERATION: Detailed Generation Progress ── */
-           <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-xl flex flex-col h-full">
-              <div className="p-4 border-b border-border bg-surface-elevated shrink-0">
-                 <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
-                    <Settings size={16} className="text-brand-purple animate-spin" />
-                    Building Website
-                 </h3>
-                 <div className="mt-3 bg-background rounded-full h-1.5 overflow-hidden flex items-center">
-                     <div className="bg-gradient-to-r from-brand-purple to-brand-pink h-full transition-all duration-500" style={{ width: `${(generationProgress.length / GENERATION_STEPS.length) * 100}%` }}></div>
-                 </div>
-                 <p className="text-[10px] text-brand-pink mt-2 flex items-center gap-1.5 font-medium">
-                    <Clock size={10} /> Estimated time remaining: ~2 min
-                 </p>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
-                 {GENERATION_STEPS.map((step, idx) => {
-                     const isDone = idx < generationProgress.length - 1;
-                     const isCurrent = idx === generationProgress.length - 1;
-                     const isPending = idx > generationProgress.length - 1;
-                     return (
-                        <div key={idx} className={`p-2.5 rounded-lg flex items-center gap-3 transition-all ${isDone ? 'bg-surface/50' : isCurrent ? 'bg-brand-purple/10 border border-brand-purple/30' : 'opacity-40'}`}>
-                           <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${isDone ? 'bg-green-500/20 text-green-400' : isCurrent ? 'bg-brand-purple text-white animate-pulse' : 'bg-surface-elevated text-text-muted'}`}>
-                                 {isDone ? <CheckCircle2 size={12} /> : isCurrent ? <RotateCcw size={10} className="animate-spin" /> : <div className="w-1.5 h-1.5 rounded-full bg-text-muted" />}
-                           </div>
-                           <span className={`text-[11px] font-medium leading-tight ${isDone || isCurrent ? 'text-white' : 'text-text-muted'}`}>{step}</span>
-                        </div>
-                     )
-                 })}
-              </div>
-           </div>
-         ) : (
-           /* ── SUCCESS STATE: Completed & Preview ── */
-           <div className="bg-surface border border-border rounded-2xl overflow-hidden shadow-xl p-4 flex flex-col h-full lg:h-auto">
-              <div className="flex items-center gap-2 mb-4">
-                 <div className="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <CheckCircle2 size={14} className="text-green-500" />
-                 </div>
-                 <h3 className="font-bold text-white text-sm">Website Ready</h3>
-              </div>
-              
-              <p className="text-[11px] text-text-muted mb-4 flex items-center gap-1.5">
-                 <Clock size={12} /> Generation Completed
-              </p>
+      {/* RIGHT PANE: LIVE PREVIEW */}
+      <div className="flex-1 flex flex-col bg-[#050505] relative">
+        {/* Preview Toolbar */}
+        <div className="h-14 border-b border-white/10 flex items-center justify-end px-6 bg-[#0B0F19]">
+          <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition shadow-lg shadow-purple-500/20">
+              <CheckCircle2 className="w-4 h-4" /> Finalize Website
+            </button>
+          </div>
+        </div>
 
-               {/* Dynamic Website Preview Frame */}
-               {(() => {
-                 const pagesList = Array.isArray(generatedSiteData?.pages) 
-                   ? generatedSiteData.pages 
-                   : (Array.isArray(generatedSiteData) ? generatedSiteData : []);
-                 const previewName = generatedSiteData?.business_name || (pagesList[0]?.sections?.[0]?.title?.replace("Welcome to ", "") || "Your Brand");
-                 const previewHero = pagesList[0]?.sections?.find((s: any) => s.type === "hero") || pagesList[0]?.sections?.[0] || {};
-                 const previewTitle = previewHero?.title || `Welcome to ${previewName}`;
-                 const previewSubtitle = previewHero?.subtitle || "AI generated site preview.";
-                 const previewCta = previewHero?.cta || "Explore";
-                 const previewBg = `https://image.pollinations.ai/prompt/${encodeURIComponent(previewName + " " + previewTitle)}?width=400&height=200&nologo=true`;
-
-                 return (
-                   <div 
-                     onClick={() => window.open(`/preview/${siteId || 'demo'}`, '_blank')}
-                     className="w-full h-44 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col relative text-black font-sans mb-4 border border-border/50 group cursor-pointer hover:border-brand-purple transition-all duration-300"
-                   >
-                      <div className="bg-gray-100 px-3 py-2 flex justify-between items-center border-b shrink-0">
-                         <div className="font-extrabold text-[10px] tracking-tight text-brand-purple truncate max-w-[110px]">
-                           {previewName}
-                         </div>
-                         <div className="flex gap-1.5 text-[7px] font-medium text-gray-600">
-                            {pagesList.slice(0, 3).map((p: any, i: number) => (
-                              <span key={i}>{p.name || `Page ${i+1}`}</span>
-                            ))}
-                         </div>
-                      </div>
-                      <div 
-                        className="flex-1 p-3 text-center flex flex-col items-center justify-center relative bg-cover bg-center text-white"
-                        style={{ backgroundImage: `linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.75)), url(${previewBg})` }}
-                      >
-                         <h1 className="text-xs font-black mb-1 text-white drop-shadow line-clamp-1">{previewTitle}</h1>
-                         <p className="text-[8px] text-gray-200 max-w-[140px] mx-auto mb-2 leading-tight line-clamp-2">{previewSubtitle}</p>
-                         <button className="bg-gradient-to-r from-brand-purple to-brand-pink text-white px-3 py-1 rounded-full font-bold text-[8px] shadow hover:scale-105 transition-transform">
-                           {previewCta}
-                         </button>
-                      </div>
-                   </div>
-                 );
-               })()}
-
-
-              <div className="mt-auto space-y-2">
-                 <button 
-                    onClick={() => window.open(`/preview/${siteId || 'demo'}`, '_blank')}
-                    className="w-full py-2 bg-brand-purple text-white rounded-lg text-xs font-medium hover:bg-brand-purple/90 transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-purple/20">
-                    <Globe size={14} /> Preview Website
-                 </button>
-                 <button 
-                    onClick={() => {
-                       const inputEl = document.querySelector('input[type="text"]') as HTMLInputElement;
-                       if (inputEl) inputEl.focus();
-                    }}
-                    className="w-full py-2 bg-surface-elevated text-white rounded-lg text-xs font-medium hover:bg-surface-elevated/80 transition-colors border border-border flex items-center justify-center gap-2">
-                    Continue Editing <ArrowRight size={14} />
-                 </button>
-              </div>
-           </div>
-         )}
+        {/* Live Website Canvas */}
+        <div className="flex-1 overflow-auto p-8 flex items-center justify-center custom-scrollbar">
+          {generatedSiteData ? (
+             <div className="w-full h-full bg-white rounded-lg shadow-2xl overflow-hidden border border-gray-800">
+               <iframe srcDoc={generateHtmlFromJSON(generatedSiteData)} className="w-full h-full bg-white" title="Website Preview" />
+             </div>
+          ) : (
+             <div className="text-center text-gray-500 flex flex-col items-center">
+               <Globe className="w-16 h-16 text-gray-700 mb-4" />
+               <h3 className="text-lg font-medium text-gray-400">No Website Generated Yet</h3>
+               <p className="text-sm mt-2 max-w-sm">Chat with the AI on the left to provide your business details and generate your first draft.</p>
+             </div>
+          )}
+        </div>
       </div>
-
     </div>
   );
 }
