@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2, Maximize2, Minimize2 } from "lucide-react";
+import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2, Maximize2, Minimize2, Download } from "lucide-react";
 import { websiteBuilderService, ChatMessage } from "@/services/website-builder.service";
 
 const generateHtmlFromJSON = (rawData: any) => {
@@ -21,7 +21,10 @@ const generateHtmlFromJSON = (rawData: any) => {
   let pages = Array.isArray(data) ? data : data.pages ? data.pages : [data];
   if (!pages || pages.length === 0) return "<h1>No data available</h1>";
 
-  let bodyHtml = "";
+
+    const logoUrl = data.logo?.url || null;
+    const bName = data.business_name || 'MyBusiness';
+      let bodyHtml = "";
   
   pages.forEach((page: any) => {
     if (page.sections) {
@@ -124,7 +127,7 @@ const generateHtmlFromJSON = (rawData: any) => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-20 items-center">
             <div class="flex-shrink-0 flex items-center">
-              <span class="text-2xl font-black text-indigo-600 tracking-tight">Food<span class="text-gray-900">Delivery</span></span>
+              ${logoUrl ? `<img src="${logoUrl}" alt="${bName}" class="h-10 w-auto" />` : `<span class="text-2xl font-black text-indigo-600 tracking-tight">${bName}</span>`}
             </div>
             <div class="hidden md:flex items-center space-x-8">
               ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="javascript:void(0)" onclick="document.getElementById('section-${s.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}').scrollIntoView({behavior: 'smooth'})" class="text-gray-600 hover:text-indigo-600 text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
@@ -140,7 +143,7 @@ const generateHtmlFromJSON = (rawData: any) => {
         <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
             <div>
-               <h3 class="text-2xl font-black mb-4">Food<span class="text-indigo-500">Delivery</span></h3>
+               <h3 class="text-2xl font-black mb-4">${logoUrl ? `<img src="${logoUrl}" alt="${bName}" class="h-10 w-auto mb-2" />` : bName}</h3>
                <p class="text-gray-400 text-sm leading-relaxed">Delivering happiness to your doorstep in 30 minutes or less. Fresh, fast, and always delicious.</p>
             </div>
             <div>
@@ -153,12 +156,12 @@ const generateHtmlFromJSON = (rawData: any) => {
             </div>
             <div>
                <h3 class="text-lg font-bold mb-4 text-white">Contact Us</h3>
-               <p class="text-gray-400 text-sm leading-relaxed">support@fooddelivery.com<br/>+1 (555) 123-4567</p>
+               <p class="text-gray-400 text-sm leading-relaxed">support@${bName.toLowerCase().replace(/\s+/g, "")}.com<br/>+1 (555) 123-4567</p>
             </div>
           </div>
           <div class="border-t border-gray-800 mt-12 pt-8 text-center">
             <p class="text-sm text-gray-500">
-              &copy; 2026 FoodDelivery, Inc. All rights reserved.
+              &copy; 2026 ${bName}, Inc. All rights reserved.
             </p>
           </div>
         </div>
@@ -218,6 +221,27 @@ export default function WebsiteBuilderPage() {
     };
     initSession();
   }, []);
+
+  const handleDownloadZip = async () => {
+    if (!generatedSiteData) return;
+    try {
+      const htmlContent = generateHtmlFromJSON(generatedSiteData);
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
+      zip.file("index.html", htmlContent);
+      const content = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "website.zip";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Error creating zip", e);
+    }
+  };
 
   const loadSession = async (id: string) => {
     try {
@@ -344,6 +368,10 @@ export default function WebsiteBuilderPage() {
        
   
   const handleOptionSelect = (option: any, msgType?: string) => {
+    if (option.action === "upload_logo") {
+      fileInputRef.current?.click();
+      return;
+    }
     if (msgType === "template_selection") {
       handleSend(`I select the ${option.name} template.`, { action: "select_template", templateId: option.id, templateName: option.name });
     } else if (msgType === "recommendation") {
@@ -428,6 +456,11 @@ export default function WebsiteBuilderPage() {
             <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title={isFullscreen ? "Minimize" : "Maximize"}>
               {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
             </button>
+            {generatedSiteData && (
+              <button onClick={handleDownloadZip} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-lg shadow-blue-500/20">
+                <Download className="w-4 h-4" /> Download ZIP
+              </button>
+            )}
             <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition shadow-lg shadow-purple-500/20">
               <CheckCircle2 className="w-4 h-4" /> Finalize Website
             </button>
