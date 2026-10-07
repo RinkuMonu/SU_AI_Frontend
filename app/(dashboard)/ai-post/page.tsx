@@ -9,7 +9,7 @@ import GeneratedPostCard from "@/components/ai/GeneratedPostCard";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 
 import { generatePost } from "@/services/content.service";
-import { getProducts } from "@/services/product.service";
+import { FashionService } from "@/services/fashion.service";
 
 import type { GeneratedPost } from "@/types/content";
 
@@ -36,7 +36,7 @@ export default function AIPostPage() {
 
     async function loadProducts() {
       try {
-        const data = await getProducts();
+        const data = await FashionService.getProducts();
         setProducts(data);
         if (data.length > 0) {
           setProductId(data[0].id);

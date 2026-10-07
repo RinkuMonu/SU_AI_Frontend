@@ -8,7 +8,7 @@ import ProductSelector from "@/components/ai/ProductSelector";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 
 import { imageService } from "@/services/image.service";
-import { getProducts } from "@/services/product.service";
+import { FashionService } from "@/services/fashion.service";
 
 export default function AIImagePage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -43,7 +43,7 @@ export default function AIImagePage() {
   useEffect(() => {
     async function loadProducts() {
       try {
-        const data = await getProducts();
+        const data = await FashionService.getProducts();
         setProducts(data);
       } catch (error) {
         console.error("Failed to load products", error);

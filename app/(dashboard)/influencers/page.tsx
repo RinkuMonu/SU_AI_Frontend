@@ -94,7 +94,7 @@ export default function InfluencersPage() {
   const fetchData = async () => {
     try {
       const [infRes, appRes, colRes, shortRes, crmRes] = await Promise.all([
-        influencerService.discover(filters),
+        influencerService.discover({ ...filters, min_followers: filters.min_followers ? Number(filters.min_followers) : undefined }),
         influencerService.getBusinessApplications(),
         influencerService.getBusinessCollaborations(),
         influencerService.getShortlist().catch(() => ({ data: [] })),
@@ -824,7 +824,7 @@ export default function InfluencersPage() {
                   res = await import('@/services/auth.service').then(m => m.authService.login(email, password));
                 } else {
                   const name = formData.get('name') as string;
-                  res = await import('@/services/auth.service').then(m => m.authService.signup(name, email, password, 'influencer'));
+                  res = await import('@/services/auth.service').then(m => m.authService.signup({ full_name: name, email, password, role: 'influencer' }));
                   if (res?.detail?.includes('OTP')) {
                     alert('Registration successful! Please check your email for the OTP and verify your account from the main login page.');
                     return;

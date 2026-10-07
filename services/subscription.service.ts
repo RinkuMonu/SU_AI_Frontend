@@ -27,8 +27,8 @@ export const subscriptionService = {
       return response.data.data;
     } catch (e) {
       return {
-        free: { name: "Free", price: 0, credits: 10, post_limit: 10, reel_limit: 2, watermark: true, team_members: 1, custom_branding: false, analytics: false },
-        pro: { name: "Pro", price: 999, credits: 100, post_limit: 100, reel_limit: 20, watermark: false, team_members: 3, custom_branding: true, analytics: true }
+        free: { name: "Free", price: 0, credits: 10, post_limit: 10, reel_limit: 2, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
+        pro: { name: "Pro", price: 999, credits: 100, post_limit: 100, reel_limit: 20, watermark: false, team_members: 3, custom_branding: true, analytics: true } as PlanConfig
       };
     }
   },

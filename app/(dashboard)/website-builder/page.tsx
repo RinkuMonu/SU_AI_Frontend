@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2 } from "lucide-react";
+import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2, Maximize2, Minimize2 } from "lucide-react";
 import { websiteBuilderService, ChatMessage } from "@/services/website-builder.service";
 
 const generateHtmlFromJSON = (rawData: any) => {
@@ -26,9 +26,10 @@ const generateHtmlFromJSON = (rawData: any) => {
   pages.forEach((page: any) => {
     if (page.sections) {
       page.sections.forEach((section: any) => {
+        const sectionId = section.title ? `section-${section.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}` : `section-${Math.random().toString(36).substring(7)}`;
         if (section.type === "hero") {
           bodyHtml += `
-            <section class="relative bg-white overflow-hidden border-b border-gray-100">
+            <section id="${sectionId}" class="relative bg-white overflow-hidden border-b border-gray-100">
               <div class="max-w-7xl mx-auto">
                 <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-20 px-4 sm:px-6 lg:px-8">
                   <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
@@ -42,7 +43,7 @@ const generateHtmlFromJSON = (rawData: any) => {
                       <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                         ${section.cta ? `
                         <div class="rounded-md shadow">
-                          <a href="#" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+                          <a href="javascript:void(0)" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
                             ${section.cta}
                           </a>
                         </div>` : ''}
@@ -58,7 +59,7 @@ const generateHtmlFromJSON = (rawData: any) => {
           `;
         } else if (section.type === "features" || section.type === "services" || section.items) {
           bodyHtml += `
-            <section class="py-16 bg-gray-50 border-b border-gray-100">
+            <section id="${sectionId}" class="py-16 bg-gray-50 border-b border-gray-100">
               <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="text-center">
                   <h2 class="text-3xl font-extrabold text-gray-900 sm:text-4xl">${section.title || section.type || ''}</h2>
@@ -83,7 +84,7 @@ const generateHtmlFromJSON = (rawData: any) => {
           `;
         } else {
            bodyHtml += `
-             <section class="py-16 bg-white overflow-hidden border-b border-gray-100">
+             <section id="${sectionId}" class="py-16 bg-white overflow-hidden border-b border-gray-100">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                   <div class="lg:grid lg:grid-cols-2 lg:gap-12 lg:items-center">
                     <div>
@@ -114,6 +115,7 @@ const generateHtmlFromJSON = (rawData: any) => {
       <script src="https://cdn.tailwindcss.com"></script>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+        html { scroll-behavior: smooth; }
         body { font-family: 'Outfit', sans-serif; }
       </style>
     </head>
@@ -125,7 +127,7 @@ const generateHtmlFromJSON = (rawData: any) => {
               <span class="text-2xl font-black text-indigo-600 tracking-tight">Food<span class="text-gray-900">Delivery</span></span>
             </div>
             <div class="hidden md:flex items-center space-x-8">
-              ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="#" class="text-gray-600 hover:text-indigo-600 text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
+              ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="javascript:void(0)" onclick="document.getElementById('section-${s.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}').scrollIntoView({behavior: 'smooth'})" class="text-gray-600 hover:text-indigo-600 text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
               <button class="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-indigo-700 transition shadow-lg hover:shadow-indigo-500/30">Order Now</button>
             </div>
           </div>
@@ -144,9 +146,9 @@ const generateHtmlFromJSON = (rawData: any) => {
             <div>
                <h3 class="text-lg font-bold mb-4 text-white">Quick Links</h3>
                <ul class="space-y-3 text-sm text-gray-400">
-                  <li><a href="#" class="hover:text-indigo-400 transition">About Us</a></li>
-                  <li><a href="#" class="hover:text-indigo-400 transition">Careers</a></li>
-                  <li><a href="#" class="hover:text-indigo-400 transition">Contact</a></li>
+                  <li><a href="javascript:void(0)" class="hover:text-indigo-400 transition">About Us</a></li>
+                  <li><a href="javascript:void(0)" class="hover:text-indigo-400 transition">Careers</a></li>
+                  <li><a href="javascript:void(0)" class="hover:text-indigo-400 transition">Contact</a></li>
                </ul>
             </div>
             <div>
@@ -193,6 +195,7 @@ export default function WebsiteBuilderPage() {
   const [generatedSiteData, setGeneratedSiteData] = useState<any>(null);
   const [generationProgress, setGenerationProgress] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -410,7 +413,7 @@ export default function WebsiteBuilderPage() {
               className="w-full bg-white/5 border border-white/10 rounded-full py-3 pl-4 pr-12 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
             />
-            <button onClick={handleSend} className="absolute right-2 p-2 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition">
+            <button onClick={() => handleSend()} className="absolute right-2 p-2 bg-purple-600 rounded-full text-white hover:bg-purple-700 transition">
               <Send className="w-4 h-4" />
             </button>
           </div>
@@ -418,10 +421,13 @@ export default function WebsiteBuilderPage() {
       </div>
 
       {/* RIGHT PANE: LIVE PREVIEW */}
-      <div className="flex-1 flex flex-col bg-[#050505] relative">
+      <div className={isFullscreen ? "fixed inset-0 z-[100] flex flex-col bg-[#050505]" : "flex-1 flex flex-col bg-[#050505] relative"}>
         {/* Preview Toolbar */}
         <div className="h-14 border-b border-white/10 flex items-center justify-end px-6 bg-[#0B0F19]">
           <div className="flex items-center gap-3">
+            <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title={isFullscreen ? "Minimize" : "Maximize"}>
+              {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            </button>
             <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition shadow-lg shadow-purple-500/20">
               <CheckCircle2 className="w-4 h-4" /> Finalize Website
             </button>

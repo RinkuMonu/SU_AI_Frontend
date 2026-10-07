@@ -12,6 +12,8 @@ export type PlanConfig = {
   api_access: boolean;
   white_label: boolean;
   features: string[];
+  custom_branding?: boolean;
+  analytics?: boolean;
 };
 
 export type SubscriptionUsage = {
@@ -27,7 +29,7 @@ export type Subscription = {
   status: string;
   credits_remaining: number;
   usage: SubscriptionUsage;
-  plan_details: PlanConfig;
+  plan_details?: PlanConfig;
   current_period_end?: string;
 };
 

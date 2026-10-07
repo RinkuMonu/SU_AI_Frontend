@@ -10,11 +10,22 @@ export interface FestivalAssetContent {
   cta?: string;
   message?: string;
   primary_text?: string;
+  concept?: string;
+  scenes?: any[];
+  on_screen_text?: string;
+  caption?: string;
+  description?: string;
+  hashtags?: string;
+  post_copy?: string;
+  title?: string;
+  duration?: string;
+  reel?: any;
+  post?: any;
 }
 
 export interface FestivalAsset {
   id: string;
-  type: "post" | "reel" | "ad" | "whatsapp";
+  type: "post" | "reel" | "ad" | "whatsapp" | "content";
   platform: string;
   day: number;
   scheduled_date: string;

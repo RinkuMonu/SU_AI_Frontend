@@ -1,4 +1,12 @@
-function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
+import { ChevronUp, ChevronDown, Wand2, Plus } from "lucide-react";
+
+export interface DayPlan {
+  date: number;
+  events?: any[];
+  day_number?: number;
+}
+
+export default function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
   const currentDate = new Date();
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();

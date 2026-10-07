@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Check, ExternalLink, ShieldCheck, Instagram } from "lucide-react";
+import { Loader2, Check, ExternalLink, ShieldCheck } from "lucide-react";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -28,16 +28,19 @@ export default function InstagramIntegrationPage() {
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
+    let tokenFromUrl: string | null = null;
+    let accIdFromUrl: string | null = null;
+    
     // Check for tokens from URL after OAuth redirect
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const tokenFromUrl = params.get('access_token') || params.get('token') || params.get('ig_access_token');
+      tokenFromUrl = params.get('access_token') || params.get('token') || params.get('ig_access_token');
       const isConnectedSuccess = params.get('instagram_connected') === 'true';
-      const accIdFromUrl = params.get('ig_account_id') || params.get('account_id');
+      accIdFromUrl = params.get('ig_account_id') || params.get('account_id');
       
       if (tokenFromUrl || isConnectedSuccess) {
         console.log("Instagram Access Token:", tokenFromUrl);
-        setIgToken(tokenFromUrl);
+        setIgToken(tokenFromUrl || "");
         if (accIdFromUrl) {
           setIgAccountId(accIdFromUrl);
         }

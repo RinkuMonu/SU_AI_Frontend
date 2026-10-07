@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FashionService } from "@/services/fashion.service";
-import { getProducts } from "@/services/product.service";
+
 import { FashionProduct, VirtualTryOnRequest, FashionCategory, GenderType } from "@/types/fashion.types";
 import { toast } from "react-toastify";
 import { Loader2, Shirt, Upload, ChevronRight } from "lucide-react";
@@ -28,23 +28,12 @@ export default function VirtualTryOnPage() {
   useEffect(() => {
     Promise.all([
       FashionService.getProducts().catch(() => []), 
-      getProducts().catch(() => []),
       FashionService.getConfig().catch(() => null)
     ])
-      .then(([fashionProds, mainProds, configData]) => {
+      .then(([fashionProds, configData]) => {
         if (configData) setConfig(configData);
-        const mappedMainProds: FashionProduct[] = mainProds.map(p => ({
-          id: p.id,
-          name: p.name,
-          category: "other" as FashionCategory,
-          gender: "unisex" as GenderType,
-          color: p.colors?.[0] || "",
-          image_url: p.image_url || "",
-          description: p.description || "",
-          created_at: p.created_at || new Date().toISOString()
-        }));
 
-        const allProds = [...fashionProds, ...mappedMainProds].filter(p => p.image_url);
+        const allProds = fashionProds.filter(p => p.image_url);
         
         setProducts(allProds);
         if (allProds.length > 0) setFormData(p => ({ ...p, product_id: allProds[0].id }));

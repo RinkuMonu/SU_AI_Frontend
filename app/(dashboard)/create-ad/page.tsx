@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, CheckCircle2, Share2 } from "lucide-react";
 
-import { Product } from "@/types/product";
+
 import { useCreateAd } from "@/hooks/useCreateAd";
 
 export default function CreateAdPage() {
