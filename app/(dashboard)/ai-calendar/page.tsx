@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import festivalService from "@/services/festival.service";
-import { getProducts } from "@/services/product.service";
 import { generateCalendar, DayPlan } from "@/services/calendar.service";
 import { Loader2, Wand2, ChevronDown, ChevronUp, Play, Minus, Plus } from "lucide-react";
 
@@ -214,23 +213,11 @@ function DayCard({ day, initialProductImage }: { day: DayPlan, initialProductIma
 }
 
 export default function AICalendarPage() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [productId, setProductId] = useState("");
   const [productImage, setProductImage] = useState<string | null>(null);
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<DayPlan[] | null>(null);
-
-  useEffect(() => {
-    getProducts().then((data) => {
-      setProducts(data);
-      if (data && data.length > 0) {
-        setProductId(data[0].id || "");
-        setProductImage(data[0].image_url || null);
-      }
-    }).catch(console.error);
-  }, []);
 
   return (
     <div className="mx-auto max-w-7xl p-6">

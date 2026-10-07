@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { GenerateReelRequest } from "@/types/reel";
-import { getProducts } from "@/services/product.service";
-import { Product } from "@/types/product";
-
 interface ReelMakerFormProps {
   onGenerate: (request: GenerateReelRequest) => void;
   isLoading: boolean;
@@ -20,8 +17,7 @@ const OBJECTIVES = [
 ];
 
 export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productId, setProductId] = useState("");
+  const [productId, setProductId] = useState("general");
   const [objective, setObjective] = useState("sale");
   const [platform, setPlatform] = useState("instagram");
   const [language, setLanguage] = useState("Hinglish");
@@ -29,21 +25,6 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
   const [tone, setTone] = useState("energetic");
   const [offer, setOffer] = useState("");
   const [instruction, setInstruction] = useState("");
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const data = await getProducts();
-        setProducts(data);
-        if (data.length > 0) {
-          setProductId((data[0] as any)._id || (data[0] as any).id || "");
-        }
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-      }
-    };
-    fetchProducts();
-  }, []);
 
   const handleGenerate = () => {
     if (!productId) return;
@@ -71,35 +52,6 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
       </div>
 
       <div className="p-6 space-y-5">
-        {/* Product */}
-        <div>
-          <label className={labelCls}>Product</label>
-          <select
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-            className={selectCls}
-            disabled={products.length === 0}
-          >
-            {products.length === 0 ? (
-              <option value="">No products — please create one first</option>
-            ) : (
-              <>
-                <option value="" disabled>Select a product...</option>
-                {products.map((product: any) => (
-                  <option key={product._id || product.id} value={product._id || product.id}>
-                    {product.name || product.title || "Unnamed Product"}
-                  </option>
-                ))}
-              </>
-            )}
-          </select>
-          {products.length === 0 && (
-            <p className="mt-1.5 text-xs text-red-500 font-medium">
-              ⚠️ Go to Products &amp; create a product first.
-            </p>
-          )}
-        </div>
-
         {/* Platform + Duration row */}
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -151,11 +103,10 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                 key={value}
                 type="button"
                 onClick={() => setObjective(value)}
-                className={`rounded-xl border px-3 py-2.5 text-sm font-semibold text-left transition-all cursor-pointer ${
-                  objective === value
+                className={`rounded-xl border px-3 py-2.5 text-sm font-semibold text-left transition-all cursor-pointer ${objective === value
                     ? "border-brand-purple bg-brand-purple/20 text-brand-purple shadow-sm"
                     : "border-border bg-[#0a142c] text-text-muted hover:border-brand-purple/50 hover:bg-brand-purple/10"
-                }`}
+                  }`}
               >
                 {label}
               </button>
@@ -191,7 +142,7 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
       <div className="px-6 pb-6">
         <button
           type="button"
-          disabled={isLoading || !productId}
+          disabled={isLoading}
           onClick={handleGenerate}
           className="w-full rounded-2xl bg-brand-gradient px-6 py-4 font-bold text-white shadow-lg shadow-purple-500/20 hover:opacity-90 transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
         >

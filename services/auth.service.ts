@@ -18,9 +18,9 @@ export const authService = {
     }
   },
 
-  signup: async (name: string, email: string, password: string, role: string = 'business'):Promise<{token?: string, user?: User, detail?: string}> => {
+  signup: async (data: any):Promise<{token?: string, user?: User, detail?: string}> => {
     try {
-      const response = await api.post('/api/v1/auth/signup', { name, email, password, role });
+      const response = await api.post('/api/v1/auth/signup', data);
       return {
         token: response.data.access_token,
         user: response.data.user,

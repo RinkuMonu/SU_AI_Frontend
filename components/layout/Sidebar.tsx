@@ -46,18 +46,13 @@ const navigation = [
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Business", href: "/business", icon: Store },
-  { name: "Brand Kit", href: "/brand", icon: Palette },
-  { name: "Products", href: "/products", icon: Package },
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { 
-    name: "Social Media", 
+    name: "Image and Reel Generator", 
     icon: Share2, 
     children: [
-      { name: "Create Ad", href: "/create-ad" },
       { name: "Create Reel", href: "/create/reel" },
       { name: "AI Post Maker", href: "/ai-post" },
-      { name: "AI Image Generator", href: "/ai-image" },
       { name: "AI Calendar", href: "/ai-calendar" },
     ]
   },
@@ -95,7 +90,7 @@ export function Sidebar() {
   const { logout } = useAuth();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
-    "Social Media": ["/create-ad", "/create/reel", "/ai-post", "/ai-image", "/ai-calendar"].some(p => pathname.startsWith(p)),
+    "Image and Reel Generator": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
     "Fashion AI": ["/fashion-ai"].some(p => pathname.startsWith(p)),
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p))
   });
@@ -128,7 +123,7 @@ export function Sidebar() {
                       : "text-text-muted hover:bg-surface-elevated hover:text-white"
                   )}
                 >
-                  <div className="flex items-center">
+                  <div className="flex items-center flex-1 min-w-0">
                     <item.icon
                       className={cn(
                         "mr-3 h-5 w-5 flex-shrink-0",
@@ -136,7 +131,7 @@ export function Sidebar() {
                       )}
                       aria-hidden="true"
                     />
-                    {item.name}
+                    <span className="truncate">{item.name}</span>
                   </div>
                   {isOpen ? (
                     <ChevronDown className="h-4 w-4 text-text-muted" />

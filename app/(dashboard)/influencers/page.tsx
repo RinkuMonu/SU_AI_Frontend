@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,10 +37,55 @@ export default function InfluencersPage() {
   const [pitchLoading, setPitchLoading] = useState(false);
 
   const [filters, setFilters] = useState({ category: '', min_followers: '', location: '', platform: '' });
+  const [locationOptions, setLocationOptions] = useState<string[]>([]);
+  const [isLocationLoading, setIsLocationLoading] = useState(false);
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [locationSearchTerm, setLocationSearchTerm] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'login'|'register'>('login');
   const [activeTab, setActiveTab] = useState('discover');
+
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowLocationDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Debounced API call for location
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(async () => {
+      if (locationSearchTerm.length > 2) {
+        setIsLocationLoading(true);
+        try {
+          const res = await influencerService.searchLocations(locationSearchTerm);
+          if (res.success && res.data && res.data.features) {
+            const formattedOptions = res.data.features.map((f: any) => {
+              const { country, state, city } = f.properties;
+              return [country, state, city].filter(Boolean).join(', ');
+            });
+            setLocationOptions(Array.from(new Set(formattedOptions)));
+            setShowLocationDropdown(true);
+          }
+        } catch (e) {
+          console.error(e);
+        } finally {
+          setIsLocationLoading(false);
+        }
+      } else {
+        setLocationOptions([]);
+        setShowLocationDropdown(false);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [locationSearchTerm]);
 
   useEffect(() => {
     fetchData();
@@ -264,19 +309,45 @@ export default function InfluencersPage() {
                 <option value="Facebook" />
               </datalist>
             </div>
-            <div>
+            <div className="relative" ref={dropdownRef}>
               <label className="text-xs text-text-muted mb-1 block">Location</label>
-              <input list="location-options" value={filters.location} onChange={e => setFilters({...filters, location: e.target.value})} type="text" placeholder="e.g. New York" className="w-full p-2 bg-transparent border border-white/20 rounded focus:border-brand-purple text-white text-sm" />
-              <datalist id="location-options">
-                <option value="New York" />
-                <option value="Los Angeles" />
-                <option value="London" />
-                <option value="Mumbai" />
-                <option value="Delhi" />
-                <option value="Jaipur" />
-                <option value="Paris" />
-                <option value="Dubai" />
-              </datalist>
+              <div className="relative">
+                <input 
+                  value={filters.location} 
+                  onChange={e => {
+                    setFilters({...filters, location: e.target.value});
+                    setLocationSearchTerm(e.target.value);
+                  }} 
+                  onFocus={() => {
+                    if (locationOptions.length > 0) setShowLocationDropdown(true);
+                  }}
+                  type="text" 
+                  placeholder="e.g. New York" 
+                  className="w-full p-2 pr-8 bg-transparent border border-white/20 rounded focus:border-brand-purple text-white text-sm" 
+                />
+                {isLocationLoading && (
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                    <Loader2 className="w-4 h-4 animate-spin text-brand-purple" />
+                  </div>
+                )}
+              </div>
+              
+              {showLocationDropdown && locationOptions.length > 0 && (
+                <ul className="absolute z-50 w-full mt-1 bg-[#1e1e2d] border border-white/10 rounded-md shadow-lg max-h-60 overflow-auto py-1">
+                  {locationOptions.map((loc, idx) => (
+                    <li 
+                      key={idx} 
+                      className="px-3 py-2 text-sm text-white cursor-pointer hover:bg-white/10 transition-colors"
+                      onClick={() => {
+                        setFilters({...filters, location: loc});
+                        setShowLocationDropdown(false);
+                      }}
+                    >
+                      {loc}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div>
               <label className="text-xs text-text-muted mb-1 block">Min Followers</label>

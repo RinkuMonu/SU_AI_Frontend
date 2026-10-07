@@ -65,6 +65,11 @@ const influencerService = {
     return res.data;
   },
 
+  searchLocations: async (text: string): Promise<{ success: boolean; data: any }> => {
+    const res = await api.get(`/api/v1/influencers/locations/search?text=${encodeURIComponent(text)}`);
+    return res.data;
+  },
+
   addInfluencer: async (data: Omit<Influencer, 'id'>): Promise<{ success: boolean; data: Influencer }> => {
     const res = await api.post('/api/v1/influencers/add', data);
     return res.data;
