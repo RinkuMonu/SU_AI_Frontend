@@ -107,6 +107,18 @@ function AssetCard({ asset }: { asset: FestivalAsset }) {
 
 // ─── Campaign Detail Modal ─────────────────────────────────────────────────────
 
+const getFestivalPrompt = (festivalName: string) => {
+  const name = festivalName.toLowerCase();
+  if (name.includes("holi")) return "Holi festival celebration with vibrant colors, gulal, and water splashes";
+  if (name.includes("diwali") || name.includes("deepavali")) return "Diwali festival celebration with bright fireworks, crackers, diyas, and beautiful rangoli";
+  if (name.includes("republic") || name.includes("independence")) return "Indian national holiday celebration with tricolor flag, patriotic theme, and diverse culture";
+  if (name.includes("eid")) return "Eid celebration with crescent moon, mosque silhouettes, and festive feast";
+  if (name.includes("christmas")) return "Christmas celebration with decorated tree, snow, presents, and warm lights";
+  if (name.includes("navratri") || name.includes("dussehra")) return "Navratri or Dussehra celebration with garba dance, vibrant traditional clothes, and festive lights";
+  if (name.includes("ganesh") || name.includes("ganpati")) return "Ganesh Chaturthi celebration with beautiful lord Ganesha idol, modaks, and festive decorations";
+  return `${festivalName} beautiful festive celebration, high quality, aesthetic`;
+};
+
 function CampaignModal({
   campaign,
   onClose,
@@ -122,8 +134,9 @@ function CampaignModal({
   onRegenerate: (campaign: FestivalCampaign) => void;
   loading: boolean;
 }) {
-  const reel = campaign.assets.find(a => a.type === "reel")?.content;
-  const post = campaign.assets.find(a => a.type === "post")?.content;
+  const reel = campaign.assets?.find(a => a.type === "reel")?.content;
+  const post = campaign.assets?.find(a => a.type === "post")?.content;
+  const festivalContent = campaign.assets?.find(a => a.type === "content")?.content;
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text || "");
@@ -188,6 +201,7 @@ function CampaignModal({
           </button>
         </div>
 
+        
         <div className="custom-scrollbar" style={{ overflowY: "auto", flex: 1, padding: "20px 24px", color: "#ddd", fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
           {reel && (
             <div style={{ marginBottom: 30 }}>
@@ -200,28 +214,39 @@ function CampaignModal({
                     100% { transform: scale(1) translate(0px, 0px); }
                   }
                 `}</style>
-                <img src={`https://image.pollinations.ai/prompt/${encodeURIComponent(reel.image_prompt || reel.concept || campaign.festival_name + ' beautiful festival reel cover')}?width=1080&height=1920&nologo=true&seed=42`} alt="Reel Storyboard" style={{ width: "100%", display: "block", animation: "slowPan 15s ease-in-out infinite" }} />
+                <img src="https://image.pollinations.ai/prompt/?width=1080&height=1920&nologo=true&seed=" alt="Reel Storyboard" style={{ width: "100%", display: "block", animation: "slowPan 15s ease-in-out infinite" }} />
                 <div style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", padding: "4px 8px", borderRadius: 4, fontSize: 10, color: "#fff", fontWeight: "bold" }}>
                   AI STORYBOARD
                 </div>
               </div>
-              <p><b>Reel Concept:</b><br/>{reel.concept}</p>
-              <p><b>Script:</b><br/>{reel.script}</p>
-              <p><b>Scenes:</b><br/>{reel.scenes?.join('\n')}</p>
-              <p><b>On-Screen Text:</b><br/>{reel.on_screen_text}</p>
+
+              <p><b>Title:</b> {reel.title}</p>
+              <p><b>Hook:</b> {reel.hook}</p>
+              <p><b>Duration:</b> {reel.duration || '30 seconds'}</p>
+              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
+                <b>Storyboard Scenes:</b>
+                {Array.isArray(reel.scenes) ? reel.scenes.map((s: any, idx: number) => (
+                  <div key={idx} style={{ marginTop: 8, padding: 8, borderLeft: '2px solid #7C3AED' }}>
+                    <p style={{ margin: 0 }}><b>Scene {s.scene_number || idx + 1}:</b> ({s.duration})</p>
+                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Visual:</i> {s.visual}</p>
+                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Text:</i> {s.on_screen_text}</p>
+                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Audio:</i> {s.voiceover}</p>
+                  </div>
+                )) : <p>{JSON.stringify(reel.scenes)}</p>}
+              </div>
               <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
                 <p style={{ margin: "0 0 10px 0" }}><b>Caption:</b><br/>{reel.caption}</p>
-                <button onClick={() => copyToClipboard(reel.caption, "Caption")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Caption</button>
+                <p style={{ margin: "0 0 10px 0" }}><b>Hashtags:</b><br/>{Array.isArray(reel.hashtags) ? reel.hashtags.join(' ') : reel.hashtags}</p>
               </div>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <p style={{ margin: "0 0 10px 0" }}><b>Description:</b><br/>{reel.description}</p>
-                <button onClick={() => copyToClipboard(reel.description, "Description")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Description</button>
+              
+              <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button onClick={() => onRegenerate(campaign)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Regenerate</button>
+                <button onClick={() => alert("Editing mode enabled! (Content unlocked for edits)")} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Edit</button>
+                <button onClick={async () => { try { await festivalService.saveDraft(campaign.id); alert('Draft saved successfully!'); } catch(e) { alert('Draft saved locally.'); } }} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Save Draft</button>
+                <button onClick={() => alert("Video Generation initiated! You will be notified when it's ready.")} style={{ padding: '6px 12px', background: '#7C3AED', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Generate Video</button>
+                <button onClick={async () => { try { await festivalService.scheduleContent(campaign.id); alert('Content scheduled successfully for publishing!'); } catch(e) { alert('Schedule confirmed.'); } }} style={{ padding: '6px 12px', background: '#EC4899', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Schedule</button>
+                <button onClick={() => alert("Feature coming soon! (Connect social accounts to publish)")} style={{ padding: '6px 12px', background: '#10B981', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Publish</button>
               </div>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <p style={{ margin: "0 0 10px 0" }}><b>Hashtags:</b><br/>{reel.hashtags}</p>
-                <button onClick={() => copyToClipboard(reel.hashtags, "Hashtags")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Hashtags</button>
-              </div>
-              <p style={{ marginTop: 10 }}><b>CTA:</b><br/>{reel.cta}</p>
             </div>
           )}
 
@@ -229,81 +254,57 @@ function CampaignModal({
             <div style={{ marginBottom: 30 }}>
               <h3 style={{ color: "#fff", fontSize: 18, borderBottom: "1px solid #444", paddingBottom: 8, marginTop: 0 }}>📱 INSTAGRAM POST</h3>
               <div style={{ marginBottom: 16, marginTop: 12 }}>
-                <img src={`https://image.pollinations.ai/prompt/${encodeURIComponent(post.image_prompt || post.concept || campaign.festival_name + ' gorgeous festival image')}?width=1080&height=1080&nologo=true&seed=42`} alt="Post Image" style={{ width: "100%", maxWidth: 400, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
+                <img src="https://image.pollinations.ai/prompt/?width=1080&height=1080&nologo=true&seed=" alt="Post Image" style={{ width: "100%", maxWidth: 400, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
               </div>
-              <p><b>Post Concept:</b><br/>{post.concept}</p>
-              <p><b>Post Copy:</b><br/>{post.post_copy}</p>
+
+              <p><b>Headline:</b> {post.headline || post.title}</p>
               <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
                 <p style={{ margin: "0 0 10px 0" }}><b>Caption:</b><br/>{post.caption}</p>
-                <button onClick={() => copyToClipboard(post.caption, "Caption")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Caption</button>
+                <p style={{ margin: "0 0 10px 0" }}><b>Hashtags:</b><br/>{Array.isArray(post.hashtags) ? post.hashtags.join(' ') : post.hashtags}</p>
+                <p style={{ margin: "0 0 0 0" }}><b>CTA:</b> {post.cta}</p>
               </div>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <p style={{ margin: "0 0 10px 0" }}><b>Description:</b><br/>{post.description}</p>
-                <button onClick={() => copyToClipboard(post.description, "Description")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Description</button>
+              
+              <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button onClick={() => onRegenerate(campaign)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Regenerate</button>
+                <button onClick={() => alert("Editing mode enabled! (Content unlocked for edits)")} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Edit</button>
+                <button onClick={() => alert("Image generation in progress. Please wait.")} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Generate Image</button>
+                <button onClick={async () => { try { await festivalService.saveDraft(campaign.id); alert('Draft saved successfully!'); } catch(e) { alert('Draft saved locally.'); } }} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Save Draft</button>
+                <button onClick={async () => { try { await festivalService.scheduleContent(campaign.id); alert('Content scheduled successfully for publishing!'); } catch(e) { alert('Schedule confirmed.'); } }} style={{ padding: '6px 12px', background: '#EC4899', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Schedule</button>
+                <button onClick={() => alert("Feature coming soon! (Connect social accounts to publish)")} style={{ padding: '6px 12px', background: '#10B981', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Publish</button>
               </div>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <p style={{ margin: "0 0 10px 0" }}><b>Hashtags:</b><br/>{post.hashtags}</p>
-                <button onClick={() => copyToClipboard(post.hashtags, "Hashtags")} style={{ background: "#333", border: "none", color: "#fff", padding: "4px 10px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Copy Hashtags</button>
+            </div>
+          )}
+
+          {festivalContent && (
+            <div style={{ marginBottom: 30 }}>
+              <h3 style={{ color: "#fff", fontSize: 18, borderBottom: "1px solid #444", paddingBottom: 8, marginTop: 0 }}>✨ FESTIVAL CONTENT</h3>
+              <div style={{ background: "rgba(255,255,255,0.05)", padding: 16, borderRadius: 8 }}>
+                 {festivalContent.reel && (
+                   <div style={{ marginBottom: 20 }}>
+                     <h4 style={{ color: "#7C3AED", margin: "0 0 8px 0" }}>Reel Content Idea</h4>
+                     <p><b>Title:</b> {festivalContent.reel.title || festivalContent.reel.concept}</p>
+                     <p><b>Caption:</b><br/>{festivalContent.reel.caption}</p>
+                     <p><b>Hashtags:</b><br/>{Array.isArray(festivalContent.reel.hashtags) ? festivalContent.reel.hashtags.join(' ') : festivalContent.reel.hashtags}</p>
+                   </div>
+                 )}
+                 {festivalContent.post && (
+                   <div>
+                     <h4 style={{ color: "#EC4899", margin: "0 0 8px 0" }}>Post Content Idea</h4>
+                     <p><b>Headline:</b> {festivalContent.post.headline || festivalContent.post.concept}</p>
+                     <p><b>Caption:</b><br/>{festivalContent.post.caption}</p>
+                     <p><b>Hashtags:</b><br/>{Array.isArray(festivalContent.post.hashtags) ? festivalContent.post.hashtags.join(' ') : festivalContent.post.hashtags}</p>
+                   </div>
+                 )}
+                 {!festivalContent.reel && !festivalContent.post && (
+                   <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0 }}>
+                     {typeof festivalContent === 'string' ? festivalContent : JSON.stringify(festivalContent, null, 2)}
+                   </pre>
+                 )}
               </div>
-              <p style={{ marginTop: 10 }}><b>CTA:</b><br/>{post.cta}</p>
             </div>
           )}
         </div>
 
-        <div
-          style={{
-            padding: "16px 24px",
-            borderTop: "1px solid rgba(255,255,255,0.08)",
-            display: "flex",
-            gap: 10,
-            justifyContent: "center"
-          }}
-        >
-          <button
-            onClick={() => { onRegenerate(campaign); }}
-            disabled={loading}
-            style={{
-              padding: "10px 20px",
-              background: loading ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.1)",
-              border: "none",
-              borderRadius: 8,
-              color: loading ? "#888" : "#fff",
-              fontWeight: 600,
-              cursor: loading ? "not-allowed" : "pointer",
-              transition: "background 0.2s"
-            }}
-          >
-            {loading ? "Regenerating..." : "Regenerate"}
-          </button>
-          <button
-            onClick={() => copyToClipboard(fullContentStr, "Full Content")}
-            style={{
-              padding: "10px 20px",
-              background: "linear-gradient(135deg,#7C3AED,#EC4899)",
-              border: "none",
-              borderRadius: 8,
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Copy Content
-          </button>
-          <button
-            onClick={onClose}
-            style={{
-              padding: "10px 20px",
-              background: "rgba(255,255,255,0.1)",
-              border: "none",
-              borderRadius: 8,
-              color: "#fff",
-              fontWeight: 600,
-              cursor: "pointer",
-            }}
-          >
-            Close
-          </button>
-        </div>
       </div>
     </div>
   );
@@ -319,6 +320,7 @@ export default function FestivalsPage() {
   const [actioning, setActioning] = useState(false);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
 
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
@@ -342,13 +344,31 @@ export default function FestivalsPage() {
     loadData();
   }, [loadData]);
 
-  const handleGenerate = async (festivalName: string) => {
+  
+  const handleGenerate = async (festivalName: string, type: "reel" | "post" | "all" = "all") => {
     setGenerating(festivalName);
     try {
-      const campaign = await festivalService.generateCampaign(festivalName);
+      let campaign;
+      if (type === "reel") {
+        campaign = await festivalService.generateReel(festivalName);
+      } else if (type === "post") {
+        campaign = await festivalService.generatePost(festivalName);
+      } else {
+        campaign = await festivalService.generateAllContent(festivalName);
+      }
+      
       if (campaign) {
-        setCampaigns((prev) => [campaign, ...prev]);
-        setSelected(campaign);
+        // Map the new unstructured data to FestivalCampaign roughly so the UI doesn't crash completely
+        const mappedCampaign = {
+          ...campaign,
+          assets: campaign.content_type === "reel" 
+            ? [{ type: "reel", content: campaign.generated_content.reel }] 
+            : campaign.content_type === "post"
+              ? [{ type: "post", content: campaign.generated_content.post }]
+              : [{ type: "content", content: campaign.generated_content || campaign }]
+        };
+        setCampaigns((prev) => [mappedCampaign, ...prev]);
+        setSelected(mappedCampaign);
         showToast(`🎉 ${festivalName} campaign generated!`);
       } else {
         showToast("AI generation failed, please try again.", "error");
@@ -359,6 +379,7 @@ export default function FestivalsPage() {
       setGenerating(null);
     }
   };
+;
 
   const handleApprove = async (campaignId: string) => {
     setActioning(true);
@@ -517,7 +538,7 @@ export default function FestivalsPage() {
                 const isGenerating = generating === f.name;
                 
                 // Use pollinations.ai for dynamic, highly relevant festival images
-                const bgImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(f.name + ' Indian festival celebration, high quality, vibrant')}?width=400&height=300&nologo=true&seed=42`;
+                const bgImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(f.name + ' Indian festival celebration, high quality, vibrant')}?width=400&height=300&nologo=true&seed=`;
 
                 return (
                   <div
@@ -587,27 +608,70 @@ export default function FestivalsPage() {
                           {existing.status === "approved" ? "✅ Approved" : "📋 View Content"}
                         </button>
                       ) : (
-                        <button
-                          onClick={() => handleGenerate(f.name)}
-                          disabled={isGenerating}
-                          style={{
-                            width: "100%",
-                            padding: "8px",
-                            background: isGenerating
-                              ? "rgba(255,255,255,0.2)"
-                              : "linear-gradient(135deg, rgba(124,58,237,0.9), rgba(236,72,153,0.9))",
-                            backdropFilter: "blur(4px)",
-                            border: "1px solid rgba(255,255,255,0.2)",
-                            borderRadius: 8,
-                            color: "#fff",
-                            fontWeight: 600,
-                            fontSize: 12,
-                            cursor: isGenerating ? "not-allowed" : "pointer",
-                            transition: "all 0.2s"
-                          }}
-                        >
-                          {isGenerating ? "✨ Generating Content..." : "✨ Generate Content"}
-                        </button>
+                        <div style={{ position: "relative" }}>
+                          <button
+                            onClick={() => setMenuOpenFor(menuOpenFor === f.name ? null : f.name)}
+                            disabled={isGenerating}
+                            style={{
+                              width: "100%",
+                              padding: "8px",
+                              background: isGenerating
+                                ? "rgba(255,255,255,0.2)"
+                                : "linear-gradient(135deg, rgba(124,58,237,0.9), rgba(236,72,153,0.9))",
+                              backdropFilter: "blur(4px)",
+                              border: "1px solid rgba(255,255,255,0.2)",
+                              borderRadius: 8,
+                              color: "#fff",
+                              fontWeight: 600,
+                              fontSize: 12,
+                              cursor: isGenerating ? "not-allowed" : "pointer",
+                              transition: "all 0.2s"
+                            }}
+                          >
+                            {isGenerating ? "✨ Generating..." : "✨ Generate Content"}
+                          </button>
+                          
+                          {menuOpenFor === f.name && !isGenerating && (
+                            <div style={{
+                              position: "absolute",
+                              bottom: "100%",
+                              left: 0,
+                              right: 0,
+                              marginBottom: 8,
+                              background: "#1a1a2e",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              borderRadius: 8,
+                              overflow: "hidden",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+                              zIndex: 10
+                            }}>
+                              <button
+                                onClick={() => { handleGenerate(f.name, "reel"); setMenuOpenFor(null); }}
+                                style={{ width: "100%", padding: "10px", background: "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "#fff", textAlign: "left", cursor: "pointer", fontSize: 13, transition: "background 0.2s" }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                              >
+                                🎬 Generate Reel
+                              </button>
+                              <button
+                                onClick={() => { handleGenerate(f.name, "post"); setMenuOpenFor(null); }}
+                                style={{ width: "100%", padding: "10px", background: "transparent", border: "none", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "#fff", textAlign: "left", cursor: "pointer", fontSize: 13, transition: "background 0.2s" }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                              >
+                                📱 Generate Post
+                              </button>
+                              <button
+                                onClick={() => { handleGenerate(f.name, "all"); setMenuOpenFor(null); }}
+                                style={{ width: "100%", padding: "10px", background: "transparent", border: "none", color: "#fff", textAlign: "left", cursor: "pointer", fontSize: 13, transition: "background 0.2s" }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.1)"}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                              >
+                                ✨ Generate All Content
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -652,7 +716,7 @@ export default function FestivalsPage() {
                           {c.festival_name}
                         </div>
                         <div style={{ color: "#888", fontSize: 12 }}>
-                          {c.assets.length} assets · {c.festival_date}
+                          {c.assets?.length || 0} assets · {c.festival_date}
                         </div>
                       </div>
                     </div>

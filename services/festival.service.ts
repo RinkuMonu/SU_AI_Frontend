@@ -49,7 +49,27 @@ const festivalService = {
     return res.data?.data || { upcoming_festivals: [], campaigns: [] };
   },
 
+
+  async generateReel(festivalName: string): Promise<any> {
+    const encoded = encodeURIComponent(festivalName);
+    const res = await api.post(`/api/v1/festivals/${encoded}/generate-reel`);
+    return res.data?.data || null;
+  },
+
+  async generatePost(festivalName: string): Promise<any> {
+    const encoded = encodeURIComponent(festivalName);
+    const res = await api.post(`/api/v1/festivals/${encoded}/generate-post`);
+    return res.data?.data || null;
+  },
+
+  async generateAllContent(festivalName: string): Promise<any> {
+    const encoded = encodeURIComponent(festivalName);
+    const res = await api.post(`/api/v1/festivals/${encoded}/generate-all-content`);
+    return res.data?.data || null;
+  },
+
   async generateCampaign(festivalName: string): Promise<FestivalCampaign | null> {
+
     const encoded = encodeURIComponent(festivalName);
     const res = await api.post(`/api/v1/festivals/generate/?festival_name=${encoded}`);
     return res.data?.data || null;
@@ -57,6 +77,22 @@ const festivalService = {
 
   async approveCampaign(campaignId: string): Promise<{ message: string }> {
     const res = await api.post(`/api/v1/festivals/${campaignId}/approve`);
+    return res.data;
+  },
+
+
+  async saveDraft(campaignId: string): Promise<{ message: string }> {
+    const res = await api.post(`/api/v1/festivals/${campaignId}/save-draft`, {});
+    return res.data;
+  },
+
+  async scheduleContent(campaignId: string): Promise<{ message: string }> {
+    const res = await api.post(`/api/v1/festivals/${campaignId}/schedule`, {});
+    return res.data;
+  },
+
+  async publishContent(campaignId: string): Promise<{ message: string }> {
+    const res = await api.post(`/api/v1/festivals/${campaignId}/publish`, {});
     return res.data;
   },
 

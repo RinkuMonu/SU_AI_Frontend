@@ -57,7 +57,7 @@ const navigation = [
     ]
   },
   {
-    name: "Fashion AI",
+    name: "AI Avatar",
     icon: Sparkles,
     children: [
       { name: "AI Photoshoot", href: "/fashion-ai/photoshoot" },
@@ -91,7 +91,7 @@ export function Sidebar() {
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     "Image and Reel Generator": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
-    "Fashion AI": ["/fashion-ai"].some(p => pathname.startsWith(p)),
+    "AI Avatar": ["/fashion-ai"].some(p => pathname.startsWith(p)),
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p))
   });
 
