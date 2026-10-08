@@ -5,7 +5,7 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Clock, Calendar, Share2, Twitter, Linkedin, Facebook } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Share2, AtSign, Globe, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -81,13 +81,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <h3 className="text-lg font-bold text-slate-900">Share this article</h3>
             <div className="flex items-center gap-3">
               <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-slate-200 text-slate-600 hover:bg-[#1DA1F2] hover:text-white hover:border-[#1DA1F2]">
-                <Twitter className="w-5 h-5" />
+                <AtSign className="w-5 h-5" />
               </Button>
               <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-slate-200 text-slate-600 hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2]">
-                <Linkedin className="w-5 h-5" />
+                <Globe className="w-5 h-5" />
               </Button>
               <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-slate-200 text-slate-600 hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2]">
-                <Facebook className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5" />
               </Button>
               <Button variant="outline" size="icon" className="rounded-full w-12 h-12 border-slate-200 text-slate-600 hover:bg-slate-100">
                 <Share2 className="w-5 h-5" />
