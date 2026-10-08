@@ -215,6 +215,18 @@ export default function WebsiteBuilderPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   const endRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleSend("I uploaded my logo", { action: "upload_logo", base64: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     const initSession = async () => {
@@ -402,6 +414,7 @@ export default function WebsiteBuilderPage() {
       
       {/* LEFT PANE: AI EDITOR CHAT */}
       <div className="w-[400px] min-w-[400px] flex flex-col border-r border-white/10 bg-[#111827] z-10 relative shadow-xl">
+        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
         <div className="p-4 border-b border-white/10 bg-gradient-to-r from-purple-900/40 to-pink-900/40 flex justify-between items-center">
           <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
