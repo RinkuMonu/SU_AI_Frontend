@@ -16,8 +16,7 @@ import type { GeneratedPost } from "@/types/content";
 export default function AIPostPage() {
 
   const [products, setProducts] = useState<any[]>([]);
-
-  const [productId, setProductId] = useState("");
+  const [productIds, setProductIds] = useState<string[]>([]);
   const [platform, setPlatform] = useState("instagram");
   const [objective, setObjective] = useState(
     "product_promotion"
@@ -39,7 +38,7 @@ export default function AIPostPage() {
         const data = await FashionService.getProducts();
         setProducts(data);
         if (data.length > 0) {
-          setProductId(data[0].id);
+          setProductIds([data[0].id]);
         }
       } catch (error) {
         console.error("Failed to load products", error);
@@ -52,8 +51,8 @@ export default function AIPostPage() {
 
   const handleGenerate = async () => {
 
-    if (!productId) {
-      alert("Please select a product");
+    if (productIds.length === 0) {
+      alert("Please select at least one product");
       return;
     }
 
@@ -64,7 +63,8 @@ export default function AIPostPage() {
       setHasInsufficientCredits(false);
 
       const result = await generatePost({
-        product_id: productId,
+        product_id: productIds[0], // for backward compatibility
+        product_ids: productIds,
         platform,
         objective,
         language,
@@ -125,9 +125,29 @@ export default function AIPostPage() {
 
             <ProductSelector
               products={products}
-              value={productId}
-              onChange={setProductId}
+              value={productIds}
+              onChange={setProductIds}
             />
+
+            {productIds.length > 0 && (
+              <div className="mt-6 p-4 bg-brand-purple/5 border border-brand-purple/20 rounded-xl">
+                <div className="flex justify-between items-center mb-3">
+                  <h3 className="font-semibold text-brand-purple">Selected Products ({productIds.length})</h3>
+                  <button onClick={() => setProductIds([])} className="text-xs text-text-muted hover:text-white transition">Remove All</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {productIds.map(id => {
+                    const p = products.find(prod => prod.id === id);
+                    return p ? (
+                      <div key={id} className="flex items-center gap-2 bg-surface border border-border px-3 py-1.5 rounded-full text-sm">
+                        <svg className="w-3 h-3 text-green-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        {p.name}
+                      </div>
+                    ) : null;
+                  })}
+                </div>
+              </div>
+            )}
 
           </section>
 
@@ -181,7 +201,7 @@ export default function AIPostPage() {
           {generatedPost && (
             <GeneratedPostCard
               post={generatedPost}
-              imageUrl={products.find(p => p.id === productId)?.image_url}
+              imageUrl={products.find(p => productIds.includes(p.id))?.image_url}
             />
           )}
 

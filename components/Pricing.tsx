@@ -21,12 +21,12 @@ export function Pricing() {
               key={idx}
               className={cn(
                 'rounded-3xl p-8 relative flex flex-col',
-                plan.highlighted 
+                plan.popular 
                   ? 'bg-white border border-primary/50 shadow-[0_0_50px_rgba(125,54,250,0.12)] py-12 z-10'
                   : 'bg-slate-50 border border-slate-200'
               )}
             >
-              {plan.highlighted && (
+              {plan.popular && (
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-background text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider">
                   Most Popular
                 </div>
@@ -41,13 +41,13 @@ export function Pricing() {
               </div>
 
               <Button 
-                variant={plan.highlighted ? 'primary' : 'outline'} 
+                variant={plan.popular ? 'default' : 'outline'} 
                 className={cn(
                   'w-full mb-8',
-                  !plan.highlighted && 'border-slate-300 text-slate-900 hover:bg-slate-100'
+                  !plan.popular && 'border-slate-300 text-slate-900 hover:bg-slate-100'
                 )}
               >
-                {plan.cta}
+                Get Started
               </Button>
 
               <div className="space-y-4 flex-1">

@@ -41,7 +41,7 @@ export function Blog() {
               </h3>
               
               <p className="text-slate-600 text-sm mb-6 line-clamp-2">
-                {post.description}
+                {post.excerpt}
               </p>
               
               <div className="flex items-center gap-2 text-slate-900 text-sm font-medium group-hover:text-[#f0449b] transition-colors">

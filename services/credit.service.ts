@@ -9,9 +9,10 @@ export const creditService = {
     } catch (error) {
       console.warn("Credit API failed, returning mock data");
       return {
+        plan: "FREE",
+        credits_total: 100,
         credits_remaining: 100,
-        total_credits: 100,
-        used_credits: 0
+        credits_used: 0
       } as CreditBalance;
     }
   },

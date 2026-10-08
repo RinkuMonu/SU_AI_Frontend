@@ -1,7 +1,23 @@
 import axios from "axios";
 
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    if (isLocal) {
+      const envUrl = process.env.NEXT_PUBLIC_API_URL;
+      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
+        return envUrl.replace(/\/docs\/?$/, "").replace(/\/$/, "");
+      }
+      return "http://localhost:8000";
+    }
+  }
+
+  let url = process.env.NEXT_PUBLIC_API_URL || "https://api.dhandagrow.com";
+  return url.replace(/\/docs\/?$/, "").replace(/\/$/, "");
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
   },

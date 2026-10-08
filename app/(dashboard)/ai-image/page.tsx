@@ -12,7 +12,7 @@ import { FashionService } from "@/services/fashion.service";
 
 export default function AIImagePage() {
   const [products, setProducts] = useState<any[]>([]);
-  const [productId, setProductId] = useState("");
+  const [productIds, setProductIds] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ export default function AIImagePage() {
 
       const result = await imageService.generateImage({
         prompt: prompt.trim(),
-        product_id: productId || undefined,
+        product_id: productIds[0] || undefined,
       });
 
       if (result.success && result.data?.image_url) {
@@ -157,8 +157,8 @@ export default function AIImagePage() {
             </p>
             <ProductSelector
               products={products}
-              value={productId}
-              onChange={setProductId}
+              value={productIds}
+              onChange={setProductIds}
             />
           </section>
 
