@@ -1,132 +1,82 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #fae8ff;
-  --color-primary-100: #f3cbf8;
-  --color-primary-200: #ecabf1;
-  --color-primary-300: #e58ce9;
-  --color-primary-400: #df6ce2;
-  --color-primary-500: #d84edb;
-  --color-primary-600: #BE32FF;
-  --color-primary-700: #a028d9;
-  --color-primary-800: #8220b0;
-  --color-primary-900: #65178a;
-  --color-primary-950: #491063;
-
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-border: var(--border);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-
-  /* Brand Colors */
-  --color-brand-purple: var(--brand-purple);
-  --color-brand-pink: var(--brand-pink);
-  --color-brand-coral: var(--brand-coral);
+  --color-primary: #fc9a5d;
+  --color-primary-hover: #f0449b;
+  --color-accent: #be32ff;
+  --color-accent-strong: #7d36fa;
+  --color-background: #080808;
+  --color-foreground: #f0f0f0;
   
-  /* Surfaces */
-  --color-surface: var(--surface);
-  --color-surface-secondary: var(--surface-secondary);
-  --color-surface-elevated: var(--surface-elevated);
-
-  /* Text Colors */
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-text-muted: var(--text-muted);
-
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --color-surface: #111111;
+  --color-surface-hover: #1a1a1a;
+  
+  --color-glass: rgba(255, 255, 255, 0.03);
+  --color-glass-border: rgba(255, 255, 255, 0.08);
 }
 
-:root {
-  --background: #071023;
-  --foreground: #FFFFFF;
-  
-  --brand-purple: #BE32FF;
-  --brand-pink: #F0449B;
-  --brand-coral: #FC9A5D;
+@layer base {
+  :root {
+    --background: 0 0% 3%;
+    --foreground: 0 0% 98%;
+  }
 
-  --surface: #0B1630;
-  --surface-secondary: #101D3A;
-  --surface-elevated: #142343;
-
-  --text-primary: #FFFFFF;
-  --text-secondary: #CBD5E1;
-  --text-muted: #94A3B8;
-
-  --card: #0B1630;
-  --card-foreground: #FFFFFF;
-  --border: rgba(255, 255, 255, 0.08);
-  --muted: #101D3A;
-  --muted-foreground: #94A3B8;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans, system-ui, sans-serif);
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-inter), sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
 }
 
 @layer utilities {
-  .bg-brand-gradient {
-    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-pink) 55%, var(--brand-coral) 100%);
+  .glass-panel {
+    background: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--color-glass-border);
   }
   
-  .text-brand-gradient {
-    background: linear-gradient(135deg, var(--brand-purple) 0%, var(--brand-pink) 55%, var(--brand-coral) 100%);
+  .text-gradient {
+    background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, #fc9a5d, #f0449b, #be32ff, #7d36fa);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes trust-logos-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.trust-logo-track {
+  animation: trust-logos-scroll 30s linear infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-logo-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
   }
 
-  .glass-card {
-    background: rgba(11, 22, 48, 0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+  .trust-logo-group[aria-hidden='true'] {
+    display: none;
   }
 
-  @keyframes wave {
-    0% { transform: rotate(0.0deg) }
-    10% { transform: rotate(14.0deg) }
-    20% { transform: rotate(-8.0deg) }
-    30% { transform: rotate(14.0deg) }
-    40% { transform: rotate(-4.0deg) }
-    50% { transform: rotate(10.0deg) }
-    60% { transform: rotate(0.0deg) }
-    100% { transform: rotate(0.0deg) }
-  }
-
-  .animate-wave {
-    animation: wave 2.5s infinite;
-    transform-origin: 70% 70%;
-  }
-
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
-  }
-
-  .animate-shimmer {
-    animation: shimmer 1.5s infinite;
-  }
-  
-  /* Custom Scrollbar for dark theme */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: var(--surface);
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: var(--surface-secondary);
-    border-radius: 10px;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: var(--surface-elevated);
+  .trust-logo-group {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+    padding-right: 0;
   }
 }
