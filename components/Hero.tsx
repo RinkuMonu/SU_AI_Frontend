@@ -1,57 +1,92 @@
 import React from 'react';
 import { Button } from './ui/button';
+import { Sparkles, ArrowRight, PlayCircle, Check } from 'lucide-react';
 
 export function Hero() {
   return (
-    <section className="relative min-h-[850px] flex items-center justify-center pt-32 pb-20 overflow-hidden">
-      {/* Background Image & Overlay */}
-      <div className="absolute inset-0 z-0">
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80 scale-105"
-          style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2940&auto=format&fit=crop")' }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#fc9a5d]/10 via-background/0 to-transparent" />
+    <section className="relative min-h-[90vh] flex items-center pt-32 pb-20 overflow-hidden bg-background">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat lg:bg-right"
+        style={{ backgroundImage: 'url("/images/ai_bg.png")' }}
+      />
+      
+      {/* Gradient overlays to ensure text readability */}
+      <div className="absolute inset-0 z-0 bg-background/80 lg:bg-transparent" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-background via-background/90 to-transparent lg:w-[60%]" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        
+        {/* Left Content Area */}
+        <div className="flex flex-col items-start text-left max-w-3xl pt-10 pb-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8 shadow-xl">
+            <Sparkles className="w-4 h-4 text-[#fc9a5d]" />
+            <span className="text-sm text-white/90 font-medium">AI-Powered Business Growth Platform</span>
+          </div>
+
+          {/* Main Heading */}
+          <h1 className="text-[48px] sm:text-[60px] md:text-[72px] lg:text-[84px] leading-[1.05] font-bold tracking-tight text-white mb-6 drop-shadow-lg">
+            Grow your <br className="hidden sm:block" />
+            business with <span className="text-gradient pr-2">AI.</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mb-10 font-medium leading-relaxed drop-shadow-md">
+            All the tools you need to create, publish, automate and grow your business — powered by advanced AI.
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 mb-10 w-full sm:w-auto">
+            <Button variant="default" size="lg" className="w-full sm:w-auto text-base h-14 px-8 group font-semibold shadow-lg">
+              Get Started Free
+              <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+            </Button>
+            <Button variant="outline" size="lg" className="w-full sm:w-auto text-base h-14 px-8 bg-black/20 backdrop-blur-md border-white/20 hover:bg-white/10 font-semibold text-white shadow-lg">
+              <PlayCircle className="w-5 h-5 mr-2" />
+              Watch Demo
+            </Button>
+          </div>
+
+          {/* Features List */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-4 text-sm text-white/80 font-medium">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center">
+                <Check className="w-5 h-5 text-[#fc9a5d] stroke-[3]" />
+              </div>
+              No Credit Card Required
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center">
+                <Check className="w-5 h-5 text-[#fc9a5d] stroke-[3]" />
+              </div>
+              Setup in Minutes
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center justify-center">
+                <Check className="w-5 h-5 text-[#fc9a5d] stroke-[3]" />
+              </div>
+              Used by 10,000+ Businesses
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col items-center text-center">
-        
-        {/* Main Heading */}
-        <h1 className="text-[44px] sm:text-[64px] md:text-[80px] lg:text-[110px] leading-[1.05] font-semibold tracking-tighter text-white max-w-5xl mb-8">
-          Grow your business <br className="hidden md:block" />
-          with <span className="text-[#fc9a5d] italic pr-2">AI.</span>
-        </h1>
-
-        {/* Subtitle */}
-        <p className="text-lg md:text-xl text-white/70 max-w-2xl mb-10 font-medium">
-          AI-powered tools that help your business create, publish and grow faster — while you focus on what matters.
-        </p>
-
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center gap-4">
-          <Button variant="default" size="lg" className="w-full sm:w-auto">
-            Get Started
-          </Button>
-          <Button variant="outline" size="lg" className="w-full sm:w-auto">
-            Explore Platform
-          </Button>
-        </div>
-
-        {/* Floating Info Panel - Mobile hidden, desktop absolute */}
-        <div className="hidden lg:flex absolute right-4 bottom-12 glass-panel rounded-2xl p-5 items-center gap-5 w-[320px] animate-in slide-in-from-right-8 fade-in duration-1000 delay-500">
-          <div className="flex flex-col flex-1">
-            <span className="text-[10px] font-bold tracking-widest text-white/50 uppercase mb-1">Your business is growing</span>
-            <span className="text-sm font-medium text-white">AI-powered marketing</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-[2px] bg-white/10 rounded-full overflow-hidden">
-              <div className="h-1/2 w-full bg-gradient-to-b from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] rounded-full animate-pulse" />
-            </div>
-            <span className="text-3xl font-light text-white tracking-tighter">
-              24<span className="text-[#f0449b]">/</span>7
-            </span>
-          </div>
-        </div>
+      {/* Bottom Curved Divider */}
+      <div className="absolute bottom-[0px] left-0 w-full overflow-hidden leading-none z-20 pointer-events-none translate-y-px">
+        <svg 
+          data-name="Layer 1" 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 1200 120" 
+          preserveAspectRatio="none" 
+          className="relative block w-full h-[60px] md:h-[90px] lg:h-[120px]"
+        >
+          <path 
+            d="M0,120 L0,0 Q600,120 1200,0 L1200,120 Z" 
+            className="fill-white"
+          />
+        </svg>
       </div>
     </section>
   );

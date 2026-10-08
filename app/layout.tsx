@@ -8,8 +8,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "V | AI-Powered Marketing for Growing Businesses",
+  title: "DhandaGrow AI | All-in-One Business Growth Platform",
   description: "Automate your marketing, create content instantly, and grow your business with DhandaGrow's advanced AI platform.",
+  icons: {
+    icon: '/images/dhandagrow.png',
+  },
 };
 
 import { AuthProvider } from "@/components/auth/AuthProvider";

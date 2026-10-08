@@ -3,20 +3,23 @@ import { blogPosts } from '@/data/blog';
 import { SectionHeading } from './ui/SectionHeading';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export function Blog() {
   return (
     <section id="blog" className="py-24 bg-[#f8f9fc]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <SectionHeading 
-          title="Latest insights."
-          subtitle="Learn how the best brands are using AI to scale."
-          tone="light"
-        />
-
+        <div className="flex flex-col items-center text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+            Latest insights.
+          </h2>
+          <p className="text-slate-500 text-lg max-w-2xl mx-auto font-medium">
+            Learn how the best brands are using AI to scale.
+          </p>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
           {blogPosts.map((post) => (
-            <div key={post.id} className="group cursor-pointer">
+            <Link href={`/blog/${post.slug}`} key={post.id} className="group cursor-pointer block">
               <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-6">
                 <Image 
                   src={post.image}
@@ -41,13 +44,13 @@ export function Blog() {
               </h3>
               
               <p className="text-slate-600 text-sm mb-6 line-clamp-2">
-                {post.description}
+                {post.excerpt || post.description}
               </p>
               
               <div className="flex items-center gap-2 text-slate-900 text-sm font-medium group-hover:text-[#f0449b] transition-colors">
                 Read article <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

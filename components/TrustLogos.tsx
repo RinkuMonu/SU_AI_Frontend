@@ -1,40 +1,34 @@
 import React from 'react';
 
 const logos = [
-  "Acme Corp", "GlobalTech", "Quantum", "Nexus", "Vertex AI", "Horizon", "Pinnacle"
+  { name: 'Google', url: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg', height: 'h-8' },
+  { name: 'Microsoft', url: 'https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg', height: 'h-8' },
+  { name: 'Meta', url: 'https://upload.wikimedia.org/wikipedia/commons/7/7b/Meta_Platforms_Inc._logo.svg', height: 'h-6' },
+  { name: 'Shopify', url: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Shopify_logo_2018.svg', height: 'h-8' },
+  { name: 'Amazon', url: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg', height: 'h-8' },
+  { name: 'PayPal', url: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg', height: 'h-7' }
 ];
 
 export function TrustLogos() {
   return (
-    <section className="py-12 border-y border-slate-200 bg-white">
+    <section className="py-10 bg-white border-b border-slate-100 relative z-10 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          <p className="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase whitespace-nowrap">
-            Trusted by growing businesses
+        <div className="flex flex-col items-center justify-center space-y-8">
+          <p className="text-[13px] font-semibold text-[#6b7280]">
+            Trusted by <span className="font-bold text-[#374151]">10,000+</span> businesses worldwide
           </p>
           
-          <div className="min-w-0 w-full md:flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-            <div className="trust-logo-track flex w-max">
-              {[0, 1].map((group) => (
-                <div
-                  key={group}
-                  className="trust-logo-group flex shrink-0 items-center gap-12 pr-12"
-                  aria-hidden={group === 1}
-                  role={group === 0 ? 'list' : undefined}
-                  aria-label={group === 0 ? 'Trusted businesses' : undefined}
-                >
-                  {logos.map((logo) => (
-                    <span
-                      key={logo}
-                      className="text-lg font-bold text-slate-400 tracking-tighter grayscale opacity-70 hover:opacity-100 hover:text-red-600 transition-all cursor-default"
-                      role={group === 0 ? 'listitem' : undefined}
-                    >
-                      {logo}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
+          <div className="flex flex-wrap justify-center items-center gap-10 md:gap-16 lg:gap-20">
+            {logos.map((logo) => (
+              <div key={logo.name} className="flex items-center justify-center">
+                <img 
+                  src={logo.url} 
+                  alt={`${logo.name} logo`} 
+                  className={`object-contain ${logo.height} opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300`}
+                  style={{ filter: "grayscale(100%) opacity(0.6) contrast(1.2)" }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
