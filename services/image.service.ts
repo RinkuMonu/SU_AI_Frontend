@@ -3,6 +3,7 @@ import api from "@/lib/api";
 export interface GenerateImageRequest {
   prompt: string;
   product_id?: string;
+  reference_images?: string[];
   additional_instruction?: string;
 }
 

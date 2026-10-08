@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 interface Product {
   id: string;
   name: string;
@@ -19,7 +21,6 @@ export default function ProductSelector({
   onChange,
   maxSelection = 5,
 }: ProductSelectorProps) {
-
   const handleSelect = (id: string) => {
     if (value.includes(id)) {
       onChange(value.filter(v => v !== id));
@@ -35,7 +36,6 @@ export default function ProductSelector({
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {products.map((product) => {
-
         const selected = value.includes(product.id);
 
         return (
@@ -44,8 +44,7 @@ export default function ProductSelector({
             type="button"
             onClick={() => handleSelect(product.id)}
             className={`
-              relative rounded-xl border p-4 text-left
-              transition
+              relative rounded-xl border p-4 text-left transition-all
               ${
                 selected
                   ? "border-brand-purple ring-2 ring-brand-purple/20 bg-brand-purple/5"
@@ -55,7 +54,7 @@ export default function ProductSelector({
           >
             {selected && (
               <div className="absolute top-2 right-2 bg-brand-purple text-white rounded-full p-1 shadow-md">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
               </div>
             )}
 
@@ -67,10 +66,9 @@ export default function ProductSelector({
               />
             )}
 
-            <p className="font-medium">
+            <p className="font-medium text-sm text-white truncate">
               {product.name}
             </p>
-
           </button>
         );
       })}

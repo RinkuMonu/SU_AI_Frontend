@@ -32,30 +32,25 @@ export default function ObjectiveSelector({
   value,
   onChange,
 }: Props) {
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-
+    <div className="flex flex-wrap gap-2">
       {objectives.map((objective) => (
-
         <button
           key={objective.id}
           type="button"
           onClick={() => onChange(objective.id)}
           className={`
-            rounded-xl border p-4 text-left
+            px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap
             ${
               value === objective.id
-                ? "border-black bg-black text-white"
-                : "border-gray-200"
+                ? "border-brand-purple bg-brand-purple text-white shadow-md shadow-purple-500/20"
+                : "border-border bg-[#0a142c] text-text-muted hover:text-white hover:border-brand-purple/50"
             }
           `}
         >
           {objective.name}
         </button>
-
       ))}
-
     </div>
   );
 }

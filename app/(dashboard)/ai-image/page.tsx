@@ -4,15 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Download, Sparkles, Image as ImageIcon, Loader2, Share2, CheckCircle2 } from "lucide-react";
 
-import ProductSelector from "@/components/ai/ProductSelector";
+import MultiImageUploader from "@/components/ai/MultiImageUploader";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 
 import { imageService } from "@/services/image.service";
-import { FashionService } from "@/services/fashion.service";
 
 export default function AIImagePage() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [productIds, setProductIds] = useState<string[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -41,15 +39,7 @@ export default function AIImagePage() {
   };
 
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const data = await FashionService.getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to load products", error);
-      }
-    }
-    loadProducts();
+    // Component mounted
   }, []);
 
   const handleGenerate = async () => {
@@ -66,7 +56,7 @@ export default function AIImagePage() {
 
       const result = await imageService.generateImage({
         prompt: prompt.trim(),
-        product_id: productIds[0] || undefined,
+        reference_images: uploadedImages.length > 0 ? uploadedImages : undefined,
       });
 
       if (result.success && result.data?.image_url) {
@@ -151,15 +141,15 @@ export default function AIImagePage() {
 
           <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-2 text-white">
-              Product Context <span className="text-sm font-normal text-text-muted">(Optional)</span>
+              Reference Images <span className="text-sm font-normal text-text-muted">(Optional)</span>
             </h2>
             <p className="text-sm text-text-muted mb-5">
-              Select a product if you want the image generation to incorporate its style and background.
+              Upload up to 4 images of your product for the AI to base the generated image on.
             </p>
-            <ProductSelector
-              products={products}
-              value={productIds}
-              onChange={setProductIds}
+            <MultiImageUploader
+              value={uploadedImages}
+              onChange={setUploadedImages}
+              maxFiles={4}
             />
           </section>
 
