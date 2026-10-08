@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { CheckCircle2, Loader2, AlertCircle, RefreshCw, Download } from "lucide-react";
 import { paymentService } from "@/services/payment.service";
 import { subscriptionService } from "@/services/subscription.service";
 import { Button } from "@/components/ui/button";
@@ -133,7 +133,11 @@ function PaymentSuccessContent() {
         Your plan has been activated.<br/>
         Credits have been added to your account.
       </p>
-      <div className="flex gap-4 mt-8">
+      <div className="flex flex-col sm:flex-row gap-4 mt-8">
+        <Button onClick={() => window.print()} className="bg-green-600 text-white hover:bg-green-700">
+          <Download className="w-4 h-4 mr-2" />
+          Download Receipt
+        </Button>
         <Button onClick={() => router.push("/dashboard")} className="bg-brand-gradient text-white hover:opacity-90">
           Go to Dashboard
         </Button>
