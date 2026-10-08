@@ -27,15 +27,15 @@ export default function AIImagePage() {
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
     if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
     else setIsPublishingInstagram(true);
-    
+
     setPublishSuccessMessage(null);
-    
+
     // Simulate API call to save and publish
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
     else setIsPublishingInstagram(false);
-    
+
     setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
     setTimeout(() => setPublishSuccessMessage(null), 5000);
   };
@@ -75,6 +75,7 @@ export default function AIImagePage() {
       } else {
         setError(result.message || "Failed to generate image.");
       }
+
     } catch (err: any) {
       console.error("AI image generation failed:", err);
 
@@ -209,7 +210,7 @@ export default function AIImagePage() {
                   <Download className="w-5 h-5" /> Download
                 </button>
               </div>
-              
+
               <div className="pt-4 mt-4 border-t border-border">
                 {publishSuccessMessage ? (
                   <div className="w-full rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 p-4 text-center font-semibold flex items-center justify-center gap-2">
@@ -217,7 +218,7 @@ export default function AIImagePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
+                    <button
                       onClick={() => handlePublish('instagram')}
                       disabled={isPublishingInstagram || isPublishingFacebook}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"
@@ -226,7 +227,7 @@ export default function AIImagePage() {
                       {isPublishingInstagram ? 'Publishing...' : `Publish to Instagram`}
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => handlePublish('facebook')}
                       disabled={isPublishingFacebook || isPublishingInstagram}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"
