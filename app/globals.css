@@ -44,6 +44,10 @@
     -webkit-text-fill-color: transparent;
     background-image: linear-gradient(to right, #fc9a5d, #f0449b, #be32ff, #7d36fa);
   }
+
+  .bg-brand-gradient {
+    background-image: linear-gradient(to right, #fc9a5d, #f0449b, #be32ff, #7d36fa);
+  }
 }
 
 html {

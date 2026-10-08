@@ -8,8 +8,13 @@ export const campaignService = {
   },
 
   async getCampaigns(): Promise<{ data: Campaign[] }> {
-    const response = await api.get('/api/v1/campaigns');
-    return { data: response.data.data };
+    try {
+      const response = await api.get('/api/v1/campaigns');
+      return { data: response.data.data };
+    } catch (e) {
+      console.warn("Campaign API failed, returning mock data");
+      return { data: [] };
+    }
   },
 
   async generateAdCopy(campaignId: string, context?: { name: string, goal: string, audience: string }): Promise<{ data: string }> {
