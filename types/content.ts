@@ -37,10 +37,12 @@ export interface GenerateContentRequest {
 
 export interface GeneratePostRequest {
   product_id: string;
+  product_ids?: string[];
   platform: string;
   objective: string;
   language: string;
   additional_instruction?: string;
+  reference_images?: string[];
 }
 
 export interface GeneratedPost {
@@ -55,4 +57,6 @@ export interface GeneratedPost {
   hashtags: string[];
 
   creative_direction?: string;
+  image_url?: string;
+  media_url?: string;
 }

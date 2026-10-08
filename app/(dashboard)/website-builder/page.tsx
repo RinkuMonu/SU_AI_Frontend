@@ -22,8 +22,10 @@ const generateHtmlFromJSON = (rawData: any) => {
   if (!pages || pages.length === 0) return "<h1>No data available</h1>";
 
 
-    const logoUrl = data.logo?.url || null;
+    const logoUrl = data.logo?.url || data.logo || null;
     const bName = data.business_name || 'MyBusiness';
+    const primaryColor = data.theme?.primary || "#4f46e5";
+    const secondaryColor = data.theme?.secondary || "#4338ca";
       let bodyHtml = "";
   
   pages.forEach((page: any) => {
@@ -38,7 +40,7 @@ const generateHtmlFromJSON = (rawData: any) => {
                   <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
                     <div class="sm:text-center lg:text-left">
                       <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                        <span class="block xl:inline text-indigo-600">${section.title || ''}</span>
+                        <span class="block xl:inline text-primary">${section.title || ''}</span>
                       </h1>
                       <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
                         ${section.subtitle || section.description || ''}
@@ -46,7 +48,7 @@ const generateHtmlFromJSON = (rawData: any) => {
                       <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
                         ${section.cta ? `
                         <div class="rounded-md shadow">
-                          <a href="javascript:void(0)" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
+                          <a href="javascript:void(0)" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-secondary md:py-4 md:text-lg md:px-10">
                             ${section.cta}
                           </a>
                         </div>` : ''}
@@ -76,7 +78,7 @@ const generateHtmlFromJSON = (rawData: any) => {
                         <div class="p-6">
                           <h3 class="text-xl font-bold text-gray-900">${item.title || ''}</h3>
                           <p class="mt-2 text-sm text-gray-600">${item.description || ''}</p>
-                          ${item.price ? `<p class="mt-4 text-lg font-bold text-indigo-600">${item.price}</p>` : ''}
+                          ${item.price ? `<p class="mt-4 text-lg font-bold text-primary">${item.price}</p>` : ''}
                         </div>
                       </div>
                     `).join('')}
@@ -116,6 +118,18 @@ const generateHtmlFromJSON = (rawData: any) => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Generated Website</title>
       <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                primary: '${primaryColor}',
+                secondary: '${secondaryColor}'
+              }
+            }
+          }
+        }
+      </script>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
         html { scroll-behavior: smooth; }
@@ -127,11 +141,11 @@ const generateHtmlFromJSON = (rawData: any) => {
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-20 items-center">
             <div class="flex-shrink-0 flex items-center">
-              ${logoUrl ? `<img src="${logoUrl}" alt="${bName}" class="h-10 w-auto" />` : `<span class="text-2xl font-black text-indigo-600 tracking-tight">${bName}</span>`}
+              ${logoUrl ? `<img src="${logoUrl}" alt="${bName}" class="h-10 w-auto" />` : `<span class="text-2xl font-black text-primary tracking-tight">${bName}</span>`}
             </div>
             <div class="hidden md:flex items-center space-x-8">
-              ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="javascript:void(0)" onclick="document.getElementById('section-${s.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}').scrollIntoView({behavior: 'smooth'})" class="text-gray-600 hover:text-indigo-600 text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
-              <button class="bg-indigo-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-indigo-700 transition shadow-lg hover:shadow-indigo-500/30">Order Now</button>
+              ${pages[0]?.sections ? pages[0].sections.filter((s:any)=>s.title && s.type !== 'hero').map((s:any) => `<a href="javascript:void(0)" onclick="document.getElementById('section-${s.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}').scrollIntoView({behavior: 'smooth'})" class="text-gray-600 hover:text-primary text-sm font-semibold transition">${s.title}</a>`).join('') : ''}
+              <button class="bg-primary text-white px-6 py-2.5 rounded-full font-bold hover:bg-secondary transition shadow-lg">Order Now</button>
             </div>
           </div>
         </div>
@@ -201,6 +215,18 @@ export default function WebsiteBuilderPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   
   const endRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleSend("I uploaded my logo", { action: "upload_logo", base64: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   useEffect(() => {
     const initSession = async () => {
@@ -388,6 +414,7 @@ export default function WebsiteBuilderPage() {
       
       {/* LEFT PANE: AI EDITOR CHAT */}
       <div className="w-[400px] min-w-[400px] flex flex-col border-r border-white/10 bg-[#111827] z-10 relative shadow-xl">
+        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
         <div className="p-4 border-b border-white/10 bg-gradient-to-r from-purple-900/40 to-pink-900/40 flex justify-between items-center">
           <div>
           <h2 className="text-lg font-bold text-white flex items-center gap-2">

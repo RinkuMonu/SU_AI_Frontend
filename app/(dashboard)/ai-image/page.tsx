@@ -4,15 +4,13 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Download, Sparkles, Image as ImageIcon, Loader2, Share2, CheckCircle2 } from "lucide-react";
 
-import ProductSelector from "@/components/ai/ProductSelector";
+import MultiImageUploader from "@/components/ai/MultiImageUploader";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 
 import { imageService } from "@/services/image.service";
-import { FashionService } from "@/services/fashion.service";
 
 export default function AIImagePage() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [productId, setProductId] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
 
   const [loading, setLoading] = useState(false);
@@ -27,29 +25,21 @@ export default function AIImagePage() {
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
     if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
     else setIsPublishingInstagram(true);
-    
+
     setPublishSuccessMessage(null);
-    
+
     // Simulate API call to save and publish
     await new Promise((resolve) => setTimeout(resolve, 1500));
-    
+
     if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
     else setIsPublishingInstagram(false);
-    
+
     setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
     setTimeout(() => setPublishSuccessMessage(null), 5000);
   };
 
   useEffect(() => {
-    async function loadProducts() {
-      try {
-        const data = await FashionService.getProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error("Failed to load products", error);
-      }
-    }
-    loadProducts();
+    // Component mounted
   }, []);
 
   const handleGenerate = async () => {
@@ -66,7 +56,7 @@ export default function AIImagePage() {
 
       const result = await imageService.generateImage({
         prompt: prompt.trim(),
-        product_id: productId || undefined,
+        reference_images: uploadedImages.length > 0 ? uploadedImages : undefined,
       });
 
       if (result.success && result.data?.image_url) {
@@ -75,6 +65,7 @@ export default function AIImagePage() {
       } else {
         setError(result.message || "Failed to generate image.");
       }
+
     } catch (err: any) {
       console.error("AI image generation failed:", err);
 
@@ -150,15 +141,15 @@ export default function AIImagePage() {
 
           <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-2 text-white">
-              Product Context <span className="text-sm font-normal text-text-muted">(Optional)</span>
+              Reference Images <span className="text-sm font-normal text-text-muted">(Optional)</span>
             </h2>
             <p className="text-sm text-text-muted mb-5">
-              Select a product if you want the image generation to incorporate its style and background.
+              Upload up to 4 images of your product for the AI to base the generated image on.
             </p>
-            <ProductSelector
-              products={products}
-              value={productId}
-              onChange={setProductId}
+            <MultiImageUploader
+              value={uploadedImages}
+              onChange={setUploadedImages}
+              maxFiles={4}
             />
           </section>
 
@@ -209,7 +200,7 @@ export default function AIImagePage() {
                   <Download className="w-5 h-5" /> Download
                 </button>
               </div>
-              
+
               <div className="pt-4 mt-4 border-t border-border">
                 {publishSuccessMessage ? (
                   <div className="w-full rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 p-4 text-center font-semibold flex items-center justify-center gap-2">
@@ -217,7 +208,7 @@ export default function AIImagePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col sm:flex-row gap-4">
-                    <button 
+                    <button
                       onClick={() => handlePublish('instagram')}
                       disabled={isPublishingInstagram || isPublishingFacebook}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"
@@ -226,7 +217,7 @@ export default function AIImagePage() {
                       {isPublishingInstagram ? 'Publishing...' : `Publish to Instagram`}
                     </button>
 
-                    <button 
+                    <button
                       onClick={() => handlePublish('facebook')}
                       disabled={isPublishingFacebook || isPublishingInstagram}
                       className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-6 py-4 font-bold text-white shadow-md disabled:opacity-50"

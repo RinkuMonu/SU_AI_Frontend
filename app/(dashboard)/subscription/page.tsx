@@ -176,8 +176,11 @@ export default function SubscriptionPage() {
                 )}
                 <CardHeader>
                   <CardTitle className="text-lg uppercase tracking-wide">{plan.name}</CardTitle>
-                  <div className="mt-2">
+                  <div className="mt-2 flex items-baseline gap-1">
                     <span className="text-3xl font-bold text-white">₹{plan.price}</span>
+                    {Number(plan.price) > 0 && (
+                      <span className="text-text-muted text-xs font-medium">+ GST</span>
+                    )}
                     <span className="text-text-muted text-sm">/mo</span>
                   </div>
                 </CardHeader>
@@ -276,3 +279,4 @@ export default function SubscriptionPage() {
     </div>
   );
 }
+

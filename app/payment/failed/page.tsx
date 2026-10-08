@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
@@ -19,7 +19,15 @@ export default function PaymentFailedPage() {
           </p>
         </div>
 
-        <div className="flex gap-4 w-full justify-center pt-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center pt-4">
+          <Button 
+            onClick={() => window.print()} 
+            variant="outline"
+            className="border-red-500 text-red-500 hover:bg-red-500/10"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download Report
+          </Button>
           <Button 
             onClick={() => router.push("/subscription")} 
             className="bg-brand-gradient text-white hover:opacity-90"

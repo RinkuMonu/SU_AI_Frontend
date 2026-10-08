@@ -13,7 +13,6 @@ const platforms = [
     id: "facebook",
     name: "Facebook",
   },
-
   {
     id: "google_business",
     name: "Google Business Post",
@@ -37,31 +36,25 @@ export default function PlatformSelector({
   value,
   onChange,
 }: Props) {
-
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-
+    <div className="flex flex-wrap gap-2">
       {platforms.map((platform) => (
-
         <button
           key={platform.id}
           type="button"
           onClick={() => onChange(platform.id)}
           className={`
-            rounded-xl border px-4 py-3
+            px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all whitespace-nowrap
             ${
               value === platform.id
-                ? "border-black bg-black text-white"
-                : "border-gray-200"
+                ? "border-brand-purple bg-brand-purple text-white shadow-md shadow-purple-500/20"
+                : "border-border bg-[#0a142c] text-text-muted hover:text-white hover:border-brand-purple/50"
             }
           `}
         >
           {platform.name}
         </button>
-
       ))}
-
     </div>
   );
 }
-
