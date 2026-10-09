@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Button } from './ui/button';
 import { Check, Star } from 'lucide-react';
 
@@ -68,9 +69,9 @@ export function Pricing() {
               ))}
             </div>
 
-            <button className="w-full py-3.5 rounded-xl bg-transparent border border-white/10 text-white font-semibold hover:bg-white/5 transition-all text-sm">
+            <Link href="/download" className="w-full py-3.5 rounded-xl bg-transparent border border-white/10 text-white font-semibold hover:bg-white/5 transition-all text-sm block text-center">
               Get Started
-            </button>
+            </Link>
           </div>
 
           {/* Pro Card */}
@@ -105,9 +106,9 @@ export function Pricing() {
                 ))}
               </div>
 
-              <button className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white font-bold hover:opacity-90 transition-opacity shadow-lg text-sm">
+              <Link href="/download" className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white font-bold hover:opacity-90 transition-opacity shadow-lg text-sm block text-center">
                 Get Started
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -138,9 +139,9 @@ export function Pricing() {
               ))}
             </div>
 
-            <button className="w-full py-3.5 rounded-xl bg-transparent border border-white/10 text-white font-semibold hover:bg-white/5 transition-all text-sm">
+            <Link href="/download" className="w-full py-3.5 rounded-xl bg-transparent border border-white/10 text-white font-semibold hover:bg-white/5 transition-all text-sm block text-center">
               Get Started
-            </button>
+            </Link>
           </div>
 
         </div>

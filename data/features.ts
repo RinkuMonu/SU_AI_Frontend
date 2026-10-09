@@ -34,7 +34,6 @@ export const featuresMenu = {
       title: "Publish & Automate",
       icon: Send,
       items: [
-        { name: "Instagram Autopilot", description: "Plan, schedule and automatically publish your content.", icon: Smartphone, route: "/features/instagram-autopilot" },
         { name: "Instagram DM AI", description: "Automatically respond to customer questions on Instagram.", icon: MessageCircle, route: "/features/instagram-dm" },
         { name: "WhatsApp AI Assistant", description: "Answer customer questions using your product catalogue.", icon: MessageSquare, route: "/features/whatsapp-ai" },
         { name: "AI Review Manager", description: "Manage and respond to Google customer reviews with AI.", icon: Star, route: "/features/review-manager" }
