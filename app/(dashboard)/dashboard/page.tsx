@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
       {/* Live Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-brand-purple/10 border-brand-purple/20">
+        <Card className="bg-gradient-to-br from-brand-purple/20 to-[#0B1120] border-brand-purple/30 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-brand-purple/60 hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:-translate-y-1 transition-all duration-500 rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Posts Created</CardTitle>
             <ImageIcon className="h-4 w-4 text-brand-purple" />
@@ -78,7 +78,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-brand-pink/10 border-brand-pink/20">
+        <Card className="bg-gradient-to-br from-brand-pink/20 to-[#0B1120] border-brand-pink/30 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-brand-pink/60 hover:shadow-[0_0_30px_rgba(236,72,153,0.3)] hover:-translate-y-1 transition-all duration-500 rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">Reels Created</CardTitle>
             <Video className="h-4 w-4 text-brand-pink" />
@@ -91,7 +91,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-surface hover:border-brand-purple/50 transition-colors border-border">
+        <Card className="bg-gradient-to-br from-white/10 to-[#0B1120] border-white/20 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-white/40 hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-1 transition-all duration-500 rounded-2xl">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-white">AI Generations</CardTitle>
             <Sparkles className="h-4 w-4 text-text-muted" />
@@ -105,7 +105,7 @@ export default function DashboardPage() {
         </Card>
 
         <Link href="/analytics" className="block">
-          <Card className="h-full bg-surface hover:border-brand-pink/50 transition-colors">
+          <Card className="h-full bg-gradient-to-br from-brand-coral/20 to-[#0B1120] border-brand-coral/30 backdrop-blur-xl shadow-lg relative overflow-hidden group hover:border-brand-coral/60 hover:shadow-[0_0_30px_rgba(251,113,133,0.3)] hover:-translate-y-1 transition-all duration-500 rounded-2xl">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-white">Marketing Score</CardTitle>
               <TrendingUp className="h-4 w-4 text-brand-coral" />
@@ -124,33 +124,25 @@ export default function DashboardPage() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold tracking-tight text-white">Quick Actions</h2>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Button variant="outline" className="h-24 flex flex-col gap-2 relative overflow-hidden group hover:border-brand-purple hover:bg-brand-purple/10" asChild>
-            <Link href="/content?type=post">
-              <ImageIcon className="h-6 w-6 text-brand-purple" />
-              <span className="font-semibold text-white">Create Post</span>
-            </Link>
-          </Button>
+          <Link href="/content?type=post" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-purple/10 to-[#0B1120] border border-brand-purple/30 hover:border-brand-purple/80 hover:from-brand-purple/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(139,92,246,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
+            <div className="p-3 bg-brand-purple/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]"><ImageIcon className="h-6 w-6 text-brand-purple" /></div>
+              <span className="font-semibold text-white tracking-wide">Create Post</span>
+          </Link>
 
-          <Button variant="outline" className="h-24 flex flex-col gap-2 relative overflow-hidden group hover:border-brand-pink hover:bg-brand-pink/10" asChild>
-            <Link href="/create/reel">
-              <Video className="h-6 w-6 text-brand-pink" />
-              <span className="font-semibold text-white">Create Reel</span>
-            </Link>
-          </Button>
+          <Link href="/create/reel" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-pink/10 to-[#0B1120] border border-brand-pink/30 hover:border-brand-pink/80 hover:from-brand-pink/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(236,72,153,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
+            <div className="p-3 bg-brand-pink/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(236,72,153,0.2)] group-hover:shadow-[0_0_20px_rgba(236,72,153,0.5)]"><Video className="h-6 w-6 text-brand-pink" /></div>
+              <span className="font-semibold text-white tracking-wide">Create Reel</span>
+          </Link>
 
-          <Button variant="outline" className="h-24 flex flex-col gap-2 relative overflow-hidden group hover:border-brand-coral hover:bg-brand-coral/10" asChild>
-            <Link href="/ai-photoshoot">
-              <Camera className="h-6 w-6 text-brand-coral" />
-              <span className="font-semibold text-white">AI Photoshoot</span>
-            </Link>
-          </Button>
+          <Link href="/ai-photoshoot" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-coral/10 to-[#0B1120] border border-brand-coral/30 hover:border-brand-coral/80 hover:from-brand-coral/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(251,113,133,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
+            <div className="p-3 bg-brand-coral/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(251,113,133,0.2)] group-hover:shadow-[0_0_20px_rgba(251,113,133,0.5)]"><Camera className="h-6 w-6 text-brand-coral" /></div>
+              <span className="font-semibold text-white tracking-wide">AI Photoshoot</span>
+          </Link>
 
-          <Button variant="outline" className="h-24 flex flex-col gap-2 relative overflow-hidden group hover:border-white/50 hover:bg-white/5" asChild>
-            <Link href="/create-ad">
-              <Megaphone className="h-6 w-6 text-white" />
-              <span className="font-semibold text-white">Create Ad</span>
-            </Link>
-          </Button>
+          <Link href="/create-ad" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-cyan/10 to-[#0B1120] border border-brand-cyan/30 hover:border-brand-cyan/80 hover:from-brand-cyan/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(34,211,238,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
+            <div className="p-3 bg-brand-cyan/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] group-hover:shadow-[0_0_20px_rgba(34,211,238,0.5)]"><Megaphone className="h-6 w-6 text-brand-cyan" /></div>
+              <span className="font-semibold text-white tracking-wide">Create Ad</span>
+          </Link>
         </div>
       </div>
 
@@ -159,14 +151,14 @@ export default function DashboardPage() {
 
       {/* Bottom Section */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-surface border-border">
+        <Card className="col-span-4 bg-gradient-to-br from-[#1E1128]/50 to-[#0B1120] border-brand-purple/20 backdrop-blur-xl rounded-2xl hover:border-brand-purple/40 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] transition-all duration-500 relative overflow-hidden">
           <CardHeader>
             <CardTitle className="text-white">Recent Campaigns</CardTitle>
             <CardDescription className="text-text-muted">
               Your active marketing campaigns performance this week.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[300px] text-text-muted bg-surface-secondary rounded-lg mx-6 mb-6 border border-dashed border-border">
+          <CardContent className="flex flex-col items-center justify-center h-[300px] text-text-muted bg-[#0B1120]/50 rounded-xl mx-6 mb-6 border border-dashed border-brand-purple/30 hover:border-brand-purple/60 hover:bg-brand-purple/5 transition-all duration-500">
             <Sparkles className="h-10 w-10 text-text-muted mb-4" />
             <p>No active campaigns right now.</p>
             <Button variant="link" className="text-brand-pink mt-2" asChild>
@@ -175,7 +167,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-3 bg-surface border-border">
+        <Card className="col-span-3 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden">
           <CardHeader>
             <CardTitle className="text-white">AI Insights</CardTitle>
             <CardDescription className="text-text-muted">

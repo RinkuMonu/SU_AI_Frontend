@@ -45,10 +45,9 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 const navigation = [
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Website Builder", href: "/website-builder", icon: Globe },
+  { name: "AI Content", href: "/content", icon: Sparkles },
   { 
-    name: "Image and Reel Generator", 
+    name: "Image and Reel Generation", 
     icon: Share2, 
     children: [
       { name: "Create Reel", href: "/create/reel" },
@@ -65,13 +64,11 @@ const navigation = [
       { name: "History", href: "/fashion-ai/history" },
     ]
   },
-  { name: "AI Content", href: "/content", icon: Sparkles },
+  { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { name: "Plan Content", href: "/content-library", icon: Library },
+  { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "Campaigns", href: "/campaigns", icon: Megaphone },
   { name: "Influencers", href: "/influencers", icon: Users },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
-  { name: "Reviews", href: "/reviews", icon: Star },
   {
     name: "Social Platforms",
     icon: Globe,
@@ -81,6 +78,8 @@ const navigation = [
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
     ]
   },
+  { name: "Reviews", href: "/reviews", icon: Star },
+  { name: "Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Billing & Plans", href: "/subscription", icon: Store },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
@@ -90,7 +89,7 @@ export function Sidebar() {
   const { logout } = useAuth();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
-    "Image and Reel Generator": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
+    "Image and Reel Generation": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
     "AI Avatar": ["/fashion-ai"].some(p => pathname.startsWith(p)),
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p))
   });
