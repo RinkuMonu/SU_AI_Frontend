@@ -106,21 +106,20 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
 
       {/* ── Business Registration Success Modal ── */}
       <Dialog open={showBusinessSuccess} onOpenChange={setShowBusinessSuccess}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border border-purple-500/30 bg-[#0B1120] shadow-2xl shadow-purple-900/20">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
-              🎉 Business Profile Created!
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="text-2xl">🎉</span> Business Profile Created!
             </DialogTitle>
-            <DialogDescription className="text-sm text-white/70 mt-2">
-              Your business profile has been created successfully! Let's connect
-              your social media accounts to unlock the full potential of
-              SevenUnique AI.
+            <DialogDescription className="text-sm text-white/60 mt-2 leading-relaxed">
+              Your business profile has been created successfully! Let&apos;s connect
+              your social media accounts to unlock the full potential of SevenUnique AI.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
             <Button
               onClick={handleBusinessContinue}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg shadow-purple-500/25 transition-all duration-200"
             >
               Continue → Connect Social Media
             </Button>
@@ -130,22 +129,20 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
 
       {/* ── Social Media Connection Reminder Modal ── */}
       <Dialog open={showSocialReminder} onOpenChange={setShowSocialReminder}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md border border-pink-500/30 bg-[#0B1120] shadow-2xl shadow-pink-900/20">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white">
-              📱 Connect Your Social Media
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <span className="text-2xl">📱</span> Connect Your Social Media
             </DialogTitle>
-            <DialogDescription className="text-sm text-white/70 mt-2">
+            <DialogDescription className="text-sm text-white/60 mt-2 leading-relaxed">
               Connect Instagram, Facebook, or WhatsApp Business to create,
-              schedule, and publish AI-generated content directly from
-              SevenUnique AI.
+              schedule, and publish AI-generated content directly from SevenUnique AI.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-3 py-4">
             <Button
-              variant="outline"
               onClick={handleGoToIntegrations}
-              className="w-full border-purple-500/50 hover:bg-purple-600/10 text-white"
+              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold shadow-lg shadow-pink-500/25 transition-all duration-200"
             >
               🔗 Go to Integrations Page
             </Button>
@@ -154,7 +151,7 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
             <Button
               variant="ghost"
               onClick={handleSocialSkip}
-              className="text-white/50 hover:text-white"
+              className="text-white/40 hover:text-white/70 text-sm transition-colors"
             >
               Remind me later (10 min)
             </Button>

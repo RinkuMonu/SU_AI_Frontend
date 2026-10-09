@@ -1,4 +1,4 @@
-import api from './api.service';
+import api from '@/lib/api';
 
 export interface OnboardingStatus {
   business_profile_completed: boolean;
