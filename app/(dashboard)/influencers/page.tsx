@@ -8,6 +8,8 @@ import { Loader2, Users, Wand2, Sparkles, Check, X, Bookmark, BookmarkCheck, Sea
 import influencerService, { Influencer, InfluencerProfile, Campaign } from '@/services/influencer.service';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
+import { paymentService } from '@/services/payment.service';
+
 
 export default function InfluencersPage() {
   const router = useRouter();
@@ -47,6 +49,24 @@ export default function InfluencersPage() {
   const [authMode, setAuthMode] = useState<'login'|'register'>('login');
   const [activeTab, setActiveTab] = useState('discover');
 
+  const [isHiring, setIsHiring] = useState(false);
+  const handleHireInfluencer = async () => {
+    setIsHiring(true);
+    try {
+      const response = await paymentService.createPayment("HIRE_INFLUENCER");
+      if (response.payment_url) {
+        window.location.href = response.payment_url;
+      } else {
+        alert("Payment URL not found in response.");
+      }
+    } catch (error) {
+      console.error("Error creating payment:", error);
+      alert("Failed to initiate payment.");
+    } finally {
+      setIsHiring(false);
+    }
+  };
+
   // Handle outside click to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -55,6 +75,7 @@ export default function InfluencersPage() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
@@ -84,7 +105,8 @@ export default function InfluencersPage() {
       }
     }, 300);
 
-    return () => clearTimeout(delayDebounceFn);
+  
+  return () => clearTimeout(delayDebounceFn);
   }, [locationSearchTerm]);
 
   useEffect(() => {
@@ -242,14 +264,15 @@ export default function InfluencersPage() {
         </div>
         <div className="flex gap-2">
           <Button 
-            onClick={() => setShowAddInfluencerModal(true)} 
-            className="bg-brand-coral hover:bg-brand-coral/80 text-white shrink-0"
+            onClick={handleHireInfluencer}
+              disabled={isHiring}
+              className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-90 shadow-[0_0_15px_rgba(252,154,93,0.5)] text-white shrink-0 border-0"
           >
-            <Plus className="w-4 h-4 mr-2" /> Add Influencer
+            {isHiring ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />} {isHiring ? "Processing..." : "Hire Influencer"}
           </Button>
           <Button 
             onClick={() => setShowAuthModal(true)} 
-            className="bg-brand-purple hover:bg-brand-purple/80 text-white shrink-0"
+            className="bg-gradient-to-r from-[#be32ff] to-[#7d36fa] hover:opacity-90 shadow-[0_0_15px_rgba(190,50,255,0.5)] text-white shrink-0 border-0"
           >
             Influencer Login / Register
           </Button>
@@ -481,7 +504,8 @@ export default function InfluencersPage() {
               {applications.map(app => {
                 const matchedCreator = influencers.find(inf => inf.id === app.influencer_id || inf.user_id === app.influencer_id);
                 const displayName = (!app.influencer_name || app.influencer_name.includes('Unknown')) ? (matchedCreator?.username || 'Creator') : app.influencer_name;
-                return (
+              
+  return (
                 <Card key={app.id} className="bg-card border-border">
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
@@ -524,7 +548,8 @@ export default function InfluencersPage() {
               {collaborations.map(col => {
                 const matchedCreator = influencers.find(inf => inf.id === col.influencer_id || inf.user_id === col.influencer_id);
                 const displayName = col.influencer_name || matchedCreator?.username || 'Unknown Creator';
-                return (
+              
+  return (
                 <Card 
                   key={col.id} 
                   className="bg-card border-border cursor-pointer hover:border-brand-purple/50 transition-colors"
@@ -559,7 +584,8 @@ export default function InfluencersPage() {
               {crmCampaigns.map(camp => {
                 const matchedCreator = influencers.find(inf => inf.id === camp.influencer_id || inf.user_id === camp.influencer_id);
                 const displayName = camp.influencer_name || matchedCreator?.username || 'Unknown Creator';
-                return (
+              
+  return (
                 <Card key={camp.id} className="bg-card border-border relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-brand-purple"></div>
                   <CardHeader>
