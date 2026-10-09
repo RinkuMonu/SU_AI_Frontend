@@ -91,7 +91,7 @@ export default function SignupPage() {
       const colorText = logoColor ? `using a ${logoColor} color scheme` : "";
       const fullPrompt = `${logoPrompt} ${colorText} professional business logo minimalist`;
       const seed = Math.floor(Math.random() * 1000000);
-      const url = https://image.pollinations.ai/prompt/?width=512&height=512&nologo=true&seed=;
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt)}?width=512&height=512&nologo=true&seed=${seed}`;
       setLogoPreview(url);
     } catch (err) {
       console.error(err);
