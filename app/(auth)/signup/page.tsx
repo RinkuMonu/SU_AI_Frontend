@@ -126,6 +126,7 @@ export default function SignupPage() {
       if (response.token && response.user) {
         localStorage.setItem("access_token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("business_just_registered", "1");
         window.location.href = "/dashboard";
       } else {
         router.push("/login/user");
