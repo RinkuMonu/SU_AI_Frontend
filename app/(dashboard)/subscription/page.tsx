@@ -31,7 +31,16 @@ export default function SubscriptionPage() {
         ]);
         setSubscription(sub);
         setHistory(hist);
-        setPlans(availablePlans);
+        
+        // Remove HIRE INFLUENCER plan from UI
+        const filteredPlans = Object.fromEntries(
+          Object.entries(availablePlans).filter(([key, plan]) => 
+            key.toLowerCase() !== 'hire_influencer' && 
+            key.toLowerCase() !== 'hire-influencer' && 
+            plan.name.toLowerCase() !== 'hire influencer'
+          )
+        );
+        setPlans(filteredPlans);
       } catch (err) {
         console.error("Failed to load subscription data", err);
         setError(true);
