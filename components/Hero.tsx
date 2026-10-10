@@ -3,23 +3,24 @@ import Link from 'next/link';
 import { Button } from './ui/button';
 import { Sparkles, ArrowRight, PlayCircle, Check } from 'lucide-react';
 
+import { PhoneModel } from './PhoneModel';
+import { FallingIcons } from './FallingIcons';
+
 export function Hero() {
   return (
     <section className="relative min-h-[90vh] flex items-center pt-32 pb-20 overflow-hidden bg-background">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat lg:bg-right"
-        style={{ backgroundImage: 'url("/images/ai_bg.png")' }}
-      />
       
-      {/* Gradient overlays to ensure text readability */}
-      <div className="absolute inset-0 z-0 bg-background/80 lg:bg-transparent" />
-      <div className="absolute inset-0 z-0 bg-gradient-to-r from-background via-background/90 to-transparent lg:w-[60%]" />
+      {/* 3D Physics Bouncing Background */}
+      <FallingIcons />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      {/* Gradient overlays to ensure text readability */}
+      <div className="absolute inset-0 z-0 bg-background/80 lg:bg-transparent pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-background via-background/90 to-transparent lg:w-[60%] pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center justify-between gap-12">
         
         {/* Left Content Area */}
-        <div className="flex flex-col items-start text-left max-w-3xl pt-10 pb-10">
+        <div className="flex flex-col items-start text-left max-w-2xl pt-10 pb-10">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-8 shadow-xl">
             <Sparkles className="w-4 h-4 text-[#fc9a5d]" />
@@ -72,6 +73,11 @@ export function Hero() {
               Used by 10,000+ Businesses
             </div>
           </div>
+        </div>
+
+        {/* Right Content Area: 3D Phone Model */}
+        <div className="w-full lg:w-1/2 h-[500px] lg:h-[700px] flex items-center justify-center relative z-20 pointer-events-none">
+          {/* <PhoneModel /> */}
         </div>
 
       </div>

@@ -1,5 +1,6 @@
 'use client';
 import { Navbar } from '@/components/Navbar';
+import { PhoneModel } from '@/components/PhoneModel';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -163,28 +164,9 @@ export default function DownloadPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
             
-            {/* Left Robot Graphic */}
-            <div className="w-full lg:w-1/2 relative hidden md:block">
-               <div className="w-full aspect-square md:aspect-[4/3] rounded-[40px] bg-gradient-to-tr from-indigo-900/40 to-slate-800/40 border border-white/10 relative overflow-hidden shadow-2xl flex items-center justify-center">
-                  <div className="relative w-[280px] h-[580px] bg-black rounded-[40px] border-8 border-slate-800 shadow-xl overflow-hidden -rotate-6 scale-90 translate-y-10">
-                     <div className="absolute top-0 w-full h-6 bg-black rounded-b-2xl z-10 mx-auto left-0 right-0 max-w-[120px]" />
-                     <div className="absolute inset-0 bg-[#0d1117] flex flex-col items-center justify-center pt-20">
-                       <div className="w-32 h-32 bg-slate-800/50 rounded-full flex items-center justify-center mb-6 border border-white/10 shadow-lg shadow-purple-500/20">
-                          <img src="/logo.png" alt="DhandaGrow Logo" className="w-20 h-20 object-contain rounded-xl" />
-                       </div>
-                       <div className="text-white font-bold text-xl">DhandaGrow</div>
-                       <div className="text-blue-400 text-sm mt-1 mb-8">Your AI Companion</div>
-                       <div className="w-48 h-32 bg-slate-800 rounded-t-xl mt-auto relative overflow-hidden border-t border-slate-700">
-                         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-10 h-1.5 bg-slate-600 rounded-full" />
-                       </div>
-                     </div>
-                  </div>
-                  {/* Floating Icons */}
-                  <div className="absolute top-1/4 left-8 w-12 h-12 bg-white/10 backdrop-blur rounded-xl border border-white/20 flex items-center justify-center text-white animate-[bounce_4s_infinite]"><MessageSquare className="w-5 h-5"/></div>
-                  <div className="absolute top-1/3 right-8 w-12 h-12 bg-white/10 backdrop-blur rounded-xl border border-white/20 flex items-center justify-center text-white animate-[bounce_5s_infinite]"><Code className="w-5 h-5"/></div>
-                  <div className="absolute bottom-1/3 left-12 w-12 h-12 bg-white/10 backdrop-blur rounded-xl border border-white/20 flex items-center justify-center text-white animate-[bounce_6s_infinite]"><ImageIcon className="w-5 h-5"/></div>
-                  <div className="absolute bottom-1/4 right-12 w-12 h-12 bg-white/10 backdrop-blur rounded-xl border border-white/20 flex items-center justify-center text-white animate-[bounce_3s_infinite]"><Mic className="w-5 h-5"/></div>
-               </div>
+            {/* Left 3D Phone Model */}
+            <div className="w-full lg:w-1/2 relative h-[350px] md:h-[450px] lg:h-[500px] mb-8 lg:mb-0">
+               <PhoneModel />
             </div>
 
             {/* Right Content */}
