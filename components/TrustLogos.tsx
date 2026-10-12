@@ -24,8 +24,7 @@ export function TrustLogos() {
                 <img 
                   src={logo.url} 
                   alt={`${logo.name} logo`} 
-                  className={`object-contain ${logo.height} opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300`}
-                  style={{ filter: "grayscale(100%) opacity(0.6) contrast(1.2)" }}
+                  className={`object-contain ${logo.height} hover:scale-105 transition-transform duration-300`}
                 />
               </div>
             ))}

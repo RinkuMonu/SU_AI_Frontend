@@ -12,7 +12,7 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const isLightPage = pathname === '/about' || pathname.startsWith('/legal') || pathname === '/careers' || pathname.startsWith('/blog');
+  const isLightPage = pathname === '/about' || pathname.startsWith('/legal') || pathname === '/careers' || pathname.startsWith('/blog') || pathname.startsWith('/features') || pathname === '/download';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -119,7 +119,9 @@ export function Navbar() {
           >
             <Link href="/dashboard">Use on Web</Link>
           </Button>
-          <Button variant="default" size="sm">Get the App</Button>
+          <Button variant="default" size="sm" asChild>
+            <Link href="/download">Get the App</Link>
+          </Button>
         </div>
 
         {/* Mobile Menu Toggle */}
@@ -165,7 +167,9 @@ export function Navbar() {
             <Button variant="outline" className="w-full" asChild>
               <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
             </Button>
-            <Button variant="default" className="w-full">Get the App</Button>
+            <Button variant="default" className="w-full" asChild>
+              <Link href="/download" onClick={() => setIsMobileMenuOpen(false)}>Get the App</Link>
+            </Button>
           </div>
         </div>
       )}

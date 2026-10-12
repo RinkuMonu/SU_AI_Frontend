@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Rocket, ArrowRight, Play, CreditCard, Clock, XCircle } from 'lucide-react';
 
 export function CTA() {
@@ -35,9 +36,9 @@ export function CTA() {
           
           {/* Buttons */}
           <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 mb-14 w-full">
-            <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white font-bold hover:opacity-90 transition-opacity shadow-[0_0_30px_rgba(240,68,155,0.3)] flex items-center justify-center gap-2 text-base">
+            <Link href="/download" className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white font-bold hover:opacity-90 transition-opacity shadow-[0_0_30px_rgba(240,68,155,0.3)] flex items-center justify-center gap-2 text-base">
               Get Started Free <ArrowRight className="w-5 h-5" />
-            </button>
+            </Link>
             <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white text-slate-900 font-semibold border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex items-center justify-center gap-3 text-base">
               <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center">
                 <Play className="w-3 h-3 ml-0.5 fill-current" />
