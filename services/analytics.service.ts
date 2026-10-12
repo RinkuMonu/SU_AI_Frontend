@@ -48,7 +48,7 @@ const generateDynamicMockData = (range: number): AnalyticsData => {
       type: "general"
     },
     products_count: Math.floor(15 * multiplier * 0.8),
-  } as AnalyticsData;
+  } as unknown as AnalyticsData;
 };
 
 export const analyticsService = {

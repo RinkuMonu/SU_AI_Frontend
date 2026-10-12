@@ -36,7 +36,7 @@ const signupSchema = z.object({
   emailOtp: z.string().optional(),
   password: z.string().min(8, { message: "Password must be at least 8 characters" }),
   confirmPassword: z.string().min(1, { message: "Please confirm your password" }),
-  termsAccepted: z.boolean().default(false),
+  termsAccepted: z.boolean().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -68,6 +68,9 @@ export default function SignupPage() {
     formState: { errors },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
+    defaultValues: {
+      termsAccepted: false,
+    },
     mode: "onChange",
   });
 
