@@ -2,12 +2,26 @@ import api from '@/lib/api';
 import { User, APIResponse } from '@/types';
 
 export const authService = {
-  login: async (email: string, password: string):Promise<{token: string, user: User}> => {
+  login: async (email: string, password: string): Promise<{ token: string; user: User }> => {
     try {
       const response = await api.post('/api/v1/auth/login', { email, password });
+      const raw = response.data;
+      const data = raw?.data || raw;
+      const user = data?.user || raw?.user || {};
+      const token = data?.accessToken || data?.access_token || data?.token || raw?.accessToken || raw?.access_token || raw?.token || '';
+      
+      const normalizedUser: User = {
+        ...user,
+        id: user.id || user._id || '',
+        name: user.name || user.fullName || email.split('@')[0],
+        email: user.email || email,
+        role: user.role || 'user',
+        email_verified: user.email_verified ?? user.emailVerified ?? true
+      };
+
       return {
-        token: response.data.access_token,
-        user: response.data.user
+        token,
+        user: normalizedUser
       };
     } catch (error: any) {
       if (error.response?.data?.detail) {
@@ -38,7 +52,16 @@ export const authService = {
   getCurrentUser: async (): Promise<User> => {
     try {
       const response = await api.get('/api/v1/auth/me');
-      return response.data;
+      const raw = response.data;
+      const user = raw?.data || raw || {};
+      return {
+        ...user,
+        id: user.id || user._id || '',
+        name: user.name || user.fullName || '',
+        email: user.email || '',
+        role: user.role || 'user',
+        email_verified: user.email_verified ?? user.emailVerified ?? true
+      };
     } catch (error: any) {
       throw new Error('Failed to fetch user');
     }

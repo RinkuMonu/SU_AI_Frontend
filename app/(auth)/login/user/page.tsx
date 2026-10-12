@@ -48,10 +48,14 @@ export default function LoginPage() {
     setSocialNotice(null);
     try {
       const response = await authService.login(data.email, data.password);
-      if (response.user.role === "admin") {
+      if (response?.user?.role === "admin") {
         throw new Error("Administrators must log in through the Admin Portal.");
       }
-      login(response.token, response.user);
+      if (response?.token && response?.user) {
+        login(response.token, response.user);
+      } else {
+        throw new Error("Authentication failed: Missing token or user data.");
+      }
     } catch (err: any) {
       const msg = err.message || "Something went wrong";
       if (
