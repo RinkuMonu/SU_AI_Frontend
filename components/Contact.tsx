@@ -33,7 +33,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="text-white font-semibold text-[14px] mb-0.5">Our Office</h4>
-                  <p className="text-slate-400 text-[13px]">Indore, Madhya Pradesh, India</p>
+                  <p className="text-slate-400 text-[13px] leading-snug">Sevenunique Tech Solutions Pvt Ltd<br />Jaipur, Rajasthan 302017, India</p>
                 </div>
               </div>
 
@@ -55,7 +55,7 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="text-white font-semibold text-[14px] mb-0.5">Call Us</h4>
-                  <p className="text-slate-400 text-[13px]">+91 98765 43210</p>
+                  <p className="text-slate-400 text-[13px]">+91-8741886688</p>
                 </div>
               </div>
 

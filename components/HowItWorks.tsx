@@ -14,14 +14,14 @@ export function HowItWorks() {
             <Rocket className="w-4 h-4 text-pink-500" />
             <span className="text-xs font-semibold text-slate-300 tracking-wide">Simple 3-Step Process</span>
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl lg:text-[40px] font-bold text-white tracking-tight">
             How Dhanda<span className="text-[#f0449b]">Grow</span> Works
           </h2>
         </div>
 
         <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-4 lg:gap-8 xl:gap-12">
-          
+
           {/* Step 1 */}
           <div className="flex items-center gap-5 group w-full md:w-auto justify-center md:justify-start">
             <div className="relative shrink-0">

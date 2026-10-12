@@ -166,17 +166,17 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Company</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'Home', desc: 'Go to homepage' },
-                  { title: 'About Us', desc: 'Our mission and story' },
-                  { title: 'Features', desc: 'Explore all features' },
-                  { title: 'Pricing', desc: 'Simple and affordable plans' },
-                  { title: 'Blog', desc: 'Latest news and insights' },
-                  { title: 'Careers', desc: 'Join our team' },
-                  { title: 'Become a Partner', desc: 'Grow with us' },
-                  { title: 'Contact Us', desc: 'Get in touch' },
+                  { title: 'Home', desc: 'Go to homepage', href: '/' },
+                  { title: 'About Us', desc: 'Our mission and story', href: '/about' },
+                  { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
+                  { title: 'Features', desc: 'Explore all features', href: '/#features' },
+                  { title: 'Pricing', desc: 'Simple and affordable plans', href: '/#pricing' },
+                  { title: 'Blog', desc: 'Latest news and insights', href: '/blog' },
+                  { title: 'Careers', desc: 'Join our team', href: '/careers' },
+                  { title: 'Contact Us', desc: 'Get in touch', href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -211,15 +211,15 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Legal</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'Privacy Policy', desc: 'How we protect your data' },
-                  { title: 'Terms of Service', desc: 'Our terms and conditions' },
-                  { title: 'Cookie Policy', desc: 'How we use cookies' },
-                  { title: 'Refund Policy', desc: 'Refund and cancellation terms' },
-                  { title: 'Security', desc: 'Your security is our priority' },
-                  { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform' },
+                  { title: 'Privacy Policy', desc: 'How we protect your data', href: '/legal/privacy-policy' },
+                  { title: 'Terms of Service', desc: 'Our terms and conditions', href: '/legal/terms-of-service' },
+                  { title: 'Cookie Policy', desc: 'How we use cookies', href: '/legal/cookie-policy' },
+                  { title: 'Refund Policy', desc: 'Refund and cancellation terms', href: '/legal/refund-policy' },
+                  { title: 'Security', desc: 'Your security is our priority', href: '/legal/terms-of-service#section-15' },
+                  { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform', href: '/legal/terms-of-service#section-5' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -290,7 +290,7 @@ export function Footer() {
       <div className="bg-[#1C1E32] text-slate-300 py-5 text-sm">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
-            © 2026 DhandaGrow. All rights reserved.
+            © 2026 DhandaGrow AI • Sevenunique Tech Solutions Pvt. Ltd. All rights reserved.
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
