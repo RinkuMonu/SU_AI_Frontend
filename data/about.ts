@@ -37,6 +37,25 @@ export interface CompanyProfile {
     author: string;
     poweredBy: string;
   };
+  partnersMessage?: {
+    heading: string;
+    partners?: string;
+    role?: string;
+    description?: string;
+    paragraphs?: string[];
+    closing?: string;
+  };
+  leadershipTeam?: {
+    heading: string;
+    subtitle?: string;
+    description?: string;
+    members: {
+      id: string;
+      name: string;
+      role: string;
+      image: string;
+    }[];
+  };
   coreBelief: {
     heading: string;
     subtitle: string;
@@ -105,6 +124,86 @@ export const companyProfile: CompanyProfile = {
     ],
     author: "Dinesh Kumar",
     poweredBy: "Sevenunique Tech Solutions Private Limited",
+  },
+  partnersMessage: {
+    heading: "A Message from Our Partners",
+    partners: "DINESH KUMAR & RAHUL PRAJAPAT",
+    role: "Partners at DhandaGrow AI",
+    paragraphs: [
+      "At DhandaGrow AI, our mission is to empower small businesses across India with smart, affordable AI-powered marketing solutions.",
+      "We aim to simplify digital marketing, strengthen brand presence, and help entrepreneurs reach more customers with less effort.",
+      "Our vision is to make advanced AI technology accessible to every shopkeeper, startup, and growing business.",
+      "We believe every business deserves the opportunity to grow, compete, and succeed in the digital era.",
+    ],
+    closing: "Together, let’s build a smarter future for Indian businesses.",
+  },
+  leadershipTeam: {
+    heading: "Meet Our Leadership Team",
+    subtitle: "The Dedicated Minds Driving AI Innovation & Growth",
+    description:
+      "Meet the talented engineers, developers, designers, and growth specialists behind DhandaGrow AI, committed to transforming how businesses grow digitally.",
+    members: [
+      {
+        id: "1",
+        name: "Vijay Gupta",
+        role: "Sr. Full Stack Developer",
+        image: "/team/vijay-gupta.jpg",
+      },
+      {
+        id: "2",
+        name: "Rinku Yadav",
+        role: "Server Admin",
+        image: "/team/rinku-yadav.jpg",
+      },
+      {
+        id: "3",
+        name: "Vishal Prajapat",
+        role: "Data Analyst & Social Media Manager",
+        image: "/team/vishal-prajapat.jpg",
+      },
+      {
+        id: "4",
+        name: "Deepak Yadav",
+        role: "Mobile App Developer",
+        image: "/team/deepak-yadav.jpg",
+      },
+      {
+        id: "5",
+        name: "Sejal Gupta",
+        role: "Jr. AI/ML Engineer",
+        image: "/team/sejal-gupta.jpg",
+      },
+      {
+        id: "6",
+        name: "Kratika Sharma",
+        role: "Jr. AI/ML Engineer",
+        image: "/team/kratika-sharma.jpg",
+      },
+      {
+        id: "7",
+        name: "Rajyavardhan Singh",
+        role: "Backend Developer",
+        image: "/team/rajyavardhan-singh.jpg",
+      },
+      {
+        id: "8",
+        name: "Devika Chhipa",
+        role: "Sr. Frontend Developer",
+        image: "/team/devika-chhipa.jpg",
+      },
+      {
+        id: "9",
+        name: "Khyati Jain",
+        role: "UI/UX Designer",
+        image: "/team/khyati-jain.jpg",
+      },
+      {
+        id: "10",
+        name: "Devika Jain",
+        role: "Content Writer & Social Media Manager",
+        image: "/team/devika-jain.jpg",
+      },
+    ],
   },
   coreBelief: {
     heading: "Our Core Belief",
