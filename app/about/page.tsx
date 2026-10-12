@@ -36,8 +36,8 @@ export default function AboutPage() {
   const navSections = [
     { label: "Our Team", href: "#our-team" },
     { label: "1. Director's Voice", href: "#directors-voice" },
-    { label: "2. Our Mission", href: "#mission" },
-    { label: "3. About Us", href: "#about-us" },
+    { label: "2. About Us", href: "#about-us" },
+    { label: "3. Our Mission", href: "#mission" },
     { label: "4. Our Vision", href: "#vision" },
     { label: "5. Core Belief", href: "#core-belief" },
     { label: "6. Our Taglines", href: "#taglines" },
@@ -149,40 +149,50 @@ export default function AboutPage() {
               <Quote className="w-32 h-32 text-pink-400" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-              {/* SIDE 1: CONTENT COLUMN (Left on desktop) */}
-              <div className="lg:col-span-7 space-y-5 order-2 lg:order-1">
-                <div className="flex items-center gap-3">
-                  <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-pink-500 to-purple-600 text-white shadow-lg">
-                    <Quote className="w-6 h-6" />
+              {/* SIDE 1: CONTENT COLUMN (Left on desktop - balanced equally with image height) */}
+              <div className="lg:col-span-7 space-y-6 order-2 lg:order-1 flex flex-col justify-center">
+                
+                {/* Header Tag & Heading */}
+                <div className="space-y-2 text-left">
+                  <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-pink-400">
+                    <Quote className="w-4 h-4" />
+                    <span>1. Director&apos;s Voice</span>
                   </div>
-                  <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-pink-400">
-                      1. {companyProfile.directorsVoice.heading}
-                    </h3>
-                    <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                      {companyProfile.directorsVoice.subtitle}
-                    </h2>
+
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                    {companyProfile.directorsVoice.subtitle}
+                  </h2>
+
+                  <div className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-pink-400">
+                    Founder, Promoter &amp; Managing Director
                   </div>
                 </div>
 
+                {/* Direct Intro Line from Dinesh Kumar */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-pink-500/15 via-purple-500/10 to-transparent border border-pink-500/30 text-white font-medium text-base sm:text-lg leading-relaxed shadow-lg backdrop-blur-sm text-left">
+                  “Hi, I’m <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">Dinesh Kumar</span>, Founder, Promoter &amp; Managing Director of Sevenunique Tech Solutions Private Limited.”
+                </div>
+
                 {/* Quote Body - Single Continuous Paragraph */}
-                <p className="text-slate-200 text-base sm:text-lg leading-relaxed border-l-2 border-pink-500/40 pl-6 sm:pl-8 italic font-normal">
+                <p className="text-slate-200/90 text-base sm:text-lg leading-relaxed border-l-2 border-pink-500/40 pl-5 sm:pl-7 italic font-normal text-left">
                   {companyProfile.directorsVoice.quote.join(" ")}
                 </p>
               </div>
 
-              {/* SIDE 2: IMAGE COLUMN (Right on desktop) */}
-              <div className="lg:col-span-5 lg:sticky lg:top-28 self-start order-1 lg:order-2">
-                <div className="relative rounded-3xl overflow-hidden border border-pink-500/25 bg-gradient-to-b from-pink-500/10 via-purple-500/5 to-transparent p-2 sm:p-2.5 shadow-2xl group">
-                  <div className="relative rounded-2xl overflow-hidden aspect-[4/5] w-full bg-slate-900">
+              {/* SIDE 2: IMAGE COLUMN (Right on desktop - Full Complete Uncropped Photo) */}
+              <div className="lg:col-span-5 self-center order-1 lg:order-2 w-full flex justify-center">
+                <div className="relative rounded-3xl overflow-hidden border border-pink-500/25 bg-gradient-to-b from-pink-500/10 via-purple-500/5 to-transparent p-2 sm:p-2.5 shadow-2xl group max-w-sm sm:max-w-md w-full">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[2/3] w-full bg-slate-900/40">
                     <Image
                       src="/images/directors-voice.png"
-                      alt="Leadership Team - DhandaGrow AI"
+                      alt="Dinesh Kumar - Founder, Promoter & Managing Director"
                       fill
-                      className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                      unoptimized
+                      className="object-contain object-center group-hover:scale-105 transition-transform duration-700"
                       sizes="(max-width: 1024px) 100vw, 40vw"
+                      priority
                     />
                   </div>
                 </div>
@@ -192,57 +202,14 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* 2. OUR MISSION (PHOTO ON ONE SIDE, CONTENT ON OTHER) */}
-        <section id="mission" className="scroll-mt-28 bg-gradient-to-r from-emerald-950/40 via-emerald-950/20 to-white/[0.02] border border-emerald-500/20 rounded-3xl p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-2xl backdrop-blur-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-
-            {/* SIDE 1: PHOTO COLUMN */}
-            <div className="lg:col-span-5 w-full">
-              <div className="relative rounded-2xl overflow-hidden border border-emerald-500/25 bg-black/60 p-2 shadow-2xl group">
-                <div className="relative rounded-xl overflow-hidden aspect-[3/2] w-full bg-slate-900">
-                  <Image
-                    src="/our_mission.png"
-                    alt="DhandaGrow AI Team - Our Mission"
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                    sizes="(max-width: 1024px) 100vw, 40vw"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* SIDE 2: CONTENT COLUMN */}
-            <div className="lg:col-span-7 space-y-4 text-left">
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
-                <Target className="w-4 h-4" />
-                <span>2. Our Mission</span>
-              </div>
-
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Our Mission
-              </h2>
-
-              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400">
-                Har Dukaan Ko Digital, Har Business Ko Growth
-              </div>
-
-              <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
-                {companyProfile.mission.description}
-              </p>
-            </div>
-
-          </div>
-        </section>
-
-        {/* 3. ABOUT US */}
+        {/* 2. ABOUT US */}
         <section id="about-us" className="scroll-mt-28 bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/10 rounded-3xl p-8 sm:p-12 lg:p-16 backdrop-blur-xl relative overflow-hidden shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
             <div className="lg:col-span-7 space-y-6">
               <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#fc9a5d]">
                 <Store className="w-4 h-4" />
-                <span>3. About Us</span>
+                <span>2. About Us</span>
               </div>
 
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
@@ -304,6 +271,49 @@ export default function AboutPage() {
                   </p>
                 </div>
               ))}
+            </div>
+
+          </div>
+        </section>
+
+        {/* 3. OUR MISSION (PHOTO ON ONE SIDE, CONTENT ON OTHER) */}
+        <section id="mission" className="scroll-mt-28 bg-gradient-to-r from-emerald-950/40 via-emerald-950/20 to-white/[0.02] border border-emerald-500/20 rounded-3xl p-6 sm:p-10 lg:p-12 relative overflow-hidden shadow-2xl backdrop-blur-xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+
+            {/* SIDE 1: PHOTO COLUMN */}
+            <div className="lg:col-span-5 w-full">
+              <div className="relative rounded-2xl overflow-hidden border border-emerald-500/25 bg-black/60 p-2 shadow-2xl group">
+                <div className="relative rounded-xl overflow-hidden aspect-[3/2] w-full bg-slate-900">
+                  <Image
+                    src="/our_mission.png"
+                    alt="DhandaGrow AI Team - Our Mission"
+                    fill
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                    sizes="(max-width: 1024px) 100vw, 40vw"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* SIDE 2: CONTENT COLUMN */}
+            <div className="lg:col-span-7 space-y-4 text-left">
+              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400">
+                <Target className="w-4 h-4" />
+                <span>3. Our Mission</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                Our Mission
+              </h2>
+
+              <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400">
+                Har Dukaan Ko Digital, Har Business Ko Growth
+              </div>
+
+              <p className="text-slate-300 text-base sm:text-lg leading-relaxed font-normal">
+                {companyProfile.mission.description}
+              </p>
             </div>
 
           </div>

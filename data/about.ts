@@ -31,6 +31,8 @@ export interface CompanyProfile {
   directorsVoice: {
     heading: string;
     subtitle: string;
+    intro?: string;
+    role?: string;
     quote: string[];
     author: string;
     poweredBy: string;
@@ -91,6 +93,9 @@ export const companyProfile: CompanyProfile = {
   directorsVoice: {
     heading: "Director’s Voice",
     subtitle: "A Message from Our Leadership",
+    intro:
+      "Hi, I’m Dinesh Kumar, Founder, Promoter & Managing Director of Sevenunique Tech Solutions Private Limited.",
+    role: "Founder, Promoter & Managing Director",
     quote: [
       "When we look at local shops and small businesses, we see hard work, ambition, and enormous potential. But many business owners do not have the time, resources, or technical expertise to manage digital marketing consistently.",
       "We started building DhandaGrow AI with a simple belief: technology should make business easier, not more complicated.",
@@ -98,7 +103,7 @@ export const companyProfile: CompanyProfile = {
       "For us, DhandaGrow AI is more than a technology platform. It is a step toward making digital growth accessible to every business, regardless of its size.",
       "We are working toward a future where every shopkeeper has the opportunity to become digitally empowered and every ambitious business has the tools to grow.",
     ],
-    author: "Leadership Team, DhandaGrow AI",
+    author: "Dinesh Kumar",
     poweredBy: "Sevenunique Tech Solutions Private Limited",
   },
   coreBelief: {
