@@ -2,6 +2,7 @@ import { Navbar } from '@/components/Navbar';
 import { Hero } from '@/components/Hero';
 import { FeatureHighlights } from '@/components/FeatureHighlights';
 import { TrustLogos } from '@/components/TrustLogos';
+import { PaymentsStackSection } from '@/components/PaymentsStackSection';
 import { Features } from '@/components/Features';
 import { AISection } from '@/components/AISection';
 import { Automation } from '@/components/Automation';
@@ -20,6 +21,7 @@ export default function Home() {
       <Hero />
       <FeatureHighlights />
       <TrustLogos />
+      <PaymentsStackSection />
       <Features />
       <HowItWorks />
       <CTA />

@@ -2,8 +2,10 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { companyProfile } from '@/data/about';
 import Image from 'next/image';
+import Link from 'next/link';
 import {
   Quote,
+  ArrowRight,
 } from 'lucide-react';
 
 export default function AboutPage() {
@@ -311,9 +313,8 @@ export default function AboutPage() {
               
               {/* Header */}
               <div className="space-y-2.5 text-center max-w-3xl mx-auto">
-                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight flex items-center justify-center gap-3">
-                  <span className="text-[#fc9a5d]">6.</span>
-                  <span>{companyProfile.leadershipTeam.heading}</span>
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight text-center">
+                  {companyProfile.leadershipTeam.heading}
                 </h2>
                 {companyProfile.leadershipTeam.subtitle && (
                   <p className="text-sm sm:text-base text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] font-semibold">
@@ -332,16 +333,27 @@ export default function AboutPage() {
                 {companyProfile.leadershipTeam.members.map((member) => (
                   <div
                     key={member.id}
-                    className="relative rounded-3xl overflow-hidden border border-white/10 hover:border-pink-500/50 bg-white shadow-xl hover:shadow-2xl hover:shadow-pink-500/15 hover:-translate-y-1.5 transition-all duration-300 group"
+                    className="relative rounded-3xl overflow-hidden border border-white/10 hover:border-pink-500/40 bg-gradient-to-b from-white/[0.07] via-white/[0.03] to-white/[0.01] p-5 sm:p-6 flex flex-col items-center text-center transition-all duration-300 hover:shadow-2xl hover:shadow-pink-500/10 hover:-translate-y-1.5 group backdrop-blur-xl"
                   >
-                    <div className="relative aspect-[600/850] w-full overflow-hidden bg-white p-1">
+                    {/* Circle Avatar with White Background */}
+                    <div className="relative w-36 h-36 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full overflow-hidden bg-white border-4 border-white/20 shadow-xl mx-auto mb-4 group-hover:border-pink-500/50 group-hover:scale-105 transition-all duration-500 shrink-0">
                       <Image
                         src={member.image}
                         alt={`${member.name} - ${member.role}`}
                         fill
-                        className="object-contain object-center group-hover:scale-105 transition-transform duration-500 rounded-2xl"
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        className="object-cover object-center"
+                        sizes="(max-width: 640px) 150px, 180px"
                       />
+                    </div>
+
+                    {/* Member Details: Name & Role */}
+                    <div className="pt-1 w-full flex flex-col items-center">
+                      <h3 className="text-base sm:text-lg font-bold text-white tracking-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#fc9a5d] group-hover:via-[#f0449b] group-hover:to-[#be32ff] transition-all duration-300">
+                        {member.name}
+                      </h3>
+                      <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-pink-300 bg-pink-500/10 border border-pink-500/20 max-w-full text-center">
+                        {member.role}
+                      </span>
                     </div>
                   </div>
                 ))}
@@ -350,6 +362,101 @@ export default function AboutPage() {
             </div>
           </section>
         )}
+
+        {/* COME WORK WITH US SECTION */}
+        <section className="relative rounded-3xl overflow-hidden bg-[#faf7f2] border border-orange-200/50 p-8 sm:p-14 lg:p-20 shadow-2xl text-center">
+          
+          {/* Main Center Content */}
+          <div className="relative z-10 max-w-2xl mx-auto flex flex-col items-center justify-center py-6 sm:py-10">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-slate-900 tracking-tight leading-tight mb-8">
+              Come Work With Us
+            </h2>
+            <Link
+              href="/careers"
+              className="inline-flex items-center gap-2.5 bg-[#f25116] hover:bg-[#d94109] text-white font-semibold text-base sm:text-lg px-8 sm:px-9 py-3.5 sm:py-4 rounded-lg shadow-xl shadow-orange-500/20 hover:shadow-orange-500/35 hover:-translate-y-0.5 transition-all duration-300 group"
+            >
+              <span>Careers</span>
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform duration-300" />
+            </Link>
+          </div>
+
+          {/* Floating Team Avatars & Speech Bubbles (Desktop & Tablet) */}
+          {/* 1. Top Left: Avatar with 'Innovate with us...' */}
+          <div className="hidden md:flex items-center gap-3 absolute top-8 sm:top-12 left-6 sm:left-12 lg:left-16 z-20">
+            <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-white shadow-xl bg-amber-50 shrink-0">
+              <Image
+                src="/team/devika-chhipa.webp"
+                alt="Innovate with us"
+                fill
+                className="object-cover object-top"
+              />
+            </div>
+            <div className="px-3.5 py-1.5 rounded-full bg-[#fde9df] border border-orange-200/40 text-[#d9531e] font-medium text-xs lg:text-sm shadow-sm whitespace-nowrap">
+              Innovate with us...
+            </div>
+          </div>
+
+          {/* 2. Bottom Left: Avatar with 'Power to you!' */}
+          <div className="hidden md:flex flex-col items-start gap-2 absolute bottom-6 sm:bottom-10 left-12 sm:left-24 lg:left-32 z-20">
+            <div className="px-3.5 py-1.5 rounded-full bg-[#e8f1ff] border border-blue-200/50 text-[#2563eb] font-semibold text-xs lg:text-sm shadow-sm whitespace-nowrap ml-2">
+              Power to you!
+            </div>
+            <div className="relative w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 border-white shadow-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 p-0.5 shrink-0">
+              <div className="relative w-full h-full rounded-full overflow-hidden bg-slate-900">
+                <Image
+                  src="/team/gupta-vijay.webp"
+                  alt="Power to you"
+                  fill
+                  className="object-cover object-top"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Top Right: Avatar */}
+          <div className="hidden md:flex items-center absolute top-10 sm:top-14 right-8 sm:right-16 lg:right-24 z-20">
+            <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-white shadow-xl bg-slate-100 shrink-0">
+              <Image
+                src="/team/rajya-sir.webp"
+                alt="Team member"
+                fill
+                className="object-cover object-top"
+              />
+            </div>
+          </div>
+
+          {/* 4. Bottom Right: Avatar with 'Code the extraordinary...' */}
+          <div className="hidden md:flex flex-col items-end gap-2 absolute bottom-6 sm:bottom-10 right-10 sm:right-20 lg:right-28 z-20">
+            <div className="px-3.5 py-1.5 rounded-full bg-[#fde9df] border border-orange-200/40 text-[#d9531e] font-medium text-xs lg:text-sm shadow-sm whitespace-nowrap mr-2">
+              Code the extraordinary...
+            </div>
+            <div className="relative w-20 h-20 lg:w-24 lg:h-24 rounded-full overflow-hidden border-2 border-white shadow-xl bg-amber-50 shrink-0">
+              <Image
+                src="/team/deepak.webp"
+                alt="Code the extraordinary"
+                fill
+                className="object-cover object-top"
+              />
+            </div>
+          </div>
+
+          {/* Mobile Preview for Avatars */}
+          <div className="flex md:hidden items-center justify-center gap-4 mt-6 flex-wrap">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md bg-amber-50">
+              <Image src="/team/devika-chhipa.webp" alt="Team" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md bg-indigo-500">
+              <Image src="/team/gupta-vijay.webp" alt="Team" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md bg-slate-100">
+              <Image src="/team/rajya-sir.webp" alt="Team" fill className="object-cover object-top" />
+            </div>
+            <div className="relative w-14 h-14 rounded-full overflow-hidden border-2 border-white shadow-md bg-amber-50">
+              <Image src="/team/deepak.webp" alt="Team" fill className="object-cover object-top" />
+            </div>
+          </div>
+
+        </section>
 
       </div>
 
