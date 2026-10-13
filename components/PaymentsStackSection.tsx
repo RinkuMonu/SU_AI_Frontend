@@ -1,406 +1,840 @@
 'use client';
 
-import React, { useRef } from 'react';
-import Image from 'next/image';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  motion, 
-  useScroll, 
-  useTransform, 
-  useSpring 
-} from 'framer-motion';
-import { 
+  Zap, 
+  ShieldCheck, 
+  Lock, 
+  CheckCircle2, 
   ArrowRight, 
-  ArrowLeftRight 
+  UserCheck, 
+  Smartphone, 
+  Globe, 
+  Building2, 
+  CreditCard, 
+  Receipt, 
+  QrCode, 
+  FileCheck, 
+  Server, 
+  Scale, 
+  FileText, 
+  RefreshCw 
 } from 'lucide-react';
 
+type TabType = 'profiling' | 'payments' | 'privacy';
+
+interface SubItem {
+  id: string;
+  navTitle: string;
+  heading: string;
+  inputCard: {
+    label: string;
+    flag: string;
+    value: string;
+    badge: string;
+  };
+  hubIcon: React.ReactNode;
+  outputCard: {
+    title: string;
+    status: string;
+    progressText: string;
+    items: {
+      icon: React.ReactNode;
+      label: string;
+      value: string;
+    }[];
+  };
+  benefits: {
+    icon: React.ReactNode;
+    title: string;
+    desc: string;
+  }[];
+}
+
+interface SectionCategory {
+  id: TabType;
+  label: string;
+  badge: string;
+  description: string;
+  subItems: SubItem[];
+}
+
+const sectionsData: SectionCategory[] = [
+  {
+    id: 'profiling',
+    label: 'Profiling',
+    badge: 'AI Customer Intelligence',
+    description: 'Instant demographic, fraud, and buyer propensity signals powered by real-time mobile verification.',
+    subItems: [
+      {
+        id: 'digital-identity',
+        navTitle: 'Digital Identity Verification',
+        heading: 'Digital Identity Verification',
+        inputCard: {
+          label: 'Personal Mobile Number',
+          flag: '🇮🇳',
+          value: '9876543210',
+          badge: 'Customer Input'
+        },
+        hubIcon: <Zap className="w-6 h-6 text-white fill-white" />,
+        outputCard: {
+          title: 'Personal Information',
+          status: 'Fetching..',
+          progressText: 'Verified in 0.3s',
+          items: [
+            {
+              icon: <UserCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Legal Name',
+              value: 'Dinesh Kumar (Verified)'
+            },
+            {
+              icon: <ShieldCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Fraud Check',
+              value: 'Low Risk • 99% Trust'
+            },
+            {
+              icon: <Smartphone className="w-4 h-4 text-orange-500" />,
+              label: 'Mobile Network',
+              value: 'Jio 5G • WhatsApp Active'
+            },
+            {
+              icon: <Globe className="w-4 h-4 text-orange-500" />,
+              label: 'Social Media Accounts',
+              value: 'Meta & Instagram Verified'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <UserCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Build a 360° user profile',
+            desc: 'Instant demographic, buyer intent, and social affinity signals.'
+          },
+          {
+            icon: <ArrowRight className="w-5 h-5 text-orange-600" />,
+            title: 'Reduce onboarding friction',
+            desc: 'Zero manual paperwork, 1-click frictionless customer onboarding.'
+          },
+          {
+            icon: <ShieldCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Ensure regulatory compliance',
+            desc: '100% compliant with Indian KYC & digital verification frameworks.'
+          }
+        ]
+      },
+      {
+        id: 'fraud-monitoring',
+        navTitle: 'Live Fraud Monitoring',
+        heading: 'Live Risk & Fraud Monitoring',
+        inputCard: {
+          label: 'Transaction / Order Event',
+          flag: '🔍',
+          value: 'IP: 103.24.x.x (Mumbai)',
+          badge: 'Live Event'
+        },
+        hubIcon: <ShieldCheck className="w-6 h-6 text-white" />,
+        outputCard: {
+          title: 'Risk & Intent Score Engine',
+          status: 'Safe to Transact',
+          progressText: 'Trust Index: 98/100',
+          items: [
+            {
+              icon: <Zap className="w-4 h-4 text-orange-500" />,
+              label: 'Intent Velocity',
+              value: 'High Purchase Propensity'
+            },
+            {
+              icon: <ShieldCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Bot & VPN Check',
+              value: '0% Bot Risk • Human Verified'
+            },
+            {
+              icon: <Smartphone className="w-4 h-4 text-orange-500" />,
+              label: 'Device Fingerprint',
+              value: 'Authentic Mobile Hardware'
+            },
+            {
+              icon: <Building2 className="w-4 h-4 text-orange-500" />,
+              label: 'RTO Risk Scoring',
+              value: 'Low Return-to-Origin Probability'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <ShieldCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Zero Fake Orders (RTO)',
+            desc: 'Prevent high-cost return orders before parcel dispatch.'
+          },
+          {
+            icon: <Zap className="w-5 h-5 text-orange-600" />,
+            title: 'Real-Time Intent Scoring',
+            desc: 'Route genuine high-value buyers to express checkout.'
+          },
+          {
+            icon: <Lock className="w-5 h-5 text-orange-600" />,
+            title: 'Automated Bot Defenses',
+            desc: 'Block card-testing and credential stuffing attacks instantly.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'payments',
+    label: 'Payments',
+    badge: 'Multi-Rail Payments Stack',
+    description: 'Instant UPI collections, split vendor settlements, and automated GST billing with 99.9% success.',
+    subItems: [
+      {
+        id: 'unified-upi',
+        navTitle: 'Unified UPI & Checkout',
+        heading: 'Unified UPI & Instant Payments',
+        inputCard: {
+          label: 'Order Checkout Link',
+          flag: '₹',
+          value: '₹4,999 (UPI / QR / Cards)',
+          badge: 'Payment Link'
+        },
+        hubIcon: <CreditCard className="w-6 h-6 text-white" />,
+        outputCard: {
+          title: 'Real-Time Settlement Engine',
+          status: 'Settlement Confirmed',
+          progressText: 'Paid in 0.4s',
+          items: [
+            {
+              icon: <QrCode className="w-4 h-4 text-orange-500" />,
+              label: 'UPI Rail Routing',
+              value: 'NPCI Ultra-Fast Payment Rail'
+            },
+            {
+              icon: <Receipt className="w-4 h-4 text-orange-500" />,
+              label: 'Automated GST Invoice',
+              value: 'Generated & WhatsApp Sent'
+            },
+            {
+              icon: <Building2 className="w-4 h-4 text-orange-500" />,
+              label: 'Direct Bank Settlement',
+              value: 'Next-Day Direct Credit (T+1)'
+            },
+            {
+              icon: <Lock className="w-4 h-4 text-orange-500" />,
+              label: 'Security Protocol',
+              value: 'PCI-DSS Level 1 Bank-Grade'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <Zap className="w-5 h-5 text-orange-600" />,
+            title: '99.9% Transaction Success',
+            desc: 'Intelligent multi-gateway routing eliminates payment drops.'
+          },
+          {
+            icon: <Smartphone className="w-5 h-5 text-orange-600" />,
+            title: '1-Click WhatsApp Checkout',
+            desc: 'Collect customer payments directly inside WhatsApp chats.'
+          },
+          {
+            icon: <Receipt className="w-5 h-5 text-orange-600" />,
+            title: 'Automated GST Invoicing',
+            desc: 'Instant compliant tax invoices dispatched automatically.'
+          }
+        ]
+      },
+      {
+        id: 'split-settlements',
+        navTitle: 'Split Invoicing & AutoPay',
+        heading: 'Automated Splits & Subscriptions',
+        inputCard: {
+          label: 'Subscription Mandate',
+          flag: '🔄',
+          value: 'Monthly AutoPay (UPI Mandate)',
+          badge: 'Recurring'
+        },
+        hubIcon: <RefreshCw className="w-6 h-6 text-white" />,
+        outputCard: {
+          title: 'Automated Settlement Ledger',
+          status: 'AutoPay Active',
+          progressText: 'Dispatched & Reconciled',
+          items: [
+            {
+              icon: <Building2 className="w-4 h-4 text-orange-500" />,
+              label: 'Split Vendor Payouts',
+              value: 'Instant Partner & Creator Splits'
+            },
+            {
+              icon: <Receipt className="w-4 h-4 text-orange-500" />,
+              label: 'Tally & Zoho Sync',
+              value: 'Automated accounting sync'
+            },
+            {
+              icon: <QrCode className="w-4 h-4 text-orange-500" />,
+              label: 'UPI Recurring Rail',
+              value: 'Zero-OTP recurring deductions'
+            },
+            {
+              icon: <FileCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Ledger Reconciliation',
+              value: '100% Automated Reconciliation'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <RefreshCw className="w-5 h-5 text-orange-600" />,
+            title: 'Frictionless UPI AutoPay',
+            desc: 'Automate subscription renewals with zero customer drop-off.'
+          },
+          {
+            icon: <Building2 className="w-5 h-5 text-orange-600" />,
+            title: 'Automated Vendor Splits',
+            desc: 'Pay suppliers, affiliates, and creators automatically on delivery.'
+          },
+          {
+            icon: <FileCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Live Cashflow Visibility',
+            desc: 'Real-time financial ledgers without messy manual spreadsheets.'
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'privacy',
+    label: 'Privacy',
+    badge: 'Enterprise Security & Trust',
+    description: '100% Indian data sovereignty, military-grade encryption, and full DPDP Act statutory compliance.',
+    subItems: [
+      {
+        id: 'data-encryption',
+        navTitle: 'Enterprise Encryption Vault',
+        heading: 'Bank-Grade Data Privacy & Vault',
+        inputCard: {
+          label: 'Customer & Business Data',
+          flag: '🔒',
+          value: 'AES-256 GCM Encrypted Vault',
+          badge: 'Zero-Knowledge'
+        },
+        hubIcon: <Lock className="w-6 h-6 text-white" />,
+        outputCard: {
+          title: 'Zero-Trust Security Engine',
+          status: 'Protected & Sovereign',
+          progressText: 'Active Shield 100%',
+          items: [
+            {
+              icon: <Server className="w-4 h-4 text-orange-500" />,
+              label: 'India Data Sovereignty',
+              value: '100% Hosted in Tier-4 Indian DCs'
+            },
+            {
+              icon: <Lock className="w-4 h-4 text-orange-500" />,
+              label: 'Cryptographic Standard',
+              value: 'AES-256 at rest, TLS 1.3 in transit'
+            },
+            {
+              icon: <ShieldCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Zero Third-Party Sharing',
+              value: 'Customer data is never sold or mined'
+            },
+            {
+              icon: <UserCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Role-Based Access',
+              value: 'Strict multi-tier permission controls'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <Server className="w-5 h-5 text-orange-600" />,
+            title: '100% Indian Data Sovereignty',
+            desc: 'All business databases hosted locally under strict jurisdiction.'
+          },
+          {
+            icon: <Lock className="w-5 h-5 text-orange-600" />,
+            title: 'Bank-Grade Cryptography',
+            desc: 'Military-grade encryption protects every customer record.'
+          },
+          {
+            icon: <UserCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Role-Based Team Controls',
+            desc: 'Grant granular access permissions across your staff safely.'
+          }
+        ]
+      },
+      {
+        id: 'dpdp-compliance',
+        navTitle: 'DPDP Act 2023 Compliance',
+        heading: 'DPDP Act 2023 Regulatory Compliance',
+        inputCard: {
+          label: 'User Consent & Privacy Event',
+          flag: '⚖️',
+          value: 'Digital Data Protection Compliance',
+          badge: 'Audit-Ready'
+        },
+        hubIcon: <Scale className="w-6 h-6 text-white" />,
+        outputCard: {
+          title: 'Compliance & Governance Engine',
+          status: 'Fully Certified',
+          progressText: '100% Compliant',
+          items: [
+            {
+              icon: <Scale className="w-4 h-4 text-orange-500" />,
+              label: 'DPDP Act 2023',
+              value: 'Full statutory legal compliance'
+            },
+            {
+              icon: <FileText className="w-4 h-4 text-orange-500" />,
+              label: 'Consent Logging',
+              value: 'Timestamped audit-ready consent trails'
+            },
+            {
+              icon: <ShieldCheck className="w-4 h-4 text-orange-500" />,
+              label: 'Right to be Forgotten',
+              value: 'Automated 1-click data deletion API'
+            },
+            {
+              icon: <CheckCircle2 className="w-4 h-4 text-orange-500" />,
+              label: 'Security Audits',
+              value: 'Regular posture and penetration audits'
+            }
+          ]
+        },
+        benefits: [
+          {
+            icon: <Scale className="w-5 h-5 text-orange-600" />,
+            title: 'Statutory DPDP Compliance',
+            desc: 'Guard your business against heavy statutory privacy penalties.'
+          },
+          {
+            icon: <FileText className="w-5 h-5 text-orange-600" />,
+            title: 'Audit-Ready Consent Logs',
+            desc: 'Verifiable digital consent proofs for every user interaction.'
+          },
+          {
+            icon: <ShieldCheck className="w-5 h-5 text-orange-600" />,
+            title: 'Enterprise Trust Badge',
+            desc: 'Win enterprise corporate clients with certified data posture.'
+          }
+        ]
+      }
+    ]
+  }
+];
+
 export function PaymentsStackSection() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [activeTab, setActiveTab] = useState<TabType>('profiling');
+  const [activeCardId, setActiveCardId] = useState<string>('digital-identity');
+  const [line1Progress, setLine1Progress] = useState(0); // 0 to 1 between profiling and payments
+  const [line2Progress, setLine2Progress] = useState(0); // 0 to 1 between payments and privacy
 
-  // Track scroll progress through the pinned section
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
+  // Scroll listener to update sticky pill tabs and active sub-item highlights
+  useEffect(() => {
+    let ticking = false;
 
-  // Spring smoothing for natural, flicker-free movement
-  const springProgress = useSpring(scrollYProgress, {
-    stiffness: 85,
-    damping: 22,
-    mass: 0.35,
-  });
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const secProfiling = document.getElementById('section-profiling');
+          const secPayments = document.getElementById('section-payments');
+          const secPrivacy = document.getElementById('section-privacy');
 
-  // Transform coordinates for each card
-  // Initial state (progress = 0): Collected AT THE BOTTOM (y: ~280px), below the headline
-  // Expanded state (progress = 0.85+): Fully expanded around the headline matching reference
+          if (!secProfiling || !secPayments || !secPrivacy) {
+            ticking = false;
+            return;
+          }
 
-  // 1. Live Payment Transactions (Top-Left / Top-Center)
-  const card1X = useTransform(springProgress, [0, 0.85], [-70, -230]);
-  const card1Y = useTransform(springProgress, [0, 0.85], [280, -220]);
-  const card1Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
-  const card1Rotate = useTransform(springProgress, [0, 0.85], [-4, 0]);
-  const card1Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
+          const pageY = window.pageYOffset || document.documentElement.scrollTop;
+          const triggerY = pageY + 240; // Trigger line below sticky navigation
 
-  // 2. Woman with Smartphone & Payment Methods Overlay (Top-Right)
-  const card2X = useTransform(springProgress, [0, 0.85], [70, 320]);
-  const card2Y = useTransform(springProgress, [0, 0.85], [280, -190]);
-  const card2Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
-  const card2Rotate = useTransform(springProgress, [0, 0.85], [4, 0]);
-  const card2Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
+          const topProfiling = secProfiling.getBoundingClientRect().top + pageY;
+          const topPayments = secPayments.getBoundingClientRect().top + pageY;
+          const topPrivacy = secPrivacy.getBoundingClientRect().top + pageY;
 
-  // 3. Customer Support Agent (Mid-Left)
-  const card3X = useTransform(springProgress, [0, 0.85], [-35, -370]);
-  const card3Y = useTransform(springProgress, [0, 0.85], [290, 40]);
-  const card3Scale = useTransform(springProgress, [0, 0.85], [0.62, 1]);
-  const card3Rotate = useTransform(springProgress, [0, 0.85], [-2, 0]);
-  const card3Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
+          const cardFraud = document.getElementById('card-fraud-monitoring');
+          const cardSplit = document.getElementById('card-split-invoicing');
 
-  // 4. Abhishek Multi-Currency Account (Bottom-Left / Bottom-Center)
-  const card4X = useTransform(springProgress, [0, 0.85], [0, -110]);
-  const card4Y = useTransform(springProgress, [0, 0.85], [275, 240]);
-  const card4Scale = useTransform(springProgress, [0, 0.85], [0.68, 1]);
-  const card4Rotate = useTransform(springProgress, [0, 0.85], [0, 0]);
-  const card4Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.65, 0.9, 1]);
+          const topFraud = cardFraud 
+            ? (cardFraud.getBoundingClientRect().top + pageY) 
+            : (topProfiling + (topPayments - topProfiling) * 0.5);
 
-  // 5. No Hidden Charges (Bottom-Right)
-  const card5X = useTransform(springProgress, [0, 0.85], [40, 330]);
-  const card5Y = useTransform(springProgress, [0, 0.85], [285, 180]);
-  const card5Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
-  const card5Rotate = useTransform(springProgress, [0, 0.85], [3, 0]);
-  const card5Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
+          const topSplit = cardSplit 
+            ? (cardSplit.getBoundingClientRect().top + pageY) 
+            : (topPayments + (topPrivacy - topPayments) * 0.5);
 
-  // Center Headline scale & line pathLength
-  const headlineScale = useTransform(springProgress, [0, 0.85], [0.98, 1.02]);
-  const linesOpacity = useTransform(springProgress, [0, 0.45, 0.85], [0, 0.25, 0.6]);
-  const linesProgress = useTransform(springProgress, [0, 0.85], [0, 1]);
+          // 1. Line 1 progress (Profiling -> Payments)
+          // Rule: Gated until the second profiling card (Live Fraud Monitoring) is reached!
+          let p1 = 0;
+          if (triggerY >= topPayments - 80) {
+            p1 = 1;
+          } else if (triggerY >= topFraud) {
+            const dist1 = (topPayments - 80) - topFraud;
+            if (dist1 > 0) {
+              p1 = (triggerY - topFraud) / dist1;
+              p1 = Math.min(1, Math.max(0, p1));
+            }
+          } else {
+            p1 = 0;
+          }
+
+          // 2. Line 2 progress (Payments -> Privacy)
+          // Rule: Gated until the second payments card (Split Invoicing) is reached!
+          let p2 = 0;
+          if (triggerY >= topPrivacy - 80) {
+            p2 = 1;
+          } else if (triggerY >= topSplit) {
+            const dist2 = (topPrivacy - 80) - topSplit;
+            if (dist2 > 0) {
+              p2 = (triggerY - topSplit) / dist2;
+              p2 = Math.min(1, Math.max(0, p2));
+            }
+          } else {
+            p2 = 0;
+          }
+
+          setLine1Progress(p1);
+          setLine2Progress(p2);
+
+          // 3. Active Category Tab (Only switches to Payments/Privacy when actually reaching them!)
+          if (triggerY >= topPrivacy - 80) {
+            setActiveTab('privacy');
+          } else if (triggerY >= topPayments - 80) {
+            setActiveTab('payments');
+          } else {
+            setActiveTab('profiling');
+          }
+
+          // 4. Active Sub-Item Card (Track which of the 6 cards is in viewport)
+          const cardIds = [
+            'digital-identity',
+            'fraud-monitoring',
+            'unified-upi',
+            'split-invoicing',
+            'data-encryption',
+            'dpdp-compliance'
+          ];
+
+          for (let i = cardIds.length - 1; i >= 0; i--) {
+            const el = document.getElementById(`card-${cardIds[i]}`);
+            if (el) {
+              const rect = el.getBoundingClientRect();
+              if (rect.top <= 300) {
+                setActiveCardId(cardIds[i]);
+                break;
+              }
+            }
+          }
+
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToSection = (tabId: TabType) => {
+    setActiveTab(tabId);
+    const targetEl = document.getElementById(`section-${tabId}`);
+    if (targetEl) {
+      const yOffset = -150; // Clearance for navbar + sticky pill
+      const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
+
+  const scrollToCard = (cardId: string) => {
+    setActiveCardId(cardId);
+    const targetEl = document.getElementById(`card-${cardId}`);
+    if (targetEl) {
+      const yOffset = -150;
+      const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  };
 
   return (
-    <section 
-      ref={containerRef}
-      className="relative w-full h-[220vh] bg-gradient-to-b from-[#f8fcf9] via-[#edf7f1] to-[#f8fcf9] select-none"
-    >
-      {/* Sticky viewport frame that pins during scroll */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-4 sm:px-6">
-        
-        {/* Soft Ambient Radial Lights in Background */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-emerald-200/40 rounded-full blur-[140px]" />
-          <div className="absolute bottom-1/4 right-1/4 w-[550px] h-[550px] bg-lime-200/35 rounded-full blur-[150px]" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-white/70 rounded-full blur-[100px]" />
-        </div>
+    <section className="py-12 sm:py-16 bg-[#faf9f6] relative z-10 w-full">
+      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Dynamic Curved SVG Circuit/Connecting Lines */}
-        <motion.svg 
-          className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
-          style={{ opacity: linesOpacity }}
-        >
-          <defs>
-            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#86efac" stopOpacity="0.8" />
-              <stop offset="50%" stopColor="#4ade80" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#22c55e" stopOpacity="0.7" />
-            </linearGradient>
-          </defs>
-
-          {/* Lines radiating from center outwards */}
-          <motion.path 
-            d="M 50% 50% Q 40% 32% 35% 24%" 
-            fill="none" 
-            stroke="url(#lineGrad)" 
-            strokeWidth="1.5" 
-            strokeDasharray="4 4"
-            style={{ pathLength: linesProgress }}
-          />
-          <motion.path 
-            d="M 50% 50% Q 65% 36% 72% 25%" 
-            fill="none" 
-            stroke="url(#lineGrad)" 
-            strokeWidth="1.5" 
-            strokeDasharray="4 4"
-            style={{ pathLength: linesProgress }}
-          />
-          <motion.path 
-            d="M 50% 50% Q 32% 52% 22% 52%" 
-            fill="none" 
-            stroke="url(#lineGrad)" 
-            strokeWidth="1.5" 
-            strokeDasharray="4 4"
-            style={{ pathLength: linesProgress }}
-          />
-          <motion.path 
-            d="M 50% 50% Q 44% 68% 42% 78%" 
-            fill="none" 
-            stroke="url(#lineGrad)" 
-            strokeWidth="1.5" 
-            strokeDasharray="4 4"
-            style={{ pathLength: linesProgress }}
-          />
-          <motion.path 
-            d="M 50% 50% Q 65% 62% 74% 72%" 
-            fill="none" 
-            stroke="url(#lineGrad)" 
-            strokeWidth="1.5" 
-            strokeDasharray="4 4"
-            style={{ pathLength: linesProgress }}
-          />
-        </motion.svg>
-
-        {/* Center Container: Headline & Floating Expanding Cards */}
-        <div className="relative w-full max-w-6xl mx-auto flex items-center justify-center">
-
-          {/* 1. TOP-LEFT CARD: Live Payment Transactions */}
-          <motion.div
-            style={{
-              x: card1X,
-              y: card1Y,
-              scale: card1Scale,
-              rotate: card1Rotate,
-              opacity: card1Opacity,
-            }}
-            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-            className="absolute z-20 pointer-events-auto"
-          >
-            <div className="bg-[#d2f88b] p-3 sm:p-3.5 rounded-[30px] shadow-[0_15px_35px_-5px_rgba(132,204,22,0.3)] border border-lime-300/50 w-[240px] sm:w-[275px]">
-              <div className="bg-white rounded-[22px] p-3.5 sm:p-4 shadow-sm border border-slate-100">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[11px] sm:text-[12px] font-semibold text-slate-700 leading-tight">
-                      Live Payment<br />Transactions
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-none">
-                      2,847
-                    </div>
-                    <div className="text-[9px] font-bold text-emerald-600 mt-0.5">
-                      ↑ 2.5% VS. LAST WEEK
-                    </div>
-                  </div>
-                </div>
-
-                {/* Green Wavy Area Chart SVG */}
-                <div className="w-full mt-2 h-12 sm:h-14 relative">
-                  <svg viewBox="0 0 240 60" className="w-full h-full overflow-visible">
-                    <defs>
-                      <linearGradient id="liveChartGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#22c55e" stopOpacity="0.4" />
-                        <stop offset="100%" stopColor="#22c55e" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
-                    <path 
-                      d="M 0 38 Q 30 52 60 28 T 120 18 T 180 38 T 240 12 L 240 60 L 0 60 Z" 
-                      fill="url(#liveChartGrad)" 
-                    />
-                    <path 
-                      d="M 0 38 Q 30 52 60 28 T 120 18 T 180 38 T 240 12" 
-                      fill="none" 
-                      stroke="#22c55e" 
-                      strokeWidth="2.5" 
-                      strokeLinecap="round" 
-                    />
-                    <circle cx="120" cy="18" r="3.5" fill="#22c55e" stroke="#fff" strokeWidth="2" />
-                    <line x1="120" y1="18" x2="120" y2="60" stroke="#22c55e" strokeWidth="1" strokeDasharray="2 2" opacity="0.6" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </motion.div>          {/* 2. TOP-RIGHT CARD: Smiling Woman with Payment Method Badges */}
-          <motion.div
-            style={{
-              x: card2X,
-              y: card2Y,
-              scale: card2Scale,
-              rotate: card2Rotate,
-              opacity: card2Opacity,
-            }}
-            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-            className="absolute z-20 pointer-events-auto"
-          >
-            <div className="w-[220px] sm:w-[250px] lg:w-[270px] aspect-[4/3] sm:aspect-square rounded-[30px] overflow-hidden shadow-[0_20px_45px_-10px_rgba(0,0,0,0.18)] relative border border-slate-200/60 group">
-              <Image 
-                src="/images/payments/woman-logistics.jpg" 
-                alt="Business owner using mobile payments" 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-                sizes="(max-width: 768px) 220px, 270px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-
-              {/* Floating Glassmorphism Payment Brands Matrix */}
-              <div className="absolute inset-x-2.5 bottom-2.5 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-2.5 sm:p-2.5 shadow-lg">
-                <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
-                  {/* PhonePe */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-[#5f259f] flex items-center justify-center text-white font-bold text-[10px] shadow-sm">
-                    पे
-                  </div>
-                  {/* GPay */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-white flex items-center justify-center font-bold text-[10px] text-slate-800 shadow-sm border border-slate-100">
-                    <span className="text-blue-500">G</span><span className="text-red-500">P</span><span className="text-yellow-500">a</span><span className="text-green-500">y</span>
-                  </div>
-                  {/* Paytm */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-[#002e6e] flex items-center justify-center text-cyan-400 font-extrabold text-[9px] shadow-sm">
-                    Paytm
-                  </div>
-                  {/* RuPay */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-white flex items-center justify-center font-bold text-[9px] text-[#006e33] shadow-sm border border-slate-100">
-                    RuPay
-                  </div>
-                  {/* VISA */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-[#1434cb] flex items-center justify-center text-white font-black text-[9px] shadow-sm italic">
-                    VISA
-                  </div>
-                  {/* Apple Pay */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-black flex items-center justify-center text-white font-bold text-[9px] shadow-sm">
-                    Pay
-                  </div>
-                  {/* UPI */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-white flex items-center justify-center font-black text-[9px] text-[#22c55e] shadow-sm border border-slate-100">
-                    UPI
-                  </div>
-                  {/* Mastercard */}
-                  <div className="h-6 sm:h-7 rounded-lg bg-slate-900 flex items-center justify-center gap-0.5 shadow-sm">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block -mr-1" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block opacity-90" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* 3. MID-LEFT CARD: Smiling Customer Support Representative */}
-          <motion.div
-            style={{
-              x: card3X,
-              y: card3Y,
-              scale: card3Scale,
-              rotate: card3Rotate,
-              opacity: card3Opacity,
-            }}
-            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-            className="absolute z-20 pointer-events-auto"
-          >
-            <div className="w-[200px] sm:w-[230px] lg:w-[250px] aspect-square rounded-[30px] overflow-hidden shadow-[0_20px_45px_-10px_rgba(0,0,0,0.18)] relative border border-slate-200/60 group">
-              <Image 
-                src="/images/payments/support-agent.jpg" 
-                alt="24/7 Assisted customer setup agent" 
-                fill 
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-                sizes="(max-width: 768px) 200px, 250px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent pointer-events-none" />
-
-              {/* Floating Assisted Onboarding Card */}
-              <div className="absolute inset-x-2.5 bottom-2.5 bg-white/45 backdrop-blur-md border border-white/60 rounded-2xl p-2.5 sm:p-3 shadow-lg flex flex-col gap-1.5 text-center">
-                <span className="text-[11px] font-bold text-slate-900 leading-tight">
-                  Welcome onboard
-                </span>
-                <div className="bg-white/95 text-slate-900 text-[10px] font-semibold py-1.5 px-3 rounded-xl flex items-center justify-between shadow-sm">
-                  <span>Start assisted setup</span>
-                  <ArrowRight className="w-3 h-3 ml-1 text-slate-700" />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* 4. BOTTOM-CENTER / BOTTOM-LEFT CARD: Abhishek Multi-Currency Account */}
-          <motion.div
-            style={{
-              x: card4X,
-              y: card4Y,
-              scale: card4Scale,
-              rotate: card4Rotate,
-              opacity: card4Opacity,
-            }}
-            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-            className="absolute z-20 pointer-events-auto"
-          >
-            <div className="bg-[#043320] rounded-[28px] p-3.5 sm:p-4 shadow-[0_20px_40px_-10px_rgba(4,51,32,0.4)] w-[240px] sm:w-[275px] border border-emerald-800/40 text-white">
-              {/* Profile Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-emerald-600/50 border border-emerald-400/40 flex items-center justify-center font-bold text-xs text-white">
-                    A
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold leading-tight">Abhishek</span>
-                    <span className="text-[9px] text-emerald-300/70 font-mono">372145</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <span className="text-sm sm:text-base font-black text-white tracking-tight">
-                    ₹11,000.00
-                  </span>
-                </div>
-              </div>
-
-              {/* White Currency Pill with Flags */}
-              <div className="bg-white text-slate-800 rounded-xl py-1.5 px-2.5 flex items-center justify-between shadow-md mt-3">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs">🇮🇳</span>
-                  <span className="text-[11px] font-bold text-slate-800">INR</span>
-                </div>
-                
-                <ArrowLeftRight className="w-3 h-3 text-slate-400" />
-
-                <div className="flex items-center gap-1 text-xs">
-                  <span>🇺🇸</span>
-                  <span>🇬🇧</span>
-                  <span>🇧🇷</span>
-                  <span>🇹🇭</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* 5. BOTTOM-RIGHT CARD: "No Hidden Charges" Blue Card */}
-          <motion.div
-            style={{
-              x: card5X,
-              y: card5Y,
-              scale: card5Scale,
-              rotate: card5Rotate,
-              opacity: card5Opacity,
-            }}
-            transition={{ type: 'spring', stiffness: 90, damping: 20 }}
-            className="absolute z-20 pointer-events-auto"
-          >
-            <div className="bg-[#139fe0] rounded-[28px] p-3.5 sm:p-4 shadow-[0_20px_45px_-10px_rgba(19,159,224,0.4)] w-[210px] sm:w-[245px] aspect-square flex flex-col justify-between relative overflow-hidden border border-sky-400/40 text-white">
-              {/* Top Text */}
-              <div className="text-2xl sm:text-[28px] font-black tracking-tight leading-none">
-                No Hidden
-              </div>
-
-              {/* Center Phone Screen with Neon Outline */}
-              <div className="relative w-24 sm:w-28 aspect-[9/13] mx-auto rounded-xl overflow-hidden border-2 border-emerald-300 shadow-[0_0_20px_rgba(52,211,153,0.7)] rotate-[-6deg] my-1">
-                <Image 
-                  src="/images/payments/phone-charges.jpg" 
-                  alt="Transparent charges mobile interface" 
-                  fill 
-                  className="object-cover"
-                  sizes="120px"
+        {/* Sticky Top Floating Navigation Pill Bar */}
+        <div className="sticky top-20 sm:top-24 z-40 pointer-events-none flex justify-center mb-10 sm:mb-14 py-2">
+          <div className="pointer-events-auto inline-flex items-center p-1.5 sm:p-2 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200/90 gap-1 sm:gap-2">
+            
+            {/* 1. Profiling Tab */}
+            <button
+              onClick={() => scrollToSection('profiling')}
+              className={`relative px-4 sm:px-7 py-2 rounded-full text-xs sm:text-base font-semibold transition-all duration-300 cursor-pointer ${
+                activeTab === 'profiling' 
+                  ? 'text-orange-600 font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {activeTab === 'profiling' && (
+                <motion.div
+                  layoutId="activeStickyPill"
+                  className="absolute inset-0 bg-orange-50/90 rounded-full border border-orange-200/70"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
                 />
-              </div>
+              )}
+              <span className="relative z-10">Profiling</span>
+            </button>
 
-              {/* Bottom Text */}
-              <div className="text-2xl sm:text-[28px] font-black tracking-tight leading-none text-right">
-                Charges
+            {/* Connecting Line 1: Profiling -> Payments */}
+            <div className="relative w-8 sm:w-16 md:w-20 h-1 sm:h-1.5 bg-slate-200/80 rounded-full overflow-hidden shrink-0">
+              <div 
+                className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 rounded-full transition-all duration-100 ease-out"
+                style={{ width: `${line1Progress * 100}%` }}
+              />
+              {line1Progress > 0 && line1Progress < 1 && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-600 shadow-[0_0_8px_rgba(249,115,22,1)]"
+                  style={{ left: `calc(${line1Progress * 100}% - 4px)` }}
+                />
+              )}
+            </div>
+
+            {/* 2. Payments Tab */}
+            <button
+              onClick={() => scrollToSection('payments')}
+              className={`relative px-4 sm:px-7 py-2 rounded-full text-xs sm:text-base font-semibold transition-all duration-300 cursor-pointer ${
+                activeTab === 'payments' 
+                  ? 'text-orange-600 font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {activeTab === 'payments' && (
+                <motion.div
+                  layoutId="activeStickyPill"
+                  className="absolute inset-0 bg-orange-50/90 rounded-full border border-orange-200/70"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10">Payments</span>
+            </button>
+
+            {/* Connecting Line 2: Payments -> Privacy */}
+            <div className="relative w-8 sm:w-16 md:w-20 h-1 sm:h-1.5 bg-slate-200/80 rounded-full overflow-hidden shrink-0">
+              <div 
+                className="h-full bg-gradient-to-r from-orange-500 via-amber-500 to-orange-500 rounded-full transition-all duration-100 ease-out"
+                style={{ width: `${line2Progress * 100}%` }}
+              />
+              {line2Progress > 0 && line2Progress < 1 && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-600 shadow-[0_0_8px_rgba(249,115,22,1)]"
+                  style={{ left: `calc(${line2Progress * 100}% - 4px)` }}
+                />
+              )}
+            </div>
+
+            {/* 3. Privacy Tab */}
+            <button
+              onClick={() => scrollToSection('privacy')}
+              className={`relative px-4 sm:px-7 py-2 rounded-full text-xs sm:text-base font-semibold transition-all duration-300 cursor-pointer ${
+                activeTab === 'privacy' 
+                  ? 'text-orange-600 font-bold' 
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {activeTab === 'privacy' && (
+                <motion.div
+                  layoutId="activeStickyPill"
+                  className="absolute inset-0 bg-orange-50/90 rounded-full border border-orange-200/70"
+                  transition={{ type: 'spring', stiffness: 450, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10">Privacy</span>
+            </button>
+
+          </div>
+        </div>
+
+        {/* Sequential Sections (Natural Scroll: Profiling -> Payments -> Privacy) */}
+        <div className="space-y-24 sm:space-y-36">
+          {sectionsData.map((category) => (
+            <div 
+              key={category.id} 
+              id={`section-${category.id}`}
+              className="scroll-mt-36"
+            >
+              <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+                
+                {/* Left Column: Sticky alongside the 2 cards */}
+                <div className="lg:col-span-3 lg:sticky lg:top-36 pt-2">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-100/90 border border-orange-200 text-orange-700 text-xs font-bold uppercase tracking-wider mb-4 shadow-xs">
+                    <span className="w-2 h-2 rounded-full bg-orange-500" />
+                    {category.label}
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4 leading-tight">
+                    {category.badge}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
+                    {category.description}
+                  </p>
+
+                  <div className="space-y-3.5 border-l-2 border-slate-200/70 pl-3">
+                    {category.subItems.map((sub) => {
+                      const isSubSelected = activeCardId === sub.id;
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => scrollToCard(sub.id)}
+                          className="w-full text-left flex items-start gap-2.5 group transition-colors cursor-pointer py-1"
+                        >
+                          <div className="relative w-2.5 h-2.5 mt-1.5 shrink-0 flex items-center justify-center">
+                            {isSubSelected ? (
+                              <>
+                                <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.85)] scale-110" />
+                                <span className="absolute inset-0 rounded-full bg-orange-400 animate-ping opacity-60" />
+                              </>
+                            ) : (
+                              <span className="w-2 h-2 rounded-full bg-slate-300 group-hover:bg-slate-400 transition-colors" />
+                            )}
+                          </div>
+                          <span 
+                            className={`text-sm sm:text-base leading-snug transition-colors ${
+                              isSubSelected 
+                                ? 'text-slate-900 font-bold' 
+                                : 'text-slate-500 font-medium group-hover:text-slate-800'
+                            }`}
+                          >
+                            {sub.navTitle}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Right Column: Both Content Cards Rendered Sequentially */}
+                <div className="lg:col-span-9 space-y-10 sm:space-y-14">
+                  {category.subItems.map((sub) => (
+                    <div
+                      key={sub.id}
+                      id={`card-${sub.id}`}
+                      className="scroll-mt-36 bg-[#fffdfa] rounded-[24px] sm:rounded-[32px] border border-orange-200/50 shadow-[0_20px_50px_-15px_rgba(249,115,22,0.06)] p-5 sm:p-8 relative overflow-hidden"
+                    >
+                      {/* Main Serif Heading */}
+                      <h4 className="font-serif text-xl sm:text-2xl lg:text-[30px] font-bold text-slate-900 tracking-tight mb-6 leading-tight">
+                        {sub.heading}
+                      </h4>
+
+                      {/* Interactive Diagram Canvas */}
+                      <div className="relative rounded-2xl bg-gradient-to-br from-[#fffdfa] via-white to-orange-50/20 border border-orange-100 p-4 sm:p-6 mb-6 overflow-hidden shadow-xs">
+                        {/* Subtle Grid Overlay */}
+                        <div 
+                          className="absolute inset-0 pointer-events-none opacity-40"
+                          style={{
+                            backgroundImage: `linear-gradient(to right, #f8ede3 1px, transparent 1px), linear-gradient(to bottom, #f8ede3 1px, transparent 1px)`,
+                            backgroundSize: '36px 36px'
+                          }}
+                        />
+
+                        {/* Connecting Diagram: Left Input -> Center Glowing Hub -> Right Intelligence Card */}
+                        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
+                          
+                          {/* 1. Left Input Card */}
+                          <div className="w-full md:w-[250px] shrink-0 bg-white rounded-2xl p-4 sm:p-5 border border-orange-200/80 shadow-md shadow-orange-950/5">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11px] sm:text-xs font-semibold text-orange-600">
+                                {sub.inputCard.label}
+                              </span>
+                              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-100/70 text-orange-700">
+                                {sub.inputCard.badge}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2.5 bg-[#faf8f5] border border-orange-100/80 rounded-xl px-3 py-2 mt-2">
+                              <span className="text-lg">{sub.inputCard.flag}</span>
+                              <span className="text-sm sm:text-base font-bold text-slate-800 tracking-wide font-mono">
+                                {sub.inputCard.value}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* 2. Center Connector Network Lines & Glowing Processing Hub */}
+                          <div className="relative flex items-center justify-center my-2 md:my-0">
+                            <div className="hidden md:block w-16 lg:w-24 h-0.5 bg-gradient-to-r from-orange-300 via-orange-500 to-orange-300 relative">
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500 animate-ping" />
+                            </div>
+
+                            <div className="relative z-10 w-13 h-13 sm:w-15 sm:h-15 rounded-full bg-gradient-to-br from-orange-500 via-[#f0449b] to-[#7d36fa] flex items-center justify-center shadow-lg shadow-orange-500/35 border-2 border-white scale-100 hover:scale-105 transition-transform p-3">
+                              {sub.hubIcon}
+                            </div>
+
+                            <div className="hidden md:block w-16 lg:w-24 h-0.5 bg-gradient-to-r from-orange-300 via-orange-500 to-orange-300 relative">
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-orange-500 animate-ping delay-150" />
+                            </div>
+                          </div>
+
+                          {/* 3. Right Output / Intelligence Card */}
+                          <div className="w-full md:w-[320px] shrink-0 bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-orange-200/70 shadow-lg shadow-orange-950/5">
+                            <div className="flex items-center justify-between mb-2.5">
+                              <span className="text-xs font-bold text-slate-600">
+                                {sub.outputCard.title}
+                              </span>
+                              <span className="text-[11px] font-semibold text-orange-600">
+                                {sub.outputCard.progressText}
+                              </span>
+                            </div>
+
+                            {/* Progress Line */}
+                            <div className="w-full h-1.5 bg-orange-100 rounded-full overflow-hidden mb-4">
+                              <div className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full w-[85%] animate-pulse" />
+                            </div>
+
+                            {/* Verified Signal Items */}
+                            <div className="space-y-2.5">
+                              {sub.outputCard.items.map((item, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-xs sm:text-[13px] border-b border-slate-100 pb-1.5 last:border-none last:pb-0">
+                                  <div className="flex items-center gap-2 text-slate-600 font-medium">
+                                    {item.icon}
+                                    <span>{item.label}</span>
+                                  </div>
+                                  <span className="font-semibold text-slate-900 text-right">
+                                    {item.value}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                        </div>
+                      </div>
+
+                      {/* Bottom 3 Feature Benefit Badges */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-5 border-t border-orange-100/80">
+                        {sub.benefits.map((benefit, idx) => (
+                          <div key={idx} className="flex items-start gap-3 group">
+                            <div className="w-9 h-9 rounded-xl bg-orange-100/70 border border-orange-200/60 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                              {benefit.icon}
+                            </div>
+                            <div>
+                              <h5 className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5 leading-snug">
+                                {benefit.title}
+                              </h5>
+                              <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed font-medium">
+                                {benefit.desc}
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                    </div>
+                  ))}
+                </div>
+
               </div>
             </div>
-          </motion.div>
-
-          {/* CENTER HERO HEADLINE: Exact match to reference without extra buttons */}
-          <motion.div 
-            style={{ scale: headlineScale }}
-            className="relative z-30 text-center max-w-xl mx-auto px-4 py-8 pointer-events-none"
-          >
-            <h2 className="text-4xl sm:text-5xl md:text-[58px] lg:text-[66px] font-black tracking-tight text-[#111827] leading-[1.08]">
-              The whole <br />
-              payments stack, <br />
-              on one platform.
-            </h2>
-          </motion.div>
-
+          ))}
         </div>
+
       </div>
     </section>
   );
