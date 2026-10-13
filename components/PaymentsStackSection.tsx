@@ -29,41 +29,49 @@ export function PaymentsStackSection() {
     mass: 0.35,
   });
 
-  // Transform coordinates for each card (Desktop target offsets)
+  // Transform coordinates for each card
+  // Initial state (progress = 0): Collected AT THE BOTTOM (y: ~280px), below the headline
+  // Expanded state (progress = 0.85+): Fully expanded around the headline matching reference
+
   // 1. Live Payment Transactions (Top-Left / Top-Center)
-  const card1X = useTransform(springProgress, [0, 0.85], [0, -220]);
-  const card1Y = useTransform(springProgress, [0, 0.85], [0, -220]);
-  const card1Scale = useTransform(springProgress, [0, 0.85], [0.72, 1]);
-  const card1Opacity = useTransform(springProgress, [0, 0.4, 0.85], [0.35, 0.8, 1]);
+  const card1X = useTransform(springProgress, [0, 0.85], [-70, -230]);
+  const card1Y = useTransform(springProgress, [0, 0.85], [280, -220]);
+  const card1Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
+  const card1Rotate = useTransform(springProgress, [0, 0.85], [-4, 0]);
+  const card1Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
 
   // 2. Woman with Smartphone & Payment Methods Overlay (Top-Right)
-  const card2X = useTransform(springProgress, [0, 0.85], [0, 310]);
-  const card2Y = useTransform(springProgress, [0, 0.85], [0, -200]);
-  const card2Scale = useTransform(springProgress, [0, 0.85], [0.72, 1]);
-  const card2Opacity = useTransform(springProgress, [0, 0.4, 0.85], [0.35, 0.8, 1]);
+  const card2X = useTransform(springProgress, [0, 0.85], [70, 320]);
+  const card2Y = useTransform(springProgress, [0, 0.85], [280, -190]);
+  const card2Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
+  const card2Rotate = useTransform(springProgress, [0, 0.85], [4, 0]);
+  const card2Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
 
   // 3. Customer Support Agent (Mid-Left)
-  const card3X = useTransform(springProgress, [0, 0.85], [0, -360]);
-  const card3Y = useTransform(springProgress, [0, 0.85], [0, 40]);
-  const card3Scale = useTransform(springProgress, [0, 0.85], [0.7, 1]);
-  const card3Opacity = useTransform(springProgress, [0, 0.4, 0.85], [0.35, 0.8, 1]);
+  const card3X = useTransform(springProgress, [0, 0.85], [-35, -370]);
+  const card3Y = useTransform(springProgress, [0, 0.85], [290, 40]);
+  const card3Scale = useTransform(springProgress, [0, 0.85], [0.62, 1]);
+  const card3Rotate = useTransform(springProgress, [0, 0.85], [-2, 0]);
+  const card3Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
 
   // 4. Abhishek Multi-Currency Account (Bottom-Left / Bottom-Center)
   const card4X = useTransform(springProgress, [0, 0.85], [0, -110]);
-  const card4Y = useTransform(springProgress, [0, 0.85], [0, 240]);
-  const card4Scale = useTransform(springProgress, [0, 0.85], [0.72, 1]);
-  const card4Opacity = useTransform(springProgress, [0, 0.4, 0.85], [0.35, 0.8, 1]);
+  const card4Y = useTransform(springProgress, [0, 0.85], [275, 240]);
+  const card4Scale = useTransform(springProgress, [0, 0.85], [0.68, 1]);
+  const card4Rotate = useTransform(springProgress, [0, 0.85], [0, 0]);
+  const card4Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.65, 0.9, 1]);
 
   // 5. No Hidden Charges (Bottom-Right)
-  const card5X = useTransform(springProgress, [0, 0.85], [0, 330]);
-  const card5Y = useTransform(springProgress, [0, 0.85], [0, 180]);
-  const card5Scale = useTransform(springProgress, [0, 0.85], [0.72, 1]);
-  const card5Opacity = useTransform(springProgress, [0, 0.4, 0.85], [0.35, 0.8, 1]);
+  const card5X = useTransform(springProgress, [0, 0.85], [40, 330]);
+  const card5Y = useTransform(springProgress, [0, 0.85], [285, 180]);
+  const card5Scale = useTransform(springProgress, [0, 0.85], [0.65, 1]);
+  const card5Rotate = useTransform(springProgress, [0, 0.85], [3, 0]);
+  const card5Opacity = useTransform(springProgress, [0, 0.35, 0.85], [0.55, 0.85, 1]);
 
   // Center Headline scale & line pathLength
-  const headlineScale = useTransform(springProgress, [0, 0.85], [0.94, 1.02]);
-  const linesOpacity = useTransform(springProgress, [0, 0.5, 0.85], [0.1, 0.35, 0.6]);
-  const linesProgress = useTransform(springProgress, [0, 0.85], [0.2, 1]);
+  const headlineScale = useTransform(springProgress, [0, 0.85], [0.98, 1.02]);
+  const linesOpacity = useTransform(springProgress, [0, 0.45, 0.85], [0, 0.25, 0.6]);
+  const linesProgress = useTransform(springProgress, [0, 0.85], [0, 1]);
 
   return (
     <section 
@@ -145,6 +153,7 @@ export function PaymentsStackSection() {
               x: card1X,
               y: card1Y,
               scale: card1Scale,
+              rotate: card1Rotate,
               opacity: card1Opacity,
             }}
             transition={{ type: 'spring', stiffness: 90, damping: 20 }}
@@ -195,14 +204,13 @@ export function PaymentsStackSection() {
                 </div>
               </div>
             </div>
-          </motion.div>
-
-          {/* 2. TOP-RIGHT CARD: Smiling Woman with Payment Method Badges */}
+          </motion.div>          {/* 2. TOP-RIGHT CARD: Smiling Woman with Payment Method Badges */}
           <motion.div
             style={{
               x: card2X,
               y: card2Y,
               scale: card2Scale,
+              rotate: card2Rotate,
               opacity: card2Opacity,
             }}
             transition={{ type: 'spring', stiffness: 90, damping: 20 }}
@@ -219,7 +227,7 @@ export function PaymentsStackSection() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
               {/* Floating Glassmorphism Payment Brands Matrix */}
-              <div className="absolute inset-x-2.5 bottom-2.5 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-2 sm:p-2.5 shadow-lg">
+              <div className="absolute inset-x-2.5 bottom-2.5 bg-white/40 backdrop-blur-md border border-white/60 rounded-2xl p-2.5 sm:p-2.5 shadow-lg">
                 <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                   {/* PhonePe */}
                   <div className="h-6 sm:h-7 rounded-lg bg-[#5f259f] flex items-center justify-center text-white font-bold text-[10px] shadow-sm">
@@ -265,6 +273,7 @@ export function PaymentsStackSection() {
               x: card3X,
               y: card3Y,
               scale: card3Scale,
+              rotate: card3Rotate,
               opacity: card3Opacity,
             }}
             transition={{ type: 'spring', stiffness: 90, damping: 20 }}
@@ -299,6 +308,7 @@ export function PaymentsStackSection() {
               x: card4X,
               y: card4Y,
               scale: card4Scale,
+              rotate: card4Rotate,
               opacity: card4Opacity,
             }}
             transition={{ type: 'spring', stiffness: 90, damping: 20 }}
@@ -348,6 +358,7 @@ export function PaymentsStackSection() {
               x: card5X,
               y: card5Y,
               scale: card5Scale,
+              rotate: card5Rotate,
               opacity: card5Opacity,
             }}
             transition={{ type: 'spring', stiffness: 90, damping: 20 }}
