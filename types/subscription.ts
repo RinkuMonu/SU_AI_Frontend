@@ -1,19 +1,29 @@
 export type PlanConfig = {
   name: string;
+  tagline?: string;
+  description?: string;
   price: number;
+  base_price?: number;
+  gst_rate?: number;
+  gst_percent?: number;
+  gst_amount?: number;
+  total_price?: number;
   currency: string;
   billing_cycle: string;
   credits: number;
   post_limit: number;
   reel_limit: number;
   team_members: number;
+  brand_profiles?: number;
   watermark: boolean;
   multiple_businesses: boolean;
   api_access: boolean;
   white_label: boolean;
   features: string[];
+  bullet_points?: string[];
   custom_branding?: boolean;
   analytics?: boolean;
+  is_legacy?: boolean;
 };
 
 export type SubscriptionUsage = {
