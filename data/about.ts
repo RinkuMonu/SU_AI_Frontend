@@ -19,12 +19,14 @@ export interface CompanyProfile {
     heading: string;
     subtitle: string;
     description: string;
-    pillars: string[];
+    pillars?: string[];
+    paragraphs?: string[];
     conclusion: string;
   };
   vision: {
     heading: string;
     subtitle: string;
+    description?: string;
     paragraphs: string[];
     statement: string;
   };
