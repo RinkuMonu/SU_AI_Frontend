@@ -8,6 +8,7 @@ import MultiImageUploader from "@/components/ai/MultiImageUploader";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 
 import { imageService } from "@/services/image.service";
+import api from "@/lib/api";
 
 export default function AIImagePage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);

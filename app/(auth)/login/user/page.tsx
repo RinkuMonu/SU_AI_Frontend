@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { authService } from "@/services/auth.service";
+import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 const loginSchema = z.object({

@@ -1,6 +1,5 @@
-import api from '@/lib/api';
 "use client";
-
+import api from '@/lib/api';
 import { useState } from "react";
 import { Loader2, Share2, CheckCircle2 } from "lucide-react";
 
@@ -31,7 +30,7 @@ export default function GeneratedPostCard({
     try {
       const endpoint = `/api/v1/${publishPlatform}/publish-image`;
       await api.post(endpoint, {
-        image_url: post.imageUrl || post.image_url,
+        image_url: currentImage || post.image_url || post.media_url,
         caption: `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim(),
       });
       setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
