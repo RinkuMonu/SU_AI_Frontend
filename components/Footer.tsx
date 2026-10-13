@@ -2,9 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
-  Rocket, 
-  CheckCircle2, 
-  ArrowRight,
   ShieldCheck,
   ChevronDown,
   Globe2
@@ -29,59 +26,7 @@ const AppStoreIcon = () => (
 
 export function Footer() {
   return (
-    <footer className="font-sans bg-white pb-0">
-      
-      {/* 1. CTA Banner Section */}
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10 pt-10">
-        <div className="rounded-[32px] bg-gradient-to-r from-purple-100 via-pink-50 to-orange-100 p-8 md:p-12 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 border border-purple-100/50 shadow-sm">
-          
-          {/* Decorative background elements can go here if needed */}
-          
-          <div className="flex-1 max-w-2xl relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 text-purple-600 text-[13px] font-semibold mb-6 shadow-sm border border-purple-100">
-              <Rocket size={14} className="text-purple-600" />
-              Grow Your Business with AI
-            </div>
-            
-            <h2 className="text-3xl md:text-[42px] font-bold text-slate-900 leading-tight mb-4 tracking-tight">
-              Ready to Create <span className="text-[#D95A2B]">Amazing Content?</span>
-            </h2>
-            
-            <p className="text-slate-600 text-base md:text-lg mb-8 max-w-xl">
-              Join thousands of businesses using DhandaGrow to create, automate and grow their social media presence with the power of AI.
-            </p>
-          </div>
-
-          <div className="flex-1 flex flex-col sm:flex-row items-center justify-center gap-10 relative z-10">
-            <div className="flex flex-col gap-4 text-slate-700 font-medium">
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="text-purple-600" size={20} />
-                <span>AI Content Creation</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="text-purple-600" size={20} />
-                <span>Social Media Automation</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <CheckCircle2 className="text-purple-600" size={20} />
-                <span>Grow Your Business Faster</span>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-center gap-3">
-              <button className="bg-gradient-to-r from-purple-600 to-orange-500 text-white px-8 py-4 rounded-full font-bold text-lg flex items-center gap-2 hover:shadow-lg hover:scale-105 transition-all w-full justify-center">
-                Start Creating Now <ArrowRight size={18} />
-              </button>
-              <p className="text-xs text-slate-500 font-medium text-center">
-                No credit card required • Get started in minutes
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full border-t border-slate-200 mb-10"></div>
-
+    <footer className="font-sans bg-white pb-0 pt-12 border-t border-slate-200">
       {/* 2. Main Footer Links */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 lg:divide-x lg:divide-slate-200">
@@ -166,17 +111,17 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Company</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'Home', desc: 'Go to homepage' },
-                  { title: 'About Us', desc: 'Our mission and story' },
-                  { title: 'Features', desc: 'Explore all features' },
-                  { title: 'Pricing', desc: 'Simple and affordable plans' },
-                  { title: 'Blog', desc: 'Latest news and insights' },
-                  { title: 'Careers', desc: 'Join our team' },
-                  { title: 'Become a Partner', desc: 'Grow with us' },
-                  { title: 'Contact Us', desc: 'Get in touch' },
+                  { title: 'Home', desc: 'Go to homepage', href: '/' },
+                  { title: 'About Us', desc: 'Our mission and story', href: '/about' },
+                  { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
+                  { title: 'Features', desc: 'Explore all features', href: '/#features' },
+                  { title: 'Pricing', desc: 'Simple and affordable plans', href: '/#pricing' },
+                  { title: 'Blog', desc: 'Latest news and insights', href: '/blog' },
+                  { title: 'Careers', desc: 'Join our team', href: '/careers' },
+                  { title: 'Contact Us', desc: 'Get in touch', href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -211,15 +156,15 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Legal</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'Privacy Policy', desc: 'How we protect your data' },
-                  { title: 'Terms of Service', desc: 'Our terms and conditions' },
-                  { title: 'Cookie Policy', desc: 'How we use cookies' },
-                  { title: 'Refund Policy', desc: 'Refund and cancellation terms' },
-                  { title: 'Security', desc: 'Your security is our priority' },
-                  { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform' },
+                  { title: 'Privacy Policy', desc: 'How we protect your data', href: '/legal/privacy-policy' },
+                  { title: 'Terms of Service', desc: 'Our terms and conditions', href: '/legal/terms-of-service' },
+                  { title: 'Cookie Policy', desc: 'How we use cookies', href: '/legal/cookie-policy' },
+                  { title: 'Refund Policy', desc: 'Refund and cancellation terms', href: '/legal/refund-policy' },
+                  { title: 'Security', desc: 'Your security is our priority', href: '/legal/terms-of-service#section-15' },
+                  { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform', href: '/legal/terms-of-service#section-5' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -290,7 +235,7 @@ export function Footer() {
       <div className="bg-[#1C1E32] text-slate-300 py-5 text-sm">
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
-            © 2026 DhandaGrow. All rights reserved.
+            © 2026 DhandaGrow AI • Sevenunique Tech Solutions Pvt. Ltd. All rights reserved.
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">

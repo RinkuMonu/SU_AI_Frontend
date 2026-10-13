@@ -595,7 +595,8 @@ export default function SignupPage() {
                   <span className="text-xs text-neutral-300 leading-snug">
                     I agree to the{" "}
                     <Link
-                      href="#"
+                      href="/legal/terms-of-service"
+                      target="_blank"
                       onClick={(e) => e.stopPropagation()}
                       className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:underline"
                     >
@@ -603,7 +604,8 @@ export default function SignupPage() {
                     </Link>{" "}
                     and{" "}
                     <Link
-                      href="#"
+                      href="/legal/privacy-policy"
+                      target="_blank"
                       onClick={(e) => e.stopPropagation()}
                       className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#f0449b] to-[#be32ff] hover:underline"
                     >
@@ -647,7 +649,7 @@ export default function SignupPage() {
             {/* Terms of Service note */}
             <p className="text-xs text-neutral-400 text-center leading-relaxed">
               By creating an account, you agree to the{" "}
-              <Link href="#" className="text-neutral-200 underline hover:text-white transition-colors">
+              <Link href="/legal/terms-of-service" target="_blank" className="text-neutral-200 underline hover:text-white transition-colors">
                 Terms of Service
               </Link>
               . We&apos;ll occasionally send you account-related emails.
@@ -779,8 +781,8 @@ export default function SignupPage() {
       <footer className="relative z-10 w-full max-w-7xl mx-auto pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 border-t border-white/5">
         <p>&copy; {new Date().getFullYear()} DhandaGrow AI. All rights reserved.</p>
         <div className="flex items-center gap-4 mt-2 sm:mt-0">
-          <Link href="#" className="hover:text-neutral-300 transition-colors">Privacy Policy</Link>
-          <Link href="#" className="hover:text-neutral-300 transition-colors">Terms of Service</Link>
+          <Link href="/legal/privacy-policy" target="_blank" className="hover:text-neutral-300 transition-colors">Privacy Policy</Link>
+          <Link href="/legal/terms-of-service" target="_blank" className="hover:text-neutral-300 transition-colors">Terms of Service</Link>
         </div>
       </footer>
     </div>
