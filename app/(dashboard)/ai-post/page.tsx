@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Settings, RefreshCw, Download, Edit2, Save, Calendar, Send, CheckCircle2, Loader2, ChevronDown, ChevronUp, Upload, X } from "lucide-react";
+import { Sparkles, Settings, RefreshCw, Download, Edit2, Save, Calendar, Send, CheckCircle2, Loader2, ChevronDown, ChevronUp, Upload, X, AlertCircle } from "lucide-react";
 
 import ProductSelector from "@/components/ai/ProductSelector";
 import MultiImageUploader from "@/components/ai/MultiImageUploader";
@@ -228,30 +228,35 @@ export default function AIPostPage() {
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook') => {
     if (platformTarget === 'instagram') setIsPublishingInstagram(true);
     else setIsPublishingFacebook(true);
 
     setPublishSuccessMessage(null);
+    setPublishErrorMessage(null);
+
+    const targetName = platformTarget === 'instagram' ? 'Instagram' : 'Facebook';
 
     try {
       const endpoint = platformTarget === 'instagram' 
         ? "/api/v1/instagram/publish-image" 
         : "/api/v1/facebook/publish-image";
 
+      const effectiveImageUrl = generatedPost?.image_url || generatedPost?.media_url;
+
       await api.post(endpoint, {
-        image_url: generatedPost?.image_url,
-        caption: `${editedCaption}\n\n${editedCta}\n\n${editedHashtags}`,
+        image_url: effectiveImageUrl,
+        caption: `${editedCaption}\n\n${editedCta}\n\n${editedHashtags}`.trim(),
       });
       
-      const targetName = platformTarget === 'instagram' ? 'Instagram' : 'Facebook';
       setPublishSuccessMessage(`Successfully Published to ${targetName}!`);
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
-    } catch (e) {
-      const targetName = platformTarget === 'instagram' ? 'Instagram' : 'Facebook';
-      setPublishSuccessMessage(`Successfully Published to ${targetName}!`);
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
+      setTimeout(() => setPublishSuccessMessage(null), 8000);
+    } catch (e: any) {
+      console.error(`Error publishing to ${targetName}:`, e);
+      const errMsg = e.response?.data?.detail || e.message || `Failed to publish to ${targetName}. Please check account connection.`;
+      setPublishErrorMessage(errMsg);
     } finally {
       if (platformTarget === 'instagram') setIsPublishingInstagram(false);
       else setIsPublishingFacebook(false);
@@ -506,9 +511,26 @@ export default function AIPostPage() {
 
                 {/* Success Banner */}
                 {publishSuccessMessage && (
-                  <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl flex items-center gap-2 text-sm font-semibold animate-in fade-in">
-                    <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                    {publishSuccessMessage}
+                  <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl flex items-center justify-between gap-2 text-sm font-semibold animate-in fade-in">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
+                      <span>{publishSuccessMessage}</span>
+                    </div>
+                    <button onClick={() => setPublishSuccessMessage(null)} className="text-gray-400 hover:text-white">&times;</button>
+                  </div>
+                )}
+
+                {/* Error Banner */}
+                {publishErrorMessage && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl flex items-start justify-between gap-3 text-sm animate-in fade-in">
+                    <div className="flex items-start gap-2.5">
+                      <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-white">Publish Failed</p>
+                        <p className="text-xs text-red-300 mt-1 leading-relaxed">{publishErrorMessage}</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setPublishErrorMessage(null)} className="text-gray-400 hover:text-white text-lg leading-none">&times;</button>
                   </div>
                 )}
 

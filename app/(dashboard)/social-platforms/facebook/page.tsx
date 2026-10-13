@@ -58,6 +58,7 @@ export default function FacebookIntegrationPage() {
   const [showUserToken, setShowUserToken] = useState(false);
   const [copiedPageToken, setCopiedPageToken] = useState(false);
   const [copiedUserToken, setCopiedUserToken] = useState(false);
+  const [tokenPermissionWarning, setTokenPermissionWarning] = useState<string | null>(null);
   
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -180,6 +181,18 @@ export default function FacebookIntegrationPage() {
           if (res.data.user_access_token) setFbUserToken(res.data.user_access_token);
           if (res.data.pages && Array.isArray(res.data.pages) && res.data.pages.length > 0) {
             setDiscoveredPages(res.data.pages);
+          }
+
+          // Check token publish permissions
+          try {
+            const verifyRes = await api.get('/api/facebook/verify-token');
+            if (verifyRes.data && verifyRes.data.valid && !verifyRes.data.has_publish_permission) {
+              setTokenPermissionWarning("Your Facebook Page Token is missing the 'pages_manage_posts' permission. While connected, publishing to Facebook will fail. Please generate a token with 'pages_manage_posts' permission.");
+            } else {
+              setTokenPermissionWarning(null);
+            }
+          } catch (verErr) {
+            console.warn("Token verification check skipped", verErr);
           }
         }
       } catch (e) {
@@ -860,12 +873,23 @@ export default function FacebookIntegrationPage() {
           </div>
 
           {isActuallyConnected && (
-            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
-              <span className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                Facebook account is active & credentials are automatically saved.
-              </span>
-              <span className="font-mono text-[11px] text-emerald-400/80">Status: Active</span>
+            <div className="space-y-3">
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
+                <span className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  Facebook account is active & credentials are automatically saved.
+                </span>
+                <span className="font-mono text-[11px] text-emerald-400/80">Status: Active</span>
+              </div>
+              {tokenPermissionWarning && (
+                <div className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold text-amber-300">Missing Publishing Permission</p>
+                    <p className="mt-1 leading-relaxed text-amber-200/90">{tokenPermissionWarning}</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -949,7 +973,8 @@ export default function FacebookIntegrationPage() {
               <ol className="list-decimal list-inside space-y-1 text-gray-300 text-xs pl-1">
                 <li>Go to <a href="https://developers.facebook.com/tools/explorer" target="_blank" rel="noreferrer" className="text-blue-400 underline font-medium">Meta Graph API Explorer</a>.</li>
                 <li>Under <strong>User or Page</strong> dropdown, select your <strong>Facebook Page</strong>.</li>
-                <li>Click <strong>Generate Access Token</strong>. Meta will generate a direct <strong>Page Access Token</strong> with full permissions.</li>
+                <li>Under <strong>Permissions</strong>, click <strong>Add a Permission</strong> and select both <strong className="text-emerald-300">pages_manage_posts</strong> and <strong className="text-emerald-300">pages_read_engagement</strong>.</li>
+                <li>Click <strong>Generate Access Token</strong>. Meta will generate a direct <strong>Page Access Token</strong> with full publishing permissions.</li>
                 <li>Copy and paste it into the <strong>Page Access Token</strong> field above, and click <strong>Save Facebook Settings</strong>!</li>
               </ol>
             </div>

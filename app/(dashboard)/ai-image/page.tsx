@@ -28,14 +28,21 @@ export default function AIImagePage() {
 
     setPublishSuccessMessage(null);
 
-    // Simulate API call to save and publish
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
-    else setIsPublishingInstagram(false);
-
-    setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
-    setTimeout(() => setPublishSuccessMessage(null), 5000);
+    try {
+      const endpoint = `/api/v1/${publishPlatform}/publish-image`;
+      await api.post(endpoint, {
+        image_url: generatedImage,
+        caption: prompt,
+      });
+      setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
+      setTimeout(() => setPublishSuccessMessage(null), 5000);
+    } catch (err: any) {
+      console.error(err);
+      alert('Failed to publish: ' + (err.response?.data?.detail || err.message || 'Please check account connection.'));
+    } finally {
+      if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
+      else setIsPublishingInstagram(false);
+    }
   };
 
   useEffect(() => {

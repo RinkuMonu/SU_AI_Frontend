@@ -70,8 +70,25 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = (provider: "Gmail" | "Facebook" | "LinkedIn") => {
+  const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "LinkedIn") => {
     setError("");
+    if (provider === "Facebook") {
+      setSocialLoading("Facebook");
+      try {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin)}&rerequest=true`);
+        const authUrl = res.data?.authorization_url || res.data?.url;
+        if (authUrl) {
+          window.location.href = authUrl;
+          return;
+        }
+      } catch (err: any) {
+        console.error("Facebook connect error:", err);
+        setError("Failed to initialize Facebook Login: " + (err.response?.data?.detail || err.message));
+        setSocialLoading(null);
+        return;
+      }
+    }
     setSocialLoading(provider);
     setSocialNotice(`Connecting with ${provider}... Initializing secure session.`);
     setTimeout(() => {
