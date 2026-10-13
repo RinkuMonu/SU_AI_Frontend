@@ -232,25 +232,25 @@ export function Footer() {
       </div>
 
       {/* 4. Absolute Bottom Bar */}
-      <div className="bg-[#1C1E32] text-slate-300 py-5 text-sm">
-        <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div>
+      <div className="bg-[#1C1E32] text-slate-300 py-5 text-xs sm:text-sm">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row justify-between items-center gap-4">
+          <div className="text-center xl:text-left text-slate-400">
             © 2026 DhandaGrow AI • Sevenunique Tech Solutions Pvt. Ltd. All rights reserved.
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link href="/legal/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-            <Link href="/legal/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-            <Link href="/legal/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-            <Link href="/legal/refund-policy" className="hover:text-white transition-colors">Refund Policy</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600"></span>
-            <Link href="/sitemap" className="hover:text-white transition-colors">Sitemap</Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-5 gap-y-2 text-slate-300">
+            <Link href="/legal/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">Privacy Policy</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
+            <Link href="/legal/terms-of-service" className="hover:text-white transition-colors whitespace-nowrap">Terms of Service</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
+            <Link href="/sitemap" className="hover:text-white transition-colors whitespace-nowrap">Sitemap</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
+            <Link href="/legal/cookie-policy" className="hover:text-white transition-colors whitespace-nowrap">Cookie Policy</Link>
+            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
+            <Link href="/legal/refund-policy" className="hover:text-white transition-colors whitespace-nowrap">Refund Policy</Link>
           </div>
 
-          <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors">
+          <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors text-slate-300">
             <Globe2 size={16} />
             <span>English</span>
             <ChevronDown size={14} />
