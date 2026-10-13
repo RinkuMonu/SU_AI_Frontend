@@ -53,6 +53,15 @@ export default function LoginPage() {
       }
       if (response?.token && response?.user) {
         login(response.token, response.user);
+        const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
+        const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
+        if (pendingPlan) {
+          sessionStorage.removeItem('pending_plan');
+          sessionStorage.removeItem('pending_billing');
+          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else {
+          router.push("/dashboard");
+        }
       } else {
         throw new Error("Authentication failed: Missing token or user data.");
       }

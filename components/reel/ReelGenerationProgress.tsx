@@ -71,7 +71,14 @@ export function ReelGenerationProgress({ jobId, onComplete, onError }: ReelGener
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-purple opacity-75"></span>
           <span className="relative inline-flex rounded-full h-4 w-4 bg-brand-purple"></span>
         </div>
-        <h2 className="text-2xl font-extrabold text-white tracking-tight">Crafting Your Reel</h2>
+        <div>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Crafting Your Reel</h2>
+          {status.product_name && (
+            <p className="text-xs text-text-muted mt-0.5">
+              Generating tailored video, voiceover &amp; script for <span className="text-brand-purple font-semibold">{status.product_name}</span>
+            </p>
+          )}
+        </div>
       </div>
       
       <div className="relative pt-2">

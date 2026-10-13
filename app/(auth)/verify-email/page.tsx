@@ -81,9 +81,14 @@ function VerifyEmailForm() {
     return (
       <div className="flex flex-col items-center justify-center p-4">
         <p className="text-red-500 mb-4">No email address provided for verification.</p>
-        <Button onClick={() => router.push("/signup")} variant="outline">
-          Return to Signup
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => router.push("/login/user")} variant="default">
+            Go to Login
+          </Button>
+          <Button onClick={() => router.push("/signup")} variant="outline">
+            Return to Signup
+          </Button>
+        </div>
       </div>
     );
   }

@@ -7,8 +7,10 @@ import { Menu, X, ChevronDown } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { featuresMenu } from '@/data/features';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 export function Navbar() {
+  const { user } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -117,7 +119,7 @@ export function Navbar() {
             asChild
             className={cn('hidden lg:flex transition-all', isScrolled && 'border-slate-300 text-slate-900 bg-transparent hover:bg-slate-100')}
           >
-            <Link href="/dashboard">Use on Web</Link>
+            <Link href={user ? "/dashboard" : "/login/user"}>Use on Web</Link>
           </Button>
           <Button variant="default" size="sm" asChild>
             <Link href="/download">Get the App</Link>
@@ -165,7 +167,7 @@ export function Navbar() {
           
           <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
             <Button variant="outline" className="w-full" asChild>
-              <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
+              <Link href={user ? "/dashboard" : "/login/user"} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
             </Button>
             <Button variant="default" className="w-full" asChild>
               <Link href="/download" onClick={() => setIsMobileMenuOpen(false)}>Get the App</Link>

@@ -1,40 +1,110 @@
 import { useState, useEffect, useRef } from "react";
 import { ReelJobStatus } from "@/types/reel";
-import { Loader2, Share2, CheckCircle2 } from "lucide-react";
+import { Loader2, Share2, CheckCircle2, Volume2, VolumeX, Play, Pause, Download, Sparkles } from "lucide-react";
 
 interface ReelResultProps {
   result: ReelJobStatus;
   onReset: () => void;
 }
 
+const resolveMediaUrl = (url?: string | null): string => {
+  if (!url) return "";
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:") || url.startsWith("blob:")) {
+    return url;
+  }
+  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${baseUrl}${cleanPath}`;
+};
+
 export function ReelResult({ result, onReset }: ReelResultProps) {
   const isVideo = (url?: string) => {
     if (!url) return false;
-    // pollinations.ai returns images, not videos.
     if (url.includes("pollinations.ai")) return false;
     return true;
   };
   const hasRealVideo = isVideo(result.video_url);
-  
-  const productImage = result.thumbnail_url || (result.video_url?.includes("pollinations") ? result.video_url : null);
+
+  const videoUrl = resolveMediaUrl(result.video_url);
+  const audioUrl = resolveMediaUrl(result.audio_url);
+  const productImage = resolveMediaUrl(result.thumbnail_url || (result.video_url?.includes("pollinations") ? result.video_url : null));
   const productName = result.product_name || result.script?.title || "Product";
+
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [currentScene, setCurrentScene] = useState(0);
   const scenes = result.script?.scenes || [];
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+
+  // Auto-play the video when loaded (with sound if permitted, fallback to muted + unmute banner)
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoUrl) return;
+
+    // Try unmuted autoplay first
+    video.muted = false;
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          setIsMuted(false);
+        })
+        .catch(() => {
+          // If browser policy blocks unmuted autoplay, play muted so the video is moving
+          video.muted = true;
+          setIsMuted(true);
+          video.play().then(() => {
+            setIsPlaying(true);
+          }).catch((err) => {
+            console.warn("Autoplay blocked:", err);
+            setIsPlaying(false);
+          });
+        });
+    }
+  }, [videoUrl]);
+
+  const handleToggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const video = videoRef.current;
+    if (!video) return;
+    video.muted = !video.muted;
+    setIsMuted(video.muted);
+    if (video.paused) {
+      video.play().then(() => setIsPlaying(true));
+    }
+  };
+
+  const handleTogglePlay = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) {
+      // If unmuting when playing manually
+      if (isMuted) {
+        video.muted = false;
+        setIsMuted(false);
+      }
+      video.play().then(() => setIsPlaying(true));
+    } else {
+      video.pause();
+      setIsPlaying(false);
+    }
+  };
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram') => {
     if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
     else setIsPublishingInstagram(true);
     
     setPublishSuccessMessage(null);
-    
-    // Simulate API call to save and publish
     await new Promise((resolve) => setTimeout(resolve, 1500));
     
     if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
@@ -82,9 +152,11 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
     setCurrentScene(idx);
   };
 
-
   return (
     <div className="space-y-8">
+      {/* Hidden fallback audio element for scene preview mode */}
+      {audioUrl && <audio ref={audioRef} src={audioUrl} preload="auto" />}
+
       <div className="rounded-3xl border border-border bg-surface p-8 shadow-xl">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2.5 bg-green-500/20 rounded-xl">
@@ -92,25 +164,66 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-3xl font-extrabold text-white tracking-tight">Your Reel is Ready!</h2>
+          <div>
+            <h2 className="text-3xl font-extrabold text-white tracking-tight">Your Reel is Ready!</h2>
+            <p className="text-sm text-text-muted mt-0.5">High-converting AI reel generated with synchronized voiceover &amp; captions</p>
+          </div>
         </div>
 
         <div className="flex flex-col xl:flex-row gap-10">
           {/* Left: Video Player or Product Reel Card */}
           <div className="w-full xl:w-1/2 flex justify-center">
             {hasRealVideo ? (
-              <div className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-black/10 flex justify-center items-center z-50 pointer-events-auto">
+              <div 
+                className="w-full relative rounded-3xl overflow-hidden shadow-2xl border border-border/50 bg-black flex justify-center items-center z-50 pointer-events-auto group max-w-[380px]"
+                style={{ aspectRatio: "9/16" }}
+              >
                 <video
-                  src={result.video_url!}
+                  ref={videoRef}
+                  src={videoUrl}
                   controls
-                  autoPlay
                   playsInline
-                  className="w-full max-h-[650px] object-contain relative z-[60] rounded-3xl cursor-pointer pointer-events-auto"
-                  style={{ pointerEvents: 'auto' }}
-                  poster={productImage ?? undefined}
+                  autoPlay
+                  loop
+                  onPlay={() => setIsPlaying(true)}
+                  onPause={() => setIsPlaying(false)}
+                  onVolumeChange={() => {
+                    if (videoRef.current) {
+                      setIsMuted(videoRef.current.muted || videoRef.current.volume === 0);
+                    }
+                  }}
+                  className="w-full h-full object-cover relative z-[60] rounded-3xl cursor-pointer"
+                  poster={productImage || undefined}
                 >
                   Your browser does not support the video tag.
                 </video>
+
+                {/* Floating Unmute Button if browser muted autoplay */}
+                {isMuted && (
+                  <button
+                    type="button"
+                    onClick={handleToggleMute}
+                    className="absolute top-4 right-4 z-[75] flex items-center gap-2 bg-brand-purple text-white px-3.5 py-1.5 rounded-full font-bold text-xs shadow-xl shadow-purple-500/40 animate-pulse hover:scale-105 transition-all cursor-pointer border border-white/20"
+                  >
+                    <VolumeX className="w-4 h-4 text-amber-300" />
+                    <span>Tap to Unmute Voice 🔊</span>
+                  </button>
+                )}
+
+                {/* Big Center Play Overlay when paused */}
+                {!isPlaying && (
+                  <div
+                    onClick={handleTogglePlay}
+                    className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer z-[70] backdrop-blur-[2px] transition-all hover:bg-black/30"
+                  >
+                    <div className="flex flex-col items-center gap-2 bg-brand-purple/90 text-white px-5 py-3.5 rounded-2xl shadow-2xl shadow-brand-purple/50 border border-white/20 transform hover:scale-105 transition-all">
+                      <div className="w-12 h-12 bg-white text-brand-purple rounded-full flex items-center justify-center shadow-lg">
+                        <Play className="w-6 h-6 fill-brand-purple ml-1 text-brand-purple" />
+                      </div>
+                      <span className="font-extrabold text-xs tracking-wide">Play Reel with Sound</span>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               /* Product Reel Preview Card â€” phone-shaped */
@@ -254,10 +367,11 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
             <div className="flex gap-4 mt-8 pt-6 border-t border-border">
               {hasRealVideo && (
                 <a
-                  href={result.video_url!}
-                  download
+                  href={videoUrl}
+                  download={`${(productName || "reel").replace(/[^a-zA-Z0-9]/g, "_")}.mp4`}
                   target="_blank"
-                  className="flex-1 flex justify-center items-center gap-2 rounded-2xl bg-[#0a142c] px-6 py-4 font-bold text-white hover:bg-black transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-black/20"
+                  rel="noopener noreferrer"
+                  className="flex-1 flex justify-center items-center gap-2 rounded-2xl bg-brand-gradient px-6 py-4 font-bold text-white hover:opacity-95 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-purple-500/20"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

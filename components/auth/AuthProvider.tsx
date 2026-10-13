@@ -46,8 +46,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const isAuthRoute = pathname === '/login/user' || pathname === '/signup';
       const isVerifyEmailRoute = pathname === '/verify-email';
       const isAdminLoginRoute = pathname === '/login/admin';
-      const isProtectedRoute = ['/dashboard', '/business', '/brand', '/products', '/settings', '/onboarding', '/content', '/content-library', '/campaigns', '/messages', '/reviews', '/social-platforms', '/create', '/create-ad', '/ai-', '/influencer'].some(route => pathname.startsWith(route));
+      const isProtectedRoute = [
+        '/dashboard',
+        '/subscription',
+        '/analytics',
+        '/fashion-ai',
+        '/festivals',
+        '/website-builder',
+        '/uni-ai',
+        '/preview',
+        '/business',
+        '/brand',
+        '/products',
+        '/settings',
+        '/onboarding',
+        '/content',
+        '/content-library',
+        '/campaigns',
+        '/messages',
+        '/reviews',
+        '/social-platforms',
+        '/create',
+        '/create-ad',
+        '/ai-',
+        '/influencer',
+        '/influencers'
+      ].some(route => pathname.startsWith(route));
       const isAdminRoute = pathname.startsWith('/admin');
+
+      // Never redirect users away from login or signup pages
+      if (isAuthRoute) {
+        return;
+      }
 
       if (!user) {
         if (isAdminRoute) {
@@ -59,8 +89,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const role = (user.role || 'user').toLowerCase();
         const isVerified = user.email_verified !== false; // treat undefined as verified to support legacy users
 
-        if (!isVerified && !isVerifyEmailRoute) {
-          router.replace('/verify-email');
+        if (!isVerified && isProtectedRoute && !isVerifyEmailRoute) {
+          if (user.email) {
+            router.replace(`/verify-email?email=${encodeURIComponent(user.email)}`);
+          } else {
+            router.replace('/login/user');
+          }
         } else if (isVerified && isVerifyEmailRoute) {
           router.replace('/dashboard');
         } else if (isAdminRoute && role !== 'admin') {
@@ -69,12 +103,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else if (isAdminLoginRoute && role !== 'admin') {
           console.warn('Admin login warning: User role is not admin, but allowing access for testing.');
           router.replace('/admin');
-        } else if (isAuthRoute && role === 'admin') {
-          // Normal user shouldn't go to admin, admin shouldn't go to user login
-          // We reject auth route login if already logged in by sending them to their respective dashboard
-          router.replace('/admin');
-        } else if (isAuthRoute && role === 'user') {
-          router.replace('/dashboard');
         } else if (isAdminLoginRoute && role === 'admin') {
           router.replace('/admin');
         }
@@ -85,6 +113,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = (token: string, userData: User) => {
     localStorage.setItem('access_token', token);
     localStorage.setItem('user', JSON.stringify(userData));
+    if (typeof document !== 'undefined') {
+      document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+    }
     setUser(userData);
   };
 
@@ -92,6 +123,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const wasAdmin = user?.role === 'admin';
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
+    if (typeof document !== 'undefined') {
+      document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    }
     setUser(null);
     router.replace(wasAdmin ? '/login/admin' : '/login/user');
   };
