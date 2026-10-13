@@ -42,18 +42,36 @@ const features = [
 
 export function FeatureHighlights() {
   return (
-    <section className="py-16 bg-white relative z-10 w-full">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 md:gap-8">
-          {features.map((feature, idx) => (
-            <div key={idx} className="flex flex-col items-center text-center group">
-              <div className={`w-[60px] h-[60px] rounded-[18px] ${feature.colorClass} flex items-center justify-center mb-5 transition-transform duration-300 group-hover:-translate-y-1.5`}>
-                {feature.icon}
-              </div>
-              <h3 className="text-[16px] font-extrabold text-[#111827] mb-1.5 tracking-tight">{feature.title}</h3>
-              <p className="text-[13px] text-[#6b7280] font-medium leading-[1.4] px-1 whitespace-pre-line">
-                {feature.description}
-              </p>
+    <section className="py-14 sm:py-16 bg-white relative z-10 w-full overflow-hidden">
+      {/* Edge gradient fade masks for seamless infinite entrance & exit */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-20 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-20 pointer-events-none" />
+
+      <div className="w-full flex items-center">
+        <div className="feature-marquee-track">
+          {/* Repeating groups to ensure 100% seamless infinite loop on any screen width */}
+          {[1, 2, 3, 4].map((groupNum) => (
+            <div 
+              key={`group-${groupNum}`} 
+              className="feature-marquee-group flex items-center gap-10 sm:gap-14 pr-10 sm:pr-14 shrink-0"
+              aria-hidden={groupNum > 1 ? 'true' : undefined}
+            >
+              {features.map((feature, idx) => (
+                <div 
+                  key={`feature-${groupNum}-${idx}`} 
+                  className="flex flex-col items-center text-center group shrink-0 w-[170px] sm:w-[195px] cursor-pointer select-none"
+                >
+                  <div className={`w-[60px] h-[60px] rounded-[18px] ${feature.colorClass} flex items-center justify-center mb-4 transition-transform duration-300 group-hover:-translate-y-1.5 group-hover:scale-105`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-[15px] sm:text-[16px] font-extrabold text-[#111827] mb-1.5 tracking-tight group-hover:text-indigo-600 transition-colors">
+                    {feature.title}
+                  </h3>
+                  <p className="text-[12px] sm:text-[13px] text-[#6b7280] font-medium leading-[1.4] px-1 whitespace-pre-line">
+                    {feature.description}
+                  </p>
+                </div>
+              ))}
             </div>
           ))}
         </div>
@@ -61,3 +79,4 @@ export function FeatureHighlights() {
     </section>
   );
 }
+

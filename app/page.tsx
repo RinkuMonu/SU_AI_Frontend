@@ -7,6 +7,7 @@ import { Features } from '@/components/Features';
 import { AISection } from '@/components/AISection';
 import { Automation } from '@/components/Automation';
 import { HowItWorks } from '@/components/HowItWorks';
+import { Testimonials } from '@/components/Testimonials';
 import { Examples } from '@/components/Examples';
 import { Pricing } from '@/components/Pricing';
 import { Blog } from '@/components/Blog';
@@ -20,10 +21,11 @@ export default function Home() {
       <Navbar />
       <Hero />
       <FeatureHighlights />
-      <TrustLogos />
       <PaymentsStackSection />
+      <TrustLogos />
       <Features />
       <HowItWorks />
+      <Testimonials />
       <CTA />
       <Automation />
       {/* <Examples /> */}
