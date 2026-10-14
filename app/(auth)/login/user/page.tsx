@@ -786,7 +786,7 @@ export default function LoginPage() {
             {/* AI Humanoid Creative Workspace Image */}
             <img
               src="/images/ai-marketing-workspace.jpg"
-              alt="SevenUnique AI Creative Intelligence"
+              alt="DhandaGrow AI Creative Intelligence"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
             />
 

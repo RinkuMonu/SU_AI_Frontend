@@ -115,7 +115,7 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
             </DialogTitle>
             <DialogDescription className="text-sm text-white/60 mt-2 leading-relaxed">
               Your business profile has been created successfully! Let&apos;s connect
-              your social media accounts to unlock the full potential of SevenUnique AI.
+              your social media accounts to unlock the full potential of DhandaGrow AI.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
