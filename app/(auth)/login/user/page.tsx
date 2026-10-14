@@ -466,7 +466,7 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "LinkedIn") => {
+  const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "Instagram" | "LinkedIn") => {
     setError("");
     if (provider === "Gmail") {
       setSocialLoading("Gmail");

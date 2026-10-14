@@ -82,19 +82,263 @@ export default function SignupPage() {
   const passwordWatch = watch("password", "");
   const emailWatch = watch("email", "");
 
-  // Handle Google OAuth redirect callback on signup page
+  // Common completion handler for Facebook authentication
+  const processFacebookAuth = async (opts: {
+    accessToken?: string;
+    token?: string;
+    code?: string;
+  }) => {
+    setSocialLoading("Facebook");
+    setSocialNotice("Connecting with Facebook... Creating your business profile.");
+    setError("");
+
+    try {
+      let token = opts.token;
+      let userObj: any = null;
+
+      if (!token) {
+        const authResult = await authService.facebookLogin({
+          access_token: opts.accessToken,
+          accountType: "business",
+          mode: "signup",
+        });
+        token = authResult.token;
+        userObj = authResult.user;
+      } else {
+        try {
+          userObj = await authService.getCurrentUser();
+        } catch (_) {
+          userObj = { onboardingCompleted: false };
+        }
+      }
+
+      if (!token) {
+        throw new Error("Facebook registration did not return a session token.");
+      }
+
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("access_token", token);
+      }
+
+      // Discover and save Facebook Pages and Page Access Token
+      const userAccessToken = opts.accessToken;
+      let pageToken = "";
+      let pageId = "";
+      let pageName = "";
+
+      if (typeof window !== "undefined") {
+        const searchParams = new URLSearchParams(window.location.search);
+        pageToken = searchParams.get("fb_access_token") || searchParams.get("page_access_token") || "";
+        pageId = searchParams.get("fb_page_id") || searchParams.get("page_id") || "";
+        pageName = searchParams.get("fb_page_name") || searchParams.get("page_name") || "";
+      }
+
+      if (userAccessToken) {
+        try {
+          const pages = await FacebookService.fetchPagesFromUserToken(userAccessToken);
+          if (pages.length > 0) {
+            const first = pages[0];
+            pageId = pageId || first.id;
+            pageName = pageName || first.name;
+            pageToken = pageToken || first.access_token;
+          }
+        } catch (err) {
+          console.warn("Could not query Facebook Graph API:", err);
+        }
+      }
+
+      try {
+        await FacebookService.saveFacebookCredentials({
+          userAccessToken: userAccessToken || undefined,
+          pageAccessToken: pageToken || undefined,
+          pageId: pageId || undefined,
+          pageName: pageName || undefined,
+          authToken: token,
+        });
+      } catch (_) {}
+
+      // Verify onboarding status using OnboardingService.isCompleted
+      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+      try {
+        const statusDone = await OnboardingService.isCompleted(token);
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...userObj,
+        onboardingCompleted: isDone,
+      };
+
+      login(token, finalUser);
+      sessionStorage.removeItem("facebook_auth_mode");
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (!isDone) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      console.error("Facebook signup error:", err);
+      const msg = err.response?.data?.detail || err.message || "Failed to register with Facebook.";
+      setError(msg);
+      sessionStorage.removeItem("facebook_auth_mode");
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } finally {
+      setSocialLoading(null);
+      setSocialNotice(null);
+    }
+  };
+
+  // Common completion handler for Instagram authentication
+  const processInstagramAuth = async (opts: {
+    accessToken?: string;
+    token?: string;
+    code?: string;
+  }) => {
+    setSocialLoading("Instagram");
+    setSocialNotice("Completing your Instagram registration...");
+    setError("");
+
+    try {
+      let sessionToken = opts.token;
+      let userObj: any = null;
+
+      if (sessionToken) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+        try {
+          userObj = await authService.getCurrentUser();
+        } catch (_) {
+          userObj = { onboardingCompleted: false };
+        }
+      } else {
+        const authResult = await authService.instagramLogin({
+          access_token: opts.accessToken,
+          code: opts.code,
+          accountType: "business",
+          mode: "signup",
+        });
+        sessionToken = authResult.token;
+        userObj = authResult.user;
+
+        if (!sessionToken || !userObj) {
+          throw new Error("Instagram registration did not return a session token.");
+        }
+
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+      }
+
+      // Check onboarding completion via OnboardingService.isCompleted
+      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+      try {
+        const statusDone = await OnboardingService.isCompleted(sessionToken);
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...userObj,
+        onboardingCompleted: isDone,
+      };
+
+      login(sessionToken, finalUser);
+      sessionStorage.removeItem("instagram_auth_mode");
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (!isDone) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
+    } catch (err: any) {
+      console.error("Instagram signup error:", err);
+      const msg = err.response?.data?.detail || err.message || "Failed to register with Instagram.";
+      setError(msg);
+      sessionStorage.removeItem("instagram_auth_mode");
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } finally {
+      setSocialLoading(null);
+      setSocialNotice(null);
+    }
+  };
+
+  // Handle OAuth redirect callbacks (Google, Facebook, Instagram)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const errorParam = params.get("error") || params.get("error_description");
+    const hash = window.location.hash || "";
+    const hashParams = new URLSearchParams(hash.startsWith("#") ? hash.substring(1) : hash);
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const code = searchParams.get("code");
+    const errorParam = searchParams.get("error") || searchParams.get("error_description") || hashParams.get("error");
+    const stateParam = searchParams.get("state") || hashParams.get("state") || "";
+
+    const fbHashToken = hashParams.get("access_token");
+    const fbSearchToken = searchParams.get("user_access_token") || searchParams.get("fb_access_token") || searchParams.get("access_token");
+    const savedFbMode = sessionStorage.getItem("facebook_auth_mode");
+
+    const callbackToken = searchParams.get("token");
+    const igConnected = Boolean(searchParams.get("instagram_connected"));
+    const isInstagramAuth =
+      stateParam.includes("instagram") ||
+      stateParam.includes("ig_") ||
+      igConnected ||
+      Boolean(searchParams.get("ig_username")) ||
+      Boolean(sessionStorage.getItem("instagram_auth_mode"));
+
+    const isFacebookAuth =
+      stateParam.includes("facebook") ||
+      stateParam.includes("fb_") ||
+      Boolean(fbHashToken) ||
+      Boolean(searchParams.get("facebook_connected")) ||
+      Boolean(savedFbMode);
 
     if (errorParam) {
-      setError("Google Signup failed: " + decodeURIComponent(errorParam));
+      const providerName = isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google");
+      setError(`${providerName} signup failed: ` + decodeURIComponent(errorParam));
+      sessionStorage.removeItem("facebook_auth_mode");
+      sessionStorage.removeItem("instagram_auth_mode");
+      sessionStorage.removeItem("google_auth_mode");
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
 
+    // 1. Process Instagram callback if detected
+    if (isInstagramAuth && (callbackToken || code || igConnected)) {
+      processInstagramAuth({
+        token: callbackToken || undefined,
+        code: code || undefined,
+      });
+      return;
+    }
+
+    // 2. Process Facebook callback if detected
+    if (isFacebookAuth && (fbHashToken || fbSearchToken || code || callbackToken)) {
+      processFacebookAuth({
+        accessToken: fbHashToken || fbSearchToken || undefined,
+        token: callbackToken || undefined,
+        code: code || undefined,
+      });
+      return;
+    }
+
+    // 3. Process Google OAuth code
     if (code) {
       const processGoogleSignup = async () => {
         setSocialLoading("Google");
@@ -217,7 +461,7 @@ export default function SignupPage() {
     }
   };
 
-  const handleSocialRegister = async (provider: "Google" | "LinkedIn" | "Facebook") => {
+  const handleSocialRegister = async (provider: "Google" | "LinkedIn" | "Facebook" | "Instagram") => {
     setError("");
     if (provider === "Google") {
       setSocialLoading("Google");
@@ -242,74 +486,14 @@ export default function SignupPage() {
 
       try {
         await FacebookService.startFacebookAuth("signup", async (userToken) => {
-          setSocialNotice("Facebook authenticated. Creating your business profile...");
-          const authResult = await authService.facebookLogin({
-            access_token: userToken,
-            accountType: "business",
-          });
-
-          const token = authResult.token;
-          const userObj = authResult.user;
-
-          if (token && userObj) {
-            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-            if (typeof window !== "undefined") {
-              localStorage.setItem("auth_token", token);
-            }
-
-            // Discover and save Facebook Pages and Page Access Token
-            let pageToken = "";
-            let pageId = "";
-            let pageName = "";
-            try {
-              const pages = await FacebookService.fetchPagesFromUserToken(userToken);
-              if (pages.length > 0) {
-                const first = pages[0];
-                pageId = first.id;
-                pageName = first.name;
-                pageToken = first.access_token;
-              }
-            } catch (pErr) {
-              console.warn("Could not discover pages during FB signup:", pErr);
-            }
-
-            // Save tokens to localStorage and backend
-            await FacebookService.saveFacebookCredentials({
-              userAccessToken: userToken,
-              pageAccessToken: pageToken || undefined,
-              pageId: pageId || undefined,
-              pageName: pageName || undefined,
-              authToken: token,
-            });
-
-            // Check onboarding status
-            let isDone = Boolean(userObj.onboardingCompleted);
-            try {
-              const statusDone = await OnboardingService.isCompleted(token);
-              if (statusDone) isDone = true;
-            } catch (_) {}
-
-            const finalUser = {
-              ...userObj,
-              onboardingCompleted: isDone,
-            };
-
-            login(token, finalUser);
-            sessionStorage.removeItem("facebook_auth_mode");
-
-            if (!isDone) {
-              router.push("/onboarding");
-            } else {
-              router.push("/dashboard");
-            }
-          }
+          await processFacebookAuth({ accessToken: userToken });
         });
         return;
       } catch (err: any) {
         console.error("Facebook register error:", err);
         try {
           const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-          const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}&rerequest=true`);
+          const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/signup')}&rerequest=true`);
           const authUrl = res.data?.authorization_url || res.data?.url;
           if (authUrl) {
             window.location.href = authUrl;
@@ -318,6 +502,28 @@ export default function SignupPage() {
         } catch (backendErr: any) {
           setError("Failed to initialize Facebook registration: " + (err.message || backendErr.message));
         }
+        setSocialLoading(null);
+        setSocialNotice(null);
+        return;
+      }
+    }
+    if (provider === "Instagram") {
+      setSocialLoading("Instagram");
+      setSocialNotice("Connecting with Instagram... Initializing secure registration.");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("instagram_auth_mode", "signup");
+      }
+      try {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const res = await api.get(`/api/instagram/connect?frontend_url=${encodeURIComponent(origin + '/signup')}`);
+        const authUrl = res.data?.authorization_url || res.data?.url;
+        if (authUrl) {
+          window.location.href = authUrl;
+          return;
+        }
+      } catch (err: any) {
+        console.error("Instagram register error:", err);
+        setError("Failed to initialize Instagram registration: " + (err.response?.data?.detail || err.message));
         setSocialLoading(null);
         setSocialNotice(null);
         return;
@@ -443,14 +649,14 @@ export default function SignupPage() {
               <p className="text-xs font-medium text-neutral-400 mb-3 tracking-wide">
                 Register with:
               </p>
-              {/* 3 Social Buttons: Google/Gmail, LinkedIn, Facebook */}
-              <div className="grid grid-cols-3 gap-3">
+              {/* 4 Social Buttons: Google/Gmail, Facebook, Instagram, LinkedIn */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {/* 1. Google / Gmail */}
                 <button
                   type="button"
                   onClick={() => handleSocialRegister("Google")}
                   disabled={socialLoading !== null}
-                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-white/20 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-white/20 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
                 >
                   {socialLoading === "Google" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-neutral-300" />
@@ -477,29 +683,12 @@ export default function SignupPage() {
                   <span className="truncate">Gmail</span>
                 </button>
 
-                {/* 2. LinkedIn */}
-                <button
-                  type="button"
-                  onClick={() => handleSocialRegister("LinkedIn")}
-                  disabled={socialLoading !== null}
-                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#0A66C2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-                >
-                  {socialLoading === "LinkedIn" ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2]" />
-                  ) : (
-                    <svg className="w-4 h-4 shrink-0 text-[#0A66C2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                    </svg>
-                  )}
-                  <span className="truncate">LinkedIn</span>
-                </button>
-
-                {/* 3. Facebook */}
+                {/* 2. Facebook */}
                 <button
                   type="button"
                   onClick={() => handleSocialRegister("Facebook")}
                   disabled={socialLoading !== null}
-                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#1877F2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#1877F2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
                 >
                   {socialLoading === "Facebook" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-[#1877F2]" />
@@ -509,6 +698,51 @@ export default function SignupPage() {
                     </svg>
                   )}
                   <span className="truncate">Facebook</span>
+                </button>
+
+                {/* 3. Instagram */}
+                <button
+                  type="button"
+                  onClick={() => handleSocialRegister("Instagram")}
+                  disabled={socialLoading !== null}
+                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#E1306C]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                >
+                  {socialLoading === "Instagram" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#E1306C]" />
+                  ) : (
+                    <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="ig-grad-signup-btn" x1="0%" y1="100%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#fdf497" />
+                          <stop offset="5%" stopColor="#fdf497" />
+                          <stop offset="45%" stopColor="#fd5949" />
+                          <stop offset="60%" stopColor="#d6249f" />
+                          <stop offset="90%" stopColor="#285AEB" />
+                        </linearGradient>
+                      </defs>
+                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-grad-signup-btn)" strokeWidth="2" fill="none" />
+                      <circle cx="12" cy="12" r="4" stroke="url(#ig-grad-signup-btn)" strokeWidth="2" fill="none" />
+                      <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-grad-signup-btn)" />
+                    </svg>
+                  )}
+                  <span className="truncate">Instagram</span>
+                </button>
+
+                {/* 4. LinkedIn */}
+                <button
+                  type="button"
+                  onClick={() => handleSocialRegister("LinkedIn")}
+                  disabled={socialLoading !== null}
+                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#0A66C2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                >
+                  {socialLoading === "LinkedIn" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2]" />
+                  ) : (
+                    <svg className="w-4 h-4 shrink-0 text-[#0A66C2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                    </svg>
+                  )}
+                  <span className="truncate">LinkedIn</span>
                 </button>
               </div>
             </div>
