@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { Globe, Wand2, Layout, Smartphone, Search, Zap, Code, ArrowRight, Gauge, CheckCircle2 } from 'lucide-react';
 
 export default function WebsiteBuilderPage() {
@@ -192,6 +194,8 @@ export default function WebsiteBuilderPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="website-builder" />
+      <FeatureExpansionSections feature="website-builder" />
       <section className="py-24 bg-[#0B1120] text-center border-t border-slate-800">
          <div className="max-w-4xl mx-auto px-4">
            <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-white mb-6">Stop paying agencies ₹50,000 for a website.</h2>

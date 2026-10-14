@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { Languages, MessageSquare, Globe2, Sparkles, Volume2, Mic, ArrowRight, Zap, RefreshCw } from 'lucide-react';
 
 export default function IndianAIPage() {
@@ -141,6 +143,8 @@ export default function IndianAIPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="indian-ai" />
+      <FeatureExpansionSections feature="indian-ai" />
       <section className="py-24 bg-[#FFFAF0] text-center">
          <div className="max-w-4xl mx-auto px-4">
            <Volume2 className="w-16 h-16 text-orange-500 mx-auto mb-6" />

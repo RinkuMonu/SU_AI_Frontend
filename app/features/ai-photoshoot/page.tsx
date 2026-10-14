@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { 
   Camera, 
   Aperture, 
@@ -131,7 +132,7 @@ export default function PhotoshootPage() {
           
           <h1 className="text-5xl md:text-7xl lg:text-[90px] font-bold mb-6 tracking-tighter leading-[0.95]">
             Studio Quality. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 font-serif italic pr-4">
+            <span className="text-gradient font-serif italic pr-4">
               Zero Studio.
             </span>
           </h1>
@@ -465,6 +466,7 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 7. Sleek High-Converting Darkroom CTA */}
+      <FeatureShowcaseSection feature="ai-photoshoot" />
       <section className="py-20 sm:py-28 bg-black relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-[32px] sm:rounded-[44px] bg-gradient-to-br from-zinc-900 via-zinc-950 to-black border border-white/15 flex flex-col md:flex-row items-center justify-between p-10 sm:p-16 relative overflow-hidden shadow-2xl">
