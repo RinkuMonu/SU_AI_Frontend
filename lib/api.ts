@@ -5,10 +5,10 @@ const getBaseUrl = () => {
     const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
     if (isLocal) {
       const envUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1"))) {
+      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1") || envUrl.includes("ngrok"))) {
         return envUrl.replace(/\/docs\/?$/, "").replace(/\/$/, "");
       }
-      return "http://localhost:8000";
+      return "http://127.0.0.1:8000";
     }
   }
 
@@ -20,12 +20,17 @@ const api = axios.create({
   baseURL: getBaseUrl(),
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("access_token");
+    let token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (!token && typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|;\s*)access_token=([^;]*)/);
+      if (match) token = match[1];
+    }
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -36,15 +41,24 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for handling common errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     // Handle global errors like 401 Unauthorized
-    if (error.response?.status === 401 && window.location.pathname !== '/login/user' && window.location.pathname !== '/login/admin') {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
-      window.location.href = '/login/user';
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      const path = window.location.pathname;
+      const isPublicRoute =
+        path === "/login/user" ||
+        path === "/login/admin" ||
+        path === "/signup" ||
+        path === "/onboarding" ||
+        path === "/verify-email";
+
+      if (!isPublicRoute) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("user");
+        window.location.href = "/login/user";
+      }
     }
     return Promise.reject(error);
   }

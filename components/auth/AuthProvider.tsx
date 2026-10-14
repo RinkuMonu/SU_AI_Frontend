@@ -15,7 +15,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem('user');
+        return stored ? JSON.parse(stored) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
+  });
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -66,7 +76,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         '/brand',
         '/products',
         '/settings',
-        '/onboarding',
         '/content',
         '/content-library',
         '/campaigns',
@@ -87,23 +96,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (!user) {
-        if (isAdminRoute) {
-          router.replace('/login/admin');
-        } else if (isProtectedRoute) {
-          router.replace('/login/user');
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        if (!token) {
+          if (isAdminRoute) {
+            router.replace('/login/admin');
+          } else if (isProtectedRoute) {
+            router.replace('/login/user');
+          }
         }
       } else {
         const role = (user.role || 'user').toLowerCase();
         const isVerified = user.email_verified !== false; // treat undefined as verified to support legacy users
 
         if (!isVerified && isProtectedRoute && !isVerifyEmailRoute) {
-          if (user.email) {
+          // If onboarding is not completed, prioritize onboarding first
+          if (user.onboardingCompleted === false) {
+            router.replace('/onboarding');
+          } else if (user.email) {
             router.replace(`/verify-email?email=${encodeURIComponent(user.email)}`);
           } else {
             router.replace('/login/user');
           }
         } else if (isVerified && isVerifyEmailRoute) {
-          router.replace('/dashboard');
+          router.replace(user.onboardingCompleted === false ? '/onboarding' : '/dashboard');
+        } else if (isVerified && isProtectedRoute && pathname === '/dashboard' && user.onboardingCompleted === false) {
+          router.replace('/onboarding');
         } else if (isAdminRoute && role !== 'admin') {
           console.warn('Admin access warning: User role is not admin, but allowing access for testing.');
           // router.replace('/dashboard');

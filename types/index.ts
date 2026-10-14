@@ -3,9 +3,43 @@
 export interface User {
   id: string;
   name: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
   role: string;
+  accountType?: "user" | "business" | string;
+  phone?: string | null;
+  contactNumber?: string | null;
+  profileImageUrl?: string | null;
+  preferredLanguage?: string | null;
   email_verified?: boolean;
+  emailVerified?: boolean;
+  onboardingCompleted?: boolean;
+  onboarding_step?: number;
+  // Business fields
+  business_logo?: string | null;
+  brand_color?: string | null;
+  business_name?: string | null;
+  business_type?: string | null;
+  business_category?: string | null;
+  business_description?: string | null;
+  registration_number?: string | null;
+  year_established?: string | null;
+  country?: string | null;
+  state?: string | null;
+  city?: string | null;
+  area?: string | null;
+  pincode?: string | null;
+  full_address?: string | null;
+  google_maps_url?: string | null;
+  business_model?: string | null;
+  selling_model?: string | null;
+  target_age_group?: string[] | null;
+  target_gender?: string | null;
+  target_location?: string | null;
+  customer_type?: string | null;
+  [key: string]: any;
 }
 
 export interface Business {

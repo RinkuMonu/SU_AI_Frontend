@@ -23,8 +23,13 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
+import { FacebookService } from "@/services/facebook.service";
+import { authService } from "@/services/auth.service";
+import { OnboardingService } from "@/services/onboarding.service";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 const FacebookIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="#1877F2" className={className}>
@@ -40,6 +45,9 @@ interface FacebookPageItem {
 }
 
 export default function FacebookIntegrationPage() {
+  const router = useRouter();
+  const { login } = useAuth();
+
   const [isUpdating, setIsUpdating] = useState(false);
   const [updated, setUpdated] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -66,6 +74,40 @@ export default function FacebookIntegrationPage() {
   const [showGuide, setShowGuide] = useState(true);
 
   useEffect(() => {
+    // 0. Pre-hydrate immediately from stored credentials so tokens and page are printed INSTANTLY
+    const stored = FacebookService.getStoredCredentials();
+    if (stored.userAccessToken) setFbUserToken(stored.userAccessToken);
+    if (stored.pageAccessToken) setFbToken(stored.pageAccessToken);
+    if (stored.pageId) setFbPageId(stored.pageId);
+    if (stored.pageName) setFbPageName(stored.pageName);
+    if (stored.pageId && (stored.pageAccessToken || stored.userAccessToken)) {
+      setIsConnected(true);
+    }
+
+    // Auto-discover pages if user access token is stored but page token is missing
+    if (stored.userAccessToken && !stored.pageAccessToken) {
+      FacebookService.fetchPagesFromUserToken(stored.userAccessToken).then((pages) => {
+        if (pages.length > 0) {
+          const first = pages[0];
+          setFbPageId(first.id);
+          setFbPageName(first.name);
+          if (first.access_token) setFbToken(first.access_token);
+          setDiscoveredPages(pages.map(p => ({
+            page_id: p.id,
+            page_name: p.name,
+            page_access_token: p.access_token,
+            category: p.category
+          })));
+          FacebookService.saveFacebookCredentials({
+            userAccessToken: stored.userAccessToken,
+            pageAccessToken: first.access_token,
+            pageId: first.id,
+            pageName: first.name,
+          });
+        }
+      }).catch(e => console.warn("Auto-discover on mount:", e));
+    }
+
     // 1. Check for tokens from URL query parameters after OAuth redirect
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -96,6 +138,45 @@ export default function FacebookIntegrationPage() {
         // Automatically fetch pages and auto-save without user needing to click anything
         const performAutoSave = async () => {
           const tokenToUse = finalPageToken || finalUserToken;
+
+          // Check if user came from a Facebook Login / Signup flow or is unauthenticated
+          const savedAuthMode = typeof window !== "undefined" ? sessionStorage.getItem("facebook_auth_mode") : null;
+          const currentToken = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
+          const isAuthAction = Boolean(savedAuthMode) || !currentToken;
+
+          if (isAuthAction && finalUserToken) {
+            try {
+              const authResult = await authService.facebookLogin({
+                access_token: finalUserToken,
+                accountType: "business",
+              });
+              const sessToken = authResult.token;
+              const userObj = authResult.user;
+
+              if (sessToken && userObj) {
+                api.defaults.headers.common["Authorization"] = `Bearer ${sessToken}`;
+                localStorage.setItem("auth_token", sessToken);
+
+                // Check onboarding status
+                let isDone = Boolean(userObj.onboardingCompleted);
+                try {
+                  const statusDone = await OnboardingService.isCompleted(sessToken);
+                  if (statusDone) isDone = true;
+                } catch (_) {}
+
+                login(sessToken, { ...userObj, onboardingCompleted: isDone });
+                sessionStorage.removeItem("facebook_auth_mode");
+
+                // Route to onboarding if incomplete
+                if (!isDone) {
+                  router.push("/onboarding");
+                  return;
+                }
+              }
+            } catch (authErr) {
+              console.warn("Facebook auto-login during redirect notice:", authErr);
+            }
+          }
 
           if (finalUserToken && (!finalPageId || !finalPageToken)) {
             try {
@@ -150,13 +231,12 @@ export default function FacebookIntegrationPage() {
                 }
               }
 
-              await api.put('/api/v1/businesses/me', {
-                fb_page_id: finalPageId || undefined,
-                fb_page_name: finalPageName || undefined,
-                fb_access_token: finalPageToken || tokenToUse,
-                fb_user_access_token: finalUserToken || undefined,
-                fb_connected: true
-              }).catch(() => {});
+              await FacebookService.saveFacebookCredentials({
+                userAccessToken: finalUserToken || undefined,
+                pageAccessToken: finalPageToken || tokenToUse || undefined,
+                pageId: finalPageId || undefined,
+                pageName: finalPageName || undefined
+              });
               setIsConnected(true);
               setSuccessMessage("Facebook connected & credentials saved automatically!");
             } catch (err) {
@@ -182,6 +262,14 @@ export default function FacebookIntegrationPage() {
           if (res.data.pages && Array.isArray(res.data.pages) && res.data.pages.length > 0) {
             setDiscoveredPages(res.data.pages);
           }
+
+          // Sync tokens to localStorage for instant printing
+          FacebookService.saveFacebookCredentials({
+            userAccessToken: res.data.user_access_token || undefined,
+            pageAccessToken: res.data.page_access_token || undefined,
+            pageId: res.data.fb_page_id || undefined,
+            pageName: res.data.fb_page_name || undefined
+          });
 
           // Check token publish permissions
           try {
@@ -213,6 +301,13 @@ export default function FacebookIntegrationPage() {
           if (busRes.data.fb_pages && Array.isArray(busRes.data.fb_pages) && busRes.data.fb_pages.length > 0) {
             setDiscoveredPages(prev => prev.length > 0 ? prev : busRes.data.fb_pages);
           }
+
+          FacebookService.saveFacebookCredentials({
+            userAccessToken: busRes.data.fb_user_access_token || undefined,
+            pageAccessToken: busRes.data.fb_access_token || undefined,
+            pageId: busRes.data.fb_page_id || undefined,
+            pageName: busRes.data.fb_page_name || undefined
+          });
         }
       } catch (e) {
         console.warn("Could not load business details", e);
@@ -248,7 +343,7 @@ export default function FacebookIntegrationPage() {
       if (reRequest) params.append('rerequest', 'true');
       if (customScope) params.append('scopes', customScope);
       if (typeof window !== "undefined") {
-        params.append('frontend_url', window.location.origin);
+        params.append('frontend_url', window.location.href);
       }
       const queryStr = params.toString() ? `?${params.toString()}` : '';
       const endpoint = `/api/facebook/connect${queryStr}`;
@@ -355,19 +450,12 @@ export default function FacebookIntegrationPage() {
     
     // Auto-save selected page immediately
     try {
-      await api.post('/api/facebook/save-token', {
-        access_token: effectiveToken,
-        fb_page_id: page.page_id,
-        fb_page_name: page.page_name,
-        user_access_token: fbUserToken || undefined
+      await FacebookService.saveFacebookCredentials({
+        userAccessToken: fbUserToken || undefined,
+        pageAccessToken: effectiveToken,
+        pageId: page.page_id,
+        pageName: page.page_name
       });
-      await api.put('/api/v1/businesses/me', {
-        fb_page_id: page.page_id,
-        fb_page_name: page.page_name,
-        fb_access_token: effectiveToken,
-        fb_user_access_token: fbUserToken || undefined,
-        fb_connected: true
-      }).catch(() => {});
       setIsConnected(true);
       setSuccessMessage(`Selected & saved Page: ${page.page_name} (ID: ${page.page_id})`);
     } catch (e) {
@@ -393,22 +481,12 @@ export default function FacebookIntegrationPage() {
     const activeToken = fbToken.trim() || fbUserToken.trim();
 
     try {
-      // 1. Save to dedicated Facebook endpoint
-      await api.post('/api/facebook/save-token', {
-        access_token: activeToken,
-        fb_page_id: fbPageId.trim(),
-        fb_page_name: fbPageName.trim() || undefined,
-        user_access_token: fbUserToken.trim() || undefined
+      await FacebookService.saveFacebookCredentials({
+        userAccessToken: fbUserToken.trim() || undefined,
+        pageAccessToken: activeToken,
+        pageId: fbPageId.trim(),
+        pageName: fbPageName.trim() || undefined
       });
-
-      // 2. Also update business profile document for full backend synchronization
-      await api.put('/api/v1/businesses/me', {
-        fb_page_id: fbPageId.trim(),
-        fb_page_name: fbPageName.trim() || undefined,
-        fb_access_token: activeToken,
-        fb_user_access_token: fbUserToken.trim() || undefined,
-        fb_connected: true
-      }).catch(e => console.warn("Business sync notice:", e));
 
       setUpdated(true);
       setIsConnected(true);
@@ -431,6 +509,7 @@ export default function FacebookIntegrationPage() {
     setIsDisconnecting(true);
     try {
       await api.post('/api/facebook/disconnect');
+      FacebookService.clearStoredCredentials();
       setIsConnected(false);
       setFbToken("");
       setFbUserToken("");

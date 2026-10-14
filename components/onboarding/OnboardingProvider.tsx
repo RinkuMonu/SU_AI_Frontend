@@ -34,8 +34,8 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
       const data = await OnboardingService.getStatus();
       setStatus(data);
 
-      // If business is done and we are still on step 1 → show success popup
-      if (data.business_profile_completed && data.onboarding_step <= 1) {
+      // If business account is done and we are still on step 1 → show success popup
+      if (user?.accountType === "business" && data.business_profile_completed && data.onboarding_step <= 1) {
         setShowBusinessSuccess(true);
       }
     } catch (e: any) {

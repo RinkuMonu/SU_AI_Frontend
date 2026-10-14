@@ -27,6 +27,10 @@ import {
   Check
 } from "lucide-react";
 import { authService } from "@/services/auth.service";
+import { FacebookService } from "@/services/facebook.service";
+import { OnboardingService } from "@/services/onboarding.service";
+import { useAuth } from "@/components/auth/AuthProvider";
+import api from "@/lib/api";
 
 const signupSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -58,6 +62,7 @@ export default function SignupPage() {
   const [otpSent, setOtpSent] = useState(false);
   const [otpCountdown, setOtpCountdown] = useState(0);
 
+  const { login } = useAuth();
   const router = useRouter();
 
   const {
@@ -76,6 +81,65 @@ export default function SignupPage() {
 
   const passwordWatch = watch("password", "");
   const emailWatch = watch("email", "");
+
+  // Handle Google OAuth redirect callback on signup page
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const errorParam = params.get("error") || params.get("error_description");
+
+    if (errorParam) {
+      setError("Google Signup failed: " + decodeURIComponent(errorParam));
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (code) {
+      const processGoogleSignup = async () => {
+        setSocialLoading("Google");
+        setSocialNotice("Completing your Google registration...");
+        setError("");
+        try {
+          const redirectUri = `${window.location.origin}/login/user`;
+          const res = await api.post("/api/v1/auth/google/signup", {
+            code,
+            redirect_uri: redirectUri,
+            mode: "signup",
+          });
+
+          const data = res.data?.data || res.data;
+          const token = data?.access_token || data?.token || data?.accessToken;
+          const userObj = data?.user;
+
+          if (token && userObj) {
+            localStorage.setItem("access_token", token);
+            localStorage.setItem("user", JSON.stringify(userObj));
+            sessionStorage.removeItem("google_auth_mode");
+            window.history.replaceState({}, document.title, window.location.pathname);
+            if (userObj.onboardingCompleted !== true) {
+              window.location.href = "/onboarding";
+            } else {
+              window.location.href = "/dashboard";
+            }
+          } else {
+            throw new Error(res.data?.message || "Google registration did not return a session token.");
+          }
+        } catch (err: any) {
+          console.error("Google signup error:", err);
+          const msg = err.response?.data?.detail || err.message || "Failed to sign up with Google.";
+          setError(msg);
+          sessionStorage.removeItem("google_auth_mode");
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } finally {
+          setSocialLoading(null);
+          setSocialNotice(null);
+        }
+      };
+
+      processGoogleSignup();
+    }
+  }, []);
 
   // Timer countdown for resending OTP
   useEffect(() => {
@@ -126,41 +190,34 @@ export default function SignupPage() {
 
     try {
       const fullName = `${data.firstName} ${data.lastName}`.trim();
-      const payload = {
+      const pendingData = {
         name: fullName,
-        email: data.email,
+        fullName: fullName,
+        firstName: data.firstName.trim(),
+        lastName: data.lastName.trim(),
+        email: data.email.trim().toLowerCase(),
         password: data.password,
-        phone: data.contactNumber,
-        contact_phone: data.contactNumber,
-        otp: data.emailOtp,
-        business_name: `${data.firstName}'s Enterprise`,
-        business_type: "general",
-        role: "user",
+        confirmPassword: data.confirmPassword,
+        phone: data.contactNumber.trim(),
+        contactNumber: data.contactNumber.trim(),
+        contact_phone: data.contactNumber.trim(),
+        otp: data.emailOtp || undefined,
       };
 
-      const response = await authService.signup(payload);
+      // Store in session - do NOT insert into MongoDB until onboarding is completed!
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pending_signup", JSON.stringify(pendingData));
+      }
 
-      if (response.token && response.user) {
-        localStorage.setItem("access_token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
-        localStorage.setItem("business_just_registered", "1");
-        window.location.href = "/dashboard";
-      } else {
-        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-      }
+      router.push("/onboarding");
     } catch (err: any) {
-      const msg = err.message || "Failed to create account. Please try again.";
-      if (msg.includes("EMAIL_NOT_VERIFIED") || msg.toLowerCase().includes("verification")) {
-        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-      } else {
-        setError(msg);
-      }
+      setError(err.message || "Failed to proceed to onboarding. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialRegister = (provider: "Google" | "LinkedIn" | "Facebook") => {
+  const handleSocialRegister = async (provider: "Google" | "LinkedIn" | "Facebook") => {
     setError("");
     if (provider === "Google") {
       setSocialLoading("Google");
@@ -168,19 +225,104 @@ export default function SignupPage() {
       const redirectUri = `${origin}/login/user`;
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
       const scope = "openid email profile";
-      const state = Math.random().toString(36).substring(7);
+      const state = "signup_" + Math.random().toString(36).substring(7);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_auth_mode", "signup");
+      }
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
       window.location.href = authUrl;
       return;
     }
-    setSocialLoading(provider);
-    setSocialNotice(`Registering with ${provider}... Connecting OAuth gateway.`);
-    setTimeout(() => {
-      setSocialLoading(null);
-      setSocialNotice(
-        `OAuth note: ${provider} authentication is ready for credentials. You can complete registration using the fields below.`
-      );
-    }, 1200);
+    if (provider === "Facebook") {
+      setSocialLoading("Facebook");
+      setSocialNotice("Connecting with Facebook... Initializing secure registration.");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("facebook_auth_mode", "signup");
+      }
+
+      try {
+        await FacebookService.startFacebookAuth("signup", async (userToken) => {
+          setSocialNotice("Facebook authenticated. Creating your business profile...");
+          const authResult = await authService.facebookLogin({
+            access_token: userToken,
+            accountType: "business",
+          });
+
+          const token = authResult.token;
+          const userObj = authResult.user;
+
+          if (token && userObj) {
+            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            if (typeof window !== "undefined") {
+              localStorage.setItem("auth_token", token);
+            }
+
+            // Discover and save Facebook Pages and Page Access Token
+            let pageToken = "";
+            let pageId = "";
+            let pageName = "";
+            try {
+              const pages = await FacebookService.fetchPagesFromUserToken(userToken);
+              if (pages.length > 0) {
+                const first = pages[0];
+                pageId = first.id;
+                pageName = first.name;
+                pageToken = first.access_token;
+              }
+            } catch (pErr) {
+              console.warn("Could not discover pages during FB signup:", pErr);
+            }
+
+            // Save tokens to localStorage and backend
+            await FacebookService.saveFacebookCredentials({
+              userAccessToken: userToken,
+              pageAccessToken: pageToken || undefined,
+              pageId: pageId || undefined,
+              pageName: pageName || undefined,
+              authToken: token,
+            });
+
+            // Check onboarding status
+            let isDone = Boolean(userObj.onboardingCompleted);
+            try {
+              const statusDone = await OnboardingService.isCompleted(token);
+              if (statusDone) isDone = true;
+            } catch (_) {}
+
+            const finalUser = {
+              ...userObj,
+              onboardingCompleted: isDone,
+            };
+
+            login(token, finalUser);
+            sessionStorage.removeItem("facebook_auth_mode");
+
+            if (!isDone) {
+              router.push("/onboarding");
+            } else {
+              router.push("/dashboard");
+            }
+          }
+        });
+        return;
+      } catch (err: any) {
+        console.error("Facebook register error:", err);
+        try {
+          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+          const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}&rerequest=true`);
+          const authUrl = res.data?.authorization_url || res.data?.url;
+          if (authUrl) {
+            window.location.href = authUrl;
+            return;
+          }
+        } catch (backendErr: any) {
+          setError("Failed to initialize Facebook registration: " + (err.message || backendErr.message));
+        }
+        setSocialLoading(null);
+        setSocialNotice(null);
+        return;
+      }
+    }
   };
 
   const handleOpenChoiceModal = (e: React.MouseEvent) => {
@@ -637,15 +779,22 @@ export default function SignupPage() {
               )}
 
               {error && (
-                <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in">
-                  {error}
+                <div className="p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-2">
+                  <span className="leading-relaxed font-medium">{error}</span>
+                  {error.toLowerCase().includes("log in") && (
+                    <Link
+                      href="/login/user"
+                      className="inline-flex items-center gap-1 font-semibold text-[#be32ff] hover:text-[#d364ff] transition-colors underline underline-offset-4"
+                    >
+                      Already registered? Log in to your account &rarr;
+                    </Link>
+                  )}
                 </div>
               )}
 
               {/* Big CTA Button: Styled with requested color palette (#fc9a5d -> #f0449b -> #be32ff -> #7d36fa) */}
               <button
-                type="button"
-                onClick={handleOpenChoiceModal}
+                type="submit"
                 disabled={isLoading}
                 className="w-full h-12 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-sm tracking-wide flex items-center justify-center transition-all duration-300 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_35px_rgba(190,50,255,0.55)] hover:brightness-105 mt-2"
               >

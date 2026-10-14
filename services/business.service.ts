@@ -28,9 +28,17 @@ export interface BusinessUpdateRequest {
 }
 
 export const businessService = {
-  createBusiness: async (data: BusinessCreateRequest): Promise<Business> => {
+  createBusiness: async (data: any): Promise<Business> => {
     try {
-      const response = await api.post('/api/v1/businesses', data);
+      const payload = {
+        ...data,
+        businessName: data.businessName || data.name || "My Business",
+        businessType: data.businessType || data.business_type || "Retail",
+        industry: data.industry || data.category || data.business_category || "General",
+        preferredLanguage: data.preferredLanguage || data.preferred_language || "hinglish",
+        targetAudience: data.targetAudience || data.target_location || data.target_customer || "Local",
+      };
+      const response = await api.post('/api/v1/businesses/', payload);
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.detail) {

@@ -57,6 +57,7 @@ export default function SignupPage() {
   const [registeredBusinessName, setRegisteredBusinessName] = useState("");
   const [isRegisteredSuccess, setIsRegisteredSuccess] = useState(false);
   const router = useRouter();
+  const { login } = useAuth();
 
   const {
     register,
@@ -154,6 +155,7 @@ export default function SignupPage() {
         localStorage.setItem("access_token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
         localStorage.setItem("business_just_registered", "1");
+        login(response.token, response.user);
       }
       setRegisteredBusinessName(data.business_name);
       setIsRegisteredSuccess(true);

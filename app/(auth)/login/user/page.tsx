@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { authService } from "@/services/auth.service";
+import { OnboardingService } from "@/services/onboarding.service";
+import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 
@@ -43,29 +45,325 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  // Handle Google OAuth redirect code callback
+  // Common completion handler for Facebook authentication
+  const processFacebookAuth = async (opts: {
+    accessToken?: string;
+    token?: string;
+    code?: string;
+    mode?: "login" | "signup";
+  }) => {
+    const isSignup = opts.mode === "signup";
+    setSocialLoading("Facebook");
+    setSocialNotice(
+      isSignup
+        ? "Completing your Facebook registration..."
+        : "Signing in with Facebook... Verifying your account."
+    );
+    setError("");
+
+    try {
+      let token = opts.token;
+      let userObj: any = null;
+
+      if (token) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", token);
+        }
+        try {
+          userObj = await authService.getCurrentUser();
+        } catch (_) {
+          userObj = { onboardingCompleted: false };
+        }
+      } else {
+        const authResult = await authService.facebookLogin({
+          access_token: opts.accessToken,
+          code: opts.code,
+          accountType: "business",
+          mode: opts.mode || "login",
+        });
+        token = authResult.token;
+        userObj = authResult.user;
+
+        if (!token || !userObj) {
+          throw new Error("Facebook authentication did not return session token.");
+        }
+
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", token);
+        }
+      }
+
+      // Extract & discover Facebook Page Token, User Token, and Page ID
+      const userAccessToken = opts.accessToken;
+      let pageToken = "";
+      let pageId = "";
+      let pageName = "";
+
+      if (typeof window !== "undefined") {
+        const searchParams = new URLSearchParams(window.location.search);
+        pageToken = searchParams.get("fb_access_token") || searchParams.get("page_access_token") || "";
+        pageId = searchParams.get("fb_page_id") || searchParams.get("page_id") || "";
+        pageName = searchParams.get("fb_page_name") || searchParams.get("page_name") || "";
+      }
+
+      if (userAccessToken) {
+        try {
+          const pages = await FacebookService.fetchPagesFromUserToken(userAccessToken);
+          if (pages.length > 0) {
+            const first = pages[0];
+            pageId = pageId || first.id;
+            pageName = pageName || first.name;
+            pageToken = pageToken || first.access_token;
+          }
+        } catch (err) {
+          console.warn("Could not query Facebook Graph API:", err);
+        }
+      }
+
+      // Automatically save and print credentials on /social-platforms/facebook
+      try {
+        await FacebookService.saveFacebookCredentials({
+          userAccessToken: userAccessToken || undefined,
+          pageAccessToken: pageToken || undefined,
+          pageId: pageId || undefined,
+          pageName: pageName || undefined,
+          authToken: token,
+        });
+      } catch (_) {}
+
+      // Verify onboarding status using OnboardingService.isCompleted
+      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+      try {
+        const statusDone = await OnboardingService.isCompleted(token);
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...userObj,
+        onboardingCompleted: isDone,
+      };
+
+      login(token, finalUser);
+      sessionStorage.removeItem("facebook_auth_mode");
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      // If onboarding is incomplete, navigate to onboarding; if complete, dashboard
+      if (!isDone) {
+        router.push("/onboarding");
+      } else {
+        const pendingPlan = sessionStorage.getItem("pending_plan");
+        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
+        if (pendingPlan) {
+          sessionStorage.removeItem("pending_plan");
+          sessionStorage.removeItem("pending_billing");
+          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else {
+          router.push("/dashboard");
+        }
+      }
+    } catch (err: any) {
+      console.error("Facebook authentication error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.message ||
+        (isSignup ? "Failed to register with Facebook." : "Failed to sign in with Facebook.");
+      setError(msg);
+      sessionStorage.removeItem("facebook_auth_mode");
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } finally {
+      setSocialLoading(null);
+      setSocialNotice(null);
+    }
+  };
+
+  // Common completion handler for Instagram authentication
+  const processInstagramAuth = async (opts: {
+    accessToken?: string;
+    token?: string;
+    code?: string;
+    mode?: "login" | "signup";
+  }) => {
+    const isSignup = opts.mode === "signup";
+    setSocialLoading("Instagram");
+    setSocialNotice(
+      isSignup
+        ? "Completing your Instagram registration..."
+        : "Signing in with Instagram... Verifying your account."
+    );
+    setError("");
+
+    try {
+      let sessionToken = opts.token;
+      let userObj: any = null;
+
+      if (sessionToken) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+        try {
+          userObj = await authService.getCurrentUser();
+        } catch (_) {
+          userObj = { onboardingCompleted: false };
+        }
+      } else {
+        const authResult = await authService.instagramLogin({
+          access_token: opts.accessToken,
+          code: opts.code,
+          accountType: "business",
+          mode: opts.mode || "login",
+        });
+        sessionToken = authResult.token;
+        userObj = authResult.user;
+
+        if (!sessionToken || !userObj) {
+          throw new Error("Instagram authentication did not return session token.");
+        }
+
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+      }
+
+      // Check onboarding completion via OnboardingService.isCompleted
+      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+      try {
+        const statusDone = await OnboardingService.isCompleted(sessionToken);
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...userObj,
+        onboardingCompleted: isDone,
+      };
+
+      login(sessionToken, finalUser);
+      sessionStorage.removeItem("instagram_auth_mode");
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      if (!isDone) {
+        router.push("/onboarding");
+      } else {
+        const pendingPlan = sessionStorage.getItem("pending_plan");
+        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
+        if (pendingPlan) {
+          sessionStorage.removeItem("pending_plan");
+          sessionStorage.removeItem("pending_billing");
+          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else {
+          router.push("/dashboard");
+        }
+      }
+    } catch (err: any) {
+      console.error("Instagram authentication error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.message ||
+        (isSignup ? "Failed to register with Instagram." : "Failed to sign in with Instagram.");
+      setError(msg);
+      sessionStorage.removeItem("instagram_auth_mode");
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } finally {
+      setSocialLoading(null);
+      setSocialNotice(null);
+    }
+  };
+
+  // Handle OAuth redirect callbacks (Google & Facebook)
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code");
-    const errorParam = params.get("error") || params.get("error_description");
+    const hash = window.location.hash || "";
+    const hashParams = new URLSearchParams(hash.startsWith("#") ? hash.substring(1) : hash);
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const code = searchParams.get("code");
+    const errorParam = searchParams.get("error") || searchParams.get("error_description") || hashParams.get("error");
+    const stateParam = searchParams.get("state") || hashParams.get("state") || "";
+
+    const fbHashToken = hashParams.get("access_token");
+    const fbSearchToken = searchParams.get("user_access_token") || searchParams.get("fb_access_token") || searchParams.get("access_token");
+    const savedFbMode = sessionStorage.getItem("facebook_auth_mode") as "login" | "signup" | null;
+
+    const callbackToken = searchParams.get("token");
+    const igConnected = Boolean(searchParams.get("instagram_connected"));
+    const isInstagramAuth =
+      stateParam.includes("instagram") ||
+      stateParam.includes("ig_") ||
+      igConnected ||
+      Boolean(searchParams.get("ig_username")) ||
+      Boolean(sessionStorage.getItem("instagram_auth_mode"));
+
+    const isFacebookAuth =
+      stateParam.includes("facebook") ||
+      stateParam.includes("fb_") ||
+      Boolean(fbHashToken) ||
+      Boolean(searchParams.get("facebook_connected")) ||
+      Boolean(savedFbMode);
 
     if (errorParam) {
-      setError("Google Login failed: " + decodeURIComponent(errorParam));
+      const providerName = isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google");
+      setError(`${providerName} authentication failed: ` + decodeURIComponent(errorParam));
+      sessionStorage.removeItem("facebook_auth_mode");
+      sessionStorage.removeItem("instagram_auth_mode");
+      sessionStorage.removeItem("google_auth_mode");
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
 
+    // 1. Process Instagram callback if detected
+    if (isInstagramAuth && (callbackToken || code || igConnected)) {
+      const savedIgMode = sessionStorage.getItem("instagram_auth_mode") as "login" | "signup" | null;
+      const mode = (stateParam.includes("signup") || savedIgMode === "signup") ? "signup" : "login";
+      processInstagramAuth({
+        token: callbackToken || undefined,
+        code: code || undefined,
+        mode,
+      });
+      return;
+    }
+
+    // 2. Process Facebook callback if detected
+    if (isFacebookAuth && (fbHashToken || fbSearchToken || code || callbackToken)) {
+      const mode = (stateParam.includes("signup") || savedFbMode === "signup") ? "signup" : "login";
+      processFacebookAuth({
+        accessToken: fbHashToken || fbSearchToken || undefined,
+        token: callbackToken || undefined,
+        code: code || undefined,
+        mode,
+      });
+      return;
+    }
+
+    // 2. Process Google OAuth code
     if (code) {
       const processGoogleCode = async () => {
+        const savedMode = sessionStorage.getItem("google_auth_mode");
+        const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
+        const mode = isSignup ? "signup" : "login";
+
         setSocialLoading("Gmail");
-        setSocialNotice("Signing in with Google... Verifying your account.");
+        setSocialNotice(isSignup ? "Completing your Google registration..." : "Signing in with Google... Verifying your account.");
         setError("");
         try {
           const redirectUri = `${window.location.origin}/login/user`;
-          const res = await api.post("/api/v1/auth/google/login", {
+          const endpoint = isSignup ? "/api/v1/auth/google/signup" : "/api/v1/auth/google/login";
+          const res = await api.post(endpoint, {
             code,
             redirect_uri: redirectUri,
+            mode,
           });
 
           const data = res.data?.data || res.data;
@@ -73,24 +371,40 @@ export default function LoginPage() {
           const userObj = data?.user;
 
           if (token && userObj) {
-            login(token, userObj);
-            window.history.replaceState({}, document.title, window.location.pathname);
-            const pendingPlan = sessionStorage.getItem("pending_plan");
-            const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
-            if (pendingPlan) {
-              sessionStorage.removeItem("pending_plan");
-              sessionStorage.removeItem("pending_billing");
-              router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+            let isDone = Boolean(userObj.onboardingCompleted);
+            try {
+              const statusDone = await OnboardingService.isCompleted(token);
+              if (statusDone) isDone = true;
+            } catch (_) {}
+
+            const finalUser = {
+              ...userObj,
+              onboardingCompleted: isDone,
+            };
+            login(token, finalUser);
+            sessionStorage.removeItem("google_auth_mode");
+
+            if (!isDone) {
+              router.push("/onboarding");
             } else {
-              router.push("/dashboard");
+              const pendingPlan = sessionStorage.getItem("pending_plan");
+              const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
+              if (pendingPlan) {
+                sessionStorage.removeItem("pending_plan");
+                sessionStorage.removeItem("pending_billing");
+                router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+              } else {
+                router.push("/dashboard");
+              }
             }
           } else {
             throw new Error(res.data?.message || "Google authentication did not return session token.");
           }
         } catch (err: any) {
           console.error("Google authentication error:", err);
-          const msg = err.response?.data?.detail || err.message || "Failed to sign in with Google.";
+          const msg = err.response?.data?.detail || err.message || (isSignup ? "Failed to register with Google." : "Failed to sign in with Google.");
           setError(msg);
+          sessionStorage.removeItem("google_auth_mode");
           window.history.replaceState({}, document.title, window.location.pathname);
         } finally {
           setSocialLoading(null);
@@ -112,13 +426,26 @@ export default function LoginPage() {
         throw new Error("Administrators must log in through the Admin Portal.");
       }
       if (response?.token && response?.user) {
-        login(response.token, response.user);
+        let isDone = Boolean(response.user.onboardingCompleted);
+        try {
+          const statusDone = await OnboardingService.isCompleted(response.token);
+          if (statusDone) isDone = true;
+        } catch (_) {}
+
+        const finalUser = {
+          ...response.user,
+          onboardingCompleted: isDone,
+        };
+        login(response.token, finalUser);
+
         const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
         const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
         if (pendingPlan) {
           sessionStorage.removeItem('pending_plan');
           sessionStorage.removeItem('pending_billing');
           router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else if (!isDone) {
+          router.push("/onboarding");
         } else {
           router.push("/dashboard");
         }
@@ -148,7 +475,10 @@ export default function LoginPage() {
         const redirectUri = `${origin}/login/user`;
         const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
         const scope = "openid email profile";
-        const state = Math.random().toString(36).substring(7);
+        const state = "login_" + Math.random().toString(36).substring(7);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("google_auth_mode", "login");
+        }
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
         window.location.href = authUrl;
         return;
@@ -161,18 +491,50 @@ export default function LoginPage() {
     }
     if (provider === "Facebook") {
       setSocialLoading("Facebook");
+      setSocialNotice("Connecting with Facebook... Initializing secure session.");
+      try {
+        await FacebookService.startFacebookAuth("login", async (userToken) => {
+          await processFacebookAuth({ accessToken: userToken, mode: "login" });
+        });
+        return;
+      } catch (err: any) {
+        console.error("Facebook connect error:", err);
+        // Fallback to backend connect URL if SDK call failed
+        try {
+          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+          const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}&rerequest=true`);
+          const authUrl = res.data?.authorization_url || res.data?.url;
+          if (authUrl) {
+            window.location.href = authUrl;
+            return;
+          }
+        } catch (backendErr: any) {
+          setError("Failed to initialize Facebook Login: " + (err.message || backendErr.message));
+        }
+        setSocialLoading(null);
+        setSocialNotice(null);
+        return;
+      }
+    }
+    if (provider === "Instagram") {
+      setSocialLoading("Instagram");
+      setSocialNotice("Connecting with Instagram... Initializing secure session.");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("instagram_auth_mode", "login");
+      }
       try {
         const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin)}&rerequest=true`);
+        const res = await api.get(`/api/instagram/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}`);
         const authUrl = res.data?.authorization_url || res.data?.url;
         if (authUrl) {
           window.location.href = authUrl;
           return;
         }
       } catch (err: any) {
-        console.error("Facebook connect error:", err);
-        setError("Failed to initialize Facebook Login: " + (err.response?.data?.detail || err.message));
+        console.error("Instagram connect error:", err);
+        setError("Failed to initialize Instagram Login: " + (err.response?.data?.detail || err.message));
         setSocialLoading(null);
+        setSocialNotice(null);
         return;
       }
     }
@@ -268,6 +630,34 @@ export default function LoginPage() {
               <span>Login with Facebook</span>
             </button>
 
+            {/* Login with Instagram */}
+            <button
+              type="button"
+              onClick={() => handleSocialLogin("Instagram")}
+              disabled={socialLoading !== null}
+              className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-[#E1306C]/40 hover:shadow-[0_0_20px_rgba(225,48,108,0.18)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+            >
+              {socialLoading === "Instagram" ? (
+                <Loader2 className="w-4 h-4 animate-spin text-[#E1306C]" />
+              ) : (
+                <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none">
+                  <defs>
+                    <linearGradient id="ig-grad-login-btn" x1="0%" y1="100%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#fdf497" />
+                      <stop offset="5%" stopColor="#fdf497" />
+                      <stop offset="45%" stopColor="#fd5949" />
+                      <stop offset="60%" stopColor="#d6249f" />
+                      <stop offset="90%" stopColor="#285AEB" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-grad-login-btn)" strokeWidth="2" fill="none" />
+                  <circle cx="12" cy="12" r="4" stroke="url(#ig-grad-login-btn)" strokeWidth="2" fill="none" />
+                  <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-grad-login-btn)" />
+                </svg>
+              )}
+              <span>Login with Instagram</span>
+            </button>
+
             {/* 3. Login with LinkedIn */}
             <button
               type="button"
@@ -351,8 +741,16 @@ export default function LoginPage() {
               )}
 
               {error && (
-                <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in">
-                  {error}
+                <div className="p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-2">
+                  <span className="leading-relaxed font-medium">{error}</span>
+                  {error.toLowerCase().includes("sign up") && (
+                    <Link
+                      href="/signup"
+                      className="inline-flex items-center gap-1 font-semibold text-[#be32ff] hover:text-[#d364ff] transition-colors underline underline-offset-4"
+                    >
+                      Don&apos;t have an account yet? Register here &rarr;
+                    </Link>
+                  )}
                 </div>
               )}
 
