@@ -162,6 +162,17 @@ export default function SignupPage() {
 
   const handleSocialRegister = (provider: "Google" | "LinkedIn" | "Facebook") => {
     setError("");
+    if (provider === "Google") {
+      setSocialLoading("Google");
+      const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+      const redirectUri = `${origin}/login/user`;
+      const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
+      const scope = "openid email profile";
+      const state = Math.random().toString(36).substring(7);
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
+      window.location.href = authUrl;
+      return;
+    }
     setSocialLoading(provider);
     setSocialNotice(`Registering with ${provider}... Connecting OAuth gateway.`);
     setTimeout(() => {
