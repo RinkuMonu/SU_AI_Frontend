@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -43,6 +43,65 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Handle Google OAuth redirect code callback
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
+    const errorParam = params.get("error") || params.get("error_description");
+
+    if (errorParam) {
+      setError("Google Login failed: " + decodeURIComponent(errorParam));
+      window.history.replaceState({}, document.title, window.location.pathname);
+      return;
+    }
+
+    if (code) {
+      const processGoogleCode = async () => {
+        setSocialLoading("Gmail");
+        setSocialNotice("Signing in with Google... Verifying your account.");
+        setError("");
+        try {
+          const redirectUri = `${window.location.origin}/login/user`;
+          const res = await api.post("/api/v1/auth/google/login", {
+            code,
+            redirect_uri: redirectUri,
+          });
+
+          const data = res.data?.data || res.data;
+          const token = data?.access_token || data?.token || data?.accessToken;
+          const userObj = data?.user;
+
+          if (token && userObj) {
+            login(token, userObj);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            const pendingPlan = sessionStorage.getItem("pending_plan");
+            const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
+            if (pendingPlan) {
+              sessionStorage.removeItem("pending_plan");
+              sessionStorage.removeItem("pending_billing");
+              router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+            } else {
+              router.push("/dashboard");
+            }
+          } else {
+            throw new Error(res.data?.message || "Google authentication did not return session token.");
+          }
+        } catch (err: any) {
+          console.error("Google authentication error:", err);
+          const msg = err.response?.data?.detail || err.message || "Failed to sign in with Google.";
+          setError(msg);
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } finally {
+          setSocialLoading(null);
+          setSocialNotice(null);
+        }
+      };
+
+      processGoogleCode();
+    }
+  }, [login, router]);
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setError("");
@@ -82,6 +141,24 @@ export default function LoginPage() {
 
   const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "LinkedIn") => {
     setError("");
+    if (provider === "Gmail") {
+      setSocialLoading("Gmail");
+      try {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const redirectUri = `${origin}/login/user`;
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
+        const scope = "openid email profile";
+        const state = Math.random().toString(36).substring(7);
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
+        window.location.href = authUrl;
+        return;
+      } catch (err: any) {
+        console.error("Google connect error:", err);
+        setError("Failed to initialize Google Login: " + (err.response?.data?.detail || err.message));
+        setSocialLoading(null);
+        return;
+      }
+    }
     if (provider === "Facebook") {
       setSocialLoading("Facebook");
       try {
