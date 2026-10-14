@@ -10,6 +10,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (token: string, userData: User) => void;
   logout: () => void;
+  updateUser: (userData: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,12 +24,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('access_token');
+      const cached = localStorage.getItem('user');
+      let cachedUser: User | null = null;
+      if (cached) {
+        try {
+          cachedUser = JSON.parse(cached);
+          setUser(cachedUser);
+        } catch (_) {}
+      }
       
       if (token) {
         try {
           const freshUser = await authService.getCurrentUser();
-          setUser(freshUser);
-          localStorage.setItem('user', JSON.stringify(freshUser));
+          const mergedUser: User = { ...(cachedUser || {}), ...freshUser };
+          setUser(mergedUser);
+          localStorage.setItem('user', JSON.stringify(mergedUser));
         } catch (error) {
           localStorage.removeItem('access_token');
           localStorage.removeItem('user');
@@ -130,8 +140,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.replace(wasAdmin ? '/login/admin' : '/login/user');
   };
 
+  const updateUser = (userData: Partial<User>) => {
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = { ...prev, ...userData };
+      localStorage.setItem('user', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

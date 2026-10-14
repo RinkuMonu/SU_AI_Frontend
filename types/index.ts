@@ -6,6 +6,15 @@ export interface User {
   email: string;
   role: string;
   email_verified?: boolean;
+  firstName?: string;
+  lastName?: string;
+  contactNumber?: string;
+  phone?: string;
+  image?: string;
+  avatar?: string;
+  businessName?: string;
+  businessCategory?: string;
+  accountType?: 'user' | 'business' | string;
 }
 
 export interface Business {

@@ -1,6 +1,9 @@
 export interface GenerateReelRequest {
   product_id: string;
   product_name?: string;
+  product_category?: string;
+  generation_mode?: 'product' | 'creative';
+  festival_theme?: string;
   product_description?: string;
   product_image_url?: string;
   objective: string;
@@ -25,6 +28,13 @@ export interface ReelScript {
   title: string;
   objective: string;
   hook: string;
+  hook_headline?: string;
+  hook_highlight?: string;
+  trending_audio?: string;
+  creator_name?: string;
+  follower_count?: string;
+  likes_count?: string;
+  comments_count?: string;
   duration_seconds: number;
   language: string;
   tone: string;
@@ -54,7 +64,17 @@ export interface ReelJobStatus {
   caption?: string;
   hashtags?: string[];
   product_name?: string;
+  product_category?: string;
+  generation_mode?: 'product' | 'creative';
+  festival_theme?: string;
   product_description?: string;
+  hook_headline?: string;
+  hook_highlight?: string;
+  trending_audio?: string;
+  creator_name?: string;
+  follower_count?: string;
+  likes_count?: string;
+  comments_count?: string;
 }
 
 export interface Reel {

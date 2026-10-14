@@ -47,12 +47,12 @@ export function ReelGenerationProgress({ jobId, onComplete, onError }: ReelGener
     );
   }
 
-  const stages = [
+    const stages = [
     { key: "queued", label: "Queued" },
-    { key: "generating_script", label: "Writing Script" },
-    { key: "generating_voice", label: "Creating Voiceover" },
-    { key: "generating_video", label: "Generating Video" },
-    { key: "composing", label: "Applying Captions & Finalizing" },
+    { key: "planning", label: "Gemini AI Storyboard" },
+    { key: "generating_voice", label: "Neural Voiceover" },
+    { key: "generating_video", label: "Google Veo 3.1 Video" },
+    { key: "composing", label: "Syncing Captions & Export" },
   ];
 
   // Determine active stage by mapping progress percentage (0-100)
