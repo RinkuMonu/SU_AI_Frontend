@@ -1,51 +1,81 @@
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
 
 interface LogoProps {
   className?: string;
   withText?: boolean;
   size?: "sm" | "default" | "lg";
   showSubtitle?: boolean;
+  variant?: "horizontal" | "stacked" | "icon";
+  theme?: "dark" | "light";
 }
 
-export function Logo({ className, withText = true, size = "default", showSubtitle = true }: LogoProps) {
+export function Logo({
+  className,
+  withText = true,
+  size = "default",
+  showSubtitle = false,
+  variant = "horizontal",
+  theme = "dark"
+}: LogoProps) {
   const isSm = size === "sm";
   const isLg = size === "lg";
 
-  return (
-    <div className={cn("flex items-center gap-2 md:gap-3", className)}>
-      <div 
-        className={cn(
-          "relative flex-shrink-0 flex items-center justify-center",
-          isSm ? "h-8 w-8" : isLg ? "h-16 w-16" : "h-10 w-10 md:h-12 md:w-12"
-        )}
-      >
-        <div className="bg-brand-pink/20 text-brand-pink p-1.5 rounded-md flex items-center justify-center h-full w-full">
-          <Sparkles className="h-full w-full" />
-        </div>
-      </div>
-      {withText && (
-        <div className="flex flex-col justify-center min-w-0 overflow-hidden">
-          <span 
-            className={cn(
-              "font-bold text-white tracking-tight leading-tight truncate",
-              isSm ? "text-base md:text-lg" : isLg ? "text-2xl" : "text-lg md:text-xl"
-            )}
-          >
-            SevenUnique AI
-          </span>
-          {showSubtitle && (
-            <span 
-              className={cn(
-                "text-gray-300 font-medium mt-0.5 truncate",
-                isSm ? "text-[9px] md:text-[10px]" : isLg ? "text-sm" : "text-[10px] md:text-xs"
-              )}
-            >
-              India's AI Business Growth App
-            </span>
+  // If icon-only is requested
+  if (!withText || variant === "icon") {
+    return (
+      <div className={cn("flex items-center justify-center shrink-0", className)}>
+        <img
+          src="/images/logo-icon.png"
+          alt="Dhanda Grow AI"
+          className={cn(
+            "object-contain select-none",
+            isSm ? "h-8 w-8" : isLg ? "h-14 w-14" : "h-10 w-10"
           )}
-        </div>
+        />
+      </div>
+    );
+  }
+
+  // If full stacked logo is requested
+  if (variant === "stacked") {
+    return (
+      <div className={cn("flex flex-col items-center justify-center shrink-0", className)}>
+        <img
+          src={theme === "light" ? "/images/logo-stacked.png" : "/images/logo-stacked-dark.png"}
+          alt="Dhanda Grow AI"
+          className={cn(
+            "object-contain select-none",
+            isSm ? "h-11 w-auto" : isLg ? "h-20 w-auto" : "h-14 w-auto"
+          )}
+        />
+        {showSubtitle && (
+          <span className="text-[10px] text-gray-400 mt-1 font-medium tracking-wide">
+            India&apos;s AI Business Growth App
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  // Default: Horizontal brand logo (Icon on left + Brand typography on right)
+  const logoSrc = theme === "light" ? "/images/logo-horizontal-light.png" : "/images/logo-horizontal-dark.png";
+
+  return (
+    <div className={cn("flex flex-col justify-center min-w-0", className)}>
+      <img
+        src={logoSrc}
+        alt="Dhanda Grow AI"
+        className={cn(
+          "object-contain select-none transition-all duration-200",
+          isSm ? "h-8 md:h-9 w-auto max-w-[195px]" : isLg ? "h-12 md:h-14 w-auto" : "h-10 md:h-11 w-auto"
+        )}
+      />
+      {showSubtitle && (
+        <span className="text-[9px] text-gray-400 font-medium tracking-wide mt-0.5 truncate pl-1">
+          India&apos;s AI Business Growth App
+        </span>
       )}
     </div>
   );
 }
+

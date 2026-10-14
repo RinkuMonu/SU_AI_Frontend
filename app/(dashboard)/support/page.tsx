@@ -68,7 +68,7 @@ const INITIAL_CONVERSATIONS: Conversation[] = [
         id: "m-1",
         sender: "user",
         senderName: "Sejal Gupta",
-        text: "Hi, I am trying to connect my business Instagram page to SevenUnique AI, but Facebook authorization says an Instagram Professional Account is required. How do I complete this?",
+        text: "Hi, I am trying to connect my business Instagram page to DhandaGrow AI, but Facebook authorization says an Instagram Professional Account is required. How do I complete this?",
         timestamp: "10:15 AM",
       },
       {
@@ -295,7 +295,7 @@ export default function SupportPage() {
           id: `sys-${Date.now()}`,
           sender: "agent",
           senderName: "System",
-          text: "✓ This query was marked as Resolved. Thank you for choosing SevenUnique AI! You can reopen this chat anytime if you need more help.",
+          text: "✓ This query was marked as Resolved. Thank you for choosing DhandaGrow AI! You can reopen this chat anytime if you need more help.",
           timestamp: "Just now"
         }
       ]
@@ -364,7 +364,7 @@ export default function SupportPage() {
           {
             id: `m-agent-${Date.now()}`,
             sender: "agent",
-            senderName: "SevenUnique Auto-Desk",
+            senderName: "DhandaGrow Support Desk",
             text: `Hello! We received your query regarding "${contactSubject.trim()}". A senior support agent has been assigned and will reply here in real-time shortly.`,
             timestamp: "Just now"
           }
