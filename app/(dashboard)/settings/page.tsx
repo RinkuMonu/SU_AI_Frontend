@@ -390,8 +390,22 @@ export default function SettingsPage() {
     }
   };
 
-  // Avatar initial
-  const userInitial = (firstName?.charAt(0) || user?.name?.charAt(0) || "U").toUpperCase();
+  // Avatar initial (e.g. "Deepak Yadav" -> "DY")
+  const userInitial = (() => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    }
+    const fullName = user?.name || user?.fullName;
+    if (fullName && fullName.trim()) {
+      const parts = fullName.trim().split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return `${parts[0].charAt(0)}${parts[parts.length - 1].charAt(0)}`.toUpperCase();
+      } else if (parts.length === 1 && parts[0].length >= 2) {
+        return `${parts[0].charAt(0)}${parts[0].charAt(parts[0].length - 1)}`.toUpperCase();
+      }
+    }
+    return (firstName?.charAt(0) || user?.name?.charAt(0) || "U").toUpperCase();
+  })();
   const businessInitial = (businessName?.charAt(0) || "B").toUpperCase();
 
   return (

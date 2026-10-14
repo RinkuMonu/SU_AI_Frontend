@@ -74,6 +74,8 @@ export const authService = {
         }
       } catch (_) {}
 
+      const profileImg = rawUser.image || rawUser.profileImageUrl || rawUser.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
+
       return {
         ...rawUser,
         id: rawUser.id || rawUser._id || '',
@@ -82,6 +84,8 @@ export const authService = {
         email: rawUser.email || '',
         role: rawUser.role || 'user',
         accountType: rawUser.accountType || 'user',
+        image: profileImg || undefined,
+        profileImageUrl: profileImg || undefined,
         email_verified: rawUser.email_verified ?? rawUser.emailVerified ?? true,
         onboardingCompleted: onboardingDone,
         onboarding_step: rawUser.onboarding_step ?? 1,

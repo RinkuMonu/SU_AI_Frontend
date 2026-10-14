@@ -21,15 +21,46 @@ import {
   Headphones
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
+import { userService } from "@/services/user.service";
 
 export function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   const notifDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Fetch fresh profile on mount to ensure avatar/image is up-to-date
+  useEffect(() => {
+    let isMounted = true;
+    const fetchFreshProfile = async () => {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+      if (!token) return;
+      try {
+        const fresh = await userService.getProfile();
+        if (fresh && isMounted) {
+          const freshImg = fresh.image || fresh.profileImageUrl || fresh.avatar || (fresh as any).picture;
+          if (freshImg && freshImg !== user?.image && freshImg !== user?.profileImageUrl) {
+            updateUser({
+              ...fresh,
+              image: freshImg,
+              profileImageUrl: freshImg
+            });
+          }
+        }
+      } catch (_) {
+        // Silently continue if backend fetch fails
+      }
+    };
+
+    fetchFreshProfile();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -74,7 +105,44 @@ export function Navbar() {
   const hasUnread = notifications.some(n => n.unread);
 
   const isBusiness = user?.role === 'business' || user?.accountType === 'business';
-  const initial = (user?.name?.charAt(0) || user?.email?.charAt(0) || "U").toUpperCase();
+
+  // Resolve avatar URL from all possible backend property names
+  const avatarUrl = 
+    user?.image || 
+    user?.profileImageUrl || 
+    user?.avatar || 
+    (user as any)?.picture || 
+    (user as any)?.photoURL || 
+    (user as any)?.profile_image_url ||
+    (isBusiness ? user?.business_logo : null);
+
+  useEffect(() => {
+    setImageError(false);
+  }, [avatarUrl]);
+
+  // If no profile image, compute initials (e.g. "Deepak Yadav" -> "DY", "Deepak" -> "DK")
+  const getInitials = (name?: string | null, email?: string | null): string => {
+    if (name && name.trim()) {
+      const parts = name.trim().split(/\s+/).filter(Boolean);
+      if (parts.length >= 2) {
+        const first = parts[0].charAt(0).toUpperCase();
+        const last = parts[parts.length - 1].charAt(0).toUpperCase();
+        return `${first}${last}`;
+      } else if (parts.length === 1) {
+        const word = parts[0];
+        if (word.length >= 2) {
+          return (word.charAt(0) + word.charAt(word.length - 1)).toUpperCase();
+        }
+        return word.charAt(0).toUpperCase();
+      }
+    }
+    if (email && email.trim()) {
+      return email.charAt(0).toUpperCase();
+    }
+    return "U";
+  };
+
+  const initials = getInitials(user?.name || user?.fullName, user?.email);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-surface px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -159,15 +227,16 @@ export function Navbar() {
               id="user-menu-button"
             >
               <div className="relative">
-                <div className="h-9 w-9 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
-                  {user?.image ? (
+                <div className="h-9 w-9 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-md border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                  {avatarUrl && !imageError ? (
                     <img 
-                      src={user.image} 
-                      alt={user.name || "User"} 
+                      src={avatarUrl} 
+                      alt={user?.name || "User"} 
                       className="h-full w-full object-cover" 
+                      onError={() => setImageError(true)}
                     />
                   ) : (
-                    <span>{initial}</span>
+                    <span>{initials}</span>
                   )}
                 </div>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
@@ -195,15 +264,16 @@ export function Navbar() {
                 {/* User Header Summary */}
                 <div className="p-4 bg-gradient-to-b from-white/[0.04] to-transparent">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-lg shadow-inner border border-white/20 shrink-0 overflow-hidden">
-                      {user?.image ? (
+                    <div className="h-12 w-12 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-base tracking-wider shadow-inner border border-white/20 shrink-0 overflow-hidden">
+                      {avatarUrl && !imageError ? (
                         <img 
-                          src={user.image} 
-                          alt={user.name || "User"} 
+                          src={avatarUrl} 
+                          alt={user?.name || "User"} 
                           className="h-full w-full object-cover" 
+                          onError={() => setImageError(true)}
                         />
                       ) : (
-                        <span>{initial}</span>
+                        <span>{initials}</span>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
