@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users } from "lucide-react";
+import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
@@ -81,6 +81,7 @@ const navigation = [
   { name: "Reviews", href: "/reviews", icon: Star },
   { name: "Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Billing & Plans", href: "/subscription", icon: Store },
+  { name: "Support", href: "/support", icon: Headphones },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 

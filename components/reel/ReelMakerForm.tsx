@@ -30,6 +30,20 @@ interface ProductItem {
 
 const PRESET_PRODUCTS: ProductItem[] = [
   {
+    id: "preset_laptop",
+    name: "MacBook Pro M3 Max",
+    category: "Computers & Laptops",
+    description: "Liquid Retina XDR display, M3 Max chip, all-day battery life for creators & developers",
+    image_url: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500&q=80",
+  },
+  {
+    id: "preset_lehenga",
+    name: "Royal Crimson Velvet Lehenga",
+    category: "Ethnic Fashion",
+    description: "Hand-embroidered zardozi and antique gold dabka work for royal weddings",
+    image_url: "https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?w=500&q=80",
+  },
+  {
     id: "preset_saree",
     name: "Pure Banarasi Silk Saree",
     category: "Ethnic Fashion",
@@ -71,17 +85,31 @@ const PRESET_PRODUCTS: ProductItem[] = [
     description: "Medium-dark single origin Arabica beans with rich chocolate and caramel notes",
     image_url: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=500&q=80",
   },
+  {
+    id: "preset_biryani",
+    name: "Royal Dum Handi Biryani",
+    category: "Restaurant & Dining",
+    description: "Slow cooked saffron basmati rice with marinated spices, fried onions and fresh mint",
+    image_url: "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=500&q=80",
+  },
+  {
+    id: "preset_jewel",
+    name: "Heritage Polki Diamond Choker",
+    category: "Jewellery & Luxury",
+    description: "Uncut polki diamonds set in 22k gold with emerald beads and royal craftsmanship",
+    image_url: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=500&q=80",
+  },
 ];
 
 const OBJECTIVES = [
-  { value: "sale", label: "🛍️ Sale" },
+  { value: "sale", label: "🔥 Flash Sale" },
   { value: "product_launch", label: "🚀 Product Launch" },
-  { value: "festival", label: "🎉 Festival" },
-  { value: "brand_awareness", label: "📣 Brand Awareness" },
-  { value: "offer", label: "🎁 Offer" },
-  { value: "testimonial", label: "⭐ Testimonial" },
-  { value: "educational", label: "📚 Educational" },
-  { value: "before_after", label: "✨ Before/After" },
+  { value: "festival", label: "🎉 Festive Special" },
+  { value: "brand_awareness", label: "📢 Brand Story" },
+  { value: "offer", label: "🏷️ Special Offer" },
+  { value: "testimonial", label: "⭐ Customer Spotlight" },
+  { value: "educational", label: "💡 How It Works" },
+  { value: "before_after", label: "✨ Before & After" },
 ];
 
 export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
@@ -97,6 +125,9 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
   const [customImageUrl, setCustomImageUrl] = useState("");
 
   // Reel Configuration
+    // Generation Mode & Festival Theme
+  const [generationMode, setGenerationMode] = useState<"product" | "creative">("product");
+  const [festivalTheme, setFestivalTheme] = useState("none");
   const [objective, setObjective] = useState("sale");
   const [platform, setPlatform] = useState("instagram");
   const [language, setLanguage] = useState("Hinglish");
@@ -156,6 +187,9 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
     onGenerate({
       product_id: prod.id,
       product_name: prod.name,
+      product_category: prod.category,
+      generation_mode: generationMode,
+      festival_theme: festivalTheme,
       product_description: prod.description,
       product_image_url: prod.image_url,
       objective,

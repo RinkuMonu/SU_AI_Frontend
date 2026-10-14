@@ -1,7 +1,33 @@
 import api from '@/lib/api';
 import { User } from '@/types';
 
+export interface UpdateUserProfilePayload {
+  name?: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  contactNumber?: string;
+  phone?: string;
+  profileImageUrl?: string;
+  image?: string;
+  avatar?: string;
+  accountType?: string;
+  role?: string;
+}
+
 export const userService = {
+  getProfile: async (): Promise<User> => {
+    try {
+      const response = await api.get('/api/v1/users/me');
+      const data = response.data?.data || response.data;
+      return data;
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to fetch user profile');
+    }
+  },
+
   getMe: async (): Promise<User> => {
     try {
       const response = await api.get('/api/v1/users/me');
@@ -31,6 +57,17 @@ export const userService = {
     }
   },
 
+  updateProfile: async (payload: UpdateUserProfilePayload): Promise<User> => {
+    try {
+      const response = await api.patch('/api/v1/users/me', payload);
+      const data = response.data?.data || response.data;
+      return data;
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to update profile');
+    }
+  },
+
   updateMe: async (data: Partial<User>): Promise<User> => {
     try {
       const response = await api.patch('/api/v1/users/me', data);
@@ -53,7 +90,21 @@ export const userService = {
     }
   },
 
-  uploadAvatar: async (file: File): Promise<{ image_url: string; user?: User }> => {
+  changePassword: async (currentPassword: string, newPassword: string, confirmPassword?: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      const response = await api.post('/api/v1/users/me/change-password', {
+        currentPassword,
+        newPassword,
+        confirmPassword: confirmPassword || newPassword,
+      });
+      return response.data;
+    } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to change password');
+    }
+  },
+
+  uploadAvatar: async (file: File): Promise<{ success?: boolean; image_url: string; user?: User }> => {
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -62,7 +113,8 @@ export const userService = {
       });
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || 'Failed to upload avatar');
+      const detail = error.response?.data?.detail;
+      throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to upload avatar');
     }
   },
 

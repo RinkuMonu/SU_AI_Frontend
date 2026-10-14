@@ -17,6 +17,10 @@ export interface User {
   emailVerified?: boolean;
   onboardingCompleted?: boolean;
   onboarding_step?: number;
+  image?: string;
+  avatar?: string;
+  businessName?: string;
+  businessCategory?: string;
   // Business fields
   business_logo?: string | null;
   brand_color?: string | null;
