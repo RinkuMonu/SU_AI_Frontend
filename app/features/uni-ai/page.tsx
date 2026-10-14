@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { Bot, Mic, Sparkles, Code, Megaphone, LineChart, Headphones, ArrowRight, Zap, Play } from 'lucide-react';
 
 export default function UNIAIPage() {
@@ -155,6 +157,8 @@ export default function UNIAIPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="uni-ai" />
+      <FeatureExpansionSections feature="uni-ai" />
       <section className="py-32 bg-black text-center relative overflow-hidden">
          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.1)_0%,rgba(0,0,0,1)_70%)] pointer-events-none" />
          

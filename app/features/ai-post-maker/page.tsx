@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -450,7 +451,7 @@ export default function PostmakerPage() {
             <span className="text-orange-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Template Gallery
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
               Ready-to-Use Creatives for Every Business
             </h2>
             <p className="text-slate-500 text-base max-w-2xl mx-auto mt-3 font-normal">
@@ -680,7 +681,7 @@ export default function PostmakerPage() {
             <span className="text-orange-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Got Questions?
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight">
+            <h2 className=" text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight">
               Frequently Asked Questions
             </h2>
           </div>
@@ -717,6 +718,7 @@ export default function PostmakerPage() {
       </section>
       
       {/* 8. Call To Action (CTA) */}
+      <FeatureShowcaseSection feature="ai-post-maker" />
       <section className="py-20 sm:py-28 bg-white relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-purple-700 via-pink-600 to-orange-500 rounded-[32px] sm:rounded-[44px] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">

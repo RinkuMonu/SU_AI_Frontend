@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Brain, Fingerprint, PaintBucket, Type, FileImage, Sparkles, Network, ArrowRight, ShieldCheck, Cpu } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function BrandBrainPage() {
   return (
@@ -176,6 +178,8 @@ export default function BrandBrainPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="brand-brain" />
+      <FeatureExpansionSections feature="brand-brain" />
       <section className="py-24 bg-violet-900 text-center text-white relative overflow-hidden">
          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
          <div className="max-w-4xl mx-auto px-4 relative z-10">

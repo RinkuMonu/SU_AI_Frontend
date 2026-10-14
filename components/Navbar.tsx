@@ -20,12 +20,14 @@ export function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
-  // /about and home page (/) are dark theme pages; other pages are light
-  const isLightPage = pathname.startsWith('/legal') || 
-                      pathname === '/careers' || 
-                      pathname.startsWith('/blog') || 
-                      pathname.startsWith('/features') || 
-                      pathname === '/download';
+  const isDarkFeaturePage = pathname === '/features/ai-ads';
+  const isLightPage = !isDarkFeaturePage && (
+    pathname.startsWith('/legal') ||
+    pathname === '/careers' ||
+    pathname.startsWith('/blog') ||
+    pathname.startsWith('/features') ||
+    pathname === '/download'
+  );
 
   useEffect(() => {
     const handleScroll = () => {
@@ -88,7 +90,7 @@ export function Navbar() {
               {/* Invisible bridge to keep hover active */}
               <div className="absolute -top-4 left-0 w-full h-8 bg-transparent" />
               
-              <div className="w-[1000px] max-w-[calc(100vw-32px)] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-8 grid grid-cols-5 gap-6">
+            <div className="w-[1000px] max-w-[calc(100vw-32px)] md:ml-24 bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-8 grid grid-cols-5 gap-6">
                 {featuresMenu.categories.map((category, idx) => (
                   <div key={idx} className="flex flex-col">
                     <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">

@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Target, TrendingUp, Zap, MousePointerClick, BarChart3, LayoutTemplate, Layers, SplitSquareHorizontal, CheckCircle2, ArrowRight } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function AIAdsPage() {
   return (
@@ -114,6 +116,80 @@ export default function AIAdsPage() {
 
         </div>
       </section>
+       <FeatureShowcaseSection feature="ai-ads" />
+
+      <section className="relative overflow-hidden bg-[#0b1220] py-20 text-white sm:py-24">
+        <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-emerald-500/10 blur-[120px]" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-blue-500/10 blur-[120px]" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <div>
+            <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] text-emerald-400 sm:text-sm">
+              Inside the creative lab
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Test the idea before you scale the spend.
+            </h2>
+            <p className="mt-5 max-w-xl leading-7 text-slate-300">
+              Put different hooks and creative directions side by side. See how each version supports the campaign goal before deciding what to take forward.
+            </p>
+            <div className="mt-8 space-y-4">
+              {[
+                { icon: SplitSquareHorizontal, title: 'Compare distinct angles', detail: 'Explore different openings, offers, and calls to action.' },
+                { icon: Target, title: 'Keep the audience in focus', detail: 'Shape each concept around the people you want to reach.' },
+                { icon: TrendingUp, title: 'Build on what resonates', detail: 'Use campaign results as input for your next creative round.' },
+              ].map(({ icon: Icon, title, detail }) => (
+                <div key={title} className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <div>
+                    <h3 className="font-semibold text-white">{title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-400">{detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-slate-900/80 p-5 shadow-2xl sm:p-7">
+            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Creative test</p>
+                <p className="mt-1 font-semibold text-white">Summer launch · Round 01</p>
+              </div>
+              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">In review</span>
+            </div>
+            <div className="space-y-4">
+              {[
+                { label: 'A', hook: 'Meet your new everyday essential', metric: 'Clear product benefit', width: 'w-[82%]', winner: true },
+                { label: 'B', hook: 'The upgrade your routine has been waiting for', metric: 'Curiosity-led opening', width: 'w-[61%]', winner: false },
+                { label: 'C', hook: 'A little more comfort, every day', metric: 'Lifestyle-led message', width: 'w-[45%]', winner: false },
+              ].map((variant) => (
+                <article key={variant.label} className={`rounded-2xl border p-4 ${variant.winner ? 'border-emerald-400/40 bg-emerald-400/[0.06]' : 'border-white/10 bg-slate-950/70'}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${variant.winner ? 'bg-emerald-400 text-slate-950' : 'bg-slate-800 text-slate-300'}`}>
+                        {variant.label}
+                      </span>
+                      <div>
+                        <h3 className="text-sm font-semibold leading-5 text-white">{variant.hook}</h3>
+                        <p className="mt-1 text-xs text-slate-400">{variant.metric}</p>
+                      </div>
+                    </div>
+                    {variant.winner && <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />}
+                  </div>
+                  <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-slate-800">
+                    <div className={`h-full rounded-full ${variant.winner ? 'bg-emerald-400' : 'bg-slate-600'} ${variant.width}`} />
+                  </div>
+                </article>
+              ))}
+            </div>
+            <p className="mt-5 text-xs leading-5 text-slate-500">
+              Preview concepts side by side, then use real campaign performance to inform your decisions.
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Bento Grid Features */}
       <section className="py-24 bg-[#05080f] relative border-y border-slate-800/50">
@@ -199,6 +275,154 @@ export default function AIAdsPage() {
       </section>
 
       {/* CTA Section */}
+
+      <FeatureExpansionSections feature="ai-ads" />
+      <section className="border-y border-white/10 bg-[#0b1220] py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] text-emerald-300 sm:text-sm">
+              A more considered workflow
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl md:text-5xl">
+              Build, compare, and refine your next ad.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-slate-300">
+              Give every creative a clear purpose, then use what you learn to make the next campaign more relevant.
+            </p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              {
+                icon: Target,
+                number: '01',
+                title: 'Start with the audience',
+                description: 'Define who you want to reach and what you want them to understand about your offer.',
+              },
+              {
+                icon: Layers,
+                number: '02',
+                title: 'Explore creative angles',
+                description: 'Create variations in hooks, messages, and layouts without losing sight of the campaign goal.',
+              },
+              {
+                icon: TrendingUp,
+                number: '03',
+                title: 'Learn from each test',
+                description: 'Compare the results, keep the ideas that connect, and use those signals to guide your next iteration.',
+              },
+            ].map(({ icon: Icon, number, title, description }) => (
+              <article key={number} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 shadow-sm sm:p-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span className="text-sm font-bold tracking-widest text-slate-500">{number}</span>
+                </div>
+                <h3 className="text-xl font-bold text-white">{title}</h3>
+                <p className="mt-3 leading-7 text-slate-300">{description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-white/10 bg-[#0b1220] py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] text-emerald-300 sm:text-sm">
+              Choose your campaign objective
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Every ad starts with a reason to show up.
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl leading-7 text-slate-300">
+              Keep the creative grounded in what you want people to do, whether you are introducing an offer or bringing interested shoppers back.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-3">
+            {[
+              { icon: Zap, title: 'Build awareness', description: 'Introduce your brand or a new product with a message people can quickly understand.', tag: 'Reach new audiences' },
+              { icon: MousePointerClick, title: 'Drive consideration', description: 'Give interested customers a clear reason to learn more about what you offer.', tag: 'Earn meaningful clicks' },
+              { icon: BarChart3, title: 'Encourage action', description: 'Make the offer and next step easy to spot when customers are ready to decide.', tag: 'Support conversions' },
+            ].map(({ icon: Icon, title, description, tag }) => (
+              <article key={title} className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition-colors hover:border-emerald-400/30 sm:p-8">
+                <span className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-300">
+                  <Icon className="h-6 w-6" />
+                </span>
+                <h3 className="text-xl font-bold text-white">{title}</h3>
+                <p className="mt-3 min-h-[72px] leading-6 text-slate-300">{description}</p>
+                <span className="mt-5 inline-flex rounded-full bg-emerald-400/10 px-3 py-1.5 text-xs font-semibold text-emerald-200">{tag}</span>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#080d17] py-20 text-white sm:py-24">
+        <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <div>
+            <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] text-emerald-300 sm:text-sm">
+              Creative that fits the placement
+            </span>
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              One campaign idea. Ready for every screen.
+            </h2>
+            <p className="mt-5 max-w-xl leading-7 text-slate-300">
+              Keep your offer recognizable as you adapt the format, message, and visual hierarchy for each place your audience sees it.
+            </p>
+            <ul className="mt-7 space-y-3">
+              {[
+                'Choose a format that suits the placement',
+                'Keep the offer and call to action clear',
+                'Review each version before it goes live',
+              ].map((item) => (
+                <li key={item} className="flex items-center gap-3 text-sm font-medium text-slate-200 sm:text-base">
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-400" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl sm:p-8">
+            <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Campaign preview</p>
+                <p className="mt-1 font-semibold text-white">Spring product launch</p>
+              </div>
+              <span className="rounded-full bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">
+                3 placements
+              </span>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              {[
+                { name: 'Social feed', format: '4:5 portrait', size: 'aspect-[4/5]' },
+                { name: 'Story', format: '9:16 vertical', size: 'aspect-[9/16]' },
+                { name: 'Display', format: 'Wide banner', size: 'aspect-[4/3]' },
+              ].map((placement, index) => (
+                <div key={placement.name} className="rounded-2xl border border-white/10 bg-slate-950 p-3">
+                  <div
+                    className={`${placement.size} relative flex items-end overflow-hidden rounded-xl bg-gradient-to-br ${
+                      index === 1 ? 'from-emerald-200 via-teal-100 to-cyan-100' : 'from-slate-200 via-emerald-100 to-teal-200'
+                    } p-3`}
+                  >
+                    <div className="absolute -right-5 -top-5 h-20 w-20 rounded-full border-[10px] border-white/40" />
+                    <div className="relative w-full rounded-lg bg-white/90 p-2.5 shadow-sm backdrop-blur">
+                      <span className="block text-[8px] font-bold uppercase tracking-wider text-emerald-800">New collection</span>
+                      <span className="mt-1 block text-[10px] font-bold leading-tight text-slate-900">Made for your everyday</span>
+                    </div>
+                  </div>
+                  <p className="mt-3 text-xs font-semibold text-white">{placement.name}</p>
+                  <p className="mt-1 text-[11px] text-slate-400">{placement.format}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="py-24 bg-[#0A0F1C] relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-8 border border-emerald-500/20">

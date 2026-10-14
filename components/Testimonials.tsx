@@ -153,7 +153,7 @@ export function Testimonials() {
           <span className="text-orange-600 font-semibold text-xs sm:text-sm tracking-wider uppercase inline-block">
             Testimonials
           </span>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight mt-2 leading-[1.2]">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight mt-2 leading-[1.2]">
             What Our Customers are Saying
           </h2>
         </div>

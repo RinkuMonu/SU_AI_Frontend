@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Shirt, Sparkles, MapPin, Users, Camera, Palette, ArrowRight, Upload, SlidersHorizontal, CheckCircle2 } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function FashionAIPage() {
   return (
@@ -212,6 +214,8 @@ export default function FashionAIPage() {
       </section>
 
       {/* Aesthetic CTA */}
+      <FeatureShowcaseSection feature="fashion-ai" />
+      <FeatureExpansionSections feature="fashion-ai" />
       <section className="py-24 bg-[#FDFBF7] relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-slate-900 rounded-[40px] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl border border-slate-800">

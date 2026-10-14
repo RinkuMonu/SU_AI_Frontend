@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { MessageCircle, Heart, Send, Sparkles, Clock, TrendingUp, Users, Smartphone, ShieldCheck, Zap } from 'lucide-react';
 
 export default function InstagramDMPage() {
@@ -208,6 +210,8 @@ export default function InstagramDMPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="instagram-dm" />
+      <FeatureExpansionSections feature="instagram-dm" />
       <section className="py-24 bg-white text-center">
          <div className="max-w-3xl mx-auto px-4">
            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Ready to put your Instagram on autopilot?</h2>
