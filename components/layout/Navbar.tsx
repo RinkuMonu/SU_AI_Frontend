@@ -17,7 +17,8 @@ import {
   Sparkles, 
   Phone, 
   Mail,
-  ShieldCheck
+  ShieldCheck,
+  Headphones
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 
@@ -271,6 +272,20 @@ export function Navbar() {
                     <div className="flex flex-col text-left">
                       <span className="text-sm font-medium text-white">Subscription & Plan</span>
                       <span className="text-[11px] text-text-muted">View credits & billing</span>
+                    </div>
+                  </Link>
+
+                  <Link
+                    href="/support"
+                    onClick={() => setShowProfileMenu(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-surface-secondary transition-colors group"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-muted group-hover:text-emerald-400 group-hover:bg-emerald-400/15 transition-colors border border-border/50">
+                      <Headphones className="w-4 h-4" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-medium text-white">Live Support</span>
+                      <span className="text-[11px] text-text-muted">Chat with support team</span>
                     </div>
                   </Link>
                 </div>

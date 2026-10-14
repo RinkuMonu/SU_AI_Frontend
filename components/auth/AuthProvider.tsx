@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         '/brand',
         '/products',
         '/settings',
+        '/support',
         '/onboarding',
         '/content',
         '/content-library',

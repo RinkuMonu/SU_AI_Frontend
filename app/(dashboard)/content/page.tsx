@@ -6,7 +6,7 @@ import { ContentGenerator } from '@/components/content/ContentGenerator';
 import { ContentPreview } from '@/components/content/ContentPreview';
 import { contentService } from '@/services/content.service';
 import { GenerateContentRequest, GeneratedContent } from '@/types/content';
-import { Sparkles, History, Loader2 } from 'lucide-react';
+import { Sparkles, History, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -42,28 +42,40 @@ function ContentStudioContent() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500 pb-12">
+      {/* Top Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-brand-purple" />
+        <div className="flex items-center gap-3.5">
+          <div className="h-11 w-11 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white shadow-lg shadow-brand-purple/25 shrink-0">
+            <Sparkles className="h-6 w-6 animate-pulse" />
+          </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">AI Content Studio</h1>
-            <p className="text-text-muted mt-1">Create engaging marketing content with AI.</p>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              AI Content Studio
+            </h1>
+            <p className="text-sm text-text-muted mt-0.5">
+              Create engaging marketing content with AI.
+            </p>
           </div>
         </div>
-        <Button variant="outline" asChild>
-          <Link href="/content-library">
-            <History className="h-4 w-4 mr-2" />
-            Content Library
-          </Link>
-        </Button>
+
+        <div className="flex items-center gap-2.5">
+          <Button 
+            variant="outline" 
+            asChild
+            className="border-border bg-surface hover:bg-surface-elevated text-slate-200 hover:text-white rounded-xl shadow-sm text-xs font-semibold h-10 px-4"
+          >
+            <Link href="/content-library">
+              <History className="h-4 w-4 mr-2 text-brand-pink" />
+              Content Library
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 items-start">
-        <div className={
-          (generatedContent ? 'xl:col-span-5' : 'xl:col-span-8 xl:col-start-3') + 
-          ' transition-all duration-500 w-full'
-        }>
+      {/* Main Grid: Form & Result Preview */}
+      <div className={generatedContent ? "grid grid-cols-1 xl:grid-cols-12 gap-8 items-start" : "max-w-4xl mx-auto w-full"}>
+        <div className={generatedContent ? "xl:col-span-5 w-full" : "w-full"}>
           <ContentGenerator 
             initialType={initialType} 
             initialProductId={productIdParam || ''} 
@@ -76,7 +88,21 @@ function ContentStudioContent() {
           <div className="xl:col-span-7 animate-in fade-in slide-in-from-right-8 duration-500">
             <ContentPreview 
               content={generatedContent} 
-              onRegenerate={() => {}} 
+              onRegenerate={() => {
+                if (generatedContent) {
+                  handleGenerate({
+                    type: generatedContent.type,
+                    platform: generatedContent.platform,
+                    language: generatedContent.language,
+                    tone: generatedContent.tone,
+                    productId: generatedContent.productId,
+                    targetAudience: generatedContent.targetAudience,
+                    topic: generatedContent.topic,
+                    callToAction: generatedContent.callToAction,
+                    additionalInstructions: generatedContent.additionalInstructions,
+                  });
+                }
+              }} 
               onSave={handleSave} 
             />
           </div>
