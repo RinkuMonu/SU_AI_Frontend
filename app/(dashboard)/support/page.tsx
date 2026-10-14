@@ -409,77 +409,83 @@ export default function SupportPage() {
       {/* ========================================================================= */}
       {/* 1. TOP HEADER & STREAMLINED 3-TAB NAVIGATOR                              */}
       {/* ========================================================================= */}
-      <div className="rounded-3xl border border-border bg-surface p-6 shadow-2xl relative overflow-hidden">
+      <div className="rounded-3xl border border-border bg-surface p-6 shadow-2xl relative overflow-hidden space-y-5">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-pink/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="h-13 w-13 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white shadow-xl shadow-brand-purple/25 shrink-0">
-              <Headphones className="h-6 w-6" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2.5">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  Support Center
-                </h1>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Support Team Online
-                </span>
-              </div>
-              <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-                Direct live chat with support specialists, query submission, and complete conversation history.
-              </p>
-            </div>
+        {/* Top Header Information */}
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="h-13 w-13 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white shadow-xl shadow-brand-purple/25 shrink-0">
+            <Headphones className="h-6 w-6" />
           </div>
-
-          {/* Quick Tab Switcher */}
-          <div className="flex items-center gap-1.5 p-1 bg-surface-elevated/80 rounded-2xl border border-border/70 self-start md:self-auto overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setActiveTab("chatroom")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === "chatroom"
-                  ? "bg-brand-gradient text-white shadow-md shadow-brand-purple/20"
-                  : "text-text-muted hover:text-white hover:bg-surface-secondary"
-              }`}
-            >
-              <MessageSquare className="w-4 h-4" />
-              <span>Live Chatroom</span>
-              {activeConversation?.status === "Active" && (
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("contact")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === "contact"
-                  ? "bg-brand-gradient text-white shadow-md shadow-brand-purple/20"
-                  : "text-text-muted hover:text-white hover:bg-surface-secondary"
-              }`}
-            >
-              <FileText className="w-4 h-4" />
-              <span>Contact Support</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab("conversations")}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer ${
-                activeTab === "conversations"
-                  ? "bg-brand-gradient text-white shadow-md shadow-brand-purple/20"
-                  : "text-text-muted hover:text-white hover:bg-surface-secondary"
-              }`}
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>My Conversations</span>
-              <span className="text-[11px] px-1.5 py-0.2 rounded-full bg-white/15 text-white font-medium">
-                {conversations.length}
+          <div>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Support Center
+              </h1>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Support Team Online
               </span>
-            </button>
+            </div>
+            <p className="text-xs sm:text-sm text-text-muted mt-1 max-w-2xl">
+              Direct live chat with support specialists, query submission, and complete conversation history.
+            </p>
           </div>
+        </div>
+
+        {/* Subtle Divider */}
+        <div className="h-px bg-border/50 relative z-10" />
+
+        {/* Quick Tab Switcher - Shifted Cleanly Below */}
+        <div className="flex flex-wrap items-center gap-2.5 relative z-10">
+          <button
+            type="button"
+            onClick={() => setActiveTab("chatroom")}
+            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activeTab === "chatroom"
+                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
+            }`}
+          >
+            <MessageSquare className="w-4 h-4" />
+            <span>Live Chatroom</span>
+            {activeConversation?.status === "Active" && (
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("contact")}
+            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activeTab === "contact"
+                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Contact Support</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("conversations")}
+            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+              activeTab === "conversations"
+                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
+            }`}
+          >
+            <RotateCcw className="w-4 h-4" />
+            <span>My Conversations</span>
+            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
+              activeTab === "conversations"
+                ? "bg-white/20 text-white"
+                : "bg-white/10 text-text-muted"
+            }`}>
+              {conversations.length}
+            </span>
+          </button>
         </div>
       </div>
 
