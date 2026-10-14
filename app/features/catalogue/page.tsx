@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, RefreshCw, Wand2, Package, Tag, QrCode, Sparkles, Smartphone, Globe, CreditCard } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function CataloguePage() {
   return (
@@ -142,6 +144,8 @@ export default function CataloguePage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="catalogue" />
+      <FeatureExpansionSections feature="catalogue" />
       <section className="py-24 bg-slate-900 text-center text-white">
          <div className="max-w-4xl mx-auto px-4">
            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Organize your products today.</h2>

@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { Star, ShieldAlert, HeartHandshake, TrendingUp, Sparkles, MessageSquareReply, ThumbsUp, MapPin } from 'lucide-react';
 
 export default function ReviewManagerPage() {
@@ -176,6 +178,8 @@ export default function ReviewManagerPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="review-manager" />
+      <FeatureExpansionSections feature="review-manager" />
       <section className="py-24 bg-slate-900 text-center">
          <div className="max-w-4xl mx-auto px-4">
            <HeartHandshake className="w-16 h-16 text-amber-500 mx-auto mb-6" />

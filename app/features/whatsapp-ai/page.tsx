@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { MessageSquare, ShoppingBag, Languages, Receipt, ArrowRight, Bot, BarChart, CheckCircle2 } from 'lucide-react';
 
 export default function WhatsAppAIPage() {
@@ -179,6 +181,8 @@ export default function WhatsAppAIPage() {
       </section>
 
       {/* CTA Section */}
+      <FeatureShowcaseSection feature="whatsapp-ai" />
+      <FeatureExpansionSections feature="whatsapp-ai" />
       <section className="py-24 bg-[#008069] text-center text-white">
          <div className="max-w-4xl mx-auto px-4">
             <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Upgrade to WhatsApp Business AI.</h2>

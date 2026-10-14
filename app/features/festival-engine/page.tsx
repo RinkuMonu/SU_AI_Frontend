@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { PartyPopper, Calendar, ImageIcon, Bell, Flame, ChevronRight, Share2, Palette } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function FestivalEnginePage() {
   return (
@@ -130,6 +132,8 @@ export default function FestivalEnginePage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="festival-engine" />
+      <FeatureExpansionSections feature="festival-engine" />
       <section className="py-24 bg-[#FFFDF7]">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold text-slate-900 mb-8 tracking-tight">Don't miss the next big sale opportunity.</h2>

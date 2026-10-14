@@ -1,6 +1,8 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 import { Calendar as CalendarIcon, Clock, CheckCircle2, LayoutGrid, CalendarDays, Bell, ListTodo, Plus, MoreHorizontal } from 'lucide-react';
 
 export default function SocialCalendarPage() {
@@ -133,6 +135,8 @@ export default function SocialCalendarPage() {
       </section>
 
       {/* Aesthetic CTA */}
+      <FeatureShowcaseSection feature="social-calendar" />
+      <FeatureExpansionSections feature="social-calendar" />
       <section className="py-24 bg-white relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-extrabold text-slate-900 mb-6 tracking-tight">

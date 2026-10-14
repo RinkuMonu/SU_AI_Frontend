@@ -2,6 +2,8 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { BarChart2, PieChart, Activity, TrendingUp, Search, MousePointerClick, ChevronRight, Zap, Target, LayoutDashboard } from 'lucide-react';
+import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
+import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
 
 export default function AnalyticsPage() {
   return (
@@ -172,6 +174,8 @@ export default function AnalyticsPage() {
       </section>
 
       {/* CTA */}
+      <FeatureShowcaseSection feature="analytics" />
+      <FeatureExpansionSections feature="analytics" />
       <section className="py-24 bg-cyan-600 text-center text-white">
          <div className="max-w-4xl mx-auto px-4">
            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">Stop guessing. Know your numbers.</h2>

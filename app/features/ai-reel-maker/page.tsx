@@ -520,7 +520,7 @@ export default function ReelMakerPage() {
             <span className="text-pink-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Formats That Go Viral
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
               Curated for Instagram & YouTube Algorithms
             </h2>
             <p className="text-slate-500 text-base max-w-2xl mx-auto mt-3 font-normal">
@@ -750,7 +750,7 @@ export default function ReelMakerPage() {
             <span className="text-pink-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Reel Creation FAQs
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
               Frequently Asked Questions
             </h2>
           </div>
