@@ -44,6 +44,10 @@ export default function ContentLibraryPage() {
   const [fbRegToken, setFbRegToken] = useState("");
   const [isRegisteringFb, setIsRegisteringFb] = useState(false);
 
+  // WhatsApp State
+  const [isPublishingWa, setIsPublishingWa] = useState(false);
+  const [waTargetPhone, setWaTargetPhone] = useState("");
+
   useEffect(() => {
     fetchContents();
     const storedIg = InstagramService.getStoredCredentials();
@@ -209,6 +213,29 @@ export default function ContentLibraryPage() {
     }
   };
 
+  // WhatsApp Publishing Flow
+  const handlePublishWa = async () => {
+    if (!selectedContent) return;
+    setIsPublishingWa(true);
+    try {
+      await socialService.publishToWhatsApp(selectedContent._id, waTargetPhone);
+      await markAsPublished();
+      alert("Successfully published to WhatsApp!");
+    } catch (error: any) {
+      // Fallback: open WhatsApp Web / App directly
+      const cleanPhone = waTargetPhone.replace(/[^\d]/g, "");
+      let text = (selectedContent.caption || "").trim();
+      const img = selectedContent.imageUrl || selectedContent.image_url || selectedContent.media_url;
+      if (img) text += `\n\n${img}`;
+      const url = cleanPhone
+        ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(url, "_blank");
+    } finally {
+      setIsPublishingWa(false);
+    }
+  };
+
   const filteredContents = contents.filter(c => {
     if (filter === 'All') return true;
     
@@ -288,7 +315,7 @@ export default function ContentLibraryPage() {
                   onSave={handleSave} 
                 />
                 
-                <div className="grid md:grid-cols-3 gap-4 mt-4">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
 
 
                   {/* Instagram Publish Section */}
@@ -389,6 +416,29 @@ export default function ContentLibraryPage() {
                         </div>
                       </div>
                     )}
+                  </div>
+                  {/* WhatsApp Publish Section */}
+                  <div className="p-4 border-t md:border-t-0 md:border-l border-border bg-surface-secondary">
+                    <h3 className="font-semibold text-white mb-2 flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#25D366]" /> WhatsApp
+                    </h3>
+                    <p className="text-xs text-text-muted mb-2">Send or share via WhatsApp.</p>
+                    <div className="space-y-2 mb-3">
+                      <Input
+                        placeholder="Target phone (+91...)"
+                        value={waTargetPhone}
+                        onChange={(e) => setWaTargetPhone(e.target.value)}
+                        className="h-7 text-xs bg-surface-elevated"
+                      />
+                    </div>
+                    <Button 
+                      onClick={handlePublishWa} 
+                      disabled={isPublishingWa} 
+                      className="w-full bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold h-8 text-xs"
+                    >
+                      {isPublishingWa ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3 mr-1" />}
+                      Publish to WhatsApp
+                    </Button>
                   </div>
                 </div>
                 
