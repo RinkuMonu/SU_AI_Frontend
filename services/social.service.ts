@@ -15,5 +15,10 @@ export const socialService = {
   async publishToLinkedin(contentId: string): Promise<any> {
     const res = await api.post(`/api/v1/social/publish-linkedin/${contentId}`);
     return res.data;
+  },
+
+  async publishImageToLinkedin(payload: { image_url?: string; caption?: string; content_id?: string }): Promise<any> {
+    const res = await api.post('/api/v1/linkedin/publish-image', payload);
+    return res.data;
   }
 };

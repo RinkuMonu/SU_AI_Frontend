@@ -238,5 +238,71 @@ export const authService = {
       throw new Error(error.message || 'An error occurred during Instagram login');
     }
   },
+
+  linkedinLogin: async ({
+    access_token,
+    code,
+    redirect_uri,
+    accountType = 'business',
+    mode = 'login',
+  }: {
+    access_token?: string;
+    code?: string;
+    redirect_uri?: string;
+    accountType?: string;
+    mode?: 'login' | 'signup';
+  }): Promise<{ token: string; user: User }> => {
+    try {
+      const endpoint = mode === 'signup' ? '/api/v1/auth/linkedin/signup' : '/api/v1/auth/linkedin/login';
+      const response = await api.post(endpoint, {
+        access_token: access_token || undefined,
+        code: code || undefined,
+        redirect_uri: redirect_uri || undefined,
+        accountType: accountType || 'business',
+        mode: mode || 'login',
+      });
+      const raw = response.data;
+      const data = raw?.data || raw;
+      const user = data?.user || raw?.user || {};
+      const token =
+        data?.accessToken ||
+        data?.access_token ||
+        data?.token ||
+        raw?.accessToken ||
+        raw?.access_token ||
+        raw?.token ||
+        '';
+
+      const normalizedUser: User = {
+        ...user,
+        id: user.id || user._id || '',
+        name: user.name || user.fullName || (user.email ? user.email.split('@')[0] : 'LinkedIn User'),
+        fullName: user.fullName || user.name || (user.email ? user.email.split('@')[0] : 'LinkedIn User'),
+        firstName: user.firstName || (user.name ? user.name.split(' ')[0] : 'LinkedIn'),
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role || 'user',
+        accountType: user.accountType || accountType || 'business',
+        email_verified: user.email_verified ?? user.emailVerified ?? true,
+        onboardingCompleted: Boolean(user.onboardingCompleted || user.onboarding_completed),
+        onboarding_step: user.onboarding_step ?? 1,
+        linkedin_author_id: user.linkedin_author_id || data?.linkedin_author_id || raw?.linkedin_author_id || user.linkedinId || '',
+        linkedin_access_token: user.linkedin_access_token || data?.linkedin_access_token || raw?.linkedin_access_token || '',
+        linkedin_connected: user.linkedin_connected ?? data?.linkedin_connected ?? raw?.linkedin_connected ?? true,
+      };
+
+      return {
+        token,
+        user: normalizedUser,
+      };
+    } catch (error: any) {
+      if (error.response?.data?.detail) {
+        const detail = error.response.data.detail;
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      }
+      throw new Error(error.message || 'An error occurred during LinkedIn login');
+    }
+  },
 };
+
 

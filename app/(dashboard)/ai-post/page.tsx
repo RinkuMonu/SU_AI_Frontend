@@ -227,22 +227,30 @@ export default function AIPostPage() {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
+  const [isPublishingLinkedin, setIsPublishingLinkedin] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
   const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
-  const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook') => {
+  const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook' | 'linkedin') => {
     if (platformTarget === 'instagram') setIsPublishingInstagram(true);
-    else setIsPublishingFacebook(true);
+    else if (platformTarget === 'facebook') setIsPublishingFacebook(true);
+    else setIsPublishingLinkedin(true);
 
     setPublishSuccessMessage(null);
     setPublishErrorMessage(null);
 
-    const targetName = platformTarget === 'instagram' ? 'Instagram' : 'Facebook';
+    const targetName = platformTarget === 'instagram' 
+      ? 'Instagram' 
+      : platformTarget === 'facebook' 
+      ? 'Facebook' 
+      : 'LinkedIn';
 
     try {
       const endpoint = platformTarget === 'instagram' 
         ? "/api/v1/instagram/publish-image" 
-        : "/api/v1/facebook/publish-image";
+        : platformTarget === 'facebook'
+        ? "/api/v1/facebook/publish-image"
+        : "/api/v1/linkedin/publish-image";
 
       const effectiveImageUrl = generatedPost?.image_url || generatedPost?.media_url;
 
@@ -259,7 +267,8 @@ export default function AIPostPage() {
       setPublishErrorMessage(errMsg);
     } finally {
       if (platformTarget === 'instagram') setIsPublishingInstagram(false);
-      else setIsPublishingFacebook(false);
+      else if (platformTarget === 'facebook') setIsPublishingFacebook(false);
+      else setIsPublishingLinkedin(false);
       setShowPublishModal(false);
     }
   };
@@ -573,7 +582,7 @@ export default function AIPostPage() {
             <div className="space-y-3">
               <button
                 onClick={() => handlePublishPlatform('instagram')}
-                disabled={isPublishingInstagram || isPublishingFacebook}
+                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingLinkedin}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50"
               >
                 {isPublishingInstagram ? (
@@ -590,7 +599,7 @@ export default function AIPostPage() {
 
               <button
                 onClick={() => handlePublishPlatform('facebook')}
-                disabled={isPublishingFacebook || isPublishingInstagram}
+                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedin}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-lg disabled:opacity-50"
               >
                 {isPublishingFacebook ? (
@@ -601,6 +610,23 @@ export default function AIPostPage() {
                       <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                     </svg>
                     Publish to Facebook
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => handlePublishPlatform('linkedin')}
+                disabled={isPublishingLinkedin || isPublishingInstagram || isPublishingFacebook}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#004182] text-white font-bold transition-all shadow-lg shadow-blue-900/20 disabled:opacity-50"
+              >
+                {isPublishingLinkedin ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Publishing to LinkedIn...</>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    </svg>
+                    Publish to LinkedIn
                   </>
                 )}
               </button>

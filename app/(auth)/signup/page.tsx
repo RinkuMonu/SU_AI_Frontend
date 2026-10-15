@@ -529,6 +529,46 @@ export default function SignupPage() {
         return;
       }
     }
+    if (provider === "LinkedIn") {
+      setSocialLoading("LinkedIn");
+      setSocialNotice("Connecting with LinkedIn... Initializing secure registration.");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("linkedin_auth_mode", "signup");
+      }
+      try {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const redirectUri = `${origin}/login/user`;
+        const res = await api.get(`/api/v1/auth/linkedin/connect?redirect_uri=${encodeURIComponent(redirectUri)}&mode=signup`);
+        const authUrl = res.data?.authorization_url || res.data?.url;
+        if (authUrl) {
+          window.location.href = authUrl;
+          return;
+        }
+        const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
+        const scope = "openid profile email w_member_social";
+        const state = "signup_linkedin_" + Math.random().toString(36).substring(7);
+        const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
+        window.location.href = directUrl;
+        return;
+      } catch (err: any) {
+        console.error("LinkedIn register error:", err);
+        try {
+          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+          const redirectUri = `${origin}/login/user`;
+          const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
+          const scope = "openid profile email w_member_social";
+          const state = "signup_linkedin_" + Math.random().toString(36).substring(7);
+          const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
+          window.location.href = directUrl;
+          return;
+        } catch (fallbackErr: any) {
+          setError("Failed to initialize LinkedIn Registration: " + (err.response?.data?.detail || err.message));
+          setSocialLoading(null);
+          setSocialNotice(null);
+          return;
+        }
+      }
+    }
   };
 
   const handleOpenChoiceModal = (e: React.MouseEvent) => {
