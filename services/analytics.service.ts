@@ -1,54 +1,87 @@
 import api from "@/lib/api";
 import { AnalyticsApiResponse, AnalyticsData } from "@/types/analytics";
 
-// Helper to generate dynamic mock data based on the range for demo purposes
+// Helper to generate dynamic mock data based on the range for demo or fallback purposes
 const generateDynamicMockData = (range: number): AnalyticsData => {
-  const multiplier = range === 7 ? 1 : range === 30 ? 4 : 12;
+  const multiplier = range === 7 ? 1 : range === 30 ? 3.5 : 9.5;
   
-  // Generate some realistic-looking activity data across the date range
+  // Generate realistic-looking activity data across the date range
   const activity = [];
   const today = new Date();
   for (let i = range - 1; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
+    const p = Math.floor(Math.random() * 4 * (range === 7 ? 1.2 : 0.8)) + 1;
+    const r = Math.floor(Math.random() * 3 * (range === 7 ? 1.2 : 0.8)) + 1;
     activity.push({
       date: d.toISOString().split('T')[0],
-      posts: Math.floor(Math.random() * 3 * (multiplier * 0.5)),
-      reels: Math.floor(Math.random() * 2 * (multiplier * 0.5)),
-      ai_generations: Math.floor(Math.random() * 10 * (multiplier * 0.5)) + 1,
+      posts: p,
+      reels: r,
+      ai_generations: p + r + Math.floor(Math.random() * 3),
     });
   }
 
+  const posts = Math.floor(14 * multiplier);
+  const reels = Math.floor(12 * multiplier);
+  const images = Math.floor(6 * multiplier);
+  const photoshoots = Math.max(1, Math.floor(2 * multiplier));
+  const captions = Math.floor(10 * multiplier);
+  const totalGenerations = posts + reels + images + photoshoots + captions;
+  const creditsUsed = reels * 5 + images * 2 + posts * 1 + photoshoots * 4 + captions * 1;
+  const products = Math.max(4, Math.floor(4 * multiplier * 0.7));
+  const calendars = Math.max(1, Math.floor(multiplier * 0.7));
+
+  const score = range === 7 ? 78 : range === 30 ? 88 : 96;
+
   return {
+    range: `${range}d`,
+    period: {
+      start: new Date(Date.now() - range * 86400000).toISOString(),
+      end: new Date().toISOString(),
+    },
     content: { 
-      posts: Math.floor(12 * multiplier * 0.8), 
-      reels: Math.floor(5 * multiplier * 0.8),
-      photoshoots: Math.floor(3 * multiplier * 0.8),
-      images: Math.floor(24 * multiplier * 0.8),
-      captions: Math.floor(45 * multiplier * 0.8),
+      posts, 
+      reels,
+      photoshoots,
+      images,
+      captions,
     },
     ai_usage: { 
-      total_generations: Math.floor(45 * multiplier * 0.8),
-      credits_consumed: Math.floor(120 * multiplier * 0.8),
-      computations: Math.floor(85 * multiplier * 0.8),
+      total_generations: totalGenerations,
+      post_generations: posts,
+      image_generations: images,
+      photoshoot_generations: photoshoots,
+      reel_generations: reels,
+      credits_used: creditsUsed,
+    },
+    business: {
+      products,
+      calendars,
     },
     marketing_score: { 
-      score: Math.min(100, 45 + (range === 7 ? 10 : range === 30 ? 25 : 40) + Math.floor(Math.random() * 10)),
+      score,
       breakdown: {
-        content_activity: 20,
-        ai_usage: 25,
-        product_catalogue: 15,
-        reel_activity: 10,
+        content_activity: range === 7 ? 22 : 25,
+        ai_usage: range === 7 ? 24 : 25,
+        reel_activity: range === 7 ? 14 : 15,
+        product_catalogue: range === 7 ? 10 : range === 30 ? 14 : 18,
+        calendar_usage: range === 7 ? 8 : range === 30 ? 10 : 14,
       },
-      formula: "Dynamic demo score",
+      formula: "content_activity(25) + ai_usage(25) + reel_activity(15) + product_catalogue(20) + calendar_usage(15) = 100",
     },
     activity: activity,
+    external: {
+      reach: 1200 * multiplier,
+      engagement: 340 * multiplier,
+      leads: 18 * multiplier,
+      whatsapp_enquiries: 24 * multiplier,
+      status: "connected",
+    },
     recommendation: {
       text: "Great work! You're actively using the platform. Keep up the momentum.",
       type: "general"
     },
-    products_count: Math.floor(15 * multiplier * 0.8),
-  } as unknown as AnalyticsData;
+  };
 };
 
 export const analyticsService = {

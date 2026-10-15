@@ -11,7 +11,11 @@ import {
   Eye, 
   EyeOff, 
   Sparkles,
-  Bot
+  Bot,
+  Zap,
+  Camera,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import Image from "next/image";
 import { authService } from "@/services/auth.service";
@@ -27,12 +31,81 @@ const loginSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
+const SHOWCASE_SLIDES = [
+  {
+    id: "ai-marketing",
+    image: "/images/ai-marketing-workspace.png",
+    alt: "DhandaGrow AI Marketing Engine",
+    badge: "AI Creative Intelligence",
+    badgeIcon: "bot",
+    title: "DhandaGrow AI Marketing Engine",
+    description: "Autonomous AI generating campaigns, ads, reels & creative content",
+    gradient: "from-[#f0449b] to-[#fc9a5d]",
+    glow1: "bg-purple-600/30",
+    glow2: "bg-pink-600/20",
+    objectFit: "object-contain",
+  },
+  {
+    id: "reel-studio",
+    image: "/images/ai-reel-maker-hero.jpg",
+    alt: "AI Viral Reel Studio",
+    badge: "Viral Reels Studio",
+    badgeIcon: "sparkles",
+    title: "AI Script & Viral Hook Engine",
+    description: "0-3s thumb-stopping hooks, multi-scene audio directions & instant video rendering",
+    gradient: "from-[#a855f7] to-[#ec4899]",
+    glow1: "bg-indigo-600/30",
+    glow2: "bg-purple-600/20",
+    objectFit: "object-cover",
+  },
+  {
+    id: "postmaker-ads",
+    image: "/images/ai-postmaker-hero.jpg",
+    alt: "AI Postmaker & Multi-Platform Publisher",
+    badge: "Multi-Platform Publisher",
+    badgeIcon: "zap",
+    title: "1-Click Social Ads & Posters",
+    description: "Create scroll-stopping Instagram, Facebook & WhatsApp posters in seconds",
+    gradient: "from-[#38bdf8] to-[#818cf8]",
+    glow1: "bg-cyan-600/25",
+    glow2: "bg-blue-600/30",
+    objectFit: "object-cover",
+  },
+  {
+    id: "product-photoshoot",
+    image: "/images/ai-photoshoot-hero.jpg",
+    alt: "AI Virtual Studio Photoshoot",
+    badge: "Virtual Studio Photoshoot",
+    badgeIcon: "camera",
+    title: "Commercial-Grade Product Shots",
+    description: "Transform raw phone clicks into 8K luxury catalog studio photography",
+    gradient: "from-[#f59e0b] to-[#f43f5e]",
+    glow1: "bg-amber-600/25",
+    glow2: "bg-rose-600/25",
+    objectFit: "object-cover",
+  },
+];
+
 export default function LoginPage() {
   const [error, setError] = useState("");
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Dynamic Showcase Slides Auto-Rotation (2.8s)
+  const [slideIndex, setSlideIndex] = useState(0);
+  const [isShowcasePaused, setIsShowcasePaused] = useState(false);
+
+  useEffect(() => {
+    if (isShowcasePaused) return;
+    const timer = setInterval(() => {
+      setSlideIndex((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
+    }, 2800);
+    return () => clearInterval(timer);
+  }, [isShowcasePaused]);
+
+  const currentSlide = SHOWCASE_SLIDES[slideIndex];
 
   const { login } = useAuth();
   const router = useRouter();
@@ -780,38 +853,101 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Column: Clean, High-End AI Workspace Showcase matching Claude layout */}
+        {/* Right Column: Clean, High-End Dynamic AI Showcase (2.8s Auto-Rotation) */}
         <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 justify-center items-center">
-          <div className="relative w-full max-w-xl h-[620px] rounded-3xl overflow-hidden border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] bg-[#121318] group">
-            {/* AI Humanoid Creative Workspace Image */}
-            <img
-              src="/images/ai-marketing-workspace.jpg"
-              alt="DhandaGrow AI Creative Intelligence"
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-103"
-            />
+          <div 
+            onMouseEnter={() => setIsShowcasePaused(true)}
+            onMouseLeave={() => setIsShowcasePaused(false)}
+            className="relative w-full max-w-xl h-[620px] rounded-3xl overflow-hidden border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] bg-gradient-to-b from-[#141523] via-[#0d0e17] to-[#090a0f] flex items-center justify-center group select-none"
+          >
+            {/* Dynamic Ambient Background Glows */}
+            <div className={`absolute top-1/4 left-1/4 w-80 h-80 ${currentSlide.glow1} rounded-full blur-3xl pointer-events-none transition-all duration-1000`} />
+            <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 ${currentSlide.glow2} rounded-full blur-3xl pointer-events-none transition-all duration-1000`} />
 
-            {/* Subtle aesthetic gradient overlay at the bottom */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10 pointer-events-none" />
+            {/* Slide Images with Silky Smooth Crossfade */}
+            {SHOWCASE_SLIDES.map((slide, idx) => {
+              const isActive = idx === slideIndex;
+              return (
+                <div
+                  key={slide.id}
+                  className={`absolute inset-0 p-6 flex items-center justify-center transition-all duration-700 ease-in-out ${
+                    isActive 
+                      ? "opacity-100 scale-100 z-10 pointer-events-auto" 
+                      : "opacity-0 scale-105 z-0 pointer-events-none"
+                  }`}
+                >
+                  <img
+                    src={slide.image}
+                    alt={slide.alt}
+                    className={`w-full h-full ${slide.objectFit} rounded-2xl drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)]`}
+                  />
+                </div>
+              );
+            })}
 
-            {/* Floating Top Badge */}
-            <div className="absolute top-5 right-5 px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center gap-2 shadow-lg">
-              <Bot className="w-3.5 h-3.5 text-[#fc9a5d]" />
-              <span className="text-xs text-white/90 font-medium tracking-wide">
-                AI Creative Intelligence
-              </span>
+            {/* Aesthetic Vignette & Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/30 pointer-events-none z-10" />
+
+            {/* Top Navigation & Status Bar */}
+            <div className="absolute top-5 left-5 right-5 z-20 flex items-center justify-between pointer-events-auto">
+              {/* Story / Carousel Progress Bars */}
+              <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
+                {SHOWCASE_SLIDES.map((s, idx) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSlideIndex(idx)}
+                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      idx === slideIndex 
+                        ? "w-7 bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]" 
+                        : "w-2 bg-white/30 hover:bg-white/60"
+                    }`}
+                    title={`Slide ${idx + 1}: ${s.title}`}
+                  />
+                ))}
+              </div>
+
+              {/* Dynamic Floating Badge */}
+              <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center gap-2 shadow-lg transition-all duration-500">
+                {currentSlide.badgeIcon === "bot" && <Bot className="w-3.5 h-3.5 text-[#fc9a5d]" />}
+                {currentSlide.badgeIcon === "sparkles" && <Sparkles className="w-3.5 h-3.5 text-[#ec4899]" />}
+                {currentSlide.badgeIcon === "zap" && <Zap className="w-3.5 h-3.5 text-[#38bdf8]" />}
+                {currentSlide.badgeIcon === "camera" && <Camera className="w-3.5 h-3.5 text-[#f59e0b]" />}
+                <span className="text-xs text-white/90 font-medium tracking-wide">
+                  {currentSlide.badge}
+                </span>
+              </div>
             </div>
 
-            {/* Bottom Floating Info Card */}
-            <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#f0449b] to-[#fc9a5d] font-bold">
-                  DhandaGrow AI Marketing Engine
+            {/* Prev / Next Quick Arrow Buttons (visible on hover) */}
+            <button
+              type="button"
+              onClick={() => setSlideIndex((prev) => (prev - 1 + SHOWCASE_SLIDES.length) % SHOWCASE_SLIDES.length)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/15 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg"
+              title="Previous slide"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => setSlideIndex((prev) => (prev + 1) % SHOWCASE_SLIDES.length)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/15 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg"
+              title="Next slide"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+
+            {/* Bottom Floating Info Card with Slide Details */}
+            <div className="absolute bottom-6 left-6 right-6 z-20 p-4 rounded-2xl bg-black/65 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between transition-all duration-500">
+              <div className="flex-1 pr-3">
+                <p className={`text-xs uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r ${currentSlide.gradient} font-extrabold transition-all duration-500`}>
+                  {currentSlide.title}
                 </p>
-                <p className="text-sm text-neutral-200 font-medium mt-0.5">
-                  Autonomous AI generating campaigns, ads, reels &amp; creative content
+                <p className="text-sm text-neutral-200 font-medium mt-0.5 line-clamp-1 transition-all duration-500">
+                  {currentSlide.description}
                 </p>
               </div>
-              <div className="h-9 w-9 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-white ml-3">
+              <div className="h-9 w-9 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-white">
                 <Sparkles className="w-4 h-4 text-[#fc9a5d]" />
               </div>
             </div>

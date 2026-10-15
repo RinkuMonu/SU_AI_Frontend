@@ -622,57 +622,14 @@ export default function AIPostPage() {
 
                 {/* Actions */}
                 <div className="pt-6 border-t border-border grid grid-cols-3 gap-3">
-                  <button onClick={savePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors">
+                  <button onClick={savePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors cursor-pointer">
                     <Save className="w-5 h-5" /> Save
                   </button>
-                  <button onClick={schedulePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors">
+                  <button onClick={schedulePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors cursor-pointer">
                     <Calendar className="w-5 h-5" /> Schedule
                   </button>
-                  <button onClick={() => setShowPublishModal(true)} className="flex items-center justify-center gap-2 py-3 bg-brand-gradient hover:opacity-90 rounded-xl text-white font-medium transition-opacity shadow-lg shadow-purple-500/20">
+                  <button onClick={() => setShowPublishModal(true)} className="flex items-center justify-center gap-2 py-3 bg-brand-gradient hover:opacity-90 rounded-xl text-white font-medium transition-opacity shadow-lg shadow-purple-500/20 cursor-pointer">
                     <Send className="w-5 h-5" /> Publish
-                  </button>
-                </div>
-
-                {/* Instant Social Publishing - All in 1 Single Line */}
-                <div className="pt-3 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  <button
-                    onClick={() => handlePublishPlatform('instagram')}
-                    disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
-                    className="flex items-center justify-center gap-1.5 py-3 px-2.5 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 text-white font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer disabled:opacity-50"
-                    title="Publish to Instagram"
-                  >
-                    {isPublishingInstagram ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <InstagramIcon className="w-4 h-4 shrink-0" />}
-                    <span className="truncate">{isPublishingInstagram ? 'Publishing...' : 'Instagram'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handlePublishPlatform('facebook')}
-                    disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
-                    className="flex items-center justify-center gap-1.5 py-3 px-2.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer disabled:opacity-50"
-                    title="Publish to Facebook"
-                  >
-                    {isPublishingFacebook ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <FacebookIcon className="w-4 h-4 shrink-0" />}
-                    <span className="truncate">{isPublishingFacebook ? 'Publishing...' : 'Facebook'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handlePublishPlatform('whatsapp')}
-                    disabled={isPublishingWhatsApp || isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
-                    className="flex items-center justify-center gap-1.5 py-3 px-2.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer disabled:opacity-50"
-                    title="Share to WhatsApp"
-                  >
-                    {isPublishingWhatsApp ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <WhatsAppIcon className="w-4 h-4 shrink-0" />}
-                    <span className="truncate">{isPublishingWhatsApp ? 'Opening...' : 'WhatsApp'}</span>
-                  </button>
-
-                  <button
-                    onClick={() => handlePublishPlatform('linkedin')}
-                    disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp}
-                    className="flex items-center justify-center gap-1.5 py-3 px-2.5 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold transition-all shadow-md text-xs sm:text-sm cursor-pointer disabled:opacity-50"
-                    title="Publish to LinkedIn"
-                  >
-                    {isPublishingLinkedIn ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <LinkedinIcon className="w-4 h-4 shrink-0" />}
-                    <span className="truncate">{isPublishingLinkedIn ? 'Opening...' : 'LinkedIn'}</span>
                   </button>
                 </div>
               </div>
@@ -702,8 +659,8 @@ export default function AIPostPage() {
             <div className="space-y-3">
               <button
                 onClick={() => handlePublishPlatform('instagram')}
-                disabled={isPublishingInstagram || isPublishingFacebook}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50"
+                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingInstagram ? (
                   <><Loader2 className="w-5 h-5 animate-spin" /> Publishing to Instagram...</>

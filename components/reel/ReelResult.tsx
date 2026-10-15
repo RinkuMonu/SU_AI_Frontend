@@ -115,6 +115,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
   const scenes = result.script?.scenes || [];
 
   // Publishing State
+  const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
@@ -279,6 +280,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
       window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
       setIsPublishingWhatsApp(false);
+      setShowPublishModal(false);
       setPublishSuccessMessage("Opened WhatsApp with reel ready to share!");
       setTimeout(() => setPublishSuccessMessage(null), 5000);
       return;
@@ -296,6 +298,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
       const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`;
       window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
       setIsPublishingLinkedIn(false);
+      setShowPublishModal(false);
       setPublishSuccessMessage("Opened LinkedIn with reel ready to publish!");
       setTimeout(() => setPublishSuccessMessage(null), 5000);
       return;
@@ -310,6 +313,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
     if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
     else setIsPublishingInstagram(false);
     
+    setShowPublishModal(false);
     setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
     setTimeout(() => setPublishSuccessMessage(null), 5000);
   };
@@ -921,19 +925,28 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${hasRealVideo ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
                 {hasRealVideo && (
                   <a
                     href={videoUrl}
                     download={`${(productName || "reel").replace(/[^a-zA-Z0-9]/g, "_")}.mp4`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-3.5 font-bold text-white hover:opacity-95 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-purple-500/20 text-sm"
+                    className="flex justify-center items-center gap-2 rounded-xl bg-[#0a142c] hover:bg-[#111e40] border border-border px-4 py-3.5 font-bold text-white transition-all hover:scale-[1.01] active:scale-[0.99] shadow-sm text-sm"
                   >
-                    <Download className="w-4 h-4 shrink-0" />
-                    <span>Download Reel HD</span>
+                    <Download className="w-4 h-4 shrink-0 text-cyan-400" />
+                    <span>Download HD</span>
                   </a>
                 )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowPublishModal(true)}
+                  className="flex justify-center items-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 px-4 py-3.5 font-bold text-white hover:opacity-95 transition-all hover:scale-[1.01] active:scale-[0.99] shadow-lg shadow-purple-500/25 cursor-pointer text-sm"
+                >
+                  <Send className="w-4 h-4 shrink-0" />
+                  <span>Publish Reel</span>
+                </button>
 
                 <button
                   type="button"
@@ -941,54 +954,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                   className="flex justify-center items-center gap-2 rounded-xl bg-surface border border-border px-4 py-3.5 font-bold text-white hover:bg-surface-elevated transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer text-sm"
                 >
                   <Sparkles className="w-4 h-4 text-brand-purple shrink-0" />
-                  <span>Generate Another Reel</span>
-                </button>
-              </div>
-
-              {/* Instant Social Publishing - All in 1 Single Line */}
-              <div className="grid grid-cols-4 gap-2 pt-1">
-                <button 
-                  type="button"
-                  onClick={() => handlePublish('instagram')}
-                  disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-2 py-3 font-bold text-white shadow-md disabled:opacity-50 cursor-pointer text-xs sm:text-sm"
-                  title="Publish to Instagram"
-                >
-                  {isPublishingInstagram ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <InstagramIcon className="w-4 h-4 shrink-0" />}
-                  <span className="truncate">{isPublishingInstagram ? 'Publishing...' : 'Instagram'}</span>
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={() => handlePublish('facebook')}
-                  disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-2 py-3 font-bold text-white shadow-md disabled:opacity-50 cursor-pointer text-xs sm:text-sm"
-                  title="Publish to Facebook"
-                >
-                  {isPublishingFacebook ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <FacebookIcon className="w-4 h-4 shrink-0" />}
-                  <span className="truncate">{isPublishingFacebook ? 'Publishing...' : 'Facebook'}</span>
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={() => handlePublish('whatsapp')}
-                  disabled={isPublishingWhatsApp || isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] transition-colors px-2 py-3 font-bold text-slate-950 shadow-md disabled:opacity-50 cursor-pointer text-xs sm:text-sm"
-                  title="Share to WhatsApp"
-                >
-                  {isPublishingWhatsApp ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <WhatsAppIcon className="w-4 h-4 shrink-0" />}
-                  <span className="truncate">{isPublishingWhatsApp ? 'Opening...' : 'WhatsApp'}</span>
-                </button>
-
-                <button 
-                  type="button"
-                  onClick={() => handlePublish('linkedin')}
-                  disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp}
-                  className="flex items-center justify-center gap-1.5 rounded-xl bg-[#0A66C2] hover:bg-[#095196] transition-colors px-2 py-3 font-bold text-white shadow-md disabled:opacity-50 cursor-pointer text-xs sm:text-sm"
-                  title="Publish to LinkedIn"
-                >
-                  {isPublishingLinkedIn ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <LinkedinIcon className="w-4 h-4 shrink-0" />}
-                  <span className="truncate">{isPublishingLinkedIn ? 'Opening...' : 'LinkedIn'}</span>
+                  <span>Generate Another</span>
                 </button>
               </div>
             </div>
@@ -1161,6 +1127,93 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
             >
               <X className="w-4 h-4" />
             </button>
+          </div>
+        </div>
+      )}
+      {/* Publish Platform Selection Modal */}
+      {showPublishModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#0b1630] border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-6 relative">
+            <div className="flex justify-between items-center border-b border-border/50 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Send className="w-5 h-5 text-brand-purple" /> Select Platform to Publish Reel
+              </h3>
+              <button 
+                type="button"
+                onClick={() => setShowPublishModal(false)}
+                className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-sm text-text-muted">Choose which platform you want to publish this reel to:</p>
+
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => handlePublish('instagram')}
+                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
+              >
+                {isPublishingInstagram ? (
+                  <><Loader2 className="w-5 h-5 animate-spin shrink-0" /> Publishing to Instagram...</>
+                ) : (
+                  <>
+                    <InstagramIcon className="w-5 h-5 shrink-0" />
+                    Publish to Instagram
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePublish('facebook')}
+                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
+              >
+                {isPublishingFacebook ? (
+                  <><Loader2 className="w-5 h-5 animate-spin shrink-0" /> Publishing to Facebook...</>
+                ) : (
+                  <>
+                    <FacebookIcon className="w-5 h-5 shrink-0" />
+                    Publish to Facebook
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePublish('whatsapp')}
+                disabled={isPublishingWhatsApp || isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
+              >
+                {isPublishingWhatsApp ? (
+                  <><Loader2 className="w-5 h-5 animate-spin shrink-0" /> Opening WhatsApp...</>
+                ) : (
+                  <>
+                    <WhatsAppIcon className="w-5 h-5 shrink-0" />
+                    Share to WhatsApp
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePublish('linkedin')}
+                disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp}
+                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
+              >
+                {isPublishingLinkedIn ? (
+                  <><Loader2 className="w-5 h-5 animate-spin shrink-0" /> Opening LinkedIn...</>
+                ) : (
+                  <>
+                    <LinkedinIcon className="w-5 h-5 shrink-0" />
+                    Publish to LinkedIn
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -22,9 +22,11 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { userService } from "@/services/user.service";
+import { useSidebar } from "@/components/layout/SidebarContext";
 
 export function Navbar() {
   const { user, logout, updateUser } = useAuth();
+  const { toggleSidebar } = useSidebar();
   const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -146,13 +148,18 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-surface px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      <button type="button" className="-m-2.5 p-2.5 text-text-muted hover:text-white lg:hidden">
+      <button 
+        type="button" 
+        onClick={toggleSidebar}
+        className="-m-2.5 p-2.5 text-text-muted hover:text-white md:hidden cursor-pointer rounded-lg hover:bg-white/5 transition-colors"
+        title="Open Sidebar"
+      >
         <span className="sr-only">Open sidebar</span>
         <Menu className="h-6 w-6" aria-hidden="true" />
       </button>
 
       {/* Separator */}
-      <div className="h-6 w-px bg-border lg:hidden" aria-hidden="true" />
+      <div className="h-6 w-px bg-border md:hidden" aria-hidden="true" />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1"></div>
