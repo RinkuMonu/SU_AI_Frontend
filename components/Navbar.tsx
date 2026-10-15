@@ -16,6 +16,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 
 export function Navbar() {
   const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -30,12 +31,15 @@ export function Navbar() {
   );
 
   useEffect(() => {
+    setMounted(true);
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const webHref = mounted && user ? '/dashboard' : '/login/user';
 
   const textColorClass = isLightPage
     ? 'text-slate-700 hover:text-slate-950'
@@ -183,7 +187,7 @@ export function Navbar() {
                 : 'border-white/20 text-white bg-white/5 hover:bg-white/10'
             )}
           >
-            <Link href={user ? "/dashboard" : "/login/user"}>Use on Web</Link>
+            <Link href={webHref}>Use on Web</Link>
           </Button>
           <Button variant="default" size="sm" asChild>
             <Link href="/download">Get the App</Link>
@@ -249,7 +253,7 @@ export function Navbar() {
           
           <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
             <Button variant="outline" className="w-full" asChild>
-              <Link href={user ? "/dashboard" : "/login/user"} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
+              <Link href={webHref} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
             </Button>
             <Button variant="default" className="w-full" asChild>
               <Link href="/download" onClick={() => setIsMobileMenuOpen(false)}>Get the App</Link>
