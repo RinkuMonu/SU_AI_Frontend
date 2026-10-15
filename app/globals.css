@@ -193,3 +193,71 @@ html {
     display: none;
   }
 }
+
+/* ==========================================================================
+   Modern Thin Colored Scrollbars (Custom Brand Gradient & Slim Profile)
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #BE32FF transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(11, 22, 48, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #BE32FF 0%, #F0449B 100%);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d84edb 0%, #fc9a5d 100%);
+  box-shadow: 0 0 8px rgba(190, 50, 255, 0.7);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Specific custom-scrollbar utility */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #BE32FF transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(11, 22, 48, 0.25);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #BE32FF 0%, #F0449B 100%);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d84edb 0%, #fc9a5d 100%);
+  box-shadow: 0 0 10px rgba(190, 50, 255, 0.8);
+}
+
