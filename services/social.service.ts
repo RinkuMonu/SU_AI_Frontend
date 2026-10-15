@@ -15,5 +15,12 @@ export const socialService = {
   async publishToLinkedin(contentId: string): Promise<any> {
     const res = await api.post(`/api/v1/social/publish-linkedin/${contentId}`);
     return res.data;
+  },
+
+  async publishToWhatsApp(contentId: string, targetPhone?: string): Promise<any> {
+    const res = await api.post(`/api/v1/social/publish-whatsapp/${contentId}`, {
+      target_phone: targetPhone || ""
+    });
+    return res.data;
   }
 };

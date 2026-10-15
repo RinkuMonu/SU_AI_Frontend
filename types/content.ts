@@ -21,6 +21,10 @@ export interface GeneratedContent {
   status: 'Draft' | 'Scheduled' | 'Published';
   createdAt: string;
   updatedAt: string;
+  imageUrl?: string;
+  image_url?: string;
+  media_url?: string;
+  [key: string]: any;
 }
 
 export interface GenerateContentRequest {

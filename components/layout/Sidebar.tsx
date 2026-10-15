@@ -43,7 +43,6 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 );
 
 const navigation = [
-  { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "AI Content", href: "/content", icon: Sparkles },
   { 
@@ -67,12 +66,14 @@ const navigation = [
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
   { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
+  { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Campaigns", href: "/campaigns", icon: Megaphone },
   { name: "Influencers", href: "/influencers", icon: Users },
   {
     name: "Social Platforms",
     icon: Globe,
     children: [
+      { name: "WhatsApp", href: "/social-platforms/whatsapp", icon: WhatsAppIcon },
       { name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
       { name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
