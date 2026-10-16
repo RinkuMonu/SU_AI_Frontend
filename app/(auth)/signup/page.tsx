@@ -31,6 +31,7 @@ import { FacebookService } from "@/services/facebook.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { useAuth } from "@/components/auth/AuthProvider";
 import api from "@/lib/api";
+import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 
 const signupSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -56,6 +57,15 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showChoiceModal, setShowChoiceModal] = useState(false);
+  const [authModal, setAuthModal] = useState<{
+    open: boolean;
+    status: AuthModalStatus;
+    provider?: AuthProviderType;
+    title?: string;
+    message?: string;
+    actionText?: string;
+    actionHref?: string;
+  } | null>(null);
 
   // OTP State
   const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -91,6 +101,13 @@ export default function SignupPage() {
     setSocialLoading("Facebook");
     setSocialNotice("Connecting with Facebook... Creating your business profile.");
     setError("");
+    setAuthModal({
+      open: true,
+      status: "analyzing",
+      provider: "Facebook",
+      title: "Creating Facebook Account",
+      message: "Analyzing credentials and creating your secure profile...",
+    });
 
     try {
       let token = opts.token;
@@ -99,7 +116,7 @@ export default function SignupPage() {
       if (!token) {
         const authResult = await authService.facebookLogin({
           access_token: opts.accessToken,
-          accountType: "business",
+          accountType: "user",
           mode: "signup",
         });
         token = authResult.token;
@@ -108,7 +125,7 @@ export default function SignupPage() {
         try {
           userObj = await authService.getCurrentUser();
         } catch (_) {
-          userObj = { onboardingCompleted: false };
+          userObj = { onboardingCompleted: true, accountType: "user", role: "user" };
         }
       }
 
@@ -158,16 +175,11 @@ export default function SignupPage() {
         });
       } catch (_) {}
 
-      // Verify onboarding status using OnboardingService.isCompleted
-      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
-      try {
-        const statusDone = await OnboardingService.isCompleted(token);
-        if (statusDone) isDone = true;
-      } catch (_) {}
-
       const finalUser = {
         ...userObj,
-        onboardingCompleted: isDone,
+        accountType: userObj?.accountType || "user",
+        role: userObj?.role || "user",
+        onboardingCompleted: true,
       };
 
       login(token, finalUser);
@@ -177,15 +189,25 @@ export default function SignupPage() {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      if (!isDone) {
-        router.push("/onboarding");
-      } else {
-        router.push("/dashboard");
-      }
+      setAuthModal({
+        open: true,
+        status: "navigating",
+        provider: "Facebook",
+        title: "Facebook Account Created!",
+        message: "Navigating to your dashboard...",
+      });
+      router.push("/dashboard");
     } catch (err: any) {
       console.error("Facebook signup error:", err);
       const msg = err.response?.data?.detail || err.message || "Failed to register with Facebook.";
       setError(msg);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: "Facebook",
+        title: "Facebook Registration Failed",
+        message: msg,
+      });
       sessionStorage.removeItem("facebook_auth_mode");
       if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -311,7 +333,15 @@ export default function SignupPage() {
 
     if (errorParam) {
       const providerName = isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google");
-      setError(`${providerName} signup failed: ` + decodeURIComponent(errorParam));
+      const decodedErr = decodeURIComponent(errorParam);
+      setError(`${providerName} signup failed: ` + decodedErr);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: (providerName === "Google" ? "Gmail" : providerName) as AuthProviderType,
+        title: `${providerName} Authorization Failed`,
+        message: decodedErr,
+      });
       sessionStorage.removeItem("facebook_auth_mode");
       sessionStorage.removeItem("instagram_auth_mode");
       sessionStorage.removeItem("google_auth_mode");
@@ -465,6 +495,13 @@ export default function SignupPage() {
     setError("");
     if (provider === "Google") {
       setSocialLoading("Google");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Gmail",
+        title: "Connecting with Google",
+        message: "Preparing secure Google OAuth handshake...",
+      });
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
       const redirectUri = `${origin}/login/user`;
       const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
@@ -474,12 +511,28 @@ export default function SignupPage() {
         sessionStorage.setItem("google_auth_mode", "signup");
       }
       const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
-      window.location.href = authUrl;
+      setAuthModal({
+        open: true,
+        status: "navigating",
+        provider: "Gmail",
+        title: "Redirecting to Google",
+        message: "Navigating to Google registration portal. Please wait...",
+      });
+      setTimeout(() => {
+        window.location.href = authUrl;
+      }, 300);
       return;
     }
     if (provider === "Facebook") {
       setSocialLoading("Facebook");
       setSocialNotice("Connecting with Facebook... Initializing secure registration.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Facebook",
+        title: "Connecting with Facebook",
+        message: "Analyzing credentials and initializing registration...",
+      });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("facebook_auth_mode", "signup");
       }
@@ -496,11 +549,28 @@ export default function SignupPage() {
           const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/signup')}&rerequest=true`);
           const authUrl = res.data?.authorization_url || res.data?.url;
           if (authUrl) {
-            window.location.href = authUrl;
+            setAuthModal({
+              open: true,
+              status: "navigating",
+              provider: "Facebook",
+              title: "Redirecting to Facebook",
+              message: "Navigating to Facebook portal. Please wait...",
+            });
+            setTimeout(() => {
+              window.location.href = authUrl;
+            }, 300);
             return;
           }
         } catch (backendErr: any) {
-          setError("Failed to initialize Facebook registration: " + (err.message || backendErr.message));
+          const errMsg = "Failed to initialize Facebook registration: " + (err.message || backendErr.message);
+          setError(errMsg);
+          setAuthModal({
+            open: true,
+            status: "error",
+            provider: "Facebook",
+            title: "Facebook Registration Failed",
+            message: errMsg,
+          });
         }
         setSocialLoading(null);
         setSocialNotice(null);
@@ -510,6 +580,13 @@ export default function SignupPage() {
     if (provider === "Instagram") {
       setSocialLoading("Instagram");
       setSocialNotice("Connecting with Instagram... Initializing secure registration.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Instagram",
+        title: "Connecting with Instagram",
+        message: "Initializing secure Instagram connection...",
+      });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("instagram_auth_mode", "signup");
       }
@@ -518,12 +595,29 @@ export default function SignupPage() {
         const res = await api.get(`/api/instagram/connect?frontend_url=${encodeURIComponent(origin + '/signup')}`);
         const authUrl = res.data?.authorization_url || res.data?.url;
         if (authUrl) {
-          window.location.href = authUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "Instagram",
+            title: "Redirecting to Instagram",
+            message: "Navigating to Instagram authorization portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 300);
           return;
         }
       } catch (err: any) {
         console.error("Instagram register error:", err);
-        setError("Failed to initialize Instagram registration: " + (err.response?.data?.detail || err.message));
+        const errMsg = "Failed to initialize Instagram registration: " + (err.response?.data?.detail || err.message);
+        setError(errMsg);
+        setAuthModal({
+          open: true,
+          status: "error",
+          provider: "Instagram",
+          title: "Instagram Registration Failed",
+          message: errMsg,
+        });
         setSocialLoading(null);
         setSocialNotice(null);
         return;
@@ -532,6 +626,13 @@ export default function SignupPage() {
     if (provider === "LinkedIn") {
       setSocialLoading("LinkedIn");
       setSocialNotice("Connecting with LinkedIn... Initializing secure registration.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "LinkedIn",
+        title: "Connecting with LinkedIn",
+        message: "Analyzing credentials & initializing secure registration handshake...",
+      });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("linkedin_auth_mode", "signup");
       }
@@ -541,14 +642,32 @@ export default function SignupPage() {
         const res = await api.get(`/api/v1/auth/linkedin/connect?redirect_uri=${encodeURIComponent(redirectUri)}&mode=signup`);
         const authUrl = res.data?.authorization_url || res.data?.url;
         if (authUrl) {
-          window.location.href = authUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "LinkedIn",
+            title: "Redirecting to LinkedIn",
+            message: "Navigating to LinkedIn secure registration portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 300);
           return;
         }
         const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
         const scope = "openid profile email w_member_social";
         const state = "signup_linkedin_" + Math.random().toString(36).substring(7);
         const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-        window.location.href = directUrl;
+        setAuthModal({
+          open: true,
+          status: "navigating",
+          provider: "LinkedIn",
+          title: "Redirecting to LinkedIn",
+          message: "Navigating to LinkedIn secure registration portal. Please wait...",
+        });
+        setTimeout(() => {
+          window.location.href = directUrl;
+        }, 300);
         return;
       } catch (err: any) {
         console.error("LinkedIn register error:", err);
@@ -559,10 +678,27 @@ export default function SignupPage() {
           const scope = "openid profile email w_member_social";
           const state = "signup_linkedin_" + Math.random().toString(36).substring(7);
           const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-          window.location.href = directUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "LinkedIn",
+            title: "Redirecting to LinkedIn",
+            message: "Navigating to LinkedIn secure registration portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = directUrl;
+          }, 300);
           return;
         } catch (fallbackErr: any) {
-          setError("Failed to initialize LinkedIn Registration: " + (err.response?.data?.detail || err.message));
+          const errMsg = "Failed to initialize LinkedIn Registration: " + (err.response?.data?.detail || err.message);
+          setError(errMsg);
+          setAuthModal({
+            open: true,
+            status: "error",
+            provider: "LinkedIn",
+            title: "LinkedIn Registration Failed",
+            message: errMsg,
+          });
           setSocialLoading(null);
           setSocialNotice(null);
           return;
@@ -689,14 +825,14 @@ export default function SignupPage() {
               <p className="text-xs font-medium text-neutral-400 mb-3 tracking-wide">
                 Register with:
               </p>
-              {/* 4 Social Buttons: Google/Gmail, Facebook, Instagram, LinkedIn */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {/* 3 Social Buttons: Google/Gmail, Facebook, LinkedIn */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 {/* 1. Google / Gmail */}
                 <button
                   type="button"
                   onClick={() => handleSocialRegister("Google")}
                   disabled={socialLoading !== null}
-                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-white/20 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-white/20 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
                 >
                   {socialLoading === "Google" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-neutral-300" />
@@ -728,7 +864,7 @@ export default function SignupPage() {
                   type="button"
                   onClick={() => handleSocialRegister("Facebook")}
                   disabled={socialLoading !== null}
-                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#1877F2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#1877F2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
                 >
                   {socialLoading === "Facebook" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-[#1877F2]" />
@@ -740,40 +876,12 @@ export default function SignupPage() {
                   <span className="truncate">Facebook</span>
                 </button>
 
-                {/* 3. Instagram */}
-                <button
-                  type="button"
-                  onClick={() => handleSocialRegister("Instagram")}
-                  disabled={socialLoading !== null}
-                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#E1306C]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-                >
-                  {socialLoading === "Instagram" ? (
-                    <Loader2 className="w-4 h-4 animate-spin text-[#E1306C]" />
-                  ) : (
-                    <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none">
-                      <defs>
-                        <linearGradient id="ig-grad-signup-btn" x1="0%" y1="100%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#fdf497" />
-                          <stop offset="5%" stopColor="#fdf497" />
-                          <stop offset="45%" stopColor="#fd5949" />
-                          <stop offset="60%" stopColor="#d6249f" />
-                          <stop offset="90%" stopColor="#285AEB" />
-                        </linearGradient>
-                      </defs>
-                      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-grad-signup-btn)" strokeWidth="2" fill="none" />
-                      <circle cx="12" cy="12" r="4" stroke="url(#ig-grad-signup-btn)" strokeWidth="2" fill="none" />
-                      <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-grad-signup-btn)" />
-                    </svg>
-                  )}
-                  <span className="truncate">Instagram</span>
-                </button>
-
-                {/* 4. LinkedIn */}
+                {/* 3. LinkedIn */}
                 <button
                   type="button"
                   onClick={() => handleSocialRegister("LinkedIn")}
                   disabled={socialLoading !== null}
-                  className="h-11 px-2.5 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#0A66C2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
+                  className="h-11 px-3 rounded-xl border border-white/10 bg-[#1c1d25] hover:bg-[#242631] hover:border-[#0A66C2]/40 text-neutral-200 text-xs sm:text-sm font-medium flex items-center justify-center gap-2.5 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
                 >
                   {socialLoading === "LinkedIn" ? (
                     <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2]" />
@@ -1045,12 +1153,7 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {socialNotice && (
-                <div className="p-3 text-xs text-amber-200 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
-                  <Sparkles className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
-                  <span>{socialNotice}</span>
-                </div>
-              )}
+
 
               {error && (
                 <div className="p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-2">
@@ -1219,6 +1322,24 @@ export default function SignupPage() {
           <Link href="/legal/terms-of-service" target="_blank" className="hover:text-neutral-300 transition-colors">Terms of Service</Link>
         </div>
       </footer>
+
+      {/* Centered Beautiful Status / Analysis / Error / Navigation Modal */}
+      {authModal && (
+        <AuthCenterModal
+          open={authModal.open}
+          onClose={() => {
+            setAuthModal(null);
+            setError("");
+            setSocialLoading(null);
+          }}
+          status={authModal.status}
+          provider={authModal.provider}
+          title={authModal.title}
+          message={authModal.message}
+          actionText={authModal.actionText}
+          actionHref={authModal.actionHref}
+        />
+      )}
     </div>
   );
 }

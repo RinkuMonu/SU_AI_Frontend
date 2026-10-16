@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, CheckCircle2, Share2 } from "lucide-react";
-
+import { CornerDialog } from "@/components/ui/CornerDialog";
 
 import { useCreateAd } from "@/hooks/useCreateAd";
 
@@ -29,6 +29,7 @@ export default function CreateAdPage() {
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [isPublishingLinkedin, setIsPublishingLinkedin] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
     if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
@@ -50,10 +51,9 @@ export default function CreateAdPage() {
       if (!res.ok) { const errData = await res.json().catch(() => ({})); throw new Error(errData.detail || 'Publish failed'); }
       
       setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
     } catch (err: any) {
       console.error(err);
-      alert('Failed to publish: ' + (err.message || 'Please ensure you have linked your account.'));
+      setPublishErrorMessage(err.message || 'Failed to publish. Please ensure you have linked your account.');
     } finally {
       if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
       else if (publishPlatform === 'instagram') setIsPublishingInstagram(false);
@@ -225,6 +225,23 @@ export default function CreateAdPage() {
 
       </div>
 
+      {/* Floating Corner Dialog for Errors */}
+      <CornerDialog
+        open={!!publishErrorMessage}
+        onClose={() => setPublishErrorMessage(null)}
+        type="error"
+        title="Publish Failed"
+        message={publishErrorMessage || ""}
+      />
+
+      {/* Floating Corner Dialog for Success */}
+      <CornerDialog
+        open={!!publishSuccessMessage}
+        onClose={() => setPublishSuccessMessage(null)}
+        type="success"
+        title="Published Successfully"
+        message={publishSuccessMessage || ""}
+      />
     </div>
   );
 }

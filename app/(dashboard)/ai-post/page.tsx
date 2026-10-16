@@ -8,6 +8,7 @@ import MultiImageUploader from "@/components/ai/MultiImageUploader";
 import PlatformSelector from "@/components/ai/PlatformSelector";
 import ObjectiveSelector from "@/components/ai/ObjectiveSelector";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
+import { CornerDialog } from "@/components/ui/CornerDialog";
 
 import { generatePost } from "@/services/content.service";
 import { FashionService } from "@/services/fashion.service";
@@ -132,7 +133,7 @@ export default function AIPostPage() {
       if (error?.response?.status === 402 || error?.message?.toLowerCase().includes("credit")) {
         setHasInsufficientCredits(true);
       } else {
-        alert("Unable to generate post. Please try again.");
+        setPublishErrorMessage(error?.response?.data?.detail || error?.message || "Unable to generate post. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -229,9 +230,9 @@ export default function AIPostPage() {
         hashtags: editedHashtags.split(" ").filter(t => t.trim() !== "").map(t => t.replace("#", ""))
       };
       await api.post("/api/v1/content/save", { post: postToSave });
-      alert("Post saved successfully.");
+      setPublishSuccessMessage("Post saved successfully to your library!");
     } catch (e) {
-      alert("Saved to local drafts.");
+      setPublishSuccessMessage("Saved to local drafts.");
     }
   };
 
@@ -247,9 +248,9 @@ export default function AIPostPage() {
         caption: `${editedCaption}\n\n${editedCta}\n\n${editedHashtags}`,
         content_type: "image",
       });
-      alert("Post scheduled successfully for " + scheduledDate.toLocaleString());
-    } catch (e) {
-      alert("Error scheduling post.");
+      setPublishSuccessMessage("Post scheduled successfully for " + scheduledDate.toLocaleString());
+    } catch (e: any) {
+      setPublishErrorMessage(e?.response?.data?.detail || e?.message || "Error scheduling post. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -316,7 +317,10 @@ export default function AIPostPage() {
       setTimeout(() => setPublishSuccessMessage(null), 8000);
     } catch (e: any) {
       console.error(`Error publishing to ${targetName}:`, e);
-      const errMsg = e.response?.data?.detail || e.message || `Failed to publish to ${targetName}. Please check account connection.`;
+      let errMsg = e.response?.data?.detail || e.message || `Failed to publish to ${targetName}. Please check account connection.`;
+      if (typeof errMsg === 'string' && (errMsg.includes('publish_actions') || errMsg.includes('deprecated'))) {
+        errMsg = "Facebook Page publish permission requires a valid Page Access Token. Please visit Social Platforms > Facebook and click 'Login with Facebook' to refresh your Page Token.";
+      }
       setPublishErrorMessage(errMsg);
     } finally {
       if (platformTarget === 'instagram') setIsPublishingInstagram(false);
@@ -595,30 +599,7 @@ export default function AIPostPage() {
                   </div>
                 </div>
 
-                {/* Success Banner */}
-                {publishSuccessMessage && (
-                  <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 rounded-xl flex items-center justify-between gap-2 text-sm font-semibold animate-in fade-in">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-green-400 shrink-0" />
-                      <span>{publishSuccessMessage}</span>
-                    </div>
-                    <button onClick={() => setPublishSuccessMessage(null)} className="text-gray-400 hover:text-white">&times;</button>
-                  </div>
-                )}
 
-                {/* Error Banner */}
-                {publishErrorMessage && (
-                  <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl flex items-start justify-between gap-3 text-sm animate-in fade-in">
-                    <div className="flex items-start gap-2.5">
-                      <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                      <div>
-                        <p className="font-bold text-white">Publish Failed</p>
-                        <p className="text-xs text-red-300 mt-1 leading-relaxed">{publishErrorMessage}</p>
-                      </div>
-                    </div>
-                    <button onClick={() => setPublishErrorMessage(null)} className="text-gray-400 hover:text-white text-lg leading-none">&times;</button>
-                  </div>
-                )}
 
                 {/* Actions */}
                 <div className="pt-6 border-t border-border grid grid-cols-3 gap-3">
@@ -767,6 +748,24 @@ export default function AIPostPage() {
           </div>
         </div>
       )}
+
+      {/* Floating Corner Dialog for Errors */}
+      <CornerDialog
+        open={!!publishErrorMessage}
+        onClose={() => setPublishErrorMessage(null)}
+        type="error"
+        title="Publish Failed"
+        message={publishErrorMessage || ""}
+      />
+
+      {/* Floating Corner Dialog for Success */}
+      <CornerDialog
+        open={!!publishSuccessMessage}
+        onClose={() => setPublishSuccessMessage(null)}
+        type="success"
+        title="Published Successfully"
+        message={publishSuccessMessage || ""}
+      />
     </main>
   );
 }

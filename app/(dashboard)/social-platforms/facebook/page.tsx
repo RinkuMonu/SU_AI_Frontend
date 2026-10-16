@@ -44,6 +44,56 @@ interface FacebookPageItem {
   category?: string;
 }
 
+/**
+ * Format raw Facebook OAuth errors into clean, friendly English messages.
+ * Prevents raw Devanagari/Hindi strings or technical codes from leaking into the UI.
+ */
+function formatFacebookError(rawError: string): string {
+  if (!rawError) return "";
+  let decoded = "";
+  try {
+    decoded = decodeURIComponent(rawError).trim();
+  } catch {
+    decoded = rawError.trim();
+  }
+
+  // Handle single character or boolean strings like ?error=T or ?error=true
+  if (decoded === "T" || decoded.toLowerCase() === "true" || decoded === "1") {
+    return "Facebook connection was interrupted. Please click 'Login with Facebook' below to connect your page.";
+  }
+
+  const hasDevanagari = /[\u0900-\u097F]/.test(decoded);
+  const lower = decoded.toLowerCase();
+
+  if (hasDevanagari) {
+    if (decoded.includes("विकास") || decoded.includes("मोड")) {
+      return "The Facebook App is currently in Development mode. Your Facebook account must be registered as a Tester or Administrator in the Meta App Dashboard.";
+    }
+    if (decoded.includes("अनुमति") || decoded.includes("अस्वीकार")) {
+      return "Facebook permissions were declined or cancelled. Please click 'Login with Facebook' and allow access to your Facebook Page.";
+    }
+    return "Facebook connection could not be completed. Please click 'Login with Facebook' below to try again.";
+  }
+
+  if (lower === "missing_code") {
+    return "Facebook did not return an authorization code. Please click 'Login with Facebook' to try again.";
+  }
+  if (lower === "invalid_state") {
+    return "Facebook login session expired. Please click 'Login with Facebook' to start a fresh connection.";
+  }
+  if (lower === "access_denied" || lower.includes("user_denied") || lower.includes("permissions were declined")) {
+    return "Facebook permissions were declined. Please log in and allow the required page permissions.";
+  }
+  if (lower.includes("redirect_uri_mismatch")) {
+    return "Facebook OAuth redirect URL mismatch. Please verify the callback URL in Meta App settings.";
+  }
+  if (lower.includes("invalid_scope")) {
+    return "Some requested Facebook permissions are restricted. Please use 'Safe Connect (Basic Pages)' below.";
+  }
+
+  return decoded;
+}
+
 export default function FacebookIntegrationPage() {
   const router = useRouter();
   const { login } = useAuth();
@@ -118,7 +168,9 @@ export default function FacebookIntegrationPage() {
       const errorFromUrl = params.get('error') || params.get('error_description');
       
       if (errorFromUrl) {
-        setErrorMessage(decodeURIComponent(errorFromUrl));
+        setErrorMessage(formatFacebookError(errorFromUrl));
+        // Clean URL to prevent stale ?error=... from staying in the address bar
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       if (pageTokenFromUrl || userTokenFromUrl || isConnectedSuccess) {
@@ -148,7 +200,7 @@ export default function FacebookIntegrationPage() {
             try {
               const authResult = await authService.facebookLogin({
                 access_token: finalUserToken,
-                accountType: "business",
+                accountType: "user",
               });
               const sessToken = authResult.token;
               const userObj = authResult.user;
@@ -157,21 +209,13 @@ export default function FacebookIntegrationPage() {
                 api.defaults.headers.common["Authorization"] = `Bearer ${sessToken}`;
                 localStorage.setItem("auth_token", sessToken);
 
-                // Check onboarding status
-                let isDone = Boolean(userObj.onboardingCompleted);
-                try {
-                  const statusDone = await OnboardingService.isCompleted(sessToken);
-                  if (statusDone) isDone = true;
-                } catch (_) {}
-
-                login(sessToken, { ...userObj, onboardingCompleted: isDone });
+                login(sessToken, {
+                  ...userObj,
+                  accountType: userObj?.accountType || "user",
+                  role: userObj?.role || "user",
+                  onboardingCompleted: true,
+                });
                 sessionStorage.removeItem("facebook_auth_mode");
-
-                // Route to onboarding if incomplete
-                if (!isDone) {
-                  router.push("/onboarding");
-                  return;
-                }
               }
             } catch (authErr) {
               console.warn("Facebook auto-login during redirect notice:", authErr);
@@ -343,7 +387,9 @@ export default function FacebookIntegrationPage() {
       if (reRequest) params.append('rerequest', 'true');
       if (customScope) params.append('scopes', customScope);
       if (typeof window !== "undefined") {
-        params.append('frontend_url', window.location.href);
+        // Use clean pathname without query parameters
+        const cleanFrontendUrl = window.location.origin + window.location.pathname;
+        params.append('frontend_url', cleanFrontendUrl);
       }
       const queryStr = params.toString() ? `?${params.toString()}` : '';
       const endpoint = `/api/facebook/connect${queryStr}`;
@@ -692,7 +738,7 @@ export default function FacebookIntegrationPage() {
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full md:w-auto shrink-0">
               <Button
-                onClick={() => handleFacebookLogin(false)}
+                onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
                 disabled={isLoggingIn || isReRequesting}
                 className="px-5 py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:opacity-95 text-white font-semibold rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all text-sm flex items-center justify-center gap-2"
               >
@@ -711,18 +757,18 @@ export default function FacebookIntegrationPage() {
 
               <Button
                 variant="outline"
-                onClick={() => handleFacebookLogin(false, "public_profile")}
+                onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list")}
                 disabled={isLoggingIn || isReRequesting}
                 className="px-4 py-5 border-blue-400/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-                title="Safe connect with public_profile only (guaranteed to avoid any Invalid Scopes error)"
+                title="Safe connect with basic permissions (public_profile, pages_show_list)"
               >
                 <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                Safe Connect (public_profile)
+                Safe Connect (Basic Pages)
               </Button>
 
               <Button
                 variant="outline"
-                onClick={() => handleFacebookLogin(true)}
+                onClick={() => handleFacebookLogin(true, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
                 disabled={isLoggingIn || isReRequesting}
                 className="px-4 py-5 border-gray-600/40 bg-surface-elevated/40 hover:bg-surface-elevated text-gray-300 font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
                 title="Forces Facebook to re-prompt page selection and permissions if you skipped them earlier"

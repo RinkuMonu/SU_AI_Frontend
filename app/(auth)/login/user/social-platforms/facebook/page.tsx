@@ -26,7 +26,13 @@ export default function FacebookCallbackHandlerPage() {
 
         const errorParam = searchParams.get("error") || searchParams.get("error_description") || hashParams.get("error");
         if (errorParam) {
-          throw new Error("Facebook authentication failed: " + decodeURIComponent(errorParam));
+          let errText = decodeURIComponent(errorParam);
+          if (/[\u0900-\u097F]/.test(errText)) {
+            errText = "Facebook permission request was declined or cancelled. Please log in again.";
+          } else if (errText === "T" || errText.toLowerCase() === "true") {
+            errText = "Facebook authentication was cancelled or interrupted.";
+          }
+          throw new Error(errText);
         }
 
         const userAccessToken =
@@ -51,7 +57,7 @@ export default function FacebookCallbackHandlerPage() {
         if (userAccessToken) {
           const authResult = await authService.facebookLogin({
             access_token: userAccessToken,
-            accountType: "business",
+            accountType: "user",
           });
           sessionToken = authResult.token;
           userObj = authResult.user;
@@ -63,7 +69,7 @@ export default function FacebookCallbackHandlerPage() {
           try {
             userObj = await authService.getCurrentUser();
           } catch (_) {
-            userObj = { onboardingCompleted: false };
+            userObj = { onboardingCompleted: true, accountType: "user", role: "user" };
           }
         }
 
@@ -93,26 +99,21 @@ export default function FacebookCallbackHandlerPage() {
           });
         } catch (_) {}
 
-        // Check onboarding completion via /api/v1/onboarding/status
-        setStatusText("Verifying onboarding status...");
-        let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
-        try {
-          const statusDone = await OnboardingService.isCompleted(sessionToken);
-          if (statusDone) isDone = true;
-        } catch (_) {}
-
+        setStatusText("Opening your dashboard...");
         const finalUser = {
           ...userObj,
-          onboardingCompleted: isDone,
+          accountType: userObj?.accountType || "user",
+          role: userObj?.role || "user",
+          onboardingCompleted: true,
         };
 
         login(sessionToken, finalUser);
         sessionStorage.removeItem("facebook_auth_mode");
 
-        // If incomplete onboarding -> route to onboarding!
-        // If completed -> route to dashboard!
-        if (!isDone) {
-          router.replace("/onboarding");
+        const redirectAfter = sessionStorage.getItem("auth_redirect_after");
+        if (redirectAfter) {
+          sessionStorage.removeItem("auth_redirect_after");
+          router.replace(redirectAfter);
         } else {
           const pendingPlan = sessionStorage.getItem("pending_plan");
           const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";

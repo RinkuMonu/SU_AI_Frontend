@@ -35,7 +35,8 @@ export const subscriptionService = {
 
   async upgradePlan(planId: string): Promise<Subscription> {
     try {
-      const response = await api.post("/api/v1/subscription/upgrade", { plan_id: planId });
+      const normalizedPlan = (planId || "FREE").trim().toUpperCase();
+      const response = await api.post("/api/v1/subscription/upgrade", { plan_id: normalizedPlan });
       return response.data.data;
     } catch (e) {
       return this.getMySubscription();

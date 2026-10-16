@@ -12,8 +12,16 @@ export interface PaymentStatusResponse {
 
 export const paymentService = {
   async createPayment(planId: string): Promise<CreatePaymentResponse> {
+    const normalizedPlan = (planId || "").trim().toUpperCase();
+    if (normalizedPlan === "FREE") {
+      return {
+        payment_url: "/subscription",
+        order_id: "FREE_PLAN"
+      };
+    }
+
     try {
-      const response = await api.post("/api/v1/payments/payin/create", { plan_id: planId });
+      const response = await api.post("/api/v1/payments/payin/create", { plan_id: normalizedPlan });
       return response.data;
     } catch (e) {
       console.warn("Using mock payment creation");
