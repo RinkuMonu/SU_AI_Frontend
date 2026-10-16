@@ -151,7 +151,7 @@ export function Testimonials() {
 
   return (
     <section 
-      className="py-14 sm:py-20 bg-[#faf9f6] relative z-10 w-full overflow-hidden border-t border-orange-100/60"
+      className="pt-5 sm:pt-7 pb-4 sm:pb-5 bg-[#faf9f6] relative z-10 w-full overflow-hidden border-t border-orange-100/60"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -173,21 +173,21 @@ export function Testimonials() {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Top Header Row matching the user reference graphics */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-10 gap-5">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-3">
           
           {/* Decorative Horizontal Line with Dot (Left) */}
-          <div className="hidden sm:flex items-center gap-0 w-28 md:w-52">
-            <div className="h-[3px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] w-full rounded-full" />
-            <div className="w-3.5 h-3.5 rounded-full bg-[#7C3AED] shrink-0 -ml-1 shadow-sm" />
+          <div className="hidden sm:flex items-center gap-0 w-16 md:w-28">
+            <div className="h-[2.5px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] w-full rounded-full" />
+            <div className="w-2.5 h-2.5 rounded-full bg-[#7C3AED] shrink-0 -ml-1 shadow-xs" />
           </div>
 
-          {/* Heading on the Right: Exact "WHAT OUR TEAM SAYS?" Graphic Style */}
-          <div className="flex items-start gap-2.5 sm:gap-3.5 ml-auto">
-            <span className="text-4xl sm:text-5xl md:text-6xl font-serif font-black bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none">
+          {/* Heading on the Right: Compact "WHAT OUR TEAM SAYS?" Graphic Style */}
+          <div className="flex items-start gap-1.5 sm:gap-2.5 ml-auto">
+            <span className="text-2xl sm:text-3xl md:text-4xl font-serif font-black bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none">
               &ldquo;
             </span>
             <div className="text-right sm:text-left">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[50px] font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-[1.05]">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-[26px] font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-[1.1]">
                 {activeTab === 'team' ? (
                   <>WHAT OUR<br />TEAM SAYS?</>
                 ) : (
@@ -199,15 +199,15 @@ export function Testimonials() {
         </div>
 
         {/* Tab Switcher: Team (Primary) vs Customer Review (Single clean review) */}
-        <div className="flex items-center justify-center sm:justify-start gap-2.5 mb-7">
+        <div className="flex items-center justify-center sm:justify-start gap-2 mb-3.5 sm:mb-4">
           <button
             onClick={() => {
               setActiveTab('team');
               setCurrentIndex(0);
             }}
-            className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'team'
-                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-pink-500/20 scale-105'
+                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-pink-500/20 scale-102'
                 : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-orange-300 hover:text-slate-900 shadow-xs'
             }`}
           >
@@ -220,9 +220,9 @@ export function Testimonials() {
               setActiveTab('customer');
               setCurrentIndex(0);
             }}
-            className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
               activeTab === 'customer'
-                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-purple-500/20 scale-105'
+                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-purple-500/20 scale-102'
                 : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-purple-300 hover:text-slate-900 shadow-xs'
             }`}
           >
@@ -263,7 +263,7 @@ export function Testimonials() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: direction > 0 ? -40 : 40 }}
                   transition={{ duration: 0.35, ease: 'easeInOut' }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7 items-stretch"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-stretch"
                 >
                   {currentTeamPair.map((member, idx) => (
                     <div
@@ -271,24 +271,24 @@ export function Testimonials() {
                       className="group relative h-full flex"
                     >
                       {/* Outer Frame with Exact Logo Theme Gradient (Orange -> Hot Pink -> Purple) */}
-                      <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[28px] sm:rounded-[36px] p-0 pr-2.5 pb-2.5 sm:pr-3.5 sm:pb-3.5 shadow-xl transition-all duration-300 group-hover:shadow-2xl w-full flex">
+                      <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[22px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl w-full flex">
                         
-                        {/* Main Clean Light Card Body (Medium height, compact) */}
-                        <div className="bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 lg:p-7 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+                        {/* Main Clean Light Card Body (Compact height) */}
+                        <div className="bg-[#FFFFFF] rounded-[19px] sm:rounded-[23px] p-4 sm:p-5 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
                           
                           <div>
                             {/* Top Row: Avatar on Left + Name/Role in Middle + Quote Mark on Right */}
-                            <div className="flex items-start gap-4 sm:gap-5 mb-3.5">
+                            <div className="flex items-start gap-3 sm:gap-4 mb-2.5">
                               
                               {/* Circular Avatar with Glowing Logo Theme Gradient Ring */}
                               <div className="relative shrink-0">
-                                <div className="p-[3.5px] sm:p-[4px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-md group-hover:scale-105 transition-transform duration-300">
-                                  <div className="w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22 rounded-full overflow-hidden bg-slate-100">
+                                <div className="p-[2.5px] sm:p-[3px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-sm group-hover:scale-105 transition-transform duration-300">
+                                  <div className="w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full overflow-hidden bg-slate-100">
                                     <Image
                                       src={member.image}
                                       alt={`${member.name} - ${member.role}`}
-                                      width={100}
-                                      height={100}
+                                      width={80}
+                                      height={80}
                                       className="w-full h-full object-cover object-top"
                                     />
                                   </div>
@@ -296,23 +296,23 @@ export function Testimonials() {
                               </div>
 
                               {/* Name & Role */}
-                              <div className="flex-1 min-w-0 pt-1">
-                                <h3 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] tracking-tight leading-tight truncate">
+                              <div className="flex-1 min-w-0 pt-0.5">
+                                <h3 className="text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight truncate">
                                   {member.name}
                                 </h3>
-                                <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1 truncate">
+                                <p className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 truncate">
                                   {member.role}
                                 </p>
                               </div>
 
                               {/* Large Double Quotation Mark (Right) */}
-                              <div className="text-3xl sm:text-4xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
+                              <div className="text-2xl sm:text-3xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
                                 &rdquo;
                               </div>
                             </div>
 
                             {/* Exact Quotes from User Graphics */}
-                            <div className="space-y-2 text-slate-700 italic text-xs sm:text-[13.5px] lg:text-[14px] leading-relaxed font-normal min-h-[68px] sm:min-h-[72px] flex items-start">
+                            <div className="space-y-1.5 text-slate-700 italic text-xs sm:text-[13px] leading-relaxed font-normal min-h-[46px] sm:min-h-[50px] flex items-start">
                               {member.paragraphs.map((para, pIdx) => (
                                 <p key={pIdx} className="leading-relaxed">
                                   {para}
@@ -322,9 +322,9 @@ export function Testimonials() {
                           </div>
 
                           {/* Footer Accent */}
-                          <div className="flex items-center justify-between pt-3 mt-4 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
+                          <div className="flex items-center justify-between pt-2 mt-2.5 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 font-medium">
                             <span className="flex items-center gap-1 text-[#FF6B00] font-bold">
-                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <CheckCircle2 className="w-3 h-3" />
                               DhandaGrow AI Core Team
                             </span>
                             <span className="text-slate-400">
@@ -342,7 +342,7 @@ export function Testimonials() {
             </div>
 
             {/* Bottom Pagination Dots */}
-            <div className="flex items-center justify-center gap-2 mt-7 sm:mt-9">
+            <div className="flex items-center justify-center gap-2 mt-2 sm:mt-2.5">
               {Array.from({ length: totalTeamSlides }).map((_, dotIdx) => {
                 const isActive = currentIndex === dotIdx;
                 return (
@@ -372,24 +372,24 @@ export function Testimonials() {
             <div className="group relative">
               
               {/* Outer Frame with Exact Logo Theme Gradient */}
-              <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[28px] sm:rounded-[36px] p-0 pr-2.5 pb-2.5 sm:pr-3.5 sm:pb-3.5 shadow-xl transition-all duration-300 group-hover:shadow-2xl">
+              <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[22px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl">
                 
                 {/* Main Clean Card Body */}
-                <div className="bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+                <div className="bg-[#FFFFFF] rounded-[19px] sm:rounded-[23px] p-4 sm:p-5 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
                   
                   <div>
                     {/* Top Row: Logo Icon on Left + Name/Business in Middle + Stars/Quote on Right */}
-                    <div className="flex items-start gap-4 sm:gap-5 mb-4">
+                    <div className="flex items-start gap-3 sm:gap-4 mb-2.5">
                       
                       {/* Circular Avatar with Logo Theme Gradient Ring */}
                       <div className="relative shrink-0">
-                        <div className="p-[3.5px] sm:p-[4px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-md">
-                          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white p-2 flex items-center justify-center">
+                        <div className="p-[2.5px] sm:p-[3px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-xs">
+                          <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden bg-white p-1.5 flex items-center justify-center">
                             <Image
                               src={singleCustomerReview.image}
                               alt={singleCustomerReview.name}
-                              width={70}
-                              height={70}
+                              width={60}
+                              height={60}
                               className="w-full h-full object-contain"
                             />
                           </div>
@@ -397,47 +397,47 @@ export function Testimonials() {
                       </div>
 
                       {/* Name & Business */}
-                      <div className="flex-1 min-w-0 pt-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] tracking-tight leading-tight">
+                      <div className="flex-1 min-w-0 pt-0.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <h3 className="text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight">
                             {singleCustomerReview.name}
                           </h3>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200/70 text-[#E11D48]">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200/70 text-[#E11D48]">
                             Verified Customer
                           </span>
                         </div>
-                        <p className="text-xs sm:text-sm font-bold text-slate-800 mt-1">
+                        <p className="text-[11px] sm:text-xs font-bold text-slate-800 mt-0.5">
                           {singleCustomerReview.role} • {singleCustomerReview.business}
                         </p>
-                        <p className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5">
+                        <p className="text-[10px] sm:text-[11px] font-medium text-slate-500">
                           {singleCustomerReview.city}
                         </p>
                       </div>
 
                       {/* Right: Quotation Mark */}
-                      <div className="text-3xl sm:text-4xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
+                      <div className="text-2xl sm:text-3xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
                         &rdquo;
                       </div>
                     </div>
 
                     {/* 5-Star Rating Row */}
-                    <div className="flex items-center gap-1 mb-3">
+                    <div className="flex items-center gap-1 mb-2">
                       {[...Array(singleCustomerReview.rating)].map((_, starIdx) => (
-                        <Star key={starIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <Star key={starIdx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       ))}
-                      <span className="text-xs font-bold text-amber-600 ml-1.5">5.0 Star Verified Review</span>
+                      <span className="text-[11px] font-bold text-amber-600 ml-1">5.0 Star Verified Review</span>
                     </div>
 
                     {/* Customer Review Quote */}
-                    <p className="text-slate-700 italic text-sm sm:text-[15px] leading-relaxed font-normal">
+                    <p className="text-slate-700 italic text-xs sm:text-[13.5px] leading-relaxed font-normal">
                       {singleCustomerReview.quote}
                     </p>
                   </div>
 
                   {/* Trust Footer */}
-                  <div className="flex items-center justify-between pt-4 mt-5 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                  <div className="flex items-center justify-between pt-2.5 mt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
                     <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       Verified Business Partner
                     </span>
                     <span className="text-slate-400">
