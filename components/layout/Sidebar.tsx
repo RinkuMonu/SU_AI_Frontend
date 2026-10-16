@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones } from "lucide-react";
+import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
 import { CreditIndicator } from "@/components/layout/CreditIndicator";
+import { useSidebar } from "@/components/layout/SidebarContext";
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="#25D366" className={className}>
@@ -89,6 +90,7 @@ const navigation = [
 export function Sidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { sidebarOpen, setSidebarOpen } = useSidebar();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     "Image and Reel Generation": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
@@ -100,115 +102,177 @@ export function Sidebar() {
     setOpenDropdowns(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  return (
-    <div className="hidden lg:flex h-full w-64 flex-col bg-surface border-r border-border">
-      <div className="flex h-16 items-center px-6 border-b border-border min-w-0">
-        <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
-          <Logo size="sm" />
-        </Link>
-      </div>
-      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
-        {navigation.map((item: any) => {
-          if (item.children) {
-            const isOpen = openDropdowns[item.name];
-            const isChildActive = item.children.some((child: any) => pathname.startsWith(child.href));
-            
-            return (
-              <div key={item.name} className="space-y-1">
-                <button
-                  onClick={() => toggleDropdown(item.name)}
-                  className={cn(
-                    "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    isChildActive && !isOpen
-                      ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                      : "text-text-muted hover:bg-surface-elevated hover:text-white"
-                  )}
-                >
-                  <div className="flex items-center flex-1 min-w-0">
-                    <item.icon
-                      className={cn(
-                        "mr-3 h-5 w-5 flex-shrink-0",
-                        isChildActive && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
-                      )}
-                      aria-hidden="true"
-                    />
-                    <span className="truncate">{item.name}</span>
-                  </div>
-                  {isOpen ? (
-                    <ChevronDown className="h-4 w-4 text-text-muted" />
-                  ) : (
-                     <ChevronRight className="h-4 w-4 text-text-muted" />
-                  )}
-                </button>
-                
-                {isOpen && (
-                  <div className="pl-11 pr-3 space-y-1">
-                    {item.children.map((child: any) => {
-                      const isActive = pathname.startsWith(child.href);
-                      return (
-                        <Link
-                          key={child.name}
-                          href={child.href}
-                          className={cn(
-                            "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                            isActive
-                              ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                              : "text-text-muted hover:bg-surface-elevated hover:text-white"
-                          )}
-                        >
-                          {child.icon && (
-                            <child.icon
-                              className={cn(
-                                "mr-3 h-4 w-4 flex-shrink-0",
-                                isActive ? "" : "opacity-80 group-hover:opacity-100"
-                              )}
-                              aria-hidden="true"
-                            />
-                          )}
-                          {child.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          const isActive = pathname.startsWith(item.href as string);
+  const renderNavItems = (onItemClick?: () => void) => (
+    <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+      {navigation.map((item: any) => {
+        if (item.children) {
+          const isOpen = openDropdowns[item.name];
+          const isChildActive = item.children.some((child: any) => pathname === child.href || pathname.startsWith(child.href + "/"));
+          
           return (
-            <Link
-              key={item.name}
-              href={item.href as string}
-              className={cn(
-                "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                isActive
-                  ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                  : "text-text-muted hover:bg-surface-elevated hover:text-white"
-              )}
-            >
-              <item.icon
+            <div key={item.name} className="space-y-1">
+              <button
+                type="button"
+                onClick={() => toggleDropdown(item.name)}
                 className={cn(
-                  "mr-3 h-5 w-5 flex-shrink-0",
-                  isActive ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                  "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer",
+                  isChildActive && !isOpen
+                    ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
+                    : "text-text-muted hover:bg-surface-elevated hover:text-white"
                 )}
-                aria-hidden="true"
-              />
-              {item.name}
-            </Link>
+              >
+                <div className="flex items-center flex-1 min-w-0">
+                  <item.icon
+                    className={cn(
+                      "mr-3 h-5 w-5 flex-shrink-0",
+                      isChildActive && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                    )}
+                    aria-hidden="true"
+                  />
+                  <span className="truncate">{item.name}</span>
+                </div>
+                {isOpen ? (
+                  <ChevronDown className="h-4 w-4 text-text-muted" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-text-muted" />
+                )}
+              </button>
+              
+              {isOpen && (
+                <div className="pl-11 pr-3 space-y-1">
+                  {item.children.map((child: any) => {
+                    const isActive = pathname === child.href || pathname.startsWith(child.href + "/");
+                    return (
+                      <Link
+                        key={child.name}
+                        href={child.href}
+                        onClick={() => onItemClick && onItemClick()}
+                        className={cn(
+                          "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                          isActive
+                            ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
+                            : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                        )}
+                      >
+                        {child.icon && (
+                          <child.icon
+                            className={cn(
+                              "mr-3 h-4 w-4 flex-shrink-0",
+                              isActive ? "" : "opacity-80 group-hover:opacity-100"
+                            )}
+                            aria-hidden="true"
+                          />
+                        )}
+                        {child.name}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
-        })}
-      </nav>
-      <div className="p-4 border-t border-border">
-        <CreditIndicator />
-        <button
-          onClick={logout}
-          className="group flex w-full items-center px-3 py-2 text-sm font-medium rounded-md text-text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors"
-        >
-          <LogOut className="mr-3 h-5 w-5 text-text-muted group-hover:text-red-500" />
-          Logout
-        </button>
+        }
+
+        const isActive = item.href === "/dashboard" 
+          ? pathname === "/dashboard" 
+          : (pathname === item.href || pathname.startsWith(item.href + "/"));
+        return (
+          <Link
+            key={item.name}
+            href={item.href as string}
+            onClick={() => onItemClick && onItemClick()}
+            className={cn(
+              "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              isActive
+                ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
+                : "text-text-muted hover:bg-surface-elevated hover:text-white"
+            )}
+          >
+            <item.icon
+              className={cn(
+                "mr-3 h-5 w-5 flex-shrink-0",
+                isActive ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+              )}
+              aria-hidden="true"
+            />
+            {item.name}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+
+  return (
+    <>
+      {/* Desktop & Laptop Sidebar (md+ screens) */}
+      <div className="hidden md:flex h-full w-64 flex-col bg-surface border-r border-border shrink-0">
+        <div className="flex h-16 items-center px-6 border-b border-border min-w-0">
+          <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
+            <Logo size="sm" />
+          </Link>
+        </div>
+
+        {renderNavItems()}
+
+        <div className="p-4 border-t border-border">
+          <CreditIndicator />
+          <button
+            onClick={logout}
+            className="group flex w-full items-center px-3 py-2 text-sm font-medium rounded-md text-text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer"
+          >
+            <LogOut className="mr-3 h-5 w-5 text-text-muted group-hover:text-red-500" />
+            Logout
+          </button>
+        </div>
       </div>
-    </div>
+
+      {/* Mobile Slide-Over Drawer (< md screens) */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop Blur Overlay */}
+          <div 
+            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity animate-in fade-in" 
+            onClick={() => setSidebarOpen(false)} 
+          />
+
+          {/* Slide-in Drawer */}
+          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface border-r border-border shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+            <div className="flex h-16 items-center justify-between px-6 border-b border-border min-w-0">
+              <Link 
+                href="/dashboard" 
+                onClick={() => setSidebarOpen(false)} 
+                className="flex items-center gap-2 overflow-hidden min-w-0 flex-1"
+              >
+                <Logo size="sm" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title="Close sidebar"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {renderNavItems(() => setSidebarOpen(false))}
+
+            <div className="p-4 border-t border-border">
+              <CreditIndicator />
+              <button
+                onClick={() => {
+                  setSidebarOpen(false);
+                  logout();
+                }}
+                className="group flex w-full items-center px-3 py-2 text-sm font-medium rounded-md text-text-muted hover:bg-red-500/10 hover:text-red-500 transition-colors cursor-pointer"
+              >
+                <LogOut className="mr-3 h-5 w-5 text-text-muted group-hover:text-red-500" />
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

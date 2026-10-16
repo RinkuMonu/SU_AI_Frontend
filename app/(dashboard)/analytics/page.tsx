@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { analyticsService } from "@/services/analytics.service";
-import { groqAnalyticsService, GroqVisualAnalytics } from "@/services/groqAnalytics.service";
+import { geminiAnalyticsService, GeminiVisualAnalytics } from "@/services/geminiAnalytics.service";
 import { AnalyticsData } from "@/types/analytics";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -114,22 +114,22 @@ export default function AnalyticsPage() {
   const [mounted, setMounted] = useState(false);
 
   // Groq AI Visual Analytics
-  const [groqVisual, setGroqVisual] = useState<GroqVisualAnalytics | null>(null);
-  const [groqLoading, setGroqLoading] = useState(false);
+  const [geminiVisual, setGeminiVisual] = useState<GeminiVisualAnalytics | null>(null);
+  const [geminiLoading, setGeminiLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const triggerGroqVisuals = async (analyticsData: AnalyticsData, selectedRange: number) => {
-    setGroqLoading(true);
+  const triggerGeminiVisuals = async (analyticsData: AnalyticsData, selectedRange: number) => {
+    setGeminiLoading(true);
     try {
-      const visualData = await groqAnalyticsService.generateVisualAnalytics(analyticsData, selectedRange);
-      setGroqVisual(visualData);
+      const visualData = await geminiAnalyticsService.generateVisualAnalytics(analyticsData, selectedRange);
+      setGeminiVisual(visualData);
     } catch (err) {
-      console.error("Failed to generate Groq visual analytics", err);
+      console.error("Failed to generate Gemini visual analytics", err);
     } finally {
-      setGroqLoading(false);
+      setGeminiLoading(false);
     }
   };
 
@@ -139,7 +139,7 @@ export default function AnalyticsPage() {
     try {
       const res = await analyticsService.getAnalyticsOverview(r);
       setData(res);
-      triggerGroqVisuals(res, r);
+      triggerGeminiVisuals(res, r);
     } catch (e: any) {
       setError(e?.response?.data?.detail || "Failed to load analytics. Please ensure backend is running.");
     } finally {
@@ -234,7 +234,7 @@ export default function AnalyticsPage() {
                 Marketing Visual Analytics
               </h1>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-brand-gradient text-white shadow-sm">
-                <Bot className="w-3 h-3" /> Groq AI Visual Engine
+                <Sparkles className="w-3 h-3" /> Gemini AI Visual Engine
               </span>
             </div>
             <p className="text-text-muted text-xs sm:text-sm mt-0.5">
@@ -431,18 +431,18 @@ export default function AnalyticsPage() {
           </div>
 
           {/* ========================================================================= */}
-          {/* ⚡ GROQ AI DYNAMIC PREDICTIVE GAUGES & VISUAL FORECAST SUITE ⚡ */}
+          {/* ⚡ GEMINI AI DYNAMIC PREDICTIVE GAUGES & VISUAL FORECAST SUITE ⚡ */}
           {/* ========================================================================= */}
           <div className="grid gap-4 md:grid-cols-12">
-            {/* Groq Score Projection Visual Meter */}
+            {/* Gemini Score Projection Visual Meter */}
             <Card className="md:col-span-4 bg-gradient-to-br from-surface via-[#0c1836] to-surface border-brand-purple/30 p-5 flex flex-col justify-between">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-white flex items-center gap-1.5">
                   <Gauge className="w-4 h-4 text-brand-purple" />
-                  Groq Projected Growth
+                  Gemini Projected Growth
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                  {groqVisual?.forecast.growthFactor || "+24% Surge"}
+                  {geminiVisual?.forecast.growthFactor || "+24% Surge"}
                 </span>
               </div>
 
@@ -451,12 +451,12 @@ export default function AnalyticsPage() {
                   <div
                     className="absolute inset-0 rounded-full border-4 border-transparent border-t-brand-purple border-r-brand-pink transition-all duration-1000"
                     style={{
-                      transform: `rotate(${((groqVisual?.forecast.projectedScore ?? 85) / 100) * 360}deg)`,
+                      transform: `rotate(${((geminiVisual?.forecast.projectedScore ?? 85) / 100) * 360}deg)`,
                     }}
                   />
                   <div className="text-center">
                     <span className="text-3xl font-black text-white">
-                      {groqVisual?.forecast.projectedScore ?? Math.min(100, data.marketing_score.score + 24)}
+                      {geminiVisual?.forecast.projectedScore ?? Math.min(100, data.marketing_score.score + 24)}
                     </span>
                     <span className="block text-[10px] text-text-muted">/ 100 Target</span>
                   </div>
@@ -466,12 +466,12 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
                 <span className="text-text-muted">Efficiency Rating:</span>
                 <span className="font-bold text-emerald-400">
-                  {groqVisual?.forecast.efficiencyRating || "High Velocity"}
+                  {geminiVisual?.forecast.efficiencyRating || "High Velocity"}
                 </span>
               </div>
             </Card>
 
-            {/* Groq 5-Pillar Visual Progress Gauge Breakdown */}
+            {/* Gemini 5-Pillar Visual Progress Gauge Breakdown */}
             <Card className="md:col-span-8 bg-surface border-border p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-white flex items-center gap-1.5">
@@ -482,7 +482,7 @@ export default function AnalyticsPage() {
               </div>
 
               <div className="grid sm:grid-cols-2 gap-3 pt-1">
-                {(groqVisual?.pillars || [
+                {(geminiVisual?.pillars || [
                   { pillar: "Content Output", score: data.marketing_score.breakdown.content_activity, maxScore: 25, status: "Active", color: "#BE32FF" },
                   { pillar: "AI Computation", score: data.marketing_score.breakdown.ai_usage, maxScore: 25, status: "Strong", color: "#10B981" },
                   { pillar: "Reels Volume", score: data.marketing_score.breakdown.reel_activity, maxScore: 15, status: "High", color: "#F0449B" },

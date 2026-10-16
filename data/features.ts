@@ -1,5 +1,5 @@
 import { 
-  Sparkles, Image as ImageIcon, Video, Camera, UserCircle, Shirt, 
+  Sparkles, Image as ImageIcon, Video, Camera, UserCircle, 
   Megaphone, Percent, Bot, Calendar, PartyPopper, Send, 
   MessageCircle, MessageSquare, Star, Briefcase, Globe, 
   BarChart2, Users, ShoppingBag, Brain, Languages, Smartphone
@@ -16,8 +16,7 @@ export const featuresMenu = {
         { name: "AI Post Maker", description: "Create branded social media posts with AI.", icon: ImageIcon, route: "/features/ai-post-maker" },
         { name: "AI Reel Maker", description: "Generate reels from product photos, scripts and ideas.", icon: Video, route: "/features/ai-reel-maker" },
         { name: "AI Photoshoot", description: "Turn simple product photos into professional creatives.", icon: Camera, route: "/features/ai-photoshoot" },
-        { name: "AI Avatar & Actor", description: "Create AI presenter videos in multiple Indian languages.", icon: UserCircle, route: "/features/ai-avatar" },
-        { name: "Fashion AI", description: "Generate fashion models, poses, backgrounds and virtual try-ons.", icon: Shirt, route: "/features/fashion-ai" }
+        { name: "AI Avatar & Actor", description: "Create AI presenter videos in multiple Indian languages.", icon: UserCircle, route: "/features/ai-avatar" }
       ]
     },
     {

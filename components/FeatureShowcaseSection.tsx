@@ -95,15 +95,15 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
     ],
   },
   analytics: {
-    accent: '#0891b2',
-    eyebrow: 'Signals worth paying attention to',
-    title: 'A clearer view of the numbers behind your next move.',
-    description: 'Bring important business signals into focus, from where visitors come from to what customers respond to.',
+    accent: '#06b6d4',
+    eyebrow: 'AI Marketing Signals That Drive Revenue',
+    title: 'Every Reel, WhatsApp lead, and festive campaign in one view.',
+    description: 'Stop guessing what worked. Connect AI generation activity directly with Instagram reach, customer chats, and sales revenue.',
     items: [
-      { category: 'Acquisition', title: 'Where visitors find you', description: 'Understand which channels bring people to your business.' },
-      { category: 'Engagement', title: 'What captures attention', description: 'See which pages and content keep customers exploring.' },
-      { category: 'Audience', title: 'Who you are reaching', description: 'Get a more useful picture of the people interacting with your brand.' },
-      { category: 'Forecast', title: 'What to watch next', description: 'Use emerging patterns to guide your next business decision.' },
+      { category: 'Content Velocity', title: 'Track every AI creation', description: 'Monitor output across reels, posts, photoshoots, and captions in real-time.' },
+      { category: 'WhatsApp Funnel', title: 'Trace leads from chat to order', description: 'See catalogue enquiries, responses, and customer orders directly inside CRM.' },
+      { category: 'Gemini Health Score', title: 'Measure marketing vitality (0-100)', description: 'AI evaluates your posting consistency, catalogue depth, and reel momentum.' },
+      { category: 'Predictive Signals', title: 'Automated peak hour & budget alerts', description: 'Get smart suggestions on best posting times and festive campaign budget shifts.' },
     ],
   },
   'brand-brain': {

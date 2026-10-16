@@ -257,7 +257,7 @@ export default function ReelMakerPage() {
               </div>
               
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full sm:w-auto">
-                <Link href="/create-ad">
+                <Link href="/login/user">
                   <Button 
                     variant="default" 
                     size="lg" 
@@ -496,7 +496,7 @@ export default function ReelMakerPage() {
                   <div className="text-xs text-slate-500 font-medium">
                     Ready to render in full HD?
                   </div>
-                  <Link href="/create-ad">
+                  <Link href="/login/user">
                     <Button size="sm" className="bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full px-5 cursor-pointer shadow-md shadow-pink-500/20">
                       Create Full Reel
                     </Button>
@@ -660,7 +660,7 @@ export default function ReelMakerPage() {
               </div>
 
               <div className="pt-4">
-                <Link href="/create-ad">
+                <Link href="/login/user">
                   <Button className="h-12 px-7 rounded-full bg-gradient-to-r from-pink-600 via-purple-600 to-violet-600 hover:from-pink-700 hover:to-violet-700 text-white font-bold shadow-lg shadow-pink-500/20 cursor-pointer">
                     Generate Your First Video Now
                   </Button>
@@ -800,7 +800,7 @@ export default function ReelMakerPage() {
               Join thousands of business founders and marketers who create studio-quality reels in seconds with DhandaGrow AI.
             </p>
             <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/create-ad">
+              <Link href="/login/user">
                 <Button 
                   size="lg" 
                   className="h-14 px-10 text-base font-bold rounded-full text-purple-900 bg-white hover:bg-slate-50 border-0 shadow-xl cursor-pointer"

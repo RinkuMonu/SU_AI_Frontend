@@ -193,3 +193,155 @@ html {
     display: none;
   }
 }
+
+/* ==========================================================================
+   Modern Thin Colored Scrollbars (Custom Brand Gradient & Slim Profile)
+   ========================================================================== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #BE32FF transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(11, 22, 48, 0.3);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #BE32FF 0%, #F0449B 100%);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d84edb 0%, #fc9a5d 100%);
+  box-shadow: 0 0 8px rgba(190, 50, 255, 0.7);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Specific custom-scrollbar utility */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #BE32FF transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(11, 22, 48, 0.25);
+  border-radius: 9999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #BE32FF 0%, #F0449B 100%);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d84edb 0%, #fc9a5d 100%);
+  box-shadow: 0 0 10px rgba(190, 50, 255, 0.8);
+}
+
+/* Antigravity Micro-Animations */
+@keyframes shimmerSweep {
+  0% { transform: translateX(-150%) skewX(-20deg); }
+  100% { transform: translateX(250%) skewX(-20deg); }
+}
+
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulseGlowOrange {
+  0%, 100% { 
+    box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.35), 0 8px 10px -6px rgba(249, 115, 22, 0.2); 
+  }
+  50% { 
+    box-shadow: 0 20px 35px -5px rgba(249, 115, 22, 0.6), 0 10px 15px -3px rgba(249, 115, 22, 0.35); 
+  }
+}
+
+.animate-shimmer-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shimmer-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmerSweep 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  pointer-events: none;
+}
+
+.animate-float-subtle {
+  animation: floatSubtle 4s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlowOrange 2.8s ease-in-out infinite;
+}
+
+/* AI Camera & Laser Scanning Animations */
+@keyframes laserScanHorizontal {
+  0% { left: -5%; opacity: 0; }
+  15% { opacity: 0.95; }
+  85% { opacity: 0.95; }
+  100% { left: 105%; opacity: 0; }
+}
+
+@keyframes focusPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+
+@keyframes reticleRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes flashEffect {
+  0% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+.animate-laser-scan {
+  animation: laserScanHorizontal 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-focus-pulse {
+  animation: focusPulse 2.5s ease-in-out infinite;
+}
+
+.animate-reticle-spin {
+  animation: reticleRotate 20s linear infinite;
+}
+
+.animate-camera-flash {
+  animation: flashEffect 0.4s ease-out forwards;
+}
+

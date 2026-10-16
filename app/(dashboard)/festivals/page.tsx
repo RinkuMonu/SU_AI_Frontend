@@ -1,10 +1,44 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import FestivalReelPlayer from "@/components/festivals/FestivalReelPlayer";
 import festivalService, {
   FestivalCampaign,
   UpcomingFestival,
   FestivalAsset,
 } from "@/services/festival.service";
+
+
+const FESTIVAL_IMAGE_MAP: Record<string, string> = {
+  "makar sankranti": "/images/festivals/makar_sankranti.png",
+  "republic day": "/images/festivals/republic_day.png",
+  "holi": "/images/festivals/holi.png",
+  "eid ul-fitr": "/images/festivals/eid.png",
+  "eid": "/images/festivals/eid.png",
+  "ram navami": "/images/festivals/navratri.png",
+  "akshaya tritiya": "/images/festivals/dhanteras.png",
+  "independence day": "/images/festivals/republic_day.png",
+  "raksha bandhan": "/images/festivals/rakhi.png",
+  "janmashtami": "/images/festivals/navratri.png",
+  "onam": "/images/festivals/onam.png",
+  "gandhi jayanti": "/images/festivals/gandhi_ji.png",
+  "navratri": "/images/festivals/navratri.png",
+  "dussehra": "/images/festivals/navratri.png",
+  "dhanteras": "/images/festivals/dhanteras.png",
+  "diwali": "/images/festivals/diwali.png",
+  "bhai dooj": "/images/festivals/rakhi.png",
+  "christmas": "/images/festivals/christmas.png",
+  "new year": "/images/festivals/new_year.png",
+};
+
+export function getFestivalImage(name: string): string {
+  const lower = (name || "").toLowerCase().trim();
+  for (const [key, url] of Object.entries(FESTIVAL_IMAGE_MAP)) {
+    if (lower.includes(key)) {
+      return url;
+    }
+  }
+  return "/images/festivals/diwali.png";
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -134,6 +168,7 @@ function CampaignModal({
   onRegenerate: (campaign: FestivalCampaign) => void;
   loading: boolean;
 }) {
+  const [activeSceneIdx, setActiveSceneIdx] = useState(0);
   const reel = campaign.assets?.find(a => a.type === "reel")?.content;
   const post = campaign.assets?.find(a => a.type === "post")?.content;
   const festivalContent = campaign.assets?.find(a => a.type === "content")?.content;
@@ -204,48 +239,98 @@ function CampaignModal({
         
         <div className="custom-scrollbar" style={{ overflowY: "auto", flex: 1, padding: "20px 24px", color: "#ddd", fontSize: 14, whiteSpace: "pre-wrap", lineHeight: 1.6 }}>
           {reel && (
-            <div style={{ marginBottom: 30 }}>
-              <h3 style={{ color: "#fff", fontSize: 18, borderBottom: "1px solid #444", paddingBottom: 8, marginTop: 0 }}>🎬 INSTAGRAM REEL</h3>
-              <div style={{ marginBottom: 16, marginTop: 12, position: "relative", width: "100%", maxWidth: 300, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
-                <style>{`
-                  @keyframes slowPan {
-                    0% { transform: scale(1) translate(0px, 0px); }
-                    50% { transform: scale(1.1) translate(-5px, 5px); }
-                    100% { transform: scale(1) translate(0px, 0px); }
-                  }
-                `}</style>
-                <img src="https://image.pollinations.ai/prompt/?width=1080&height=1920&nologo=true&seed=" alt="Reel Storyboard" style={{ width: "100%", display: "block", animation: "slowPan 15s ease-in-out infinite" }} />
-                <div style={{ position: "absolute", top: 10, right: 10, background: "rgba(0,0,0,0.6)", padding: "4px 8px", borderRadius: 4, fontSize: 10, color: "#fff", fontWeight: "bold" }}>
-                  AI STORYBOARD
+            <div style={{ marginBottom: 32 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #444", paddingBottom: 10, marginBottom: 18 }}>
+                <h3 style={{ color: "#fff", fontSize: 18, margin: 0, display: "flex", alignItems: "center", gap: 8 }}>
+                  🎬 INSTAGRAM REEL • MOTION & AUDIO PREVIEW
+                </h3>
+                <span style={{ fontSize: 12, background: "rgba(236,72,153,0.2)", color: "#EC4899", border: "1px solid rgba(236,72,153,0.4)", padding: "3px 8px", borderRadius: 12, fontWeight: 600 }}>
+                  Live Motion & Audio Synced
+                </span>
+              </div>
+
+              {/* Grid: Reel Video Player (Left) + Storyboard Details (Right) */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(310px, 1fr))", gap: 24, alignItems: "start" }}>
+                {/* Left: Dynamic 9:16 Reel Player with Motion & Audio */}
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <FestivalReelPlayer
+                    festivalName={campaign.festival_name}
+                    festivalEmoji={campaign.festival_emoji}
+                    imageUrl={reel.image_url || getFestivalImage(campaign.festival_name)}
+                    title={reel.title || `${campaign.festival_name} Reel`}
+                    hook={reel.hook}
+                    music={reel.music}
+                    duration={reel.duration}
+                    scenes={reel.scenes}
+                    activeSceneIndex={activeSceneIdx}
+                    onSceneSelect={setActiveSceneIdx}
+                  />
+                </div>
+
+                {/* Right: Storyboard Scenes & Interactive Director Controls */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <div style={{ background: "rgba(255,255,255,0.04)", padding: 14, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <p style={{ margin: "0 0 6px 0", fontSize: 14 }}><b>Title:</b> {reel.title}</p>
+                    <p style={{ margin: "0 0 6px 0", fontSize: 13, color: "#FBBF24" }}><b>Hook (0-3s):</b> {reel.hook}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#aaa" }}><b>Duration:</b> {reel.duration || '30 seconds'} • <b>Music:</b> {reel.music || 'Trending Festive Audio'}</p>
+                  </div>
+
+                  <div style={{ background: "rgba(255,255,255,0.04)", padding: 14, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                      <b style={{ color: "#fff", fontSize: 13 }}>Storyboard Scenes (Click scene to preview):</b>
+                      <span style={{ fontSize: 11, color: "#aaa" }}>Interactive Timeline</span>
+                    </div>
+
+                    <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                      {Array.isArray(reel.scenes) ? reel.scenes.map((s: any, idx: number) => {
+                        const isCurrent = activeSceneIdx === idx;
+                        return (
+                          <div 
+                            key={idx} 
+                            onClick={() => setActiveSceneIdx(idx)}
+                            style={{ 
+                              padding: "10px 12px", 
+                              borderLeft: isCurrent ? '3px solid #EC4899' : '2px solid #7C3AED',
+                              background: isCurrent ? 'rgba(236,72,153,0.12)' : 'rgba(255,255,255,0.02)',
+                              borderRadius: "0 8px 8px 0",
+                              cursor: "pointer",
+                              transition: "all 0.2s",
+                              boxShadow: isCurrent ? "0 2px 10px rgba(236,72,153,0.2)" : "none",
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                              <p style={{ margin: 0, fontWeight: 700, fontSize: 13, color: isCurrent ? "#EC4899" : "#fff" }}>
+                                {isCurrent ? "▶ " : ""}Scene {s.scene_number || idx + 1}: <span style={{ fontWeight: 400, color: "#aaa", fontSize: 12 }}>({s.duration})</span>
+                              </p>
+                              {isCurrent && (
+                                <span style={{ fontSize: 10, background: "#EC4899", color: "#fff", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>
+                                  PLAYING
+                                </span>
+                              )}
+                            </div>
+                            <p style={{ margin: "4px 0 2px 0", fontSize: 12, color: '#bbb' }}><i>Visual:</i> {s.visual}</p>
+                            {s.on_screen_text && <p style={{ margin: "2px 0", fontSize: 12, color: '#FEF08A' }}><b>On-screen:</b> {s.on_screen_text}</p>}
+                            {s.voiceover && <p style={{ margin: "2px 0 0 0", fontSize: 12, color: '#93C5FD' }}><i>Audio / Voiceover:</i> {s.voiceover}</p>}
+                          </div>
+                        );
+                      }) : <p>{JSON.stringify(reel.scenes)}</p>}
+                    </div>
+                  </div>
+
+                  <div style={{ background: "rgba(255,255,255,0.04)", padding: 14, borderRadius: 12, border: "1px solid rgba(255,255,255,0.08)" }}>
+                    <p style={{ margin: "0 0 8px 0", fontSize: 13 }}><b>Caption:</b><br/><span style={{ color: "#ddd" }}>{reel.caption}</span></p>
+                    <p style={{ margin: 0, fontSize: 12, color: "#EC4899" }}><b>Hashtags:</b> {Array.isArray(reel.hashtags) ? reel.hashtags.join(' ') : reel.hashtags}</p>
+                  </div>
                 </div>
               </div>
 
-              <p><b>Title:</b> {reel.title}</p>
-              <p><b>Hook:</b> {reel.hook}</p>
-              <p><b>Duration:</b> {reel.duration || '30 seconds'}</p>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <b>Storyboard Scenes:</b>
-                {Array.isArray(reel.scenes) ? reel.scenes.map((s: any, idx: number) => (
-                  <div key={idx} style={{ marginTop: 8, padding: 8, borderLeft: '2px solid #7C3AED' }}>
-                    <p style={{ margin: 0 }}><b>Scene {s.scene_number || idx + 1}:</b> ({s.duration})</p>
-                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Visual:</i> {s.visual}</p>
-                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Text:</i> {s.on_screen_text}</p>
-                    <p style={{ margin: 0, fontSize: 13, color: '#aaa' }}><i>Audio:</i> {s.voiceover}</p>
-                  </div>
-                )) : <p>{JSON.stringify(reel.scenes)}</p>}
-              </div>
-              <div style={{ background: "rgba(255,255,255,0.05)", padding: 12, borderRadius: 8, marginTop: 10 }}>
-                <p style={{ margin: "0 0 10px 0" }}><b>Caption:</b><br/>{reel.caption}</p>
-                <p style={{ margin: "0 0 10px 0" }}><b>Hashtags:</b><br/>{Array.isArray(reel.hashtags) ? reel.hashtags.join(' ') : reel.hashtags}</p>
-              </div>
-              
-              <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button onClick={() => onRegenerate(campaign)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Regenerate</button>
-                <button onClick={() => alert("Editing mode enabled! (Content unlocked for edits)")} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Edit</button>
-                <button onClick={async () => { try { await festivalService.saveDraft(campaign.id); alert('Draft saved successfully!'); } catch(e) { alert('Draft saved locally.'); } }} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Save Draft</button>
-                <button onClick={() => alert("Video Generation initiated! You will be notified when it's ready.")} style={{ padding: '6px 12px', background: '#7C3AED', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Generate Video</button>
-                <button onClick={async () => { try { await festivalService.scheduleContent(campaign.id); alert('Content scheduled successfully for publishing!'); } catch(e) { alert('Schedule confirmed.'); } }} style={{ padding: '6px 12px', background: '#EC4899', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Schedule</button>
-                <button onClick={() => alert("Feature coming soon! (Connect social accounts to publish)")} style={{ padding: '6px 12px', background: '#10B981', borderRadius: 6, color: '#fff', border: 'none', cursor: 'pointer' }}>Publish</button>
+              {/* Action Buttons */}
+              <div style={{ marginTop: 20, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                <button onClick={() => onRegenerate(campaign)} style={{ padding: '8px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 8, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Regenerate</button>
+                <button onClick={() => alert("Editing mode enabled! (Content unlocked for edits)")} style={{ padding: '8px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 8, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Edit</button>
+                <button onClick={async () => { try { await festivalService.saveDraft(campaign.id); alert('Draft saved successfully!'); } catch(e) { alert('Draft saved locally.'); } }} style={{ padding: '8px 14px', background: 'rgba(255,255,255,0.1)', borderRadius: 8, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Save Draft</button>
+                <button onClick={async () => { try { await festivalService.scheduleContent(campaign.id); alert('Content scheduled successfully for publishing!'); } catch(e) { alert('Schedule confirmed.'); } }} style={{ padding: '8px 14px', background: '#EC4899', borderRadius: 8, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Schedule</button>
+                <button onClick={() => alert("Feature coming soon! (Connect social accounts to publish)")} style={{ padding: '8px 14px', background: '#10B981', borderRadius: 8, color: '#fff', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>Publish</button>
               </div>
             </div>
           )}
@@ -254,7 +339,7 @@ function CampaignModal({
             <div style={{ marginBottom: 30 }}>
               <h3 style={{ color: "#fff", fontSize: 18, borderBottom: "1px solid #444", paddingBottom: 8, marginTop: 0 }}>📱 INSTAGRAM POST</h3>
               <div style={{ marginBottom: 16, marginTop: 12 }}>
-                <img src="https://image.pollinations.ai/prompt/?width=1080&height=1080&nologo=true&seed=" alt="Post Image" style={{ width: "100%", maxWidth: 400, borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
+                <img src={post.image_url || getFestivalImage(campaign.festival_name)} alt="Post Image" style={{ width: "100%", maxWidth: 400, maxHeight: 400, objectFit: "cover", borderRadius: 12, border: "1px solid rgba(255,255,255,0.1)" }} />
               </div>
 
               <p><b>Headline:</b> {post.headline || post.title}</p>
@@ -358,18 +443,41 @@ export default function FestivalsPage() {
       }
       
       if (campaign) {
-        // Map the new unstructured data to FestivalCampaign roughly so the UI doesn't crash completely
+        let assets: FestivalAsset[] = [];
+        if (Array.isArray(campaign.assets) && campaign.assets.length > 0) {
+          assets = campaign.assets;
+        } else if (campaign.generated_content) {
+          if (campaign.generated_content.reel) {
+            assets.push({
+              id: "reel_1",
+              type: "reel",
+              platform: "instagram",
+              content: {
+                ...campaign.generated_content.reel,
+                image_url: campaign.generated_content.reel.image_url || getFestivalImage(festivalName),
+              },
+            });
+          }
+          if (campaign.generated_content.post) {
+            assets.push({
+              id: "post_1",
+              type: "post",
+              platform: "instagram",
+              content: {
+                ...campaign.generated_content.post,
+                image_url: campaign.generated_content.post.image_url || getFestivalImage(festivalName),
+              },
+            });
+          }
+        }
+
         const mappedCampaign = {
           ...campaign,
-          assets: campaign.content_type === "reel" 
-            ? [{ type: "reel", content: campaign.generated_content.reel }] 
-            : campaign.content_type === "post"
-              ? [{ type: "post", content: campaign.generated_content.post }]
-              : [{ type: "content", content: campaign.generated_content || campaign }]
+          assets: assets.length > 0 ? assets : (campaign.assets || [])
         };
         setCampaigns((prev) => [mappedCampaign, ...prev]);
         setSelected(mappedCampaign);
-        showToast(`🎉 ${festivalName} campaign generated!`);
+        showToast(`🎉 ${festivalName} content generated with Gemini!`);
       } else {
         showToast("AI generation failed, please try again.", "error");
       }
@@ -537,8 +645,7 @@ export default function FestivalsPage() {
                 const existing = getCampaignForFestival(f.name, f.date);
                 const isGenerating = generating === f.name;
                 
-                // Use pollinations.ai for dynamic, highly relevant festival images
-                const bgImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(f.name + ' Indian festival celebration, high quality, vibrant')}?width=400&height=300&nologo=true&seed=`;
+                const bgImageUrl = getFestivalImage(f.name);
 
                 return (
                   <div

@@ -4,6 +4,7 @@ export interface FestivalAssetContent {
   headline?: string;
   body?: string;
   image_prompt?: string;
+  image_url?: string;
   hook?: string;
   script?: string;
   voiceover?: string;
@@ -15,10 +16,11 @@ export interface FestivalAssetContent {
   on_screen_text?: string;
   caption?: string;
   description?: string;
-  hashtags?: string;
+  hashtags?: string | string[];
   post_copy?: string;
   title?: string;
   duration?: string;
+  music?: string;
   reel?: any;
   post?: any;
 }
@@ -27,8 +29,8 @@ export interface FestivalAsset {
   id: string;
   type: "post" | "reel" | "ad" | "whatsapp" | "content";
   platform: string;
-  day: number;
-  scheduled_date: string;
+  day?: number;
+  scheduled_date?: string;
   content: FestivalAssetContent;
 }
 

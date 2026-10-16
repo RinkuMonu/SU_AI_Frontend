@@ -20,7 +20,8 @@ import {
   Eye, 
   EyeOff,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  Pencil
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { businessService } from "@/services/business.service";
 import { userService } from "@/services/user.service";
+import { cn } from "@/lib/utils";
 
 function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -46,6 +48,11 @@ export default function SettingsPage() {
   // Active tab: 'user' (Personal) or 'business' (Businessman)
   const isDefaultBusiness = user?.role === 'business' || user?.accountType === 'business';
   const [activeTab, setActiveTab] = useState<'user' | 'business'>(isDefaultBusiness ? 'business' : 'user');
+
+  // Edit Mode States (Locked in View Mode by default)
+  const [isEditingUser, setIsEditingUser] = useState(false);
+  const [isEditingBusiness, setIsEditingBusiness] = useState(false);
+  const [lastSavedBusiness, setLastSavedBusiness] = useState<any>(null);
 
   // User details state
   const [firstName, setFirstName] = useState("");
@@ -142,6 +149,7 @@ export default function SettingsPage() {
       try {
         const data = await businessService.getMyBusiness();
         if (data) {
+          setLastSavedBusiness(data);
           if (data.id) setBusinessId(data.id);
           if (data.name) setBusinessName(data.name);
           if (data.category) setBusinessCategory(data.category);
@@ -161,6 +169,46 @@ export default function SettingsPage() {
 
     fetchBusinessDetails();
   }, []);
+
+  // Cancel User Editing & Revert changes
+  const cancelUserEdit = () => {
+    const parts = (user?.name || "").trim().split(/\s+/);
+    setFirstName(user?.firstName || parts[0] || "");
+    setLastName(user?.lastName || parts.slice(1).join(" ") || "");
+    setEmail(user?.email || "");
+    setContactNumber(user?.contactNumber || user?.phone || "");
+    setProfileImage(user?.image || user?.avatar || null);
+    setIsEditingUser(false);
+    setUserError("");
+  };
+
+  // Cancel Business Editing & Revert changes
+  const cancelBusinessEdit = () => {
+    if (lastSavedBusiness) {
+      setBusinessName(lastSavedBusiness.name || lastSavedBusiness.company_name || "");
+      setBusinessCategory(lastSavedBusiness.category || lastSavedBusiness.industry || "");
+      setOwnerFirstName(lastSavedBusiness.owner_first_name || "");
+      setOwnerLastName(lastSavedBusiness.owner_last_name || "");
+      setBusinessEmail(lastSavedBusiness.contact_email || lastSavedBusiness.email || "");
+      setBusinessPhone(lastSavedBusiness.contact_phone || lastSavedBusiness.phone || "");
+      setWebsite(lastSavedBusiness.website || "");
+      setInstagram(lastSavedBusiness.instagram || lastSavedBusiness.instagram_handle || "");
+      setLocation(lastSavedBusiness.location || "");
+      setDescription(lastSavedBusiness.description || "");
+      setBusinessLogo(lastSavedBusiness.logo_url || null);
+    } else if (user) {
+      const parts = (user.name || "").trim().split(/\s+/);
+      setBusinessName(user.businessName || "");
+      setBusinessCategory(user.businessCategory || "");
+      setOwnerFirstName(user.firstName || parts[0] || "");
+      setOwnerLastName(user.lastName || parts.slice(1).join(" ") || "");
+      setBusinessEmail(user.email || "");
+      setBusinessPhone(user.contactNumber || user.phone || "");
+      setBusinessLogo(user.business_logo || user.image || null);
+    }
+    setIsEditingBusiness(false);
+    setBusinessError("");
+  };
 
   // Handle User Photo Upload
   const handleUserPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -281,6 +329,7 @@ export default function SettingsPage() {
       });
 
       setUserUpdated(true);
+      setIsEditingUser(false);
       setTimeout(() => setUserUpdated(false), 3500);
     } catch (err: any) {
       setUserError(err.message || "Failed to update profile.");
@@ -349,6 +398,7 @@ export default function SettingsPage() {
       });
 
       setBusinessUpdated(true);
+      setIsEditingBusiness(false);
       setTimeout(() => setBusinessUpdated(false), 3500);
     } catch (err: any) {
       setBusinessError(err.message || "Failed to update business details.");
@@ -409,7 +459,7 @@ export default function SettingsPage() {
   const businessInitial = (businessName?.charAt(0) || "B").toUpperCase();
 
   return (
-    <div className="max-w-4xl space-y-8 animate-in fade-in duration-500 pb-12">
+    <div className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
       {/* Page Header */}
       <div>
         <div className="flex items-center gap-3">
@@ -429,7 +479,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setActiveTab('user')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
               activeTab === 'user'
                 ? 'bg-brand-gradient text-white shadow-md'
                 : 'text-text-muted hover:text-white hover:bg-surface-secondary'
@@ -445,7 +495,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setActiveTab('business')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
               activeTab === 'business'
                 ? 'bg-brand-gradient text-white shadow-md'
                 : 'text-text-muted hover:text-white hover:bg-surface-secondary'
@@ -473,7 +523,7 @@ export default function SettingsPage() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-purple/5 rounded-full blur-3xl pointer-events-none" />
 
           <CardHeader className="pb-4">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
                   <UserIcon className="w-5 h-5 text-brand-purple" />
@@ -483,10 +533,29 @@ export default function SettingsPage() {
                   Update your name, email, contact number, and profile picture.
                 </CardDescription>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-purple/10 text-brand-pink border border-brand-purple/20">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                User Account
-              </span>
+
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {isEditingUser ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                    <Pencil className="w-3 h-3" />
+                    Editing Mode Active
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => setIsEditingUser(true)}
+                    className="bg-brand-gradient hover:opacity-90 text-white font-semibold text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-brand-purple/20 cursor-pointer"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit Profile</span>
+                  </Button>
+                )}
+
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-purple/10 text-brand-pink border border-brand-purple/20">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  User Account
+                </span>
+              </div>
             </div>
           </CardHeader>
 
@@ -508,6 +577,7 @@ export default function SettingsPage() {
                 accept="image/*"
                 className="hidden"
                 id="user-profile-photo-input"
+                disabled={!isEditingUser}
               />
 
               <div className="relative group">
@@ -523,42 +593,52 @@ export default function SettingsPage() {
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => userPhotoInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-2 rounded-full bg-surface-elevated hover:bg-brand-purple text-white shadow-md border border-border group-hover:scale-110 transition-all cursor-pointer"
-                  title="Upload profile picture"
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
+                {isEditingUser && (
+                  <button
+                    type="button"
+                    onClick={() => userPhotoInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 p-2 rounded-full bg-surface-elevated hover:bg-brand-purple text-white shadow-md border border-border group-hover:scale-110 transition-all cursor-pointer"
+                    title="Upload profile picture"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-1.5 text-center sm:text-left flex-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => userPhotoInputRef.current?.click()}
-                    className="border-border text-white hover:bg-brand-purple/20 hover:border-brand-purple/50 gap-2 text-xs"
-                  >
-                    <Upload className="w-3.5 h-3.5 text-brand-pink" />
-                    Change Photo
-                  </Button>
-
-                  {profileImage && (
+                {isEditingUser ? (
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={handleRemoveUserPhoto}
-                      className="text-text-muted hover:text-rose-400 hover:bg-rose-500/10 gap-1.5 text-xs"
+                      onClick={() => userPhotoInputRef.current?.click()}
+                      className="border-border text-white hover:bg-brand-purple/20 hover:border-brand-purple/50 gap-2 text-xs cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Remove
+                      <Upload className="w-3.5 h-3.5 text-brand-pink" />
+                      Change Photo
                     </Button>
-                  )}
-                </div>
+
+                    {profileImage && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveUserPhoto}
+                        className="text-text-muted hover:text-rose-400 hover:bg-rose-500/10 gap-1.5 text-xs cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <span className="text-xs text-text-muted flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-border/40">
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Photo locked in view mode. Click <strong>Edit Profile</strong> to change.
+                    </span>
+                  </div>
+                )}
                 <p className="text-xs text-text-muted">
                   Allowed formats: PNG, JPG, or WebP. Max size: 5MB. Photo will appear in your top profile header.
                 </p>
@@ -580,7 +660,11 @@ export default function SettingsPage() {
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Enter your first name"
                     required
-                    className="bg-surface-elevated/70 border-border focus:border-brand-purple"
+                    disabled={!isEditingUser}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-brand-purple transition-all",
+                      !isEditingUser && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -595,7 +679,11 @@ export default function SettingsPage() {
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Enter your last name"
-                    className="bg-surface-elevated/70 border-border focus:border-brand-purple"
+                    disabled={!isEditingUser}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-brand-purple transition-all",
+                      !isEditingUser && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
@@ -614,7 +702,11 @@ export default function SettingsPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
                     required
-                    className="bg-surface-elevated/70 border-border focus:border-brand-purple"
+                    disabled={!isEditingUser}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-brand-purple transition-all",
+                      !isEditingUser && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -630,37 +722,69 @@ export default function SettingsPage() {
                     value={contactNumber}
                     onChange={(e) => setContactNumber(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="bg-surface-elevated/70 border-border focus:border-brand-purple"
+                    disabled={!isEditingUser}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-brand-purple transition-all",
+                      !isEditingUser && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center gap-3">
-                <Button 
-                  type="submit" 
-                  disabled={isUpdatingUser}
-                  className="bg-brand-gradient hover:opacity-95 text-white font-semibold shadow-lg shadow-brand-purple/20 px-6 min-w-[150px]"
-                >
-                  {isUpdatingUser ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Saving...
-                    </>
-                  ) : userUpdated ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4 text-white" /> 
-                      Profile Updated!
-                    </>
-                  ) : (
-                    "Update Profile"
-                  )}
-                </Button>
+              <div className="pt-2">
+                {isEditingUser ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button 
+                      type="submit" 
+                      disabled={isUpdatingUser}
+                      className="bg-brand-gradient hover:opacity-95 text-white font-semibold shadow-lg shadow-brand-purple/20 px-6 min-w-[150px] cursor-pointer"
+                    >
+                      {isUpdatingUser ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                          Saving...
+                        </>
+                      ) : userUpdated ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4 text-white" /> 
+                          Profile Updated!
+                        </>
+                      ) : (
+                        "Save Changes"
+                      )}
+                    </Button>
 
-                {userUpdated && (
-                  <span className="text-xs font-medium text-emerald-400 flex items-center gap-1 animate-in fade-in">
-                    <Check className="w-3.5 h-3.5" /> Changes saved to account & header!
-                  </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={cancelUserEdit}
+                      disabled={isUpdatingUser}
+                      className="border-border text-slate-300 hover:text-white hover:bg-surface-elevated px-5 cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+
+                    {userUpdated && (
+                      <span className="text-xs font-medium text-emerald-400 flex items-center gap-1 animate-in fade-in">
+                        <Check className="w-3.5 h-3.5" /> Changes saved to account & header!
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditingUser(true)}
+                      className="bg-brand-gradient hover:opacity-95 text-white font-semibold shadow-lg shadow-brand-purple/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit Profile</span>
+                    </Button>
+                    <span className="text-xs text-text-muted flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Profile</strong> to modify your details.
+                    </span>
+                  </div>
                 )}
               </div>
             </form>
@@ -676,7 +800,7 @@ export default function SettingsPage() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
 
           <CardHeader className="pb-4">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
                 <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-amber-400" />
@@ -686,10 +810,29 @@ export default function SettingsPage() {
                   Manage your business identity, industry, contact info, and company logo.
                 </CardDescription>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
-                <Sparkles className="w-3.5 h-3.5" />
-                Businessman Account
-              </span>
+
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {isEditingBusiness ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                    <Pencil className="w-3 h-3" />
+                    Editing Mode Active
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    onClick={() => setIsEditingBusiness(true)}
+                    className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-90 text-white font-semibold text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                    <span>Edit Business Details</span>
+                  </Button>
+                )}
+
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Businessman Account
+                </span>
+              </div>
             </div>
           </CardHeader>
 
@@ -711,6 +854,7 @@ export default function SettingsPage() {
                 accept="image/*"
                 className="hidden"
                 id="business-logo-input"
+                disabled={!isEditingBusiness}
               />
 
               <div className="relative group">
@@ -726,42 +870,52 @@ export default function SettingsPage() {
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => businessLogoInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 p-2 rounded-xl bg-surface-elevated hover:bg-amber-500 text-white shadow-md border border-border group-hover:scale-110 transition-all cursor-pointer"
-                  title="Upload Business Logo"
-                >
-                  <Camera className="w-4 h-4" />
-                </button>
+                {isEditingBusiness && (
+                  <button
+                    type="button"
+                    onClick={() => businessLogoInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 p-2 rounded-xl bg-surface-elevated hover:bg-amber-500 text-white shadow-md border border-border group-hover:scale-110 transition-all cursor-pointer"
+                    title="Upload Business Logo"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-1.5 text-center sm:text-left flex-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => businessLogoInputRef.current?.click()}
-                    className="border-border text-white hover:bg-amber-500/20 hover:border-amber-500/50 gap-2 text-xs"
-                  >
-                    <Upload className="w-3.5 h-3.5 text-amber-400" />
-                    Change Business Logo
-                  </Button>
-
-                  {businessLogo && (
+                {isEditingBusiness ? (
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
                     <Button
                       type="button"
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      onClick={handleRemoveBusinessLogo}
-                      className="text-text-muted hover:text-rose-400 hover:bg-rose-500/10 gap-1.5 text-xs"
+                      onClick={() => businessLogoInputRef.current?.click()}
+                      className="border-border text-white hover:bg-amber-500/20 hover:border-amber-500/50 gap-2 text-xs cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Remove
+                      <Upload className="w-3.5 h-3.5 text-amber-400" />
+                      Change Business Logo
                     </Button>
-                  )}
-                </div>
+
+                    {businessLogo && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleRemoveBusinessLogo}
+                        className="text-text-muted hover:text-rose-400 hover:bg-rose-500/10 gap-1.5 text-xs cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <span className="text-xs text-text-muted flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-border/40">
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Logo locked in view mode. Click <strong>Edit Business Details</strong> to change.
+                    </span>
+                  </div>
+                )}
                 <p className="text-xs text-text-muted">
                   Upload your brand or company emblem. Appears on marketing materials and dashboard.
                 </p>
@@ -783,7 +937,11 @@ export default function SettingsPage() {
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="e.g. SevenUnique Enterprises"
                     required
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -799,7 +957,11 @@ export default function SettingsPage() {
                     onChange={(e) => setBusinessCategory(e.target.value)}
                     placeholder="e.g. Retail, Fashion, E-commerce, Restaurant, Technology"
                     required
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
@@ -816,7 +978,11 @@ export default function SettingsPage() {
                     value={ownerFirstName}
                     onChange={(e) => setOwnerFirstName(e.target.value)}
                     placeholder="First Name"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -831,7 +997,11 @@ export default function SettingsPage() {
                     value={ownerLastName}
                     onChange={(e) => setOwnerLastName(e.target.value)}
                     placeholder="Last Name"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
@@ -849,7 +1019,11 @@ export default function SettingsPage() {
                     value={businessEmail}
                     onChange={(e) => setBusinessEmail(e.target.value)}
                     placeholder="contact@mycompany.com"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -865,7 +1039,11 @@ export default function SettingsPage() {
                     value={businessPhone}
                     onChange={(e) => setBusinessPhone(e.target.value)}
                     placeholder="+91 98765 43210"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
@@ -883,7 +1061,11 @@ export default function SettingsPage() {
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                     placeholder="https://example.com"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -898,7 +1080,11 @@ export default function SettingsPage() {
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     placeholder="@mybusiness"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
 
@@ -913,7 +1099,11 @@ export default function SettingsPage() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="e.g. Mumbai, India"
-                    className="bg-surface-elevated/70 border-border focus:border-amber-400"
+                    disabled={!isEditingBusiness}
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )}
                   />
                 </div>
               </div>
@@ -929,36 +1119,68 @@ export default function SettingsPage() {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Describe your business, main products or services offered..."
-                  className="w-full rounded-md border border-border bg-surface-elevated/70 p-3 text-sm text-white placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400 transition-colors"
+                  disabled={!isEditingBusiness}
+                  className={cn(
+                    "w-full rounded-md border border-border bg-surface-elevated/70 p-3 text-sm text-white placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-400/40 focus:border-amber-400 transition-colors",
+                    !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                  )}
                 />
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex items-center gap-3">
-                <Button 
-                  type="submit" 
-                  disabled={isUpdatingBusiness}
-                  className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 min-w-[170px]"
-                >
-                  {isUpdatingBusiness ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
-                      Saving Business...
-                    </>
-                  ) : businessUpdated ? (
-                    <>
-                      <Check className="mr-2 h-4 w-4 text-white" /> 
-                      Business Details Saved!
-                    </>
-                  ) : (
-                    "Save Business Details"
-                  )}
-                </Button>
+              <div className="pt-2">
+                {isEditingBusiness ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Button 
+                      type="submit" 
+                      disabled={isUpdatingBusiness}
+                      className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 min-w-[170px] cursor-pointer"
+                    >
+                      {isUpdatingBusiness ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" /> 
+                          Saving Business...
+                        </>
+                      ) : businessUpdated ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4 text-white" /> 
+                          Business Details Saved!
+                        </>
+                      ) : (
+                        "Save Business Details"
+                      )}
+                    </Button>
 
-                {businessUpdated && (
-                  <span className="text-xs font-medium text-emerald-400 flex items-center gap-1 animate-in fade-in">
-                    <Check className="w-3.5 h-3.5" /> Business profile updated successfully!
-                  </span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={cancelBusinessEdit}
+                      disabled={isUpdatingBusiness}
+                      className="border-border text-slate-300 hover:text-white hover:bg-surface-elevated px-5 cursor-pointer"
+                    >
+                      Cancel
+                    </Button>
+
+                    {businessUpdated && (
+                      <span className="text-xs font-medium text-emerald-400 flex items-center gap-1 animate-in fade-in">
+                        <Check className="w-3.5 h-3.5" /> Business profile updated successfully!
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
+                    <Button
+                      type="button"
+                      onClick={() => setIsEditingBusiness(true)}
+                      className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
+                    >
+                      <Pencil className="w-4 h-4" />
+                      <span>Edit Business Details</span>
+                    </Button>
+                    <span className="text-xs text-text-muted flex items-center gap-1.5">
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
+                    </span>
+                  </div>
                 )}
               </div>
             </form>
