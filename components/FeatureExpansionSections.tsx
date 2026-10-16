@@ -96,6 +96,7 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
       { title: 'Can I use this to understand campaign performance?', description: 'Yes. Attribution views help connect marketing activity with the outcomes you want to measure.' },
       { title: 'Do I need an analyst to read the reports?', description: 'The dashboards are designed to make important patterns and performance indicators easier to review.' },
     ],
+    dark: true,
   },
   'brand-brain': {
     eyebrow: 'A brand system that remembers',
