@@ -135,7 +135,7 @@ const LANDING_PLANS: PlanItem[] = [
       "100 AI posts/month",
       "30 AI reels/month",
       "100 AI captions/month",
-      "AI Photoshoot, Fashion AI and Avatar tools",
+      "AI Photoshoot and Avatar tools",
       "Advanced brand customization",
       "Social media content calendar",
       "Post scheduling tools",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles, Settings, RefreshCw, Download, Edit2, Save, Calendar, Send, CheckCircle2, Loader2, ChevronDown, ChevronUp, Upload, X, AlertCircle } from "lucide-react";
+import { Sparkles, Settings, RefreshCw, Download, Edit2, Save, Calendar, Send, CheckCircle2, Loader2, ChevronDown, ChevronUp, Upload, X, AlertCircle, Package } from "lucide-react";
 
 import ProductSelector from "@/components/ai/ProductSelector";
 import MultiImageUploader from "@/components/ai/MultiImageUploader";
@@ -346,6 +346,35 @@ export default function AIPostPage() {
 
           {hasInsufficientCredits && <InsufficientCreditsAlert />}
 
+          {/* Product Catalog Selection */}
+          {products.length > 0 && (
+            <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Package className="w-5 h-5 text-brand-purple" />
+                  Select Product from Catalog <span className="text-xs font-normal text-text-muted">(Optional)</span>
+                </h2>
+                {productIds.length > 0 && (
+                  <button 
+                    onClick={() => setProductIds([])}
+                    className="text-xs text-brand-purple hover:underline"
+                  >
+                    Clear selection
+                  </button>
+                )}
+              </div>
+              <p className="text-xs text-text-muted mb-4">
+                Select a product to automatically inject its name, pricing, and visual traits into your post.
+              </p>
+              <ProductSelector
+                products={products}
+                value={productIds}
+                onChange={setProductIds}
+                maxSelection={1}
+              />
+            </section>
+          )}
+
           <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
             <h2 className="text-xl font-semibold mb-2 text-white flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-brand-purple" />
@@ -355,7 +384,7 @@ export default function AIPostPage() {
             <textarea
               value={creativeInstruction}
               onChange={(e) => setCreativeInstruction(e.target.value)}
-              placeholder="E.g. Create a festive Diwali campaign. Make it premium and luxurious..."
+              placeholder="E.g. Create a festive Diwali campaign for pure silk sarees. Offer flat 40% discount, warm golden lighting and royal festive aesthetics..."
               className="w-full bg-[#0a142c] border border-border rounded-xl p-4 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y mb-4"
             />
             
@@ -374,9 +403,9 @@ export default function AIPostPage() {
             <div className="pt-4 mt-4 border-t border-border">
               <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
                 <Upload className="w-4 h-4 text-brand-purple" />
-                Upload Reference Photos <span className="text-xs font-normal text-text-muted">(Optional)</span>
+                Upload Reference Photos <span className="text-xs font-normal text-text-muted">(Gemini Vision Enabled)</span>
               </h3>
-              <p className="text-xs text-text-muted mb-3">Upload 2-3 reference images for the AI to base the post style on</p>
+              <p className="text-xs text-text-muted mb-3">Upload 1-4 reference photos of your product, style, or festive flyer layout</p>
               <MultiImageUploader
                 value={uploadedImages}
                 onChange={setUploadedImages}
@@ -390,30 +419,36 @@ export default function AIPostPage() {
                 className="flex items-center gap-2 text-sm text-text-muted hover:text-white transition-colors"
               >
                 <Settings className="w-4 h-4" /> 
-                Advanced Options
+                Campaign Target &amp; Language Options
                 {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               
               {showAdvanced && (
                 <div className="space-y-4 mt-4 pt-4 border-t border-border/50 animate-in fade-in slide-in-from-top-2">
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Platform</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Target Platform</label>
                     <PlatformSelector value={platform} onChange={setPlatform} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Objective</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Campaign Objective</label>
                     <ObjectiveSelector value={objective} onChange={setObjective} />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Language</label>
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Copywriting Language</label>
                     <select 
                       value={language} 
                       onChange={(e) => setLanguage(e.target.value)}
                       className="w-full bg-[#0a142c] border border-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-purple"
                     >
-                      <option value="English">English</option>
-                      <option value="Hindi">Hindi</option>
-                      <option value="Hinglish">Hinglish</option>
+                      <option value="Hinglish">🇮🇳 Hinglish (Most Popular for Conversions)</option>
+                      <option value="Hindi">हिंदी (Hindi)</option>
+                      <option value="English">English (Global Luxury)</option>
+                      <option value="Gujarati">ગુજરાતી (Gujarati)</option>
+                      <option value="Marathi">मराठी (Marathi)</option>
+                      <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
+                      <option value="Tamil">தமிழ் (Tamil)</option>
+                      <option value="Telugu">తెలుగు (Telugu)</option>
+                      <option value="Bengali">বাংলা (Bengali)</option>
                     </select>
                   </div>
                 </div>
@@ -423,11 +458,11 @@ export default function AIPostPage() {
 
           <button
             onClick={handleGenerate}
-            disabled={loading || (!creativeInstruction.trim() && uploadedImages.length === 0)}
-            className="w-full rounded-xl bg-brand-gradient text-white px-6 py-4 font-semibold disabled:opacity-50 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 text-lg"
+            disabled={loading || (!creativeInstruction.trim() && uploadedImages.length === 0 && productIds.length === 0)}
+            className="w-full rounded-xl bg-brand-gradient text-white px-6 py-4 font-semibold disabled:opacity-50 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 text-lg cursor-pointer"
           >
             {loading ? (
-              <><Loader2 className="w-6 h-6 animate-spin" /> Generating AI Post...</>
+              <><Loader2 className="w-6 h-6 animate-spin" /> Generating AI Post via Engine...</>
             ) : (
               <><Sparkles className="w-6 h-6" /> Generate AI Post</>
             )}
@@ -443,19 +478,23 @@ export default function AIPostPage() {
               <div className="space-y-4 w-full max-w-sm text-left">
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 1 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Loader2 className="w-5 h-5 text-brand-purple animate-spin" />}
-                  <span className="text-white">Understanding your products...</span>
+                  <span className="text-white text-sm">1. Syncing business profile &amp; Brand Kit...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 2 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 2 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white">Creating creative direction...</span>
+                  <span className="text-white text-sm">2. Gemini Vision analyzing product &amp; references...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 3 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 3 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white">Generating visual...</span>
+                  <span className="text-white text-sm">3. Generating cultural copywriting &amp; viral hashtags...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 4 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 4 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 4 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white">Writing caption & formatting post...</span>
+                  <span className="text-white text-sm">4. Synthesizing 8K commercial photorealistic poster...</span>
+                </div>
+                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 5 ? 'opacity-100' : 'opacity-40'}`}>
+                  {loadingStep > 5 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 5 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
+                  <span className="text-white text-sm">5. Packaging WhatsApp &amp; Instagram export assets...</span>
                 </div>
               </div>
             </div>

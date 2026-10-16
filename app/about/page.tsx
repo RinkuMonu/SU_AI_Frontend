@@ -86,7 +86,7 @@ export default function AboutPage() {
                 <div className="space-y-2 text-left">
                   <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-pink-400">
                     <Quote className="w-4 h-4" />
-                    <span>1. Director&apos;s Voice</span>
+                    <span>Director&apos;s Voice</span>
                   </div>
 
                   <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
@@ -136,9 +136,8 @@ export default function AboutPage() {
 
             {/* SIDE 1: CONTENT COLUMN (Left on desktop) */}
             <div className="lg:col-span-7 space-y-4 text-left self-center">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight flex items-center gap-3">
-                <span className="text-[#fc9a5d]">2.</span>
-                <span>About Us</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+                About Us
               </h2>
 
               <div className="space-y-3 text-slate-300 text-base sm:text-lg leading-relaxed">
@@ -163,7 +162,6 @@ export default function AboutPage() {
                 </div>
               </div>
             </div>
-
           </div>
         </section>
 
@@ -189,9 +187,8 @@ export default function AboutPage() {
 
             {/* SIDE 2: CONTENT COLUMN */}
             <div className="lg:col-span-7 space-y-3.5 text-left self-center">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight flex items-center gap-3">
-                <span className="text-emerald-400">3.</span>
-                <span>Our Mission</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+                Our Mission
               </h2>
 
               <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-emerald-400">
@@ -202,7 +199,6 @@ export default function AboutPage() {
                 {companyProfile.mission.description}
               </p>
             </div>
-
           </div>
         </section>
 
@@ -212,9 +208,8 @@ export default function AboutPage() {
 
             {/* SIDE 1: CONTENT COLUMN */}
             <div className="lg:col-span-6 space-y-3.5 order-2 lg:order-1 text-left self-center">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight flex items-center gap-3">
-                <span className="text-purple-400">4.</span>
-                <span>Our Vision</span>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-tight">
+                Our Vision
               </h2>
 
               <div className="text-xs sm:text-sm font-bold uppercase tracking-wider text-purple-400">
@@ -248,7 +243,6 @@ export default function AboutPage() {
                 </div>
               </div>
             </div>
-
           </div>
         </section>
 
@@ -283,9 +277,8 @@ export default function AboutPage() {
 
             {/* SIDE 2: CONTENT COLUMN (Right on desktop) */}
             <div className="lg:col-span-7 space-y-3.5 text-left flex flex-col justify-center">
-              <h2 className="text-2xl sm:text-3xl lg:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-                <span className="text-pink-400">5.</span>
-                <span>A Message from Our Partners</span>
+              <h2 className="text-2xl sm:text-3xl lg:text-3xl font-extrabold text-white tracking-tight">
+                A Message from Our Partners
               </h2>
 
               {/* Narrative Content */}
@@ -302,7 +295,6 @@ export default function AboutPage() {
                 </div>
               )}
             </div>
-
           </div>
         </section>
 

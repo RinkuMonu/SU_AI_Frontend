@@ -46,7 +46,6 @@ const sitemapData = [
       { name: "AI Reel Maker", href: "/features/ai-reel-maker", icon: Video },
       { name: "AI Photoshoot", href: "/features/ai-photoshoot", icon: Camera },
       { name: "AI Avatar & AI Actor", href: "/features/ai-avatar", icon: UserSquare },
-      { name: "Fashion AI", href: "/features/fashion-ai", icon: Shirt },
       { name: "AI Website Builder", href: "/features/website-builder", icon: Layout },
       { name: "AI Advertisement Maker", href: "/features/ads", icon: Megaphone },
       { name: "AI Marketing Agent", href: "/features/marketing-agent", icon: Bot },
