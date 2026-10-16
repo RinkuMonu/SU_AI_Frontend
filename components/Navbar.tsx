@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   Menu, 
   X, 
-  ChevronDown, 
+  ChevronDown,
   Building2 
 } from 'lucide-react';
 import { Button } from './ui/button';
@@ -137,28 +137,20 @@ export function Navbar() {
               {/* Invisible bridge to keep hover active */}
               <div className="absolute -top-4 left-0 w-full h-8 bg-transparent" />
               
-              <div className="w-[300px] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-6 flex flex-col">
-                <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
-                  <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+              <div className="w-[280px] bg-white rounded-2xl shadow-[0_20px_50px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-3 flex flex-col">
+                <Link href="/about" className="group/item flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 transition-colors">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100/60 flex items-center justify-center text-indigo-600 group-hover/item:bg-indigo-600 group-hover/item:text-white transition-all shrink-0 shadow-2xs">
                     <Building2 className="w-4 h-4" />
                   </div>
-                  <h3 className="font-semibold text-slate-900 text-sm tracking-tight">Company</h3>
-                </div>
-                <div className="flex flex-col gap-5">
-                  <Link href="/about" className="group/item flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:bg-indigo-50 group-hover/item:text-indigo-600 group-hover/item:border-indigo-100 transition-colors shrink-0">
-                      <Building2 className="w-4 h-4" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-slate-700 group-hover/item:text-indigo-600 transition-colors leading-tight">
-                        About Us
-                      </span>
-                      <span className="text-[11px] text-slate-500 line-clamp-2 leading-snug mt-1 transition-colors">
-                        Our mission, story, and vision
-                      </span>
-                    </div>
-                  </Link>
-                </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-slate-800 group-hover/item:text-indigo-600 transition-colors leading-tight">
+                      About Us
+                    </span>
+                    <span className="text-[11.5px] text-slate-500 leading-snug mt-1">
+                      Our mission, story, and vision
+                    </span>
+                  </div>
+                </Link>
               </div>
             </div>
           </div>
@@ -230,20 +222,13 @@ export function Navbar() {
           </div>
 
           {/* Company */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
             <span className="text-lg font-medium text-white/90">Company</span>
-            <div className="pl-4 flex flex-col gap-6">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-[#fc9a5d]">
-                  <Building2 className="w-4 h-4" />
-                  <span className="text-sm font-semibold">About</span>
-                </div>
-                <div className="flex flex-col gap-3 pl-6 border-l border-white/10">
-                  <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-white/70 hover:text-white text-sm">
-                    About Us
-                  </Link>
-                </div>
-              </div>
+            <div className="pl-4 flex flex-col gap-2 border-l border-white/10 ml-2">
+              <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 text-white/70 hover:text-white text-sm">
+                <Building2 className="w-4 h-4 text-indigo-400" />
+                <span>About Us</span>
+              </Link>
             </div>
           </div>
 
