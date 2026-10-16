@@ -1,111 +1,131 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle2, Users, Star } from 'lucide-react';
 
-interface Testimonial {
+interface TeamMemberReview {
   id: string;
-  headline: string;
-  quote: string;
-  author: string;
+  name: string;
   role: string;
-  companyName: string;
-  companyLogo: React.ReactNode;
+  image: string;
+  paragraphs: string[];
 }
 
-const testimonials: Testimonial[] = [
+interface CustomerReview {
+  id: string;
+  name: string;
+  role: string;
+  business: string;
+  city: string;
+  image: string;
+  rating: number;
+  quote: string;
+}
+
+// Actual Leadership Team from reference graphics
+const teamMembers: TeamMemberReview[] = [
   {
-    id: 'logipe',
-    headline: 'Great products; competitive pricing',
-    quote: 'Competitive pricing and top-notch quality have been the reasons we chose DhandaGrow over other brands. Their customer profiling and 1-click checkout increased our order conversions by 38%.',
-    author: 'Mrityunjay Hiremath',
-    role: 'CEO, LogiPe',
-    companyName: 'LogiPe',
-    companyLogo: (
-      <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-800">
-        Logi<span className="text-[#00c9a7]">Pe</span><span className="text-[#ff9800]">.</span>
-      </span>
-    )
+    id: 'dinesh-sir',
+    name: 'Dinesh Sir',
+    role: 'Founder & Promoter',
+    image: '/images/dinesh-sir-clean.png',
+    paragraphs: [
+      '“The idea behind Dhanda Grow AI came from one simple thought – why should growing a business or personal brand be so difficult and expensive? We created Dhanda Grow AI to make digital growth accessible, simpler, and affordable for everyone. And honestly, we’re just getting started!”'
+    ]
   },
   {
-    id: 'equitas',
-    headline: 'Trust them with round-the-clock support',
-    quote: 'Round-the-clock support from team DhandaGrow has been one of the building blocks of our long association with the brand. Their DPDP compliance and Indian tier-4 vault gave our audit committee full confidence.',
-    author: 'Murugesh',
-    role: 'Head - Bangalore Branch, Equitas Bank',
-    companyName: 'Equitas Bank',
-    companyLogo: (
-      <span className="font-bold text-sm sm:text-base tracking-wider uppercase text-[#0d3b66] bg-blue-50/80 px-2.5 py-1 rounded-md border border-blue-100">
-        Equitas
-      </span>
-    )
+    id: 'rajyavardhan-sir',
+    name: 'Rajyavardhan sir',
+    role: 'Team leader',
+    image: '/team/rajya-sir.webp',
+    paragraphs: [
+      '“Being the team leader at Dhanda Grow AI is all about turning ideas into reality! 🚀 I focus on bringing the team together, solving challenges, and making sure we\'re building something truly useful for businesses and creators. One team, one vision, and big goals ahead! 💻✨”'
+    ]
   },
   {
-    id: 'bombay-shaving',
-    headline: 'Our festive video ad ROAS grew to 4.2x',
-    quote: 'Producing high-converting AI reels in Hinglish and regional languages used to take days of agency back-and-forth. With DhandaGrow AI, we churn out 15 viral reels a week with zero friction.',
-    author: 'Aanya Khandelwal',
-    role: 'Head of Growth, Bombay Shaving Co.',
-    companyName: 'Bombay Shaving Co.',
-    companyLogo: (
-      <span className="font-bold text-xs sm:text-sm tracking-widest uppercase text-slate-800 border-b-2 border-orange-500 pb-0.5">
-        BOMBAY SHAVING
-      </span>
-    )
+    id: 'vijay-sir',
+    name: 'Vijay sir',
+    role: 'Full-Stack Developer',
+    image: '/team/gupta-vijay.webp',
+    paragraphs: [
+      '“The fun part of working on Dhanda Grow AI is seeing everything come together – from the interface to the backend. We\'re building something that helps businesses and creators manage social media without juggling a hundred different things!”'
+    ]
   },
   {
-    id: 'bharatfresh',
-    headline: 'UPI AutoPay made recurring orders 100% automated',
-    quote: 'Our retail subscription repeat deliveries are completely hassle-free now. Zero manual payment follow-ups, and GST invoices sync directly to Tally every midnight without error.',
-    author: 'Vikramaditya Singhania',
-    role: 'Founder, BharatFresh Supply',
-    companyName: 'BharatFresh',
-    companyLogo: (
-      <span className="font-black text-sm sm:text-base tracking-tight text-emerald-700">
-        Bharat<span className="text-orange-500">Fresh</span>
-      </span>
-    )
+    id: 'rinku-sir',
+    name: 'Rinku Sir',
+    role: 'Server Administrator',
+    image: '/team/yadav-rinku.webp',
+    paragraphs: [
+      '“People see the app, but there\'s a whole lot happening behind the scenes! My focus is keeping the infrastructure stable, secure, and ready to handle things smoothly. Because let\'s be real, nobody likes a slow app!”'
+    ]
   },
   {
-    id: 'mediaspark',
-    headline: 'Studio-quality AI voiceovers & viral caption sync',
-    quote: 'The Hindi and Marathi AI voice quality is indistinguishable from human dubbing artists. Our social media agency has scaled client campaign delivery 5x without increasing headcount.',
-    author: 'Rohan Mathur',
-    role: 'Creative Director, MediaSpark Studios',
-    companyName: 'MediaSpark',
-    companyLogo: (
-      <span className="font-extrabold text-sm sm:text-base text-violet-700 tracking-tight">
-        Media<span className="text-orange-500">Spark</span>⚡
-      </span>
-    )
+    id: 'deepak-sir',
+    name: 'Deepak Sir',
+    role: 'Mobile App Developer',
+    image: '/team/deepak.webp',
+    paragraphs: [
+      '“Building the mobile app for DhandaGrow AI is about putting supercharged AI tools right into the pocket of every shopkeeper and creator. Fast, seamless, and built for scale!”'
+    ]
+  },
+  {
+    id: 'vishal-sir',
+    name: 'Vishal Sir',
+    role: 'Data Analyst & Growth',
+    image: '/team/vishall.webp',
+    paragraphs: [
+      '“Analyzing creator metrics and business engagement patterns helps us optimize AI models so every post, caption, and hashtag delivers maximum reach and real customer conversions!”'
+    ]
   }
 ];
 
+// Single clean genuine customer review (No dummy lists or stock photos)
+const singleCustomerReview: CustomerReview = {
+  id: 'customer-1',
+  name: 'BharatFresh Retail',
+  role: 'D2C Retail Partner',
+  business: 'BharatFresh Organic',
+  city: 'Jaipur, Rajasthan',
+  image: '/images/logo-icon.png',
+  rating: 5,
+  quote: '“DhandaGrow AI completely changed how we handle social media marketing. From automatic festival creatives to daily WhatsApp updates, our store footfall and festival orders increased significantly without hiring an expensive agency.”'
+};
+
 export function Testimonials() {
+  const [activeTab, setActiveTab] = useState<'team' | 'customer'>('team');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [isPaused, setIsPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
-  // Group testimonials in pairs for desktop view
-  // On desktop: 2 cards side by side per slide
-  const totalSlides = Math.ceil(testimonials.length / 2);
+  // For team: 2 cards per view (slides = 3)
+  const itemsPerSlide = 2;
+  const totalTeamSlides = Math.ceil(teamMembers.length / itemsPerSlide);
+  const totalSlides = activeTab === 'team' ? totalTeamSlides : 1;
 
-  // Auto-play interval
+  // Auto-play interval for team carousel
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || activeTab !== 'team') return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % totalSlides);
-    }, 6000);
+      setDirection(1);
+      setCurrentIndex((prev) => (prev + 1) % totalTeamSlides);
+    }, 6500);
     return () => clearInterval(timer);
-  }, [isPaused, totalSlides]);
+  }, [isPaused, activeTab, totalTeamSlides]);
 
   const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
+    if (activeTab !== 'team') return;
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + totalTeamSlides) % totalTeamSlides);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    if (activeTab !== 'team') return;
+    setDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % totalTeamSlides);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -123,21 +143,25 @@ export function Testimonials() {
     touchStartX.current = null;
   };
 
-  // Currently visible pair of cards
-  const slideCards = [
-    testimonials[currentIndex * 2],
-    testimonials[currentIndex * 2 + 1] || testimonials[0] // Fallback to first if odd count
+  // Current pair of team members
+  const currentTeamPair = [
+    teamMembers[currentIndex * itemsPerSlide],
+    teamMembers[currentIndex * itemsPerSlide + 1] || teamMembers[0]
   ];
 
   return (
     <section 
-      className="py-16 sm:py-24 bg-[#faf9f6] relative z-10 w-full overflow-hidden border-t border-orange-100/60"
+      className="py-14 sm:py-20 bg-[#faf9f6] relative z-10 w-full overflow-hidden border-t border-orange-100/60"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Subtle Background Grid Matching PaymentsStackSection */}
+      {/* Background Decorative Gradient Glows matching logo colors */}
+      <div className="absolute top-0 left-10 w-80 h-80 bg-[#FF6B00]/6 blur-[100px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-10 w-80 h-80 bg-[#7C3AED]/6 blur-[100px] rounded-full pointer-events-none" />
+
+      {/* Subtle Background Grid matching brand aesthetic */}
       <div 
         className="absolute inset-0 pointer-events-none opacity-40"
         style={{
@@ -146,114 +170,288 @@ export function Testimonials() {
         }}
       />
 
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
-        {/* Section Header */}
-        <div className="text-center mb-10 sm:mb-14">
-          <span className="text-orange-600 font-semibold text-xs sm:text-sm tracking-wider uppercase inline-block">
-            Testimonials
-          </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-normal text-slate-900 tracking-tight mt-2 leading-[1.2]">
-            What Our Customers are Saying
-          </h2>
-        </div>
-
-        {/* Carousel Container */}
-        <div className="relative max-w-6xl mx-auto">
+        {/* Top Header Row matching the user reference graphics */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 sm:mb-10 gap-5">
           
-          {/* Left Arrow Button */}
-          <button
-            onClick={handlePrev}
-            aria-label="Previous testimonial"
-            className="hidden md:flex absolute -left-5 lg:-left-7 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 border border-orange-200/80 shadow-md hover:shadow-lg items-center justify-center text-slate-700 hover:text-orange-600 hover:scale-105 transition-all cursor-pointer backdrop-blur-sm"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* Right Arrow Button */}
-          <button
-            onClick={handleNext}
-            aria-label="Next testimonial"
-            className="hidden md:flex absolute -right-5 lg:-right-7 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white/95 border border-orange-200/80 shadow-md hover:shadow-lg items-center justify-center text-slate-700 hover:text-orange-600 hover:scale-105 transition-all cursor-pointer backdrop-blur-sm"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-
-          {/* Cards Grid / Slider */}
-          <div className="overflow-hidden px-1 py-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-stretch"
-              >
-                {slideCards.map((item, idx) => (
-                  <div
-                    key={`${item.id}-${idx}`}
-                    className="bg-[#fffdfa] rounded-[24px] sm:rounded-[28px] border border-orange-200/60 shadow-[0_12px_36px_-12px_rgba(249,115,22,0.07)] p-6 sm:p-9 flex flex-col justify-between relative overflow-hidden transition-all duration-300 hover:shadow-[0_18px_45px_-10px_rgba(249,115,22,0.12)] hover:border-orange-300"
-                  >
-                    {/* Top Orange Double Quote */}
-                    <div>
-                      <div className="text-orange-500 font-serif text-4xl sm:text-5xl leading-none select-none mb-3">
-                        &ldquo;&ldquo;
-                      </div>
-
-                      {/* Headline in Serif */}
-                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-slate-900 mb-3 sm:mb-4 leading-snug">
-                        {item.headline}
-                      </h3>
-
-                      {/* Quote Body */}
-                      <p className="text-slate-600 text-sm sm:text-[15px] leading-relaxed mb-6 font-normal">
-                        {item.quote}
-                      </p>
-                    </div>
-
-                    {/* Bottom Author & Company Logo */}
-                    <div className="flex items-center justify-between pt-5 border-t border-orange-100/70 mt-auto">
-                      <div>
-                        <p className="text-orange-600 font-bold text-sm sm:text-base leading-snug">
-                          {item.author}
-                        </p>
-                        <p className="text-slate-500 text-xs sm:text-[13px] font-medium mt-0.5">
-                          {item.role}
-                        </p>
-                      </div>
-
-                      <div className="shrink-0 pl-3">
-                        {item.companyLogo}
-                      </div>
-                    </div>
-
-                  </div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
+          {/* Decorative Horizontal Line with Dot (Left) */}
+          <div className="hidden sm:flex items-center gap-0 w-28 md:w-52">
+            <div className="h-[3px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] w-full rounded-full" />
+            <div className="w-3.5 h-3.5 rounded-full bg-[#7C3AED] shrink-0 -ml-1 shadow-sm" />
           </div>
 
-          {/* Bottom Pagination Dots */}
-          <div className="flex items-center justify-center gap-2 mt-8 sm:mt-10">
-            {Array.from({ length: totalSlides }).map((_, dotIdx) => {
-              const isActive = currentIndex === dotIdx;
-              return (
-                <button
-                  key={dotIdx}
-                  onClick={() => setCurrentIndex(dotIdx)}
-                  aria-label={`Go to slide ${dotIdx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'w-7 sm:w-8 bg-orange-600 shadow-xs'
-                      : 'w-2 bg-slate-300 hover:bg-slate-400'
-                  }`}
-                />
-              );
-            })}
+          {/* Heading on the Right: Exact "WHAT OUR TEAM SAYS?" Graphic Style */}
+          <div className="flex items-start gap-2.5 sm:gap-3.5 ml-auto">
+            <span className="text-4xl sm:text-5xl md:text-6xl font-serif font-black bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none">
+              &ldquo;
+            </span>
+            <div className="text-right sm:text-left">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-[50px] font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-[1.05]">
+                {activeTab === 'team' ? (
+                  <>WHAT OUR<br />TEAM SAYS?</>
+                ) : (
+                  <>WHAT OUR<br />CUSTOMERS SAY?</>
+                )}
+              </h2>
+            </div>
           </div>
-
         </div>
+
+        {/* Tab Switcher: Team (Primary) vs Customer Review (Single clean review) */}
+        <div className="flex items-center justify-center sm:justify-start gap-2.5 mb-7">
+          <button
+            onClick={() => {
+              setActiveTab('team');
+              setCurrentIndex(0);
+            }}
+            className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'team'
+                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-pink-500/20 scale-105'
+                : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-orange-300 hover:text-slate-900 shadow-xs'
+            }`}
+          >
+            <Users className="w-3.5 h-3.5" />
+            Our Team ({teamMembers.length})
+          </button>
+          
+          <button
+            onClick={() => {
+              setActiveTab('customer');
+              setCurrentIndex(0);
+            }}
+            className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
+              activeTab === 'customer'
+                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-purple-500/20 scale-105'
+                : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-purple-300 hover:text-slate-900 shadow-xs'
+            }`}
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+            Customer Review
+          </button>
+        </div>
+
+        {/* TEAM VIEW: 2 Containers per slide with horizontal scroll */}
+        {activeTab === 'team' && (
+          <div className="relative">
+            
+            {/* Left Arrow Button */}
+            <button
+              onClick={handlePrev}
+              aria-label="Previous team slide"
+              className="hidden md:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/95 border border-pink-200 shadow-lg hover:shadow-xl items-center justify-center text-slate-800 hover:text-[#E11D48] hover:scale-105 active:scale-95 transition-all cursor-pointer backdrop-blur-sm"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            {/* Right Arrow Button */}
+            <button
+              onClick={handleNext}
+              aria-label="Next team slide"
+              className="hidden md:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-white/95 border border-pink-200 shadow-lg hover:shadow-xl items-center justify-center text-slate-800 hover:text-[#E11D48] hover:scale-105 active:scale-95 transition-all cursor-pointer backdrop-blur-sm"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+
+            {/* Sliding Cards Container: Exactly 2 Team Containers Side-by-Side */}
+            <div className="overflow-hidden py-2 px-1">
+              <AnimatePresence mode="wait" custom={direction}>
+                <motion.div
+                  key={`team-${currentIndex}`}
+                  custom={direction}
+                  initial={{ opacity: 0, x: direction > 0 ? 40 : -40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction > 0 ? -40 : 40 }}
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
+                  className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7 items-stretch"
+                >
+                  {currentTeamPair.map((member, idx) => (
+                    <div
+                      key={`${member.id}-${idx}`}
+                      className="group relative h-full flex"
+                    >
+                      {/* Outer Frame with Exact Logo Theme Gradient (Orange -> Hot Pink -> Purple) */}
+                      <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[28px] sm:rounded-[36px] p-0 pr-2.5 pb-2.5 sm:pr-3.5 sm:pb-3.5 shadow-xl transition-all duration-300 group-hover:shadow-2xl w-full flex">
+                        
+                        {/* Main Clean Light Card Body (Medium height, compact) */}
+                        <div className="bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] p-5 sm:p-6 lg:p-7 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+                          
+                          <div>
+                            {/* Top Row: Avatar on Left + Name/Role in Middle + Quote Mark on Right */}
+                            <div className="flex items-start gap-4 sm:gap-5 mb-3.5">
+                              
+                              {/* Circular Avatar with Glowing Logo Theme Gradient Ring */}
+                              <div className="relative shrink-0">
+                                <div className="p-[3.5px] sm:p-[4px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-md group-hover:scale-105 transition-transform duration-300">
+                                  <div className="w-18 h-18 sm:w-20 sm:h-20 md:w-22 md:h-22 rounded-full overflow-hidden bg-slate-100">
+                                    <Image
+                                      src={member.image}
+                                      alt={`${member.name} - ${member.role}`}
+                                      width={100}
+                                      height={100}
+                                      className="w-full h-full object-cover object-top"
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Name & Role */}
+                              <div className="flex-1 min-w-0 pt-1">
+                                <h3 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] tracking-tight leading-tight truncate">
+                                  {member.name}
+                                </h3>
+                                <p className="text-xs sm:text-sm font-semibold text-slate-600 mt-1 truncate">
+                                  {member.role}
+                                </p>
+                              </div>
+
+                              {/* Large Double Quotation Mark (Right) */}
+                              <div className="text-3xl sm:text-4xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
+                                &rdquo;
+                              </div>
+                            </div>
+
+                            {/* Exact Quotes from User Graphics */}
+                            <div className="space-y-2 text-slate-700 italic text-xs sm:text-[13.5px] lg:text-[14px] leading-relaxed font-normal min-h-[68px] sm:min-h-[72px] flex items-start">
+                              {member.paragraphs.map((para, pIdx) => (
+                                <p key={pIdx} className="leading-relaxed">
+                                  {para}
+                                </p>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Footer Accent */}
+                          <div className="flex items-center justify-between pt-3 mt-4 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
+                            <span className="flex items-center gap-1 text-[#FF6B00] font-bold">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              DhandaGrow AI Core Team
+                            </span>
+                            <span className="text-slate-400">
+                              Official Statement
+                            </span>
+                          </div>
+
+                        </div>
+
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {/* Bottom Pagination Dots */}
+            <div className="flex items-center justify-center gap-2 mt-7 sm:mt-9">
+              {Array.from({ length: totalTeamSlides }).map((_, dotIdx) => {
+                const isActive = currentIndex === dotIdx;
+                return (
+                  <button
+                    key={dotIdx}
+                    onClick={() => {
+                      setDirection(dotIdx > currentIndex ? 1 : -1);
+                      setCurrentIndex(dotIdx);
+                    }}
+                    aria-label={`Go to slide ${dotIdx + 1}`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
+                      isActive
+                        ? 'w-8 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-sm'
+                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                    }`}
+                  />
+                );
+              })}
+            </div>
+
+          </div>
+        )}
+
+        {/* CUSTOMER VIEW: Single Clean Genuine Review (No dummy data/photos) */}
+        {activeTab === 'customer' && (
+          <div className="max-w-2xl mx-auto py-2">
+            <div className="group relative">
+              
+              {/* Outer Frame with Exact Logo Theme Gradient */}
+              <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[28px] sm:rounded-[36px] p-0 pr-2.5 pb-2.5 sm:pr-3.5 sm:pb-3.5 shadow-xl transition-all duration-300 group-hover:shadow-2xl">
+                
+                {/* Main Clean Card Body */}
+                <div className="bg-[#FFFFFF] rounded-[24px] sm:rounded-[32px] p-6 sm:p-8 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+                  
+                  <div>
+                    {/* Top Row: Logo Icon on Left + Name/Business in Middle + Stars/Quote on Right */}
+                    <div className="flex items-start gap-4 sm:gap-5 mb-4">
+                      
+                      {/* Circular Avatar with Logo Theme Gradient Ring */}
+                      <div className="relative shrink-0">
+                        <div className="p-[3.5px] sm:p-[4px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-md">
+                          <div className="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white p-2 flex items-center justify-center">
+                            <Image
+                              src={singleCustomerReview.image}
+                              alt={singleCustomerReview.name}
+                              width={70}
+                              height={70}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Name & Business */}
+                      <div className="flex-1 min-w-0 pt-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="text-xl sm:text-2xl font-extrabold text-[#0f172a] tracking-tight leading-tight">
+                            {singleCustomerReview.name}
+                          </h3>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200/70 text-[#E11D48]">
+                            Verified Customer
+                          </span>
+                        </div>
+                        <p className="text-xs sm:text-sm font-bold text-slate-800 mt-1">
+                          {singleCustomerReview.role} • {singleCustomerReview.business}
+                        </p>
+                        <p className="text-[11px] sm:text-xs font-medium text-slate-500 mt-0.5">
+                          {singleCustomerReview.city}
+                        </p>
+                      </div>
+
+                      {/* Right: Quotation Mark */}
+                      <div className="text-3xl sm:text-4xl font-serif font-black bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none shrink-0 pl-1">
+                        &rdquo;
+                      </div>
+                    </div>
+
+                    {/* 5-Star Rating Row */}
+                    <div className="flex items-center gap-1 mb-3">
+                      {[...Array(singleCustomerReview.rating)].map((_, starIdx) => (
+                        <Star key={starIdx} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                      ))}
+                      <span className="text-xs font-bold text-amber-600 ml-1.5">5.0 Star Verified Review</span>
+                    </div>
+
+                    {/* Customer Review Quote */}
+                    <p className="text-slate-700 italic text-sm sm:text-[15px] leading-relaxed font-normal">
+                      {singleCustomerReview.quote}
+                    </p>
+                  </div>
+
+                  {/* Trust Footer */}
+                  <div className="flex items-center justify-between pt-4 mt-5 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Verified Business Partner
+                    </span>
+                    <span className="text-slate-400">
+                      Growing with DhandaGrow AI
+                    </span>
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        )}
 
       </div>
     </section>

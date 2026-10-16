@@ -1,7 +1,7 @@
 "use client";
 import api from '@/lib/api';
 import { useState } from "react";
-import { Loader2, Share2, CheckCircle2 } from "lucide-react";
+import { Loader2, Share2, CheckCircle2, AlertTriangle } from "lucide-react";
 
 import { GeneratedPost } from "@/types/content";
 
@@ -48,6 +48,7 @@ export default function GeneratedPostCard({
   const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'whatsapp' | 'linkedin') => {
     if (publishPlatform === 'whatsapp') {
@@ -65,14 +66,39 @@ export default function GeneratedPostCard({
 
     if (publishPlatform === 'linkedin') {
       setIsPublishingLinkedIn(true);
-      const img = currentImage || post.image_url || post.media_url;
-      let text = `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim();
-      if (img) text += `\n\n${img}`;
-      const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setIsPublishingLinkedIn(false);
-      setPublishSuccessMessage("Opened LinkedIn with post ready to publish!");
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
+      setPublishSuccessMessage(null);
+      setPublishErrorMessage(null);
+      try {
+        // Try API-based publishing first (real LinkedIn post)
+        const endpoint = '/api/v1/linkedin/publish-image';
+        const res = await api.post(endpoint, {
+          image_url: currentImage || post.image_url || post.media_url,
+          caption: `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim(),
+        });
+        const postUrl = res.data?.url || res.data?.data?.url;
+        setPublishSuccessMessage(postUrl
+          ? `✅ Published to LinkedIn! View: ${postUrl}`
+          : '✅ Successfully Published to LinkedIn!');
+        setTimeout(() => setPublishSuccessMessage(null), 8000);
+      } catch (err: any) {
+        const detail = err.response?.data?.detail || '';
+        const statusCode = err.response?.status;
+        // If token expired/revoked or not connected, fallback to web intent
+        if (statusCode === 401 || statusCode === 400 || detail.toLowerCase().includes('revoked') || detail.toLowerCase().includes('not connected')) {
+          const img = currentImage || post.image_url || post.media_url;
+          let text = `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim();
+          if (img) text += `\n\n${img}`;
+          const url = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`;
+          window.open(url, '_blank', 'noopener,noreferrer');
+          setPublishSuccessMessage('Opened LinkedIn — paste your post there!');
+          setTimeout(() => setPublishSuccessMessage(null), 5000);
+        } else {
+          setPublishErrorMessage(`❌ LinkedIn: ${detail || err.message || 'Publishing failed'}`);
+          setTimeout(() => setPublishErrorMessage(null), 10000);
+        }
+      } finally {
+        setIsPublishingLinkedIn(false);
+      }
       return;
     }
 
@@ -80,6 +106,7 @@ export default function GeneratedPostCard({
     else setIsPublishingInstagram(true);
     
     setPublishSuccessMessage(null);
+    setPublishErrorMessage(null);
     
     try {
       const endpoint = `/api/v1/${publishPlatform}/publish-image`;
@@ -91,7 +118,9 @@ export default function GeneratedPostCard({
       setTimeout(() => setPublishSuccessMessage(null), 5000);
     } catch (err: any) {
       console.error(err);
-      alert('Failed to publish: ' + (err.response?.data?.detail || err.message || 'Please check account connection.'));
+      const detail = err.response?.data?.detail || err.message || 'Please check account connection.';
+      setPublishErrorMessage(`❌ Failed to publish to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}: ${detail}`);
+      setTimeout(() => setPublishErrorMessage(null), 10000);
     } finally {
       if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
       else setIsPublishingInstagram(false);
@@ -208,11 +237,16 @@ export default function GeneratedPostCard({
       </div>
 
       <div className="mt-8 pt-6 border-t border-gray-100">
-        {publishSuccessMessage ? (
-          <div className="w-full rounded-xl bg-green-50 border border-green-200 text-green-700 p-4 text-center font-semibold flex items-center justify-center gap-2">
+        {publishSuccessMessage && (
+          <div className="w-full rounded-xl bg-green-50 border border-green-200 text-green-700 p-4 text-center font-semibold flex items-center justify-center gap-2 mb-3">
             <CheckCircle2 className="w-5 h-5" /> {publishSuccessMessage}
           </div>
-        ) : (
+        )}
+        {publishErrorMessage && (
+          <div className="w-full rounded-xl bg-red-50 border border-red-200 text-red-700 p-4 text-center font-semibold flex items-center justify-center gap-2 mb-3">
+            <AlertTriangle className="w-5 h-5" /> {publishErrorMessage}
+          </div>
+        )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
             <button 
               onClick={() => handlePublish('instagram')}
@@ -254,7 +288,6 @@ export default function GeneratedPostCard({
               <span className="truncate">{isPublishingLinkedIn ? 'Opening...' : 'LinkedIn'}</span>
             </button>
           </div>
-        )}
       </div>
     </div>
   );

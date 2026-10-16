@@ -355,7 +355,148 @@ export default function LoginPage() {
     }
   };
 
-  // Handle OAuth redirect callbacks (Google & Facebook)
+  // Common completion handler for LinkedIn authentication
+  const processLinkedInAuth = async (opts: {
+    accessToken?: string;
+    token?: string;
+    code?: string;
+    mode?: "login" | "signup";
+  }) => {
+    const isSignup = opts.mode === "signup";
+    setSocialLoading("LinkedIn");
+    setSocialNotice(
+      isSignup
+        ? "Completing your LinkedIn registration..."
+        : "Signing in with LinkedIn... Verifying your account."
+    );
+    setError("");
+
+    try {
+      let sessionToken = opts.token;
+      let userObj: any = null;
+
+      if (sessionToken) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+        try {
+          userObj = await authService.getCurrentUser();
+        } catch (_) {
+          userObj = { onboardingCompleted: false };
+        }
+      } else {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const redirectUri = `${origin}/login/user`;
+        const authResult = await authService.linkedinLogin({
+          access_token: opts.accessToken,
+          code: opts.code,
+          redirect_uri: redirectUri,
+          accountType: "business",
+          mode: opts.mode || "login",
+        });
+        sessionToken = authResult.token;
+        userObj = authResult.user;
+
+        if (!sessionToken || !userObj) {
+          throw new Error("LinkedIn authentication did not return session token.");
+        }
+
+        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("access_token", sessionToken);
+        }
+      }
+
+      // Extract & save LinkedIn credentials to localStorage and business
+      try {
+        const liAuthorId = 
+          userObj?.linkedin_author_id || 
+          userObj?.linkedinId || 
+          userObj?.linkedin_id ||
+          (userObj as any)?.author_id ||
+          "";
+        const liAccessToken = 
+          userObj?.linkedin_access_token || 
+          (userObj as any)?.access_token ||
+          "";
+
+        if (typeof window !== "undefined") {
+          if (liAuthorId) localStorage.setItem("linkedin_author_id", liAuthorId);
+          if (liAccessToken) localStorage.setItem("linkedin_access_token", liAccessToken);
+        }
+
+        // Persist to business endpoint immediately
+        if (liAuthorId || liAccessToken) {
+          await api.put("/api/v1/businesses/me", {
+            linkedin_author_id: liAuthorId || undefined,
+            linkedin_access_token: liAccessToken || undefined,
+            linkedin_connected: true,
+          }).catch((e) => console.warn("Notice: /api/v1/businesses/me sync:", e));
+        }
+      } catch (saveErr) {
+        console.warn("Could not sync LinkedIn credentials on login:", saveErr);
+      }
+
+      // Check onboarding completion via OnboardingService.isCompleted
+      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+      try {
+        const statusDone = await OnboardingService.isCompleted(sessionToken);
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...userObj,
+        onboardingCompleted: isDone,
+      };
+
+      login(sessionToken, finalUser);
+      sessionStorage.removeItem("linkedin_auth_mode");
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const isPendingOauth = typeof window !== "undefined" && Boolean(localStorage.getItem("linkedin_oauth_pending"));
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("linkedin_oauth_pending");
+      }
+
+      const redirectAfter = sessionStorage.getItem("auth_redirect_after") || (isPendingOauth ? "/social-platforms/linkedin" : null);
+      if (redirectAfter) {
+        sessionStorage.removeItem("auth_redirect_after");
+        router.push(redirectAfter);
+      } else if (!isDone) {
+        router.push("/onboarding");
+      } else {
+        const pendingPlan = sessionStorage.getItem("pending_plan");
+        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
+        if (pendingPlan) {
+          sessionStorage.removeItem("pending_plan");
+          sessionStorage.removeItem("pending_billing");
+          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else {
+          router.push("/dashboard");
+        }
+      }
+    } catch (err: any) {
+      console.error("LinkedIn authentication error:", err);
+      const msg =
+        err.response?.data?.detail ||
+        err.message ||
+        (isSignup ? "Failed to register with LinkedIn." : "Failed to sign in with LinkedIn.");
+      setError(msg);
+      sessionStorage.removeItem("linkedin_auth_mode");
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    } finally {
+      setSocialLoading(null);
+      setSocialNotice(null);
+    }
+  };
+
+  // Handle OAuth redirect callbacks (Google, Facebook, Instagram & LinkedIn)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash || "";
@@ -369,6 +510,7 @@ export default function LoginPage() {
     const fbHashToken = hashParams.get("access_token");
     const fbSearchToken = searchParams.get("user_access_token") || searchParams.get("fb_access_token") || searchParams.get("access_token");
     const savedFbMode = sessionStorage.getItem("facebook_auth_mode") as "login" | "signup" | null;
+    const savedLiMode = sessionStorage.getItem("linkedin_auth_mode") as "login" | "signup" | null;
 
     const callbackToken = searchParams.get("token");
     const igConnected = Boolean(searchParams.get("instagram_connected"));
@@ -386,17 +528,35 @@ export default function LoginPage() {
       Boolean(searchParams.get("facebook_connected")) ||
       Boolean(savedFbMode);
 
+    const isLinkedInAuth =
+      stateParam.includes("linkedin") ||
+      stateParam.includes("li_") ||
+      searchParams.get("provider") === "linkedin" ||
+      Boolean(savedLiMode);
+
     if (errorParam) {
-      const providerName = isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google");
+      const providerName = isLinkedInAuth ? "LinkedIn" : (isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google"));
       setError(`${providerName} authentication failed: ` + decodeURIComponent(errorParam));
       sessionStorage.removeItem("facebook_auth_mode");
       sessionStorage.removeItem("instagram_auth_mode");
       sessionStorage.removeItem("google_auth_mode");
+      sessionStorage.removeItem("linkedin_auth_mode");
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
     }
 
-    // 1. Process Instagram callback if detected
+    // 1. Process LinkedIn callback if detected
+    if (isLinkedInAuth && (callbackToken || code)) {
+      const mode = (stateParam.includes("signup") || savedLiMode === "signup") ? "signup" : "login";
+      processLinkedInAuth({
+        token: callbackToken || undefined,
+        code: code || undefined,
+        mode,
+      });
+      return;
+    }
+
+    // 2. Process Instagram callback if detected
     if (isInstagramAuth && (callbackToken || code || igConnected)) {
       const savedIgMode = sessionStorage.getItem("instagram_auth_mode") as "login" | "signup" | null;
       const mode = (stateParam.includes("signup") || savedIgMode === "signup") ? "signup" : "login";
@@ -408,7 +568,7 @@ export default function LoginPage() {
       return;
     }
 
-    // 2. Process Facebook callback if detected
+    // 3. Process Facebook callback if detected
     if (isFacebookAuth && (fbHashToken || fbSearchToken || code || callbackToken)) {
       const mode = (stateParam.includes("signup") || savedFbMode === "signup") ? "signup" : "login";
       processFacebookAuth({
@@ -420,7 +580,7 @@ export default function LoginPage() {
       return;
     }
 
-    // 2. Process Google OAuth code
+    // 4. Process Google OAuth code
     if (code) {
       const processGoogleCode = async () => {
         const savedMode = sessionStorage.getItem("google_auth_mode");
@@ -611,6 +771,47 @@ export default function LoginPage() {
         return;
       }
     }
+    if (provider === "LinkedIn") {
+      setSocialLoading("LinkedIn");
+      setSocialNotice("Connecting with LinkedIn... Initializing secure session.");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("linkedin_auth_mode", "login");
+      }
+      try {
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const redirectUri = `${origin}/login/user`;
+        const res = await api.get(`/api/v1/auth/linkedin/connect?redirect_uri=${encodeURIComponent(redirectUri)}&mode=login`);
+        const authUrl = res.data?.authorization_url || res.data?.url;
+        if (authUrl) {
+          window.location.href = authUrl;
+          return;
+        }
+        // Fallback to direct OAuth URL if endpoint response is missing authUrl
+        const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
+        const scope = "openid profile email w_member_social";
+        const state = "login_linkedin_" + Math.random().toString(36).substring(7);
+        const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
+        window.location.href = directUrl;
+        return;
+      } catch (err: any) {
+        console.error("LinkedIn connect error:", err);
+        try {
+          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+          const redirectUri = `${origin}/login/user`;
+          const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
+          const scope = "openid profile email w_member_social";
+          const state = "login_linkedin_" + Math.random().toString(36).substring(7);
+          const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
+          window.location.href = directUrl;
+          return;
+        } catch (fallbackErr: any) {
+          setError("Failed to initialize LinkedIn Login: " + (err.response?.data?.detail || err.message));
+          setSocialLoading(null);
+          setSocialNotice(null);
+          return;
+        }
+      }
+    }
     setSocialLoading(provider);
     setSocialNotice(`Connecting with ${provider}... Initializing secure session.`);
     setTimeout(() => {
@@ -703,33 +904,6 @@ export default function LoginPage() {
               <span>Login with Facebook</span>
             </button>
 
-            {/* Login with Instagram */}
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Instagram")}
-              disabled={socialLoading !== null}
-              className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-[#E1306C]/40 hover:shadow-[0_0_20px_rgba(225,48,108,0.18)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-            >
-              {socialLoading === "Instagram" ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#E1306C]" />
-              ) : (
-                <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none">
-                  <defs>
-                    <linearGradient id="ig-grad-login-btn" x1="0%" y1="100%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#fdf497" />
-                      <stop offset="5%" stopColor="#fdf497" />
-                      <stop offset="45%" stopColor="#fd5949" />
-                      <stop offset="60%" stopColor="#d6249f" />
-                      <stop offset="90%" stopColor="#285AEB" />
-                    </linearGradient>
-                  </defs>
-                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#ig-grad-login-btn)" strokeWidth="2" fill="none" />
-                  <circle cx="12" cy="12" r="4" stroke="url(#ig-grad-login-btn)" strokeWidth="2" fill="none" />
-                  <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-grad-login-btn)" />
-                </svg>
-              )}
-              <span>Login with Instagram</span>
-            </button>
 
             {/* 3. Login with LinkedIn */}
             <button

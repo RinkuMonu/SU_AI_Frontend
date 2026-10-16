@@ -14,6 +14,7 @@ import { ContentPreview } from '@/components/content/ContentPreview';
 import { Input } from '@/components/ui/input';
 import api from '@/lib/api';
 import { Label } from '@/components/ui/label';
+import { InstagramService } from '@/services/instagram.service';
 
 export default function ContentLibraryPage() {
   const [contents, setContents] = useState<GeneratedContent[]>([]);
@@ -49,6 +50,9 @@ export default function ContentLibraryPage() {
 
   useEffect(() => {
     fetchContents();
+    const storedIg = InstagramService.getStoredCredentials();
+    if (storedIg.accountId) setIgRegAccountId(storedIg.accountId);
+    if (storedIg.accessToken) setIgRegToken(storedIg.accessToken);
   }, []);
 
   const fetchContents = async () => {
@@ -119,9 +123,10 @@ export default function ContentLibraryPage() {
   const handleIgRegisterAndPublish = async () => {
     setIsRegisteringIg(true);
     try {
-      await api.put('/api/v1/businesses/me', {
-        ig_account_id: igRegAccountId,
-        ig_access_token: igRegToken
+      await InstagramService.saveInstagramCredentials({
+        accountId: igRegAccountId,
+        accessToken: igRegToken,
+        syncBackend: true
       });
       setShowIgRegister(false);
       // Automatically retry the publish!

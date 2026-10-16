@@ -77,18 +77,18 @@ const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST (₹942.82 incl. GST)"
       },
       quarterly: {
-        price: 719,
-        originalPrice: 799,
-        period: "/ month",
-        gstText: "+ 18% GST (₹2,545.26 incl. GST)",
-        billedText: "Billed ₹2,157 / quarter (Save 10%)"
+        price: 2277,
+        originalPrice: 2397,
+        period: "/ quarter",
+        gstText: "+ 18% GST (₹2,686.86 incl. GST)",
+        billedText: "Save ₹120 (5% discount)"
       },
       yearly: {
-        price: 639,
-        originalPrice: 799,
-        period: "/ month",
+        price: 7670,
+        originalPrice: 9588,
+        period: "/ year",
         gstText: "+ 18% GST (₹9,050.60 incl. GST)",
-        billedText: "Billed ₹7,670 / year (Save 20%)"
+        billedText: "Save ₹1,918 (20% discount)"
       }
     },
     features: [
@@ -116,18 +116,18 @@ const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST (₹3,538.82 incl. GST)"
       },
       quarterly: {
-        price: 2699,
-        originalPrice: 2999,
-        period: "/ month",
-        gstText: "+ 18% GST (₹9,554.46 incl. GST)",
-        billedText: "Billed ₹8,097 / quarter (Save 10%)"
+        price: 8547,
+        originalPrice: 8997,
+        period: "/ quarter",
+        gstText: "+ 18% GST (₹10,085.46 incl. GST)",
+        billedText: "Save ₹450 (5% discount)"
       },
       yearly: {
-        price: 2399,
-        originalPrice: 2999,
-        period: "/ month",
+        price: 28790,
+        originalPrice: 35988,
+        period: "/ year",
         gstText: "+ 18% GST (₹33,972.20 incl. GST)",
-        billedText: "Billed ₹28,790 / year (Save 20%)"
+        billedText: "Save ₹7,198 (20% discount)"
       }
     },
     features: [
@@ -157,18 +157,18 @@ const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST (₹5,898.82 incl. GST)"
       },
       quarterly: {
-        price: 4499,
-        originalPrice: 4999,
-        period: "/ month",
-        gstText: "+ 18% GST (₹15,926.46 incl. GST)",
-        billedText: "Billed ₹13,497 / quarter (Save 10%)"
+        price: 14247,
+        originalPrice: 14997,
+        period: "/ quarter",
+        gstText: "+ 18% GST (₹16,811.46 incl. GST)",
+        billedText: "Save ₹750 (5% discount)"
       },
       yearly: {
-        price: 3999,
-        originalPrice: 4999,
-        period: "/ month",
+        price: 47990,
+        originalPrice: 59988,
+        period: "/ year",
         gstText: "+ 18% GST (₹56,628.20 incl. GST)",
-        billedText: "Billed ₹47,990 / year (Save 20%)"
+        billedText: "Save ₹11,998 (20% discount)"
       }
     },
     features: [
@@ -200,20 +200,20 @@ const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST (₹11,798.82 incl. GST)"
       },
       quarterly: {
-        price: 8999,
+        price: 28497,
         pricePrefix: "From ",
-        originalPrice: 9999,
-        period: "/ month",
-        gstText: "+ 18% GST (₹31,856.46 incl. GST)",
-        billedText: "Billed ₹26,997 / quarter (Save 10%)"
+        originalPrice: 29997,
+        period: "/ quarter",
+        gstText: "+ 18% GST (₹33,626.46 incl. GST)",
+        billedText: "Save ₹1,500 (5% discount)"
       },
       yearly: {
-        price: 7999,
+        price: 107989,
         pricePrefix: "From ",
-        originalPrice: 9999,
-        period: "/ month",
-        gstText: "+ 18% GST (₹1,13,268.20 incl. GST)",
-        billedText: "Billed ₹95,990 / year (Save 20%)"
+        originalPrice: 119988,
+        period: "/ year",
+        gstText: "+ 18% GST (₹1,27,427.02 incl. GST)",
+        billedText: "Save ₹11,999 (10% discount)"
       }
     },
     features: [
@@ -287,7 +287,7 @@ export function Pricing() {
                   ? "bg-white/20 text-white border-white/30"
                   : "text-emerald-400 bg-emerald-500/15 border-emerald-500/30"
               }`}>
-                Save 10%
+                Save 5%
               </span>
             </button>
 
