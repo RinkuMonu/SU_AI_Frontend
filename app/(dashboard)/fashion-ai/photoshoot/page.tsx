@@ -77,11 +77,6 @@ export default function PhotoshootPage() {
     return <div className="flex justify-center py-12"><Loader2 className="w-8 h-8 animate-spin text-brand-purple" /></div>;
   }
 
-  const commonColors = [
-    "Red", "Blue", "Green", "Black", "White", "Yellow", 
-    "Pink", "Purple", "Multi-color", "Gold", "Silver", 
-    "Red & Gold Multi-color", "Blue & White"
-  ];
 
   return (
     <div className="max-w-4xl space-y-6 pb-12">
@@ -140,19 +135,13 @@ export default function PhotoshootPage() {
                   
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-white">Color / Pattern</label>
-                    <div className="relative">
-                      <input 
-                        type="text"
-                        placeholder="e.g. Red, Multi-color, Floral print..."
-                        className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all"
-                        value={formData.color || ""}
-                        onChange={e => setFormData({...formData, color: e.target.value})}
-                        list="color-suggestions"
-                      />
-                      <datalist id="color-suggestions">
-                        {commonColors.map(c => <option key={c} value={c} />)}
-                      </datalist>
-                    </div>
+                    <input 
+                      type="text"
+                      placeholder="e.g. Red, Multi-color, Floral print..."
+                      className="w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-white focus:border-brand-purple focus:ring-1 focus:ring-brand-purple outline-none transition-all"
+                      value={formData.color || ""}
+                      onChange={e => setFormData({...formData, color: e.target.value})}
+                    />
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-brand-purple bg-brand-purple/10 p-3 rounded-lg border border-brand-purple/20">

@@ -211,15 +211,11 @@ export default function VirtualTryOnPage() {
                   <label className="text-xs text-text-muted mb-1.5 block">Color / Pattern</label>
                   <input 
                     type="text"
-                    list="color-options"
                     placeholder="e.g. Red and Gold, Floral Blue"
                     value={formData.color} 
                     onChange={e => setFormData({...formData, color: e.target.value})}
                     className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-purple"
                   />
-                  <datalist id="color-options">
-                    {config?.colors?.map((c: string) => <option key={c} value={c} />)}
-                  </datalist>
                 </div>
               </div>
             )}

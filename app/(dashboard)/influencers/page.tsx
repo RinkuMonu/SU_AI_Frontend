@@ -86,11 +86,17 @@ export default function InfluencersPage() {
         setIsLocationLoading(true);
         try {
           const res = await influencerService.searchLocations(locationSearchTerm);
-          if (res.success && res.data && res.data.features) {
-            const formattedOptions = res.data.features.map((f: any) => {
-              const { country, state, city } = f.properties;
-              return [country, state, city].filter(Boolean).join(', ');
-            });
+          if (res.success && res.data) {
+            let formattedOptions: string[] = [];
+            if (res.data.features && Array.isArray(res.data.features)) {
+              formattedOptions = res.data.features.map((f: any) => {
+                if (f.properties?.formatted) return f.properties.formatted;
+                const { city, state, country } = f.properties || {};
+                return [city, state, country].filter(Boolean).join(', ');
+              }).filter(Boolean);
+            } else if (res.data.suggestions && Array.isArray(res.data.suggestions)) {
+              formattedOptions = res.data.suggestions.map((s: any) => s.placePrediction?.text?.text).filter(Boolean);
+            }
             setLocationOptions(Array.from(new Set(formattedOptions)));
             setShowLocationDropdown(true);
           }
