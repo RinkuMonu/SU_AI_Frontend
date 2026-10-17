@@ -24,8 +24,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
 
   const [status,              setStatus]              = useState<OnboardingStatus | null>(null);
   const [showBusinessSuccess, setShowBusinessSuccess] = useState(false);
-  const [showSocialReminder,  setShowSocialReminder]  = useState(false);
-  const reminderTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── fetch onboarding status from backend ──────────────────────────────────
   const refreshStatus = async () => {
@@ -34,7 +32,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
       const data = await OnboardingService.getStatus();
       setStatus(data);
 
-      // If business account is done and we are still on step 1 → show success popup
       if (user?.accountType === "business" && data.business_profile_completed && data.onboarding_step <= 1) {
         setShowBusinessSuccess(true);
       }
@@ -45,11 +42,10 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }
   };
 
-  // ── on mount / user change: also check localStorage flag from signup page ──
+  // ── on mount / user change: check localStorage flag from signup page ──────
   useEffect(() => {
     if (!user) return;
 
-    // Signup page sets this flag before redirecting to /dashboard
     const justRegistered = localStorage.getItem("business_just_registered");
     if (justRegistered === "1") {
       localStorage.removeItem("business_just_registered");
@@ -59,46 +55,13 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
     }
   }, [user]);
 
-  // ── 10-minute reminder after business success popup is closed ─────────────
-  useEffect(() => {
-    if (!status) return;
-    if (!status.business_profile_completed) return;
-    if (status.social_connection_completed)  return;
-
-    // Show social reminder when user is on step 2
-    if (status.onboarding_step === 2 && status.connected_platforms.length === 0) {
-      setShowSocialReminder(true);
-    }
-
-    // Schedule recurring 10-minute reminder
-    if (reminderTimer.current) clearInterval(reminderTimer.current);
-    reminderTimer.current = setInterval(() => {
-      setShowSocialReminder(prev => {
-        if (!prev) return true; // only open if not already open
-        return prev;
-      });
-    }, 10 * 60 * 1000);
-
-    return () => {
-      if (reminderTimer.current) clearInterval(reminderTimer.current);
-    };
-  }, [status]);
-
   // ── handlers ─────────────────────────────────────────────────────────────
   const handleBusinessContinue = async () => {
     setShowBusinessSuccess(false);
     try {
       await OnboardingService.updateProgress({ onboarding_step: 2 });
     } catch {}
-    // Immediately show social reminder
-    setShowSocialReminder(true);
-  };
-
-  const handleSocialSkip = () => setShowSocialReminder(false);
-
-  const handleGoToIntegrations = async () => {
-    setShowSocialReminder(false);
-    router.push("/integrations");
+    router.push("/social-platforms/facebook");
   };
 
   // ─── render ───────────────────────────────────────────────────────────────
@@ -124,38 +87,6 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg shadow-purple-500/25 transition-all duration-200"
             >
               Continue → Connect Social Media
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── Social Media Connection Reminder Modal ── */}
-      <Dialog open={showSocialReminder} onOpenChange={setShowSocialReminder}>
-        <DialogContent className="sm:max-w-md border border-pink-500/30 bg-[#0B1120] shadow-2xl shadow-pink-900/20">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
-              <span className="text-2xl">📱</span> Connect Your Social Media
-            </DialogTitle>
-            <DialogDescription className="text-sm text-white/60 mt-2 leading-relaxed">
-              Connect Instagram, Facebook, or WhatsApp Business to create,
-              schedule, and publish AI-generated content directly from SevenUnique AI.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col gap-3 py-4">
-            <Button
-              onClick={handleGoToIntegrations}
-              className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-semibold shadow-lg shadow-pink-500/25 transition-all duration-200"
-            >
-              🔗 Go to Integrations Page
-            </Button>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={handleSocialSkip}
-              className="text-white/40 hover:text-white/70 text-sm transition-colors"
-            >
-              Remind me later (10 min)
             </Button>
           </DialogFooter>
         </DialogContent>

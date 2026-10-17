@@ -327,7 +327,7 @@ export default function HelpCenterPage() {
       </section>
 
       {/* FAQ & System Status */}
-      <section className="py-24 relative z-10 border-t border-white/5">
+      <section id="faqs" className="py-24 relative z-10 border-t border-white/5 scroll-mt-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12">
           
           {/* FAQs */}

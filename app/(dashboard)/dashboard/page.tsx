@@ -15,6 +15,7 @@ import { AnalyticsData } from "@/types/analytics";
 import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
+import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -322,25 +323,13 @@ export default function DashboardPage() {
       {/* Today's Marketing */}
       <TodaysMarketing />
 
-      {/* Bottom Section */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-gradient-to-br from-[#1E1128]/50 to-[#0B1120] border-brand-purple/20 backdrop-blur-xl rounded-2xl hover:border-brand-purple/40 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] transition-all duration-500 relative overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-white">Recent Campaigns</CardTitle>
-            <CardDescription className="text-text-muted">
-              Your active marketing campaigns performance this week.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[300px] text-text-muted bg-[#0B1120]/50 rounded-xl mx-6 mb-6 border border-dashed border-brand-purple/30 hover:border-brand-purple/60 hover:bg-brand-purple/5 transition-all duration-500">
-            <Sparkles className="h-10 w-10 text-text-muted mb-4" />
-            <p>No active campaigns right now.</p>
-            <Button variant="link" className="text-brand-pink mt-2" asChild>
-              <Link href="/campaigns">Start a campaign</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Bottom Section: Recent Activity & AI Insights */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
+        <div className="col-span-4">
+          <RecentActivityList />
+        </div>
 
-        <Card className="col-span-3 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden">
+        <Card className="col-span-3 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden flex flex-col">
           <CardHeader>
             <CardTitle className="text-white">AI Insights</CardTitle>
             <CardDescription className="text-text-muted">

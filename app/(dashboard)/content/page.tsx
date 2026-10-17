@@ -9,6 +9,7 @@ import { GenerateContentRequest, GeneratedContent } from '@/types/content';
 import { Sparkles, History, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActivityService } from '@/services/activity.service';
 
 function ContentStudioContent() {
   const searchParams = useSearchParams();
@@ -25,6 +26,14 @@ function ContentStudioContent() {
     try {
       const response = await contentService.generateContent(data);
       setGeneratedContent(response.data);
+      ActivityService.logActivity({
+        title: `Generated ${data.type || "AI Post"}`,
+        description: response.data.title || `Created engaging ${data.platform} ${data.type} with AI.`,
+        category: "content",
+        platform: (data.platform?.toLowerCase() as any) || "ai",
+        status: "Draft",
+        actionUrl: "/content",
+      });
     } catch (error) {
       console.error("Failed to generate content:", error);
     } finally {
@@ -36,6 +45,14 @@ function ContentStudioContent() {
     try {
       await contentService.updateContent(editedContent._id, editedContent);
       setGeneratedContent(editedContent);
+      ActivityService.logActivity({
+        title: `Updated ${editedContent.type || "Content"}`,
+        description: editedContent.title || "Saved changes to content library item.",
+        category: "content",
+        platform: (editedContent.platform?.toLowerCase() as any) || "ai",
+        status: editedContent.status || "Completed",
+        actionUrl: "/content",
+      });
     } catch (error) {
       console.error("Failed to save content:", error);
     }

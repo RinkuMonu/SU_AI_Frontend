@@ -305,7 +305,8 @@ export function Features() {
   }, [currentVideoUrl, phase]);
 
   return (
-    <section className="pt-4 sm:pt-6 lg:pt-8 pb-10 sm:pb-14 bg-gradient-to-b from-[#f9faff] via-white to-[#f8f9fe] border-y border-slate-100 relative overflow-hidden select-none">
+    <section id="features" className="pt-4 sm:pt-6 lg:pt-8 pb-10 sm:pb-14 bg-gradient-to-b from-[#f9faff] via-white to-[#f8f9fe] border-y border-slate-100 relative overflow-hidden select-none scroll-mt-20">
+      <div id="ai-reels" className="absolute -top-24 left-0" />
       
       {/* Soft Ambient Glow in White Theme */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/35 blur-[130px] rounded-full pointer-events-none" />

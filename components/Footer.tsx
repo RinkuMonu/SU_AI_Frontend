@@ -1,10 +1,13 @@
-import React from 'react';
+'use client';
+
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
   ShieldCheck,
   ChevronDown,
-  Globe2
+  Globe2,
+  Check
 } from 'lucide-react';
 
 const InstagramIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
@@ -25,6 +28,18 @@ const AppStoreIcon = () => (
 );
 
 export function Footer() {
+  const [email, setEmail] = useState('');
+  const [isSubscribed, setIsSubscribed] = useState(false);
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setIsSubscribed(true);
+      setEmail('');
+      setTimeout(() => setIsSubscribed(false), 5000);
+    }
+  };
+
   return (
     <footer className="font-sans bg-white pb-0 pt-12 border-t border-slate-200">
       {/* 2. Main Footer Links */}
@@ -48,16 +63,40 @@ export function Footer() {
 
             {/* Social Icons */}
             <div className="flex items-center gap-3 mb-8">
-              <a href="#" aria-label="Instagram" className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-gradient-to-r hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white transition-all">
+              <a 
+                href="https://www.instagram.com/dhandagrow" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="Instagram" 
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-gradient-to-r hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white transition-all shadow-xs"
+              >
                 <InstagramIcon />
               </a>
-              <a href="#" aria-label="LinkedIn" className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#0A66C2] hover:text-white transition-all">
+              <a 
+                href="https://www.linkedin.com/company/dhandagrow/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="LinkedIn" 
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#0A66C2] hover:text-white transition-all shadow-xs"
+              >
                 <LinkedinIcon />
               </a>
-              <a href="#" aria-label="YouTube" className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#FF0000] hover:text-white transition-all">
+              <a 
+                href="https://www.youtube.com/@DhandhaGrow" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="YouTube" 
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#FF0000] hover:text-white transition-all shadow-xs"
+              >
                 <YoutubeIcon />
               </a>
-              <a href="#" aria-label="Facebook" className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#1877F2] hover:text-white transition-all">
+              <a 
+                href="https://www.facebook.com/profile.php?id=61595209640733" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                aria-label="Facebook" 
+                className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#1877F2] hover:text-white transition-all shadow-xs"
+              >
                 <FacebookIcon />
               </a>
             </div>
@@ -68,16 +107,26 @@ export function Footer() {
               <p className="text-slate-500 text-xs leading-relaxed mb-4">
                 Join our newsletter and get the latest features, growth ideas and exclusive offers.
               </p>
-              <form className="flex gap-2">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email address" 
-                  className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-purple-400"
-                />
-                <button type="submit" className="bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors">
-                  Subscribe
-                </button>
-              </form>
+              {isSubscribed ? (
+                <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                  <Check className="w-4 h-4 shrink-0" />
+                  <span>Thank you for subscribing! We&apos;ll be in touch.</span>
+                </div>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex gap-2">
+                  <input 
+                    type="email" 
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email address" 
+                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-purple-400 bg-white"
+                  />
+                  <button type="submit" className="bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors shrink-0">
+                    Subscribe
+                  </button>
+                </form>
+              )}
             </div>
           </div>
 
@@ -89,16 +138,17 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Products</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'AI Post Maker', desc: 'Create stunning social media posts' },
-                  { title: 'AI Image Generator', desc: 'Generate high-quality images with AI' },
-                  { title: 'AI Video & Reel Maker', desc: 'Create engaging reels and videos' },
-                  { title: 'Social Media Scheduler', desc: 'Schedule & automate your content' },
-                  { title: 'AI Caption & Hashtag Generator', desc: 'Get viral captions and hashtags' },
-                  { title: 'Lead Management', desc: 'Manage and track your leads' },
-                  { title: 'Templates & Resources', desc: 'Ready-to-use templates for your business' },
+                  { title: 'AI Reel Maker', desc: 'Create engaging vertical reels & videos', href: '/#ai-reels' },
+                  { title: 'AI Post Maker', desc: 'Create stunning social media posts', href: '/#ai-posts' },
+                  { title: 'AI Photoshoot', desc: 'Turn product photos into 8K creatives', href: '/#ai-photoshoot' },
+                  { title: 'AI Talking Avatar', desc: 'Create digital human spokesperson videos', href: '/#ai-avatar' },
+                  { title: 'Social Media Scheduler', desc: 'Schedule & automate your content', href: '/#automation' },
+                  { title: 'AI Ad Creatives & Copy', desc: 'High-converting ad copy & visuals', href: '/features/ai-ads' },
+                  { title: 'Lead Management & CRM', desc: 'Manage and track customer leads', href: '/features/crm' },
+                  { title: 'Indian Festival Engine', desc: 'Ready-to-use festival campaigns', href: '/features/festival-engine' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -115,10 +165,10 @@ export function Footer() {
                   { title: 'About Us', desc: 'Our mission and story', href: '/about' },
                   { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
                   { title: 'Features', desc: 'Explore all features', href: '/#features' },
-                  { title: 'Pricing', desc: 'Simple and affordable plans', href: '/#pricing' },
-                  { title: 'Blog', desc: 'Latest news and insights', href: '/blog' },
+                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/#pricing' },
+                  { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
-                  { title: 'Contact Us', desc: 'Get in touch', href: '/#contact' },
+                  { title: 'Contact Us', desc: 'Get in touch with support', href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
                     <Link href={item.href} className="group block">
@@ -134,16 +184,16 @@ export function Footer() {
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Resources & Support</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { title: 'Help Center', desc: 'Find answers to your questions' },
-                  { title: 'FAQs', desc: 'Frequently asked questions' },
-                  { title: 'Getting Started', desc: 'Learn how to use DhandaGrow' },
-                  { title: 'Tutorials & Guides', desc: 'Step-by-step guides' },
-                  { title: 'Report a Problem', desc: 'Facing an issue? Let us know' },
-                  { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans' },
-                  { title: 'Contact Support', desc: "We're here to help" },
+                  { title: 'Help Center', desc: 'Find answers to your questions', href: '/help' },
+                  { title: 'FAQs', desc: 'Frequently asked questions', href: '/help#faqs' },
+                  { title: 'How It Works', desc: 'Step-by-step workflow to get started', href: '/#how-it-works' },
+                  { title: 'Tutorials & Guides', desc: 'Growth guides & marketing advice', href: '/blog' },
+                  { title: 'Mobile App Download', desc: 'Get DhandaGrow on Android & iOS', href: '/download' },
+                  { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans', href: '/#pricing' },
+                  { title: 'Contact Support', desc: "We're here 24/7 to help", href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href="#" className="group block">
+                    <Link href={item.href} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -182,28 +232,30 @@ export function Footer() {
           
           {/* App Download */}
           <div className="flex items-center gap-4 bg-purple-50/50 p-3 rounded-2xl border border-purple-100/50">
-            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-purple-100/50">
-              <Image src="/logo.png" alt="Icon" width={30} height={30} className="w-8 h-8 object-contain" />
-            </div>
-            <div>
-              <div className="text-slate-800 font-bold text-[13px] md:text-sm">Take DhandaGrow Everywhere</div>
-              <div className="text-slate-500 text-[11px] md:text-xs">Download our mobile app and create on the go.</div>
-            </div>
+            <Link href="/download" className="flex items-center gap-4 group">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-purple-100/50 group-hover:scale-105 transition-transform">
+                <Image src="/logo.png" alt="Icon" width={30} height={30} className="w-8 h-8 object-contain" />
+              </div>
+              <div>
+                <div className="text-slate-800 font-bold text-[13px] md:text-sm group-hover:text-purple-600 transition-colors">Take DhandaGrow Everywhere</div>
+                <div className="text-slate-500 text-[11px] md:text-xs">Download our mobile app and create on the go.</div>
+              </div>
+            </Link>
             <div className="flex gap-2 ml-4">
-              <a href="#" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
+              <Link href="/download" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
                 <PlayStoreIcon />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] text-slate-300 font-medium">GET IT ON</span>
                   <span className="text-[11px] font-bold">Google Play</span>
                 </div>
-              </a>
-              <a href="#" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
+              </Link>
+              <Link href="/download" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
                 <AppStoreIcon />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] text-slate-300 font-medium">Download on the</span>
                   <span className="text-[11px] font-bold">App Store</span>
                 </div>
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -226,7 +278,6 @@ export function Footer() {
               <div className="text-slate-500 text-[11px] uppercase tracking-wider font-semibold">Support</div>
             </div>
           </div>
-
 
         </div>
       </div>

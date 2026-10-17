@@ -6,6 +6,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
+import { SocialConnectReminderDialog } from "@/components/social/SocialConnectReminderDialog";
 import { Loader2 } from "lucide-react";
 
 import { SidebarProvider } from "@/components/layout/SidebarContext";
@@ -52,7 +53,10 @@ export default function DashboardLayout({
           <Navbar />
           <main className="flex-1 relative overflow-y-auto focus:outline-none custom-scrollbar">
             <div className="py-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
-              <OnboardingProvider>{children}</OnboardingProvider>
+              <OnboardingProvider>
+                {children}
+                <SocialConnectReminderDialog />
+              </OnboardingProvider>
             </div>
           </main>
         </div>
