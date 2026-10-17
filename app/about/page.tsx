@@ -1,6 +1,7 @@
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { companyProfile } from '@/data/about';
+import { SectionConnector } from '@/components/about/SectionConnector';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -68,7 +69,16 @@ export default function AboutPage() {
 
 
       {/* 2. MAIN CONTENT BODY */}
-      <div className="relative z-10 py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
+      <div className="relative z-10 pt-4 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        {/* 1. Connector from Hero Team Image (right 75%) to Director's Voice (left 22%) */}
+        <SectionConnector
+          startDesktop={75}
+          endDesktop={22}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* 1. DIRECTOR’S VOICE (SIDE-BY-SIDE: CONTENT ON LEFT, IMAGE ON RIGHT) */}
         <section id="directors-voice" className="scroll-mt-28 relative">
@@ -130,6 +140,15 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* 2. Connector from Director's Voice (left 22%) to About Us (right 75%) */}
+        <SectionConnector
+          startDesktop={22}
+          endDesktop={75}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
+
         {/* 2. ABOUT US (SIDE-BY-SIDE: CONTENT ON LEFT, TEAM.PNG IMAGE ON RIGHT) */}
         <section id="about-us" className="scroll-mt-28 bg-gradient-to-b from-white/[0.06] to-white/[0.02] border border-white/10 rounded-3xl p-6 sm:p-10 lg:p-14 backdrop-blur-xl relative overflow-hidden shadow-2xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
@@ -164,6 +183,15 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* 3. Connector from About Us (right 75%) to Our Mission (left 25%) */}
+        <SectionConnector
+          startDesktop={75}
+          endDesktop={25}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* 3. OUR MISSION (PHOTO ON ONE SIDE, CONTENT ON OTHER) */}
         <section id="mission" className="scroll-mt-28 bg-gradient-to-r from-emerald-950/40 via-emerald-950/20 to-white/[0.02] border border-emerald-500/20 rounded-3xl p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-2xl backdrop-blur-xl">
@@ -201,6 +229,15 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* 4. Connector from Our Mission (left 25%) to Our Vision (right 75%) */}
+        <SectionConnector
+          startDesktop={25}
+          endDesktop={75}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* 4. OUR VISION (SIDE-BY-SIDE: CONTENT ON ONE SIDE, PHOTO ON OTHER) */}
         <section id="vision" className="scroll-mt-28 bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-surface border border-purple-500/20 rounded-3xl p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-2xl backdrop-blur-xl">
@@ -245,6 +282,15 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* 5. Connector from Our Vision (right 75%) to Partners Message (left 25%) */}
+        <SectionConnector
+          startDesktop={75}
+          endDesktop={25}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* 5. A MESSAGE FROM OUR PARTNERS (PHOTO ON LEFT, CONTENT ON RIGHT) */}
         <section id="partners-message" className="scroll-mt-28 bg-gradient-to-r from-orange-950/30 via-pink-950/20 to-white/[0.02] border border-pink-500/20 rounded-3xl p-6 sm:p-10 lg:p-14 relative overflow-hidden shadow-2xl backdrop-blur-xl">
@@ -297,6 +343,15 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
+
+        {/* 6. Connector from Partners Message (left 25%) to Leadership Team (center 50%) */}
+        <SectionConnector
+          startDesktop={25}
+          endDesktop={50}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* 6. MEET OUR LEADERSHIP TEAM (4-COLUMN HORIZONTAL GRID) */}
         {companyProfile.leadershipTeam && (
@@ -354,6 +409,15 @@ export default function AboutPage() {
             </div>
           </section>
         )}
+
+        {/* 7. Connector from Leadership Team (center 50%) to Come Work With Us (center 50%) */}
+        <SectionConnector
+          startDesktop={50}
+          endDesktop={50}
+          startMobile={50}
+          endMobile={50}
+          height={96}
+        />
 
         {/* COME WORK WITH US SECTION */}
         <section className="relative rounded-3xl overflow-hidden bg-[#faf7f2] border border-orange-200/50 p-8 sm:p-14 lg:p-20 shadow-2xl text-center">

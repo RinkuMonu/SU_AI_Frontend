@@ -131,7 +131,7 @@ export default function OnboardingPage() {
         const stored = localStorage.getItem("user");
         const u = stored ? JSON.parse(stored) : user;
         if (u) {
-          if (u.onboardingCompleted === true) {
+          if (u.onboardingCompleted === true || u.onboarding_completed === true) {
             router.replace("/dashboard");
             return;
           }

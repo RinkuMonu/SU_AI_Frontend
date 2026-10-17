@@ -124,7 +124,7 @@ export const authService = {
   facebookLogin: async ({
     access_token,
     code,
-    accountType = 'business',
+    accountType = 'user',
     mode = 'login',
   }: {
     access_token?: string;
@@ -137,7 +137,7 @@ export const authService = {
       const response = await api.post(endpoint, {
         access_token: access_token || undefined,
         code: code || undefined,
-        accountType: accountType || 'business',
+        accountType: accountType || 'user',
         mode: mode || 'login',
       });
       const raw = response.data;

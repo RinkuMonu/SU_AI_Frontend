@@ -23,6 +23,7 @@ import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -92,6 +93,15 @@ export default function LoginPage() {
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [authModal, setAuthModal] = useState<{
+    open: boolean;
+    status: AuthModalStatus;
+    provider?: AuthProviderType;
+    title?: string;
+    message?: string;
+    actionText?: string;
+    actionHref?: string;
+  } | null>(null);
 
   // Dynamic Showcase Slides Auto-Rotation (2.8s)
   const [slideIndex, setSlideIndex] = useState(0);
@@ -133,6 +143,15 @@ export default function LoginPage() {
         : "Signing in with Facebook... Verifying your account."
     );
     setError("");
+    setAuthModal({
+      open: true,
+      status: "analyzing",
+      provider: "Facebook",
+      title: isSignup ? "Creating Facebook Account" : "Connecting with Facebook",
+      message: isSignup
+        ? "Analyzing profile and creating your secure account..."
+        : "Analyzing credentials and verifying your Facebook profile...",
+    });
 
     try {
       let token = opts.token;
@@ -152,7 +171,7 @@ export default function LoginPage() {
         const authResult = await authService.facebookLogin({
           access_token: opts.accessToken,
           code: opts.code,
-          accountType: "business",
+          accountType: "user",
           mode: opts.mode || "login",
         });
         token = authResult.token;
@@ -206,16 +225,11 @@ export default function LoginPage() {
         });
       } catch (_) {}
 
-      // Verify onboarding status using OnboardingService.isCompleted
-      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
-      try {
-        const statusDone = await OnboardingService.isCompleted(token);
-        if (statusDone) isDone = true;
-      } catch (_) {}
-
       const finalUser = {
         ...userObj,
-        onboardingCompleted: isDone,
+        accountType: userObj?.accountType || "user",
+        role: userObj?.role || "user",
+        onboardingCompleted: true,
       };
 
       login(token, finalUser);
@@ -225,9 +239,17 @@ export default function LoginPage() {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      // If onboarding is incomplete, navigate to onboarding; if complete, dashboard
-      if (!isDone) {
-        router.push("/onboarding");
+      const redirectAfter = sessionStorage.getItem("auth_redirect_after");
+      setAuthModal({
+        open: true,
+        status: "navigating",
+        provider: "Facebook",
+        title: "Facebook Verified!",
+        message: "Account verified! Navigating to your dashboard...",
+      });
+      if (redirectAfter) {
+        sessionStorage.removeItem("auth_redirect_after");
+        router.push(redirectAfter);
       } else {
         const pendingPlan = sessionStorage.getItem("pending_plan");
         const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
@@ -246,6 +268,13 @@ export default function LoginPage() {
         err.message ||
         (isSignup ? "Failed to register with Facebook." : "Failed to sign in with Facebook.");
       setError(msg);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: "Facebook",
+        title: "Facebook Authentication Failed",
+        message: msg,
+      });
       sessionStorage.removeItem("facebook_auth_mode");
       if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -370,6 +399,15 @@ export default function LoginPage() {
         : "Signing in with LinkedIn... Verifying your account."
     );
     setError("");
+    setAuthModal({
+      open: true,
+      status: "analyzing",
+      provider: "LinkedIn",
+      title: isSignup ? "Completing LinkedIn Registration" : "Connecting with LinkedIn",
+      message: isSignup
+        ? "Analyzing profile & finalizing registration..."
+        : "Analyzing credentials & verifying secure session...",
+    });
 
     try {
       let sessionToken = opts.token;
@@ -463,6 +501,13 @@ export default function LoginPage() {
       }
 
       const redirectAfter = sessionStorage.getItem("auth_redirect_after") || (isPendingOauth ? "/social-platforms/linkedin" : null);
+      setAuthModal({
+        open: true,
+        status: "navigating",
+        provider: "LinkedIn",
+        title: "LinkedIn Verified!",
+        message: "Account verified! Navigating to your dashboard...",
+      });
       if (redirectAfter) {
         sessionStorage.removeItem("auth_redirect_after");
         router.push(redirectAfter);
@@ -486,6 +531,13 @@ export default function LoginPage() {
         err.message ||
         (isSignup ? "Failed to register with LinkedIn." : "Failed to sign in with LinkedIn.");
       setError(msg);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: "LinkedIn",
+        title: "LinkedIn Authentication Failed",
+        message: msg,
+      });
       sessionStorage.removeItem("linkedin_auth_mode");
       if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -536,7 +588,15 @@ export default function LoginPage() {
 
     if (errorParam) {
       const providerName = isLinkedInAuth ? "LinkedIn" : (isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google"));
-      setError(`${providerName} authentication failed: ` + decodeURIComponent(errorParam));
+      const decodedErr = decodeURIComponent(errorParam);
+      setError(`${providerName} authentication failed: ` + decodedErr);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: (providerName === "Google" ? "Gmail" : providerName) as AuthProviderType,
+        title: `${providerName} Authorization Failed`,
+        message: decodedErr,
+      });
       sessionStorage.removeItem("facebook_auth_mode");
       sessionStorage.removeItem("instagram_auth_mode");
       sessionStorage.removeItem("google_auth_mode");
@@ -590,6 +650,13 @@ export default function LoginPage() {
         setSocialLoading("Gmail");
         setSocialNotice(isSignup ? "Completing your Google registration..." : "Signing in with Google... Verifying your account.");
         setError("");
+        setAuthModal({
+          open: true,
+          status: "analyzing",
+          provider: "Gmail",
+          title: isSignup ? "Completing Google Registration" : "Connecting with Google",
+          message: isSignup ? "Analyzing account & creating profile..." : "Analyzing credentials & verifying your account...",
+        });
         try {
           const redirectUri = `${window.location.origin}/login/user`;
           const endpoint = isSignup ? "/api/v1/auth/google/signup" : "/api/v1/auth/google/login";
@@ -617,6 +684,14 @@ export default function LoginPage() {
             login(token, finalUser);
             sessionStorage.removeItem("google_auth_mode");
 
+            setAuthModal({
+              open: true,
+              status: "navigating",
+              provider: "Gmail",
+              title: "Google Verified!",
+              message: "Account verified! Navigating to your dashboard...",
+            });
+
             if (!isDone) {
               router.push("/onboarding");
             } else {
@@ -637,6 +712,13 @@ export default function LoginPage() {
           console.error("Google authentication error:", err);
           const msg = err.response?.data?.detail || err.message || (isSignup ? "Failed to register with Google." : "Failed to sign in with Google.");
           setError(msg);
+          setAuthModal({
+            open: true,
+            status: "error",
+            provider: "Gmail",
+            title: "Google Authentication Failed",
+            message: msg,
+          });
           sessionStorage.removeItem("google_auth_mode");
           window.history.replaceState({}, document.title, window.location.pathname);
         } finally {
@@ -653,6 +735,13 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
     setSocialNotice(null);
+    setAuthModal({
+      open: true,
+      status: "analyzing",
+      provider: "Email",
+      title: "Signing In",
+      message: "Verifying your credentials and securing session...",
+    });
     try {
       const response = await authService.login(data.email, data.password);
       if (response?.user?.role === "admin") {
@@ -670,6 +759,14 @@ export default function LoginPage() {
           onboardingCompleted: isDone,
         };
         login(response.token, finalUser);
+
+        setAuthModal({
+          open: true,
+          status: "navigating",
+          provider: "Email",
+          title: "Welcome Back!",
+          message: "Credentials verified! Navigating to dashboard...",
+        });
 
         const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
         const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
@@ -694,6 +791,13 @@ export default function LoginPage() {
         router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
       } else {
         setError(msg);
+        setAuthModal({
+          open: true,
+          status: "error",
+          provider: "Email",
+          title: "Login Failed",
+          message: msg,
+        });
       }
       setIsLoading(false);
     }
@@ -703,6 +807,13 @@ export default function LoginPage() {
     setError("");
     if (provider === "Gmail") {
       setSocialLoading("Gmail");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Gmail",
+        title: "Connecting with Google",
+        message: "Preparing secure Google OAuth handshake...",
+      });
       try {
         const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
         const redirectUri = `${origin}/login/user`;
@@ -713,18 +824,41 @@ export default function LoginPage() {
           sessionStorage.setItem("google_auth_mode", "login");
         }
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
-        window.location.href = authUrl;
+        setAuthModal({
+          open: true,
+          status: "navigating",
+          provider: "Gmail",
+          title: "Redirecting to Google",
+          message: "Navigating to Google sign-in portal. Please wait...",
+        });
+        setTimeout(() => {
+          window.location.href = authUrl;
+        }, 300);
         return;
       } catch (err: any) {
         console.error("Google connect error:", err);
-        setError("Failed to initialize Google Login: " + (err.response?.data?.detail || err.message));
+        const errMsg = "Failed to initialize Google Login: " + (err.response?.data?.detail || err.message);
+        setError(errMsg);
+        setAuthModal({
+          open: true,
+          status: "error",
+          provider: "Gmail",
+          title: "Google Connection Failed",
+          message: errMsg,
+        });
         setSocialLoading(null);
         return;
       }
     }
     if (provider === "Facebook") {
       setSocialLoading("Facebook");
-      setSocialNotice("Connecting with Facebook... Initializing secure session.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Facebook",
+        title: "Connecting with Facebook",
+        message: "Analyzing authentication request & initializing secure session...",
+      });
       try {
         await FacebookService.startFacebookAuth("login", async (userToken) => {
           await processFacebookAuth({ accessToken: userToken, mode: "login" });
@@ -732,17 +866,33 @@ export default function LoginPage() {
         return;
       } catch (err: any) {
         console.error("Facebook connect error:", err);
-        // Fallback to backend connect URL if SDK call failed
         try {
           const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
           const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}&rerequest=true`);
           const authUrl = res.data?.authorization_url || res.data?.url;
           if (authUrl) {
-            window.location.href = authUrl;
+            setAuthModal({
+              open: true,
+              status: "navigating",
+              provider: "Facebook",
+              title: "Redirecting to Facebook",
+              message: "Navigating to Facebook portal. Please wait...",
+            });
+            setTimeout(() => {
+              window.location.href = authUrl;
+            }, 300);
             return;
           }
         } catch (backendErr: any) {
-          setError("Failed to initialize Facebook Login: " + (err.message || backendErr.message));
+          const errMsg = "Failed to initialize Facebook Login: " + (err.message || backendErr.message);
+          setError(errMsg);
+          setAuthModal({
+            open: true,
+            status: "error",
+            provider: "Facebook",
+            title: "Facebook Connection Failed",
+            message: errMsg,
+          });
         }
         setSocialLoading(null);
         setSocialNotice(null);
@@ -751,7 +901,13 @@ export default function LoginPage() {
     }
     if (provider === "Instagram") {
       setSocialLoading("Instagram");
-      setSocialNotice("Connecting with Instagram... Initializing secure session.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "Instagram",
+        title: "Connecting with Instagram",
+        message: "Initializing secure Instagram connection...",
+      });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("instagram_auth_mode", "login");
       }
@@ -760,12 +916,29 @@ export default function LoginPage() {
         const res = await api.get(`/api/instagram/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}`);
         const authUrl = res.data?.authorization_url || res.data?.url;
         if (authUrl) {
-          window.location.href = authUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "Instagram",
+            title: "Redirecting to Instagram",
+            message: "Navigating to Instagram authorization portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 300);
           return;
         }
       } catch (err: any) {
         console.error("Instagram connect error:", err);
-        setError("Failed to initialize Instagram Login: " + (err.response?.data?.detail || err.message));
+        const errMsg = "Failed to initialize Instagram Login: " + (err.response?.data?.detail || err.message);
+        setError(errMsg);
+        setAuthModal({
+          open: true,
+          status: "error",
+          provider: "Instagram",
+          title: "Instagram Connection Failed",
+          message: errMsg,
+        });
         setSocialLoading(null);
         setSocialNotice(null);
         return;
@@ -773,7 +946,13 @@ export default function LoginPage() {
     }
     if (provider === "LinkedIn") {
       setSocialLoading("LinkedIn");
-      setSocialNotice("Connecting with LinkedIn... Initializing secure session.");
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: "LinkedIn",
+        title: "Connecting with LinkedIn",
+        message: "Analyzing credentials & initializing secure OAuth handshake...",
+      });
       if (typeof window !== "undefined") {
         sessionStorage.setItem("linkedin_auth_mode", "login");
       }
@@ -783,7 +962,16 @@ export default function LoginPage() {
         const res = await api.get(`/api/v1/auth/linkedin/connect?redirect_uri=${encodeURIComponent(redirectUri)}&mode=login`);
         const authUrl = res.data?.authorization_url || res.data?.url;
         if (authUrl) {
-          window.location.href = authUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "LinkedIn",
+            title: "Redirecting to LinkedIn",
+            message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = authUrl;
+          }, 300);
           return;
         }
         // Fallback to direct OAuth URL if endpoint response is missing authUrl
@@ -791,7 +979,16 @@ export default function LoginPage() {
         const scope = "openid profile email w_member_social";
         const state = "login_linkedin_" + Math.random().toString(36).substring(7);
         const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-        window.location.href = directUrl;
+        setAuthModal({
+          open: true,
+          status: "navigating",
+          provider: "LinkedIn",
+          title: "Redirecting to LinkedIn",
+          message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
+        });
+        setTimeout(() => {
+          window.location.href = directUrl;
+        }, 300);
         return;
       } catch (err: any) {
         console.error("LinkedIn connect error:", err);
@@ -802,10 +999,27 @@ export default function LoginPage() {
           const scope = "openid profile email w_member_social";
           const state = "login_linkedin_" + Math.random().toString(36).substring(7);
           const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-          window.location.href = directUrl;
+          setAuthModal({
+            open: true,
+            status: "navigating",
+            provider: "LinkedIn",
+            title: "Redirecting to LinkedIn",
+            message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
+          });
+          setTimeout(() => {
+            window.location.href = directUrl;
+          }, 300);
           return;
         } catch (fallbackErr: any) {
-          setError("Failed to initialize LinkedIn Login: " + (err.response?.data?.detail || err.message));
+          const errMsg = "Failed to initialize LinkedIn Login: " + (err.response?.data?.detail || err.message);
+          setError(errMsg);
+          setAuthModal({
+            open: true,
+            status: "error",
+            provider: "LinkedIn",
+            title: "LinkedIn Connection Failed",
+            message: errMsg,
+          });
           setSocialLoading(null);
           setSocialNotice(null);
           return;
@@ -980,12 +1194,7 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              {socialNotice && (
-                <div className="p-3 text-xs text-amber-200 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
-                  <Sparkles className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
-                  <span>{socialNotice}</span>
-                </div>
-              )}
+
 
               {error && (
                 <div className="p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-2">
@@ -1137,6 +1346,24 @@ export default function LoginPage() {
           <Link href="#" className="hover:text-neutral-300 transition-colors">Terms of Service</Link>
         </div>
       </footer>
+
+      {/* Centered Beautiful Status / Analysis / Error / Navigation Modal */}
+      {authModal && (
+        <AuthCenterModal
+          open={authModal.open}
+          onClose={() => {
+            setAuthModal(null);
+            setError("");
+            setSocialLoading(null);
+          }}
+          status={authModal.status}
+          provider={authModal.provider}
+          title={authModal.title}
+          message={authModal.message}
+          actionText={authModal.actionText}
+          actionHref={authModal.actionHref}
+        />
+      )}
     </div>
   );
 }

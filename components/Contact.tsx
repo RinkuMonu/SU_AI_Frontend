@@ -5,7 +5,7 @@ import { MapPin, Mail, Phone, Clock } from 'lucide-react';
 
 export function Contact() {
   return (
-    <section id="contact" className="py-20 sm:py-24 relative bg-white overflow-hidden border-t border-slate-100">
+    <section id="contact" className="pt-6 sm:pt-8 pb-14 sm:pb-18 relative bg-white overflow-hidden border-t border-slate-100">
       {/* Soft brand gradient glows */}
       <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-gradient-to-br from-orange-100/40 via-pink-100/40 to-transparent blur-[140px] rounded-full pointer-events-none translate-x-1/3 -translate-y-1/2" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-purple-100/40 via-indigo-100/40 to-transparent blur-[140px] rounded-full pointer-events-none -translate-x-1/3 translate-y-1/3" />
@@ -13,7 +13,7 @@ export function Contact() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-12 sm:mb-16">
+        <div className="flex flex-col items-center text-center mb-7 sm:mb-9">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-slate-50 border border-slate-200/80 mb-3 shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]" />
             <span className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] tracking-wide">

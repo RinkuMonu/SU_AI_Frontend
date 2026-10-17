@@ -237,9 +237,15 @@ export default function SubscriptionPage() {
   }, []);
 
   const handleUpgrade = async (planId: string) => {
+    const normalizedPlan = (planId || "").trim().toUpperCase();
+    if (normalizedPlan === "FREE") {
+      await handleFreePlan();
+      return;
+    }
+
     try {
-      setUpgradingPlan(planId);
-      const response = await paymentService.createPayment(planId);
+      setUpgradingPlan(normalizedPlan);
+      const response = await paymentService.createPayment(normalizedPlan);
       
       if (response.payment_url) {
         window.location.href = response.payment_url;
@@ -261,7 +267,7 @@ export default function SubscriptionPage() {
   const handleFreePlan = async () => {
     try {
       setUpgradingPlan("FREE");
-      await subscriptionService.upgradePlan("free");
+      await subscriptionService.upgradePlan("FREE");
       setUpgradeSuccess("Successfully activated Free Plan!");
       setTimeout(() => {
         window.location.reload();

@@ -12,7 +12,6 @@ import { Examples } from '@/components/Examples';
 import { Pricing } from '@/components/Pricing';
 import { Blog } from '@/components/Blog';
 import { Contact } from '@/components/Contact';
-import { CTA } from '@/components/CTA';
 import { Footer } from '@/components/Footer';
 
 export default function Home() {
@@ -26,7 +25,6 @@ export default function Home() {
       <Features />
       <HowItWorks />
       <Testimonials />
-      <CTA />
       <Automation />
       {/* <Examples /> */}
       <Pricing />
