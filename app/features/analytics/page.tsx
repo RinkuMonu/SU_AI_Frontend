@@ -191,13 +191,13 @@ export default function AnalyticsPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-cyan-600/15 blur-[140px] rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute top-1/3 right-1/4 w-[480px] h-[480px] bg-purple-600/15 blur-[130px] rounded-full pointer-events-none translate-x-1/2 -translate-y-1/2" />
 
         <div className="relative z-10 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-6 shadow-sm">
             <TrendingUp className="w-4 h-4 text-cyan-400" />
             <span>AI Marketing Visual Analytics</span>
             <span className="bg-gradient-to-r from-cyan-600 to-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">

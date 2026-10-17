@@ -345,7 +345,7 @@ export default function PostmakerPage() {
       <Navbar />
       
       {/* 1. Hero Section */}
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden relative bg-gradient-to-b from-[#faf6f0] via-[#ffffff] to-[#faf8f5]">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-10 lg:pb-14 overflow-hidden relative bg-gradient-to-b from-[#faf6f0] via-[#ffffff] to-[#faf8f5]">
         {/* Ambient Decorative Backdrops */}
         <div className="absolute top-10 left-1/4 w-[500px] h-[500px] bg-purple-200/40 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
         <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-orange-200/40 rounded-full blur-[100px] pointer-events-none" />
@@ -481,7 +481,7 @@ export default function PostmakerPage() {
       </section>
 
       {/* 2. Key Metrics Bar */}
-      <section className="py-12 border-y border-orange-100 bg-white relative z-20">
+      <section className="py-8 border-y border-orange-100 bg-white relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x-0 md:divide-x divide-orange-100 text-center">
             <div className="flex flex-col items-center justify-center p-2">
@@ -505,7 +505,7 @@ export default function PostmakerPage() {
       </section>
 
       {/* 3. Interactive AI Post Simulator Widget */}
-      <section id="interactive-studio" className="py-20 sm:py-28 bg-[#faf8f5] relative border-b border-orange-100">
+      <section id="interactive-studio" className="py-10 sm:py-14 bg-[#faf8f5] relative border-b border-orange-100">
         <div 
           className="absolute inset-0 pointer-events-none opacity-40"
           style={{
@@ -516,7 +516,7 @@ export default function PostmakerPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-100 text-orange-800 text-xs font-bold uppercase tracking-wider mb-3">
               <Sparkles className="w-3.5 h-3.5 text-orange-600" />
               Interactive Live Preview
@@ -863,10 +863,10 @@ export default function PostmakerPage() {
       </section>
 
       {/* 4. Complete Backend Flow Section */}
-      <section className="py-20 sm:py-28 bg-white relative">
+      <section className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-16 sm:mb-20">
+          <div className="text-center mb-8 sm:mb-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-100 text-purple-800 text-xs font-bold uppercase tracking-wider mb-3">
               <Layers className="w-3.5 h-3.5 text-purple-600" />
               Backend Architecture
@@ -912,7 +912,7 @@ export default function PostmakerPage() {
             ))}
           </div>
 
-          <div className="mt-12 text-center">
+          <div className="mt-8 text-center">
             <Link href="/login/user">
               <Button size="lg" className="h-14 px-9 rounded-full bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:to-orange-600 text-white font-bold shadow-xl shadow-purple-500/25 animate-shimmer-btn animate-pulse-glow hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer group">
                 <span>Start Generating with the Engine</span>
@@ -925,10 +925,10 @@ export default function PostmakerPage() {
       </section>
 
       {/* 5. Master Templates Showcase */}
-      <section id="templates-showcase" className="py-20 sm:py-28 bg-[#faf8f5] relative border-y border-orange-100">
+      <section id="templates-showcase" className="py-10 sm:py-14 bg-[#faf8f5] relative border-y border-orange-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-orange-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Template Gallery
             </span>
@@ -941,7 +941,7 @@ export default function PostmakerPage() {
           </div>
 
           {/* Master Showcase Image */}
-          <div className="mb-14 rounded-[28px] sm:rounded-[36px] overflow-hidden border border-orange-200/80 shadow-2xl shadow-orange-950/10 group bg-white">
+          <div className="mb-8 rounded-[28px] sm:rounded-[36px] overflow-hidden border border-orange-200/80 shadow-2xl shadow-orange-950/10 group bg-white">
             <img 
               src="/images/ai-post-templates-showcase.jpg" 
               alt="AI Postmaker templates showcase for Indian businesses including festival kurtis, smartphone deals, bridal glow packages, and real estate" 
@@ -998,10 +998,10 @@ export default function PostmakerPage() {
       </section>
 
       {/* 6. Comparison Matrix: Traditional vs Generic Tools vs DhandaGrow AI */}
-      <section className="py-20 sm:py-28 bg-white relative">
+      <section className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-14 sm:mb-18">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-purple-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               The Smarter Choice
             </span>
@@ -1062,11 +1062,11 @@ export default function PostmakerPage() {
       </section>
 
       {/* 7. Pro Features Grid (Dark Studio Theme) */}
-      <section className="py-20 sm:py-28 bg-[#090b14] relative overflow-hidden">
+      <section className="py-10 sm:py-14 bg-[#090b14] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#090b14] via-[#0d101d] to-[#090b14]" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-14 sm:mb-18">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-orange-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Pro Studio Features
             </span>
@@ -1131,10 +1131,10 @@ export default function PostmakerPage() {
       </section>
 
       {/* 8. FAQ Section */}
-      <section className="py-20 sm:py-28 bg-[#faf8f5] border-b border-orange-100">
+      <section className="py-10 sm:py-14 bg-[#faf8f5] border-b border-orange-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-orange-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Got Questions?
             </span>
@@ -1178,7 +1178,7 @@ export default function PostmakerPage() {
       <FeatureShowcaseSection feature="ai-post-maker" />
 
       {/* 10. Call To Action (CTA) */}
-      <section className="py-20 sm:py-28 bg-white relative">
+      <section className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-purple-700 via-pink-600 to-orange-500 rounded-[32px] sm:rounded-[44px] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2" />

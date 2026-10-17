@@ -41,14 +41,14 @@ export default function BrandBrainPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         {/* Glow ambient background lights */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-violet-600/25 via-fuchsia-600/15 to-emerald-500/20 blur-[150px] rounded-full pointer-events-none -z-10" />
         <div className="absolute top-1/3 right-10 w-[400px] h-[400px] bg-cyan-500/15 blur-[120px] rounded-full pointer-events-none -z-10" />
 
         <div className="text-center max-w-4xl mx-auto">
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(139,92,246,0.25)]">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/30 text-violet-300 mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(139,92,246,0.25)]">
             <Brain className="w-4 h-4 text-violet-400 animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider">
               DhandaGrow AI • Brand Brain™

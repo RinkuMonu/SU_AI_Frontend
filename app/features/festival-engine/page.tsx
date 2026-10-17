@@ -389,13 +389,13 @@ export default function FestivalEnginePage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden text-center">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden text-center">
         {/* Festive Background Glows */}
         <div className="absolute top-1/4 left-1/4 w-[550px] h-[550px] bg-rose-500/10 blur-[120px] rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-500/15 blur-[120px] rounded-full pointer-events-none translate-x-1/2 -translate-y-1/2" />
         
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 via-orange-100 to-rose-100 border border-amber-200 mb-8 mx-auto shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-amber-100 via-orange-100 to-rose-100 border border-amber-200 mb-6 mx-auto shadow-sm">
             <Flame className="w-4 h-4 text-orange-600 animate-pulse" />
             <span className="text-xs font-bold text-orange-800 uppercase tracking-wider">Indian Festival Engine</span>
             <span className="bg-orange-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">100+ Festivals</span>

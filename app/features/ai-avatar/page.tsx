@@ -11,7 +11,7 @@ export default function AIAvatarPage() {
       <Navbar />
       
       {/* Hero Section (Video Studio Vibe) */}
-      <section className="pt-32 pb-20 lg:pt-40 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-12">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col-reverse lg:flex-row items-center gap-10">
         <div className="w-full lg:w-1/2 flex flex-col items-start text-left relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100/50 border border-blue-200 mb-6">
             <Video className="w-4 h-4 text-blue-600" />
@@ -92,9 +92,9 @@ export default function AIAvatarPage() {
       </section>
 
       {/* Floating UI Elements Grid */}
-      <section className="py-24 bg-white border-t border-slate-100">
+      <section className="py-12 sm:py-16 bg-white border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 sm:mb-10">
             <h2 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
               Everything in one studio.
             </h2>
@@ -141,8 +141,8 @@ export default function AIAvatarPage() {
       </section>
 
       {/* Interactive Workflow Simulation */}
-      <section className="py-32 bg-slate-900 text-white overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-20">
+      <section className="py-12 sm:py-16 bg-slate-900 text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center mb-8 sm:mb-10">
            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">From script to screen in 3 steps.</h2>
            <p className="text-slate-400 text-xl font-light">It literally takes 2 minutes.</p>
         </div>
@@ -194,12 +194,12 @@ export default function AIAvatarPage() {
       {/* CTA Section */}
       <FeatureShowcaseSection feature="ai-avatar" />
       <FeatureExpansionSections feature="ai-avatar" />
-      <section className="py-24 bg-white relative">
+      <section className="py-12 sm:py-16 bg-white relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
             Stop filming. Start creating.
           </h2>
-          <p className="text-slate-500 text-xl max-w-2xl mx-auto mb-10">
+          <p className="text-slate-500 text-lg sm:text-xl max-w-2xl mx-auto mb-6">
             Join modern creators and businesses who use AI Avatars to scale their video production by 100x.
           </p>
           <Button size="lg" className="h-16 px-12 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-500/20 border-0" asChild>

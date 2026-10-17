@@ -11,12 +11,12 @@ export default function IndianAIPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 lg:pt-40 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden text-center relative">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden text-center relative">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-orange-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-emerald-400/10 blur-[100px] rounded-full pointer-events-none -z-10" />
 
         <div className="relative z-10 flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-orange-200 mb-8 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-orange-200 mb-6 shadow-sm">
             <Languages className="w-4 h-4 text-orange-600" />
             <span className="text-xs font-bold text-orange-800 uppercase tracking-widest">Hindi & Hinglish AI</span>
           </div>

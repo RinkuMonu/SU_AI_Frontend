@@ -192,7 +192,7 @@ export default function WebsiteBuilderPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center overflow-hidden">
         {/* Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-blue-600/15 blur-[130px] rounded-full pointer-events-none -translate-x-1/2 -translate-y-1/2" />
         <div className="absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-indigo-600/15 blur-[120px] rounded-full pointer-events-none translate-x-1/2 -translate-y-1/2" />

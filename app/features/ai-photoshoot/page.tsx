@@ -376,7 +376,7 @@ export default function PhotoshootPage() {
       <Navbar />
       
       {/* 1. Cinematic Hero Section */}
-      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 overflow-hidden flex flex-col items-center justify-center">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-10 lg:pb-14 overflow-hidden flex flex-col items-center justify-center">
         {/* Ambient atmospheric glows */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-purple-900/20 blur-[160px] rounded-full pointer-events-none" />
         <div className="absolute top-10 right-0 w-[500px] h-[500px] bg-pink-900/15 blur-[150px] rounded-full pointer-events-none" />
@@ -445,7 +445,7 @@ export default function PhotoshootPage() {
         <div 
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="w-full max-w-[94vw] lg:max-w-6xl mx-auto mt-14 sm:mt-18 relative z-10 rounded-[32px] sm:rounded-[44px] overflow-hidden border border-purple-500/30 shadow-[0_25px_90px_rgba(147,51,234,0.25)] bg-zinc-950 group select-none"
+          className="w-full max-w-[94vw] lg:max-w-6xl mx-auto mt-8 sm:mt-10 relative z-10 rounded-[32px] sm:rounded-[44px] overflow-hidden border border-purple-500/30 shadow-[0_25px_90px_rgba(147,51,234,0.25)] bg-zinc-950 group select-none"
         >
           {/* Subtle Ambient Backing Vignette */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/35 z-10 pointer-events-none" />
@@ -576,7 +576,7 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 2. Key Stats Strip */}
-      <section className="py-14 border-y border-white/10 bg-[#090b14] relative z-20">
+      <section className="py-8 border-y border-white/10 bg-[#090b14] relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x-0 md:divide-x divide-white/10 text-center">
             <div className="flex flex-col items-center justify-center">
@@ -600,10 +600,10 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 3. Before & After Showcase: Raw to Runway Transformation */}
-      <section className="py-20 sm:py-28 bg-[#06080f] relative">
+      <section className="py-10 sm:py-14 bg-[#06080f] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-purple-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               The Real Magic
             </span>
@@ -625,7 +625,7 @@ export default function PhotoshootPage() {
           </div>
 
           {/* 3 Step Breakdown Below Transformation */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto mt-6">
             <div className="p-6 rounded-2xl bg-[#0d101d] border border-white/10 hover:border-purple-500/40 transition-all">
               <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4 font-black">
                 1
@@ -661,10 +661,10 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 4. Live Interactive Fashion Photoshoot Flow Workspace (Matches Dashboard Flow) */}
-      <section id="interactive-simulator" className="py-20 sm:py-28 bg-[#090b14] relative border-y border-white/10">
+      <section id="interactive-simulator" className="py-10 sm:py-14 bg-[#090b14] relative border-y border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20 text-xs font-bold uppercase tracking-wider mb-3">
               <Camera className="w-3.5 h-3.5 text-purple-400" />
               Live Interactive Studio Flow
@@ -1040,10 +1040,10 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 5. Fashion Categories Showcase Grid */}
-      <section className="py-20 sm:py-28 bg-[#06080f] relative">
+      <section className="py-10 sm:py-14 bg-[#06080f] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-purple-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Indian Apparel Showcase
             </span>
@@ -1056,7 +1056,7 @@ export default function PhotoshootPage() {
           </div>
 
           {/* Master 4 Categories Collage Image */}
-          <div className="mb-14 rounded-[28px] sm:rounded-[40px] overflow-hidden border border-purple-500/25 shadow-2xl group max-w-6xl mx-auto">
+          <div className="mb-8 rounded-[28px] sm:rounded-[40px] overflow-hidden border border-purple-500/25 shadow-2xl group max-w-6xl mx-auto">
             <img 
               src="/images/fashion-categories-showcase.jpg" 
               alt="4 Indian Fashion Photoshoot Categories: Crimson Banarasi Saree, Pastel Anarkali Kurti, Royal Sherwani, and Purple Streetwear Hoodie" 
@@ -1122,10 +1122,10 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 6. Pro Production Capabilities */}
-      <section className="py-20 sm:py-28 bg-[#090b14] relative border-t border-white/10">
+      <section className="py-10 sm:py-14 bg-[#090b14] relative border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-14 sm:mb-20">
+          <div className="text-center mb-8 sm:mb-10">
             <span className="text-purple-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Virtual Model Intelligence
             </span>
@@ -1191,10 +1191,10 @@ export default function PhotoshootPage() {
       </section>
 
       {/* 7. FAQs Section */}
-      <section className="py-20 sm:py-28 bg-[#06080f] border-t border-white/10">
+      <section className="py-10 sm:py-14 bg-[#06080f] border-t border-white/10">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-purple-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               AI Photoshoot FAQs
             </span>
@@ -1236,7 +1236,7 @@ export default function PhotoshootPage() {
 
       {/* 8. Feature Showcase Section Integration & High-Converting CTA */}
       <FeatureShowcaseSection feature="ai-photoshoot" />
-      <section className="py-20 sm:py-28 bg-[#06080f] relative">
+      <section className="py-10 sm:py-14 bg-[#06080f] relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-[32px] sm:rounded-[44px] bg-gradient-to-br from-purple-950 via-[#120f26] to-[#070913] border border-purple-500/30 flex flex-col md:flex-row items-center justify-between p-10 sm:p-16 relative overflow-hidden shadow-2xl">
             {/* Ambient purple backlight */}

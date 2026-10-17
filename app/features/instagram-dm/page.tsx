@@ -11,7 +11,7 @@ export default function InstagramDMPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 lg:pt-40 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         <div className="flex flex-col lg:flex-row items-center gap-16 relative">
           
           <div className="w-full lg:w-1/2 relative z-10">

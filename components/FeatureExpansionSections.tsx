@@ -375,9 +375,9 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
 
   return (
     <>
-       <section className="bg-[#070b14] py-20 text-white sm:py-24">
+       <section className="bg-[#070b14] py-10 text-white sm:py-14">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mx-auto mb-8 max-w-3xl text-center">
             <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] text-indigo-300 sm:text-sm">
               Your campaign command center
             </span>
@@ -445,9 +445,9 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
         </div>
       </section>
 
-      <section className={`py-20 sm:py-24 ${sectionClass}`}>
+      <section className={`py-10 sm:py-14 ${sectionClass}`}>
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-3xl text-center">
+          <div className="mx-auto mb-8 max-w-3xl text-center">
             <p className={`mb-3 text-sm font-bold uppercase tracking-[0.18em] ${content.dark ? 'text-violet-300' : 'text-violet-700'}`}>
               {content.eyebrow}
             </p>
@@ -469,13 +469,13 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
       </section>
 
       <section
-        className="py-20 text-white sm:py-24"
+        className="py-10 text-white sm:py-14"
         style={{
           backgroundImage: 'linear-gradient(to right, #fc9a5d, #f0449b, #be32ff, #7d36fa)',
         }}
       >
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+          <div className="mx-auto mb-8 max-w-2xl text-center">
             <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-white/90">
               A simple workflow
             </p>
@@ -495,9 +495,9 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
         </div>
       </section>
 
-      <section className={`py-20 sm:py-24 ${sectionClass}`}>
+      <section className={`py-10 sm:py-14 ${sectionClass}`}>
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center">
+          <div className="mb-6 text-center">
             <p className={`mb-3 text-sm font-bold uppercase tracking-[0.18em] ${content.dark ? 'text-violet-300' : 'text-violet-700'}`}>
               Frequently asked questions
             </p>

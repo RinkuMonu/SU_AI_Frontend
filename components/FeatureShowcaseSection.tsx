@@ -268,9 +268,9 @@ export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKe
   const content = showcaseContent[feature];
 
   return (
-    <section className="relative overflow-hidden bg-white py-20 sm:py-28">
+    <section className="relative overflow-hidden bg-white py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <header className="mx-auto mb-12 max-w-4xl text-center sm:mb-16">
+        <header className="mx-auto mb-6 max-w-4xl text-center sm:mb-8">
           <span
             className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.18em] sm:text-sm"
             style={{ color: content.accent }}

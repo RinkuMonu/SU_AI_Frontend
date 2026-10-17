@@ -382,14 +382,14 @@ export default function LeadsCRMPage() {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-16 lg:pt-40 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+      <section className="relative pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
         {/* Glow ambient background lights */}
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-[700px] h-[500px] bg-gradient-to-tr from-teal-500/20 via-emerald-500/15 to-purple-600/20 blur-[140px] rounded-full pointer-events-none -z-10" />
         <div className="absolute top-1/3 right-10 w-[400px] h-[400px] bg-cyan-500/15 blur-[120px] rounded-full pointer-events-none -z-10" />
 
         <div className="text-center max-w-4xl mx-auto">
           {/* Eyebrow badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 mb-8 backdrop-blur-md shadow-[0_0_20px_rgba(20,184,166,0.2)]">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 mb-6 backdrop-blur-md shadow-[0_0_20px_rgba(20,184,166,0.2)]">
             <Bot className="w-4 h-4 text-teal-400 animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider">
               DhandaGrow AI • Omnichannel Leads CRM

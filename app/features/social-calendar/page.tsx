@@ -11,8 +11,8 @@ export default function SocialCalendarPage() {
       <Navbar />
       
       {/* Notion-style Clean Hero */}
-      <section className="pt-32 pb-16 lg:pt-40 lg:pb-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 mb-8 mx-auto">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-12 lg:pb-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-100 mb-6 mx-auto">
           <CalendarIcon className="w-4 h-4 text-orange-600" />
           <span className="text-xs font-bold text-orange-700 uppercase tracking-wider">Social Media Calendar</span>
         </div>

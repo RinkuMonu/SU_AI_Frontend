@@ -213,7 +213,7 @@ export default function ReelMakerPage() {
       <Navbar />
       
       {/* 1. Hero Section */}
-      <section className="pt-28 pb-16 lg:pt-36 lg:pb-24 overflow-hidden relative bg-gradient-to-b from-[#fdf8fa] via-white to-white">
+      <section className="pt-20 sm:pt-24 lg:pt-24 pb-10 lg:pb-14 overflow-hidden relative bg-gradient-to-b from-[#fdf8fa] via-white to-white">
         {/* Subtle Decorative Gradient Glows */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-pink-200/30 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
         <div className="absolute top-1/3 right-10 w-96 h-96 bg-violet-200/30 rounded-full blur-3xl pointer-events-none" />
@@ -310,7 +310,7 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 2. Stats Section */}
-      <section className="py-14 border-y border-slate-100 bg-[#fffdfa] relative z-20">
+      <section className="py-8 border-y border-slate-100 bg-[#fffdfa] relative z-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 divide-x-0 md:divide-x divide-pink-100 text-center">
             <div className="flex flex-col items-center justify-center">
@@ -334,7 +334,7 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 3. Interactive Reel Simulator Widget */}
-      <section className="py-20 sm:py-28 bg-[#faf9f6] relative border-b border-pink-100/70">
+      <section className="py-10 sm:py-14 bg-[#faf9f6] relative border-b border-pink-100/70">
         <div 
           className="absolute inset-0 pointer-events-none opacity-40"
           style={{
@@ -345,7 +345,7 @@ export default function ReelMakerPage() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-pink-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Interactive Storyboard Simulator
             </span>
@@ -358,7 +358,7 @@ export default function ReelMakerPage() {
           </div>
 
           {/* Preset Selector Chips */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-10">
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 mb-6">
             {reelPresets.map((preset) => {
               const isSelected = activePreset.id === preset.id;
               return (
@@ -513,10 +513,10 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 4. Viral Reel Formats Showcase Section */}
-      <section id="reel-formats-showcase" className="py-20 sm:py-28 bg-white relative">
+      <section id="reel-formats-showcase" className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-pink-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Formats That Go Viral
             </span>
@@ -529,7 +529,7 @@ export default function ReelMakerPage() {
           </div>
 
           {/* Master Formats Collage Image */}
-          <div className="mb-14 rounded-[28px] sm:rounded-[36px] overflow-hidden border border-pink-200/70 shadow-2xl shadow-pink-950/10 group">
+          <div className="mb-8 rounded-[28px] sm:rounded-[36px] overflow-hidden border border-pink-200/70 shadow-2xl shadow-pink-950/10 group">
             <img 
               src="/images/ai-reel-formats-showcase.jpg" 
               alt="Viral Instagram Reel formats for Indian businesses: Festive fashion, gourmet biryani, tech review, and bridal glow" 
@@ -586,10 +586,10 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 5. How It Works Section */}
-      <section className="py-20 sm:py-28 bg-[#fafbfc] border-y border-slate-100">
+      <section className="py-10 sm:py-14 bg-[#fafbfc] border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-14 sm:mb-20">
+          <div className="text-center mb-8 sm:mb-10">
             <span className="text-violet-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Studio Walkthrough
             </span>
@@ -674,11 +674,11 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 6. Pro Reel Features Grid */}
-      <section className="py-20 sm:py-28 bg-[#090b14] relative overflow-hidden">
+      <section className="py-10 sm:py-14 bg-[#090b14] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#090b14] via-[#0d101d] to-[#090b14]" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-14 sm:mb-18">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-pink-400 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Viral Growth Engine
             </span>
@@ -743,10 +743,10 @@ export default function ReelMakerPage() {
       </section>
 
       {/* 7. FAQs Section */}
-      <section className="py-20 sm:py-28 bg-[#faf9f6] border-b border-pink-100/70">
+      <section className="py-10 sm:py-14 bg-[#faf9f6] border-b border-pink-100/70">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
-          <div className="text-center mb-12 sm:mb-16">
+          <div className="text-center mb-6 sm:mb-8">
             <span className="text-pink-600 font-bold text-xs sm:text-sm tracking-wider uppercase inline-block mb-2">
               Reel Creation FAQs
             </span>
@@ -787,7 +787,7 @@ export default function ReelMakerPage() {
       </section>
       
       {/* 8. Call To Action (CTA) */}
-      <section className="py-20 sm:py-28 bg-white relative">
+      <section className="py-10 sm:py-14 bg-white relative">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-gradient-to-br from-pink-600 via-purple-600 to-violet-700 rounded-[32px] sm:rounded-[44px] p-10 sm:p-16 text-center relative overflow-hidden shadow-2xl">
             <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 blur-[100px] rounded-full pointer-events-none -translate-y-1/2 translate-x-1/2" />
