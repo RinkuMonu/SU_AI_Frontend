@@ -2,7 +2,7 @@ import {
   Sparkles, Image as ImageIcon, Video, Camera, UserCircle, 
   Megaphone, Percent, Bot, Calendar, PartyPopper, Send, 
   MessageCircle, MessageSquare, Star, Briefcase, Globe, 
-  BarChart2, Users, ShoppingBag, Brain, Languages, Smartphone
+  BarChart2, Users, ShoppingBag, Brain, Smartphone
 } from 'lucide-react';
 
 export const featuresMenu = {
@@ -53,8 +53,7 @@ export const featuresMenu = {
       icon: Brain,
       items: [
         { name: "AI Brand Brain", description: "AI remembers your brand, products, colours, tone and audience.", icon: Brain, route: "/features/brand-brain" },
-        { name: "UNI AI", description: "Your central AI business growth assistant.", icon: Bot, route: "/features/uni-ai" },
-        { name: "Hindi & Hinglish AI", description: "Create and manage marketing content naturally in Indian languages.", icon: Languages, route: "/features/indian-ai" }
+        { name: "UNI AI", description: "Your central AI business growth assistant.", icon: Bot, route: "/features/uni-ai" }
       ]
     }
   ]
