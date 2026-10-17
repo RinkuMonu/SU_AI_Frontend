@@ -3,9 +3,10 @@
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   Sparkles, Megaphone,
-  Image as ImageIcon, Video, Camera, TrendingUp
+  Image as ImageIcon, Video, Camera, TrendingUp, ArrowRight
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -120,29 +121,201 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Actions Banners - Elevated Ultra-Premium UI */}
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight text-white">Quick Actions</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <span className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 via-pink-500 to-brand-coral text-white shadow-md shadow-purple-500/25">
+                <Sparkles className="w-4 h-4" />
+              </span>
+              <h2 className="text-xl font-extrabold tracking-tight text-white">
+                Quick Actions
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-purple-300 border border-purple-500/30">
+                AI Studios
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">High-impact creative engines to generate posts, reels, avatars &amp; ads in seconds</p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 font-medium">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            4 Active Studios Ready
+          </span>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Link href="/content?type=post" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-purple/10 to-[#0B1120] border border-brand-purple/30 hover:border-brand-purple/80 hover:from-brand-purple/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(139,92,246,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
-            <div className="p-3 bg-brand-purple/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(139,92,246,0.2)] group-hover:shadow-[0_0_20px_rgba(139,92,246,0.5)]"><ImageIcon className="h-6 w-6 text-brand-purple" /></div>
-              <span className="font-semibold text-white tracking-wide">Create Post</span>
-          </Link>
+          {/* 1. Create Post Banner */}
+          <div
+            className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-purple-500/25 bg-[#0C0E1A]/80 hover:border-purple-400/80 hover:shadow-[0_16px_40px_rgba(168,85,247,0.3)] group transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
+          >
+            {/* Top Luminous Neon Beam */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
 
-          <Link href="/create/reel" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-pink/10 to-[#0B1120] border border-brand-pink/30 hover:border-brand-pink/80 hover:from-brand-pink/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(236,72,153,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
-            <div className="p-3 bg-brand-pink/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(236,72,153,0.2)] group-hover:shadow-[0_0_20px_rgba(236,72,153,0.5)]"><Video className="h-6 w-6 text-brand-pink" /></div>
-              <span className="font-semibold text-white tracking-wide">Create Reel</span>
-          </Link>
+            {/* Background Vector Artwork */}
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/images/vectors/banner-create-post.svg"
+                alt="Create Post Vector"
+                fill
+                className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
+            </div>
 
-          <Link href="/ai-photoshoot" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-coral/10 to-[#0B1120] border border-brand-coral/30 hover:border-brand-coral/80 hover:from-brand-coral/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(251,113,133,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
-            <div className="p-3 bg-brand-coral/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(251,113,133,0.2)] group-hover:shadow-[0_0_20px_rgba(251,113,133,0.5)]"><Camera className="h-6 w-6 text-brand-coral" /></div>
-              <span className="font-semibold text-white tracking-wide">AI Photoshoot</span>
-          </Link>
+            {/* Top Bar: Pill & Action Disc */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-purple-500/20 text-purple-200 border border-purple-400/30 shadow-xs">
+                <ImageIcon className="w-3.5 h-3.5 text-purple-300" />
+                <span>Post Studio</span>
+              </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-purple-600 group-hover:border-purple-400/60">
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </div>
+            </div>
 
-          <Link href="/create-ad" className="flex flex-col items-center justify-center h-32 gap-3 relative overflow-hidden group bg-gradient-to-br from-brand-cyan/10 to-[#0B1120] border border-brand-cyan/30 hover:border-brand-cyan/80 hover:from-brand-cyan/20 hover:to-[#0B1120] hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(34,211,238,0.3)] transition-all duration-500 rounded-2xl backdrop-blur-md">
-            <div className="p-3 bg-brand-cyan/20 rounded-full group-hover:scale-110 transition-transform duration-300 shadow-[0_0_15px_rgba(34,211,238,0.2)] group-hover:shadow-[0_0_20px_rgba(34,211,238,0.5)]"><Megaphone className="h-6 w-6 text-brand-cyan" /></div>
-              <span className="font-semibold text-white tracking-wide">Create Ad</span>
-          </Link>
+            {/* Bottom Content */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold text-purple-300/90 tracking-wide uppercase">✦ 1-Click Studio</span>
+              </div>
+              <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-purple-200 transition-colors">
+                Create Post
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
+                Festive &amp; product creatives in 1 click
+              </p>
+            </div>
+          </div>
+
+          {/* 2. Create Reel Banner */}
+          <div
+            className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-pink-500/25 bg-[#0C0E1A]/80 hover:border-pink-400/80 hover:shadow-[0_16px_40px_rgba(244,63,94,0.3)] group transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
+          >
+            {/* Top Luminous Neon Beam */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-pink-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+
+            {/* Background Vector Artwork */}
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/images/vectors/banner-create-reel.svg"
+                alt="Create Reel Vector"
+                fill
+                className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
+            </div>
+
+            {/* Top Bar: Pill & Action Disc */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-pink-500/20 text-pink-200 border border-pink-400/30 shadow-xs">
+                <Video className="w-3.5 h-3.5 text-pink-300" />
+                <span>9:16 Video</span>
+              </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-pink-600 group-hover:border-pink-400/60">
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </div>
+            </div>
+
+            {/* Bottom Content */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold text-pink-300/90 tracking-wide uppercase">⚡ Viral Audio &amp; Hooks</span>
+              </div>
+              <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-pink-200 transition-colors">
+                Create Reel
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
+                Trending audio, hooks &amp; AI captions
+              </p>
+            </div>
+          </div>
+
+          {/* 3. AI Avatar Banner */}
+          <div
+            className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-amber-500/25 bg-[#0C0E1A]/80 hover:border-amber-400/80 hover:shadow-[0_16px_40px_rgba(245,158,11,0.3)] group transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
+          >
+            {/* Top Luminous Neon Beam */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-amber-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+
+            {/* Background Vector Artwork */}
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/images/vectors/banner-ai-avatar.svg"
+                alt="AI Avatar Vector"
+                fill
+                className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
+            </div>
+
+            {/* Top Bar: Pill & Action Disc */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-amber-500/20 text-amber-200 border border-amber-400/30 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                <span>Virtual Actor</span>
+              </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-amber-600 group-hover:border-amber-400/60">
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </div>
+            </div>
+
+            {/* Bottom Content */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold text-amber-300/90 tracking-wide uppercase">👑 Indian Presenters</span>
+              </div>
+              <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-amber-200 transition-colors">
+                AI Avatar
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
+                Realistic Indian presenters &amp; models
+              </p>
+            </div>
+          </div>
+
+          {/* 4. Create Ad Banner */}
+          <div
+            className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-cyan-500/25 bg-[#0C0E1A]/80 hover:border-cyan-400/80 hover:shadow-[0_16px_40px_rgba(6,182,212,0.3)] group transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
+          >
+            {/* Top Luminous Neon Beam */}
+            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+
+            {/* Background Vector Artwork */}
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/images/vectors/banner-create-ad.svg"
+                alt="Create Ad Vector"
+                fill
+                className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
+            </div>
+
+            {/* Top Bar: Pill & Action Disc */}
+            <div className="relative z-10 flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-cyan-500/20 text-cyan-200 border border-cyan-400/30 shadow-xs">
+                <Megaphone className="w-3.5 h-3.5 text-cyan-300" />
+                <span>High ROAS</span>
+              </span>
+              <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-600 group-hover:border-cyan-400/60">
+                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+              </div>
+            </div>
+
+            {/* Bottom Content */}
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-semibold text-cyan-300/90 tracking-wide uppercase">📈 Meta &amp; WA Creatives</span>
+              </div>
+              <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-cyan-200 transition-colors">
+                Create Ad
+              </h3>
+              <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
+                Targeted Meta &amp; WhatsApp creatives
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 

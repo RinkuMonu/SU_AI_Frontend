@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 240" fill="none" width="100%" height="100%">
+  <defs>
+    <!-- Background Radial Gradient -->
+    <radialGradient id="postBg" cx="70%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#3B0764" stop-opacity="0.9" />
+      <stop offset="45%" stop-color="#1E0B36" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#070913" stop-opacity="1" />
+    </radialGradient>
+
+    <!-- Glass Gradients -->
+    <linearGradient id="glassBorder" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#818CF8" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#E879F9" stop-opacity="0.1" />
+    </linearGradient>
+
+    <linearGradient id="canvasGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1035" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#0F071D" stop-opacity="0.98" />
+    </linearGradient>
+
+    <linearGradient id="artGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F43F5E" />
+      <stop offset="40%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#3B82F6" />
+    </linearGradient>
+
+    <linearGradient id="hillGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#C084FC" />
+      <stop offset="100%" stop-color="#6B21A8" />
+    </linearGradient>
+
+    <linearGradient id="hillGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="100%" stop-color="#9333EA" />
+    </linearGradient>
+
+    <linearGradient id="sunGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="100%" stop-color="#F97316" />
+    </linearGradient>
+
+    <!-- Glow Filters -->
+    <filter id="purpleGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#000000" flood-opacity="0.6" />
+    </filter>
+  </defs>
+
+  <!-- Deep Cosmic Background -->
+  <rect width="420" height="240" fill="url(#postBg)" />
+
+  <!-- Ambient Nebula Orbs -->
+  <circle cx="310" cy="100" r="110" fill="#9333EA" opacity="0.35" filter="url(#purpleGlow)" />
+  <circle cx="210" cy="50" r="75" fill="#EC4899" opacity="0.22" filter="url(#purpleGlow)" />
+  <circle cx="90" cy="170" r="80" fill="#6366F1" opacity="0.2" filter="url(#purpleGlow)" />
+
+  <!-- Background Decorative Grid Dots -->
+  <g opacity="0.12" fill="#E9D5FF">
+    <circle cx="180" cy="35" r="1.5" /><circle cx="205" cy="35" r="1.5" /><circle cx="230" cy="35" r="1.5" />
+    <circle cx="180" cy="55" r="1.5" /><circle cx="205" cy="55" r="1.5" /><circle cx="230" cy="55" r="1.5" />
+    <circle cx="180" cy="75" r="1.5" /><circle cx="205" cy="75" r="1.5" /><circle cx="230" cy="75" r="1.5" />
+  </g>
+
+  <!-- Background Light Ray / Beam -->
+  <path d="M 280 -20 L 370 260 L 320 260 L 250 -20 Z" fill="#A855F7" opacity="0.08" />
+
+  <!-- 3D Layered Post Canvas (Positioned on the Right Side) -->
+  <g transform="translate(230, 20)" filter="url(#dropShadow)">
+    <!-- Back Glow Card Layer -->
+    <rect x="6" y="8" width="162" height="182" rx="18" fill="#581C87" opacity="0.4" filter="url(#softGlow)" />
+
+    <!-- Main Frosted Glass Canvas Frame -->
+    <rect x="0" y="0" width="162" height="182" rx="18" fill="url(#canvasGrad)" stroke="url(#glassBorder)" stroke-width="1.5" />
+
+    <!-- Glass Specular Highlight Top Edge -->
+    <path d="M 18 1.5 L 144 1.5 C 153 1.5 160 8 160.5 16" stroke="#FFFFFF" stroke-opacity="0.4" stroke-width="1.5" stroke-linecap="round" fill="none" />
+
+    <!-- Post Header UI Bar -->
+    <g transform="translate(14, 14)">
+      <!-- Avatar with Gradient Ring -->
+      <circle cx="11" cy="11" r="11" fill="url(#artGrad)" />
+      <circle cx="11" cy="11" r="9" fill="#180C2E" />
+      <circle cx="11" cy="11" r="6" fill="#C084FC" />
+      <!-- Username Placeholder Lines -->
+      <rect x="28" y="5" width="55" height="5" rx="2.5" fill="#FFFFFF" opacity="0.85" />
+      <rect x="28" y="13" width="35" height="3.5" rx="1.75" fill="#C084FC" opacity="0.6" />
+      <!-- 3-Dots Menu -->
+      <circle cx="122" cy="11" r="1.5" fill="#E2E8F0" opacity="0.8" />
+      <circle cx="127" cy="11" r="1.5" fill="#E2E8F0" opacity="0.8" />
+      <circle cx="132" cy="11" r="1.5" fill="#E2E8F0" opacity="0.8" />
+    </g>
+
+    <!-- Inner Generative Art Artwork Box -->
+    <g transform="translate(14, 42)">
+      <rect x="0" y="0" width="134" height="88" rx="12" fill="url(#artGrad)" />
+      <!-- Clip path for art content -->
+      <g clip-path="url(#artClip)">
+        <defs>
+          <clipPath id="artClip">
+            <rect x="0" y="0" width="134" height="88" rx="12" />
+          </clipPath>
+        </defs>
+        <!-- Radiant Sun / Aura -->
+        <circle cx="95" cy="28" r="18" fill="url(#sunGrad)" filter="url(#softGlow)" />
+        <circle cx="95" cy="28" r="10" fill="#FEF08A" />
+        
+        <!-- Mountain Ranges with 3D Depth -->
+        <path d="M -10 90 L 35 48 L 75 90 Z" fill="url(#hillGrad1)" opacity="0.9" />
+        <path d="M 40 90 L 85 36 L 145 90 Z" fill="url(#hillGrad2)" />
+        <path d="M 15 90 L 60 55 L 115 90 Z" fill="#4A0E4E" opacity="0.75" />
+
+        <!-- Shimmer Reflection Line on Art -->
+        <path d="M -20 20 L 70 -10 L 40 100 L -50 100 Z" fill="#FFFFFF" opacity="0.08" />
+      </g>
+      <!-- Art Border Stroke -->
+      <rect x="0" y="0" width="134" height="88" rx="12" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1" fill="none" />
+    </g>
+
+    <!-- Post Action Strip (Like, Comment, Send, Bookmark) -->
+    <g transform="translate(14, 138)">
+      <!-- Heart Icon -->
+      <path d="M 4 4 C 4 1.5 7.5 0 9.5 2.5 C 11.5 0 15 1.5 15 4 C 15 7.5 9.5 11 9.5 11 C 9.5 11 4 7.5 4 4 Z" fill="#F43F5E" filter="url(#softGlow)" />
+      <!-- Comment Bubble -->
+      <circle cx="28" cy="6" r="4.5" fill="#E2E8F0" opacity="0.8" />
+      <!-- Send Airplane -->
+      <path d="M 42 3 L 50 6 L 42 9 L 44 6 Z" fill="#E2E8F0" opacity="0.8" />
+      <!-- Bookmark -->
+      <path d="M 126 3 L 132 3 L 132 10 L 129 8 L 126 10 Z" fill="#C084FC" opacity="0.8" />
+    </g>
+
+    <!-- Caption Placeholder Bars -->
+    <g transform="translate(14, 158)">
+      <rect x="0" y="0" width="90" height="4.5" rx="2.25" fill="#F8FAFC" opacity="0.8" />
+      <rect x="0" y="8" width="60" height="3.5" rx="1.75" fill="#A855F7" opacity="0.7" />
+    </g>
+  </g>
+
+  <!-- Left Side Floating 3D Micro Glass Ornaments -->
+  <!-- 3D Heart Reaction Badge (Floating high above text area) -->
+  <g transform="translate(138, 45)" filter="url(#dropShadow)">
+    <circle cx="22" cy="22" r="22" fill="#7C3AED" />
+    <circle cx="22" cy="22" r="21" stroke="#E9D5FF" stroke-opacity="0.6" stroke-width="1.5" fill="none" />
+    <path d="M 13 18 C 13 13.5 18.5 11.5 22 15.5 C 25.5 11.5 31 13.5 31 18 C 31 23 22 28 22 28 C 22 28 13 23 13 18 Z" fill="#FFFFFF" filter="url(#softGlow)" />
+  </g>
+
+  <!-- Floating Palette Disc -->
+  <g transform="translate(110, 115)" filter="url(#dropShadow)">
+    <rect x="0" y="0" width="64" height="24" rx="12" fill="#1E1035" stroke="#C084FC" stroke-width="1.2" stroke-opacity="0.8" />
+    <circle cx="14" cy="12" r="4" fill="#F43F5E" />
+    <circle cx="26" cy="12" r="4" fill="#A855F7" />
+    <circle cx="38" cy="12" r="4" fill="#38BDF8" />
+    <circle cx="50" cy="12" r="4" fill="#34D399" />
+  </g>
+
+  <!-- Sparkling 4-Point & 8-Point Stars -->
+  <g fill="#FDF4FF" filter="url(#softGlow)">
+    <!-- Top-left sparkle -->
+    <path d="M 85 55 Q 92 55 92 48 Q 92 55 99 55 Q 92 55 92 62 Q 92 55 85 55 Z" />
+    <!-- Center floating sparkle -->
+    <path d="M 215 135 Q 220 135 220 130 Q 220 135 225 135 Q 220 135 220 140 Q 220 135 215 135 Z" fill="#F472B6" />
+    <!-- Top right sparkle -->
+    <path d="M 395 35 Q 400 35 400 30 Q 400 35 405 35 Q 400 35 400 40 Q 400 35 395 35 Z" fill="#FDE047" />
+    <!-- Far right small sparkle -->
+    <path d="M 405 155 Q 408 155 408 152 Q 408 155 411 155 Q 408 155 408 158 Q 408 155 405 155 Z" fill="#C084FC" />
+  </g>
+
+  <!-- Luminous Crosshairs -->
+  <path d="M 65 105 L 65 117 M 59 111 L 71 111" stroke="#C084FC" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+  <path d="M 370 195 L 370 207 M 364 201 L 376 201" stroke="#E879F9" stroke-width="1.8" stroke-linecap="round" opacity="0.6" />
+</svg>

@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Sparkles } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 
-type BillingCycle = 'monthly' | 'quarterly' | 'yearly';
+export type BillingCycle = 'monthly' | 'quarterly' | 'yearly';
 
-interface PlanPricing {
+export interface PlanPricing {
   price: number;
   originalPrice?: number;
   pricePrefix?: string;
@@ -16,7 +16,7 @@ interface PlanPricing {
   billedText?: string;
 }
 
-interface PlanItem {
+export interface PlanItem {
   id: string;
   name: string;
   tagline: string;
@@ -30,7 +30,7 @@ interface PlanItem {
   pricing: Record<BillingCycle, PlanPricing>;
 }
 
-const LANDING_PLANS: PlanItem[] = [
+export const LANDING_PLANS: PlanItem[] = [
   {
     id: "FREE",
     name: "FREE",
