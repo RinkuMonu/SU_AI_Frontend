@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SecurityShield } from "@/components/security/SecurityShield";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,8 +17,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { AuthProvider } from "@/components/auth/AuthProvider";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+        <SecurityShield />
         <AuthProvider>
           {children}
         </AuthProvider>

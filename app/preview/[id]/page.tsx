@@ -14,7 +14,7 @@ export default function PreviewWebsite() {
   useEffect(() => {
     async function fetchSite() {
       try {
-        const res = await fetch(`http://127.0.0.1:8000/api/v1/website-builder/site/${siteId}`);
+        const res = await fetch(`/api/v1/website-builder/site/${siteId}`);
         if (!res.ok) throw new Error("Failed to fetch site data");
         const data = await res.json();
         setSiteData(data);

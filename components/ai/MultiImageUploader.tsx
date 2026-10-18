@@ -43,10 +43,7 @@ export default function MultiImageUploader({
         });
         
         if (response.data.success) {
-          let url = response.data.image_url;
-          if (url.startsWith("/uploads/")) {
-            url = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000") + url;
-          }
+          const url = response.data.image_url;
           newUrls.push(url);
         }
       }

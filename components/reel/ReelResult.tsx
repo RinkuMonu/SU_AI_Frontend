@@ -31,8 +31,11 @@ import {
   Film, 
   X,
   Flame,
-  ArrowRight
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
+import { socialService } from "@/services/social.service";
+import { getBaseUrl } from "@/lib/api";
 
 interface ReelResultProps {
   result: ReelJobStatus;
@@ -70,7 +73,7 @@ const resolveMediaUrl = (url?: string | null): string => {
   if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:") || url.startsWith("blob:")) {
     return url;
   }
-  const baseUrl = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
+  const baseUrl = getBaseUrl().replace(/\/$/, "");
   const cleanPath = url.startsWith("/") ? url : `/${url}`;
   return `${baseUrl}${cleanPath}`;
 };
@@ -121,6 +124,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
   const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   // Dynamic Viral Hooks Extraction (matching Screenshot 2)
   const rawHook = result.script?.hook || "Stop scrolling! Exclusive Flash Sale";
@@ -165,6 +169,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
     const video = videoRef.current;
     if (!video || !videoUrl) return;
 
+    video.volume = 1.0;
     video.muted = false;
     const playPromise = video.play();
 
@@ -187,32 +192,87 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
     }
   }, [videoUrl]);
 
+  // Synchronize audio playback for non-video reels (e.g. image mode or audio voiceover)
+  useEffect(() => {
+    if (!hasRealVideo && audioRef.current && audioUrl) {
+      const audio = audioRef.current;
+      audio.volume = 1.0;
+      audio.loop = true;
+      if (isPlaying) {
+        audio.muted = isMuted;
+        audio.play().catch(console.warn);
+      } else {
+        audio.pause();
+      }
+    }
+  }, [hasRealVideo, audioUrl, isPlaying, isMuted]);
+
   const handleToggleMute = (e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     const video = videoRef.current;
-    if (!video) return;
-    video.muted = !video.muted;
-    setIsMuted(video.muted);
-    if (video.paused) {
-      video.play().then(() => setIsPlaying(true));
+    const audio = audioRef.current;
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+
+    if (video) {
+      video.muted = nextMuted;
+      video.volume = 1.0;
+      if (video.paused && !nextMuted) {
+        video.play().then(() => setIsPlaying(true)).catch(console.warn);
+      }
+    }
+    if (audio) {
+      audio.muted = nextMuted;
+      audio.volume = 1.0;
+      if (audio.paused && !nextMuted) {
+        audio.play().catch(console.warn);
+      }
     }
   };
 
   const handleSingleClickScreen = () => {
     const video = videoRef.current;
-    if (!video) return;
+    const audio = audioRef.current;
 
-    if (video.paused) {
-      if (isMuted) {
+    // If currently muted due to browser policy, first tap UNMUTES sound!
+    if (isMuted) {
+      setIsMuted(false);
+      if (video) {
         video.muted = false;
-        setIsMuted(false);
+        video.volume = 1.0;
+        video.play().then(() => setIsPlaying(true)).catch(console.warn);
       }
-      video.play().then(() => setIsPlaying(true));
+      if (audio) {
+        audio.muted = false;
+        audio.volume = 1.0;
+        if (!hasRealVideo) {
+          audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+        }
+      }
       setPlayIndicatorIcon("play");
-    } else {
-      video.pause();
-      setIsPlaying(false);
-      setPlayIndicatorIcon("pause");
+      setShowPlayIndicator(true);
+      setTimeout(() => setShowPlayIndicator(false), 650);
+      return;
+    }
+
+    if (video) {
+      if (video.paused) {
+        video.play().then(() => setIsPlaying(true)).catch(console.warn);
+        setPlayIndicatorIcon("play");
+      } else {
+        video.pause();
+        setIsPlaying(false);
+        setPlayIndicatorIcon("pause");
+      }
+    } else if (audio && !hasRealVideo) {
+      if (audio.paused) {
+        audio.play().then(() => setIsPlaying(true)).catch(console.warn);
+        setPlayIndicatorIcon("play");
+      } else {
+        audio.pause();
+        setIsPlaying(false);
+        setPlayIndicatorIcon("pause");
+      }
     }
 
     setShowPlayIndicator(true);
@@ -286,36 +346,77 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
       return;
     }
 
+    const reelId = result.job_id || (result as any)._id || (result as any).id;
+
     if (publishPlatform === 'linkedin') {
       setIsPublishingLinkedIn(true);
-      let shareText = (result.caption || rawHeadline || productName || "Check out this reel!").trim();
-      if (result.hashtags && result.hashtags.length > 0) {
-        shareText += `\n\n${result.hashtags.map((h: string) => h.startsWith('#') ? h : `#${h}`).join(' ')}`;
+      try {
+        if (reelId) {
+          await socialService.publishToLinkedin(reelId);
+          setShowPublishModal(false);
+          setPublishSuccessMessage("Successfully Published Reel to LinkedIn!");
+          setTimeout(() => setPublishSuccessMessage(null), 6000);
+        } else {
+          let shareText = (result.caption || rawHeadline || productName || "Check out this reel!").trim();
+          if (result.hashtags && result.hashtags.length > 0) {
+            shareText += `\n\n${result.hashtags.map((h: string) => h.startsWith('#') ? h : `#${h}`).join(' ')}`;
+          }
+          if (videoUrl) shareText += `\n\n${videoUrl}`;
+          const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`;
+          window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
+          setShowPublishModal(false);
+          setPublishSuccessMessage("Opened LinkedIn with reel ready to publish!");
+          setTimeout(() => setPublishSuccessMessage(null), 5000);
+        }
+      } catch (err: any) {
+        console.error("LinkedIn publish error:", err);
+        const msg = err.response?.data?.detail || err.message || "Failed to publish to LinkedIn";
+        setPublishErrorMessage(msg);
+      } finally {
+        setIsPublishingLinkedIn(false);
       }
-      if (videoUrl) {
-        shareText += `\n\n${videoUrl}`;
-      }
-      const linkedinUrl = `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(shareText)}`;
-      window.open(linkedinUrl, '_blank', 'noopener,noreferrer');
-      setIsPublishingLinkedIn(false);
-      setShowPublishModal(false);
-      setPublishSuccessMessage("Opened LinkedIn with reel ready to publish!");
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
       return;
     }
 
-    if (publishPlatform === 'facebook') setIsPublishingFacebook(true);
-    else setIsPublishingInstagram(true);
-    
-    setPublishSuccessMessage(null);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    
-    if (publishPlatform === 'facebook') setIsPublishingFacebook(false);
-    else setIsPublishingInstagram(false);
-    
-    setShowPublishModal(false);
-    setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
-    setTimeout(() => setPublishSuccessMessage(null), 5000);
+    if (publishPlatform === 'facebook') {
+      setIsPublishingFacebook(true);
+      try {
+        if (!reelId) {
+          throw new Error("Reel ID not found. Please regenerate or save the reel first.");
+        }
+        await socialService.publishToFacebook(reelId);
+        setShowPublishModal(false);
+        setPublishSuccessMessage("Successfully Published Reel to Facebook Page!");
+        setTimeout(() => setPublishSuccessMessage(null), 6000);
+      } catch (error: any) {
+        console.error("Facebook publish error:", error);
+        const msg = error.response?.data?.detail || error.message || "Failed to publish to Facebook";
+        setPublishErrorMessage(msg);
+      } finally {
+        setIsPublishingFacebook(false);
+      }
+      return;
+    }
+
+    if (publishPlatform === 'instagram') {
+      setIsPublishingInstagram(true);
+      try {
+        if (!reelId) {
+          throw new Error("Reel ID not found. Please regenerate or save the reel first.");
+        }
+        await socialService.publishToInstagram(reelId);
+        setShowPublishModal(false);
+        setPublishSuccessMessage("Successfully Published Reel to Instagram!");
+        setTimeout(() => setPublishSuccessMessage(null), 6000);
+      } catch (error: any) {
+        console.error("Instagram publish error:", error);
+        const msg = error.response?.data?.detail || error.message || "Failed to publish to Instagram";
+        setPublishErrorMessage(msg);
+      } finally {
+        setIsPublishingInstagram(false);
+      }
+      return;
+    }
   };
 
   // Scene Carousel Navigation
@@ -557,6 +658,20 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                     <div className="animate-[bounce_0.6s_ease-in-out_infinite] transform scale-150">
                       <Heart className="w-24 h-24 text-red-500 fill-red-500 drop-shadow-[0_0_25px_rgba(239,68,68,0.9)]" />
                     </div>
+                  </div>
+                )}
+
+                {/* Floating Tap to Unmute Overlay when Autoplay Muted */}
+                {isMuted && (
+                  <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-40 pointer-events-auto">
+                    <button
+                      type="button"
+                      onClick={handleToggleMute}
+                      className="px-4 py-2 rounded-full bg-black/85 backdrop-blur-md border border-amber-400/60 text-amber-300 text-xs font-bold flex items-center gap-2 shadow-2xl animate-pulse cursor-pointer hover:bg-black/95 hover:scale-105 transition-all shadow-black/80"
+                    >
+                      <VolumeX className="w-4 h-4 text-amber-400 animate-bounce" />
+                      <span>Tap to Unmute Audio</span>
+                    </button>
                   </div>
                 )}
 
@@ -924,6 +1039,11 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                   <CheckCircle2 className="w-5 h-5" /> {publishSuccessMessage}
                 </div>
               )}
+              {publishErrorMessage && (
+                <div className="w-full rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 p-4 text-center font-bold flex items-center justify-center gap-2">
+                  <AlertCircle className="w-5 h-5 shrink-0" /> {publishErrorMessage}
+                </div>
+              )}
 
               <div className={`grid gap-3 ${hasRealVideo ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-1 sm:grid-cols-2"}`}>
                 {hasRealVideo && (
@@ -1140,12 +1260,33 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
               </h3>
               <button 
                 type="button"
-                onClick={() => setShowPublishModal(false)}
+                onClick={() => { setShowPublishModal(false); setPublishErrorMessage(null); }}
                 className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
+
+            {publishErrorMessage && (
+              <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-medium space-y-2">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
+                  <span className="flex-1 leading-relaxed">{publishErrorMessage}</span>
+                </div>
+                {publishErrorMessage.toLowerCase().includes("not connected") && (
+                  <div className="pt-1 flex gap-2">
+                    <a
+                      href="/social-platforms"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-200 text-[11px] font-bold transition-colors"
+                    >
+                      Connect Account in Settings &rarr;
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
 
             <p className="text-sm text-text-muted">Choose which platform you want to publish this reel to:</p>
 

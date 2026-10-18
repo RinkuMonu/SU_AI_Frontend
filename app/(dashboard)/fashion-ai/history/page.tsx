@@ -95,7 +95,7 @@ export default function FashionHistoryPage() {
               <div className="aspect-[3/4] relative bg-black/20">
                 {item.result_image_url ? (
                   <Image 
-                    src={item.result_image_url.startsWith("/") ? `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}${item.result_image_url}` : item.result_image_url} 
+                    src={item.result_image_url} 
                     alt="Generation result"
                     fill
                     className="object-cover"

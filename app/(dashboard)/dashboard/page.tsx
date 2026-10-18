@@ -324,23 +324,23 @@ export default function DashboardPage() {
       <TodaysMarketing />
 
       {/* Bottom Section: Recent Activity & AI Insights */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <div className="col-span-4">
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+        <div className="col-span-1 lg:col-span-4 min-w-0">
           <RecentActivityList />
         </div>
 
-        <Card className="col-span-3 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden flex flex-col">
-          <CardHeader>
-            <CardTitle className="text-white">AI Insights</CardTitle>
-            <CardDescription className="text-text-muted">
+        <Card className="col-span-1 lg:col-span-3 min-w-0 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden flex flex-col">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-white text-lg sm:text-xl">AI Insights</CardTitle>
+            <CardDescription className="text-text-muted text-xs sm:text-sm">
               Personalised recommendations based on your activity.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 p-4 sm:p-6 pt-0 sm:pt-0">
             {loadingAnalytics ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
-                  <div key={i} className="h-16 bg-white/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-28 bg-white/5 rounded-xl animate-pulse" />
                 ))}
               </div>
             ) : (

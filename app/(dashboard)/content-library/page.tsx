@@ -6,7 +6,7 @@ import { socialService } from '@/services/social.service';
 import { GeneratedContent } from '@/types/content';
 import { ContentCard } from '@/components/content/ContentCard';
 import { ContentFilters } from '@/components/content/ContentFilters';
-import { Library, Sparkles, Send, Camera, Share2, Briefcase } from 'lucide-react';
+import { Library, Sparkles, Send, Camera, Share2, Briefcase, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
@@ -59,9 +59,10 @@ export default function ContentLibraryPage() {
     setIsLoading(true);
     try {
       const res = await contentService.getContents();
-      setContents(res.data);
+      setContents(Array.isArray(res.data) ? res.data : []);
     } catch (error) {
       console.error("Failed to load contents:", error);
+      setContents([]);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +71,7 @@ export default function ContentLibraryPage() {
   const handleDelete = async (id: string) => {
     try {
       await contentService.deleteContent(id);
-      setContents(contents.filter(c => c._id !== id));
+      setContents(prev => prev.filter(c => c._id !== id));
       if (selectedContent?._id === id) setSelectedContent(null);
     } catch (error) {
       console.error("Failed to delete content:", error);
@@ -79,9 +80,10 @@ export default function ContentLibraryPage() {
 
   const handleSave = async (editedContent: GeneratedContent) => {
     try {
-      await contentService.updateContent(editedContent._id, editedContent);
-      setContents(contents.map(c => c._id === editedContent._id ? editedContent : c));
-      setSelectedContent(editedContent);
+      const res = await contentService.saveContent(editedContent);
+      const saved = res.data;
+      setContents(prev => prev.map(c => c._id === editedContent._id ? saved : c));
+      setSelectedContent(saved);
     } catch (error) {
       console.error("Failed to save content:", error);
     }
@@ -90,10 +92,11 @@ export default function ContentLibraryPage() {
   const markAsPublished = async () => {
     if (!selectedContent) return;
     try {
-      const publishedContent = { ...selectedContent, status: 'Published' as const };
-      await contentService.updateContent(selectedContent._id, publishedContent);
-      setContents(prev => prev.map(c => c._id === selectedContent._id ? publishedContent : c));
-      setSelectedContent(publishedContent);
+      const publishedContent = { ...selectedContent, status: 'Published' as const, updatedAt: new Date().toISOString() };
+      const res = await contentService.saveContent(publishedContent);
+      const saved = res.data;
+      setContents(prev => prev.map(c => c._id === selectedContent._id ? saved : c));
+      setSelectedContent(saved);
     } catch (error) {
       console.error("Failed to update status to published:", error);
     }
@@ -303,10 +306,10 @@ export default function ContentLibraryPage() {
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-background rounded-xl shadow-xl relative animate-in fade-in zoom-in-95">
             <Button 
               variant="ghost" 
-              className="absolute top-2 right-2 z-10 rounded-full w-8 h-8 p-0"
+              className="absolute top-3 right-3 z-10 rounded-full w-8 h-8 p-0 text-text-muted hover:text-white hover:bg-surface-elevated"
               onClick={() => setSelectedContent(null)}
             >
-              o
+              <X className="h-4 w-4" />
             </Button>
             <div className="p-1 pt-8">
                 <ContentPreview 

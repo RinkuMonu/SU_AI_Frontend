@@ -1,19 +1,21 @@
 import axios from "axios";
 
-const getBaseUrl = () => {
+export const getBaseUrl = () => {
+  // In the browser, ALWAYS use empty string "" so that all requests are relative same-origin.
+  // Next.js rewrites in next.config.ts will securely forward /api/:path* to the backend server-side.
+  // This guarantees the real backend IP, domain, ngrok tunnel, and port are 100% hidden in DevTools/Inspect!
   if (typeof window !== "undefined") {
-    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
-    if (isLocal) {
-      const envUrl = process.env.NEXT_PUBLIC_API_URL;
-      if (envUrl && (envUrl.includes("localhost") || envUrl.includes("127.0.0.1") || envUrl.includes("ngrok"))) {
-        return envUrl.replace(/\/docs\/?$/, "").replace(/\/$/, "");
-      }
-      return "http://127.0.0.1:8000";
-    }
+    return "";
   }
 
-  let url = process.env.NEXT_PUBLIC_API_URL || "https://api.dhandagrow.com";
-  return url.replace(/\/docs\/?$/, "").replace(/\/$/, "");
+  // On the server side (SSR / Node.js runtime):
+  const backend =
+    process.env.INTERNAL_BACKEND_URL ||
+    process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://127.0.0.1:8000";
+
+  return backend.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
 };
 
 const api = axios.create({

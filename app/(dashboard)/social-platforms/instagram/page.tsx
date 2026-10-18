@@ -118,9 +118,18 @@ export default function InstagramIntegrationPage() {
     // 1. Check URL parameters after OAuth redirect
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      tokenFromUrl = params.get('access_token') || params.get('token') || params.get('ig_access_token');
-      const isConnectedSuccess = params.get('instagram_connected') === 'true';
+      tokenFromUrl = params.get('access_token') || params.get('token') || params.get('ig_access_token') || params.get('fb_access_token') || params.get('user_access_token');
+      const isConnectedSuccess = params.get('instagram_connected') === 'true' || params.get('facebook_connected') === 'true';
       accIdFromUrl = params.get('ig_account_id') || params.get('account_id') || params.get('ig_user_id');
+      const fbPageToken = params.get('fb_access_token');
+      const fbPageId = params.get('fb_page_id');
+      if (fbPageToken) {
+        FacebookService.saveCredentials({
+          pageAccessToken: fbPageToken,
+          pageId: fbPageId || undefined,
+          userAccessToken: params.get('user_access_token') || undefined,
+        });
+      }
       codeFromUrl = params.get('code');
       const errorFromUrl = params.get('error') || params.get('error_description') || params.get('instagram_error');
 
@@ -599,12 +608,33 @@ export default function InstagramIntegrationPage() {
             </div>
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full md:w-auto shrink-0">
-              {/* Option 1: Connect via Facebook Login (Meta Graph API) - Most reliable */}
+              {/* Option 1: Official Instagram Connect (Meta Graph API) */}
               <Button
+                onClick={handleInstagramLogin}
+                disabled={isLoggingIn || isConnectingFb}
+                className="px-6 py-5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl shadow-lg shadow-pink-600/25 transition-all text-sm flex items-center justify-center gap-2.5 cursor-pointer"
+                title="Connect your Instagram Business account via official Meta authorization"
+              >
+                {isLoggingIn ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Connecting to Meta...
+                  </>
+                ) : (
+                  <>
+                    <InstagramIcon className="h-4 w-4" />
+                    Connect Instagram Account
+                  </>
+                )}
+              </Button>
+
+              {/* Option 2: Connect via Facebook Page */}
+              <Button
+                variant="outline"
                 onClick={handleConnectViaFacebook}
                 disabled={isConnectingFb || isLoggingIn}
-                className="px-5 py-5 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white font-bold rounded-xl shadow-lg shadow-blue-600/20 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
-                title="Connect Instagram via official Meta Facebook permissions"
+                className="px-4 py-5 border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                title="Authorize via Facebook Page permissions"
               >
                 {isConnectingFb ? (
                   <>
@@ -614,28 +644,7 @@ export default function InstagramIntegrationPage() {
                 ) : (
                   <>
                     <FacebookIcon className="h-4 w-4" />
-                    Connect via Facebook
-                  </>
-                )}
-              </Button>
-
-              {/* Option 2: Direct Instagram Login */}
-              <Button
-                variant="outline"
-                onClick={handleInstagramLogin}
-                disabled={isLoggingIn || isConnectingFb}
-                className="px-4 py-5 border-pink-500/40 bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-                title="Direct login on instagram.com"
-              >
-                {isLoggingIn ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Redirecting...
-                  </>
-                ) : (
-                  <>
-                    <InstagramIcon className="h-4 w-4" />
-                    Instagram.com Login
+                    Via Facebook Page
                   </>
                 )}
               </Button>
