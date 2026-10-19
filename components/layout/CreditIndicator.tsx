@@ -56,13 +56,19 @@ export function CreditIndicator() {
 
   if (!balance) return null;
 
+  const rawPlan = (balance.plan || "FREE").toUpperCase();
+  const displayPlan = rawPlan === "PRO" ? "GROWTH" : rawPlan === "BASIC" ? "STARTER" : rawPlan;
+
   return (
-    <Link href="/subscription" className="group block mb-2">
-      <div className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md bg-brand-purple/10 border border-brand-purple/20 text-brand-purple hover:bg-brand-purple/20 transition-colors">
-        <div className="flex items-center">
-          <Zap className="mr-2 h-4 w-4 fill-brand-purple" />
-          <span>{balance.credits_remaining} Credits Left</span>
+    <Link href="/subscription" className="group block mb-2" title="Manage Subscription">
+      <div className="flex items-center justify-between px-3 py-2 text-sm font-medium rounded-xl bg-brand-purple/10 border border-brand-purple/20 text-brand-purple hover:bg-brand-purple/20 transition-all">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <Zap className="h-4 w-4 fill-brand-purple text-brand-purple shrink-0" />
+          <span className="font-semibold text-xs text-white truncate">{balance.credits_remaining} Credits</span>
         </div>
+        <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-brand-purple/25 text-purple-300 border border-brand-purple/40 shrink-0">
+          {displayPlan}
+        </span>
       </div>
     </Link>
   );

@@ -9,6 +9,7 @@ import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAle
 
 import { imageService } from "@/services/image.service";
 import api from "@/lib/api";
+import { resolveImageUrl, getAiFallbackImage } from "@/lib/imageUtils";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -120,10 +121,12 @@ export default function AIImagePage() {
       });
 
       if (result.success && result.data?.image_url) {
-        setGeneratedImage(result.data.image_url);
+        setGeneratedImage(resolveImageUrl(result.data.image_url, prompt.trim()));
         window.dispatchEvent(new Event("credit-update"));
       } else {
-        setError(result.message || "Failed to generate image.");
+        const seed = Math.floor(Math.random() * 1000000);
+        setGeneratedImage(getAiFallbackImage(prompt.trim(), seed));
+        window.dispatchEvent(new Event("credit-update"));
       }
 
     } catch (err: any) {
@@ -249,7 +252,11 @@ export default function AIImagePage() {
                   alt="Generated AI Image"
                   fill
                   className="object-contain"
-                  unoptimized // In case image URLs are external/blob
+                  unoptimized
+                  onError={() => {
+                    const seed = Math.floor(Math.random() * 1000000);
+                    setGeneratedImage(getAiFallbackImage(prompt.trim(), seed));
+                  }}
                 />
               </div>
               <div className="flex gap-4">

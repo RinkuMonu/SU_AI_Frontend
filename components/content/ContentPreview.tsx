@@ -256,9 +256,13 @@ export function ContentPreview({ content, onRegenerate, onSave, isGenerating = f
           {((editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url) && (
             <div className="rounded-xl overflow-hidden border border-border shadow-md flex justify-center bg-black/40 p-2">
               <img 
-                src={(editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url} 
+                src={resolveImageUrl(
+                  (editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url,
+                  editedContent.title || editedContent.caption
+                )} 
                 alt="Generated Creative" 
                 className="w-full max-w-md h-auto rounded-lg object-contain" 
+                onError={(e) => handleImageError(e, editedContent.title || editedContent.caption)}
               />
             </div>
           )}

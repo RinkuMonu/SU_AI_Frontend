@@ -6,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
   Sparkles, Megaphone,
-  Image as ImageIcon, Video, Camera, TrendingUp, ArrowRight
+  Image as ImageIcon, Video, Camera, TrendingUp, ArrowRight, Zap
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { analyticsService } from "@/services/analytics.service";
+import { creditService } from "@/services/credit.service";
 import { AnalyticsData } from "@/types/analytics";
+import { CreditBalance } from "@/types/credits";
 import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
@@ -21,12 +23,17 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
+  const [creditBalance, setCreditBalance] = useState<CreditBalance | null>(null);
 
   useEffect(() => {
     analyticsService.getAnalyticsOverview(7)
       .then(setAnalytics)
       .catch((e) => console.error("Failed to load analytics", e))
       .finally(() => setLoadingAnalytics(false));
+
+    creditService.getCredits()
+      .then(setCreditBalance)
+      .catch(() => null);
   }, []);
 
   const insights: Insight[] = analytics?.recommendation
@@ -58,11 +65,34 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
-          {greeting}, {user?.name || "there"}!
-        </h1>
-        <p className="text-text-muted mt-2">Here is your AI marketing summary for the last 7 days.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            {greeting}, {user?.name || "there"}!
+          </h1>
+          <p className="text-text-muted mt-1 text-sm">Here is your AI marketing summary for the last 7 days.</p>
+        </div>
+
+        {creditBalance && (
+          <Link
+            href="/subscription"
+            className="self-start sm:self-auto inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 shadow-lg backdrop-blur-xl transition-all group cursor-pointer"
+            title="View Plan Details & Upgrade"
+          >
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-400">Plan:</span>
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 uppercase">
+                {creditBalance.plan === "PRO" ? "GROWTH" : creditBalance.plan === "BASIC" ? "STARTER" : (creditBalance.plan || "FREE")}
+              </span>
+            </div>
+            <div className="h-3.5 w-px bg-white/20" />
+            <div className="flex items-center gap-1 text-xs text-brand-purple font-bold">
+              <Zap className="w-3.5 h-3.5 fill-brand-purple" />
+              <span>{creditBalance.credits_remaining} Credits</span>
+            </div>
+          </Link>
+        )}
       </div>
 
       {/* Live Stats */}

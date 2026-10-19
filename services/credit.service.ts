@@ -10,8 +10,8 @@ export const creditService = {
       console.warn("Credit API failed, returning mock data");
       return {
         plan: "FREE",
-        credits_total: 100,
-        credits_remaining: 100,
+        credits_total: 5,
+        credits_remaining: 5,
         credits_used: 0
       } as CreditBalance;
     }
@@ -20,7 +20,10 @@ export const creditService = {
   async getCreditHistory(): Promise<CreditTransaction[]> {
     try {
       const response = await api.get("/api/v1/credits/history");
-      return response.data;
+      if (Array.isArray(response.data)) return response.data;
+      if (Array.isArray(response.data?.transactions)) return response.data.transactions;
+      if (Array.isArray(response.data?.data)) return response.data.data;
+      return [];
     } catch (error) {
       return [];
     }

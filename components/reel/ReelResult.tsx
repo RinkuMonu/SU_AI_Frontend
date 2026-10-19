@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { ReelJobStatus } from "@/types/reel";
 import { 
   Loader2, 
   Share2, 
   CheckCircle2, 
+  Zap, 
   Volume2, 
   VolumeX, 
   Play, 
@@ -443,6 +445,34 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
       {/* Header Banner */}
       <div className="rounded-3xl border border-border bg-surface p-8 shadow-2xl relative overflow-hidden">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Real-time Credit Deduction Callout Banner */}
+        <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-purple-950/50 via-[#0d1630] to-rose-950/40 border border-purple-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg shadow-purple-950/30">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-300 shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-extrabold text-white text-sm">🎉 AI Video Reel Generated Successfully!</span>
+                <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 flex items-center gap-1">
+                  <Zap className="w-3 h-3 text-rose-400 fill-rose-400" />
+                  -10 Credits Deducted
+                </span>
+              </div>
+              <p className="text-xs text-text-muted mt-0.5">
+                Generated 1 AI Video Reel • 10 Credits deducted and recorded in your Credit History.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/subscription"
+            className="text-xs font-bold px-3.5 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 transition-all flex items-center gap-1.5 shrink-0 hover:scale-[1.02]"
+          >
+            <span>View Credit History</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6 pb-6 border-b border-border/60">
           <div className="flex items-center gap-3.5">

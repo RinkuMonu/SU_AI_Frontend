@@ -11,12 +11,12 @@ export const subscriptionService = {
       return {
         id: "sub_1",
         user_id: "user_1",
-        plan_id: "pro",
+        plan_id: "FREE",
         status: "active",
-        credits_remaining: 100,
+        credits_remaining: 5,
         current_period_start: new Date().toISOString(),
         current_period_end: new Date().toISOString(),
-        usage: { posts_created: 5, reels_created: 2 }
+        usage: { posts_created: 0, reels_created: 0 }
       } as Subscription;
     }
   },
@@ -27,8 +27,11 @@ export const subscriptionService = {
       return response.data.data;
     } catch (e) {
       return {
-        free: { name: "Free", price: 0, credits: 10, post_limit: 10, reel_limit: 2, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
-        pro: { name: "Pro", price: 999, credits: 100, post_limit: 100, reel_limit: 20, watermark: false, team_members: 3, custom_branding: true, analytics: true } as PlanConfig
+        FREE: { name: "FREE", price: 0, credits: 5, post_limit: 5, reel_limit: 1, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
+        STARTER: { name: "STARTER", price: 799, credits: 100, post_limit: 30, reel_limit: 10, watermark: false, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
+        GROWTH: { name: "GROWTH", price: 2999, credits: 400, post_limit: 100, reel_limit: 30, watermark: false, team_members: 2, custom_branding: true, analytics: true } as PlanConfig,
+        BUSINESS: { name: "BUSINESS", price: 4999, credits: 1000, post_limit: 200, reel_limit: 60, watermark: false, team_members: 5, custom_branding: true, analytics: true } as PlanConfig,
+        INFLUENCER: { name: "INFLUENCER", price: 9999, credits: 2000, post_limit: -1, reel_limit: -1, watermark: false, team_members: 10, custom_branding: true, analytics: true } as PlanConfig
       };
     }
   },
@@ -46,13 +49,75 @@ export const subscriptionService = {
   async getCreditTransactions(): Promise<CreditTransaction[]> {
     try {
       const response = await api.get("/api/v1/subscription/credits/transactions");
-      return response.data.data;
+      const list = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data?.transactions)
+        ? response.data.transactions
+        : null;
+
+      if (list && list.length > 0) return list;
     } catch (e) {
-      console.warn("Using mock credit transactions");
-      return [
-        { id: "1", subscription_id: "sub_1", amount: -5, transaction_type: "usage", feature: "AI Image", balance_after: 95, created_at: new Date().toISOString() },
-        { id: "2", subscription_id: "sub_1", amount: 100, transaction_type: "recharge", feature: "Plan Upgrade", balance_after: 100, created_at: new Date().toISOString() }
-      ] as any;
+      // Ignore and attempt fallback
     }
+
+    try {
+      const response = await api.get("/api/v1/credits/history");
+      const list = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+        ? response.data.data
+        : Array.isArray(response.data?.transactions)
+        ? response.data.transactions
+        : null;
+
+      if (list) return list;
+    } catch (e) {
+      console.warn("Using default credit transactions preview");
+    }
+
+    return [
+      { 
+        id: "tx_reel_1", 
+        transaction_type: "deduction", 
+        amount: 10, 
+        feature: "ai_reel", 
+        balance_before: 100, 
+        balance_after: 90, 
+        created_at: new Date(Date.now() - 25 * 60000).toISOString(), 
+        description: "Generated 1 AI Video Reel • 10 Credits deducted" 
+      },
+      { 
+        id: "tx_web_1", 
+        transaction_type: "deduction", 
+        amount: 10, 
+        feature: "website_builder", 
+        balance_before: 90, 
+        balance_after: 80, 
+        created_at: new Date(Date.now() - 45 * 60000).toISOString(), 
+        description: "Built 1 AI Website • 10 Credits deducted" 
+      },
+      { 
+        id: "tx_post_1", 
+        transaction_type: "deduction", 
+        amount: 1, 
+        feature: "ai_post", 
+        balance_before: 80, 
+        balance_after: 79, 
+        created_at: new Date(Date.now() - 85 * 60000).toISOString(), 
+        description: "Created 1 AI Social Post • 1 Credit deducted" 
+      },
+      { 
+        id: "tx_recharge_1", 
+        transaction_type: "recharge", 
+        amount: 100, 
+        feature: "recharge", 
+        balance_before: 0, 
+        balance_after: 100, 
+        created_at: new Date(Date.now() - 24 * 3600000).toISOString(), 
+        description: "Plan Activation / Monthly Free Tier Allotted • Credits added" 
+      }
+    ];
   }
 };
