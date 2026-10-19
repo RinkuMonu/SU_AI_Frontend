@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2, Maximize2, Minimize2, Download } from "lucide-react";
+import { Mic, Send, Globe, Layout, Palette, Phone, MapPin, Store, ChevronRight, Settings, CheckCircle2, RotateCcw, Clock, ArrowRight, Plus, Trash2, Maximize2, Minimize2, Download, Zap } from "lucide-react";
 import { websiteBuilderService, ChatMessage } from "@/services/website-builder.service";
 
 const generateHtmlFromJSON = (rawData: any) => {
@@ -213,6 +213,7 @@ export default function WebsiteBuilderPage() {
   const [generationProgress, setGenerationProgress] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [creditDeductionToast, setCreditDeductionToast] = useState<string | null>(null);
   
   const endRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -364,16 +365,36 @@ export default function WebsiteBuilderPage() {
     recognition.start();
   };
 
+  const handleFinalizeWebsite = () => {
+    if (!generatedSiteData) {
+      alert("Please generate a website draft before finalizing.");
+      return;
+    }
+    setCreditDeductionToast("🎉 Website Finalized! 10 Credits recorded in Credit History.");
+    window.dispatchEvent(new Event("credit-update"));
+    setTimeout(() => setCreditDeductionToast(null), 6000);
+  };
+
   const handleSend = async (customMessage?: string, data?: any) => {
     const textToSend = customMessage || input;
     if (!textToSend.trim() && !data) return;
 
-    const userMsg: ChatMessage = { id: Date.now().toString(), role: "user", content: textToSend, data };
+    const lower = textToSend.toLowerCase();
+    const isGenerationIntent = 
+      data?.action === 'generate' || 
+      lower.includes("generate website") || 
+      lower.includes("build website") || 
+      lower.includes("create website") || 
+      lower.includes("make website");
+
+    const effectiveData = isGenerationIntent && !data?.action ? { action: 'generate', ...data } : data;
+
+    const userMsg: ChatMessage = { id: Date.now().toString(), role: "user", content: textToSend, data: effectiveData };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
-    if (data?.action === 'generate') {
+    if (effectiveData?.action === 'generate' || isGenerationIntent) {
        setIsGenerating(true);
        setGenerationProgress(["Generating Website Content"]);
     }
@@ -387,12 +408,15 @@ export default function WebsiteBuilderPage() {
         localStorage.setItem("website_builder_session_id", fresh.sessionId);
       }
 
-      if (siteId && data?.action === 'revise') {
+      if (siteId && effectiveData?.action === 'revise') {
          const res = await websiteBuilderService.reviseSite(siteId, textToSend);
          setGeneratedSiteData(res.generatedSiteData);
          setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: "I have updated the website based on your feedback." }]);
+         if (res.generatedSiteData) {
+            window.dispatchEvent(new Event("credit-update"));
+         }
       } else {
-         const res = await websiteBuilderService.sendMessage(activeSessionId, textToSend, data);
+         const res = await websiteBuilderService.sendMessage(activeSessionId, textToSend, effectiveData);
          if (res.messages) {
             setMessages(res.messages);
          } else {
@@ -403,6 +427,9 @@ export default function WebsiteBuilderPage() {
             setGeneratedSiteData(res.generatedSiteData);
             setIsGenerating(false);
             setGenerationProgress(GENERATION_STEPS);
+            window.dispatchEvent(new Event("credit-update"));
+            setCreditDeductionToast("⚡ 10 Credits deducted for AI Website Generation");
+            setTimeout(() => setCreditDeductionToast(null), 6000);
          }
       }
     } catch (e: any) {
@@ -412,9 +439,17 @@ export default function WebsiteBuilderPage() {
           const fresh = await websiteBuilderService.startSession(language || "English");
           setSessionId(fresh.sessionId);
           localStorage.setItem("website_builder_session_id", fresh.sessionId);
-          const res = await websiteBuilderService.sendMessage(fresh.sessionId, textToSend, data);
+          const res = await websiteBuilderService.sendMessage(fresh.sessionId, textToSend, effectiveData);
           if (res.messages) {
              setMessages(res.messages);
+          }
+          if (res.generatedSiteData) {
+            setGeneratedSiteData(res.generatedSiteData);
+            setIsGenerating(false);
+            setGenerationProgress(GENERATION_STEPS);
+            window.dispatchEvent(new Event("credit-update"));
+            setCreditDeductionToast("⚡ 10 Credits deducted for AI Website Generation");
+            setTimeout(() => setCreditDeductionToast(null), 6000);
           }
           return;
         } catch (recoverErr) {
@@ -526,17 +561,33 @@ export default function WebsiteBuilderPage() {
       {/* RIGHT PANE: LIVE PREVIEW */}
       <div className={isFullscreen ? "fixed inset-0 z-[100] flex flex-col bg-[#050505]" : "flex-1 flex flex-col bg-[#050505] relative"}>
         {/* Preview Toolbar */}
-        <div className="h-14 border-b border-white/10 flex items-center justify-end px-6 bg-[#0B0F19]">
+        <div className="h-14 border-b border-white/10 flex items-center justify-between px-6 bg-[#0B0F19]">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs px-2.5 py-1 bg-teal-500/10 border border-teal-500/30 text-teal-300 rounded-lg font-bold flex items-center gap-1.5 shadow-2xs">
+              <Zap className="w-3.5 h-3.5 text-teal-400" />
+              <span>10 Credits / Generation</span>
+            </span>
+            {creditDeductionToast && (
+              <span className="text-xs px-3 py-1 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-lg font-bold animate-in fade-in flex items-center gap-1.5 shadow-lg shadow-purple-950/40">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                {creditDeductionToast}
+              </span>
+            )}
+          </div>
+
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors" title={isFullscreen ? "Minimize" : "Maximize"}>
+            <button onClick={() => setIsFullscreen(!isFullscreen)} className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer" title={isFullscreen ? "Minimize" : "Maximize"}>
               {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
             </button>
             {generatedSiteData && (
-              <button onClick={handleDownloadZip} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-lg shadow-blue-500/20">
+              <button onClick={handleDownloadZip} className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition shadow-lg shadow-blue-500/20 cursor-pointer">
                 <Download className="w-4 h-4" /> Download ZIP
               </button>
             )}
-            <button className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition shadow-lg shadow-purple-500/20">
+            <button 
+              onClick={handleFinalizeWebsite}
+              className="flex items-center gap-2 px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 rounded-lg transition shadow-lg shadow-purple-500/20 cursor-pointer"
+            >
               <CheckCircle2 className="w-4 h-4" /> Finalize Website
             </button>
           </div>

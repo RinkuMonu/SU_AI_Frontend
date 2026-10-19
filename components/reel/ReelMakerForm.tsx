@@ -767,15 +767,21 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
             </>
           ) : (
             <>
-              <Wand2 className="w-5 h-5 text-amber-300 animate-pulse" />
-              <span>
+              <Wand2 className="w-5 h-5 text-amber-300 animate-pulse shrink-0" />
+              <span className="truncate">
                 {studioMode === "prompt" 
                   ? "Generate Reel with Google Veo 3.1" 
                   : `Generate AI Reel for ${effectiveProd?.name || "Product"}`}
               </span>
+              <span className="ml-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-black/35 text-amber-300 border border-amber-300/30 shrink-0">
+                ⚡ 10 Credits
+              </span>
             </>
           )}
         </button>
+        <p className="text-[11px] text-center text-text-muted mt-2 font-medium">
+          Generating 1 Reel deducts 10 credits and updates your Credit History in real-time.
+        </p>
       </div>
     </div>
   );

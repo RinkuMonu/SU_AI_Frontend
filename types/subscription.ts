@@ -45,10 +45,12 @@ export type Subscription = {
 
 export type CreditTransaction = {
   id?: string;
-  action: string;
+  action?: string;
   amount: number;
-  balance_before: number;
+  balance_before?: number;
   balance_after: number;
   description?: string;
+  transaction_type?: string;
+  feature?: string;
   created_at: string;
 };
