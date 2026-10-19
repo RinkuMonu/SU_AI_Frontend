@@ -54,7 +54,6 @@ function ContentStudioContent() {
         status: savedItem.status || "Completed",
         actionUrl: "/content-library",
       });
-      return savedItem;
     } catch (error) {
       console.error("Failed to save content:", error);
       throw error;

@@ -392,7 +392,7 @@ export default function WebsiteBuilderPage() {
          setGeneratedSiteData(res.generatedSiteData);
          setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: "I have updated the website based on your feedback." }]);
       } else {
-         const res = await websiteBuilderService.sendMessage(activeSessionId, textToSend, data);
+         const res = await websiteBuilderService.sendMessage(activeSessionId || "", textToSend, data);
          if (res.messages) {
             setMessages(res.messages);
          } else {

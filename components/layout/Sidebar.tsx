@@ -66,6 +66,7 @@ const navigation = [
   },
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
+  { name: "Influencer", href: "/influencer", icon: Users },
   { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Campaigns", href: "/campaigns", icon: Megaphone },

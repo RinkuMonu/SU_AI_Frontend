@@ -188,20 +188,18 @@ export const LANDING_PLANS: PlanItem[] = [
     name: "INFLUENCER",
     tagline: "Collaborate",
     accentColor: "#7C3AED",
-    description: "For brands that want creator partnerships and influencer-led campaigns.",
-    shortBenefits: "Influencer discovery, shortlisting, outreach assistance, campaign tracking and reporting.",
+    description: "For brands and businesses scaling creator partnerships and influencer campaigns.",
+    shortBenefits: "Influencer Suite; creator discovery; pitch generation; collaboration CRM and tracking.",
     credits: "Influencer Suite",
     popular: false,
     pricing: {
       monthly: {
         price: 9999,
-        pricePrefix: "From ",
         period: "/mo",
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
         price: 28497,
-        pricePrefix: "From ",
         originalPrice: 29997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
@@ -209,7 +207,6 @@ export const LANDING_PLANS: PlanItem[] = [
       },
       yearly: {
         price: 107989,
-        pricePrefix: "From ",
         originalPrice: 119988,
         period: "/yr",
         gstText: "+ 18% GST where applicable",
@@ -217,13 +214,14 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "Creator audience review",
-      "Outreach assistance",
-      "Campaign tracking & reporting",
-      "Custom packages for larger brands"
+      "Influencer Engine & Discovery",
+      "Creator outreach & AI pitch generator",
+      "Inbound application manager",
+      "Campaign CRM & deliverable reviews",
+      "Live campaign ROI analytics"
     ],
     ctaText: "Choose Influencer"
-  }
+  },
 ];
 
 export function Pricing() {

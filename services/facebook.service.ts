@@ -179,10 +179,16 @@ export class FacebookService {
     return [];
   }
 
-  /**
-   * Persists Facebook credentials to localStorage with a strict 24-hour auto-expiry timestamp,
-   * and synchronizes with the backend.
-   */
+  static saveCredentials(creds: {
+    userAccessToken?: string;
+    pageAccessToken?: string;
+    pageId?: string;
+    pageName?: string;
+    authToken?: string;
+  }) {
+    return this.saveFacebookCredentials(creds);
+  }
+
   static async saveFacebookCredentials(creds: {
     userAccessToken?: string;
     pageAccessToken?: string;

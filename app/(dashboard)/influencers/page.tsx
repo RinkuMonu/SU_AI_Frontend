@@ -45,8 +45,6 @@ export default function InfluencersPage() {
   const [locationSearchTerm, setLocationSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'login'|'register'>('login');
   const [activeTab, setActiveTab] = useState('discover');
 
   const [isHiring, setIsHiring] = useState(false);
@@ -122,15 +120,15 @@ export default function InfluencersPage() {
   const fetchData = async () => {
     try {
       const [infRes, appRes, colRes, shortRes, crmRes] = await Promise.all([
-        influencerService.discover({ ...filters, min_followers: filters.min_followers ? Number(filters.min_followers) : undefined }),
-        influencerService.getBusinessApplications(),
-        influencerService.getBusinessCollaborations(),
+        influencerService.discover({ ...filters, min_followers: filters.min_followers ? Number(filters.min_followers) : undefined }).catch(() => ({ success: true, data: [] })),
+        influencerService.getBusinessApplications().catch(() => ({ success: true, data: [] })),
+        influencerService.getBusinessCollaborations().catch(() => ({ success: true, data: [] })),
         influencerService.getShortlist().catch(() => ({ data: [] })),
         influencerService.getCampaigns().catch(() => ({ data: [] }))
       ]);
-      setInfluencers(infRes.data || []);
-      setApplications(appRes.data || []);
-      setCollaborations(colRes.data || []);
+      setInfluencers(infRes?.data || []);
+      setApplications(appRes?.data || []);
+      setCollaborations(colRes?.data || []);
       setShortlist(shortRes?.data || []);
       setCrmCampaigns(crmRes?.data || []);
     } catch (e) {
@@ -275,12 +273,6 @@ export default function InfluencersPage() {
               className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-90 shadow-[0_0_15px_rgba(252,154,93,0.5)] text-white shrink-0 border-0"
           >
             {isHiring ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />} {isHiring ? "Processing..." : "Hire Influencer"}
-          </Button>
-          <Button 
-            onClick={() => setShowAuthModal(true)} 
-            className="bg-gradient-to-r from-[#be32ff] to-[#7d36fa] hover:opacity-90 shadow-[0_0_15px_rgba(190,50,255,0.5)] text-white shrink-0 border-0"
-          >
-            Influencer Login / Register
           </Button>
         </div>
       </div>
@@ -829,81 +821,6 @@ export default function InfluencersPage() {
               {pitchLoading ? "Generating & Sending..." : "Generate & Send"}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showAuthModal} onOpenChange={setShowAuthModal}>
-        <DialogContent className="bg-[#1a1a1a] border-white/10 text-white sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center">
-              {authMode === 'login' ? 'Influencer Login' : 'Influencer Registration'}
-            </DialogTitle>
-            <DialogDescription className="text-center text-white/60">
-              {authMode === 'login' ? 'Welcome back! Login to manage your profile and collabs.' : 'Join the platform to connect with top brands!'}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <form 
-            onSubmit={async (e) => {
-              e.preventDefault();
-              try {
-                const formData = new FormData(e.currentTarget);
-                const email = formData.get('email') as string;
-                const password = formData.get('password') as string;
-                
-                let res;
-                if (authMode === 'login') {
-                  res = await import('@/services/auth.service').then(m => m.authService.login(email, password));
-                } else {
-                  const name = formData.get('name') as string;
-                  res = await import('@/services/auth.service').then(m => m.authService.signup({ full_name: name, email, password, role: 'influencer' }));
-                  if (res?.detail?.includes('OTP')) {
-                    alert('Registration successful! Please check your email for the OTP and verify your account from the main login page.');
-                    return;
-                  }
-                }
-                
-                if (res?.token) {
-                  localStorage.setItem('access_token', res.token);
-                  localStorage.setItem('user', JSON.stringify(res.user));
-                  setShowAuthModal(false);
-                  window.location.href = '/influencer';
-                }
-              } catch (err: any) {
-                alert(err.message || 'Authentication failed');
-              }
-            }}
-            className="space-y-4 py-4"
-          >
-            {authMode === 'register' && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Full Name</label>
-                <input name="name" required type="text" className="w-full p-2.5 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:border-brand-purple" placeholder="John Doe" />
-              </div>
-            )}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Email Address</label>
-              <input name="email" required type="email" className="w-full p-2.5 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:border-brand-purple" placeholder="hello@example.com" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Password</label>
-              <input name="password" required type="password" className="w-full p-2.5 bg-white/5 border border-white/10 rounded-md focus:outline-none focus:border-brand-purple" placeholder="••••••••" />
-            </div>
-            
-            <Button 
-              type="submit"
-              className="w-full bg-brand-purple hover:bg-brand-purple/80 text-white h-11 mt-4"
-            >
-              {authMode === 'login' ? 'Sign In' : 'Create Account'}
-            </Button>
-            
-            <p className="text-center text-sm text-white/60 mt-4">
-              {authMode === 'login' ? "Don't have an account? " : "Already have an account? "}
-              <button type="button" onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')} className="text-brand-purple hover:underline font-medium">
-                {authMode === 'login' ? 'Register here' : 'Login here'}
-              </button>
-            </p>
-          </form>
         </DialogContent>
       </Dialog>
     </div>
