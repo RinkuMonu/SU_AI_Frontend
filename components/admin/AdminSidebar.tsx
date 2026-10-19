@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,7 +13,8 @@ import {
   LifeBuoy, 
   Settings,
   LogOut,
-  LayoutDashboard
+  LayoutDashboard,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
@@ -21,7 +22,8 @@ import { Logo } from "@/components/ui/Logo";
 const navigation = [
   { name: "Overview", href: "/admin", icon: LayoutDashboard },
   { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Businesses", href: "/admin/businesses", icon: Building2 },
+    { name: "Businesses", href: "/admin/businesses", icon: Building2 },
+  { name: "Marketplace", href: "/admin/marketplace", icon: Sparkles },
   { name: "Subscriptions", href: "/admin/subscriptions", icon: CreditCard },
   { name: "Credits", href: "/admin/credits", icon: Coins },
   { name: "AI Usage", href: "/admin/ai-usage", icon: BrainCircuit },

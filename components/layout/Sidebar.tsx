@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -89,7 +89,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { sidebarOpen, setSidebarOpen } = useSidebar();
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
