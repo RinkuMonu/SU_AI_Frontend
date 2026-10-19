@@ -67,6 +67,7 @@ export default function InfluencerDashboard() {
   const [pagination, setPagination] = useState({ page: 1, limit: 6, total: 0, total_pages: 1 });
   
   // UI States
+  const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [summaryLoading, setSummaryLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -142,6 +143,7 @@ export default function InfluencerDashboard() {
 
   // Initial Load
   useEffect(() => {
+    setMounted(true);
     loadProfileAndSummary();
   }, [loadProfileAndSummary]);
 
@@ -210,8 +212,8 @@ export default function InfluencerDashboard() {
     setSelectedType('all');
   };
 
-  const displayName = profile?.fullName || user?.name || 'Creator';
-  const displayUsername = profile?.username || (user?.email ? `@${user.email.split('@')[0]}` : '@creator');
+  const displayName = mounted ? (profile?.fullName || user?.name || 'Creator') : 'Creator';
+  const displayUsername = mounted ? (profile?.username || (user?.email ? `@${user.email.split('@')[0]}` : '@creator')) : '@creator';
   const completionPercent = profile?.profile_completion || 65;
 
   return (
@@ -233,7 +235,7 @@ export default function InfluencerDashboard() {
                   {profile?.profile_image ? (
                     <img src={profile.profile_image} alt={displayName} className="w-full h-full object-cover" />
                   ) : (
-                    <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-tr from-[#fc9a5d] to-[#be32ff] bg-clip-text text-transparent">
+                    <span suppressHydrationWarning className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-tr from-[#fc9a5d] to-[#be32ff] bg-clip-text text-transparent">
                       {displayName.charAt(0).toUpperCase()}
                     </span>
                   )}
@@ -247,13 +249,13 @@ export default function InfluencerDashboard() {
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                  Welcome back, <span className="bg-gradient-to-r from-white via-purple-100 to-[#be32ff] bg-clip-text text-transparent">{displayName}</span>! 👋
+                  Welcome back, <span suppressHydrationWarning className="bg-gradient-to-r from-white via-purple-100 to-[#be32ff] bg-clip-text text-transparent">{displayName}</span>! 👋
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#be32ff]/15 text-[#d87aff] border border-[#be32ff]/30">
                   Creator Partner
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-neutral-400">
+              <p suppressHydrationWarning className="text-xs sm:text-sm text-neutral-400">
                 {displayUsername} &bull; <span className="text-neutral-300 font-medium">{profile?.category || 'Fashion & Lifestyle'}</span> &bull; {profile?.location || 'India'}
               </p>
 

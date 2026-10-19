@@ -59,10 +59,10 @@ export default function InfluencerEarningsPage() {
       <div className="p-6 rounded-3xl bg-[#0f1017] border border-white/10 space-y-3">
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-emerald-400" />
-          <h3 className="text-sm font-bold text-white">SevenUnique AI Escrow Protection</h3>
+          <h3 className="text-sm font-bold text-white">DhandaGrow AI Escrow Protection</h3>
         </div>
         <p className="text-xs text-neutral-400 leading-relaxed">
-          All collaboration deals on SevenUnique AI are verified before project start. When a brand approves your proposal, funds are secured in escrow and released directly to your verified payout account upon delivery.
+          All collaboration deals on DhandaGrow AI are verified before project start. When a brand approves your proposal, funds are secured in escrow and released directly to your verified payout account upon delivery.
         </p>
       </div>
     </div>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
@@ -17,11 +17,17 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { Logo } from '@/components/ui/Logo';
 
 export default function InfluencerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/influencer', icon: LayoutDashboard, badge: null },
@@ -31,25 +37,19 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
     { name: 'Earnings', href: '/influencer/earnings', icon: DollarSign, badge: null },
   ];
 
-  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : (user?.email ? user.email.charAt(0).toUpperCase() : 'I');
+  const userInitial = mounted && user?.name 
+    ? user.name.charAt(0).toUpperCase() 
+    : (mounted && user?.email ? user.email.charAt(0).toUpperCase() : 'I');
+  const userName = mounted && user?.name ? user.name : 'Verified Creator';
+  const userEmail = mounted && user?.email ? user.email : 'influencer@dhandagrow.ai';
 
   return (
     <div className="min-h-screen bg-[#08090d] text-white flex flex-col md:flex-row antialiased selection:bg-[#be32ff]/30">
       {/* Mobile Top Header */}
       <header className="md:hidden flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0d0e15]/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-lg shadow-purple-500/20">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <div>
-            <span className="font-extrabold text-sm tracking-tight bg-gradient-to-r from-white via-purple-100 to-[#be32ff] bg-clip-text text-transparent">
-              SevenUnique
-            </span>
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-[#fc9a5d]">
-              Creator Studio
-            </span>
-          </div>
-        </div>
+        <Link href="/influencer" className="flex items-center gap-2">
+          <Logo size="sm" />
+        </Link>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           className="p-2 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white"
@@ -62,20 +62,12 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
       <aside className="w-64 border-r border-white/10 bg-[#0b0c13] flex-col hidden md:flex fixed h-full z-30 shadow-2xl">
         {/* Brand Header */}
         <div className="h-20 flex items-center justify-between px-5 border-b border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-lg shadow-[#be32ff]/20 ring-1 ring-white/20">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-base tracking-tight text-white">SevenUnique</span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider bg-[#be32ff]/20 text-[#d87aff] border border-[#be32ff]/30">AI</span>
-              </div>
-              <span className="text-[11px] font-medium text-neutral-400 block -mt-0.5">
-                Creator &amp; Influencer
-              </span>
-            </div>
-          </div>
+          <Link href="/influencer" className="flex flex-col justify-center min-w-0">
+            <Logo size="sm" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-[#fc9a5d] pl-1 -mt-0.5">
+              Creator &amp; Influencer
+            </span>
+          </Link>
         </div>
 
         {/* Navigation Tabs */}
@@ -130,15 +122,18 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
         {/* User Card & Logout */}
         <div className="p-3 border-t border-white/10 bg-[#07080d]/80 space-y-2">
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/[0.03] border border-white/5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center font-bold text-white text-sm shadow-md ring-1 ring-white/20">
+            <div 
+              suppressHydrationWarning 
+              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center font-bold text-white text-sm shadow-md ring-1 ring-white/20"
+            >
               {userInitial}
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
               <div className="flex items-center gap-1">
-                <p className="text-xs font-bold text-white truncate">{user?.name || 'Verified Creator'}</p>
+                <p suppressHydrationWarning className="text-xs font-bold text-white truncate">{userName}</p>
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
               </div>
-              <p className="text-[11px] text-neutral-400 truncate">{user?.email || 'influencer@sevenunique.ai'}</p>
+              <p suppressHydrationWarning className="text-[11px] text-neutral-400 truncate">{userEmail}</p>
             </div>
           </div>
           <button
@@ -156,12 +151,9 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
         <div className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex">
           <div className="w-72 bg-[#0b0c13] h-full border-r border-white/10 flex flex-col p-4 animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center text-white">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <span className="font-bold text-sm text-white">Creator Studio</span>
-              </div>
+              <Link href="/influencer" className="flex items-center gap-2">
+                <Logo size="sm" />
+              </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="p-1.5 rounded-lg bg-white/5 text-neutral-400 hover:text-white"
