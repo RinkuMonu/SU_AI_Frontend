@@ -96,8 +96,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         '/create',
         '/create-ad',
         '/ai-',
-        '/influencer',
-        '/influencers'
       ].some(route => pathname.startsWith(route));
       const isAdminRoute = pathname.startsWith('/admin');
 

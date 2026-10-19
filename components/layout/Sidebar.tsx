@@ -69,7 +69,6 @@ const navigation = [
   { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   { name: "Campaigns", href: "/campaigns", icon: Megaphone },
-  { name: "Influencers", href: "/influencers", icon: Users },
   {
     name: "Social Platforms",
     icon: Globe,
