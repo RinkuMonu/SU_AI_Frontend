@@ -1,7 +1,9 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import { AuthProvider } from "@/components/auth/AuthProvider";
+import { SecurityShield } from "@/components/security/SecurityShield";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -15,10 +17,8 @@ export const metadata: Metadata = {
     icon: '/logo.png',
   },
 };
-
-import { AuthProvider } from "@/components/auth/AuthProvider";
-
 const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCmTCmI8Hn8Du4M3rYzfSdhRVcx1oap59o";
+
 
 export default function RootLayout({
   children,
@@ -28,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+        <SecurityShield />
         <AuthProvider>
           {children}
         </AuthProvider>

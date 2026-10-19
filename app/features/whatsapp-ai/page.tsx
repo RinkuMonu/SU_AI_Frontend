@@ -88,7 +88,7 @@ export default function WhatsAppAIPage() {
   const [targetPhone, setTargetPhone] = useState(recentAIContentItems[0].phone);
   const [messageText, setMessageText] = useState(recentAIContentItems[0].caption);
   const [mediaUrlInput, setMediaUrlInput] = useState(
-    'http://127.0.0.1:8000/uploads/temp/gen_ea9ea59d3461.jpg'
+    '/uploads/temp/gen_ea9ea59d3461.jpg'
   );
   const [isCopied, setIsCopied] = useState(false);
 
@@ -260,7 +260,7 @@ export default function WhatsAppAIPage() {
                     type="text"
                     value={mediaUrlInput}
                     onChange={(e) => setMediaUrlInput(e.target.value)}
-                    placeholder="http://127.0.0.1:8000/uploads/temp/gen_ea9ea59d3461.jpg"
+                    placeholder="/uploads/temp/gen_ea9ea59d3461.jpg"
                     className="w-full border border-slate-800 bg-[#161C2E] text-slate-200 text-xs font-mono h-10 px-3 rounded-lg focus:ring-1 focus:ring-emerald-500 outline-none"
                   />
                 </div>

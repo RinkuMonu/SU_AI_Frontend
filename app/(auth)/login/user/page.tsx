@@ -25,6 +25,12 @@ import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 
+// Prevent duplicate callback execution in React StrictMode and concurrent renders
+let inFlightGoogleCode: string | null = null;
+let inFlightFbAuth: string | null = null;
+let inFlightIgAuth: string | null = null;
+let inFlightLiAuth: string | null = null;
+
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(1, { message: "Password is required" }),
@@ -642,6 +648,22 @@ export default function LoginPage() {
 
     // 4. Process Google OAuth code
     if (code) {
+      if (
+        inFlightGoogleCode === code ||
+        (typeof window !== "undefined" && sessionStorage.getItem(`google_code_processed_${code}`))
+      ) {
+        return;
+      }
+      inFlightGoogleCode = code;
+      try {
+        sessionStorage.setItem(`google_code_processed_${code}`, "true");
+      } catch (_) {}
+
+      // Immediately remove query params from URL address bar so remounts / refreshes don't re-trigger
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       const processGoogleCode = async () => {
         const savedMode = sessionStorage.getItem("google_auth_mode");
         const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
@@ -663,6 +685,7 @@ export default function LoginPage() {
           const res = await api.post(endpoint, {
             code,
             redirect_uri: redirectUri,
+            redirectUri: redirectUri,
             mode,
           });
 
@@ -710,7 +733,31 @@ export default function LoginPage() {
           }
         } catch (err: any) {
           console.error("Google authentication error:", err);
-          const msg = err.response?.data?.detail || err.message || (isSignup ? "Failed to register with Google." : "Failed to sign in with Google.");
+
+          // If session token was already set by a parallel flow, safely navigate to dashboard
+          const existingToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+          if (existingToken) {
+            router.push("/dashboard");
+            return;
+          }
+
+          let msg = err.response?.data?.detail || err.message || (isSignup ? "Failed to register with Google." : "Failed to sign in with Google.");
+          if (typeof msg === "string") {
+            try {
+              const match = msg.match(/\{.*\}/);
+              if (match) {
+                const parsed = JSON.parse(match[0]);
+                if (parsed.error === "invalid_grant") {
+                  msg = "Google authorization code expired or was already verified. Please try signing in again.";
+                } else if (parsed.error_description) {
+                  msg = parsed.error_description;
+                }
+              } else if (msg.includes("invalid_grant")) {
+                msg = "Google authorization code expired or was already verified. Please try signing in again.";
+              }
+            } catch (_) {}
+          }
+
           setError(msg);
           setAuthModal({
             open: true,
@@ -720,8 +767,8 @@ export default function LoginPage() {
             message: msg,
           });
           sessionStorage.removeItem("google_auth_mode");
-          window.history.replaceState({}, document.title, window.location.pathname);
         } finally {
+          inFlightGoogleCode = null;
           setSocialLoading(null);
           setSocialNotice(null);
         }

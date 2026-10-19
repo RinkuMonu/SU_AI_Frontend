@@ -46,7 +46,7 @@ const stepsData: ProcessStep[] = [
 
 export function HowItWorks() {
   return (
-    <section className="py-10 sm:py-14 bg-[#0B0F19] relative overflow-hidden border-t border-white/5">
+    <section id="how-it-works" className="py-10 sm:py-14 bg-[#0B0F19] relative overflow-hidden border-t border-white/5 scroll-mt-20">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-500/10 blur-[100px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500/10 blur-[100px] rounded-full pointer-events-none" />

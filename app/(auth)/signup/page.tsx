@@ -33,6 +33,9 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import api from "@/lib/api";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 
+// Prevent duplicate callback execution in React StrictMode
+let inFlightGoogleSignupCode: string | null = null;
+
 const signupSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
   lastName: z.string().min(1, { message: "Last name is required" }),
@@ -370,6 +373,22 @@ export default function SignupPage() {
 
     // 3. Process Google OAuth code
     if (code) {
+      if (
+        inFlightGoogleSignupCode === code ||
+        (typeof window !== "undefined" && sessionStorage.getItem(`google_code_processed_${code}`))
+      ) {
+        return;
+      }
+      inFlightGoogleSignupCode = code;
+      try {
+        sessionStorage.setItem(`google_code_processed_${code}`, "true");
+      } catch (_) {}
+
+      // Immediately remove query params from URL address bar so remounts / refreshes don't re-trigger
+      if (typeof window !== "undefined") {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       const processGoogleSignup = async () => {
         setSocialLoading("Google");
         setSocialNotice("Completing your Google registration...");
@@ -379,6 +398,7 @@ export default function SignupPage() {
           const res = await api.post("/api/v1/auth/google/signup", {
             code,
             redirect_uri: redirectUri,
+            redirectUri: redirectUri,
             mode: "signup",
           });
 
@@ -390,7 +410,6 @@ export default function SignupPage() {
             localStorage.setItem("access_token", token);
             localStorage.setItem("user", JSON.stringify(userObj));
             sessionStorage.removeItem("google_auth_mode");
-            window.history.replaceState({}, document.title, window.location.pathname);
             if (userObj.onboardingCompleted !== true) {
               window.location.href = "/onboarding";
             } else {
@@ -401,11 +420,19 @@ export default function SignupPage() {
           }
         } catch (err: any) {
           console.error("Google signup error:", err);
-          const msg = err.response?.data?.detail || err.message || "Failed to sign up with Google.";
+          const existingToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+          if (existingToken) {
+            window.location.href = "/dashboard";
+            return;
+          }
+          let msg = err.response?.data?.detail || err.message || "Failed to sign up with Google.";
+          if (typeof msg === "string" && (msg.includes("invalid_grant") || msg.includes("Bad Request"))) {
+            msg = "Google authorization code expired or was already verified. Please try signing up again.";
+          }
           setError(msg);
           sessionStorage.removeItem("google_auth_mode");
-          window.history.replaceState({}, document.title, window.location.pathname);
         } finally {
+          inFlightGoogleSignupCode = null;
           setSocialLoading(null);
           setSocialNotice(null);
         }

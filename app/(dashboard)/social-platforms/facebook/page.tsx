@@ -13,12 +13,10 @@ import {
   ExternalLink, 
   Layers, 
   ChevronDown, 
-  ChevronUp, 
-  Info,
   CheckCircle2,
   Trash2,
   Key,
-  Globe
+  Clock
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -29,11 +27,16 @@ import api from "@/lib/api";
 import { FacebookService } from "@/services/facebook.service";
 import { authService } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
+import { ActivityService } from "@/services/activity.service";
 import { useAuth } from "@/components/auth/AuthProvider";
 
-const FacebookIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="#1877F2" className={className}>
-    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+const FacebookIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="12" fill="#1877F2" />
+    <path
+      d="M15.117 8.52h-1.808c-.282 0-.603.37-.603.882v1.548h2.411l-.328 2.45h-2.083V20h-2.528v-6.6H8.225v-2.45h1.953V9.395c0-1.895 1.155-2.928 2.85-2.928.812 0 1.512.06 1.716.088v1.965z"
+      fill="#ffffff"
+    />
   </svg>
 );
 
@@ -121,17 +124,53 @@ export default function FacebookIntegrationPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [discoveredPages, setDiscoveredPages] = useState<FacebookPageItem[]>([]);
-  const [showGuide, setShowGuide] = useState(true);
+  const [remainingTime, setRemainingTime] = useState<string | null>(null);
+
+  // Active 24-hour expiration watcher that updates countdown and auto-deletes when expired
+  useEffect(() => {
+    const checkExpiration = () => {
+      const isExpired = FacebookService.checkAndExpireCredentials();
+      if (isExpired) {
+        setIsConnected(false);
+        setFbToken("");
+        setFbUserToken("");
+        setFbPageId("");
+        setFbPageName("");
+        setRemainingTime(null);
+        setErrorMessage("Facebook access tokens and page access codes have expired and were automatically deleted after 24 hours for security. Please reconnect your Facebook account.");
+        return;
+      }
+
+      const formatted = FacebookService.getRemainingTimeFormatted();
+      setRemainingTime(formatted);
+    };
+
+    checkExpiration();
+    const timer = setInterval(checkExpiration, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     // 0. Pre-hydrate immediately from stored credentials so tokens and page are printed INSTANTLY
     const stored = FacebookService.getStoredCredentials();
-    if (stored.userAccessToken) setFbUserToken(stored.userAccessToken);
-    if (stored.pageAccessToken) setFbToken(stored.pageAccessToken);
-    if (stored.pageId) setFbPageId(stored.pageId);
-    if (stored.pageName) setFbPageName(stored.pageName);
-    if (stored.pageId && (stored.pageAccessToken || stored.userAccessToken)) {
-      setIsConnected(true);
+    if (stored.isExpired) {
+      setIsConnected(false);
+      setFbUserToken("");
+      setFbToken("");
+      setFbPageId("");
+      setFbPageName("");
+      setRemainingTime(null);
+      setErrorMessage("Facebook access tokens have expired and were automatically deleted after 24 hours for security. Please reconnect your Facebook account.");
+    } else {
+      if (stored.userAccessToken) setFbUserToken(stored.userAccessToken);
+      if (stored.pageAccessToken) setFbToken(stored.pageAccessToken);
+      if (stored.pageId) setFbPageId(stored.pageId);
+      if (stored.pageName) setFbPageName(stored.pageName);
+      if (stored.pageId && (stored.pageAccessToken || stored.userAccessToken)) {
+        setIsConnected(true);
+      }
+      const formatted = FacebookService.getRemainingTimeFormatted();
+      setRemainingTime(formatted);
     }
 
     // Auto-discover pages if user access token is stored but page token is missing
@@ -158,19 +197,23 @@ export default function FacebookIntegrationPage() {
       }).catch(e => console.warn("Auto-discover on mount:", e));
     }
 
-    // 1. Check for tokens from URL query parameters after OAuth redirect
+    // 1. Check for tokens and authorization codes from URL query parameters after OAuth redirect
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
+      const codeFromUrl = params.get('code') || params.get('authorization_code');
       const pageTokenFromUrl = params.get('fb_access_token') || params.get('page_access_token');
       const userTokenFromUrl = params.get('user_access_token') || params.get('access_token') || params.get('token');
       const isConnectedSuccess = params.get('facebook_connected') === 'true';
       const pageIdFromUrl = params.get('fb_page_id') || params.get('page_id');
       const errorFromUrl = params.get('error') || params.get('error_description');
       
+      // Instantly wipe authorization code and access tokens from browser address bar for security
+      if (codeFromUrl || pageTokenFromUrl || userTokenFromUrl || errorFromUrl || isConnectedSuccess) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       if (errorFromUrl) {
         setErrorMessage(formatFacebookError(errorFromUrl));
-        // Clean URL to prevent stale ?error=... from staying in the address bar
-        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       if (pageTokenFromUrl || userTokenFromUrl || isConnectedSuccess) {
@@ -183,9 +226,6 @@ export default function FacebookIntegrationPage() {
         if (userTokenFromUrl) setFbUserToken(userTokenFromUrl);
         if (pageIdFromUrl) setFbPageId(pageIdFromUrl);
         setIsConnected(true);
-
-        // Clean URL to prevent exposing raw tokens in browser address bar
-        window.history.replaceState({}, document.title, window.location.pathname);
 
         // Automatically fetch pages and auto-save without user needing to click anything
         const performAutoSave = async () => {
@@ -504,6 +544,14 @@ export default function FacebookIntegrationPage() {
       });
       setIsConnected(true);
       setSuccessMessage(`Selected & saved Page: ${page.page_name} (ID: ${page.page_id})`);
+      ActivityService.logActivity({
+        title: `Connected Facebook Page: ${page.page_name}`,
+        description: `Page ID: ${page.page_id} connected with 24-hour auto-sync.`,
+        category: "social",
+        platform: "facebook",
+        status: "Active",
+        actionUrl: "/social-platforms/facebook",
+      });
     } catch (e) {
       setSuccessMessage(`Selected Page: ${page.page_name}`);
     }
@@ -537,6 +585,14 @@ export default function FacebookIntegrationPage() {
       setUpdated(true);
       setIsConnected(true);
       setSuccessMessage("Facebook Page settings saved & activated successfully!");
+      ActivityService.logActivity({
+        title: `Saved Facebook Credentials: ${fbPageName || fbPageId}`,
+        description: `Active Facebook credentials saved with Meta Graph API.`,
+        category: "social",
+        platform: "facebook",
+        status: "Active",
+        actionUrl: "/social-platforms/facebook",
+      });
       setTimeout(() => setUpdated(false), 3000);
     } catch (error: any) {
       console.error("Failed to update Facebook settings:", error);
@@ -577,8 +633,8 @@ export default function FacebookIntegrationPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border/50">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-blue-600 via-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/20">
-            <FacebookIcon className="h-8 w-8 text-white" />
+          <div className="p-2 rounded-2xl bg-blue-600/15 border border-blue-500/30 shadow-lg shadow-blue-500/20 flex items-center justify-center">
+            <FacebookIcon className="h-9 w-9" />
           </div>
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -590,12 +646,26 @@ export default function FacebookIntegrationPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start md:self-auto">
+        <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
           {isActuallyConnected ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shadow-sm">
                 <ShieldCheck className="w-4 h-4" /> Connected {fbPageName ? `• ${fbPageName}` : ""}
               </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-semibold shadow-sm font-mono">
+                <Clock className="w-3.5 h-3.5 text-blue-400" /> {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleFacebookLogin(true)}
+                disabled={isLoggingIn || isReRequesting}
+                className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10 text-xs h-8 px-2.5 flex items-center gap-1.5"
+                title="Switch to another Facebook account or re-authorize permissions"
+              >
+                {isReRequesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-blue-400" />}
+                <span className="hidden sm:inline">Switch Account</span>
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -644,86 +714,8 @@ export default function FacebookIntegrationPage() {
         </div>
       )}
 
-      {/* Primary Connect / Connected Management Card */}
-      {isActuallyConnected ? (
-        /* Connected & Active Card - Login buttons are hidden, showing clean connected state & management */
-        <Card className="bg-gradient-to-r from-emerald-950/40 via-teal-950/20 to-surface border-emerald-500/30 shadow-xl overflow-hidden relative">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-white">Facebook Account Connected</h3>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        Saved & Active
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-300 mt-0.5">
-                      Your Facebook Page is securely connected and ready for automated social media posting.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="p-3 rounded-xl bg-surface-elevated/70 border border-border/80 flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500/10 text-blue-400 shrink-0">
-                      <Globe className="w-4 h-4" />
-                    </div>
-                    <div className="truncate">
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Active Facebook Page</p>
-                      <p className="text-sm font-semibold text-white truncate">
-                        {fbPageName || "Connected Facebook Page"}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-3 rounded-xl bg-surface-elevated/70 border border-border/80 flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 shrink-0">
-                      <Key className="w-4 h-4" />
-                    </div>
-                    <div className="truncate">
-                      <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">Page ID</p>
-                      <p className="text-sm font-mono text-emerald-300 truncate">
-                        {fbPageId || "Configured"}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Connected Management Actions */}
-              <div className="flex flex-col sm:flex-row md:flex-col gap-2.5 shrink-0 w-full md:w-auto">
-                <Button
-                  variant="outline"
-                  onClick={() => handleFacebookLogin(true)}
-                  disabled={isLoggingIn || isReRequesting}
-                  className="border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 text-xs h-9 px-4 rounded-xl flex items-center justify-center gap-2 transition-all font-medium"
-                  title="Switch to another Facebook account or re-authorize permissions"
-                >
-                  {isReRequesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-blue-400" />}
-                  Switch Account / Re-login
-                </Button>
-
-                <Button
-                  variant="outline"
-                  onClick={handleDisconnect}
-                  disabled={isDisconnecting}
-                  className="border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs h-9 px-4 rounded-xl flex items-center justify-center gap-2 transition-all font-medium"
-                  title="Disconnect this Facebook account and remove saved tokens"
-                >
-                  {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5 text-red-400" />}
-                  Disconnect Facebook
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
+      {/* Fast Facebook Connect Card (Shown ONLY when NOT logged in/connected) */}
+      {!isActuallyConnected && (
         /* Fast Facebook Connect Card (Shown ONLY when NOT logged in/connected) */
         <Card className="bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-surface border-blue-500/30 shadow-xl overflow-hidden relative">
           <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -819,7 +811,7 @@ export default function FacebookIntegrationPage() {
                   >
                     <div className="truncate">
                       <div className="font-semibold text-sm truncate flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <FacebookIcon className="w-4 h-4 shrink-0" />
                         {page.page_name}
                       </div>
                       <div className="text-xs font-mono text-gray-400 mt-0.5 truncate">
@@ -1006,6 +998,15 @@ export default function FacebookIntegrationPage() {
                 </span>
                 <span className="font-mono text-[11px] text-emerald-400/80">Status: Active</span>
               </div>
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between text-xs text-blue-300">
+                <span className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-blue-400 shrink-0" />
+                  24-Hour Auto-Delete Policy: Access codes and page access tokens are automatically purged after 24 hours.
+                </span>
+                <span className="font-mono text-[11px] text-blue-400 font-semibold">
+                  {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
+                </span>
+              </div>
               {tokenPermissionWarning && (
                 <div className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5 animate-in fade-in">
                   <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
@@ -1035,76 +1036,6 @@ export default function FacebookIntegrationPage() {
             )}
           </Button>
         </CardContent>
-      </Card>
-
-      {/* Troubleshooting Guide for 'Invalid Scopes: pages_manage_posts' */}
-      <Card className="bg-surface/60 border-border/70 shadow-md">
-        <CardHeader 
-          className="cursor-pointer py-4 select-none hover:bg-white/[0.02] transition-colors"
-          onClick={() => setShowGuide(!showGuide)}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Info className="h-5 w-5 text-blue-400 shrink-0" />
-              <CardTitle className="text-white text-base">
-                Why does Facebook show "Invalid Scopes: email" or "pages_manage_posts"?
-              </CardTitle>
-            </div>
-            {showGuide ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
-          </div>
-          <CardDescription className="text-xs text-gray-400">
-            Guide on Meta app permissions, how to enable them, or bypass them using Safe Connect.
-          </CardDescription>
-        </CardHeader>
-
-        {showGuide && (
-          <CardContent className="pt-2 text-xs text-gray-300 space-y-4 border-t border-border/40">
-            <div className="space-y-2">
-              <p className="font-semibold text-white text-sm">
-                1. Why Meta throws "Invalid Scopes":
-              </p>
-              <p className="text-gray-400 leading-relaxed">
-                When a Meta App is in <strong>Development Mode</strong>, Facebook strictly blocks login if your app requests permissions that haven't been added to your app in the Meta Developer Console.
-                For example, if your app is a Business App, the <code className="text-amber-300 font-mono">email</code> permission is not added by default, triggering <em>"Invalid Scopes: email"</em>.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <p className="font-semibold text-white text-sm">
-                2. How to fix it in Meta Developer Console (in 30 seconds):
-              </p>
-              <ol className="list-decimal list-inside space-y-1.5 text-gray-300 pl-1">
-                <li>Go to <a href="https://developers.facebook.com/apps" target="_blank" rel="noreferrer" className="text-blue-400 underline font-medium">Meta App Dashboard</a> and select your App.</li>
-                <li>Go to <strong>Use Cases</strong> (or <strong>App Review → Permissions and Features</strong>).</li>
-                <li>Search for <code className="text-blue-300 font-mono">email</code> and click <strong>Add</strong>.</li>
-                <li>Search for <code className="text-blue-300 font-mono">pages_show_list</code> and click <strong>Add</strong>.</li>
-                <li>(Optional) Add <code className="text-blue-300 font-mono">pages_manage_posts</code> if available.</li>
-              </ol>
-            </div>
-
-            <div className="space-y-2">
-              <p className="font-semibold text-white text-sm">
-                3. Or use "Safe Connect (public_profile)":
-              </p>
-              <p className="text-gray-400 leading-relaxed">
-                Click the <strong>Safe Connect (public_profile)</strong> button above! <code className="text-emerald-300 font-mono">public_profile</code> is pre-approved on 100% of Meta apps and will never throw an invalid scope error.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 space-y-2">
-              <p className="font-semibold text-blue-300 flex items-center gap-1.5">
-                <ExternalLink className="w-4 h-4" /> Direct Page Access Token via Meta Graph API Explorer:
-              </p>
-              <ol className="list-decimal list-inside space-y-1 text-gray-300 text-xs pl-1">
-                <li>Go to <a href="https://developers.facebook.com/tools/explorer" target="_blank" rel="noreferrer" className="text-blue-400 underline font-medium">Meta Graph API Explorer</a>.</li>
-                <li>Under <strong>User or Page</strong> dropdown, select your <strong>Facebook Page</strong>.</li>
-                <li>Under <strong>Permissions</strong>, click <strong>Add a Permission</strong> and select both <strong className="text-emerald-300">pages_manage_posts</strong> and <strong className="text-emerald-300">pages_read_engagement</strong>.</li>
-                <li>Click <strong>Generate Access Token</strong>. Meta will generate a direct <strong>Page Access Token</strong> with full publishing permissions.</li>
-                <li>Copy and paste it into the <strong>Page Access Token</strong> field above, and click <strong>Save Facebook Settings</strong>!</li>
-              </ol>
-            </div>
-          </CardContent>
-        )}
       </Card>
     </div>
   );

@@ -1,8 +1,12 @@
 export interface GenerateReelRequest {
-  product_id: string;
+  product_id?: string;
   product_name?: string;
   product_category?: string;
-  generation_mode?: 'product' | 'creative';
+  generation_mode?: 'product' | 'creative' | 'prompt' | 'veo';
+  prompt?: string;
+  custom_prompt?: string;
+  video_style?: string;
+  aspect_ratio?: string;
   festival_theme?: string;
   product_description?: string;
   product_image_url?: string;

@@ -14,6 +14,7 @@ import { generatePost } from "@/services/content.service";
 import { FashionService } from "@/services/fashion.service";
 import { imageService } from "@/services/image.service";
 import api from "@/lib/api";
+import { resolveImageUrl, handleImageError, getAiFallbackImage } from "@/lib/imageUtils";
 
 import type { GeneratedPost } from "@/types/content";
 
@@ -61,6 +62,7 @@ export default function AIPostPage() {
   // UI State
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
+  const [isRegeneratingImage, setIsRegeneratingImage] = useState(false);
   const [generatedPost, setGeneratedPost] = useState<GeneratedPost | null>(null);
   const [hasInsufficientCredits, setHasInsufficientCredits] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -117,9 +119,13 @@ export default function AIPostPage() {
       clearInterval(loadingInterval);
       setLoadingStep(5);
 
-      if (!result.image_url && !result.media_url) {
-        result = { ...result, image_url: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1080" };
-      }
+      const promptContext = result.creative_direction || result.headline || creativeInstruction || "commercial product photoshoot";
+      const resolvedImage = resolveImageUrl(result.image_url || result.media_url, promptContext);
+      result = {
+        ...result,
+        image_url: resolvedImage,
+        media_url: resolvedImage,
+      };
 
       setGeneratedPost(result);
       setEditedHeadline(result.headline || "");
@@ -143,8 +149,8 @@ export default function AIPostPage() {
 
   const regenerateImage = async () => {
     try {
-      setLoading(true);
-      const promptText = generatedPost?.creative_direction || creativeInstruction || "realistic social media photography";
+      setIsRegeneratingImage(true);
+      const promptText = generatedPost?.creative_direction || editedHeadline || creativeInstruction || "realistic social media commercial photography";
       
       try {
         const result = await imageService.generateImage({
@@ -154,17 +160,20 @@ export default function AIPostPage() {
           additional_instruction: creativeInstruction,
         });
         if (result.success && result.data?.image_url) {
-          setGeneratedPost(prev => prev ? { ...prev, image_url: result.data!.image_url, media_url: result.data!.image_url } : null);
+          const resolved = resolveImageUrl(result.data.image_url, promptText);
+          setGeneratedPost(prev => prev ? { ...prev, image_url: resolved, media_url: resolved } : null);
           return;
         }
       } catch (e) {
         console.warn("Regenerate image fallback", e);
       }
 
-      // If API fails, warn user instead of showing watermarked cartoon fallback
-      console.warn("Image regeneration returned no URL");
+      // Generate a fresh seed AI visual if backend endpoint is unavailable
+      const seed = Math.floor(Math.random() * 1000000);
+      const freshAiUrl = getAiFallbackImage(promptText, seed);
+      setGeneratedPost(prev => prev ? { ...prev, image_url: freshAiUrl, media_url: freshAiUrl } : null);
     } finally {
-      setLoading(false);
+      setTimeout(() => setIsRegeneratingImage(false), 1500);
     }
   };
 
@@ -524,19 +533,35 @@ export default function AIPostPage() {
               <div className="p-6 space-y-8">
                 {/* Image Section */}
                 <div className="space-y-4">
-                  <div className="aspect-square relative rounded-xl overflow-hidden bg-[#0a142c] border border-border">
-                    {/* Fallback mock image if API doesn't return one directly */}
+                  <div className="aspect-square relative rounded-xl overflow-hidden bg-[#0a142c] border border-border group">
+                    {isRegeneratingImage && (
+                      <div className="absolute inset-0 bg-[#0a142c]/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
+                        <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-2" />
+                        <span className="text-xs font-semibold text-purple-200">Generating new AI visual...</span>
+                      </div>
+                    )}
                     <img 
-                      src={generatedPost.image_url || generatedPost.media_url || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=1080"} 
+                      key={generatedPost.image_url || generatedPost.media_url}
+                      src={resolveImageUrl(
+                        generatedPost.image_url || generatedPost.media_url, 
+                        generatedPost.creative_direction || editedHeadline || creativeInstruction
+                      )} 
                       alt="AI Generated" 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-opacity duration-300"
+                      onError={(e) => handleImageError(e, generatedPost.creative_direction || editedHeadline || creativeInstruction)}
+                      onLoad={() => setIsRegeneratingImage(false)}
                     />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={regenerateImage} className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors">
-                      <RefreshCw className="w-4 h-4" /> Regenerate Image
+                    <button 
+                      onClick={regenerateImage} 
+                      disabled={isRegeneratingImage}
+                      className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors disabled:opacity-60 cursor-pointer"
+                    >
+                      <RefreshCw className={`w-4 h-4 ${isRegeneratingImage ? "animate-spin text-brand-purple" : ""}`} /> 
+                      {isRegeneratingImage ? "Regenerating..." : "Regenerate Image"}
                     </button>
-                    <button onClick={handleDownloadImage} title="Download Image" className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors">
+                    <button onClick={handleDownloadImage} title="Download Image" className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors cursor-pointer">
                       <Download className="w-4 h-4" />
                     </button>
                   </div>

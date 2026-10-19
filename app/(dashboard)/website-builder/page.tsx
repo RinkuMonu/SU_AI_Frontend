@@ -228,21 +228,70 @@ export default function WebsiteBuilderPage() {
     }
   };
 
+  const startNewSession = async (lang = "English") => {
+    try {
+      setLoading(true);
+      const data = await websiteBuilderService.startSession(lang);
+      if (data?.sessionId) {
+        setSessionId(data.sessionId);
+        localStorage.setItem("website_builder_session_id", data.sessionId);
+        setLanguage(data.language || lang);
+        if (data.messages && data.messages.length > 0) {
+          setMessages(data.messages);
+        } else {
+          setMessages([
+            { id: "init", role: "ai", content: `Hi! I can build your custom website. Tell me what kind of website you want to create (e.g. online clothing website, coffee shop, real estate)!` }
+          ]);
+        }
+        return data;
+      }
+    } catch (e) {
+      console.error("Failed to start session on backend", e);
+      const localSession = Date.now().toString();
+      setSessionId(localSession);
+      setMessages([
+        { id: "init", role: "ai", content: `Hi! I can build your custom website. Tell me what kind of website you want to create!` }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadSession = async (id: string) => {
+    try {
+      setLoading(true);
+      const data = await websiteBuilderService.getSession(id);
+      if (!data) {
+        // Session not found (404) or expired -> seamlessly start a fresh session!
+        localStorage.removeItem("website_builder_session_id");
+        await startNewSession(language || "English");
+        return;
+      }
+      setMessages(data.messages || []);
+      setLanguage(data.language || null);
+      if (data.siteId) setSiteId(data.siteId);
+      if (data.generatedSiteData) {
+         setGeneratedSiteData(data.generatedSiteData);
+         setGenerationProgress(GENERATION_STEPS);
+      }
+    } catch (e) {
+      console.warn("Failed to load session, creating a new session", e);
+      localStorage.removeItem("website_builder_session_id");
+      await startNewSession(language || "English");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const initSession = async () => {
       const savedSessionId = localStorage.getItem("website_builder_session_id");
-      if (savedSessionId) {
+      if (savedSessionId && /^[0-9a-fA-F]{24}$/.test(savedSessionId)) {
         setSessionId(savedSessionId);
         loadSession(savedSessionId);
       } else {
-        try {
-          const data = await websiteBuilderService.startSession("English");
-          setSessionId(data.sessionId);
-          localStorage.setItem("website_builder_session_id", data.sessionId);
-          if (data.messages) setMessages(data.messages);
-        } catch (e) {
-          console.error("Failed to start session", e);
-        }
+        localStorage.removeItem("website_builder_session_id");
+        startNewSession("English");
       }
     };
     initSession();
@@ -266,26 +315,6 @@ export default function WebsiteBuilderPage() {
       URL.revokeObjectURL(url);
     } catch (e) {
       console.error("Error creating zip", e);
-    }
-  };
-
-  const loadSession = async (id: string) => {
-    try {
-      setLoading(true);
-      const data = await websiteBuilderService.getSession(id);
-      setMessages(data.messages || []);
-      setLanguage(data.language || null);
-      if (data.siteId) setSiteId(data.siteId);
-      if (data.generatedSiteData) {
-         setGeneratedSiteData(data.generatedSiteData);
-         setGenerationProgress(GENERATION_STEPS);
-      }
-    } catch (e) {
-      console.error("Failed to load session", e);
-      localStorage.removeItem("website_builder_session_id");
-      setSessionId(null);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -350,30 +379,49 @@ export default function WebsiteBuilderPage() {
     }
 
     try {
-      if (sessionId) {
-        if (siteId && data?.action === 'revise') {
-           const res = await websiteBuilderService.reviseSite(siteId, textToSend);
-           setGeneratedSiteData(res.generatedSiteData);
-           setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: "I have updated the website based on your feedback." }]);
-        } else {
-           const res = await websiteBuilderService.sendMessage(sessionId, textToSend, data);
-           if (res.messages) {
-              setMessages(res.messages);
-           } else {
-              setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: res.message || "Done.", type: res.type, data: res.data }]);
-           }
-           if (res.siteId) setSiteId(res.siteId);
-           if (res.generatedSiteData) {
-              setGeneratedSiteData(res.generatedSiteData);
-              setIsGenerating(false);
-              setGenerationProgress(GENERATION_STEPS);
-           }
-        }
+      let activeSessionId = sessionId;
+      if (!activeSessionId || !/^[0-9a-fA-F]{24}$/.test(activeSessionId)) {
+        const fresh = await websiteBuilderService.startSession(language || "English");
+        activeSessionId = fresh.sessionId;
+        setSessionId(fresh.sessionId);
+        localStorage.setItem("website_builder_session_id", fresh.sessionId);
+      }
+
+      if (siteId && data?.action === 'revise') {
+         const res = await websiteBuilderService.reviseSite(siteId, textToSend);
+         setGeneratedSiteData(res.generatedSiteData);
+         setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: "I have updated the website based on your feedback." }]);
       } else {
-        simulateBackendResponse(textToSend, data);
+         const res = await websiteBuilderService.sendMessage(activeSessionId, textToSend, data);
+         if (res.messages) {
+            setMessages(res.messages);
+         } else {
+            setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: res.message || "Done.", type: res.type, data: res.data }]);
+         }
+         if (res.siteId) setSiteId(res.siteId);
+         if (res.generatedSiteData) {
+            setGeneratedSiteData(res.generatedSiteData);
+            setIsGenerating(false);
+            setGenerationProgress(GENERATION_STEPS);
+         }
       }
     } catch (e: any) {
-      const errMsg = e?.response?.data?.message || "Something went wrong. Please try again.";
+      if (e?.response?.status === 404) {
+        localStorage.removeItem("website_builder_session_id");
+        try {
+          const fresh = await websiteBuilderService.startSession(language || "English");
+          setSessionId(fresh.sessionId);
+          localStorage.setItem("website_builder_session_id", fresh.sessionId);
+          const res = await websiteBuilderService.sendMessage(fresh.sessionId, textToSend, data);
+          if (res.messages) {
+             setMessages(res.messages);
+          }
+          return;
+        } catch (recoverErr) {
+          console.error("Session recovery failed", recoverErr);
+        }
+      }
+      const errMsg = e?.response?.data?.detail || e?.response?.data?.message || "Something went wrong. Please try again.";
       setMessages(prev => [...prev, { id: Date.now().toString(), role: "ai", content: errMsg }]);
       setIsGenerating(false);
     } finally {
@@ -425,7 +473,7 @@ export default function WebsiteBuilderPage() {
           </div>
           <div className="flex gap-2">
             <button onClick={() => setMessages([])} className="text-xs px-2 py-1 bg-white/10 hover:bg-white/20 rounded text-gray-200">Clear</button>
-            <button onClick={() => { setMessages([]); setGeneratedSiteData(null); setSiteId(null); setSessionId(null); localStorage.removeItem("website_builder_session_id"); }} className="text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-white">New Chat</button>
+            <button onClick={() => { setMessages([]); setGeneratedSiteData(null); setSiteId(null); localStorage.removeItem("website_builder_session_id"); startNewSession(language || "English"); }} className="text-xs px-2 py-1 bg-purple-600 hover:bg-purple-700 rounded text-white">New Chat</button>
           </div>
         </div>
         

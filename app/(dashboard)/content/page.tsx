@@ -9,6 +9,7 @@ import { GenerateContentRequest, GeneratedContent } from '@/types/content';
 import { Sparkles, History, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { ActivityService } from '@/services/activity.service';
 
 function ContentStudioContent() {
   const searchParams = useSearchParams();
@@ -25,6 +26,14 @@ function ContentStudioContent() {
     try {
       const response = await contentService.generateContent(data);
       setGeneratedContent(response.data);
+      ActivityService.logActivity({
+        title: `Generated ${data.type || "AI Post"}`,
+        description: response.data.title || `Created engaging ${data.platform} ${data.type} with AI.`,
+        category: "content",
+        platform: (data.platform?.toLowerCase() as any) || "ai",
+        status: "Draft",
+        actionUrl: "/content",
+      });
     } catch (error) {
       console.error("Failed to generate content:", error);
     } finally {
@@ -34,10 +43,21 @@ function ContentStudioContent() {
 
   const handleSave = async (editedContent: GeneratedContent) => {
     try {
-      await contentService.updateContent(editedContent._id, editedContent);
-      setGeneratedContent(editedContent);
+      const response = await contentService.saveContent(editedContent);
+      const savedItem = response.data || editedContent;
+      setGeneratedContent(savedItem);
+      ActivityService.logActivity({
+        title: `${savedItem.status === 'Scheduled' ? 'Scheduled' : 'Saved'} ${savedItem.type || "Content"}`,
+        description: savedItem.title || "Saved changes to content library item.",
+        category: "content",
+        platform: (savedItem.platform?.toLowerCase() as any) || "ai",
+        status: savedItem.status || "Completed",
+        actionUrl: "/content-library",
+      });
+      return savedItem;
     } catch (error) {
       console.error("Failed to save content:", error);
+      throw error;
     }
   };
 
@@ -88,9 +108,10 @@ function ContentStudioContent() {
           <div className="xl:col-span-7 animate-in fade-in slide-in-from-right-8 duration-500">
             <ContentPreview 
               content={generatedContent} 
-              onRegenerate={() => {
+              isGenerating={isLoading}
+              onRegenerate={async () => {
                 if (generatedContent) {
-                  handleGenerate({
+                  await handleGenerate({
                     type: generatedContent.type,
                     platform: generatedContent.platform,
                     language: generatedContent.language,

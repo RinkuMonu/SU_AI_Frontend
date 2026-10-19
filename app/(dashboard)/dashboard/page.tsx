@@ -15,6 +15,7 @@ import { AnalyticsData } from "@/types/analytics";
 import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
+import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -322,36 +323,24 @@ export default function DashboardPage() {
       {/* Today's Marketing */}
       <TodaysMarketing />
 
-      {/* Bottom Section */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4 bg-gradient-to-br from-[#1E1128]/50 to-[#0B1120] border-brand-purple/20 backdrop-blur-xl rounded-2xl hover:border-brand-purple/40 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] transition-all duration-500 relative overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-white">Recent Campaigns</CardTitle>
-            <CardDescription className="text-text-muted">
-              Your active marketing campaigns performance this week.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center h-[300px] text-text-muted bg-[#0B1120]/50 rounded-xl mx-6 mb-6 border border-dashed border-brand-purple/30 hover:border-brand-purple/60 hover:bg-brand-purple/5 transition-all duration-500">
-            <Sparkles className="h-10 w-10 text-text-muted mb-4" />
-            <p>No active campaigns right now.</p>
-            <Button variant="link" className="text-brand-pink mt-2" asChild>
-              <Link href="/campaigns">Start a campaign</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      {/* Bottom Section: Recent Activity & AI Insights */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
+        <div className="col-span-1 lg:col-span-4 min-w-0">
+          <RecentActivityList />
+        </div>
 
-        <Card className="col-span-3 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden">
-          <CardHeader>
-            <CardTitle className="text-white">AI Insights</CardTitle>
-            <CardDescription className="text-text-muted">
+        <Card className="col-span-1 lg:col-span-3 min-w-0 bg-gradient-to-bl from-[#2B1B2A]/50 to-[#0B1120] border-brand-pink/20 backdrop-blur-xl rounded-2xl hover:border-brand-pink/40 hover:shadow-[0_0_30px_rgba(236,72,153,0.1)] transition-all duration-500 relative overflow-hidden flex flex-col">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-white text-lg sm:text-xl">AI Insights</CardTitle>
+            <CardDescription className="text-text-muted text-xs sm:text-sm">
               Personalised recommendations based on your activity.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-1 p-4 sm:p-6 pt-0 sm:pt-0">
             {loadingAnalytics ? (
               <div className="space-y-3">
                 {[1, 2].map((i) => (
-                  <div key={i} className="h-16 bg-white/5 rounded-lg animate-pulse" />
+                  <div key={i} className="h-28 bg-white/5 rounded-xl animate-pulse" />
                 ))}
               </div>
             ) : (

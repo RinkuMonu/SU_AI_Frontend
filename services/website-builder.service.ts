@@ -55,10 +55,17 @@ export const websiteBuilderService = {
     }
   },
   getSession: async (sessionId: string) => {
+    // MongoDB ObjectID is a 24-character hexadecimal string
+    if (!sessionId || !/^[0-9a-fA-F]{24}$/.test(sessionId)) {
+      return null;
+    }
     try {
       const response = await api.get(`/api/v1/website-builder/session/${sessionId}`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
+      if (error?.response?.status === 404) {
+        return null;
+      }
       throw error;
     }
   }

@@ -10,11 +10,17 @@ export interface FacebookPageData {
   category?: string;
 }
 
+export const FB_TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
 export interface FacebookCredentials {
   userAccessToken: string;
   pageAccessToken: string;
   pageId: string;
   pageName: string;
+  savedAt?: number;
+  expiresAt?: number;
+  isExpired?: boolean;
+  remainingMs?: number;
 }
 
 declare global {
@@ -174,7 +180,8 @@ export class FacebookService {
   }
 
   /**
-   * Persists Facebook credentials to localStorage and synchronizes with the backend.
+   * Persists Facebook credentials to localStorage with a strict 24-hour auto-expiry timestamp,
+   * and synchronizes with the backend.
    */
   static async saveFacebookCredentials(creds: {
     userAccessToken?: string;
@@ -186,6 +193,8 @@ export class FacebookService {
     if (typeof window === "undefined") return;
 
     const { userAccessToken, pageAccessToken, pageId, pageName } = creds;
+    const now = Date.now();
+    const expiresAt = now + FB_TOKEN_EXPIRY_MS;
 
     if (userAccessToken) {
       localStorage.setItem("fb_user_access_token", userAccessToken);
@@ -199,6 +208,10 @@ export class FacebookService {
     if (pageName) {
       localStorage.setItem("fb_page_name", pageName);
     }
+
+    // Set 24-hour expiration markers
+    localStorage.setItem("fb_token_saved_at", String(now));
+    localStorage.setItem("fb_token_expires_at", String(expiresAt));
 
     const activePageToken = pageAccessToken || userAccessToken;
 
@@ -235,7 +248,36 @@ export class FacebookService {
   }
 
   /**
+   * Checks whether saved Facebook credentials have exceeded the 24-hour lifespan.
+   * If expired, automatically purges them from localStorage and notifies the backend.
+   */
+  static checkAndExpireCredentials(): boolean {
+    if (typeof window === "undefined") return false;
+
+    const expiresAtStr = localStorage.getItem("fb_token_expires_at");
+    const savedAtStr = localStorage.getItem("fb_token_saved_at");
+
+    if (!expiresAtStr && !savedAtStr) {
+      return false;
+    }
+
+    const expiresAt = expiresAtStr
+      ? Number(expiresAtStr)
+      : Number(savedAtStr) + FB_TOKEN_EXPIRY_MS;
+
+    if (Date.now() >= expiresAt) {
+      console.warn("Facebook tokens exceeded 24-hour limit. Auto-deleting for security.");
+      this.clearStoredCredentials();
+      api.post("/api/facebook/disconnect").catch(() => {});
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Retrieves saved Facebook credentials from localStorage.
+   * Automatically clears and returns expired state if 24 hours have elapsed.
    */
   static getStoredCredentials(): FacebookCredentials {
     if (typeof window === "undefined") {
@@ -244,19 +286,59 @@ export class FacebookService {
         pageAccessToken: "",
         pageId: "",
         pageName: "",
+        isExpired: false,
       };
     }
+
+    // Auto-purge if 24 hours have passed
+    const isExpired = this.checkAndExpireCredentials();
+    if (isExpired) {
+      return {
+        userAccessToken: "",
+        pageAccessToken: "",
+        pageId: "",
+        pageName: "",
+        isExpired: true,
+      };
+    }
+
+    const savedAt = Number(localStorage.getItem("fb_token_saved_at") || "0");
+    const expiresAt = Number(
+      localStorage.getItem("fb_token_expires_at") ||
+        (savedAt ? String(savedAt + FB_TOKEN_EXPIRY_MS) : "0")
+    );
+    const now = Date.now();
+    const remainingMs = expiresAt > now ? expiresAt - now : 0;
 
     return {
       userAccessToken: localStorage.getItem("fb_user_access_token") || "",
       pageAccessToken: localStorage.getItem("fb_page_access_token") || "",
       pageId: localStorage.getItem("fb_page_id") || "",
       pageName: localStorage.getItem("fb_page_name") || "",
+      savedAt: savedAt || undefined,
+      expiresAt: expiresAt || undefined,
+      isExpired: false,
+      remainingMs,
     };
   }
 
   /**
-   * Clears saved Facebook credentials.
+   * Returns human-readable remaining time until 24-hour auto-deletion (e.g., '23h 45m 10s').
+   */
+  static getRemainingTimeFormatted(): string | null {
+    const creds = this.getStoredCredentials();
+    if (!creds.remainingMs || creds.remainingMs <= 0) return null;
+
+    const totalSeconds = Math.floor(creds.remainingMs / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  /**
+   * Clears saved Facebook credentials, access codes, and expiry metadata.
    */
   static clearStoredCredentials() {
     if (typeof window === "undefined") return;
@@ -264,5 +346,9 @@ export class FacebookService {
     localStorage.removeItem("fb_page_access_token");
     localStorage.removeItem("fb_page_id");
     localStorage.removeItem("fb_page_name");
+    localStorage.removeItem("fb_token_saved_at");
+    localStorage.removeItem("fb_token_expires_at");
+    sessionStorage.removeItem("fb_auth_code");
+    sessionStorage.removeItem("facebook_auth_mode");
   }
 }

@@ -4,6 +4,9 @@ import { FeatureHighlights } from '@/components/FeatureHighlights';
 import { TrustLogos } from '@/components/TrustLogos';
 import { PaymentsStackSection } from '@/components/PaymentsStackSection';
 import { Features } from '@/components/Features';
+import { AIPostMaker } from '@/components/AIPostMaker';
+import { AIPhotoshoot } from '@/components/AIPhotoshoot';
+import { AIAvatar } from '@/components/AIAvatar';
 import { AISection } from '@/components/AISection';
 import { Automation } from '@/components/Automation';
 import { HowItWorks } from '@/components/HowItWorks';
@@ -23,6 +26,9 @@ export default function Home() {
       <PaymentsStackSection />
       <TrustLogos />
       <Features />
+      <AIPostMaker />
+      <AIPhotoshoot />
+      <AIAvatar />
       <HowItWorks />
       <Testimonials />
       <Automation />

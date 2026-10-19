@@ -40,8 +40,7 @@ export default function CreateAdPage() {
     
     try {
       const token = localStorage.getItem('token');
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-      const res = await fetch(`${baseUrl}/api/v1/social/publish-${publishPlatform}/${result?.id}`, {
+      const res = await fetch(`/api/v1/social/publish-${publishPlatform}/${result?.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -186,7 +186,7 @@ export default function VirtualTryOnPage() {
                       }`}
                     >
                       <div className="aspect-square relative rounded-md overflow-hidden bg-black/20 mb-2">
-                        {p.image_url && <Image src={p.image_url.startsWith("/") ? `${process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"}${p.image_url}` : p.image_url} alt={p.name} fill className="object-cover" unoptimized />}
+                        {p.image_url && <Image src={p.image_url} alt={p.name} fill className="object-cover" unoptimized />}
                       </div>
                       <p className="text-xs text-white truncate text-center">{p.name}</p>
                     </div>

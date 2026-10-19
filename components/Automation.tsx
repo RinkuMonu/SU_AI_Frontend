@@ -46,7 +46,7 @@ const stepsData: AutomationStep[] = [
 
 export function Automation() {
   return (
-    <section className="pt-5 sm:pt-7 pb-7 sm:pb-9 bg-white relative overflow-hidden border-t border-slate-100">
+    <section id="automation" className="pt-5 sm:pt-7 pb-7 sm:pb-9 bg-white relative overflow-hidden border-t border-slate-100 scroll-mt-20">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-100/40 blur-[100px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-100/40 blur-[100px] rounded-full pointer-events-none" />

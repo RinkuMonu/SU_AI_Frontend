@@ -19,6 +19,7 @@ export interface GeneratedContent {
   suggestions: string[];
   
   status: 'Draft' | 'Scheduled' | 'Published';
+  scheduledAt?: string;
   createdAt: string;
   updatedAt: string;
   imageUrl?: string;

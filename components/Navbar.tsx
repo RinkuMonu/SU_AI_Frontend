@@ -35,23 +35,24 @@ export function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const webHref = mounted && user ? '/dashboard' : '/login/user';
 
-  const textColorClass = isLightPage
+  const isLightNav = isLightPage || isScrolled;
+
+  const textColorClass = isLightNav
     ? 'text-slate-700 hover:text-slate-950'
     : 'text-white/80 hover:text-white';
 
-  const pillClass = isLightPage
+  const pillClass = isLightNav
     ? (isScrolled 
-        ? 'bg-white/95 backdrop-blur-lg border border-slate-200 shadow-xl shadow-black/5' 
+        ? 'bg-white/95 backdrop-blur-xl border border-slate-200/90 shadow-xl shadow-black/8' 
         : 'bg-white/85 backdrop-blur-md border border-slate-200/80 shadow-sm')
-    : (isScrolled 
-        ? 'bg-[#0B1630]/85 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50' 
-        : 'bg-transparent border border-transparent');
+    : 'bg-transparent border border-transparent';
 
   return (
     <header
@@ -71,9 +72,10 @@ export function Navbar() {
           <Image
             src="/images/dhandagrow.png"
             alt="DhandaGrow"
-            width={100}
-            height={30}
-            className={cn("h-8 w-auto object-contain transition-all", isLightPage ? "" : "brightness-0 invert")}
+            width={120}
+            height={32}
+            className={cn("h-8 w-auto object-contain transition-all duration-300", isLightNav ? "" : "brightness-0 invert")}
+            priority
           />
         </Link>
         
@@ -174,8 +176,8 @@ export function Navbar() {
             asChild
             className={cn(
               'hidden lg:flex transition-all',
-              isLightPage
-                ? 'border-slate-300 text-slate-900 bg-transparent hover:bg-slate-100'
+              isLightNav
+                ? 'border-slate-300 text-slate-800 bg-slate-50/50 hover:bg-slate-100 hover:text-slate-950'
                 : 'border-white/20 text-white bg-white/5 hover:bg-white/10'
             )}
           >
@@ -188,7 +190,7 @@ export function Navbar() {
 
         {/* Mobile Menu Toggle */}
         <button 
-          className={cn('md:hidden transition-colors', isLightPage ? 'text-slate-700 hover:text-slate-950' : 'text-white/80 hover:text-white')}
+          className={cn('md:hidden transition-colors', isLightNav ? 'text-slate-700 hover:text-slate-950' : 'text-white/80 hover:text-white')}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           aria-label="Toggle Navigation Menu"
         >
