@@ -38,19 +38,38 @@ import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { authService } from "@/services/auth.service";
+import influencerService from "@/services/influencer.service";
 
-type AccountType = "user" | "business";
+type AccountType = "user" | "business" | "influencer";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, login } = useAuth();
 
-  // Selection: "user" | "business"
+  // Selection: "user" | "business" | "influencer"
   const [accountType, setAccountType] = useState<AccountType>("user");
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  // Influencer Profile Form State
+  const [influencerProfile, setInfluencerProfile] = useState({
+    fullName: "",
+    username: "",
+    category: "Fashion",
+    bio: "",
+    city: "",
+    state: "",
+    location: "",
+    phone: "",
+    preferredLanguage: "hinglish",
+    instagram_url: "",
+    youtube_url: "",
+    follower_count: 50000,
+    engagement_rate: 4.8,
+    expectedPricePerPost: 5000,
+  });
 
   // User Profile Form State
   const [userProfile, setUserProfile] = useState({
@@ -97,6 +116,11 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
+        const pendingRole = sessionStorage.getItem("signup_role");
+        if (pendingRole === "influencer") {
+          setAccountType("influencer");
+        }
+
         const pendingStr = sessionStorage.getItem("pending_signup");
         if (pendingStr) {
           const pending = JSON.parse(pendingStr);
@@ -114,6 +138,12 @@ export default function OnboardingPage() {
               phone: pending.phone || pending.contactNumber || prev.phone,
               business_name: pending.firstName ? `${pending.firstName}'s Brand` : prev.business_name,
             }));
+            setInfluencerProfile((prev) => ({
+              ...prev,
+              fullName: pending.fullName || pending.name || prev.fullName,
+              username: pending.email ? pending.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_") : prev.username,
+              phone: pending.phone || pending.contactNumber || prev.phone,
+            }));
             return;
           }
         }
@@ -123,7 +153,13 @@ export default function OnboardingPage() {
         if (token) {
           OnboardingService.isCompleted(token).then((done) => {
             if (done) {
-              router.replace("/dashboard");
+              const cached = localStorage.getItem("user");
+              const uObj = cached ? JSON.parse(cached) : null;
+              if (uObj?.role === "influencer" || uObj?.accountType === "influencer") {
+                router.replace("/influencer");
+              } else {
+                router.replace("/dashboard");
+              }
             }
           }).catch(() => {});
         }
@@ -132,7 +168,11 @@ export default function OnboardingPage() {
         const u = stored ? JSON.parse(stored) : user;
         if (u) {
           if (u.onboardingCompleted === true || u.onboarding_completed === true) {
-            router.replace("/dashboard");
+            if (u.role === "influencer" || u.accountType === "influencer") {
+              router.replace("/influencer");
+            } else {
+              router.replace("/dashboard");
+            }
             return;
           }
           const first = u.firstName || (u.name ? u.name.split(" ")[0] : "");
@@ -161,7 +201,19 @@ export default function OnboardingPage() {
             state: u.state || prev.state,
           }));
 
-          if (u.accountType === "business" || u.role === "business") {
+          setInfluencerProfile((prev) => ({
+            ...prev,
+            fullName: full || prev.fullName,
+            username: u.username || (u.email ? u.email.split("@")[0].replace(/[^a-zA-Z0-9_]/g, "_") : prev.username),
+            phone: u.contactNumber || u.phone || prev.phone,
+            preferredLanguage: u.preferredLanguage || prev.preferredLanguage,
+            city: u.city || prev.city,
+            state: u.state || prev.state,
+          }));
+
+          if (pendingRole === "influencer" || u.accountType === "influencer" || u.role === "influencer") {
+            setAccountType("influencer");
+          } else if (u.accountType === "business" || u.role === "business") {
             setAccountType("business");
           } else if (u.accountType === "user") {
             setAccountType("user");
@@ -195,6 +247,13 @@ export default function OnboardingPage() {
     { id: "ready", title: "Ready", desc: "Start exploring" },
   ];
 
+  const influencerSteps = [
+    { id: "account_type", title: "Account Type", desc: "Select role" },
+    { id: "creator_profile", title: "Creator Profile", desc: "Niche & media kit" },
+    { id: "social_reach", title: "Social Reach", desc: "Platforms & rates" },
+    { id: "ready", title: "Ready", desc: "Start collaborating" },
+  ];
+
   const businessSteps = [
     { id: "account_type", title: "Account Type", desc: "Select role" },
     { id: "identity", title: "Business Identity", desc: "Name & category" },
@@ -204,7 +263,12 @@ export default function OnboardingPage() {
     { id: "ready", title: "Ready", desc: "Launch AI engine" },
   ];
 
-  const activeSteps = accountType === "user" ? userSteps : businessSteps;
+  const activeSteps = 
+    accountType === "business" 
+      ? businessSteps 
+      : accountType === "influencer" 
+        ? influencerSteps 
+        : userSteps;
   const isLastStep = currentStep === activeSteps.length - 1;
 
   // Validation before advancing to next step
@@ -214,6 +278,22 @@ export default function OnboardingPage() {
       if (currentStep === 1) {
         if (!userProfile.fullName.trim()) {
           setError("Please enter your full name.");
+          return false;
+        }
+      }
+    } else if (accountType === "influencer") {
+      if (currentStep === 1) {
+        if (!influencerProfile.fullName.trim()) {
+          setError("Please enter your Creator / Display Name.");
+          return false;
+        }
+        if (!influencerProfile.category) {
+          setError("Please select your primary niche / category.");
+          return false;
+        }
+      } else if (currentStep === 2) {
+        if (!influencerProfile.instagram_url.trim() && !influencerProfile.youtube_url.trim()) {
+          setError("Please provide at least one social media link or handle (Instagram or YouTube).");
           return false;
         }
       }
@@ -247,16 +327,24 @@ export default function OnboardingPage() {
       // Final submission step
       await submitOnboarding();
     } else {
-      // Already on ready screen -> Go to Dashboard
+      // Already on ready screen -> Go to Dashboard or Creator Hub
       try {
         const stored = localStorage.getItem("user");
         if (stored) {
           const u = JSON.parse(stored);
           u.onboardingCompleted = true;
+          if (accountType === "influencer") {
+            u.role = "influencer";
+            u.accountType = "influencer";
+          }
           localStorage.setItem("user", JSON.stringify(u));
         }
       } catch (_) {}
-      router.push("/dashboard");
+      if (accountType === "influencer") {
+        router.push("/influencer");
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 
@@ -332,6 +420,98 @@ export default function OnboardingPage() {
             onboarding_step: 3,
             social_connection_completed: true,
             business_profile_completed: true,
+            completed: true,
+            onboarding_completed: true,
+            onboardingCompleted: true,
+            is_completed: true,
+            onboarding_completed_at: new Date().toISOString(),
+          });
+        } catch (_) {}
+
+        // Advance to Ready step
+        setCurrentStep(activeSteps.length - 1);
+      } else if (accountType === "influencer") {
+        // ─── INFLUENCER / CREATOR ONBOARDING ───
+        const influencerPayload = {
+          accountType: "influencer",
+          role: "influencer",
+          fullName: influencerProfile.fullName.trim() || userProfile.fullName.trim(),
+          name: influencerProfile.fullName.trim() || userProfile.fullName.trim(),
+          username: (influencerProfile.username.trim() || (influencerProfile.fullName.trim() || "creator").toLowerCase().replace(/\s+/g, "_")).replace(/^@/, ""),
+          bio: influencerProfile.bio.trim() || undefined,
+          category: influencerProfile.category,
+          niche: influencerProfile.category,
+          city: influencerProfile.city.trim() || undefined,
+          state: influencerProfile.state.trim() || undefined,
+          location: influencerProfile.location.trim() || (influencerProfile.city ? `${influencerProfile.city}, ${influencerProfile.state}`.replace(/^,\s*|,\s*$/g, "") : "India"),
+          phone: influencerProfile.phone.trim() || userProfile.phone.trim() || null,
+          contactNumber: influencerProfile.phone.trim() || userProfile.phone.trim() || null,
+          contact_phone: influencerProfile.phone.trim() || userProfile.phone.trim() || null,
+          preferredLanguage: influencerProfile.preferredLanguage || "hinglish",
+          instagram_url: influencerProfile.instagram_url.trim() || undefined,
+          youtube_url: influencerProfile.youtube_url.trim() || undefined,
+          follower_count: Number(influencerProfile.follower_count) || 50000,
+          engagement_rate: Number(influencerProfile.engagement_rate) || 4.8,
+          expectedPricePerPost: Number(influencerProfile.expectedPricePerPost) || 5000,
+          onboardingCompleted: true,
+          onboarding_step: 3,
+        };
+
+        if (pending) {
+          const signupPayload = {
+            ...influencerPayload,
+            name: influencerPayload.name,
+            fullName: influencerPayload.fullName,
+            firstName: influencerPayload.name.split(" ")[0] || pending.firstName,
+            lastName: influencerPayload.name.split(" ").slice(1).join(" ") || pending.lastName || "",
+            email: pending.email,
+            password: pending.password,
+            confirmPassword: pending.confirmPassword || pending.password,
+            phone: influencerPayload.phone || pending.phone || pending.contactNumber || null,
+            contactNumber: influencerPayload.contactNumber || pending.contactNumber || pending.phone || null,
+            otp: pending.otp,
+            accountType: "influencer",
+            role: "influencer",
+          };
+          const res = await authService.signup(signupPayload);
+          if (res.token && res.user) {
+            const finalInfUser = { ...res.user, role: "influencer", accountType: "influencer" };
+            localStorage.setItem("access_token", res.token);
+            localStorage.setItem("user", JSON.stringify(finalInfUser));
+            login(res.token, finalInfUser);
+          }
+          sessionStorage.removeItem("pending_signup");
+          try {
+            await userService.updateMe(influencerPayload);
+          } catch (_) {}
+        } else {
+          await userService.updateMe(influencerPayload);
+        }
+
+        // Update Influencer Profile in /api/v1/influencers/me
+        try {
+          await influencerService.updateMyProfile({
+            fullName: influencerPayload.fullName,
+            username: influencerPayload.username,
+            bio: influencerPayload.bio,
+            category: influencerPayload.category,
+            location: influencerPayload.location,
+            phone: influencerPayload.phone || undefined,
+            instagram_url: influencerPayload.instagram_url,
+            youtube_url: influencerPayload.youtube_url,
+            follower_count: influencerPayload.follower_count,
+            engagement_rate: influencerPayload.engagement_rate,
+            expectedPricePerPost: influencerPayload.expectedPricePerPost,
+            preferredLanguage: influencerPayload.preferredLanguage,
+          });
+        } catch (infErr) {
+          console.warn("Influencer profile update warning:", infErr);
+        }
+
+        // Update Onboarding Progress API
+        try {
+          await OnboardingService.updateProgress({
+            onboarding_step: 3,
             completed: true,
             onboarding_completed: true,
             onboardingCompleted: true,
@@ -555,11 +735,11 @@ export default function OnboardingPage() {
       </div>
 
       {/* Main Form Container Card */}
-      <Card className="w-full max-w-3xl mx-auto bg-[#14151f]/90 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(190,50,255,0.1)] backdrop-blur-xl rounded-2xl relative z-10 overflow-hidden">
+      <Card className="w-full max-w-5xl mx-auto bg-[#14151f]/90 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(190,50,255,0.1)] backdrop-blur-xl rounded-2xl relative z-10 overflow-hidden">
         <CardContent className="p-6 sm:p-10">
 
           {/* ══════════════════════════════════════════════════════════════════════
-              STEP 0: ROLE / ACCOUNT TYPE SELECTION (User vs Businessman)
+              STEP 0: ROLE / ACCOUNT TYPE SELECTION (User vs Businessman vs Influencer)
           ══════════════════════════════════════════════════════════════════════ */}
           {currentStep === 0 && (
             <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -570,13 +750,13 @@ export default function OnboardingPage() {
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
                   How will you be using DhandaGrow AI?
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-400 max-w-lg mx-auto">
-                  Select whether you are an individual user or a business owner. We will customize your onboarding stepper and features accordingly.
+                <p className="text-xs sm:text-sm text-neutral-400 max-w-2xl mx-auto">
+                  Select whether you are an individual user, a business owner, or a creator/influencer. We will customize your onboarding stepper and features accordingly.
                 </p>
               </div>
 
-              {/* 2 Big Interactive Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+              {/* 3 Interactive Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
                 {/* 1. Individual User Card */}
                 <div
                   onClick={() => setAccountType("user")}
@@ -602,10 +782,10 @@ export default function OnboardingPage() {
 
                     <div>
                       <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-purple-200 transition-colors">
-                        Individual User / Creator
+                        Individual User
                       </h3>
                       <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
-                        For creators, freelancers, and individuals who want to explore AI tools, create video reels, and generate personal content without business details.
+                        For personal creators and individuals who want to explore AI tools, create video reels, and generate content without business details.
                       </p>
                     </div>
 
@@ -616,7 +796,7 @@ export default function OnboardingPage() {
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Social Media Posts & Captions</span>
+                        <span>Social Media Posts &amp; Captions</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -662,25 +842,25 @@ export default function OnboardingPage() {
 
                     <div>
                       <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-pink-200 transition-colors">
-                        Business / Businessman
+                        Business / Brand
                       </h3>
                       <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
-                        For shop owners, companies, and D2C brands looking to automate marketing, publish multi-platform ads, manage customer reviews, and boost sales.
+                        For shop owners, companies, and brands looking to automate marketing, hire top influencers, run multi-channel ads, and boost sales.
                       </p>
                     </div>
 
                     <ul className="space-y-2 pt-2 text-xs text-neutral-300">
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Business Identity, Brand Kit & Logo</span>
+                        <span>Business Identity &amp; Brand Kit</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Local Area & Target Demographics</span>
+                        <span>Local Area &amp; Demographics</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>AI Ad Generator & Multi-Channel Posts</span>
+                        <span>AI Ad Generator &amp; Multi-Channel</span>
                       </li>
                     </ul>
                   </div>
@@ -693,6 +873,66 @@ export default function OnboardingPage() {
                       accountType === "business" ? "border-[#f0449b] bg-[#f0449b]" : "border-white/20"
                     }`}>
                       {accountType === "business" && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Creator & Influencer Card */}
+                <div
+                  onClick={() => setAccountType("influencer")}
+                  className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between group ${
+                    accountType === "influencer"
+                      ? "bg-gradient-to-b from-[#221730] to-[#141522] border-[#7d36fa] shadow-[0_0_30px_rgba(125,54,250,0.25)] ring-1 ring-[#7d36fa]/50"
+                      : "bg-[#101118] border-white/10 hover:border-white/20 hover:bg-[#161722]"
+                  }`}
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                        accountType === "influencer"
+                          ? "bg-gradient-to-br from-[#be32ff] via-[#7d36fa] to-[#fc9a5d] text-white shadow-lg"
+                          : "bg-white/5 text-neutral-400 group-hover:text-white"
+                      }`}>
+                        <Sparkles className="w-6 h-6" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#be32ff]/20 text-[#be32ff] border border-[#be32ff]/30">
+                        Influencer
+                      </span>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-purple-200 transition-colors">
+                        Creator / Influencer
+                      </h3>
+                      <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
+                        For content creators and social media influencers looking to showcase their media kit, get hired by top brands, and earn via secured escrow.
+                      </p>
+                    </div>
+
+                    <ul className="space-y-2 pt-2 text-xs text-neutral-300">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Direct Brand Deals &amp; Paid Collabs</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Media Kit &amp; Social Reach</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Digital Contracts &amp; Escrow Payouts</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
+                    <span className={accountType === "influencer" ? "text-[#7d36fa]" : "text-neutral-400"}>
+                      {accountType === "influencer" ? "Selected" : "Select Option"}
+                    </span>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                      accountType === "influencer" ? "border-[#7d36fa] bg-[#7d36fa]" : "border-white/20"
+                    }`}>
+                      {accountType === "influencer" && <Check className="w-3 h-3 text-white stroke-[3]" />}
                     </div>
                   </div>
                 </div>
@@ -1320,6 +1560,222 @@ export default function OnboardingPage() {
             </div>
           )}
 
+          {/* ══════════════════════════════════════════════════════════════════════
+              BRANCH C: INFLUENCER / CREATOR STEPPER (accountType === 'influencer')
+          ══════════════════════════════════════════════════════════════════════ */}
+          {accountType === "influencer" && currentStep === 1 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="text-center space-y-1">
+                <h2 className="text-2xl font-bold text-white">Creator Identity &amp; Niche</h2>
+                <p className="text-xs text-neutral-400">Set up your creator display name, primary content category, and bio for brands to discover.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infFullName" className="text-xs font-medium text-neutral-300">Creator / Display Name *</Label>
+                  <div className="relative">
+                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Input
+                      id="infFullName"
+                      placeholder="e.g. Rohit Verma"
+                      value={influencerProfile.fullName}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, fullName: e.target.value })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infUsername" className="text-xs font-medium text-neutral-300">Creator Handle / Username</Label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500 font-bold">@</span>
+                    <Input
+                      id="infUsername"
+                      placeholder="rohit_fashion_vibe"
+                      value={influencerProfile.username}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, username: e.target.value.replace(/^@/, "") })}
+                      className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infCategory" className="text-xs font-medium text-neutral-300">Primary Content Niche *</Label>
+                  <select
+                    id="infCategory"
+                    value={influencerProfile.category}
+                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, category: e.target.value })}
+                    className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                  >
+                    <option value="Fashion">Fashion &amp; Apparel</option>
+                    <option value="Technology">Technology &amp; Gadgets</option>
+                    <option value="Food &amp; Travel">Food &amp; Travel</option>
+                    <option value="Fitness &amp; Health">Fitness &amp; Health</option>
+                    <option value="Beauty &amp; Lifestyle">Beauty &amp; Lifestyle</option>
+                    <option value="Gaming">Gaming &amp; Esports</option>
+                    <option value="Entertainment">Entertainment &amp; Comedy</option>
+                    <option value="Business &amp; Finance">Business &amp; Finance</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infBio" className="text-xs font-medium text-neutral-300">Creator Bio / Profile Summary</Label>
+                  <textarea
+                    id="infBio"
+                    rows={3}
+                    placeholder="Briefly describe your content niche, audience vibe, and brand collaboration style..."
+                    value={influencerProfile.bio}
+                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, bio: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-[#0f1015] p-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff]"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="infCity" className="text-xs font-medium text-neutral-300">City</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Input
+                      id="infCity"
+                      placeholder="e.g. Mumbai"
+                      value={influencerProfile.city}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, city: e.target.value })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="infState" className="text-xs font-medium text-neutral-300">State / Region</Label>
+                  <Input
+                    id="infState"
+                    placeholder="e.g. Maharashtra"
+                    value={influencerProfile.state}
+                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, state: e.target.value })}
+                    className="h-11 bg-[#0f1015] border-white/10 text-white"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {accountType === "influencer" && currentStep === 2 && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+              <div className="text-center space-y-1">
+                <h2 className="text-2xl font-bold text-white">Social Channels &amp; Commercials</h2>
+                <p className="text-xs text-neutral-400">Add your social channels and base commercial rate per deliverable.</p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infInstagram" className="text-xs font-medium text-neutral-300">Instagram Profile Link or Handle *</Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400" />
+                    <Input
+                      id="infInstagram"
+                      placeholder="https://instagram.com/yourhandle"
+                      value={influencerProfile.instagram_url}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, instagram_url: e.target.value })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infYoutube" className="text-xs font-medium text-neutral-300">YouTube Channel URL (Optional)</Label>
+                  <div className="relative">
+                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
+                    <Input
+                      id="infYoutube"
+                      placeholder="https://youtube.com/@channel"
+                      value={influencerProfile.youtube_url}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, youtube_url: e.target.value })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="infFollowers" className="text-xs font-medium text-neutral-300">Total Followers / Audience</Label>
+                  <div className="relative">
+                    <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Input
+                      id="infFollowers"
+                      type="number"
+                      placeholder="50000"
+                      value={influencerProfile.follower_count}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, follower_count: Number(e.target.value) })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="infPrice" className="text-xs font-medium text-neutral-300">Expected Rate per Reel (₹ INR)</Label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-400 font-bold">₹</span>
+                    <Input
+                      id="infPrice"
+                      type="number"
+                      placeholder="5000"
+                      value={influencerProfile.expectedPricePerPost}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, expectedPricePerPost: Number(e.target.value) })}
+                      className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="infPhone" className="text-xs font-medium text-neutral-300">Contact Number (For Private Brand Inquiries)</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                    <Input
+                      id="infPhone"
+                      placeholder="+91 98765 43210"
+                      value={influencerProfile.phone}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, phone: e.target.value })}
+                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {accountType === "influencer" && currentStep === 3 && (
+            <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
+              <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#be32ff]/20 to-[#7d36fa]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
+                <Sparkles className="w-10 h-10 animate-pulse" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-3xl font-extrabold text-white">
+                  Welcome aboard, {influencerProfile.fullName || "Creator"}!
+                </h2>
+                <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
+                  Your Creator Profile and Media Kit are now live! Brands can discover your profile, send bilateral digital agreements, and fund escrow-secured campaigns.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-neutral-400">Account Type</span>
+                  <span className="text-white font-medium capitalize">Creator &amp; Influencer</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-neutral-400">Primary Niche</span>
+                  <span className="text-white font-medium capitalize">{influencerProfile.category}</span>
+                </div>
+                <div className="flex justify-between py-1 border-b border-white/5">
+                  <span className="text-neutral-400">Location</span>
+                  <span className="text-white font-medium">{influencerProfile.city ? `${influencerProfile.city}, ${influencerProfile.state}` : "India"}</span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-neutral-400">Starting Reel Rate</span>
+                  <span className="text-[#fc9a5d] font-bold">₹{Number(influencerProfile.expectedPricePerPost).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Error notice */}
           {error && (
             <div className="mt-6 p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
@@ -1353,7 +1809,7 @@ export default function OnboardingPage() {
                 </span>
               ) : isLastStep ? (
                 <span className="flex items-center gap-1.5">
-                  Go to Dashboard <ArrowRight className="w-4 h-4" />
+                  {accountType === "influencer" ? "Go to Creator Dashboard" : "Go to Dashboard"} <ArrowRight className="w-4 h-4" />
                 </span>
               ) : currentStep === activeSteps.length - 2 ? (
                 <span className="flex items-center gap-1.5">

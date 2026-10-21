@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth">
+    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <SecurityShield />
         <AuthProvider>
@@ -34,8 +34,8 @@ export default function RootLayout({
         </AuthProvider>
         <Script
           id="google-maps-sdk"
-          src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places`}
-          strategy="afterInteractive"
+          src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async`}
+          strategy="lazyOnload"
         />
       </body>
     </html>

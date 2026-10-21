@@ -82,10 +82,32 @@ export interface HiringRequest {
   revision_requirements: string;
   special_instructions?: string;
   status: string;
+  fee_paid?: boolean;
+  hire_fee_paid?: boolean;
+  chat_active?: boolean;
   payment_id?: string;
   order_id?: string;
+  payment_status?: string;
+  agreement_number?: string;
+  agreement_version?: string;
+  agreement_status?: string;
+  hirer_signed?: boolean;
+  influencer_signed?: boolean;
+  hirer_signature_hash?: string;
+  influencer_signature_hash?: string;
+  hirer_signed_at?: string;
+  influencer_signed_at?: string;
   submitted_deliverables?: any;
   review_notes?: string;
+  admin_approval?: {
+    status: string;
+    reviewed_by?: string;
+    reviewed_at?: string;
+    notes?: string;
+  };
+  admin_reviewed?: boolean;
+  admin_review_decision?: string;
+  rejection_reason?: string;
   audit_trail: any[];
   created_at: string;
   updated_at: string;
@@ -99,6 +121,7 @@ export interface AgreementSignatureInfo {
   ip_address?: string;
   signature_hash?: string;
   digest?: string;
+  signature_image?: string;
 }
 
 export interface AgreementDocument {
@@ -145,6 +168,14 @@ export interface AgreementDocument {
     hirer: AgreementSignatureInfo;
     influencer: AgreementSignatureInfo;
   };
+  admin_approval?: {
+    status: string;
+    reviewed_by?: string;
+    admin_id?: string;
+    reviewed_at?: string;
+    notes?: string;
+  };
+  rejection_reason?: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -192,10 +223,19 @@ export const marketplaceService = {
         if (params.limit) searchParams.append('limit', params.limit.toString());
       }
       const query = searchParams.toString() ? `?${searchParams.toString()}` : '';
-      const res = await api.get(`/api/v1/marketplace/discover${query}`);
+      let res;
+      try {
+        res = await api.get(`/api/v1/marketplace/discover${query}`);
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          res = await api.get(`/api/v1/influencers/discover${query}`);
+        } else {
+          throw err;
+        }
+      }
       return res.data;
     } catch (e: any) {
-      console.error('Marketplace discovery error:', e);
+      console.warn('Marketplace discovery fallback warning:', e?.message || e);
       return { success: false, data: { items: [], pagination: { total: 0, page: 1, limit: 12, total_pages: 1 } } };
     }
   },
@@ -252,7 +292,7 @@ export const marketplaceService = {
     return res.data;
   },
 
-  signAgreement: async (requestId: string, payload: { signer_name: string; declaration_accepted: boolean; signer_title?: string }): Promise<{ success: boolean; message: string; is_fully_signed?: boolean; agreement?: AgreementDocument }> => {
+  signAgreement: async (requestId: string, payload: { signer_name: string; declaration_accepted: boolean; signer_title?: string; signature_image?: string }): Promise<{ success: boolean; message: string; is_fully_signed?: boolean; agreement?: AgreementDocument }> => {
     const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/sign-agreement`, payload);
     return res.data;
   },
@@ -326,6 +366,11 @@ export const marketplaceService = {
 
   adminResolveDispute: async (requestId: string, payload: { action: 'favor_hirer' | 'favor_influencer' | 'mutual_cancel'; resolution_notes: string }): Promise<{ success: boolean; message: string }> => {
     const res = await api.post(`/api/v1/marketplace/admin/hiring-requests/${requestId}/resolve-dispute`, payload);
+    return res.data;
+  },
+
+  adminReviewAgreement: async (requestId: string, payload: { action: 'approve' | 'reject' | 'request_changes'; notes?: string }): Promise<{ success: boolean; message: string; status: string; admin_approval: any }> => {
+    const res = await api.post(`/api/v1/marketplace/admin/hiring-requests/${requestId}/review-agreement`, payload);
     return res.data;
   }
 };
