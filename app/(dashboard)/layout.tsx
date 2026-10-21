@@ -21,6 +21,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isLoading && !user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("auth_redirect_after", window.location.pathname + window.location.search);
+      }
       router.replace("/login/user");
     }
   }, [user, isLoading, router]);

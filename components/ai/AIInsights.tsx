@@ -13,8 +13,10 @@ export function AIInsights({ insights }: AIInsightsProps) {
   const router = useRouter();
 
   const handleAction = (insight: Insight) => {
-    if (insight.actionType === 'Create Post' || insight.actionType === 'Create Reel') {
-      router.push(`/content?type=${insight.actionTarget || (insight.actionType === 'Create Reel' ? 'reel' : 'post')}`);
+    if (insight.actionType === 'Create Reel' || insight.actionTarget === 'reel') {
+      router.push('/create/reel');
+    } else if (insight.actionType === 'Create Post') {
+      router.push(`/content?type=${insight.actionTarget || 'post'}`);
     } else if (insight.actionType === 'View Analytics' || insight.actionTarget === 'analytics') {
       router.push('/analytics');
     } else if (insight.actionType === 'Create Ad') {

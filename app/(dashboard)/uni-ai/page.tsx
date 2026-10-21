@@ -517,7 +517,7 @@ export default function UniAIPage() {
 
           <div className="pt-2 border-t border-white/5 flex items-center justify-between">
             <Link
-              href="/reel-creator"
+              href="/create/reel"
               className="text-xs font-bold text-brand-purple hover:text-purple-300 flex items-center gap-1 transition-colors"
             >
               <span>Produce in Reel Creator</span>
