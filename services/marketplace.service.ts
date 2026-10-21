@@ -1,4 +1,4 @@
-﻿import api from '@/lib/api';
+import api from '@/lib/api';
 
 export interface InfluencerSocialPlatform {
   platform: string;
@@ -52,6 +52,7 @@ export interface HiringRequestPayload {
   proposed_compensation: number;
   revision_requirements?: string;
   special_instructions?: string;
+  business_name?: string;
 }
 
 export interface HiringRequest {
@@ -81,6 +82,8 @@ export interface HiringRequest {
   revision_requirements: string;
   special_instructions?: string;
   status: string;
+  payment_id?: string;
+  order_id?: string;
   submitted_deliverables?: any;
   review_notes?: string;
   audit_trail: any[];
@@ -88,20 +91,59 @@ export interface HiringRequest {
   updated_at: string;
 }
 
+export interface AgreementSignatureInfo {
+  signed: boolean;
+  signer_name?: string;
+  signer_title?: string;
+  signed_at?: string;
+  ip_address?: string;
+  signature_hash?: string;
+  digest?: string;
+}
+
 export interface AgreementDocument {
   id?: string;
+  _id?: string;
   agreement_number: string;
   hiring_request_id: string;
   version: string;
   title: string;
-  hirer_party: any;
-  influencer_party: any;
-  campaign_details: any;
-  financial_terms: any;
+  hirer_party: {
+    user_id?: string;
+    legal_name?: string;
+    business_name?: string;
+    email?: string;
+    role?: string;
+  };
+  influencer_party: {
+    user_id?: string;
+    legal_name?: string;
+    username?: string;
+    role?: string;
+  };
+  campaign_details?: {
+    campaign_name?: string;
+    product_or_service?: string;
+    campaign_objectives?: string;
+    deliverables?: string[];
+    social_platform?: string;
+    start_date?: string;
+    end_date?: string;
+  };
+  scope_of_work?: any;
+  financial_terms: {
+    agreed_compensation?: number;
+    creator_compensation?: number;
+    platform_service_fee?: number;
+    gst_amount?: number;
+    total_deal_value?: number;
+    currency?: string;
+    payment_schedule?: string;
+  };
   legal_clauses: Array<{ clause_title: string; clause_text: string }>;
   signatures: {
-    hirer: { signed: boolean; signer_name?: string; signed_at?: string; ip_address?: string };
-    influencer: { signed: boolean; signer_name?: string; signed_at?: string; ip_address?: string };
+    hirer: AgreementSignatureInfo;
+    influencer: AgreementSignatureInfo;
   };
   status: string;
   created_at: string;
@@ -167,12 +209,12 @@ export const marketplaceService = {
       return {
         success: true,
         data: {
-          service_fee: 199,
+          service_fee: 200,
           currency: 'INR',
           tax_percentage: 18,
-          tax_amount: 35.82,
-          total_fee: 234.82,
-          fee_description: 'Platform Escrow & Contract Protection Fee'
+          tax_amount: 36,
+          total_fee: 236,
+          fee_description: 'Platform Escrow & Contract Protection Fee (₹200 base + 18% GST)'
         }
       };
     }
@@ -250,6 +292,17 @@ export const marketplaceService = {
 
   reviewDeliverables: async (requestId: string, payload: { action: 'approve' | 'request_revision' | 'dispute'; review_notes?: string; dispute_reason?: string }): Promise<{ success: boolean; message: string; status?: string }> => {
     const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/review-deliverables`, payload);
+    return res.data;
+  },
+
+  // Zaakpay Influencer Hiring Fee (₹200)
+  payHireFee: async (requestId: string): Promise<{ success: boolean; order_id: string; payment_url: string; amount: number; message?: string }> => {
+    const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/pay-hire-fee`);
+    return res.data;
+  },
+
+  verifyHirePayment: async (requestId: string, payload: { order_id: string; payment_id?: string }): Promise<{ success: boolean; message: string; data?: any }> => {
+    const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/verify-hire-fee`, payload);
     return res.data;
   },
 

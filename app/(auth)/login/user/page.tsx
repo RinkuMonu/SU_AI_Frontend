@@ -821,6 +821,8 @@ export default function LoginPage() {
           sessionStorage.removeItem('pending_plan');
           sessionStorage.removeItem('pending_billing');
           router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else if (finalUser.role === 'influencer' || finalUser.accountType === 'influencer') {
+          router.push("/influencer");
         } else if (!isDone) {
           router.push("/onboarding");
         } else {

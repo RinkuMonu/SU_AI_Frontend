@@ -739,6 +739,12 @@ export default function SignupPage() {
     setShowChoiceModal(true);
   };
 
+  const handleSelectInfluencer = () => {
+    setShowChoiceModal(false);
+    sessionStorage.setItem("signup_role", "influencer");
+    handleSubmit((data) => onSubmit({ ...data, accountType: "influencer", role: "influencer" } as any))();
+  };
+
   const handleSelectBusiness = () => {
     try {
       const vals = getValues();
@@ -1295,7 +1301,34 @@ export default function SignupPage() {
                 </div>
               </button>
 
-              {/* Option 2: Login */}
+              {/* Option 2: Influencer & Creator Profile */}
+              <button
+                type="button"
+                onClick={handleSelectInfluencer}
+                className="w-full text-left p-4 sm:p-5 rounded-xl border border-[#be32ff]/40 bg-[#151622] hover:bg-[#1a1b2c] hover:border-[#be32ff] transition-all duration-300 group flex items-start gap-4 shadow-lg hover:shadow-[0_4px_30px_rgba(190,50,255,0.25)] relative overflow-hidden"
+              >
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#be32ff] via-[#7d36fa] to-[#fc9a5d] flex items-center justify-center shrink-0 text-white shadow-md group-hover:scale-105 transition-transform">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-bold text-sm sm:text-base text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#be32ff] group-hover:to-[#fc9a5d] transition-all">
+                      Creator &amp; Influencer Profile
+                    </span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#be32ff]/20 text-[#be32ff] border border-[#be32ff]/30">
+                      For Creators
+                    </span>
+                  </div>
+                  <p className="text-xs text-neutral-400 leading-relaxed">
+                    Set up your media kit, discover open brand sponsorship deals, submit deliverables, and get paid via secured escrow.
+                  </p>
+                </div>
+                <div className="self-center pl-2 text-neutral-400 group-hover:text-white group-hover:translate-x-1 transition-all">
+                  <ArrowRight className="w-5 h-5" />
+                </div>
+              </button>
+
+              {/* Option 3: Login */}
               <button
                 type="button"
                 onClick={handleSelectLogin}

@@ -492,6 +492,20 @@ const influencerService = {
     }
   },
 
+  getPayoutAccount: async (): Promise<{ success: boolean; data?: any }> => {
+    try {
+      const res = await api.get('/api/v1/influencers/me/payout-account');
+      return res.data;
+    } catch {
+      return { success: false };
+    }
+  },
+
+  savePayoutAccount: async (payload: { account_holder_name: string; bank_name: string; account_number: string; ifsc_code: string; upi_id?: string }): Promise<{ success: boolean; message: string; data?: any }> => {
+    const res = await api.post('/api/v1/influencers/me/payout-account', payload);
+    return res.data;
+  },
+
   getMyCollaborations: async (): Promise<{ success: boolean; data: any[] }> => {
     try {
       const res = await api.get('/api/v1/influencers/my-collaborations');
