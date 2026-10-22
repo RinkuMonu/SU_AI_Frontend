@@ -1,15 +1,18 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User } from '@/types';
 import { useRouter, usePathname } from 'next/navigation';
 import { authService } from '@/services/auth.service';
+import { needsRoleSelection, getDashboardRouteForRole } from '@/lib/role-routing';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (token: string, userData: User) => void;
+  updateUser: (userData: User) => void;
   logout: () => void;
+  refreshUser: () => Promise<User | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,70 +23,143 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const refreshUser = useCallback(async (): Promise<User | null> => {
+    try {
+      const freshUser = await authService.getCurrentUser();
+      setUser(freshUser);
+      localStorage.setItem('user', JSON.stringify(freshUser));
+      return freshUser;
+    } catch {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('user');
+      setUser(null);
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     const checkAuth = async () => {
-      const token = localStorage.getItem('access_token');
-      
+      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
       if (token) {
-        try {
-          const freshUser = await authService.getCurrentUser();
-          setUser(freshUser);
-          localStorage.setItem('user', JSON.stringify(freshUser));
-        } catch (error) {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('user');
-          setUser(null);
-        }
+        await refreshUser();
       }
       setIsLoading(false);
     };
 
     checkAuth();
-  }, []);
+  }, [refreshUser]);
 
   useEffect(() => {
     if (!isLoading) {
       const isAuthRoute = pathname === '/login/user' || pathname === '/signup';
-      const isVerifyEmailRoute = pathname === '/verify-email';
+      const isVerifyRoute = pathname === '/verify-phone' || pathname === '/verify-email';
       const isAdminLoginRoute = pathname === '/login/admin';
-      const isProtectedRoute = ['/dashboard', '/business', '/brand', '/products', '/settings', '/onboarding', '/content', '/content-library', '/campaigns', '/messages', '/reviews', '/social-platforms', '/create', '/create-ad', '/ai-'].some(route => pathname.startsWith(route));
+      const isSelectRoleRoute = pathname === '/select-role' || pathname === '/role-selection';
       const isAdminRoute = pathname.startsWith('/admin');
 
+      const isProtectedRoute = [
+        '/dashboard',
+        '/influencer',
+        '/business',
+        '/brand',
+        '/products',
+        '/settings',
+        '/subscription',
+        '/onboarding',
+        '/content',
+        '/content-library',
+        '/campaigns',
+        '/messages',
+        '/reviews',
+        '/social-platforms',
+        '/create',
+        '/create-ad',
+        '/ai-',
+        '/uni-ai',
+        '/website-builder',
+        '/analytics',
+        '/fashion-ai',
+        '/festivals',
+      ].some((route) => pathname.startsWith(route));
+
+      // CASE 1: Unauthenticated visitor
       if (!user) {
         if (isAdminRoute) {
           router.replace('/login/admin');
-        } else if (isProtectedRoute) {
+        } else if (isProtectedRoute || isSelectRoleRoute) {
           router.replace('/login/user');
         }
-      } else {
-        const role = (user.role || 'user').toLowerCase();
-        const isVerified = user.email_verified !== false; // treat undefined as verified to support legacy users
+        return;
+      }
 
-        if (!isVerified && !isVerifyEmailRoute) {
-          router.replace('/verify-email');
-        } else if (isVerified && isVerifyEmailRoute) {
-          router.replace('/dashboard');
-        } else if (isAdminRoute && role !== 'admin') {
-          console.warn('Admin access warning: User role is not admin, but allowing access for testing.');
-          // router.replace('/dashboard');
-        } else if (isAdminLoginRoute && role !== 'admin') {
-          console.warn('Admin login warning: User role is not admin, but allowing access for testing.');
-          router.replace('/admin');
-        } else if (isAuthRoute && role === 'admin') {
-          // Normal user shouldn't go to admin, admin shouldn't go to user login
-          // We reject auth route login if already logged in by sending them to their respective dashboard
-          router.replace('/admin');
-        } else if (isAuthRoute && role === 'user') {
-          router.replace('/dashboard');
-        } else if (isAdminLoginRoute && role === 'admin') {
+      // CASE 2: Authenticated user
+      const isPhoneVerified = user.phone_verified !== false;
+      const role = user.role;
+
+      // 2a: Unverified phone number
+      if (!isPhoneVerified) {
+        if (!isVerifyRoute) {
+          router.replace('/verify-phone');
+        }
+        return;
+      }
+
+      // If user is verified and still on verify-phone page, direct them forward
+      if (isVerifyRoute) {
+        if (needsRoleSelection(user)) {
+          router.replace('/select-role');
+        } else {
+          router.replace(getDashboardRouteForRole(role));
+        }
+        return;
+      }
+
+      // 2b: Admin user logic
+      if (role === 'admin') {
+        if (isAuthRoute || isAdminLoginRoute || isSelectRoleRoute) {
           router.replace('/admin');
         }
+        return;
+      }
+
+      // 2c: Non-admin trying to access admin route
+      if (isAdminRoute && role !== 'admin') {
+        console.warn('Admin access rejected: user does not have admin role.');
+        if (needsRoleSelection(user)) {
+          router.replace('/select-role');
+        } else {
+          router.replace(getDashboardRouteForRole(role));
+        }
+        return;
+      }
+
+      // 2d: Regular user who STILL NEEDS role selection
+      if (needsRoleSelection(user)) {
+        // Must complete role selection before accessing any protected dashboard
+        if (isProtectedRoute || isAuthRoute) {
+          router.replace('/select-role');
+        }
+        return;
+      }
+
+      // 2e: Regular user who ALREADY HAS a role selected
+      const targetDashboard = getDashboardRouteForRole(role);
+
+      // Do not allow returning users with saved role to revisit auth or role-selection screens
+      if (isAuthRoute || isSelectRoleRoute) {
+        router.replace(targetDashboard);
       }
     }
   }, [user, isLoading, pathname, router]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('access_token', token);
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  const updateUser = (userData: User) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   };
@@ -97,7 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, updateUser, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

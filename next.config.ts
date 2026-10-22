@@ -16,6 +16,21 @@ const nextConfig: NextConfig = {
         destination: '/login/user',
         permanent: true,
       },
+      {
+        source: '/role-selection',
+        destination: '/select-role',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/creator',
+        destination: '/influencer',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/business',
+        destination: '/dashboard',
+        permanent: false,
+      },
     ];
   },
 };

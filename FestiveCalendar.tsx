@@ -1,3 +1,6 @@
+import { DayPlan } from "@/services/calendar.service";
+import { ChevronUp, ChevronDown, Wand2, Plus } from "lucide-react";
+
 function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
   const currentDate = new Date();
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();

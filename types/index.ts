@@ -3,9 +3,15 @@
 export interface User {
   id: string;
   name: string;
-  email: string;
-  role: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  phone_number?: string;
+  role?: string | null;
+  accountType?: string;
+  phone_verified?: boolean;
   email_verified?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 export interface Business {

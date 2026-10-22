@@ -16,6 +16,7 @@ export interface BrandKit {
 
     primary_color?: string;
     secondary_color?: string;
+    accent_color?: string;
 
     font?: string;
     tone?: string;
@@ -30,6 +31,18 @@ export interface BrandKit {
     location?: LocationInfo;
 
     social_style?: string;
+
+    // Rich Business Information
+    business_name?: string;
+    business_type?: string;
+    registration_number?: string;
+    business_model?: string;
+    selling_model?: string;
+    business_category?: string;
+    age_group?: string;
+    gender?: string;
+    customer_type?: string;
+    location_focus?: string;
 
     created_at?: string;
     updated_at?: string;
@@ -39,6 +52,7 @@ export interface BrandCreate {
     logo_url?: string;
     primary_color?: string;
     secondary_color?: string;
+    accent_color?: string;
     font?: string;
     tone?: string;
     brand_description?: string;
@@ -48,6 +62,18 @@ export interface BrandCreate {
     contact?: ContactInfo;
     location?: LocationInfo;
     social_style?: string;
+
+    // Rich Business Information
+    business_name?: string;
+    business_type?: string;
+    registration_number?: string;
+    business_model?: string;
+    selling_model?: string;
+    business_category?: string;
+    age_group?: string;
+    gender?: string;
+    customer_type?: string;
+    location_focus?: string;
 }
 
 export type BrandUpdate = Partial<BrandCreate>;

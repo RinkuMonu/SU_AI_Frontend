@@ -80,6 +80,7 @@ const navigation = [
     name: "Social Platforms",
     icon: Globe,
     children: [
+      { name: "Overview", href: "/social-platforms", icon: Globe },
       { name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
       { name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
