@@ -86,6 +86,21 @@ const nextConfig: NextConfig = {
         destination: '/create/reel',
         permanent: true,
       },
+      {
+        source: '/role-selection',
+        destination: '/select-role',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/creator',
+        destination: '/influencer',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/business',
+        destination: '/dashboard',
+        permanent: false,
+      },
     ];
   },
 };

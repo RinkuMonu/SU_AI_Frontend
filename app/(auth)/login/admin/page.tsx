@@ -50,8 +50,8 @@ export default function AdminLoginPage() {
       }
     } catch (err: any) {
       const msg = err.message || "Something went wrong";
-      if (msg.includes("EMAIL_NOT_VERIFIED") || msg.toLowerCase().includes("verification")) {
-        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
+      if (msg.includes("NOT_VERIFIED") || msg.toLowerCase().includes("verification") || msg.includes("OTP")) {
+        router.push(`/verify-phone?phone=${encodeURIComponent(data.email)}&email=${encodeURIComponent(data.email)}`);
       } else {
         setError(msg);
       }
