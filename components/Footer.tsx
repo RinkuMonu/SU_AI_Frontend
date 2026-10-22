@@ -286,7 +286,7 @@ export function Footer() {
       <div className="bg-[#1C1E32] text-slate-300 py-5 text-xs sm:text-sm">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row justify-between items-center gap-4">
           <div className="text-center xl:text-left text-slate-400">
-            © 2026 DhandaGrow AI • Sevenunique Tech Solutions Pvt. Ltd. All rights reserved.
+            © 2026 DhandaGrow AI • FINUNIQUE SMALL PRIVATE LIMITED. All rights reserved.
           </div>
           
           <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-5 gap-y-2 text-slate-300">
