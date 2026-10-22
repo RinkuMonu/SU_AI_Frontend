@@ -22,6 +22,15 @@ function VerifyEmailForm() {
   const email = searchParams.get("email");
 
   useEffect(() => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    if (token) {
+      router.replace("/dashboard");
+    } else {
+      router.replace("/login/user");
+    }
+  }, [router]);
+
+  useEffect(() => {
     let timer: NodeJS.Timeout;
     if (countdown > 0) {
       timer = setTimeout(() => setCountdown((c) => c - 1), 1000);

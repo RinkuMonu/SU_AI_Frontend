@@ -25,6 +25,7 @@ import {
   Sparkles,
   RefreshCw,
   Upload,
+  Download,
   Trash2
 } from 'lucide-react';
 import marketplaceService, { 
@@ -146,7 +147,15 @@ export default function InfluencerContentPage() {
   };
 
   const handleSignAgreement = async () => {
-    if (!signerLegalName.trim() || !declarationAccepted || !activeDeal) return;
+    if (!signerLegalName.trim()) {
+      alert("Please type your full legal name to sign.");
+      return;
+    }
+    if (!uploadedSignature) {
+      alert("Please upload your digital or handwritten signature image before proceeding.");
+      return;
+    }
+    if (!declarationAccepted || !activeDeal) return;
     try {
       setIsSigningAgreement(true);
       const res = await marketplaceService.signAgreement(activeDeal.hiring_request_id, {
@@ -173,7 +182,58 @@ export default function InfluencerContentPage() {
     }
   };
 
-  // Submit Deliverables
+  
+  
+  const [isDecliningAgreement, setIsDecliningAgreement] = useState(false);
+  const handleDeclineAgreement = async () => {
+    const reason = prompt("Please state the reason for declining this agreement (required):");
+    if (!reason || !reason.trim()) {
+      alert("Decline cancelled. A reason is required to decline the agreement.");
+      return;
+    }
+    const reqId = activeDeal?.hiring_request_id || activeDeal?.id;
+    if (!reqId) return;
+
+    try {
+      setIsDecliningAgreement(true);
+      const res = await marketplaceService.declineAgreement(reqId, reason.trim());
+      if (res.success) {
+        alert("Agreement has been declined.");
+        setShowAgreementModal(false);
+        fetchDeals();
+      }
+    } catch (e: any) {
+      alert(e.response?.data?.detail || "Failed to decline agreement");
+    } finally {
+      setIsDecliningAgreement(false);
+    }
+  };
+const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const handleDownloadPdf = async (requestId?: string, agreementNumber?: string) => {
+    try {
+      setIsDownloadingPdf(true);
+      const reqId = requestId || activeDeal?.hiring_request_id || activeDeal?.id;
+      if (!reqId) {
+        alert("Agreement request ID missing");
+        return;
+      }
+      const blob = await marketplaceService.downloadAgreementPdf(reqId);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Agreement_${agreementNumber || reqId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error("Failed to download PDF:", err);
+      alert(err.response?.data?.detail || "Failed to download agreement PDF.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+// Submit Deliverables
   const openSubmitModal = (deal: HiringRequest) => {
     setActiveDeal(deal);
     setLiveUrl('');
@@ -476,10 +536,28 @@ export default function InfluencerContentPage() {
       <Dialog open={showAgreementModal} onOpenChange={setShowAgreementModal}>
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <FileText className="text-brand-purple w-5 h-5" /> 
-              Bilateral Influencer Marketing Agreement
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                <FileText className="text-brand-purple w-5 h-5" /> 
+                Bilateral Influencer Marketing Agreement
+              </DialogTitle>
+              {agreementDoc && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownloadPdf()}
+                  disabled={isDownloadingPdf}
+                  className="bg-brand-purple/20 hover:bg-brand-purple/30 text-brand-purple border-brand-purple/30 text-xs h-8 px-3"
+                >
+                  {isDownloadingPdf ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  Download Agreement PDF
+                </Button>
+              )}
+            </div>
             <DialogDescription className="text-white/60">
               Legally binding collaboration contract. Both parties must execute electronic signatures to activate the campaign.
             </DialogDescription>
@@ -492,6 +570,48 @@ export default function InfluencerContentPage() {
             </div>
           ) : agreementDoc ? (
             <div className="space-y-4 py-3 text-xs text-white/80">
+              {/* Agreement Lifecycle Status & Bilateral Timeline */}
+              <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-2 mb-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white/80">Agreement Lifecycle Status:</span>
+                  <span className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[10px] ${
+                    agreementDoc.status === 'signed' || agreementDoc.status === 'fully_signed'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      : agreementDoc.status === 'declined'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  }`}>
+                    {agreementDoc.status?.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px] text-center">
+                  <div className="p-1.5 rounded bg-white/5 border border-white/10 text-emerald-400 font-medium">
+                    ✓ 1. Draft Generated
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    agreementDoc.signatures?.hirer?.signed
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                      : 'bg-white/5 border-white/10 text-white/50'
+                  }`}>
+                    {agreementDoc.signatures?.hirer?.signed ? '✓ 2. Brand Signed' : '2. Brand Sign Pending'}
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    agreementDoc.signatures?.influencer?.signed
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                      : 'bg-white/5 border-white/10 text-white/50'
+                  }`}>
+                    {agreementDoc.signatures?.influencer?.signed ? '✓ 3. Creator Signed' : '3. Creator Sign Pending'}
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    (agreementDoc.signatures?.hirer?.signed && agreementDoc.signatures?.influencer?.signed)
+                      ? 'bg-brand-purple/20 border-brand-purple/40 text-brand-purple font-bold'
+                      : 'bg-white/5 border-white/10 text-white/40'
+                  }`}>
+                    4. Escrow Deposit
+                  </div>
+                </div>
+              </div>
+
               {/* Document Header */}
               <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
                 <div>
@@ -706,8 +826,10 @@ export default function InfluencerContentPage() {
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
                         <Upload className="w-3.5 h-3.5 text-[#fc9a5d]" />
-                        <span>Upload Handwritten / Digital Signature</span>
-                        <span className="text-[10px] text-white/40 font-normal">(Optional • PNG, JPG, WebP)</span>
+                        <span>Upload Handwritten / Digital Signature *</span>
+                        <span className="text-[10px] text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                          (Mandatory to Proceed)
+                        </span>
                       </label>
                       {uploadedSignature && (
                         <button
@@ -744,10 +866,10 @@ export default function InfluencerContentPage() {
                           <div>
                             <div className="flex items-center gap-1 text-emerald-400 text-xs font-semibold">
                               <CheckCircle2 className="w-3.5 h-3.5" />
-                              <span>Signature Ready to Embed</span>
+                              <span>Signature Ready & Verified</span>
                             </div>
                             <p className="text-[10px] text-white/50 mt-0.5">
-                              Will be affixed to your official agreement certificate
+                              Will be cryptographically affixed to your agreement certificate
                             </p>
                           </div>
                         </div>
@@ -767,26 +889,33 @@ export default function InfluencerContentPage() {
                         onClick={() => signatureFileInputRef.current?.click()}
                         role="button"
                         tabIndex={0}
-                        className="w-full p-4 border-2 border-dashed border-white/20 hover:border-[#fc9a5d]/70 bg-white/[0.02] hover:bg-white/[0.05] rounded-xl flex items-center justify-center gap-3 text-xs text-white/70 hover:text-white cursor-pointer transition-all group select-none"
+                        className="w-full p-4 border-2 border-dashed border-amber-500/30 hover:border-[#fc9a5d] bg-amber-500/[0.02] hover:bg-white/[0.05] rounded-xl flex items-center justify-center gap-3 text-xs text-white/70 hover:text-white cursor-pointer transition-all group select-none"
                       >
-                        <div className="w-9 h-9 rounded-xl bg-white/5 group-hover:bg-[#fc9a5d]/20 flex items-center justify-center text-[#fc9a5d] transition-colors">
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 group-hover:bg-[#fc9a5d]/20 flex items-center justify-center text-[#fc9a5d] transition-colors">
                           <Upload className="w-4 h-4" />
                         </div>
                         <div className="text-left">
                           <span className="font-semibold text-white block group-hover:text-[#fc9a5d] transition-colors">
-                            Click to Upload Signature Image
+                            Click to Upload Signature Image *
                           </span>
-                          <span className="text-[10px] text-white/40">
-                            Upload a photo or scanned image of your handwritten signature (PNG, JPG)
+                          <span className="text-[10px] text-amber-300/80">
+                            Required: Upload image of your handwritten or electronic signature (PNG, JPG, WebP)
                           </span>
                         </div>
                       </div>
                     )}
                   </div>
 
+                  {!uploadedSignature && (
+                    <div className="text-[11px] text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Digital signature upload is required to execute the agreement.</span>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-2 pt-1">
                     <input 
-                      type="checkbox"
+                      type="checkbox" 
                       id="creator-declaration"
                       checked={declarationAccepted}
                       onChange={e => setDeclarationAccepted(e.target.checked)}
@@ -807,11 +936,33 @@ export default function InfluencerContentPage() {
                 <Button variant="outline" onClick={() => setShowAgreementModal(false)} className="border-white/10 text-white hover:bg-white/10 text-xs">
                   Close
                 </Button>
+                {agreementDoc && !agreementDoc.signatures?.influencer?.signed && agreementDoc.status !== 'declined' && (
+                  <Button
+                    variant="outline"
+                    onClick={handleDeclineAgreement}
+                    disabled={isDecliningAgreement}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                  >
+                    {isDecliningAgreement ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <X className="w-3.5 h-3.5 mr-1.5" />}
+                    Decline Agreement
+                  </Button>
+                )}
+                {agreementDoc && (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownloadPdf()}
+                    disabled={isDownloadingPdf}
+                    className="border-brand-purple/40 text-brand-purple hover:bg-brand-purple/10 text-xs"
+                  >
+                    {isDownloadingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Download className="w-3.5 h-3.5 mr-1.5" />}
+                    Download Agreement PDF
+                  </Button>
+                )}
                 {!agreementDoc.signatures?.influencer?.signed && (
                   <Button 
                     onClick={handleSignAgreement}
-                    disabled={isSigningAgreement || !declarationAccepted || !signerLegalName.trim()}
-                    className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs"
+                    disabled={isSigningAgreement || !declarationAccepted || !signerLegalName.trim() || !uploadedSignature}
+                    className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs disabled:opacity-50"
                   >
                     {isSigningAgreement ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
                     {isSigningAgreement ? "Affixing Electronic Signature..." : "Sign Agreement Electronically"}

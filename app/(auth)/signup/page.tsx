@@ -1027,49 +1027,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* Row 4: Verify Email OTP Field under Email */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label htmlFor="emailOtp" className="block text-xs font-medium text-neutral-300">
-                    Verify Email OTP
-                  </label>
-                  {otpSent && (
-                    <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" /> OTP Sent
-                    </span>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <KeyRound className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <input
-                      id="emailOtp"
-                      type="text"
-                      placeholder="Enter 6-digit OTP"
-                      maxLength={6}
-                      {...register("emailOtp")}
-                      className="w-full h-11 pl-10 pr-3.5 rounded-xl bg-[#0f1015] border border-white/10 hover:border-white/20 text-white placeholder:text-neutral-500 text-sm focus:outline-none focus:border-[#be32ff] focus:ring-1 focus:ring-[#be32ff]/40 transition-all tracking-wider font-mono [color-scheme:dark] [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f1015_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff]"
-                    />
-                  </div>
-                  {/* Send / Resend OTP Action Button */}
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={isSendingOtp || otpCountdown > 0}
-                    className="h-11 px-4 rounded-xl border border-white/15 bg-[#1e202a] hover:bg-[#272936] hover:border-white/30 text-white text-xs font-semibold whitespace-nowrap transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shrink-0"
-                  >
-                    {isSendingOtp ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : otpCountdown > 0 ? (
-                      `Resend in ${otpCountdown}s`
-                    ) : otpSent ? (
-                      "Resend OTP"
-                    ) : (
-                      "Send OTP"
-                    )}
-                  </button>
-                </div>
-              </div>
 
               {/* Row 5: Password */}
               <div className="space-y-1.5">

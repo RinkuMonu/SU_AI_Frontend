@@ -117,20 +117,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } else {
         const role = (user.role || 'user').toLowerCase();
-        const isVerified = user.email_verified !== false; // treat undefined as verified to support legacy users
+        const isVerified = true; // Email verification requirement removed
 
-        if (!isVerified && isProtectedRoute && !isVerifyEmailRoute) {
-          // If onboarding is not completed, prioritize onboarding first
-          if (user.onboardingCompleted === false) {
-            router.replace('/onboarding');
-          } else if (user.email) {
-            router.replace(`/verify-email?email=${encodeURIComponent(user.email)}`);
-          } else {
-            router.replace('/login/user');
-          }
-        } else if (isVerified && isVerifyEmailRoute) {
+        if (isVerifyEmailRoute) {
           router.replace(user.onboardingCompleted === false ? '/onboarding' : '/dashboard');
-        } else if (isVerified && isProtectedRoute && pathname === '/dashboard' && user.onboardingCompleted === false) {
+        } else if (isProtectedRoute && pathname === '/dashboard' && user.onboardingCompleted === false) {
           router.replace('/onboarding');
         } else if (isAdminRoute && role !== 'admin') {
           console.warn('Admin access warning: User role is not admin, but allowing access for testing.');

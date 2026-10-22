@@ -21,7 +21,9 @@ import {
   Eye,
   Clock,
   CreditCard,
-  AlertCircle
+  Wallet,
+  AlertCircle,
+  Download
 } from 'lucide-react';
 import marketplaceService, { HiringRequest, AgreementDocument } from '@/services/marketplace.service';
 
@@ -31,6 +33,28 @@ export default function AdminMarketplacePage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [payingWalletId, setPayingWalletId] = useState<string | null>(null);
+
+  const handlePayInfluencerWallet = async (r: HiringRequest) => {
+    const comp = Number(r.proposed_compensation || 0);
+    const conf = confirm(`Release ₹${comp.toLocaleString()} directly from escrow to the Influencer's Wallet for campaign "${r.campaign_name}"?`);
+    if (!conf) return;
+
+    try {
+      setPayingWalletId(r.hiring_request_id);
+      const res = await marketplaceService.adminReleasePayoutToWallet(r.hiring_request_id);
+      if (res.success) {
+        alert(res.message || `Payment of ₹${comp.toLocaleString()} released to Influencer Wallet!`);
+        await fetchData();
+      }
+    } catch (err: any) {
+      console.error("Release wallet payout failed:", err);
+      alert(err.response?.data?.detail || err.message || "Failed to release payout to wallet.");
+    } finally {
+      setPayingWalletId(null);
+    }
+  };
+
 
   // Admin Agreement Inspection Modal
   const [showAgreementModal, setShowAgreementModal] = useState(false);
@@ -39,6 +63,32 @@ export default function AdminMarketplacePage() {
   const [agreementLoading, setAgreementLoading] = useState(false);
   const [adminReviewNotes, setAdminReviewNotes] = useState('');
   const [isReviewingAgreement, setIsReviewingAgreement] = useState(false);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const handleDownloadPdf = async (requestId?: string, agreementNumber?: string) => {
+    try {
+      setIsDownloadingPdf(true);
+      const reqId = requestId || selectedRequest?.hiring_request_id || selectedRequest?.id;
+      if (!reqId) {
+        alert("Agreement request ID missing");
+        return;
+      }
+      const blob = await marketplaceService.downloadAgreementPdf(reqId);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Agreement_${agreementNumber || reqId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error("Failed to download PDF:", err);
+      alert(err.response?.data?.detail || "Failed to download agreement PDF.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
 
   // Real-time Agreement Review Alert Popup for Admin
   const [showPendingAlertModal, setShowPendingAlertModal] = useState(false);
@@ -388,6 +438,22 @@ export default function AdminMarketplacePage() {
                               <FileText className="w-3 h-3 text-indigo-600" />
                               <span>View Agreement</span>
                             </Button>
+
+                            {r.payment_status === 'disbursed_to_wallet' || (r as any).wallet_disbursed ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-300">
+                                <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Wallet Paid
+                              </span>
+                            ) : (
+                              <Button
+                                size="sm"
+                                disabled={payingWalletId === r.hiring_request_id}
+                                onClick={() => handlePayInfluencerWallet(r)}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] h-7 px-2.5 flex items-center gap-1 font-bold shadow-sm cursor-pointer"
+                              >
+                                {payingWalletId === r.hiring_request_id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Wallet className="w-3 h-3" />}
+                                <span>Pay via Wallet</span>
+                              </Button>
+                            )}
 
                             {r.status === 'disputed' && (
                               <>

@@ -263,6 +263,8 @@ export default function LoginPage() {
           sessionStorage.removeItem("pending_plan");
           sessionStorage.removeItem("pending_billing");
           router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
+          router.push("/influencer");
         } else {
           router.push("/dashboard");
         }
@@ -369,6 +371,8 @@ export default function LoginPage() {
           sessionStorage.removeItem("pending_plan");
           sessionStorage.removeItem("pending_billing");
           router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
+          router.push("/influencer");
         } else {
           router.push("/dashboard");
         }
@@ -526,6 +530,8 @@ export default function LoginPage() {
           sessionStorage.removeItem("pending_plan");
           sessionStorage.removeItem("pending_billing");
           router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
+          router.push("/influencer");
         } else {
           router.push("/dashboard");
         }
@@ -724,6 +730,8 @@ export default function LoginPage() {
                 sessionStorage.removeItem("pending_plan");
                 sessionStorage.removeItem("pending_billing");
                 router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+              } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
+                router.push("/influencer");
               } else {
                 router.push("/dashboard");
               }
@@ -833,21 +841,14 @@ export default function LoginPage() {
       }
     } catch (err: any) {
       const msg = err.message || "Something went wrong";
-      if (
-        msg.includes("EMAIL_NOT_VERIFIED") ||
-        msg.toLowerCase().includes("verification")
-      ) {
-        router.push(`/verify-email?email=${encodeURIComponent(data.email)}`);
-      } else {
-        setError(msg);
-        setAuthModal({
-          open: true,
-          status: "error",
-          provider: "Email",
-          title: "Login Failed",
-          message: msg,
-        });
-      }
+      setError(msg);
+      setAuthModal({
+        open: true,
+        status: "error",
+        provider: "Email",
+        title: "Login Failed",
+        message: msg,
+      });
       setIsLoading(false);
     }
   };

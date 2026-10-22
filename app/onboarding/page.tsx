@@ -53,6 +53,96 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  const [isActivatingInfluencer, setIsActivatingInfluencer] = useState(false);
+
+  const handleSelectInfluencerAndLaunch = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    try {
+      setIsActivatingInfluencer(true);
+      setError("");
+
+      const stored = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+      let existingUser: any = stored ? JSON.parse(stored) : {};
+
+      const pendingStr = typeof window !== "undefined" ? sessionStorage.getItem("pending_signup") : null;
+      const pending = pendingStr ? JSON.parse(pendingStr) : null;
+
+      const influencerPayload = {
+        accountType: "influencer",
+        role: "influencer",
+        fullName: existingUser.fullName || existingUser.name || influencerProfile.fullName || "Verified Creator",
+        name: existingUser.name || existingUser.fullName || influencerProfile.fullName || "Verified Creator",
+        onboardingCompleted: true,
+        onboarding_step: 3,
+      };
+
+      if (pending) {
+        const signupPayload = {
+          ...influencerPayload,
+          email: pending.email,
+          password: pending.password,
+          confirmPassword: pending.confirmPassword || pending.password,
+          otp: pending.otp,
+          role: "influencer",
+          accountType: "influencer",
+        };
+        const res = await authService.signup(signupPayload);
+        if (res.token && res.user) {
+          const u = { ...res.user, role: "influencer", accountType: "influencer", onboardingCompleted: true };
+          localStorage.setItem("access_token", res.token);
+          localStorage.setItem("user", JSON.stringify(u));
+          login(res.token, u);
+        }
+        sessionStorage.removeItem("pending_signup");
+      } else {
+        try {
+          await userService.updateMe(influencerPayload);
+        } catch (_) {}
+
+        const updatedUser = {
+          ...existingUser,
+          role: "influencer",
+          accountType: "influencer",
+          onboardingCompleted: true,
+        };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        const token = localStorage.getItem("access_token") || "";
+        if (token) {
+          login(token, updatedUser);
+        }
+      }
+
+      try {
+        await OnboardingService.updateProgress({
+          completed: true,
+          onboarding_completed: true,
+          onboardingCompleted: true,
+          is_completed: true,
+          onboarding_step: 3,
+        });
+      } catch (_) {}
+
+      // Directly open Influencer Dashboard
+      router.push("/influencer");
+    } catch (err: any) {
+      console.error("Failed to activate influencer dashboard:", err);
+      try {
+        const u = JSON.parse(localStorage.getItem("user") || "{}");
+        u.role = "influencer";
+        u.accountType = "influencer";
+        u.onboardingCompleted = true;
+        localStorage.setItem("user", JSON.stringify(u));
+      } catch (_) {}
+      router.push("/influencer");
+    } finally {
+      setIsActivatingInfluencer(false);
+    }
+  };
+
+
   // Influencer Profile Form State
   const [influencerProfile, setInfluencerProfile] = useState({
     fullName: "",
@@ -879,7 +969,10 @@ export default function OnboardingPage() {
 
                 {/* 3. Creator & Influencer Card */}
                 <div
-                  onClick={() => setAccountType("influencer")}
+                  onClick={() => {
+                    setAccountType("influencer");
+                    handleSelectInfluencerAndLaunch();
+                  }}
                   className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between group ${
                     accountType === "influencer"
                       ? "bg-gradient-to-b from-[#221730] to-[#141522] border-[#7d36fa] shadow-[0_0_30px_rgba(125,54,250,0.25)] ring-1 ring-[#7d36fa]/50"
@@ -925,15 +1018,37 @@ export default function OnboardingPage() {
                     </ul>
                   </div>
 
-                  <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                    <span className={accountType === "influencer" ? "text-[#7d36fa]" : "text-neutral-400"}>
-                      {accountType === "influencer" ? "Selected" : "Select Option"}
-                    </span>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                      accountType === "influencer" ? "border-[#7d36fa] bg-[#7d36fa]" : "border-white/20"
-                    }`}>
-                      {accountType === "influencer" && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                  <div className="pt-5 mt-4 border-t border-white/5 flex flex-col gap-3">
+                    <div className="flex items-center justify-between text-xs font-semibold">
+                      <span className={accountType === "influencer" ? "text-[#be32ff] font-bold" : "text-neutral-400"}>
+                        {accountType === "influencer" ? "Influencer Active" : "Click to Launch Dashboard"}
+                      </span>
+                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
+                        accountType === "influencer" ? "border-[#be32ff] bg-[#be32ff]" : "border-white/20"
+                      }`}>
+                        {accountType === "influencer" && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                      </div>
                     </div>
+                    
+                    <button
+                      type="button"
+                      disabled={isActivatingInfluencer}
+                      onClick={handleSelectInfluencerAndLaunch}
+                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#be32ff] via-[#7d36fa] to-[#fc9a5d] text-white text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(125,54,250,0.35)] hover:shadow-[0_6px_25px_rgba(190,50,255,0.5)] transition-all cursor-pointer hover:scale-[1.02]"
+                    >
+                      {isActivatingInfluencer ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Opening Influencer Dashboard...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Open Influencer Dashboard</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1799,7 +1914,13 @@ export default function OnboardingPage() {
 
             <Button
               type="button"
-              onClick={handleNext}
+              onClick={(e) => {
+                if (currentStep === 0 && accountType === "influencer") {
+                  handleSelectInfluencerAndLaunch(e);
+                } else {
+                  handleNext(e);
+                }
+              }}
               disabled={isSubmitting}
               className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-xs tracking-wide shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_30px_rgba(190,50,255,0.5)] transition-all cursor-pointer min-w-[140px]"
             >
