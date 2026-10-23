@@ -38,15 +38,7 @@ export function ShareBar({ title }: { title: string }) {
       </div>
 
       <div className="flex items-center gap-2.5 flex-wrap">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleShareWhatsApp}
-          className="rounded-full text-xs font-semibold gap-1.5 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300 transition-all cursor-pointer"
-        >
-          <MessageCircle className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600/20" />
-          WhatsApp
-        </Button>
+
 
         <Button
           variant="outline"

@@ -106,13 +106,7 @@ const PlatformBadge = ({ platform, className = "" }: { platform?: string; classN
       </span>
     );
   }
-  if (p.includes("whatsapp")) {
-    return (
-      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 bg-emerald-950/40 border border-emerald-500/30 px-2 py-0.5 rounded-full ${className}`}>
-        <WhatsAppIcon className="w-3 h-3 shrink-0" /> WhatsApp
-      </span>
-    );
-  }
+
   return (
     <span className={`inline-flex items-center gap-1 text-[11px] font-semibold text-purple-300 bg-purple-950/40 border border-purple-500/30 px-2 py-0.5 rounded-full ${className}`}>
       <Share2 className="w-3 h-3 shrink-0" /> {platform || "Social"}
