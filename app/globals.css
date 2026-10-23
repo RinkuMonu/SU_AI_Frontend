@@ -53,6 +53,7 @@
 }
 
 :root {
+  color-scheme: dark;
   --background: #071023;
   --foreground: #FFFFFF;
   
@@ -73,6 +74,30 @@
   --border: rgba(255, 255, 255, 0.08);
   --muted: #101D3A;
   --muted-foreground: #94A3B8;
+}
+
+html.light {
+  color-scheme: light;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  
+  --brand-purple: #8b5cf6;
+  --brand-pink: #d946ef;
+  --brand-coral: #f97316;
+
+  --surface: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-elevated: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --border: #e2e8f0;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 }
 
 body {
@@ -345,3 +370,23 @@ html {
   animation: flashEffect 0.4s ease-out forwards;
 }
 
+
+
+/* Ensure select and option dropdown popups are always visible with high contrast */
+select {
+  color-scheme: dark;
+}
+
+html.light select {
+  color-scheme: light;
+}
+
+select option {
+  background-color: #0B1630;
+  color: #FFFFFF;
+}
+
+html.light select option {
+  background-color: #FFFFFF;
+  color: #0F172A;
+}

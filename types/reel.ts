@@ -2,6 +2,8 @@ export interface GenerateReelRequest {
   product_id?: string;
   product_name?: string;
   product_category?: string;
+  subcategory?: string;
+  product_type?: string;
   generation_mode?: 'product' | 'creative' | 'prompt' | 'veo';
   prompt?: string;
   custom_prompt?: string;
@@ -10,12 +12,27 @@ export interface GenerateReelRequest {
   festival_theme?: string;
   product_description?: string;
   product_image_url?: string;
+  product_images?: string[];
+  enhance_image?: boolean;
+  image_enhancement_prompt?: string;
   objective: string;
   platform: string;
   language: string;
   duration: number;
   tone?: string;
+  voiceover_type?: 'none' | 'ai' | 'upload';
+  voice_tone?: string;
+  voice_language?: string;
+  voice_audio_url?: string;
+  background_music?: string;
+  captions_enabled?: boolean;
   offer?: string;
+  offer_type?: string;
+  offer_discount?: string;
+  promo_code?: string;
+  offer_start_date?: string;
+  offer_end_date?: string;
+  offer_terms?: string;
   additional_instruction?: string;
 }
 

@@ -10,6 +10,9 @@ const getBackendUrl = () => {
 };
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: __dirname,
+  },
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
   images: {
@@ -76,6 +79,26 @@ const nextConfig: NextConfig = {
       {
         source: '/social-platforms/instagram/social-platforms/facebook',
         destination: '/social-platforms/instagram',
+        permanent: false,
+      },
+      {
+        source: '/reel-creator',
+        destination: '/create/reel',
+        permanent: true,
+      },
+      {
+        source: '/role-selection',
+        destination: '/select-role',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/creator',
+        destination: '/influencer',
+        permanent: false,
+      },
+      {
+        source: '/dashboard/business',
+        destination: '/dashboard',
         permanent: false,
       },
     ];

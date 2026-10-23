@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -74,10 +74,11 @@ const navigation = [
     name: "Social Platforms",
     icon: Globe,
     children: [
-      { name: "WhatsApp", href: "/social-platforms/whatsapp", icon: WhatsAppIcon },
+      { name: "Overview", href: "/social-platforms", icon: Globe },
       { name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
       { name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
+      { name: "WhatsApp", href: "/social-platforms/whatsapp", icon: WhatsAppIcon },
     ]
   },
   { name: "Reviews", href: "/reviews", icon: Star },

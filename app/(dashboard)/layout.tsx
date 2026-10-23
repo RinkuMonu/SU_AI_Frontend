@@ -8,8 +8,10 @@ import { Navbar } from "@/components/layout/Navbar";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
 import { SocialConnectReminderDialog } from "@/components/social/SocialConnectReminderDialog";
 import { Loader2 } from "lucide-react";
-
 import { SidebarProvider } from "@/components/layout/SidebarContext";
+import { AutomaticBrandKitModal } from "@/components/brand/AutomaticBrandKitModal";
+import { AutomaticSocialConnectivityModal } from "@/components/social/AutomaticSocialConnectivityModal";
+import { AutomaticPlansModal } from "@/components/plans/AutomaticPlansModal";
 
 export default function DashboardLayout({
   children,
@@ -21,6 +23,9 @@ export default function DashboardLayout({
 
   useEffect(() => {
     if (!isLoading && !user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("auth_redirect_after", window.location.pathname + window.location.search);
+      }
       router.replace("/login/user");
     }
   }, [user, isLoading, router]);
@@ -60,6 +65,11 @@ export default function DashboardLayout({
             </div>
           </main>
         </div>
+
+        {/* Automatic Onboarding Modals for Businessman (Step 1, Step 2, Step 3) */}
+        <AutomaticBrandKitModal />
+        <AutomaticSocialConnectivityModal />
+        <AutomaticPlansModal />
       </div>
     </SidebarProvider>
   );

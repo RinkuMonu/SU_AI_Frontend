@@ -714,7 +714,7 @@ export default function CampaignsPage() {
                                     <Film className="w-3 h-3" /> Reel #{rIdx + 1}
                                   </span>
                                   <Link
-                                    href="/reel-creator"
+                                    href="/create/reel"
                                     className="text-xs font-semibold text-brand-purple hover:text-purple-300 flex items-center gap-1"
                                   >
                                     Create Reel <ArrowRight className="w-3 h-3" />

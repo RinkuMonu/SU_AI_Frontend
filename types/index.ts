@@ -6,13 +6,15 @@ export interface User {
   fullName?: string;
   firstName?: string;
   lastName?: string;
-  email: string;
-  role: string;
+  email?: string;
+  role?: string | null;
   accountType?: "user" | "business" | string;
   phone?: string | null;
+  phone_number?: string;
   contactNumber?: string | null;
   profileImageUrl?: string | null;
   preferredLanguage?: string | null;
+  phone_verified?: boolean;
   email_verified?: boolean;
   emailVerified?: boolean;
   onboardingCompleted?: boolean;

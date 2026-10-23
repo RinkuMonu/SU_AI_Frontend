@@ -70,7 +70,7 @@ const sitemapData = [
     items: [
       { name: "Create Content", href: "#", icon: PenTool },
       { name: "Create Social Posts", href: "#", icon: ImageIcon },
-      { name: "Create Reels", href: "#", icon: PlaySquare },
+      { name: "Create Reels", href: "/create/reel", icon: PlaySquare },
       { name: "Generate Product Images", href: "#", icon: Camera },
       { name: "Create Advertisements", href: "#", icon: Target },
       { name: "Manage Social Media", href: "#", icon: Calendar },

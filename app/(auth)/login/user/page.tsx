@@ -15,21 +15,21 @@ import {
   Zap,
   Camera,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CheckCircle2,
+  ArrowRight
 } from "lucide-react";
-import Image from "next/image";
+import { COUNTRY_CODES, validatePhoneNumber, sanitizeNationalNumber } from "@/lib/phone";
 import { authService } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { needsRoleSelection, getDashboardRouteForRole } from "@/lib/role-routing";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 
 // Prevent duplicate callback execution in React StrictMode and concurrent renders
 let inFlightGoogleCode: string | null = null;
-let inFlightFbAuth: string | null = null;
-let inFlightIgAuth: string | null = null;
-let inFlightLiAuth: string | null = null;
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -93,7 +93,31 @@ const SHOWCASE_SLIDES = [
   },
 ];
 
+
+function navigateAfterAuth(user: any, router: any) {
+  if (needsRoleSelection(user)) {
+    router.push("/select-role");
+    return;
+  }
+  const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
+  const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
+  if (pendingPlan) {
+    sessionStorage.removeItem('pending_plan');
+    sessionStorage.removeItem('pending_billing');
+    router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+    return;
+  }
+  router.push(getDashboardRouteForRole(user?.role));
+}
+
 export default function LoginPage() {
+  const [loginMethod, setLoginMethod] = useState<"phone" | "password">("phone");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [phoneError, setPhoneError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
   const [error, setError] = useState("");
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
@@ -122,6 +146,38 @@ export default function LoginPage() {
   }, [isShowcasePaused]);
 
   const currentSlide = SHOWCASE_SLIDES[slideIndex];
+
+  // Read query params from URL (e.g. after signup or phone verification)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const regParam = searchParams.get("registered");
+    const verParam = searchParams.get("verified");
+    const phoneParam = searchParams.get("phone");
+
+    if (regParam === "true") {
+      setSuccessMsg("Account registered successfully! Enter your mobile number to sign in.");
+    } else if (verParam === "true") {
+      setSuccessMsg("Phone number verified successfully! Please log in.");
+    }
+
+    if (phoneParam) {
+      if (phoneParam.startsWith("+")) {
+        const matched = COUNTRY_CODES.find((c) => phoneParam.startsWith(c.code));
+        if (matched) {
+          setCountryCode(matched.code);
+          setPhone(phoneParam.slice(matched.code.length));
+        } else {
+          setPhone(phoneParam);
+        }
+      } else {
+        setPhone(phoneParam);
+      }
+    }
+  }, []);
+
+
+
 
   const { login } = useAuth();
   const router = useRouter();
@@ -257,17 +313,7 @@ export default function LoginPage() {
         sessionStorage.removeItem("auth_redirect_after");
         router.push(redirectAfter);
       } else {
-        const pendingPlan = sessionStorage.getItem("pending_plan");
-        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
-        if (pendingPlan) {
-          sessionStorage.removeItem("pending_plan");
-          sessionStorage.removeItem("pending_billing");
-          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
-          router.push("/influencer");
-        } else {
-          router.push("/dashboard");
-        }
+        navigateAfterAuth(finalUser, router);
       }
     } catch (err: any) {
       console.error("Facebook authentication error:", err);
@@ -362,21 +408,7 @@ export default function LoginPage() {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
 
-      if (!isDone) {
-        router.push("/onboarding");
-      } else {
-        const pendingPlan = sessionStorage.getItem("pending_plan");
-        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
-        if (pendingPlan) {
-          sessionStorage.removeItem("pending_plan");
-          sessionStorage.removeItem("pending_billing");
-          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
-          router.push("/influencer");
-        } else {
-          router.push("/dashboard");
-        }
-      }
+      navigateAfterAuth(finalUser, router);
     } catch (err: any) {
       console.error("Instagram authentication error:", err);
       const msg =
@@ -521,20 +553,8 @@ export default function LoginPage() {
       if (redirectAfter) {
         sessionStorage.removeItem("auth_redirect_after");
         router.push(redirectAfter);
-      } else if (!isDone) {
-        router.push("/onboarding");
       } else {
-        const pendingPlan = sessionStorage.getItem("pending_plan");
-        const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
-        if (pendingPlan) {
-          sessionStorage.removeItem("pending_plan");
-          sessionStorage.removeItem("pending_billing");
-          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-        } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
-          router.push("/influencer");
-        } else {
-          router.push("/dashboard");
-        }
+        navigateAfterAuth(finalUser, router);
       }
     } catch (err: any) {
       console.error("LinkedIn authentication error:", err);
@@ -605,13 +625,15 @@ export default function LoginPage() {
       setAuthModal({
         open: true,
         status: "error",
-        provider: (providerName === "Google" ? "Gmail" : providerName) as AuthProviderType,
+        provider: providerName as AuthProviderType,
         title: `${providerName} Authorization Failed`,
         message: decodedErr,
       });
       sessionStorage.removeItem("facebook_auth_mode");
       sessionStorage.removeItem("instagram_auth_mode");
       sessionStorage.removeItem("google_auth_mode");
+      sessionStorage.removeItem("google_auth_phone");
+      sessionStorage.removeItem("google_auth_country_code");
       sessionStorage.removeItem("linkedin_auth_mode");
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
@@ -672,32 +694,33 @@ export default function LoginPage() {
 
       const processGoogleCode = async () => {
         const savedMode = sessionStorage.getItem("google_auth_mode");
+        const preservedPhone = sessionStorage.getItem("google_auth_phone") || undefined;
+        const preservedCc = sessionStorage.getItem("google_auth_country_code") || undefined;
         const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
         const mode = isSignup ? "signup" : "login";
 
-        setSocialLoading("Gmail");
+        setSocialLoading("Google");
         setSocialNotice(isSignup ? "Completing your Google registration..." : "Signing in with Google... Verifying your account.");
         setError("");
         setAuthModal({
           open: true,
           status: "analyzing",
-          provider: "Gmail",
+          provider: "Google",
           title: isSignup ? "Completing Google Registration" : "Connecting with Google",
           message: isSignup ? "Analyzing account & creating profile..." : "Analyzing credentials & verifying your account...",
         });
         try {
           const redirectUri = `${window.location.origin}/login/user`;
-          const endpoint = isSignup ? "/api/v1/auth/google/signup" : "/api/v1/auth/google/login";
-          const res = await api.post(endpoint, {
+          const res = await authService.googleLogin({
             code,
             redirect_uri: redirectUri,
-            redirectUri: redirectUri,
             mode,
+            phone: preservedPhone,
+            countryCode: preservedCc,
           });
 
-          const data = res.data?.data || res.data;
-          const token = data?.access_token || data?.token || data?.accessToken;
-          const userObj = data?.user;
+          const token = res.token;
+          const userObj = res.user;
 
           if (token && userObj) {
             let isDone = Boolean(userObj.onboardingCompleted);
@@ -712,32 +735,20 @@ export default function LoginPage() {
             };
             login(token, finalUser);
             sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_auth_phone");
+            sessionStorage.removeItem("google_auth_country_code");
 
             setAuthModal({
               open: true,
               status: "navigating",
-              provider: "Gmail",
+              provider: "Google",
               title: "Google Verified!",
               message: "Account verified! Navigating to your dashboard...",
             });
 
-            if (!isDone) {
-              router.push("/onboarding");
-            } else {
-              const pendingPlan = sessionStorage.getItem("pending_plan");
-              const pendingBilling = sessionStorage.getItem("pending_billing") || "monthly";
-              if (pendingPlan) {
-                sessionStorage.removeItem("pending_plan");
-                sessionStorage.removeItem("pending_billing");
-                router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-              } else if (userObj?.role === 'influencer' || userObj?.accountType === 'influencer') {
-                router.push("/influencer");
-              } else {
-                router.push("/dashboard");
-              }
-            }
+            navigateAfterAuth(finalUser, router);
           } else {
-            throw new Error(res.data?.message || "Google authentication did not return session token.");
+            throw new Error(res.message || "Google authentication did not return session token.");
           }
         } catch (err: any) {
           console.error("Google authentication error:", err);
@@ -770,11 +781,13 @@ export default function LoginPage() {
           setAuthModal({
             open: true,
             status: "error",
-            provider: "Gmail",
+            provider: "Google",
             title: "Google Authentication Failed",
             message: msg,
           });
           sessionStorage.removeItem("google_auth_mode");
+          sessionStorage.removeItem("google_auth_phone");
+          sessionStorage.removeItem("google_auth_country_code");
         } finally {
           inFlightGoogleCode = null;
           setSocialLoading(null);
@@ -786,81 +799,75 @@ export default function LoginPage() {
     }
   }, [login, router]);
 
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
+  /**
+   * Submit credentials (Mobile Phone Number + Password)
+   */
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPhoneError("");
     setError("");
-    setSocialNotice(null);
-    setAuthModal({
-      open: true,
-      status: "analyzing",
-      provider: "Email",
-      title: "Signing In",
-      message: "Verifying your credentials and securing session...",
-    });
+    setSuccessMsg("");
+
+    const validation = validatePhoneNumber(countryCode, phone);
+    if (!validation.isValid) {
+      setPhoneError(validation.error || "Please enter a valid mobile number");
+      return;
+    }
+
+    if (!password) {
+      setError("Please enter your password.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const response = await authService.login(data.email, data.password);
+      const response = await authService.login(validation.e164, password);
       if (response?.user?.role === "admin") {
         throw new Error("Administrators must log in through the Admin Portal.");
       }
       if (response?.token && response?.user) {
-        let isDone = Boolean(response.user.onboardingCompleted);
-        try {
-          const statusDone = await OnboardingService.isCompleted(response.token);
-          if (statusDone) isDone = true;
-        } catch (_) {}
-
-        const finalUser = {
-          ...response.user,
-          onboardingCompleted: isDone,
-        };
-        login(response.token, finalUser);
-
-        setAuthModal({
-          open: true,
-          status: "navigating",
-          provider: "Email",
-          title: "Welcome Back!",
-          message: "Credentials verified! Navigating to dashboard...",
-        });
-
-        const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
-        const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
-        if (pendingPlan) {
-          sessionStorage.removeItem('pending_plan');
-          sessionStorage.removeItem('pending_billing');
-          router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-        } else if (finalUser.role === 'influencer' || finalUser.accountType === 'influencer') {
-          router.push("/influencer");
-        } else if (!isDone) {
-          router.push("/onboarding");
-        } else {
-          router.push("/dashboard");
-        }
-      } else {
-        throw new Error("Authentication failed: Missing token or user data.");
+        login(response.token, response.user);
+        navigateAfterAuth(response.user, router);
       }
     } catch (err: any) {
-      const msg = err.message || "Something went wrong";
-      setError(msg);
-      setAuthModal({
-        open: true,
-        status: "error",
-        provider: "Email",
-        title: "Login Failed",
-        message: msg,
-      });
+      setError(err.message || "Invalid mobile number or password.");
+    } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "Instagram" | "LinkedIn") => {
+  /**
+   * Handle Mobile Phone Step -> Continues to Google Authentication
+   */
+  const handlePhoneNext = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPhoneError("");
     setError("");
-    if (provider === "Gmail") {
-      setSocialLoading("Gmail");
+    setSuccessMsg("");
+
+    const validation = validatePhoneNumber(countryCode, phone);
+    if (!validation.isValid) {
+      setPhoneError(validation.error || "Please enter a valid mobile number");
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_auth_phone", validation.e164);
+      sessionStorage.setItem("google_auth_country_code", countryCode);
+      sessionStorage.setItem("google_auth_mode", "login");
+    }
+
+    handleSocialLogin("Google");
+  };
+
+  const handleSocialLogin = async (provider: "Google" | "Facebook" | "Instagram" | "LinkedIn") => {
+    setError("");
+    if (provider === "Google") {
+      setSocialLoading("Google");
       setAuthModal({
         open: true,
         status: "analyzing",
-        provider: "Gmail",
+        provider: "Google",
         title: "Connecting with Google",
         message: "Preparing secure Google OAuth handshake...",
       });
@@ -872,12 +879,19 @@ export default function LoginPage() {
         const state = "login_" + Math.random().toString(36).substring(7);
         if (typeof window !== "undefined") {
           sessionStorage.setItem("google_auth_mode", "login");
+          if (phone && phone.trim()) {
+            const validation = validatePhoneNumber(countryCode, phone);
+            if (validation.isValid) {
+              sessionStorage.setItem("google_auth_phone", validation.e164);
+              sessionStorage.setItem("google_auth_country_code", countryCode);
+            }
+          }
         }
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
         setAuthModal({
           open: true,
           status: "navigating",
-          provider: "Gmail",
+          provider: "Google",
           title: "Redirecting to Google",
           message: "Navigating to Google sign-in portal. Please wait...",
         });
@@ -892,7 +906,7 @@ export default function LoginPage() {
         setAuthModal({
           open: true,
           status: "error",
-          provider: "Gmail",
+          provider: "Google",
           title: "Google Connection Failed",
           message: errMsg,
         });
@@ -1119,14 +1133,14 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="bg-[#15161b]/95 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-3.5 transition-all">
-            {/* 1. Continue with Gmail */}
+            {/* 1. Continue with Google */}
             <button
               type="button"
-              onClick={() => handleSocialLogin("Gmail")}
+              onClick={() => handleSocialLogin("Google")}
               disabled={socialLoading !== null}
               className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-white/25 hover:shadow-[0_0_20px_rgba(255,255,255,0.06)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
             >
-              {socialLoading === "Gmail" ? (
+              {socialLoading === "Google" ? (
                 <Loader2 className="w-4 h-4 animate-spin text-neutral-300" />
               ) : (
                 <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
@@ -1148,7 +1162,7 @@ export default function LoginPage() {
                   />
                 </svg>
               )}
-              <span>Continue with Gmail</span>
+              <span>Continue with Google</span>
             </button>
 
             {/* 2. Login with Facebook */}
@@ -1194,85 +1208,229 @@ export default function LoginPage() {
               </span>
             </div>
 
-            {/* Form Section */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
-              <div className="space-y-1.5">
-                <input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  {...register("email")}
-                  className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
-                    errors.email ? "border-red-500" : "border-white/10 hover:border-white/20"
-                  } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark] [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f1014_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff]`}
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-400 pl-1">{errors.email.message}</p>
-                )}
+            {/* Notifications & Error messages */}
+            {successMsg && (
+              <div className="p-3 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
+                <span className="leading-relaxed">{successMsg}</span>
               </div>
+            )}
 
-              <div className="space-y-1.5">
-                <div className="relative">
-                  <input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    {...register("password")}
-                    className={`w-full h-11 px-4 pr-11 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
-                      errors.password ? "border-red-500" : "border-white/10 hover:border-white/20"
-                    } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark] [&:-webkit-autofill]:shadow-[0_0_0_1000px_#0f1014_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:#ffffff]`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors p-1"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                <div className="flex items-center justify-between px-1">
-                  {errors.password ? (
-                    <p className="text-xs text-red-400">{errors.password.message}</p>
-                  ) : <span />}
+            {error && (
+              <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-1.5">
+                <span className="leading-relaxed">{error}</span>
+                {error.toLowerCase().includes("not registered") && (
                   <Link
-                    href="#"
-                    className="text-xs text-neutral-400 hover:text-[#fc9a5d] transition-colors"
+                    href="/signup"
+                    className="font-medium text-[#be32ff] hover:underline"
                   >
-                    Forgot password?
+                    Don&apos;t have an account? Sign up here &rarr;
                   </Link>
-                </div>
-              </div>
-
-
-
-              {error && (
-                <div className="p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-2">
-                  <span className="leading-relaxed font-medium">{error}</span>
-                  {error.toLowerCase().includes("sign up") && (
-                    <Link
-                      href="/signup"
-                      className="inline-flex items-center gap-1 font-semibold text-[#be32ff] hover:text-[#d364ff] transition-colors underline underline-offset-4"
-                    >
-                      Don&apos;t have an account yet? Register here &rarr;
-                    </Link>
-                  )}
-                </div>
-              )}
-
-              {/* Action Button: Clean White Button with Micro-Interaction */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
-                ) : (
-                  "Continue with email"
                 )}
-              </button>
-            </form>
+              </div>
+            )}
+
+            {/* Form Section: Mobile Phone & Password Login */}
+            <div className="space-y-3.5">
+              {loginMethod === "phone" ? (
+                <form onSubmit={handlePhoneNext} className="space-y-3.5">
+                  {/* Mobile Phone Number with Country Code */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="phone" className="text-xs font-medium text-neutral-300">
+                      Mobile Phone Number
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="w-32 sm:w-36 shrink-0">
+                        <select
+                          id="countryCode"
+                          aria-label="Country Code"
+                          value={countryCode}
+                          onChange={(e) => {
+                            const newCode = e.target.value;
+                            setCountryCode(newCode);
+                            setPhone(sanitizeNationalNumber(newCode, phone));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
+                        >
+                          {COUNTRY_CODES.map((c, idx) => (
+                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
+                              {c.flag} {c.code} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          id="phone"
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="98765 43210"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
+                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
+                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
+                        />
+                      </div>
+                    </div>
+                    {phoneError && (
+                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
+                    )}
+                    <p className="text-[11px] text-neutral-500 pl-1">
+                      Enter your mobile number and click Next to continue with Google.
+                    </p>
+                  </div>
+
+                  {/* Actions: Next & Switch to Password */}
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={socialLoading !== null}
+                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
+                    >
+                      {socialLoading === "Google" ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin text-neutral-900" />
+                          Connecting with Google...
+                        </>
+                      ) : (
+                        <>
+                          <span>Next</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod("password");
+                        setError("");
+                        setPhoneError("");
+                      }}
+                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
+                    >
+                      Prefer password? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Password</span> &rarr;
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handlePasswordLogin} className="space-y-3.5">
+                  {/* Mobile Phone Number with Country Code */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="pwd-phone" className="text-xs font-medium text-neutral-300">
+                      Mobile Phone Number
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="w-32 sm:w-36 shrink-0">
+                        <select
+                          id="pwdCountryCode"
+                          aria-label="Country Code"
+                          value={countryCode}
+                          onChange={(e) => {
+                            const newCode = e.target.value;
+                            setCountryCode(newCode);
+                            setPhone(sanitizeNationalNumber(newCode, phone));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
+                        >
+                          {COUNTRY_CODES.map((c, idx) => (
+                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
+                              {c.flag} {c.code} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          id="pwd-phone"
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="98765 43210"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
+                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
+                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
+                        />
+                      </div>
+                    </div>
+                    {phoneError && (
+                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
+                    )}
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="password" className="text-xs font-medium text-neutral-300">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full h-11 px-4 pr-11 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border border-white/10 hover:border-white/20 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors p-1"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between px-1">
+                      <span />
+                      <Link
+                        href="#"
+                        className="text-xs text-neutral-400 hover:text-[#fc9a5d] transition-colors"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Actions: Sign In with Password & Switch to Mobile */}
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
+                      ) : (
+                        "Sign In with Password"
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod("phone");
+                        setError("");
+                        setPhoneError("");
+                      }}
+                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
+                    >
+                      Prefer Google / Mobile? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Mobile</span> &rarr;
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Bottom Signup Link */}
