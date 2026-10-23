@@ -4,7 +4,6 @@ import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { SecurityShield } from "@/components/security/SecurityShield";
-import { SmoothScrollProvider } from "@/components/ui/SmoothScrollProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -27,14 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
+    <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
-        <SmoothScrollProvider>
-          <SecurityShield />
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </SmoothScrollProvider>
+        <SecurityShield />
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         <Script
           id="google-maps-sdk"
           src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async`}
