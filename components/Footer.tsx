@@ -55,6 +55,7 @@ export function Footer() {
                 width={200}
                 height={55}
                 className="h-9 w-auto object-contain"
+                style={{ width: "auto", height: "auto" }}
               />
             </Link>
             <p className="text-slate-500 text-[14px] leading-relaxed mb-8">
