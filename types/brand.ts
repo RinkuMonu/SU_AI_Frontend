@@ -22,6 +22,7 @@ export interface BrandKit {
     tone?: string;
 
     brand_description?: string;
+    business_description?: string;
     target_audience?: string;
 
     website?: string;
@@ -56,6 +57,7 @@ export interface BrandCreate {
     font?: string;
     tone?: string;
     brand_description?: string;
+    business_description?: string;
     target_audience?: string;
     website?: string;
     instagram?: string;
@@ -77,3 +79,34 @@ export interface BrandCreate {
 }
 
 export type BrandUpdate = Partial<BrandCreate>;
+export interface AILogoVariationItem {
+    logo_url: string;
+    seed: number;
+    style: string;
+}
+
+export interface AILogoGenerateRequest {
+    business_name?: string;
+    brand_name?: string;
+    business_category?: string;
+    style?: string;
+    preferred_colors?: string[];
+    prompt?: string;
+    tagline?: string;
+    brand_voice?: string;
+    personality?: string;
+    font?: string;
+    transparent_background?: boolean;
+    variation_seed?: number;
+    num_variations?: number;
+    save_to_brand_kit?: boolean;
+}
+
+export interface AILogoGenerateResponse {
+    logo_url: string;
+    business_name: string;
+    style: string;
+    prompt: string;
+    seed?: number;
+    variations?: AILogoVariationItem[];
+}

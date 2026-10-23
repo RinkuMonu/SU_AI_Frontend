@@ -30,14 +30,6 @@ export function ShareBar({ title }: { title: string }) {
     }
   };
 
-  const handleShareWhatsApp = () => {
-    if (typeof window !== 'undefined') {
-      const url = encodeURIComponent(window.location.href);
-      const text = encodeURIComponent(`Check out this insightful article: ${title}\n${window.location.href}`);
-      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
-    }
-  };
-
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-6 border-y border-slate-200/80 my-10">
       <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
