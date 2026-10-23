@@ -72,7 +72,7 @@ const SHOWCASE_SLIDES = [
     badge: "Multi-Platform Publisher",
     badgeIcon: "zap",
     title: "1-Click Social Ads & Posters",
-    description: "Create scroll-stopping Instagram, Facebook & WhatsApp posters in seconds",
+    description: "Create scroll-stopping Instagram, Facebook & LinkedIn posters in seconds",
     gradient: "from-[#38bdf8] to-[#818cf8]",
     glow1: "bg-cyan-600/25",
     glow2: "bg-blue-600/30",
@@ -777,17 +777,51 @@ export default function LoginPage() {
             } catch (_) {}
           }
 
+          const isUnregistered =
+            msg.toLowerCase().includes("no account found") ||
+            msg.toLowerCase().includes("register") ||
+            msg.toLowerCase().includes("not registered") ||
+            err.status === 404 ||
+            err.code === "USER_NOT_FOUND";
+
           setError(msg);
-          setAuthModal({
-            open: true,
-            status: "error",
-            provider: "Google",
-            title: "Google Authentication Failed",
-            message: msg,
-          });
-          sessionStorage.removeItem("google_auth_mode");
-          sessionStorage.removeItem("google_auth_phone");
-          sessionStorage.removeItem("google_auth_country_code");
+
+          if (isUnregistered) {
+            // Preserve phone & country code in sessionStorage so signup page can pre-fill
+            if (preservedPhone) {
+              sessionStorage.setItem("google_auth_phone", preservedPhone);
+            }
+            if (preservedCc) {
+              sessionStorage.setItem("google_auth_country_code", preservedCc);
+            }
+            sessionStorage.setItem("google_auth_mode", "signup");
+
+            const effectivePhone = preservedPhone || (phone ? (countryCode + phone) : undefined);
+            const signupTarget = effectivePhone
+              ? `/signup?phone=${encodeURIComponent(effectivePhone)}`
+              : "/signup";
+
+            setAuthModal({
+              open: true,
+              status: "error",
+              provider: "Google",
+              title: "Account Not Found",
+              message: "No account found with this Google email. Click below to create your account in one tap!",
+              actionText: "Sign Up with Google",
+              actionHref: signupTarget,
+            });
+          } else {
+            setAuthModal({
+              open: true,
+              status: "error",
+              provider: "Google",
+              title: "Google Authentication Failed",
+              message: msg,
+            });
+            sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_auth_phone");
+            sessionStorage.removeItem("google_auth_country_code");
+          }
         } finally {
           inFlightGoogleCode = null;
           setSocialLoading(null);

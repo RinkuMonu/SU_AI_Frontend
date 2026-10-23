@@ -161,10 +161,18 @@ export function AuthCenterModal({
   const displayTitle = title || defaultHeadings[status].title;
   const displayDesc = message || defaultHeadings[status].desc;
 
-  // Auto-detect if error message encourages signup
+  // Auto-detect if error message encourages signup or indicates unregistered account
   const isSignupEncouraged =
     status === "error" &&
-    displayDesc.toLowerCase().includes("sign up");
+    (displayDesc.toLowerCase().includes("sign up") ||
+      displayDesc.toLowerCase().includes("signup") ||
+      displayDesc.toLowerCase().includes("register") ||
+      displayDesc.toLowerCase().includes("create an account") ||
+      displayDesc.toLowerCase().includes("no account found") ||
+      displayDesc.toLowerCase().includes("not found"));
+
+  const targetSignupHref = actionHref || "/signup";
+  const targetSignupText = actionText || (isSignupEncouraged ? "Create New Account" : "Proceed");
 
   return (
     <div
@@ -328,22 +336,13 @@ export function AuthCenterModal({
         {/* Action Controls for Error State */}
         {status === "error" && (
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-            {isSignupEncouraged ? (
+            {isSignupEncouraged || actionHref ? (
               <Link
-                href="/signup"
+                href={targetSignupHref}
                 onClick={onClose}
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#be32ff] to-[#fc9a5d] text-white font-semibold text-xs shadow-lg hover:opacity-95 transition-all cursor-pointer"
               >
-                <span>Create New Account</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            ) : actionHref ? (
-              <Link
-                href={actionHref}
-                onClick={onClose}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#be32ff] hover:bg-[#a824e6] text-white font-semibold text-xs shadow-lg transition-all cursor-pointer"
-              >
-                <span>{actionText || "Proceed"}</span>
+                <span>{targetSignupText}</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             ) : onRetry ? (

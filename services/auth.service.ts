@@ -370,6 +370,8 @@ export const authService = {
       const { message, code } = parseErrorDetail(error, 'An error occurred during Google authentication');
       const err = new Error(message) as any;
       err.code = code;
+      err.status = error.response?.status;
+      err.response = error.response;
       throw err;
     }
   },

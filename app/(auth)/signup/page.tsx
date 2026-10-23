@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Loader2, ArrowRight, Eye, EyeOff, Check, X } from "lucide-react";
@@ -29,6 +29,26 @@ export default function SignupPage() {
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
+
+  // Pre-fill phone if passed from login redirect or preserved in sessionStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const storedPhone = sessionStorage.getItem("google_auth_phone");
+      const storedCc = sessionStorage.getItem("google_auth_country_code");
+      if (storedCc) setCountryCode(storedCc);
+      if (storedPhone) {
+        const national = sanitizeNationalNumber(storedCc || "+91", storedPhone);
+        setPhone(national);
+      } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlPhone = urlParams.get("phone");
+        if (urlPhone) {
+          const national = sanitizeNationalNumber(countryCode, urlPhone);
+          setPhone(national);
+        }
+      }
+    }
+  }, [countryCode]);
 
   // Email/Password states (alternative method)
   const [name, setName] = useState("");
