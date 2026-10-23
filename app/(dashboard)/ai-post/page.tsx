@@ -268,12 +268,11 @@ export default function AIPostPage() {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
-  const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
   const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
-  const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook' | 'whatsapp' | 'linkedin') => {
+  const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook' | 'linkedin') => {
     if (platformTarget === 'whatsapp') {
       setIsPublishingWhatsApp(true);
       const effectiveImageUrl = generatedPost?.image_url || generatedPost?.media_url;
@@ -507,7 +506,7 @@ export default function AIPostPage() {
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 5 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 5 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 5 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-sm">5. Packaging WhatsApp &amp; Instagram export assets...</span>
+                  <span className="text-white text-sm">5. Packaging Instagram &amp; Facebook export assets...</span>
                 </div>
               </div>
             </div>
@@ -704,7 +703,7 @@ export default function AIPostPage() {
             <div className="space-y-3">
               <button
                 onClick={() => handlePublishPlatform('instagram')}
-                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
+                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingInstagram ? (
@@ -721,7 +720,7 @@ export default function AIPostPage() {
 
               <button
                 onClick={() => handlePublishPlatform('facebook')}
-                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
+                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-lg disabled:opacity-50"
               >
                 {isPublishingFacebook ? (
@@ -736,24 +735,11 @@ export default function AIPostPage() {
                 )}
               </button>
 
-              <button
-                onClick={() => handlePublishPlatform('whatsapp')}
-                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold transition-all shadow-lg disabled:opacity-50"
-              >
-                {isPublishingWhatsApp ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Opening WhatsApp...</>
-                ) : (
-                  <>
-                    <WhatsAppIcon className="w-5 h-5" />
-                    Share to WhatsApp
-                  </>
-                )}
-              </button>
+
 
               <button
                 onClick={() => handlePublishPlatform('linkedin')}
-                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
+                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold transition-all shadow-lg disabled:opacity-50"
               >
                 {isPublishingLinkedIn ? (

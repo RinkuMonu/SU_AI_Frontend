@@ -4,6 +4,8 @@ import {
     BrandKit,
     BrandCreate,
     BrandUpdate,
+    AILogoGenerateRequest,
+    AILogoGenerateResponse,
 } from "@/types/brand";
 
 interface ApiResponse<T> {
@@ -62,4 +64,13 @@ export const uploadBrandLogo = async (
     );
 
     return response.data.data.logo_url;
+};
+export const generateBrandLogo = async (
+    data: AILogoGenerateRequest
+): Promise<AILogoGenerateResponse> => {
+    const response = await api.post<ApiResponse<AILogoGenerateResponse>>(
+        "/api/v1/brands/generate-logo",
+        data
+    );
+    return response.data.data;
 };

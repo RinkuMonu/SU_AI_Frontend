@@ -48,11 +48,10 @@ export default function AIImagePage() {
 
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
-  const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
 
-  const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'whatsapp' | 'linkedin') => {
+  const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
     if (publishPlatform === 'whatsapp') {
       setIsPublishingWhatsApp(true);
       let text = prompt.trim();
@@ -277,7 +276,7 @@ export default function AIImagePage() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     <button
                       onClick={() => handlePublish('instagram')}
-                      disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
+                      disabled={isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
                       className="flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-90 transition-opacity px-2.5 py-3 font-bold text-white shadow-md disabled:opacity-50 text-xs sm:text-sm cursor-pointer"
                       title="Publish to Instagram"
                     >
@@ -287,7 +286,7 @@ export default function AIImagePage() {
 
                     <button
                       onClick={() => handlePublish('facebook')}
-                      disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
+                      disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
                       className="flex items-center justify-center gap-1.5 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] transition-colors px-2.5 py-3 font-bold text-white shadow-md disabled:opacity-50 text-xs sm:text-sm cursor-pointer"
                       title="Publish to Facebook"
                     >
@@ -295,19 +294,11 @@ export default function AIImagePage() {
                       <span className="truncate">{isPublishingFacebook ? 'Publishing...' : 'Facebook'}</span>
                     </button>
 
-                    <button
-                      onClick={() => handlePublish('whatsapp')}
-                      disabled={isPublishingWhatsApp || isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
-                      className="flex items-center justify-center gap-1.5 rounded-xl bg-[#25D366] hover:bg-[#20ba59] transition-colors px-2.5 py-3 font-bold text-slate-950 shadow-md disabled:opacity-50 text-xs sm:text-sm cursor-pointer"
-                      title="Share to WhatsApp"
-                    >
-                      {isPublishingWhatsApp ? <Loader2 className="w-4 h-4 animate-spin shrink-0" /> : <WhatsAppIcon className="w-4 h-4 shrink-0" />}
-                      <span className="truncate">{isPublishingWhatsApp ? 'Opening...' : 'WhatsApp'}</span>
-                    </button>
+
 
                     <button
                       onClick={() => handlePublish('linkedin')}
-                      disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp}
+                      disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook}
                       className="flex items-center justify-center gap-1.5 rounded-xl bg-[#0A66C2] hover:bg-[#095196] transition-colors px-2.5 py-3 font-bold text-white shadow-md disabled:opacity-50 text-xs sm:text-sm cursor-pointer"
                       title="Publish to LinkedIn"
                     >

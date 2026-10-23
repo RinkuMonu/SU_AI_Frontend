@@ -123,7 +123,6 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
-  const [isPublishingWhatsApp, setIsPublishingWhatsApp] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
   const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
@@ -329,7 +328,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
     setTimeout(() => setCopiedCaption(false), 2000);
   };
 
-  const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'whatsapp' | 'linkedin') => {
+  const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
     if (publishPlatform === 'whatsapp') {
       setIsPublishingWhatsApp(true);
       let shareText = (result.caption || rawHeadline || productName || "Check out this reel!").trim();
@@ -1324,7 +1323,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
               <button
                 type="button"
                 onClick={() => handlePublish('instagram')}
-                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp || isPublishingLinkedIn}
+                disabled={isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingInstagram ? (
@@ -1340,7 +1339,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
               <button
                 type="button"
                 onClick={() => handlePublish('facebook')}
-                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingWhatsApp || isPublishingLinkedIn}
+                disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingFacebook ? (
@@ -1353,26 +1352,12 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                 )}
               </button>
 
-              <button
-                type="button"
-                onClick={() => handlePublish('whatsapp')}
-                disabled={isPublishingWhatsApp || isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-slate-950 font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
-              >
-                {isPublishingWhatsApp ? (
-                  <><Loader2 className="w-5 h-5 animate-spin shrink-0" /> Opening WhatsApp...</>
-                ) : (
-                  <>
-                    <WhatsAppIcon className="w-5 h-5 shrink-0" />
-                    Share to WhatsApp
-                  </>
-                )}
-              </button>
+
 
               <button
                 type="button"
                 onClick={() => handlePublish('linkedin')}
-                disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook || isPublishingWhatsApp}
+                disabled={isPublishingLinkedIn || isPublishingInstagram || isPublishingFacebook}
                 className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingLinkedIn ? (
