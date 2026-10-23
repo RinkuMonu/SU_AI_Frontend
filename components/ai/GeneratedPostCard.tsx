@@ -50,18 +50,6 @@ export default function GeneratedPostCard({
   const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
-    if (publishPlatform === 'whatsapp') {
-      setIsPublishingWhatsApp(true);
-      const img = currentImage || post.image_url || post.media_url;
-      let text = `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim();
-      if (img) text += `\n\n${img}`;
-      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setIsPublishingWhatsApp(false);
-      setPublishSuccessMessage("Opened WhatsApp with post ready to share!");
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
-      return;
-    }
 
     if (publishPlatform === 'linkedin') {
       setIsPublishingLinkedIn(true);

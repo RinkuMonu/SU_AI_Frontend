@@ -329,24 +329,6 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
   };
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
-    if (publishPlatform === 'whatsapp') {
-      setIsPublishingWhatsApp(true);
-      let shareText = (result.caption || rawHeadline || productName || "Check out this reel!").trim();
-      if (result.hashtags && result.hashtags.length > 0) {
-        shareText += `\n\n${result.hashtags.map((h: string) => h.startsWith('#') ? h : `#${h}`).join(' ')}`;
-      }
-      if (videoUrl) {
-        shareText += `\n\n🎬 Watch Reel: ${videoUrl}`;
-      }
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-      setIsPublishingWhatsApp(false);
-      setShowPublishModal(false);
-      setPublishSuccessMessage("Opened WhatsApp with reel ready to share!");
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
-      return;
-    }
-
     const reelId = result.job_id || (result as any)._id || (result as any).id;
 
     if (publishPlatform === 'linkedin') {

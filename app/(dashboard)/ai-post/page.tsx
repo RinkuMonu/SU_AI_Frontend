@@ -273,19 +273,6 @@ export default function AIPostPage() {
   const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
 
   const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook' | 'linkedin') => {
-    if (platformTarget === 'whatsapp') {
-      setIsPublishingWhatsApp(true);
-      const effectiveImageUrl = generatedPost?.image_url || generatedPost?.media_url;
-      let text = `${editedCaption}\n\n${editedCta}\n\n${editedHashtags}`.trim();
-      if (effectiveImageUrl) text += `\n\n${effectiveImageUrl}`;
-      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setIsPublishingWhatsApp(false);
-      setShowPublishModal(false);
-      setPublishSuccessMessage("Opened WhatsApp with your post ready to share!");
-      setTimeout(() => setPublishSuccessMessage(null), 8000);
-      return;
-    }
 
     if (platformTarget === 'linkedin') {
       setIsPublishingLinkedIn(true);

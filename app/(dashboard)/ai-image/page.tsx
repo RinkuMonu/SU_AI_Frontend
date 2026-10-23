@@ -52,17 +52,6 @@ export default function AIImagePage() {
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
 
   const handlePublish = async (publishPlatform: 'facebook' | 'instagram' | 'linkedin') => {
-    if (publishPlatform === 'whatsapp') {
-      setIsPublishingWhatsApp(true);
-      let text = prompt.trim();
-      if (generatedImage) text += `\n\n${generatedImage}`;
-      const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-      setIsPublishingWhatsApp(false);
-      setPublishSuccessMessage("Opened WhatsApp with image ready to share!");
-      setTimeout(() => setPublishSuccessMessage(null), 5000);
-      return;
-    }
 
     if (publishPlatform === 'linkedin') {
       setIsPublishingLinkedIn(true);
