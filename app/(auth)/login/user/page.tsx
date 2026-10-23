@@ -874,7 +874,10 @@ export default function LoginPage() {
       try {
         const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
         const redirectUri = `${origin}/login/user`;
-        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        if (!clientId) {
+          throw new Error("Google Client ID is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment variables.");
+        }
         const scope = "openid email profile";
         const state = "login_" + Math.random().toString(36).substring(7);
         if (typeof window !== "undefined") {
