@@ -48,9 +48,7 @@ export function CornerDialog({
     } else if (lower.includes("linkedin")) {
       effectiveActionText = "Connect LinkedIn";
       effectiveActionHref = "/social-platforms/linkedin";
-    } else if (lower.includes("whatsapp")) {
-      effectiveActionText = "Connect WhatsApp";
-      effectiveActionHref = "/social-platforms/whatsapp";
+
     } else if (lower.includes("social platforms") || lower.includes("settings")) {
       effectiveActionText = "Social Platforms";
       effectiveActionHref = "/social-platforms/facebook";

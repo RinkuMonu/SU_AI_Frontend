@@ -2,7 +2,7 @@ export type AdPlatform =
   | "instagram"
   | "facebook"
   | "google"
-  | "whatsapp";
+
 
 export type AdObjective =
   | "product_promotion"

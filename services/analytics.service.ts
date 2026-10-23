@@ -74,7 +74,7 @@ const generateDynamicMockData = (range: number): AnalyticsData => {
       reach: 1200 * multiplier,
       engagement: 340 * multiplier,
       leads: 18 * multiplier,
-      whatsapp_enquiries: 24 * multiplier,
+      direct_enquiries: 24 * multiplier,
       status: "connected",
     },
     recommendation: {

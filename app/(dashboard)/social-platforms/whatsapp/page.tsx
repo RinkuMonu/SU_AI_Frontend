@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-export default function WhatsAppRedirectPage() {
+export default function SocialPlatformsRedirectPage() {
   const router = useRouter();
 
   useEffect(() => {

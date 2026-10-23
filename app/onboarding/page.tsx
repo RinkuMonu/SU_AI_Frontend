@@ -172,7 +172,7 @@ export default function OnboardingPage() {
     profileImageUrl: "",
     primaryGoal: "content_creation",
     interests: ["Instagram Reels", "AI Photoshoots"],
-    platforms: ["instagram", "youtube", "whatsapp"],
+    platforms: ["instagram", "youtube", "linkedin"],
   });
 
   // Business Profile Form State (matching MongoDB document fields)
@@ -1164,7 +1164,7 @@ export default function OnboardingPage() {
                     { id: "instagram", name: "Instagram" },
                     { id: "youtube", name: "YouTube" },
                     { id: "facebook", name: "Facebook" },
-                    { id: "whatsapp", name: "WhatsApp" },
+                    
                   ].map((p) => {
                     const isSelected = userProfile.platforms.includes(p.id);
                     return (
@@ -1552,7 +1552,7 @@ export default function OnboardingPage() {
                     >
                       <option value="Retail Store">Physical Retail Store / Walk-ins</option>
                       <option value="Online E-Commerce">Online E-Commerce Store</option>
-                      <option value="Hybrid Store">Hybrid (Store + Online/WhatsApp)</option>
+                      <option value="Hybrid Store">Hybrid (Store + Online/Social)</option>
                       <option value="Wholesale">Wholesale &amp; Bulk Orders</option>
                     </select>
                   </div>

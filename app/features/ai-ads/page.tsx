@@ -47,7 +47,7 @@ const adPresets: AdPreset[] = [
       hindi: 'इस त्यौहारी सीज़न में पहनिए असली बनारसी सिल्क साड़ी! ✨ शुद्ध जरी वर्क, पूरे भारत में फ्री डिलीवरी और कैश ऑन डिलीवरी की सुविधा उपलब्ध। सीमित स्टॉक, आज ही बुक करें!',
       english: 'Elevate your festive elegance with our Royal Banarasi Silk Saree. Features authentic golden zari border and pure silk drape. Cash on Delivery available across India with 7-day hassle-free returns.'
     },
-    ctaText: 'Order on WhatsApp',
+    ctaText: 'Order on Social Media',
     badges: ['Cash on Delivery', 'Free Shipping', '7-Day Return', 'Pure Zari Weave']
   },
   {
@@ -61,11 +61,11 @@ const adPresets: AdPreset[] = [
     hook: '✨ Bollywood Bridal Glow without the 1-Lakh Price Tag!',
     headline: 'Handcrafted Kundan Choker Set with Matching Jhumkas',
     primaryText: {
-      hinglish: 'Shaadi ya reception ke liye royal look chahiye? 👑 Handcrafted 22K gold-plated Kundan choker set with pearls. Pehli baar local showroom price se 60% sasta. Order karein WhatsApp par!',
+      hinglish: 'Shaadi ya reception ke liye royal look chahiye? 👑 Handcrafted 22K gold-plated Kundan choker set with pearls. Pehli baar local showroom price se 60% sasta. Order karein Social par!',
       hindi: 'शादी और रिसेप्शन के लिए शाही लुक! 👑 22K गोल्ड प्लेटेड कुंदन चोकर सेट मैचिंग झुमकों के साथ। पूरे भारत में कैश ऑन डिलीवरी उपलब्ध। आज ही वॉट्सऐप पर आर्डर करें!',
       english: 'Look like royalty at every wedding. Handcrafted 22K gold-plated Kundan choker set adorned with semi-precious stones. 100% tarnish-resistant with Cash on Delivery across India.'
     },
-    ctaText: 'Book on WhatsApp',
+    ctaText: 'Book on Social Media',
     badges: ['22K Gold Plated', 'Anti-Tarnish', 'Cash on Delivery', 'Matching Jhumkas']
   },
   {
@@ -101,7 +101,7 @@ const adPresets: AdPreset[] = [
       hindi: 'कुर्ते-पायजामे और शेरवानी पर पहनिए रॉयल मोजरी! 👑 असली मखमली कपड़ा और ट्रिपल कुशन सोल जो दे दिनभर का आराम। पूरे भारत में कैश ऑन डिलीवरी की सुविधा उपलब्ध!',
       english: 'Complete your wedding attire with handcrafted royal velvet mojaris. Triple-cushioned insole ensures all-day comfort without shoe bites. Available in classic navy and emerald green.'
     },
-    ctaText: 'Shop Now on WhatsApp',
+    ctaText: 'Shop Now on Social Media',
     badges: ['Pure Velvet', 'Memory Foam Cushion', 'Anti-Bite Collar', 'Cash on Delivery']
   }
 ];
@@ -112,8 +112,8 @@ const faqs = [
     a: 'Yes, 100%. Our AI ad engine adheres strictly to Meta Facebook/Instagram Advertising Standards and Google Ads policies. Headlines, text-to-image ratios, and claim structures are calibrated to eliminate ad rejection risks.'
   },
   {
-    q: 'Can I create Click-to-WhatsApp ads with pre-filled message hooks?',
-    a: 'Yes! DhandaGrow AI is built specifically for Indian businesses where WhatsApp is the primary closing channel. The AI writes click-worthy opening WhatsApp messages (e.g., "Namaste! I want to book this Banarasi Saree at ₹1,999") so prospects message you directly.'
+    q: 'Can I create Click-to-Social ads with pre-filled message hooks?',
+    a: 'Yes! DhandaGrow AI is built specifically for Indian businesses where Social is the primary closing channel. The AI writes click-worthy opening Direct messages (e.g., "Namaste! I want to book this Banarasi Saree at ₹1,999") so prospects message you directly.'
   },
   {
     q: 'How does the A/B creative variation generator work?',
@@ -124,14 +124,14 @@ const faqs = [
     a: 'Yes. All image compositions, product backgrounds, headlines, and copywriting produced in DhandaGrow AI are 100% royalty-free for commercial use across paid Meta ads, Google Performance Max, hoardings, and print brochures.'
   },
   {
-    q: 'How does it integrate with my Meta Ads Manager and WhatsApp CRM?',
+    q: 'How does it integrate with my Meta Ads Manager and Social CRM?',
     a: 'You can export high-resolution assets in 4:5 (Feed), 9:16 (Story/Reels), and 16:9 (Display) formats in one click, or push them directly into connected Meta Ads campaigns with auto-synced lead capture into DhandaGrow Leads CRM.'
   }
 ];
 
 export default function AIAdsPage() {
   const [activePreset, setActivePreset] = useState<AdPreset>(adPresets[0]);
-  const [selectedFormat, setSelectedFormat] = useState<'feed' | 'story' | 'whatsapp'>('feed');
+  const [selectedFormat, setSelectedFormat] = useState<'feed' | 'story' | 'social'>('feed');
   const [selectedLang, setSelectedLang] = useState<'hinglish' | 'hindi' | 'english'>('hinglish');
   const [copiedText, setCopiedText] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -143,9 +143,9 @@ export default function AIAdsPage() {
     setTimeout(() => setCopiedText(false), 2200);
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareSocial = () => {
     const text = `*${activePreset.headline}*\n\n${activePreset.primaryText[selectedLang]}\n\n👉 *Offer Price:* ${activePreset.offerPrice} (~${activePreset.originalPrice}~)\n🔥 *Deal:* ${activePreset.discountBadge}\n\n🚚 ${activePreset.badges.join(' • ')}`;
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
+    window.open(`https://api.social.com/send?text=${encodeURIComponent(text)}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -182,7 +182,7 @@ export default function AIAdsPage() {
               </h1>
 
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-normal mb-8 max-w-xl">
-                Stop burning ad spend on generic Canva banners that get ignored. Generate high-converting Meta, Instagram, Google, and WhatsApp Click-to-Chat ads with automatic price slash badges, Indian trust triggers, and persuasive Hinglish hooks.
+                Stop burning ad spend on generic Canva banners that get ignored. Generate high-converting Meta, Instagram, Google, and Social Click-to-Chat ads with automatic price slash badges, Indian trust triggers, and persuasive Hinglish hooks.
               </p>
 
               {/* Value Bullet Points */}
@@ -191,7 +191,7 @@ export default function AIAdsPage() {
                   '4.8x Average Return on Ad Spend (ROAS)',
                   'Hinglish & Regional Persuasive Copy',
                   'Auto Price-Slash & COD Trust Badges',
-                  'Instant Click-to-WhatsApp Setup',
+                  'Instant Click-to-Social Setup',
                   'Meta & Google Policy Compliant',
                   'Multi-Format Auto Resize (4:5, 9:16, 16:9)'
                 ].map((item, idx) => (
@@ -293,7 +293,7 @@ export default function AIAdsPage() {
 
                       <div className="shrink-0 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-500/25">
                         <MessageCircle className="w-3.5 h-3.5" />
-                        <span>Order via WhatsApp</span>
+                        <span>Order via Social Media</span>
                       </div>
                     </div>
                   </div>
@@ -332,7 +332,7 @@ export default function AIAdsPage() {
             </div>
             <div className="flex flex-col items-center justify-center p-2">
               <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-1.5 tracking-tight">₹8.50</h3>
-              <p className="text-xs sm:text-[13px] font-bold text-slate-400 uppercase tracking-wider">Avg. WhatsApp Lead Cost</p>
+              <p className="text-xs sm:text-[13px] font-bold text-slate-400 uppercase tracking-wider">Avg. Direct Lead Cost</p>
             </div>
             <div className="flex flex-col items-center justify-center p-2">
               <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-1.5 tracking-tight">50,000+</h3>
@@ -359,7 +359,7 @@ export default function AIAdsPage() {
               Test DhandaGrow High-ROAS Ad Engine
             </h2>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto mt-2.5">
-              Select an Indian retail product, toggle formats (Feed, Story, WhatsApp), test Hinglish or Hindi copy, and see how DhandaGrow AI crafts high-converting creatives.
+              Select an Indian retail product, toggle formats (Feed, Story, Social), test Hinglish or Hindi copy, and see how DhandaGrow AI crafts high-converting creatives.
             </p>
           </div>
 
@@ -417,14 +417,14 @@ export default function AIAdsPage() {
                     9:16 Story/Reel
                   </button>
                   <button
-                    onClick={() => setSelectedFormat('whatsapp')}
+                    onClick={() => setSelectedFormat('social')}
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                      selectedFormat === 'whatsapp'
+                      selectedFormat === 'social'
                         ? 'bg-emerald-500 text-slate-950 shadow-xs'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    Click-to-WhatsApp
+                    Click-to-Social
                   </button>
                 </div>
               </div>
@@ -490,7 +490,7 @@ export default function AIAdsPage() {
 
                     {/* Format Tag */}
                     <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md border border-white/20 text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md">
-                      {selectedFormat === 'feed' ? 'Meta Feed 4:5' : selectedFormat === 'story' ? 'Story 9:16' : 'Click-to-WhatsApp'}
+                      {selectedFormat === 'feed' ? 'Meta Feed 4:5' : selectedFormat === 'story' ? 'Story 9:16' : 'Click-to-Social'}
                     </div>
 
                     {/* Bottom Floating Price Strip */}
@@ -576,11 +576,11 @@ export default function AIAdsPage() {
                 {/* Direct Action Hub */}
                 <div className="mt-5 pt-4 border-t border-white/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <button
-                    onClick={handleShareWhatsApp}
+                    onClick={handleShareSocial}
                     className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold text-xs shadow-md shadow-emerald-600/20 hover:scale-105 active:scale-95 transition-all cursor-pointer"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    Share Offer to WhatsApp
+                    Share Offer to Social Media
                   </button>
 
                   <Link href="/login/user" className="w-full sm:w-auto">
@@ -611,7 +611,7 @@ export default function AIAdsPage() {
               One Campaign Idea · Ready for Every Screen
             </h2>
             <p className="text-slate-400 text-base max-w-2xl mx-auto mt-2.5 font-normal">
-              Whether you are running Instagram Feed ads, high-converting WhatsApp Click-to-Chat campaigns, or Google Display banners — DhandaGrow formats everything automatically.
+              Whether you are running Instagram Feed ads, high-converting Social Click-to-Chat campaigns, or Google Display banners — DhandaGrow formats everything automatically.
             </p>
           </div>
 
@@ -634,8 +634,8 @@ export default function AIAdsPage() {
                 badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
               },
               {
-                title: 'Click-to-WhatsApp Ads',
-                desc: 'Pre-filled message hooks sending buyers straight into WhatsApp chat for direct closing, COD verification, and instant upselling.',
+                title: 'Click-to-Social Ads',
+                desc: 'Pre-filled message hooks sending buyers straight into Customer chat for direct closing, COD verification, and instant upselling.',
                 tag: 'Lowest CPA',
                 badgeColor: 'bg-teal-500/20 text-teal-300 border-teal-500/30'
               },
@@ -726,7 +726,7 @@ export default function AIAdsPage() {
                   <td className="p-4 sm:p-5 font-black text-emerald-400 bg-emerald-500/10">100% Automated Stamping</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-white">1-Click WhatsApp Lead Setup</td>
+                  <td className="p-4 sm:p-5 font-bold text-white">1-Click Direct Lead Setup</td>
                   <td className="p-4 sm:p-5 text-slate-400">Complex URL tracking setup</td>
                   <td className="p-4 sm:p-5 text-slate-400">Not supported</td>
                   <td className="p-4 sm:p-5 font-black text-emerald-400 bg-emerald-500/10">Instant Pre-filled Hook</td>
@@ -772,8 +772,8 @@ export default function AIAdsPage() {
                 icon: <Layers className="w-6 h-6 text-cyan-400" />
               },
               {
-                title: "Click-to-WhatsApp Lead Funnel",
-                desc: "Send buyers straight to WhatsApp chat with pre-filled message hooks and sync inquiries directly with DhandaGrow Leads CRM.",
+                title: "Click-to-Direct Lead Funnel",
+                desc: "Send buyers straight to Customer chat with pre-filled message hooks and sync inquiries directly with DhandaGrow Leads CRM.",
                 icon: <MessageCircle className="w-6 h-6 text-emerald-400" />
               },
               {

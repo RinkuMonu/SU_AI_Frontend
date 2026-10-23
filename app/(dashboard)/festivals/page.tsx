@@ -47,7 +47,7 @@ function typeLabel(type: string) {
     post: "📸 Post",
     reel: "🎬 Reel",
     ad: "📢 Ad",
-    whatsapp: "💬 WhatsApp",
+    social: "📱 Social Campaign",
   };
   return map[type] ?? type;
 }
@@ -56,7 +56,7 @@ function platformColor(platform: string) {
   const map: Record<string, string> = {
     instagram: "#E1306C",
     facebook: "#1877F2",
-    whatsapp: "#25D366",
+    social: "#BE32FF",
     meta: "#0082FB",
   };
   return map[platform] ?? "#888";

@@ -33,7 +33,7 @@ export interface ExternalMetrics {
   reach: number | null;
   engagement: number | null;
   leads: number | null;
-  whatsapp_enquiries: number | null;
+  direct_enquiries?: number | null;
   status: "not_connected" | "connected";
 }
 

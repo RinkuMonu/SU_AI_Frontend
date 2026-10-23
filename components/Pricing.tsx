@@ -179,7 +179,7 @@ export const LANDING_PLANS: PlanItem[] = [
       "200 AI posts/month",
       "60 AI reels/month",
       "5 team members & CRM",
-      "WhatsApp & Instagram DM AI"
+      "Instagram DM & Social AI"
     ],
     ctaText: "Choose Business"
   },

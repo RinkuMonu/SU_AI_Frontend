@@ -65,7 +65,7 @@ export function SocialConnectReminderDialog() {
 
   const checkTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. Check connection status for Facebook, Instagram, and WhatsApp
+  // 1. Check connection status for Facebook and Instagram
   const checkStatus = async () => {
     if (typeof window === "undefined") return;
 

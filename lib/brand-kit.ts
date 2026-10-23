@@ -82,7 +82,7 @@ export const SELLING_MODELS = [
   "Physical Store / Outlet Only",
   "Online Store / E-commerce Only",
   "Omnichannel (Physical + Online)",
-  "Social Media Selling (Instagram/WhatsApp)",
+  "Social Media Selling (Instagram/Facebook)",
   "Third-Party Marketplaces (Amazon/Flipkart)",
   "Direct Field Sales",
 ];

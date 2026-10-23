@@ -17,7 +17,7 @@ type FeatureShowcaseKey =
   | 'social-calendar'
   | 'uni-ai'
   | 'website-builder'
-  | 'whatsapp-ai';
+  | 'social-ai';
 
 type ShowcaseItem = {
   category: string;
@@ -97,11 +97,11 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
   analytics: {
     accent: '#06b6d4',
     eyebrow: 'AI Marketing Signals That Drive Revenue',
-    title: 'Every Reel, WhatsApp lead, and festive campaign in one view.',
+    title: 'Every Reel, Social lead, and festive campaign in one view.',
     description: 'Stop guessing what worked. Connect AI generation activity directly with Instagram reach, customer chats, and sales revenue.',
     items: [
       { category: 'Content Velocity', title: 'Track every AI creation', description: 'Monitor output across reels, posts, photoshoots, and captions in real-time.' },
-      { category: 'WhatsApp Funnel', title: 'Trace leads from chat to order', description: 'See catalogue enquiries, responses, and customer orders directly inside CRM.' },
+      { category: 'Social Funnel', title: 'Trace leads from chat to order', description: 'See catalogue enquiries, responses, and customer orders directly inside CRM.' },
       { category: 'Gemini Health Score', title: 'Measure marketing vitality (0-100)', description: 'AI evaluates your posting consistency, catalogue depth, and reel momentum.' },
       { category: 'Predictive Signals', title: 'Automated peak hour & budget alerts', description: 'Get smart suggestions on best posting times and festive campaign budget shifts.' },
     ],
@@ -126,19 +126,19 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
     items: [
       { category: 'AI Studio Shoot', title: 'Virtual Indian models & clean podiums', description: 'Transform raw mobile photos into high-fashion studio catalog imagery in 5 seconds.' },
       { category: 'Hinglish SEO Copy', title: 'Persuasive AI descriptions & tags', description: 'Gemini writes festival-ready descriptions, key specifications, and Instagram hashtags.' },
-      { category: 'Omnichannel Sync', title: 'WhatsApp, Instagram & Web in 1-Click', description: 'Central inventory syncs live stock and price changes across WhatsApp Shop and Web store.' },
+      { category: 'Omnichannel Sync', title: 'Social, Instagram & Web in 1-Click', description: 'Central inventory syncs live stock and price changes across Social Shop and Web store.' },
       { category: '1-Tap UPI QR', title: 'Instant in-chat payment links', description: 'Send dynamic Razorpay or BHIM UPI payment cards directly in customer conversations.' },
     ],
   },
   crm: {
     accent: '#0d9488',
     eyebrow: 'AI-Powered Omnichannel CRM',
-    title: 'Turn WhatsApp, Instagram, YouTube, Facebook, LinkedIn & Twitter leads into revenue.',
-    description: 'Capture inquiries across YouTube comments, Instagram DMs, Facebook Ads, LinkedIn B2B leads, Twitter DMs, and WhatsApp in one unified AI board.',
+    title: 'Turn Social, Instagram, YouTube, Facebook, LinkedIn & Twitter leads into revenue.',
+    description: 'Capture inquiries across YouTube comments, Instagram DMs, Facebook Ads, LinkedIn B2B leads, Twitter DMs, and Social in one unified AI board.',
     items: [
-      { category: 'AI Intent Score', title: 'Prioritize hot buyers instantly', description: 'AI evaluates incoming inquiries from YouTube, DMs, and WhatsApp to tag urgent buyers in real time.' },
-      { category: 'Omnichannel Sync', title: '6 Platforms In One Pipeline', description: 'Capture leads across WhatsApp, Instagram, Facebook, YouTube, LinkedIn, and Twitter seamlessly.' },
-      { category: 'Auto-Followups', title: 'Autonomous multi-channel nudges', description: 'Recover cold leads with scheduled WhatsApp & DM discount offers and personalized follow-up sequences.' },
+      { category: 'AI Intent Score', title: 'Prioritize hot buyers instantly', description: 'AI evaluates incoming inquiries from YouTube, DMs, and Social to tag urgent buyers in real time.' },
+      { category: 'Omnichannel Sync', title: '6 Platforms In One Pipeline', description: 'Capture leads across Social, Instagram, Facebook, YouTube, LinkedIn, and Twitter seamlessly.' },
+      { category: 'Auto-Followups', title: 'Autonomous multi-channel nudges', description: 'Recover cold leads with scheduled Social & DM discount offers and personalized follow-up sequences.' },
       { category: 'Instant Checkout', title: 'Catalogue & UPI payment links', description: 'Send product cards and close deals with instant Razorpay and UPI QR links.' },
     ],
   },
@@ -230,11 +230,11 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
     accent: '#06b6d4',
     eyebrow: 'DhandaGrow UNI AI™',
     title: 'Your autonomous AI Co-Founder that commands your entire business.',
-    description: 'Speak or chat in natural Hinglish. UNI AI coordinates Reels, Photoshoots, WhatsApp broadcasts, and Leads CRM in one single command.',
+    description: 'Speak or chat in natural Hinglish. UNI AI coordinates Reels, Photoshoots, Social broadcasts, and Leads CRM in one single command.',
     items: [
-      { category: 'Voice Command', title: 'Hinglish & audio voice execution', description: 'Speak naturally: “UNI, launch a 3-day festive sale on jewellery across WhatsApp & IG”.' },
+      { category: 'Voice Command', title: 'Hinglish & audio voice execution', description: 'Speak naturally: “UNI, launch a 3-day festive sale on jewellery across Social & IG”.' },
       { category: 'Tool Orchestration', title: 'Controls all 6 DhandaGrow AI engines', description: 'Automatically triggers reel generation, flyer designs, catalog sync, and CRM pipelines.' },
-      { category: 'Proactive Briefs', title: 'Daily morning WhatsApp intelligence', description: 'Wakes up with insights: yesterday’s won revenue, trending products, and ad recommendations.' },
+      { category: 'Proactive Briefs', title: 'Daily morning Social intelligence', description: 'Wakes up with insights: yesterday’s won revenue, trending products, and ad recommendations.' },
       { category: 'Instant Checkout', title: 'Generates Razorpay & UPI links', description: 'Attaches dynamic payment cards and tracks conversion attribution to final sale.' },
     ],
   },
@@ -250,7 +250,7 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
       { category: 'Lead capture', title: 'Make the next step simple', description: 'Give visitors a clear way to ask a question or get in touch.' },
     ],
   },
-  'whatsapp-ai': {
+  'social-ai': {
     accent: '#16a34a',
     eyebrow: 'Commerce that feels like a conversation',
     title: 'Help customers go from a quick question to a confident choice.',

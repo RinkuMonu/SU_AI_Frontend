@@ -15,7 +15,7 @@ const ICONS = [
   '/3d/telegram.glb',
   '/3d/thread.glb',
   '/3d/twitter x.glb',
-  '/3d/whatsapp.glb',
+  '/3d/instagram.glb',
   '/3d/youtube.glb',
 ];
 

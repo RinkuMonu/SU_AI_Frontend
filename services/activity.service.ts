@@ -3,7 +3,7 @@ import { FacebookService } from "@/services/facebook.service";
 import { InstagramService } from "@/services/instagram.service";
 
 export type ActivityCategory = "content" | "social" | "ai_generation" | "campaign" | "account";
-export type ActivityPlatform = "facebook" | "instagram" | "whatsapp" | "linkedin" | "ai" | "general";
+export type ActivityPlatform = "facebook" | "instagram" | "linkedin" | "ai" | "general";
 export type ActivityStatus = "Completed" | "Published" | "Scheduled" | "Active" | "Draft";
 
 export interface UserActivityItem {
@@ -86,7 +86,7 @@ export class ActivityService {
   /**
    * Fetch all recent activities aggregated from:
    * 1. Backend content items (/api/v1/content)
-   * 2. Live Social account connections (Facebook, Instagram, WhatsApp)
+   * 2. Live Social account connections (Facebook, Instagram, LinkedIn)
    * 3. Local activity history (AI photoshoot, Reels, Post maker, etc.)
    */
   static async getAllRecentActivities(): Promise<UserActivityItem[]> {
@@ -110,7 +110,7 @@ export class ActivityService {
             ? (item.caption.length > 90 ? item.caption.substring(0, 90) + "..." : item.caption)
             : "Generated AI marketing post with caption and hashtags.",
           category: "content",
-          platform: ["facebook", "instagram", "whatsapp", "linkedin"].includes(plat) ? plat : "ai",
+          platform: ["facebook", "instagram", "linkedin"].includes(plat) ? plat : "ai",
           status: item.status || "Completed",
           timestamp: item.createdAt || item.updatedAt || new Date().toISOString(),
           imageUrl: item.imageUrl || item.image_url || item.media_url,
@@ -149,21 +149,6 @@ export class ActivityService {
           status: "Active",
           timestamp: new Date().toISOString(),
           actionUrl: "/social-platforms/instagram",
-        });
-      }
-
-      // Check WhatsApp
-      const waPhone = localStorage.getItem("whatsapp_phone_id");
-      if (waPhone) {
-        activities.push({
-          id: "act-wa-connected",
-          title: "WhatsApp Business Configured",
-          description: `WhatsApp phone ID configured for promotional broadcasting.`,
-          category: "social",
-          platform: "whatsapp",
-          status: "Active",
-          timestamp: new Date().toISOString(),
-          actionUrl: "/social-platforms/whatsapp",
         });
       }
     }

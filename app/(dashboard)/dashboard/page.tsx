@@ -350,7 +350,7 @@ export default function DashboardPage() {
                   Create Ad
                 </h3>
                 <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
-                  Targeted Meta &amp; WhatsApp creatives
+                  Targeted Meta &amp; Social creatives
                 </p>
               </div>
             </div>

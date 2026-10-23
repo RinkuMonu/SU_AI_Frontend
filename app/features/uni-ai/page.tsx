@@ -65,7 +65,7 @@ export default function UNIAIPage() {
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300/90 leading-relaxed mb-8 max-w-3xl mx-auto font-normal">
-            UNI isn't just a chatbot. It's the central intelligence director of DhandaGrow AI. Speak or chat with UNI in natural Hinglish, and watch it coordinate AI Reels, Photoshoots, WhatsApp broadcasts, and Leads CRM simultaneously.
+            UNI isn't just a chatbot. It's the central intelligence director of DhandaGrow AI. Speak or chat with UNI in natural Hinglish, and watch it coordinate AI Reels, Photoshoots, Social broadcasts, and Leads CRM simultaneously.
           </p>
 
           {/* Core Command Modules Bar */}
@@ -78,7 +78,7 @@ export default function UNIAIPage() {
               <Zap className="w-3.5 h-3.5" /> 6-Engine Orchestration
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-300">
-              <MessageCircle className="w-3.5 h-3.5" /> Morning WhatsApp Briefs
+              <MessageCircle className="w-3.5 h-3.5" /> Morning Social Briefs
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs font-bold text-pink-300">
               <QrCode className="w-3.5 h-3.5" /> Dynamic UPI Tracking
@@ -183,7 +183,7 @@ export default function UNIAIPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
                   <p className="text-sm text-slate-200">
-                    Real-time UNI AI Cockpit: Natural Hinglish voice prompt decomposes into simultaneous reel creation, WhatsApp broadcasting, CRM listening, and storefront discount launch.
+                    Real-time UNI AI Cockpit: Natural Hinglish voice prompt decomposes into simultaneous reel creation, Social broadcasting, CRM listening, and storefront discount launch.
                   </p>
                 </div>
               </div>
@@ -206,7 +206,7 @@ export default function UNIAIPage() {
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>UNI AI simultaneously orchestrates AI Reel Studio, Photoshoots, WhatsApp CRM & Ad Creator</span>
+                <span>UNI AI simultaneously orchestrates AI Reel Studio, Photoshoots, Social CRM & Ad Creator</span>
               </div>
             </div>
           ) : (
@@ -231,7 +231,7 @@ export default function UNIAIPage() {
                     User Voice Note (Hinglish):
                   </span>
                   <p className="text-sm sm:text-base font-semibold text-white">
-                    "UNI, agle hafte Dhanteras jewellery aur bridal Banarasi saree par 15% discount ke sath Meta ads, WhatsApp broadcast aur landing page schedule kardo!"
+                    "UNI, agle hafte Dhanteras jewellery aur bridal Banarasi saree par 15% discount ke sath Meta ads, Social broadcast aur landing page schedule kardo!"
                   </p>
                 </div>
               </div>
@@ -255,7 +255,7 @@ export default function UNIAIPage() {
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-3">
                     <MessageCircle className="w-5 h-5" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">2. WhatsApp AI</h4>
+                  <h4 className="font-bold text-white text-sm mb-1">2. Social AI</h4>
                   <p className="text-xs text-slate-400 leading-relaxed">
                     Prepared 340 personalized broadcast messages with festive product cards and instant UPI checkout QR links.
                   </p>
@@ -338,7 +338,7 @@ export default function UNIAIPage() {
               <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <MessageCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Proactive WhatsApp Morning Briefs</h3>
+              <h3 className="text-xl font-bold text-white mb-2">Proactive Social Morning Briefs</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
                 UNI alerts you before you even ask: "Good morning! Yesterday's reel drove 14 inquiries and ₹34,000 in sales. Should I boost it today with ₹500 ad spend?"
               </p>
@@ -351,7 +351,7 @@ export default function UNIAIPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Direct UPI & Revenue Attribution</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Unlike ChatGPT which only writes copy, UNI tracks the entire money flow from reel view to customer WhatsApp chat and Razorpay UPI settlement.
+                Unlike ChatGPT which only writes copy, UNI tracks the entire money flow from reel view to customer Customer chat and Razorpay UPI settlement.
               </p>
             </div>
 

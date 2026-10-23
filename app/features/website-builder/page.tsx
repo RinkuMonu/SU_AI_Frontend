@@ -76,7 +76,7 @@ const websitePresets: WebsitePreset[] = [
     heroCta: 'Explore Collection 🛍️',
     heroImage: '/images/royal-ethnic-banner.jpg',
     chatUserPrompt: 'Create a luxury ethnic boutique website for Shyamal & Kumkum in Jaipur. We sell pure Banarasi silk sarees, bridal lehengas, and have a Flat 40% Festive Sale.',
-    chatAiReply: 'Done! I generated a royal burgundy & gold storefront with Banarasi showcase, Flat 40% OFF festive banner, and WhatsApp direct checkout.',
+    chatAiReply: 'Done! I generated a royal burgundy & gold storefront with Banarasi showcase, Flat 40% OFF festive banner, and Social direct checkout.',
     items: [
       {
         title: 'Pure Banarasi Katan Silk Saree',
@@ -148,7 +148,7 @@ const websitePresets: WebsitePreset[] = [
     heroCta: 'Order Online (Flat 25% OFF) 🍗',
     heroImage: '/images/food-feast-banner.jpg',
     chatUserPrompt: 'Make an appetizing online food ordering site for Dawat-e-Khaas Hyderabad with our menu, 25% discount code, and 30-minute hot delivery guarantee.',
-    chatAiReply: 'Great! Built an appetizing warm saffron & charcoal layout with handi biryani menu, table reservation widget, and 1-tap WhatsApp ordering.',
+    chatAiReply: 'Great! Built an appetizing warm saffron & charcoal layout with handi biryani menu, table reservation widget, and 1-tap Social ordering.',
     items: [
       {
         title: 'Special Mutton Dum Biryani Handi',
@@ -214,7 +214,7 @@ export default function WebsiteBuilderPage() {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed font-medium mb-10 max-w-3xl mx-auto">
-            No drag-and-drop complexity. No coding required. Simply tell DhandaGrow AI about your store in Hindi or English, and watch it generate a complete, responsive, SEO-ready website with online catalogue & WhatsApp ordering.
+            No drag-and-drop complexity. No coding required. Simply tell DhandaGrow AI about your store in Hindi or English, and watch it generate a complete, responsive, SEO-ready website with online catalogue & Social ordering.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -232,7 +232,7 @@ export default function WebsiteBuilderPage() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Voice & Chat AI Copilot</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Integrated WhatsApp & UPI Checkout</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Integrated Social & UPI Checkout</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Download Complete ZIP or Host Free</span>
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function WebsiteBuilderPage() {
                       <Check className="w-3 h-3 text-emerald-400" /> Generating 3-Item Product Showcase
                     </div>
                     <div className="flex items-center gap-1.5 text-slate-300">
-                      <Check className="w-3 h-3 text-emerald-400" /> Integrating WhatsApp Order Button
+                      <Check className="w-3 h-3 text-emerald-400" /> Integrating Social Order Button
                     </div>
                   </div>
                 </div>
@@ -557,7 +557,7 @@ export default function WebsiteBuilderPage() {
                             asChild
                           >
                             <Link href="/login/user">
-                              <MessageCircle className="w-3.5 h-3.5 mr-1" /> WhatsApp Us
+                              <MessageCircle className="w-3.5 h-3.5 mr-1" /> Social Us
                             </Link>
                           </Button>
                         </div>
@@ -720,9 +720,9 @@ export default function WebsiteBuilderPage() {
             
             <div className="bg-[#121726] p-8 rounded-3xl border border-slate-800 hover:border-slate-700 transition-colors text-left">
               <MessageCircle className="w-8 h-8 text-emerald-400 mb-5" />
-              <h3 className="text-lg font-bold text-white mb-2">1-Click WhatsApp Ordering</h3>
+              <h3 className="text-lg font-bold text-white mb-2">1-Click Social Ordering</h3>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Every product card includes an instant WhatsApp button that sends the exact product name, size, and price directly to your WhatsApp Business chat.
+                Every product card includes an instant Social button that sends the exact product name, size, and price directly to your Social Business chat.
               </p>
             </div>
             

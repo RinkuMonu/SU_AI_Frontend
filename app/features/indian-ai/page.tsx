@@ -81,7 +81,7 @@ export default function IndianAIPage() {
                  </div>
                  <h3 className="text-xl font-bold text-slate-900 mb-3">True Hinglish Support</h3>
                  <p className="text-slate-600 text-sm leading-relaxed">
-                   Generates content exactly how Indians type on WhatsApp. It perfectly blends English words with Hindi grammar for maximum relatability.
+                   Generates content exactly how Indians communicate across social media. It perfectly blends English words with Hindi grammar for maximum relatability.
                  </p>
               </div>
 
