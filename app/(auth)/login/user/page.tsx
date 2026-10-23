@@ -16,15 +16,10 @@ import {
   Camera,
   ChevronLeft,
   ChevronRight,
-  ShieldCheck,
-  RefreshCw,
-  ArrowLeft,
   CheckCircle2,
-  Phone
+  ArrowRight
 } from "lucide-react";
-import { OtpInput } from "@/components/ui/OtpInput";
-import { COUNTRY_CODES, validatePhoneNumber, maskPhoneNumber, formatToE164 } from "@/lib/phone";
-import Image from "next/image";
+import { COUNTRY_CODES, validatePhoneNumber, sanitizeNationalNumber } from "@/lib/phone";
 import { authService } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
@@ -35,9 +30,6 @@ import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components
 
 // Prevent duplicate callback execution in React StrictMode and concurrent renders
 let inFlightGoogleCode: string | null = null;
-let inFlightFbAuth: string | null = null;
-let inFlightIgAuth: string | null = null;
-let inFlightLiAuth: string | null = null;
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -119,16 +111,11 @@ function navigateAfterAuth(user: any, router: any) {
 }
 
 export default function LoginPage() {
-  const [step, setStep] = useState<"credentials" | "otp">("credentials");
+  const [loginMethod, setLoginMethod] = useState<"phone" | "password">("phone");
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [otp, setOtp] = useState("");
-  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [isResending, setIsResending] = useState(false);
-  const [countdown, setCountdown] = useState(60);
   const [successMsg, setSuccessMsg] = useState("");
 
   const [error, setError] = useState("");
@@ -189,14 +176,7 @@ export default function LoginPage() {
     }
   }, []);
 
-  // 60-second cooldown timer for SMS OTP resend
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (step === "otp" && countdown > 0) {
-      timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [step, countdown]);
+
 
 
   const { login } = useAuth();
@@ -645,13 +625,15 @@ export default function LoginPage() {
       setAuthModal({
         open: true,
         status: "error",
-        provider: (providerName === "Google" ? "Gmail" : providerName) as AuthProviderType,
+        provider: providerName as AuthProviderType,
         title: `${providerName} Authorization Failed`,
         message: decodedErr,
       });
       sessionStorage.removeItem("facebook_auth_mode");
       sessionStorage.removeItem("instagram_auth_mode");
       sessionStorage.removeItem("google_auth_mode");
+      sessionStorage.removeItem("google_auth_phone");
+      sessionStorage.removeItem("google_auth_country_code");
       sessionStorage.removeItem("linkedin_auth_mode");
       window.history.replaceState({}, document.title, window.location.pathname);
       return;
@@ -712,32 +694,33 @@ export default function LoginPage() {
 
       const processGoogleCode = async () => {
         const savedMode = sessionStorage.getItem("google_auth_mode");
+        const preservedPhone = sessionStorage.getItem("google_auth_phone") || undefined;
+        const preservedCc = sessionStorage.getItem("google_auth_country_code") || undefined;
         const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
         const mode = isSignup ? "signup" : "login";
 
-        setSocialLoading("Gmail");
+        setSocialLoading("Google");
         setSocialNotice(isSignup ? "Completing your Google registration..." : "Signing in with Google... Verifying your account.");
         setError("");
         setAuthModal({
           open: true,
           status: "analyzing",
-          provider: "Gmail",
+          provider: "Google",
           title: isSignup ? "Completing Google Registration" : "Connecting with Google",
           message: isSignup ? "Analyzing account & creating profile..." : "Analyzing credentials & verifying your account...",
         });
         try {
           const redirectUri = `${window.location.origin}/login/user`;
-          const endpoint = isSignup ? "/api/v1/auth/google/signup" : "/api/v1/auth/google/login";
-          const res = await api.post(endpoint, {
+          const res = await authService.googleLogin({
             code,
             redirect_uri: redirectUri,
-            redirectUri: redirectUri,
             mode,
+            phone: preservedPhone,
+            countryCode: preservedCc,
           });
 
-          const data = res.data?.data || res.data;
-          const token = data?.access_token || data?.token || data?.accessToken;
-          const userObj = data?.user;
+          const token = res.token;
+          const userObj = res.user;
 
           if (token && userObj) {
             let isDone = Boolean(userObj.onboardingCompleted);
@@ -752,18 +735,20 @@ export default function LoginPage() {
             };
             login(token, finalUser);
             sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_auth_phone");
+            sessionStorage.removeItem("google_auth_country_code");
 
             setAuthModal({
               open: true,
               status: "navigating",
-              provider: "Gmail",
+              provider: "Google",
               title: "Google Verified!",
               message: "Account verified! Navigating to your dashboard...",
             });
 
             navigateAfterAuth(finalUser, router);
           } else {
-            throw new Error(res.data?.message || "Google authentication did not return session token.");
+            throw new Error(res.message || "Google authentication did not return session token.");
           }
         } catch (err: any) {
           console.error("Google authentication error:", err);
@@ -796,11 +781,13 @@ export default function LoginPage() {
           setAuthModal({
             open: true,
             status: "error",
-            provider: "Gmail",
+            provider: "Google",
             title: "Google Authentication Failed",
             message: msg,
           });
           sessionStorage.removeItem("google_auth_mode");
+          sessionStorage.removeItem("google_auth_phone");
+          sessionStorage.removeItem("google_auth_country_code");
         } finally {
           inFlightGoogleCode = null;
           setSocialLoading(null);
@@ -812,7 +799,7 @@ export default function LoginPage() {
     }
   }, [login, router]);
 
-/**
+  /**
    * Submit credentials (Mobile Phone Number + Password)
    */
   const handlePasswordLogin = async (e: React.FormEvent) => {
@@ -828,7 +815,7 @@ export default function LoginPage() {
     }
 
     if (!password) {
-      setError("Please enter your password or choose 'Log In with Phone OTP'.");
+      setError("Please enter your password.");
       return;
     }
 
@@ -843,28 +830,17 @@ export default function LoginPage() {
         navigateAfterAuth(response.user, router);
       }
     } catch (err: any) {
-      if (
-        err.code === "PHONE_NOT_VERIFIED" ||
-        (err.message && err.message.toLowerCase().includes("phone otp verification required"))
-      ) {
-        // Backend dispatches SMS OTP
-        setSuccessMsg("Phone OTP verification required. An OTP has been sent to your mobile number.");
-        setStep("otp");
-        setCountdown(60);
-        setOtp("");
-      } else {
-        setError(err.message || "Invalid mobile number or password.");
-      }
+      setError(err.message || "Invalid mobile number or password.");
     } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * Direct Phone OTP Request (user opts to log in via SMS OTP)
+   * Handle Mobile Phone Step -> Continues to Google Authentication
    */
-  const handleSendOtp = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
+  const handlePhoneNext = (e: React.FormEvent) => {
+    e.preventDefault();
     setPhoneError("");
     setError("");
     setSuccessMsg("");
@@ -875,92 +851,23 @@ export default function LoginPage() {
       return;
     }
 
-    setIsSendingOtp(true);
-    try {
-      await authService.resendOtp(validation.e164);
-      setSuccessMsg("A 6-digit OTP has been sent to your mobile phone.");
-      setStep("otp");
-      setCountdown(60);
-      setOtp("");
-    } catch (err: any) {
-      setError(err.message || "Failed to send OTP. Please check your phone number.");
-    } finally {
-      setIsSendingOtp(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_auth_phone", validation.e164);
+      sessionStorage.setItem("google_auth_country_code", countryCode);
+      sessionStorage.setItem("google_auth_mode", "login");
     }
+
+    handleSocialLogin("Google");
   };
 
-  /**
-   * Verify 6-digit Phone OTP
-   */
-  const handleVerifyOtp = async (e?: React.FormEvent, codeToVerify?: string) => {
-    if (e) e.preventDefault();
-    const finalOtp = (codeToVerify || otp).trim();
-
-    const validation = validatePhoneNumber(countryCode, phone);
-    if (!validation.isValid) {
-      setError("Please return and enter a valid mobile number.");
-      return;
-    }
-
-    if (finalOtp.length !== 6) {
-      setError("Please enter the complete 6-digit verification code.");
-      return;
-    }
-
-    if (isVerifyingOtp) return;
-    setIsVerifyingOtp(true);
+  const handleSocialLogin = async (provider: "Google" | "Facebook" | "Instagram" | "LinkedIn") => {
     setError("");
-    setSuccessMsg("");
-
-    try {
-      const response = await authService.verifyOtp({ phone: validation.e164 }, finalOtp);
-      if (response.token && response.user) {
-        setSuccessMsg("Phone number verified successfully! Redirecting...");
-        login(response.token, response.user);
-        setTimeout(() => {
-          navigateAfterAuth(response.user, router);
-        }, 500);
-      } else {
-        setError(response.message || "Verification failed. Please try again.");
-      }
-    } catch (err: any) {
-      setError(err.message || "Invalid or expired OTP. Please try again.");
-    } finally {
-      setIsVerifyingOtp(false);
-    }
-  };
-
-  /**
-   * Resend Phone OTP
-   */
-  const handleResendOtp = async () => {
-    if (countdown > 0 || isResending) return;
-    const validation = validatePhoneNumber(countryCode, phone);
-    if (!validation.isValid) return;
-
-    setError("");
-    setSuccessMsg("");
-    setIsResending(true);
-    try {
-      await authService.resendOtp(validation.e164);
-      setSuccessMsg("A new 6-digit OTP has been sent to your phone.");
-      setCountdown(60);
-      setOtp("");
-    } catch (err: any) {
-      setError(err.message || "Failed to resend OTP. Please wait before retrying.");
-    } finally {
-      setIsResending(false);
-    }
-  };
-
-  const handleSocialLogin = async (provider: "Gmail" | "Facebook" | "Instagram" | "LinkedIn") => {
-    setError("");
-    if (provider === "Gmail") {
-      setSocialLoading("Gmail");
+    if (provider === "Google") {
+      setSocialLoading("Google");
       setAuthModal({
         open: true,
         status: "analyzing",
-        provider: "Gmail",
+        provider: "Google",
         title: "Connecting with Google",
         message: "Preparing secure Google OAuth handshake...",
       });
@@ -972,12 +879,19 @@ export default function LoginPage() {
         const state = "login_" + Math.random().toString(36).substring(7);
         if (typeof window !== "undefined") {
           sessionStorage.setItem("google_auth_mode", "login");
+          if (phone && phone.trim()) {
+            const validation = validatePhoneNumber(countryCode, phone);
+            if (validation.isValid) {
+              sessionStorage.setItem("google_auth_phone", validation.e164);
+              sessionStorage.setItem("google_auth_country_code", countryCode);
+            }
+          }
         }
         const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
         setAuthModal({
           open: true,
           status: "navigating",
-          provider: "Gmail",
+          provider: "Google",
           title: "Redirecting to Google",
           message: "Navigating to Google sign-in portal. Please wait...",
         });
@@ -992,7 +906,7 @@ export default function LoginPage() {
         setAuthModal({
           open: true,
           status: "error",
-          provider: "Gmail",
+          provider: "Google",
           title: "Google Connection Failed",
           message: errMsg,
         });
@@ -1219,14 +1133,14 @@ export default function LoginPage() {
 
           {/* Login Card */}
           <div className="bg-[#15161b]/95 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-3.5 transition-all">
-            {/* 1. Continue with Gmail */}
+            {/* 1. Continue with Google */}
             <button
               type="button"
-              onClick={() => handleSocialLogin("Gmail")}
+              onClick={() => handleSocialLogin("Google")}
               disabled={socialLoading !== null}
               className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-white/25 hover:shadow-[0_0_20px_rgba(255,255,255,0.06)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
             >
-              {socialLoading === "Gmail" ? (
+              {socialLoading === "Google" ? (
                 <Loader2 className="w-4 h-4 animate-spin text-neutral-300" />
               ) : (
                 <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
@@ -1248,7 +1162,7 @@ export default function LoginPage() {
                   />
                 </svg>
               )}
-              <span>Continue with Gmail</span>
+              <span>Continue with Google</span>
             </button>
 
             {/* 2. Login with Facebook */}
@@ -1294,7 +1208,7 @@ export default function LoginPage() {
               </span>
             </div>
 
-            {/* Form Section: Phone Number OTP & Password Login */}
+            {/* Notifications & Error messages */}
             {successMsg && (
               <div className="p-3 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
@@ -1316,197 +1230,207 @@ export default function LoginPage() {
               </div>
             )}
 
-            {step === "credentials" ? (
-              <form onSubmit={handlePasswordLogin} className="space-y-3.5">
-                {/* Mobile Phone Number with Country Code */}
-                <div className="space-y-1.5">
-                  <label htmlFor="phone" className="text-xs font-medium text-neutral-300">
-                    Mobile Phone Number
-                  </label>
-                  <div className="flex gap-2">
-                    <div className="w-32 sm:w-36 shrink-0">
-                      <select
-                        id="countryCode"
-                        aria-label="Country Code"
-                        value={countryCode}
-                        onChange={(e) => setCountryCode(e.target.value)}
-                        className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
-                      >
-                        {COUNTRY_CODES.map((c, idx) => (
-                          <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
-                            {c.flag} {c.code} ({c.country})
-                          </option>
-                        ))}
-                      </select>
+            {/* Form Section: Mobile Phone & Password Login */}
+            <div className="space-y-3.5">
+              {loginMethod === "phone" ? (
+                <form onSubmit={handlePhoneNext} className="space-y-3.5">
+                  {/* Mobile Phone Number with Country Code */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="phone" className="text-xs font-medium text-neutral-300">
+                      Mobile Phone Number
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="w-32 sm:w-36 shrink-0">
+                        <select
+                          id="countryCode"
+                          aria-label="Country Code"
+                          value={countryCode}
+                          onChange={(e) => {
+                            const newCode = e.target.value;
+                            setCountryCode(newCode);
+                            setPhone(sanitizeNationalNumber(newCode, phone));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
+                        >
+                          {COUNTRY_CODES.map((c, idx) => (
+                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
+                              {c.flag} {c.code} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          id="phone"
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="98765 43210"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
+                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
+                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
+                        />
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <input
-                        id="phone"
-                        type="tel"
-                        inputMode="tel"
-                        placeholder="98765 43210"
-                        value={phone}
-                        onChange={(e) => {
-                          setPhone(e.target.value);
-                          if (phoneError) setPhoneError("");
-                        }}
-                        className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
-                          phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
-                        } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
-                      />
-                    </div>
-                  </div>
-                  {phoneError && (
-                    <p className="text-xs text-red-400 pl-1">{phoneError}</p>
-                  )}
-                </div>
-
-                {/* Password Field */}
-                <div className="space-y-1.5">
-                  <label htmlFor="password" className="text-xs font-medium text-neutral-300">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="password"
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full h-11 px-4 pr-11 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border border-white/10 hover:border-white/20 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors p-1"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between px-1">
-                    <span />
-                    <Link
-                      href="#"
-                      className="text-xs text-neutral-400 hover:text-[#fc9a5d] transition-colors"
-                    >
-                      Forgot password?
-                    </Link>
-                  </div>
-                </div>
-
-                {/* Actions: Sign In with Password & Sign In with Phone OTP */}
-                <div className="space-y-2 pt-1">
-                  <button
-                    type="submit"
-                    disabled={isLoading || isSendingOtp}
-                    className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
-                  >
-                    {isLoading ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
-                    ) : (
-                      "Sign In with Password"
+                    {phoneError && (
+                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
                     )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSendOtp}
-                    disabled={isLoading || isSendingOtp}
-                    className="w-full h-11 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white font-medium text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-                  >
-                    {isSendingOtp ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin text-[#be32ff]" />
-                        Sending Phone OTP...
-                      </>
-                    ) : (
-                      <>
-                        <Phone className="w-3.5 h-3.5 text-[#be32ff]" />
-                        Log In with Phone OTP
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              /* STEP 2: Mobile OTP Verification */
-              <div className="space-y-4 animate-in fade-in duration-300">
-                <div className="text-center space-y-1">
-                  <div className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-[#be32ff]/20 text-[#be32ff] mb-1">
-                    <ShieldCheck className="w-5 h-5" />
+                    <p className="text-[11px] text-neutral-500 pl-1">
+                      Enter your mobile number and click Next to continue with Google.
+                    </p>
                   </div>
-                  <h2 className="text-lg font-semibold text-white">Enter Mobile OTP</h2>
-                  <p className="text-xs text-neutral-400">
-                    We sent a 6-digit verification code to{" "}
-                    <span className="font-medium text-white">
-                      {maskPhoneNumber(formatToE164(countryCode, phone))}
-                    </span>
-                  </p>
-                </div>
 
-                <OtpInput
-                  value={otp}
-                  onChange={(val) => {
-                    setOtp(val);
-                    if (error) setError("");
-                  }}
-                  onComplete={(val) => {
-                    handleVerifyOtp(undefined, val);
-                  }}
-                  disabled={isVerifyingOtp}
-                  hasError={!!error}
-                  autoFocus
-                />
-
-                <button
-                  type="button"
-                  onClick={(e) => handleVerifyOtp(e)}
-                  disabled={isVerifyingOtp || otp.length !== 6}
-                  className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)]"
-                >
-                  {isVerifyingOtp ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
-                  ) : (
-                    "Verify OTP & Continue"
-                  )}
-                </button>
-
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setStep("credentials");
-                      setError("");
-                      setSuccessMsg("");
-                    }}
-                    className="text-neutral-400 hover:text-white inline-flex items-center gap-1 transition-colors"
-                  >
-                    <ArrowLeft className="w-3.5 h-3.5" /> Change mobile number
-                  </button>
-
-                  {countdown > 0 ? (
-                    <span className="text-neutral-500">Resend Code in {countdown}s</span>
-                  ) : (
+                  {/* Actions: Next & Switch to Password */}
+                  <div className="space-y-2 pt-1">
                     <button
-                      type="button"
-                      onClick={handleResendOtp}
-                      disabled={isResending}
-                      className="text-[#fc9a5d] hover:text-[#ffb17a] font-medium inline-flex items-center gap-1 focus:outline-none"
+                      type="submit"
+                      disabled={socialLoading !== null}
+                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
                     >
-                      {isResending ? (
+                      {socialLoading === "Google" ? (
                         <>
-                          <RefreshCw className="w-3 h-3 animate-spin" />
-                          Sending...
+                          <Loader2 className="w-4 h-4 animate-spin text-neutral-900" />
+                          Connecting with Google...
                         </>
                       ) : (
-                        "Resend OTP"
+                        <>
+                          <span>Next</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
                       )}
                     </button>
-                  )}
-                </div>
-              </div>
-            )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod("password");
+                        setError("");
+                        setPhoneError("");
+                      }}
+                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
+                    >
+                      Prefer password? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Password</span> &rarr;
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <form onSubmit={handlePasswordLogin} className="space-y-3.5">
+                  {/* Mobile Phone Number with Country Code */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="pwd-phone" className="text-xs font-medium text-neutral-300">
+                      Mobile Phone Number
+                    </label>
+                    <div className="flex gap-2">
+                      <div className="w-32 sm:w-36 shrink-0">
+                        <select
+                          id="pwdCountryCode"
+                          aria-label="Country Code"
+                          value={countryCode}
+                          onChange={(e) => {
+                            const newCode = e.target.value;
+                            setCountryCode(newCode);
+                            setPhone(sanitizeNationalNumber(newCode, phone));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
+                        >
+                          {COUNTRY_CODES.map((c, idx) => (
+                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
+                              {c.flag} {c.code} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex-1">
+                        <input
+                          id="pwd-phone"
+                          type="tel"
+                          inputMode="tel"
+                          placeholder="98765 43210"
+                          value={phone}
+                          onChange={(e) => {
+                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
+                            if (phoneError) setPhoneError("");
+                          }}
+                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
+                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
+                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
+                        />
+                      </div>
+                    </div>
+                    {phoneError && (
+                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
+                    )}
+                  </div>
+
+                  {/* Password Field */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="password" className="text-xs font-medium text-neutral-300">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        type={showPassword ? "text" : "password"}
+                        placeholder="Enter your password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full h-11 px-4 pr-11 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border border-white/10 hover:border-white/20 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors p-1"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between px-1">
+                      <span />
+                      <Link
+                        href="#"
+                        className="text-xs text-neutral-400 hover:text-[#fc9a5d] transition-colors"
+                      >
+                        Forgot password?
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Actions: Sign In with Password & Switch to Mobile */}
+                  <div className="space-y-2 pt-1">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
+                      ) : (
+                        "Sign In with Password"
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLoginMethod("phone");
+                        setError("");
+                        setPhoneError("");
+                      }}
+                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
+                    >
+                      Prefer Google / Mobile? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Mobile</span> &rarr;
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Bottom Signup Link */}

@@ -23,11 +23,28 @@ function VerifyPhoneContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { login, user } = useAuth();
 
-  const phone = searchParams.get("phone") || "";
-  const email = searchParams.get("email") || "";
-  const name = searchParams.get("name") || "";
+  const phoneParam = searchParams.get("phone") || "";
+  const userPhone = user?.phone_number || (user as any)?.phone || (user as any)?.mobile || "";
+  const phone = phoneParam || userPhone;
+  const email = searchParams.get("email") || user?.email || "";
+  const name = searchParams.get("name") || user?.name || "";
+
+  useEffect(() => {
+    if (user) {
+      const hasPhone = Boolean(phone && String(phone).trim());
+      const hasSelectedRole = !needsRoleSelection(user);
+      // If user already selected a role, or user is marked verified, or user has no phone, navigate to destination
+      if (hasSelectedRole || user.phone_verified === true || !hasPhone) {
+        if (needsRoleSelection(user)) {
+          router.replace("/select-role");
+        } else {
+          router.replace(getDashboardRouteForRole(user.role));
+        }
+      }
+    }
+  }, [user, phone, router]);
 
   // 60-second cooldown timer for SMS OTP resend
   useEffect(() => {
@@ -107,6 +124,30 @@ function VerifyPhoneContent() {
   };
 
   if (!phone) {
+    if (user) {
+      const nextPath = needsRoleSelection(user) ? "/select-role" : getDashboardRouteForRole(user.role);
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+          <Card className="w-full max-w-md bg-card shadow-lg border-border">
+            <CardContent className="pt-8 pb-8 text-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-6 h-6" />
+              </div>
+              <h2 className="text-xl font-bold text-white">Account Ready</h2>
+              <p className="text-sm text-text-muted">
+                Your account is authenticated. Continue to complete your setup.
+              </p>
+              <Button
+                onClick={() => router.replace(nextPath)}
+                className="mt-2 w-full"
+              >
+                Continue
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md bg-card shadow-lg border-border">

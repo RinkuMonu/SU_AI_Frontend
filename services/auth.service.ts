@@ -5,8 +5,12 @@ import { OnboardingService } from '@/services/onboarding.service';
 export interface SignupRequest {
   name: string;
   phone?: string;
+  countryCode?: string;
+  country_code?: string;
   email: string; // Mandatory email input on signup
   password: string;
+  confirmPassword?: string;
+  verification_token?: string;
   [key: string]: any;
 }
 
@@ -16,11 +20,14 @@ export interface AuthSuccessResponse {
   status?: string;
   message?: string;
   requiresOtp?: boolean;
+  verification_token?: string;
 }
 
 export interface VerifyOtpRequest {
   phone: string;
   otp: string;
+  countryCode?: string;
+  country_code?: string;
   email?: string;
 }
 
@@ -82,20 +89,25 @@ export const authService = {
   signup: async (data: SignupRequest): Promise<{ token?: string; user?: User; message?: string; detail?: string }> => {
     try {
       const phoneStr = data.phone?.trim() || "";
+      const cc = data.countryCode || data.country_code || (phoneStr.startsWith("+") ? undefined : "+91");
       const payload: Record<string, any> = {
         ...data,
         name: data.name?.trim() || "",
         phone_number: phoneStr,
         phone: phoneStr,
         mobile: phoneStr,
+        country_code: cc,
         email: data.email?.trim().toLowerCase() || "",
         password: data.password,
-        confirmPassword: data.password,
+        confirmPassword: data.confirmPassword || data.password,
       };
+      if (data.verification_token) {
+        payload.verification_token = data.verification_token;
+      }
 
       const response = await api.post('/api/v1/auth/signup', payload);
       return {
-        token: response.data?.access_token,
+        token: response.data?.access_token || response.data?.token,
         user: response.data?.user,
         message: response.data?.detail || response.data?.message || 'Account created successfully.',
       };
@@ -151,14 +163,15 @@ export const authService = {
    * Verify 6-digit Mobile OTP
    */
   verifyOtp: async (
-    phoneOrObj: string | { phone: string; email?: string },
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
     otpCode?: string,
     emailArg?: string
   ): Promise<AuthSuccessResponse> => {
     try {
-      let rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
-      let rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
-      let rawOtp = otpCode || '';
+      const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
+      const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
+      const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
+      const rawOtp = otpCode || '';
 
       const cleanPhone = (rawPhone || '').trim();
       const payload: Record<string, any> = {
@@ -167,16 +180,21 @@ export const authService = {
         mobile: cleanPhone,
         otp: rawOtp.trim(),
       };
+      if (rawCc) {
+        payload.country_code = rawCc;
+        payload.countryCode = rawCc;
+      }
       if (rawEmail && rawEmail.trim()) {
         payload.email = rawEmail.trim().toLowerCase();
       }
 
       const response = await api.post('/api/v1/auth/verify-otp', payload);
       return {
-        token: response.data?.access_token,
+        token: response.data?.access_token || response.data?.token,
         user: response.data?.user,
         status: response.data?.status || 'success',
         message: response.data?.detail || response.data?.message || 'Mobile OTP verified successfully.',
+        verification_token: response.data?.verification_token || response.data?.token,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid or expired OTP. Please try again.');
@@ -187,15 +205,16 @@ export const authService = {
   },
 
   /**
-   * Resend / Send Mobile OTP
+   * Send Mobile OTP
    */
-  resendOtp: async (
-    phoneOrObj: string | { phone: string; email?: string },
+  sendOtp: async (
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
     emailArg?: string
-  ): Promise<{ status: string; message: string }> => {
+  ): Promise<{ status: string; message: string; canonical_phone_number?: string }> => {
     try {
-      let rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
-      let rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
+      const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
+      const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
+      const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
 
       const cleanPhone = (rawPhone || '').trim();
       const payload: Record<string, any> = {
@@ -203,14 +222,19 @@ export const authService = {
         phone: cleanPhone,
         mobile: cleanPhone,
       };
+      if (rawCc) {
+        payload.country_code = rawCc;
+        payload.countryCode = rawCc;
+      }
       if (rawEmail && rawEmail.trim()) {
         payload.email = rawEmail.trim().toLowerCase();
       }
 
-      const response = await api.post('/api/v1/auth/resend-otp', payload);
+      const response = await api.post('/api/v1/auth/send-otp', payload);
       return {
-        status: 'success',
+        status: response.data?.status || 'success',
         message: response.data?.detail || response.data?.message || 'Verification code sent to your mobile phone.',
+        canonical_phone_number: response.data?.canonical_phone_number,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Failed to send OTP. Please wait before retrying.');
@@ -218,6 +242,16 @@ export const authService = {
       err.code = code;
       throw err;
     }
+  },
+
+  /**
+   * Resend Mobile OTP (alias to sendOtp for semantic clarity)
+   */
+  resendOtp: async (
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
+    emailArg?: string
+  ): Promise<{ status: string; message: string }> => {
+    return authService.sendOtp(phoneOrObj, emailArg);
   },
 
   /**
@@ -246,6 +280,94 @@ export const authService = {
       return response.data;
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Failed to determine dashboard route.');
+      const err = new Error(message) as any;
+      err.code = code;
+      throw err;
+    }
+  },
+
+  /**
+   * Google OAuth login and registration
+   */
+  googleLogin: async ({
+    code,
+    access_token,
+    id_token,
+    redirect_uri,
+    accountType = 'business',
+    mode = 'login',
+    phone,
+    countryCode,
+  }: {
+    code?: string;
+    access_token?: string;
+    id_token?: string;
+    redirect_uri?: string;
+    accountType?: string;
+    mode?: 'login' | 'signup';
+    phone?: string;
+    countryCode?: string;
+  }): Promise<{ token: string; user: User; message?: string }> => {
+    try {
+      const endpoint = mode === 'signup' ? '/api/v1/auth/google/signup' : '/api/v1/auth/google/login';
+      const cleanPhone = (phone || '').trim();
+      const payload: Record<string, any> = {
+        code: code || undefined,
+        access_token: access_token || undefined,
+        id_token: id_token || undefined,
+        redirect_uri: redirect_uri || undefined,
+        redirectUri: redirect_uri || undefined,
+        accountType: accountType || 'business',
+        mode: mode || 'login',
+      };
+      if (cleanPhone) {
+        payload.phone_number = cleanPhone;
+        payload.phone = cleanPhone;
+        payload.mobile = cleanPhone;
+      }
+      if (countryCode) {
+        payload.country_code = countryCode;
+        payload.countryCode = countryCode;
+      }
+
+      const response = await api.post(endpoint, payload);
+      const raw = response.data;
+      const data = raw?.data || raw;
+      const user = data?.user || raw?.user || {};
+      const token =
+        data?.accessToken ||
+        data?.access_token ||
+        data?.token ||
+        raw?.accessToken ||
+        raw?.access_token ||
+        raw?.token ||
+        '';
+
+      const normalizedUser: User = {
+        ...user,
+        id: user.id || user._id || '',
+        name: user.name || user.fullName || (user.email ? user.email.split('@')[0] : 'User'),
+        fullName: user.fullName || user.name || (user.email ? user.email.split('@')[0] : 'User'),
+        firstName: user.firstName || (user.name ? user.name.split(' ')[0] : 'User'),
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role || 'user',
+        accountType: user.accountType || accountType || 'business',
+        email_verified: user.email_verified ?? user.emailVerified ?? true,
+        phone_verified: user.phone_verified ?? false,
+        phone_number: user.phone_number || user.phone || cleanPhone || undefined,
+        phone: user.phone || user.phone_number || cleanPhone || undefined,
+        onboardingCompleted: Boolean(user.onboardingCompleted || user.onboarding_completed),
+        onboarding_step: user.onboarding_step ?? 1,
+      };
+
+      return {
+        token,
+        user: normalizedUser,
+        message: raw?.message || data?.message,
+      };
+    } catch (error: any) {
+      const { message, code } = parseErrorDetail(error, 'An error occurred during Google authentication');
       const err = new Error(message) as any;
       err.code = code;
       throw err;

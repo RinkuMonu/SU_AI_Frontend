@@ -134,18 +134,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // CASE 2: Authenticated user
-      const isPhoneVerified = user.phone_verified !== false;
       const role = user.role;
 
-      // 2a: Unverified phone number
-      if (!isPhoneVerified) {
-        if (!isVerifyRoute) {
-          router.replace('/verify-phone');
+      // If authenticated user is on login or signup route, direct them to role selection or dashboard
+      if (isAuthRoute) {
+        if (needsRoleSelection(user)) {
+          router.replace('/select-role');
+        } else {
+          router.replace(getDashboardRouteForRole(role));
         }
         return;
       }
 
-      // If user is verified and still on verify-phone page, direct them forward
+      // If authenticated user is on verify-phone/email page, direct them forward
       if (isVerifyRoute) {
         if (needsRoleSelection(user)) {
           router.replace('/select-role');
