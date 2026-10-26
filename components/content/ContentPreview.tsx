@@ -18,7 +18,8 @@ import {
   Lightbulb,
   Loader2,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import Link from 'next/link';
 import { resolveImageUrl, handleImageError } from '@/lib/imageUtils';
@@ -85,6 +86,43 @@ export function ContentPreview({ content, onRegenerate, onSave, isGenerating = f
     setCopiedCaption(true);
     showNotification("Caption text copied!");
     setTimeout(() => setCopiedCaption(false), 2000);
+  };
+
+  const handleDownloadImage = async () => {
+    const imgUrl = (editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url;
+    if (!imgUrl) {
+      showNotification("No image URL available to download.", "info");
+      return;
+    }
+    try {
+      const response = await fetch(imgUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `creative-${Date.now()}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showNotification("Image downloaded successfully!", "success");
+    } catch {
+      window.open(imgUrl, "_blank");
+    }
+  };
+
+  const handleDownloadText = () => {
+    const textContent = `${editedContent.title || 'Untitled Post'}\n\n${editedContent.caption || ''}\n\n${(editedContent.hashtags || []).map(t => t.startsWith('#') ? t : `#${t}`).join(' ')}\n\nCall to Action: ${editedContent.callToAction || 'None'}`;
+    const blob = new Blob([textContent], { type: "text/plain;charset=utf-8" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `copy-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    showNotification("Content text file downloaded!", "success");
   };
 
   const handleSave = async () => {
@@ -247,6 +285,18 @@ export function ContentPreview({ content, onRegenerate, onSave, isGenerating = f
                   </>
                 )}
               </Button>
+
+              <Button 
+                variant="outline" 
+                size="sm" 
+                disabled={busy}
+                onClick={handleDownloadText} 
+                title="Download post as text file"
+                className="border-border text-slate-200 hover:text-white hover:bg-surface-secondary text-xs h-9 gap-1.5"
+              >
+                <Download className="h-3.5 w-3.5 text-brand-pink" />
+                <span>Download Copy</span>
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -254,7 +304,7 @@ export function ContentPreview({ content, onRegenerate, onSave, isGenerating = f
         <CardContent className="pt-6 space-y-6">
           {/* Optional Media Preview */}
           {((editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url) && (
-            <div className="rounded-xl overflow-hidden border border-border shadow-md flex justify-center bg-black/40 p-2">
+            <div className="rounded-xl overflow-hidden border border-border shadow-md relative group bg-black/40 p-2 flex flex-col items-center">
               <img 
                 src={resolveImageUrl(
                   (editedContent as any).media_url || (editedContent as any).imageUrl || (editedContent as any).image_url,
@@ -264,6 +314,15 @@ export function ContentPreview({ content, onRegenerate, onSave, isGenerating = f
                 className="w-full max-w-md h-auto rounded-lg object-contain" 
                 onError={(e) => handleImageError(e, editedContent.title || editedContent.caption)}
               />
+              <button
+                type="button"
+                onClick={handleDownloadImage}
+                title="Download Image"
+                className="absolute top-4 right-4 bg-black/70 hover:bg-black text-white p-2 rounded-xl border border-white/20 shadow-lg transition-all flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5 text-brand-purple" />
+                <span>Download Image</span>
+              </button>
             </div>
           )}
 

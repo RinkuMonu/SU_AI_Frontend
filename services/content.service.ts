@@ -51,12 +51,38 @@ export const contentService = {
   removeFromLocalCache,
 
   async generateContent(request: GenerateContentRequest): Promise<{ data: GeneratedContent }> {
+    const compiledInstructions = [
+      request.productName ? `Product: ${request.productName}` : "",
+      request.productDescription ? `Description: ${request.productDescription}` : "",
+      request.features ? `Key Features: ${request.features}` : "",
+      request.price ? `Price: ₹${request.price}` : "",
+      request.campaignObjective ? `Campaign Objective: ${request.campaignObjective}` : "",
+      request.targetAudience ? `Target Audience: ${request.targetAudience}` : "",
+      request.callToAction ? `Call to Action: ${request.callToAction}` : "",
+      request.additionalInstructions ? `Instructions: ${request.additionalInstructions}` : "",
+      request.use_brand_kit && request.brand_name ? `Brand: ${request.brand_name}` : "",
+      request.use_brand_kit && request.brand_tone ? `Brand Tone: ${request.brand_tone}` : "",
+    ]
+      .filter(Boolean)
+      .join(". ");
+
     const response = await api.post("/api/v1/content/generate-post", {
       product_id: request.productId || "",
+      product_name: request.productName,
       platform: (request.platform || "instagram").toLowerCase(),
-      objective: (request.type || "post").toLowerCase(),
+      objective: (request.campaignObjective || request.type || "post").toLowerCase(),
       language: request.language || "English",
-      additional_instruction: request.additionalInstructions
+      tone: request.brand_tone || request.tone || "Professional",
+      additional_instruction: compiledInstructions || request.additionalInstructions,
+      reference_images: request.productImages || [],
+      use_brand_kit: request.use_brand_kit,
+      brand_kit_id: request.brand_kit_id,
+      brand_name: request.brand_name,
+      brand_colors: request.brand_colors,
+      brand_font: request.brand_font,
+      brand_tone: request.brand_tone,
+      logo_url: request.logo_url,
+      include_logo: request.include_logo,
     });
 
     const apiData = response.data?.data || response.data || {};
@@ -68,19 +94,21 @@ export const contentService = {
       ? rawHashtags.split(/\s+/).filter(Boolean) 
       : [];
 
+    const effectiveMediaUrl = apiData.media_url || apiData.image_url || (request.productImages && request.productImages[0]) || "";
+
     const newContent: GeneratedContent = {
       _id: apiData._id || `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       type: request.type || 'Instagram Post',
       platform: request.platform || 'Instagram',
       language: request.language || 'English',
-      tone: request.tone || 'Professional',
+      tone: request.brand_tone || request.tone || 'Professional',
       productId: request.productId,
       targetAudience: request.targetAudience,
-      topic: request.topic,
+      topic: request.topic || request.productName,
       callToAction: request.callToAction || apiData.call_to_action || '',
       additionalInstructions: request.additionalInstructions,
       
-      title: apiData.headline || apiData.title || ("Generated " + (request.type || "Post")),
+      title: apiData.headline || apiData.title || (request.productName ? `${request.productName} • ${request.type}` : ("Generated " + (request.type || "Post"))),
       caption: apiData.caption || apiData.text || "",
       hashtags: formattedHashtags,
       suggestions: apiData.creative_direction ? [apiData.creative_direction] : (apiData.suggestions || []),
@@ -88,8 +116,8 @@ export const contentService = {
       status: 'Draft',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      media_url: apiData.media_url || apiData.image_url || "",
-      imageUrl: apiData.image_url || apiData.media_url || "",
+      media_url: effectiveMediaUrl,
+      imageUrl: effectiveMediaUrl,
     };
     
     return { data: newContent };

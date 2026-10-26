@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { GenerateReelRequest } from "@/types/reel";
+import { BrandKit } from "@/types/brand";
+import { BrandKitToggleCard } from "@/components/brand/BrandKitToggleCard";
 import { FashionService } from "@/services/fashion.service";
 import { imageService } from "@/services/image.service";
 import { reelService, CategoryItem } from "@/services/reel.service";
@@ -255,10 +257,28 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const audioInputRef = useRef<HTMLInputElement>(null);
 
-  // ──────────────────────────────────────────────
-  // STATE: Step 1 — Product & Category Selection
-  // ──────────────────────────────────────────────
   const [taxonomy, setTaxonomy] = useState<TaxonomyCategory[]>(DEFAULT_TAXONOMY);
+
+  // ──────────────────────────────────────────────
+  // STATE: Brand Kit Integration
+  // ──────────────────────────────────────────────
+  const [useBrandKit, setUseBrandKit] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("su_reel_use_brand_kit");
+      return stored !== "false";
+    }
+    return true;
+  });
+  const [loadedBrandKit, setLoadedBrandKit] = useState<BrandKit | null>(null);
+  const [isBrandKitComplete, setIsBrandKitComplete] = useState<boolean>(false);
+
+  const handleToggleBrandKit = (enabled: boolean) => {
+    setUseBrandKit(enabled);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("su_reel_use_brand_kit", enabled ? "true" : "false");
+    }
+  };
+
   const [selectedCategory, setSelectedCategory] = useState("fashion_clothing");
   const [selectedSubcategory, setSelectedSubcategory] = useState("men");
   const [selectedProductType, setSelectedProductType] = useState("T-Shirt");
@@ -649,9 +669,9 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
       platform,
       language,
       duration,
-      tone: voiceTone,
+      tone: (useBrandKit && loadedBrandKit?.tone) ? loadedBrandKit.tone : voiceTone,
       voiceover_type: voiceoverMode,
-      voice_tone: voiceoverMode === "ai" ? voiceTone : undefined,
+      voice_tone: voiceoverMode === "ai" ? ((useBrandKit && loadedBrandKit?.tone) ? loadedBrandKit.tone : voiceTone) : undefined,
       voice_language: voiceoverMode === "ai" ? voiceLanguage : undefined,
       voice_audio_url: voiceoverMode === "upload" ? (uploadedAudioUrl || undefined) : undefined,
       background_music: backgroundMusic,
@@ -667,9 +687,25 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
         customPrompt ? `Instructions: ${customPrompt}` : "",
         additionalMessage ? `Message: ${additionalMessage}` : "",
         `Aspect ratio: ${aspectRatio}`,
+        useBrandKit && loadedBrandKit?.business_name ? `Brand: ${loadedBrandKit.business_name}` : "",
+        useBrandKit && loadedBrandKit?.tone ? `Tone: ${loadedBrandKit.tone}` : "",
       ]
         .filter(Boolean)
         .join(". "),
+
+      // Brand Kit parameters
+      use_brand_kit: useBrandKit && Boolean(loadedBrandKit && isBrandKitComplete),
+      brand_kit_id: (useBrandKit && loadedBrandKit) ? loadedBrandKit.id : undefined,
+      brand_name: (useBrandKit && loadedBrandKit) ? loadedBrandKit.business_name : undefined,
+      brand_colors: (useBrandKit && loadedBrandKit) ? {
+        primary: loadedBrandKit.primary_color,
+        secondary: loadedBrandKit.secondary_color,
+        accent: loadedBrandKit.accent_color,
+      } : undefined,
+      brand_font: (useBrandKit && loadedBrandKit) ? loadedBrandKit.font : undefined,
+      brand_tone: (useBrandKit && loadedBrandKit) ? loadedBrandKit.tone : undefined,
+      logo_url: (useBrandKit && loadedBrandKit?.logo_url) ? loadedBrandKit.logo_url : undefined,
+      include_logo: Boolean(useBrandKit && loadedBrandKit?.logo_url),
     };
 
     onGenerate(payload);
@@ -701,6 +737,18 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
             LEFT COLUMN: The 5 Numbered Setup Steps (7-8 cols)
            ────────────────────────────────────────────── */}
         <div className="lg:col-span-8 space-y-6">
+
+          {/* Prominent Brand Kit Toggle */}
+          <BrandKitToggleCard
+            enabled={useBrandKit}
+            onChange={handleToggleBrandKit}
+            onBrandKitLoaded={(brand, complete) => {
+              setLoadedBrandKit(brand);
+              setIsBrandKitComplete(complete);
+            }}
+            title="Use My Brand Kit for Reel"
+            description="Automatically infuse your brand's colors, voiceover tone, font, and logo into this video reel."
+          />
 
           {/* ══════════════════════════════════════════
               STEP 1: Choose Product / Category
@@ -1599,6 +1647,17 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                   {effectiveProductName} {effectiveOffer ? `• ${effectiveOffer}` : ""}
                 </div>
               </div>
+
+              {/* Brand Logo Watermark Overlay when Brand Kit is active */}
+              {useBrandKit && loadedBrandKit?.logo_url && (
+                <div className="absolute top-3.5 right-3 bg-black/60 backdrop-blur-sm p-1 rounded-md border border-white/20 shadow-lg">
+                  <img
+                    src={loadedBrandKit.logo_url}
+                    alt={loadedBrandKit.business_name || "Logo"}
+                    className="w-5 h-5 object-contain"
+                  />
+                </div>
+              )}
 
               {/* Center Play Button Overlay */}
               <button

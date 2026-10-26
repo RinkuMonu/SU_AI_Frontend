@@ -1,7 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Sparkles, Settings, RefreshCw, Download, Edit2, Save, Calendar, Send, CheckCircle2, Loader2, ChevronDown, ChevronUp, Upload, X, AlertCircle, Package } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import Link from "next/link";
+import { 
+  Sparkles, 
+  Settings, 
+  RefreshCw, 
+  Download, 
+  Edit2, 
+  Save, 
+  Calendar, 
+  Send, 
+  CheckCircle2, 
+  Loader2, 
+  ChevronDown, 
+  ChevronUp, 
+  Upload, 
+  X, 
+  AlertCircle, 
+  Package, 
+  Bookmark, 
+  Tag, 
+  ShoppingBag, 
+  Flame, 
+  BookOpen, 
+  Award, 
+  Sliders, 
+  Check, 
+  Type, 
+  Palette, 
+  Layers, 
+  Image as ImageIcon,
+  ExternalLink,
+  Info
+} from "lucide-react";
 
 import ProductSelector from "@/components/ai/ProductSelector";
 import MultiImageUploader from "@/components/ai/MultiImageUploader";
@@ -9,14 +41,17 @@ import PlatformSelector from "@/components/ai/PlatformSelector";
 import ObjectiveSelector from "@/components/ai/ObjectiveSelector";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 import { CornerDialog } from "@/components/ui/CornerDialog";
+import { BrandKitToggleCard } from "@/components/brand/BrandKitToggleCard";
 
 import { generatePost } from "@/services/content.service";
 import { FashionService } from "@/services/fashion.service";
 import { imageService } from "@/services/image.service";
 import api from "@/lib/api";
 import { resolveImageUrl, handleImageError, getAiFallbackImage } from "@/lib/imageUtils";
+import { useAuth } from "@/components/auth/AuthProvider";
 
-import type { GeneratedPost } from "@/types/content";
+import type { GeneratedPost, GeneratePostRequest } from "@/types/content";
+import type { BrandKit } from "@/types/brand";
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -32,33 +67,111 @@ const FacebookIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const WhatsAppIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-  </svg>
-);
-
 const LinkedinIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
   </svg>
 );
 
+interface ContentTypeCard {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: any;
+  defaultObjective: string;
+  badge?: string;
+  suggestions: string[];
+}
+
+const CONTENT_TYPES: ContentTypeCard[] = [
+  {
+    id: "product",
+    title: "Product Post",
+    subtitle: "Showcase features, pricing & product photography",
+    icon: ShoppingBag,
+    defaultObjective: "product_promotion",
+    suggestions: ["✨ Luxury Studio Shoot", "💎 Premium Quality", "🔥 Best Seller", "📸 Clean Minimalist"]
+  },
+  {
+    id: "offer",
+    title: "Offer Post",
+    subtitle: "Flash deals, discounts & seasonal promotional campaigns",
+    icon: Tag,
+    defaultObjective: "sales_conversion",
+    badge: "High Converting",
+    suggestions: ["⚡ Flat 40% Off", "⏳ 24h Flash Sale", "🎁 Buy 1 Get 1 Free", "🔥 Special Weekend Deal"]
+  },
+  {
+    id: "festival",
+    title: "Festival Post",
+    subtitle: "Cultural greetings, festive celebrations & holiday specials",
+    icon: Sparkles,
+    defaultObjective: "brand_awareness",
+    suggestions: ["🪔 Festive Special", "🎉 Grand Celebration", "✨ Festive Sparkle", "🌟 Holiday Greetings"]
+  },
+  {
+    id: "new_arrival",
+    title: "New Arrival",
+    subtitle: "Fresh collections, newly launched products & trends",
+    icon: Flame,
+    defaultObjective: "product_launch",
+    suggestions: ["🔥 Just Dropped", "🆕 New Collection", "👑 Limited Edition", "🌟 Trendy & Exclusive"]
+  },
+  {
+    id: "tips_guide",
+    title: "Tips & Guide",
+    subtitle: "Styling tips, how-to guides & value-first content",
+    icon: BookOpen,
+    defaultObjective: "engagement",
+    suggestions: ["💡 3 Ways to Style", "👗 How-To Guide", "✨ Maintenance Tips", "📌 Expert Recommendation"]
+  },
+  {
+    id: "brand_story",
+    title: "Brand Story",
+    subtitle: "Origin story, craftsmanship, values & behind the scenes",
+    icon: Award,
+    defaultObjective: "brand_awareness",
+    suggestions: ["🧵 Handcrafted with Care", "🌿 Authentic Quality", "📖 Our Origin Story", "⭐ Made with Passion"]
+  }
+];
+
 export default function AIPostPage() {
+  const { user } = useAuth();
   const [products, setProducts] = useState<any[]>([]);
   const [productIds, setProductIds] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+
+  // Content Type Selection
+  const [selectedContentType, setSelectedContentType] = useState<string>("product");
   
+  // Brand Kit Toggle State (Default true for business accounts)
+  const [useBrandKit, setUseBrandKit] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("su_ai_post_use_brand_kit");
+      return stored !== "false";
+    }
+    return true;
+  });
+  const [loadedBrandKit, setLoadedBrandKit] = useState<BrandKit | null>(null);
+  const [isBrandKitComplete, setIsBrandKitComplete] = useState<boolean>(false);
+
   // Natural Language Intent
   const [creativeInstruction, setCreativeInstruction] = useState("");
-  const SUGGESTIONS = ["✨ Luxury", "🪔 Diwali", "👗 Fashion Shoot", "💎 Premium", "🔥 Trending", "🌿 Minimal", "📸 Lifestyle", "🎉 Festive"];
-
-  // Advanced Options
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  
+  // Settings
   const [platform, setPlatform] = useState("instagram");
   const [objective, setObjective] = useState("product_promotion");
   const [language, setLanguage] = useState("English");
-  
+  const [manualTone, setManualTone] = useState("Luxury & Premium");
+
+  // Step 4: Additional Options
+  const [includeTextOnImage, setIncludeTextOnImage] = useState(true);
+  const [includeOffer, setIncludeOffer] = useState(false);
+  const [offerText, setOfferText] = useState("Flat 30% OFF");
+  const [includeLogo, setIncludeLogo] = useState(true);
+  const [generateCaptions, setGenerateCaptions] = useState(true);
+  const [generateHashtags, setGenerateHashtags] = useState(true);
+
   // UI State
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
@@ -66,10 +179,29 @@ export default function AIPostPage() {
   const [generatedPost, setGeneratedPost] = useState<GeneratedPost | null>(null);
   const [hasInsufficientCredits, setHasInsufficientCredits] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showCatalogSelector, setShowCatalogSelector] = useState(false);
+
+  // Editable outputs
   const [editedHeadline, setEditedHeadline] = useState("");
   const [editedCaption, setEditedCaption] = useState("");
   const [editedCta, setEditedCta] = useState("");
   const [editedHashtags, setEditedHashtags] = useState("");
+
+  // Publish / Schedule Modals
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
+  const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
+  const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
+  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
+  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
+
+  // Save toggle preference locally
+  const handleToggleBrandKit = (enabled: boolean) => {
+    setUseBrandKit(enabled);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("su_ai_post_use_brand_kit", enabled ? "true" : "false");
+    }
+  };
 
   useEffect(() => {
     async function loadProducts() {
@@ -83,15 +215,28 @@ export default function AIPostPage() {
     loadProducts();
   }, []);
 
+  // Update suggestions according to active content type
+  const activeContentTypeObj = useMemo(() => {
+    return CONTENT_TYPES.find(c => c.id === selectedContentType) || CONTENT_TYPES[0];
+  }, [selectedContentType]);
+
+  const handleContentTypeSelect = (typeId: string) => {
+    setSelectedContentType(typeId);
+    const item = CONTENT_TYPES.find(c => c.id === typeId);
+    if (item) {
+      setObjective(item.defaultObjective);
+    }
+  };
+
   const handleSuggestionClick = (suggestion: string) => {
-    const text = suggestion.replace(/[^\w\s]/gi, '').trim();
+    const text = suggestion.replace(/[^\w\s%]/gi, '').trim();
     if (creativeInstruction.toLowerCase().includes(text.toLowerCase())) return;
     setCreativeInstruction(prev => prev ? `${prev}, ${text}` : text);
   };
 
   const handleGenerate = async () => {
-    if (!creativeInstruction.trim() && uploadedImages.length === 0) {
-      alert("Please enter what you want the AI to create or upload a reference image.");
+    if (!creativeInstruction.trim() && uploadedImages.length === 0 && productIds.length === 0) {
+      alert("Please describe your post, upload reference photos, or select a product from your catalog.");
       return;
     }
 
@@ -101,25 +246,53 @@ export default function AIPostPage() {
       setGeneratedPost(null);
       setHasInsufficientCredits(false);
 
-      // Simulate loading steps for UX
+      // Loading steps for transparent UX feedback
       const loadingInterval = setInterval(() => {
         setLoadingStep(prev => prev < 4 ? prev + 1 : prev);
-      }, 2500);
+      }, 2400);
 
-      let result = await generatePost({
+      const requestPayload: GeneratePostRequest = {
         product_id: productIds[0] || "",
         product_ids: productIds,
         platform,
         objective,
         language,
+        content_type: selectedContentType,
         additional_instruction: creativeInstruction,
         reference_images: uploadedImages,
-      });
+        include_text_on_image: includeTextOnImage,
+        include_offer: includeOffer,
+        offer_text: includeOffer ? offerText : undefined,
+        generate_captions: generateCaptions,
+        generate_hashtags: generateHashtags,
+      };
+
+      // Apply Brand Kit parameters if enabled and valid
+      if (useBrandKit && loadedBrandKit && isBrandKitComplete) {
+        requestPayload.use_brand_kit = true;
+        requestPayload.brand_kit_id = loadedBrandKit.id;
+        requestPayload.brand_name = loadedBrandKit.business_name || user?.businessName || user?.name;
+        requestPayload.brand_colors = {
+          primary: loadedBrandKit.primary_color,
+          secondary: loadedBrandKit.secondary_color,
+          accent: loadedBrandKit.accent_color,
+        };
+        requestPayload.brand_font = loadedBrandKit.font;
+        requestPayload.brand_tone = loadedBrandKit.tone;
+        requestPayload.logo_url = loadedBrandKit.logo_url;
+        requestPayload.include_logo = includeLogo && Boolean(loadedBrandKit.logo_url);
+      } else {
+        requestPayload.use_brand_kit = false;
+        requestPayload.brand_tone = manualTone;
+        requestPayload.include_logo = false;
+      }
+
+      let result = await generatePost(requestPayload);
 
       clearInterval(loadingInterval);
       setLoadingStep(5);
 
-      const promptContext = result.creative_direction || result.headline || creativeInstruction || "commercial product photoshoot";
+      const promptContext = result.creative_direction || result.headline || creativeInstruction || `${activeContentTypeObj.title} social media visual`;
       const resolvedImage = resolveImageUrl(result.image_url || result.media_url, promptContext);
       result = {
         ...result,
@@ -130,7 +303,7 @@ export default function AIPostPage() {
       setGeneratedPost(result);
       setEditedHeadline(result.headline || "");
       setEditedCaption(result.caption || "");
-      setEditedCta(result.call_to_action || "");
+      setEditedCta(result.call_to_action || (includeOffer ? "Claim Offer 👉" : "Learn More"));
       setEditedHashtags(result.hashtags?.join(" ") || "");
       window.dispatchEvent(new Event("credit-update"));
 
@@ -143,14 +316,14 @@ export default function AIPostPage() {
       }
     } finally {
       setLoading(false);
-      setTimeout(() => setLoadingStep(0), 1000);
+      setTimeout(() => setLoadingStep(0), 800);
     }
   };
 
   const regenerateImage = async () => {
     try {
       setIsRegeneratingImage(true);
-      const promptText = generatedPost?.creative_direction || editedHeadline || creativeInstruction || "realistic social media commercial photography";
+      const promptText = generatedPost?.creative_direction || editedHeadline || creativeInstruction || `${activeContentTypeObj.title} commercial photoshoot`;
       
       try {
         const result = await imageService.generateImage({
@@ -168,19 +341,19 @@ export default function AIPostPage() {
         console.warn("Regenerate image fallback", e);
       }
 
-      // Generate a fresh seed AI visual if backend endpoint is unavailable
+      // Generate a fresh seed visual if backend is busy
       const seed = Math.floor(Math.random() * 1000000);
       const freshAiUrl = getAiFallbackImage(promptText, seed);
       setGeneratedPost(prev => prev ? { ...prev, image_url: freshAiUrl, media_url: freshAiUrl } : null);
     } finally {
-      setTimeout(() => setIsRegeneratingImage(false), 1500);
+      setTimeout(() => setIsRegeneratingImage(false), 1200);
     }
   };
 
   const regenerateCaption = async () => {
     try {
       setLoading(true);
-      const promptText = creativeInstruction || "special promotional campaign";
+      const promptText = creativeInstruction || `${activeContentTypeObj.title} post`;
       
       try {
         const newPost = await generatePost({
@@ -188,8 +361,10 @@ export default function AIPostPage() {
           platform,
           objective,
           language,
-          additional_instruction: `Regenerate caption for: ${promptText}`,
+          additional_instruction: `Regenerate engaging caption for: ${promptText}. Tone: ${useBrandKit && loadedBrandKit?.tone ? loadedBrandKit.tone : manualTone}`,
           reference_images: uploadedImages,
+          use_brand_kit: useBrandKit,
+          brand_tone: useBrandKit && loadedBrandKit?.tone ? loadedBrandKit.tone : manualTone,
         });
         if (newPost?.caption) {
           setGeneratedPost(prev => prev ? { ...prev, caption: newPost.caption, headline: newPost.headline || prev.headline } : null);
@@ -201,7 +376,8 @@ export default function AIPostPage() {
         console.warn("API caption regeneration fallback", err);
       }
 
-      const fallbackCaption = `✨ ${creativeInstruction || "Exclusive Collection"}\n\nExperience unmatched quality and style. Designed for elegance and built to impress.\n\n👉 Click link in bio to explore now!`;
+      const brandName = useBrandKit && loadedBrandKit?.business_name ? loadedBrandKit.business_name : "Our Brand";
+      const fallbackCaption = `✨ ${creativeInstruction || activeContentTypeObj.title}\n\nExperience unmatched quality by ${brandName}. Designed to stand out and bring unmatched elegance.\n\n👉 Tap link in bio to explore the latest collection!`;
       setGeneratedPost(prev => prev ? { ...prev, caption: fallbackCaption } : null);
       setEditedCaption(fallbackCaption);
     } catch (e) {
@@ -219,7 +395,7 @@ export default function AIPostPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `ai-post-${Date.now()}.jpg`;
+      a.download = `ai-post-${selectedContentType}-${Date.now()}.jpg`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -239,7 +415,7 @@ export default function AIPostPage() {
         hashtags: editedHashtags.split(" ").filter(t => t.trim() !== "").map(t => t.replace("#", ""))
       };
       await api.post("/api/v1/content/save", { post: postToSave });
-      setPublishSuccessMessage("Post saved successfully to your library!");
+      setPublishSuccessMessage("Post saved successfully to your Content Library!");
     } catch (e) {
       setPublishSuccessMessage("Saved to local drafts.");
     }
@@ -249,7 +425,7 @@ export default function AIPostPage() {
     try {
       setLoading(true);
       const scheduledDate = new Date();
-      scheduledDate.setDate(scheduledDate.getDate() + 1); // Schedule for tomorrow by default for demo
+      scheduledDate.setDate(scheduledDate.getDate() + 1);
       
       await api.post("/api/v1/instagram/schedule", {
         scheduled_for: scheduledDate.toISOString(),
@@ -265,15 +441,7 @@ export default function AIPostPage() {
     }
   };
 
-  const [showPublishModal, setShowPublishModal] = useState(false);
-  const [isPublishingInstagram, setIsPublishingInstagram] = useState(false);
-  const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
-  const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
-  const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
-  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
-
   const handlePublishPlatform = async (platformTarget: 'instagram' | 'facebook' | 'linkedin') => {
-
     if (platformTarget === 'linkedin') {
       setIsPublishingLinkedIn(true);
       const effectiveImageUrl = generatedPost?.image_url || generatedPost?.media_url;
@@ -325,342 +493,753 @@ export default function AIPostPage() {
   };
 
   const toggleEdit = () => {
-    if (isEditing) {
-      setIsEditing(false);
-    } else {
-      setIsEditing(true);
-    }
+    setIsEditing(!isEditing);
   };
 
+  const effectiveBrandName = loadedBrandKit?.business_name || user?.businessName || user?.name || "My Brand";
+
   return (
-    <main className="py-10">
-      <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Input Column */}
-        <div className="lg:col-span-6 space-y-6">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">AI Post Maker</h1>
-            <p className="text-text-muted">Create scroll-stopping social media content with AI. Powered by your Business, Brand Kit & Products.</p>
+    <main className="py-6 sm:py-8 px-3 sm:px-6 max-w-7xl mx-auto space-y-6">
+      
+      {/* ──────────────────────────────────────────────────
+          Page Header with "My Posts" Library Action
+         ────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-5">
+        <div>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              AI Post Maker
+            </h1>
+            <span className="px-2.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold uppercase tracking-wider border border-brand-purple/30">
+              Studio Pro
+            </span>
           </div>
+          <p className="mt-1 text-xs sm:text-sm text-text-muted">
+            Create scroll-stopping social media posts powered by your Business, Brand Kit &amp; Products.
+          </p>
+        </div>
 
-          {hasInsufficientCredits && <InsufficientCreditsAlert />}
+        {/* My Posts Shortcut Button */}
+        <Link
+          href="/content-library"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-border hover:border-brand-purple/60 hover:text-white text-text-muted font-medium text-xs sm:text-sm shadow-sm transition-all self-start sm:self-auto cursor-pointer"
+        >
+          <Bookmark className="w-4 h-4 text-brand-purple" />
+          <span>My Posts</span>
+        </Link>
+      </div>
 
-          {/* Product Catalog Selection */}
-          {products.length > 0 && (
-            <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Package className="w-5 h-5 text-brand-purple" />
-                  Select Product from Catalog <span className="text-xs font-normal text-text-muted">(Optional)</span>
-                </h2>
-                {productIds.length > 0 && (
-                  <button 
-                    onClick={() => setProductIds([])}
-                    className="text-xs text-brand-purple hover:underline"
-                  >
-                    Clear selection
-                  </button>
+      {hasInsufficientCredits && <InsufficientCreditsAlert />}
+
+      {/* ──────────────────────────────────────────────────
+          Content Type Selection Cards
+         ────────────────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
+            Select Content Type
+          </label>
+          <span className="text-xs text-text-muted">
+            Choose what type of post you want AI to generate
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {CONTENT_TYPES.map((type) => {
+            const Icon = type.icon;
+            const isSelected = selectedContentType === type.id;
+            return (
+              <button
+                key={type.id}
+                type="button"
+                onClick={() => handleContentTypeSelect(type.id)}
+                className={`relative p-3.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
+                  isSelected
+                    ? "bg-[#0f1d3d] border-brand-purple shadow-lg shadow-purple-500/10 ring-1 ring-brand-purple"
+                    : "bg-surface/70 border-border hover:border-border/80 hover:bg-surface"
+                }`}
+              >
+                {type.badge && (
+                  <span className="absolute top-2 right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-brand-purple text-white uppercase tracking-wider">
+                    {type.badge}
+                  </span>
                 )}
-              </div>
-              <p className="text-xs text-text-muted mb-4">
-                Select a product to automatically inject its name, pricing, and visual traits into your post.
-              </p>
-              <ProductSelector
-                products={products}
-                value={productIds}
-                onChange={setProductIds}
-                maxSelection={1}
-              />
-            </section>
-          )}
+                <div>
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2.5 transition-colors ${
+                      isSelected
+                        ? "bg-brand-purple text-white"
+                        : "bg-white/5 text-text-muted group-hover:text-white group-hover:bg-white/10"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-semibold text-white text-xs sm:text-sm tracking-tight mb-0.5">
+                    {type.title}
+                  </h4>
+                  <p className="text-[11px] text-text-muted line-clamp-2 leading-relaxed">
+                    {type.subtitle}
+                  </p>
+                </div>
 
-          <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-2 text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-brand-purple" />
-              Tell AI What You Want
-            </h2>
-            
+                {isSelected && (
+                  <div className="mt-2.5 pt-2 border-t border-brand-purple/20 flex items-center gap-1 text-[11px] font-bold text-brand-purple">
+                    <Check className="w-3 h-3" />
+                    <span>Selected</span>
+                  </div>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ──────────────────────────────────────────────────
+          Two-Column Workspace Layout
+         ────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
+        
+        {/* ── LEFT COLUMN: Inputs & Generation Settings ── */}
+        <div className="lg:col-span-7 space-y-5">
+          
+          {/* Prominent Brand Kit Toggle Banner */}
+          <BrandKitToggleCard
+            enabled={useBrandKit}
+            onChange={handleToggleBrandKit}
+            onBrandKitLoaded={(brand, isComplete) => {
+              setLoadedBrandKit(brand);
+              setIsBrandKitComplete(isComplete);
+            }}
+          />
+
+          {/* ── STEP 1: Upload Product Images ── */}
+          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">1</span>
+                  Upload Product Images
+                </h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Upload 1–4 clear product photos. Gemini Vision will analyze texture, framing &amp; angles.
+                </p>
+              </div>
+
+              {products.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowCatalogSelector(!showCatalogSelector)}
+                  className="text-xs text-brand-purple hover:underline font-semibold flex items-center gap-1 cursor-pointer shrink-0"
+                >
+                  <Package className="w-3.5 h-3.5" />
+                  <span>{showCatalogSelector ? "Hide Catalog" : "Pick from Catalog"}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Catalog Selector Dropdown if toggled */}
+            {showCatalogSelector && products.length > 0 && (
+              <div className="p-4 rounded-xl bg-[#0a142c] border border-border/80 space-y-3 animate-in fade-in duration-200">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white">Select from your uploaded products:</span>
+                  {productIds.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setProductIds([])}
+                      className="text-brand-purple hover:underline"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+                <ProductSelector
+                  products={products}
+                  value={productIds}
+                  onChange={setProductIds}
+                  maxSelection={1}
+                />
+              </div>
+            )}
+
+            {/* Multi Image Uploader */}
+            <MultiImageUploader
+              value={uploadedImages}
+              onChange={setUploadedImages}
+              maxFiles={4}
+            />
+          </section>
+
+          {/* ── STEP 2: Describe Your Post ── */}
+          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-3.5">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">2</span>
+                Describe Your Post
+              </h3>
+              <span className="text-[11px] text-text-muted font-mono">
+                {creativeInstruction.length} / 500 chars
+              </span>
+            </div>
+
             <textarea
               value={creativeInstruction}
+              maxLength={500}
               onChange={(e) => setCreativeInstruction(e.target.value)}
-              placeholder="E.g. Create a festive Diwali campaign for pure silk sarees. Offer flat 40% discount, warm golden lighting and royal festive aesthetics..."
-              className="w-full bg-[#0a142c] border border-border rounded-xl p-4 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y mb-4"
+              placeholder={`E.g. Create a ${activeContentTypeObj.title.toLowerCase()} highlighting luxury textures, royal festive aesthetic, and rich lighting...`}
+              className="w-full bg-[#0a142c] border border-border rounded-xl p-3.5 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[110px] resize-y text-sm leading-relaxed"
             />
-            
-            <div className="flex flex-wrap gap-2 mb-4">
-              {SUGGESTIONS.map(s => (
-                <button
-                  key={s}
-                  onClick={() => handleSuggestionClick(s)}
-                  className="px-3 py-1.5 rounded-full border border-border bg-surface text-sm hover:border-brand-purple hover:text-brand-purple transition-colors text-text-muted"
-                >
-                  {s}
-                </button>
-              ))}
+
+            {/* Example prompt suggestion chips */}
+            <div className="space-y-1.5">
+              <div className="text-[11px] text-text-muted font-medium flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-brand-purple" />
+                <span>Quick suggestions for {activeContentTypeObj.title}:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {activeContentTypeObj.suggestions.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => handleSuggestionClick(s)}
+                    className="px-2.5 py-1 rounded-full border border-border bg-surface text-xs hover:border-brand-purple hover:text-brand-purple transition-colors text-text-muted cursor-pointer"
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <div className="pt-4 mt-4 border-t border-border">
-              <h3 className="text-sm font-semibold text-white mb-1 flex items-center gap-2">
-                <Upload className="w-4 h-4 text-brand-purple" />
-                Upload Reference Photos <span className="text-xs font-normal text-text-muted">(Gemini Vision Enabled)</span>
-              </h3>
-              <p className="text-xs text-text-muted mb-3">Upload 1-4 reference photos of your product, style, or festive flyer layout</p>
-              <MultiImageUploader
-                value={uploadedImages}
-                onChange={setUploadedImages}
-                maxFiles={4}
-              />
-            </div>
+            {/* Note when Brand Kit is active */}
+            {useBrandKit && isBrandKitComplete && (
+              <div className="pt-2 border-t border-border/50 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/5 px-3 py-2 rounded-xl border border-emerald-500/20">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>
+                  <strong>Brand Kit Active:</strong> Your saved visual style, brand tone (<strong>{loadedBrandKit?.tone || "Professional"}</strong>), and colors will be infused automatically.
+                </span>
+              </div>
+            )}
+          </section>
 
-            <div className="border-t border-border pt-4 mt-2">
-              <button 
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-sm text-text-muted hover:text-white transition-colors"
-              >
-                <Settings className="w-4 h-4" /> 
-                Campaign Target &amp; Language Options
-                {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </button>
-              
-              {showAdvanced && (
-                <div className="space-y-4 mt-4 pt-4 border-t border-border/50 animate-in fade-in slide-in-from-top-2">
-                  <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Target Platform</label>
-                    <PlatformSelector value={platform} onChange={setPlatform} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Campaign Objective</label>
-                    <ObjectiveSelector value={objective} onChange={setObjective} />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Copywriting Language</label>
-                    <select 
-                      value={language} 
-                      onChange={(e) => setLanguage(e.target.value)}
-                      className="w-full bg-[#0a142c] border border-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-purple"
-                    >
-                      <option value="Hinglish">🇮🇳 Hinglish (Most Popular for Conversions)</option>
-                      <option value="Hindi">हिंदी (Hindi)</option>
-                      <option value="English">English (Global Luxury)</option>
-                      <option value="Gujarati">ગુજરાતી (Gujarati)</option>
-                      <option value="Marathi">मराठी (Marathi)</option>
-                      <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
-                      <option value="Tamil">தமிழ் (Tamil)</option>
-                      <option value="Telugu">తెలుగు (Telugu)</option>
-                      <option value="Bengali">বাংলা (Bengali)</option>
-                    </select>
-                  </div>
-                </div>
+          {/* ── STEP 3: Choose Settings ── */}
+          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">3</span>
+                  Choose Settings
+                </h3>
+                <p className="text-xs text-text-muted mt-0.5">
+                  {useBrandKit && isBrandKitComplete
+                    ? "Target platform & language (Brand colors & tone locked from Brand Kit)"
+                    : "Configure language, tone, platform, and campaign objective"}
+                </p>
+              </div>
+
+              {useBrandKit && isBrandKitComplete && (
+                <span className="text-[11px] font-semibold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded-full border border-brand-purple/20">
+                  Brand Streamlined
+                </span>
               )}
+            </div>
+
+            {/* Target Platform */}
+            <div>
+              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                Target Platform
+              </label>
+              <PlatformSelector value={platform} onChange={setPlatform} />
+            </div>
+
+            {/* Campaign Objective */}
+            <div>
+              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                Campaign Objective
+              </label>
+              <ObjectiveSelector value={objective} onChange={setObjective} />
+            </div>
+
+            {/* Language Selector */}
+            <div>
+              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
+                Copywriting Language
+              </label>
+              <select 
+                value={language} 
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full bg-[#0a142c] border border-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-purple cursor-pointer"
+              >
+                <option value="English">English (Global Luxury &amp; Professional)</option>
+                <option value="Hinglish">🇮🇳 Hinglish (Most Popular for High Conversions)</option>
+                <option value="Hindi">हिंदी (Hindi)</option>
+                <option value="Gujarati">ગુજરાતી (Gujarati)</option>
+                <option value="Marathi">मराठी (Marathi)</option>
+                <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
+                <option value="Tamil">தமிழ் (Tamil)</option>
+                <option value="Telugu">తెలుగు (Telugu)</option>
+                <option value="Bengali">বাংলা (Bengali)</option>
+              </select>
+            </div>
+
+            {/* Manual Tone & Visuals when Brand Kit is OFF */}
+            {!useBrandKit && (
+              <div className="pt-3 border-t border-border/60 space-y-3 animate-in fade-in duration-200">
+                <label className="block text-xs font-bold text-text-muted uppercase tracking-wider">
+                  Brand Voice &amp; Tone (Manual)
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {["Luxury & Premium", "Energetic & Fun", "Urgent & Direct", "Warm & Welcoming"].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setManualTone(t)}
+                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
+                        manualTone === t
+                          ? "bg-brand-purple/20 border-brand-purple text-white ring-1 ring-brand-purple"
+                          : "bg-[#0a142c] border-border text-text-muted hover:text-white"
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
+          {/* ── STEP 4: Additional Options ── */}
+          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
+            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">4</span>
+              Additional Options
+            </h3>
+
+            <div className="space-y-3 text-sm">
+              {/* Option 1: Text on Image */}
+              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-white flex items-center gap-2">
+                    <Type className="w-4 h-4 text-brand-purple" />
+                    <span>Render Title &amp; Badge Text on Image</span>
+                  </div>
+                  <p className="text-xs text-text-muted">
+                    Overlays catchy campaign headline onto the generated visual
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={includeTextOnImage}
+                  onChange={(e) => setIncludeTextOnImage(e.target.checked)}
+                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                />
+              </label>
+
+              {/* Option 2: Include Offer / Discount */}
+              <div className="p-3 rounded-xl bg-[#0a142c] border border-border/80 space-y-3">
+                <label className="flex items-center justify-between cursor-pointer">
+                  <div className="space-y-0.5">
+                    <div className="font-semibold text-white flex items-center gap-2">
+                      <Tag className="w-4 h-4 text-amber-400" />
+                      <span>Include Promotional Offer or Discount</span>
+                    </div>
+                    <p className="text-xs text-text-muted">
+                      Highlights a limited-time coupon, sale tag or discount badge
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={includeOffer}
+                    onChange={(e) => setIncludeOffer(e.target.checked)}
+                    className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                  />
+                </label>
+
+                {includeOffer && (
+                  <div className="pt-2 border-t border-border/50 animate-in fade-in duration-150">
+                    <label className="block text-xs font-semibold text-text-muted mb-1">
+                      Offer Text / Discount Badge
+                    </label>
+                    <input
+                      type="text"
+                      value={offerText}
+                      onChange={(e) => setOfferText(e.target.value)}
+                      placeholder="E.g. Flat 40% OFF or CODE: FESTIVE40"
+                      className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-brand-purple font-semibold text-amber-300"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Option 3: Add Brand Logo */}
+              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-white flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-pink-400" />
+                    <span>Overlay Saved Brand Logo</span>
+                  </div>
+                  <p className="text-xs text-text-muted">
+                    {useBrandKit && loadedBrandKit?.logo_url
+                      ? "Automatically watermarks your saved Brand Kit logo in corner"
+                      : "Requires a saved brand logo in your Brand Kit"}
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  disabled={!loadedBrandKit?.logo_url && useBrandKit}
+                  checked={includeLogo && Boolean(loadedBrandKit?.logo_url || !useBrandKit)}
+                  onChange={(e) => setIncludeLogo(e.target.checked)}
+                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer disabled:opacity-40"
+                />
+              </label>
+
+              {/* Option 4: Generate Captions & Hashtags */}
+              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
+                <div className="space-y-0.5">
+                  <div className="font-semibold text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-400" />
+                    <span>Generate Viral Captions &amp; Hashtags</span>
+                  </div>
+                  <p className="text-xs text-text-muted">
+                    Synthesizes SEO-optimized captions and trending niche hashtags
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={generateCaptions && generateHashtags}
+                  onChange={(e) => {
+                    setGenerateCaptions(e.target.checked);
+                    setGenerateHashtags(e.target.checked);
+                  }}
+                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                />
+              </label>
             </div>
           </section>
 
+          {/* ── GENERATE POST BUTTON ── */}
           <button
+            type="button"
             onClick={handleGenerate}
             disabled={loading || (!creativeInstruction.trim() && uploadedImages.length === 0 && productIds.length === 0)}
-            className="w-full rounded-xl bg-brand-gradient text-white px-6 py-4 font-semibold disabled:opacity-50 hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shadow-lg shadow-purple-500/20 text-lg cursor-pointer"
+            className="w-full rounded-2xl bg-brand-gradient text-white px-6 py-4.5 font-bold disabled:opacity-50 hover:opacity-95 transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-purple-600/25 text-base sm:text-lg cursor-pointer transform active:scale-[0.99]"
           >
             {loading ? (
-              <><Loader2 className="w-6 h-6 animate-spin" /> Generating AI Post via Engine...</>
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Generating AI Post via Engine...</span>
+              </>
             ) : (
-              <><Sparkles className="w-6 h-6" /> Generate AI Post</>
+              <>
+                <Sparkles className="w-5 h-5" />
+                <span>Generate AI Post</span>
+                <span className="text-xs font-normal opacity-80 ml-1">
+                  ({useBrandKit && isBrandKitComplete ? "With Brand Kit" : "Standard"})
+                </span>
+              </>
             )}
           </button>
-          
         </div>
 
-        {/* Output / Loading Column */}
-        <div className="lg:col-span-6">
+        {/* ── RIGHT COLUMN: Live Generated-Post Preview & Editing Actions ── */}
+        <div className="lg:col-span-5 sticky top-6 space-y-4">
+          
+          {/* Output / Loading Column */}
           {loading && (
-            <div className="rounded-2xl bg-surface border border-border p-8 shadow-lg h-full flex flex-col justify-center items-center text-center">
+            <div className="rounded-2xl bg-surface border border-border p-8 shadow-lg flex flex-col justify-center items-center text-center min-h-[460px]">
               <Loader2 className="w-12 h-12 text-brand-purple animate-spin mb-6" />
-              <div className="space-y-4 w-full max-w-sm text-left">
+              <h3 className="text-base font-bold text-white mb-4">
+                Creating Your AI Post...
+              </h3>
+              <div className="space-y-3.5 w-full max-w-sm text-left">
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 1 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Loader2 className="w-5 h-5 text-brand-purple animate-spin" />}
-                  <span className="text-white text-sm">1. Syncing business profile &amp; Brand Kit...</span>
+                  <span className="text-white text-xs sm:text-sm">1. Loading business identity &amp; Brand Kit...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 2 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 2 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-sm">2. Gemini Vision analyzing product &amp; references...</span>
+                  <span className="text-white text-xs sm:text-sm">2. Vision analyzing images &amp; content type...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 3 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 3 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-sm">3. Generating cultural copywriting &amp; viral hashtags...</span>
+                  <span className="text-white text-xs sm:text-sm">3. Crafting cultural copy &amp; viral hashtags...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 4 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 4 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 4 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-sm">4. Synthesizing 8K commercial photorealistic poster...</span>
+                  <span className="text-white text-xs sm:text-sm">4. Synthesizing commercial 8K visual poster...</span>
                 </div>
                 <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 5 ? 'opacity-100' : 'opacity-40'}`}>
                   {loadingStep > 5 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 5 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-sm">5. Packaging Instagram &amp; Facebook export assets...</span>
+                  <span className="text-white text-xs sm:text-sm">5. Packaging post ready for export &amp; publishing...</span>
                 </div>
               </div>
             </div>
           )}
 
+          {/* Empty State */}
           {!loading && !generatedPost && (
-            <div className="rounded-2xl bg-surface/50 border border-border border-dashed p-8 h-full flex flex-col justify-center items-center text-center text-text-muted">
-              <Sparkles className="w-12 h-12 mb-4 opacity-50" />
-              <h3 className="text-lg font-medium text-white mb-2">Ready to create</h3>
-              <p>Select your products, tell the AI what you want, and watch the magic happen.</p>
+            <div className="rounded-2xl bg-surface/60 border border-border border-dashed p-8 text-center text-text-muted min-h-[460px] flex flex-col justify-center items-center">
+              <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple mb-4">
+                <Sparkles className="w-7 h-7" />
+              </div>
+              <h3 className="text-base font-bold text-white mb-1.5">
+                Live Post Preview
+              </h3>
+              <p className="text-xs text-text-muted max-w-xs leading-relaxed mb-6">
+                Your generated post, visual mockup, copy &amp; hashtags will appear here ready to review, edit, and publish.
+              </p>
+
+              {/* Sample Mockup Frame */}
+              <div className="w-full max-w-xs rounded-xl bg-[#0a142c] border border-border/80 p-3 text-left space-y-2 opacity-60">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-slate-700" />
+                  <div className="h-3 w-24 bg-slate-700 rounded" />
+                </div>
+                <div className="aspect-square w-full rounded-lg bg-slate-800/60 flex items-center justify-center text-xs text-slate-500">
+                  Post Mockup Preview
+                </div>
+                <div className="h-2 w-full bg-slate-700/60 rounded" />
+                <div className="h-2 w-3/4 bg-slate-700/60 rounded" />
+              </div>
             </div>
           )}
 
+          {/* Generated Post Preview */}
           {!loading && generatedPost && (
-            <div className="rounded-2xl bg-surface border border-border overflow-hidden shadow-lg animate-in fade-in zoom-in duration-300">
+            <div className="rounded-2xl bg-surface border border-border overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-200">
               
-              <div className="p-4 bg-brand-purple/10 border-b border-border flex items-center justify-between">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-brand-purple" /> AI GENERATED POST
-                </h3>
+              {/* Header Bar */}
+              <div className="p-3.5 bg-gradient-to-r from-brand-purple/20 to-pink-500/10 border-b border-border flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-brand-purple flex items-center justify-center text-white">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                      Generated Post
+                    </h4>
+                    <span className="text-[10px] text-text-muted">
+                      {platform.toUpperCase()} • {activeContentTypeObj.title}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={toggleEdit}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0a142c] hover:bg-[#111e40] border border-border text-xs text-white transition-colors cursor-pointer"
+                  >
+                    {isEditing ? <><Save className="w-3.5 h-3.5" /> Done</> : <><Edit2 className="w-3.5 h-3.5" /> Edit Text</>}
+                  </button>
+                </div>
               </div>
-              
-              <div className="p-6 space-y-8">
-                {/* Image Section */}
-                <div className="space-y-4">
-                  <div className="aspect-square relative rounded-xl overflow-hidden bg-[#0a142c] border border-border group">
-                    {isRegeneratingImage && (
-                      <div className="absolute inset-0 bg-[#0a142c]/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
-                        <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-2" />
-                        <span className="text-xs font-semibold text-purple-200">Generating new AI visual...</span>
+
+              {/* Social Media Post Frame */}
+              <div className="p-4 sm:p-5 space-y-4">
+                
+                {/* Brand Account Header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {loadedBrandKit?.logo_url ? (
+                      <img
+                        src={loadedBrandKit.logo_url}
+                        alt={effectiveBrandName}
+                        className="w-8 h-8 rounded-full object-cover border border-border"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-purple to-pink-500 flex items-center justify-center text-white font-bold text-xs">
+                        {effectiveBrandName.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <img 
-                      key={generatedPost.image_url || generatedPost.media_url}
-                      src={resolveImageUrl(
-                        generatedPost.image_url || generatedPost.media_url, 
-                        generatedPost.creative_direction || editedHeadline || creativeInstruction
-                      )} 
-                      alt="AI Generated" 
-                      className="w-full h-full object-cover transition-opacity duration-300"
-                      onError={(e) => handleImageError(e, generatedPost.creative_direction || editedHeadline || creativeInstruction)}
-                      onLoad={() => setIsRegeneratingImage(false)}
-                    />
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-bold text-white">{effectiveBrandName}</span>
+                        <CheckCircle2 className="w-3 h-3 text-brand-purple" />
+                      </div>
+                      <span className="text-[10px] text-text-muted">Sponsored • Just now</span>
+                    </div>
                   </div>
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={regenerateImage} 
-                      disabled={isRegeneratingImage}
-                      className="flex-1 flex items-center justify-center gap-2 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors disabled:opacity-60 cursor-pointer"
-                    >
-                      <RefreshCw className={`w-4 h-4 ${isRegeneratingImage ? "animate-spin text-brand-purple" : ""}`} /> 
-                      {isRegeneratingImage ? "Regenerating..." : "Regenerate Image"}
-                    </button>
-                    <button onClick={handleDownloadImage} title="Download Image" className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors cursor-pointer">
-                      <Download className="w-4 h-4" />
-                    </button>
-                  </div>
+
+                  <span className="text-text-muted">
+                    {platform === "facebook" ? <FacebookIcon className="w-4 h-4" /> : platform === "linkedin" ? <LinkedinIcon className="w-4 h-4" /> : <InstagramIcon className="w-4 h-4" />}
+                  </span>
                 </div>
-                
-                {/* Headline Section */}
+
+                {/* Main Visual Image */}
+                <div className="relative aspect-square rounded-xl overflow-hidden bg-[#0a142c] border border-border group">
+                  {isRegeneratingImage && (
+                    <div className="absolute inset-0 bg-[#0a142c]/85 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
+                      <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-2" />
+                      <span className="text-xs font-bold text-purple-200">Generating new visual...</span>
+                    </div>
+                  )}
+
+                  <img 
+                    key={generatedPost.image_url || generatedPost.media_url}
+                    src={resolveImageUrl(
+                      generatedPost.image_url || generatedPost.media_url, 
+                      generatedPost.creative_direction || editedHeadline || creativeInstruction
+                    )} 
+                    alt="AI Generated Post" 
+                    className="w-full h-full object-cover transition-opacity duration-300"
+                    onError={(e) => handleImageError(e, generatedPost.creative_direction || editedHeadline || creativeInstruction)}
+                    onLoad={() => setIsRegeneratingImage(false)}
+                  />
+
+                  {/* Optional Offer / Discount Badge Overlay */}
+                  {includeOffer && offerText && (
+                    <div className="absolute top-3 left-3 bg-amber-500 text-black font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
+                      {offerText}
+                    </div>
+                  )}
+
+                  {/* Brand Logo Watermark Overlay */}
+                  {includeLogo && loadedBrandKit?.logo_url && (
+                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm p-1 rounded-lg border border-white/20">
+                      <img
+                        src={loadedBrandKit.logo_url}
+                        alt="Logo"
+                        className="w-7 h-7 object-contain"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Image Toolbar */}
+                <div className="flex gap-2">
+                  <button 
+                    type="button"
+                    onClick={regenerateImage} 
+                    disabled={isRegeneratingImage}
+                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-xs text-white transition-colors disabled:opacity-60 cursor-pointer font-medium"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isRegeneratingImage ? "animate-spin text-brand-purple" : ""}`} /> 
+                    <span>{isRegeneratingImage ? "Regenerating..." : "Regenerate Image"}</span>
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={handleDownloadImage} 
+                    title="Download Image" 
+                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-xs text-white transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
+                  </button>
+                </div>
+
+                {/* Headline Banner */}
                 {editedHeadline && !isEditing && (
-                  <div className="p-3.5 bg-brand-purple/15 border border-brand-purple/30 rounded-xl">
-                    <p className="text-xs uppercase font-semibold text-brand-purple tracking-wider mb-1 flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5" /> Headline
+                  <div className="p-3 bg-brand-purple/15 border border-brand-purple/30 rounded-xl">
+                    <p className="text-[10px] uppercase font-bold text-brand-purple tracking-wider mb-0.5 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> Headline
                     </p>
-                    <p className="text-base font-bold text-white">{editedHeadline}</p>
+                    <p className="text-sm font-bold text-white leading-snug">{editedHeadline}</p>
                   </div>
                 )}
 
-                {/* Caption Section */}
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-wider text-text-muted font-semibold">Caption & Content</h4>
-                  <div className="p-4 rounded-xl bg-[#0a142c] border border-border text-white text-sm leading-relaxed">
+                {/* Caption, CTA & Hashtags */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <h5 className="text-[11px] uppercase tracking-wider text-text-muted font-bold">
+                      Caption &amp; Copy
+                    </h5>
+                    <button
+                      type="button"
+                      onClick={regenerateCaption}
+                      className="text-[11px] text-brand-purple hover:underline font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      <span>Regenerate Copy</span>
+                    </button>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-[#0a142c] border border-border text-white text-xs sm:text-sm leading-relaxed">
                     {isEditing ? (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div>
-                          <label className="text-xs text-text-muted font-semibold block mb-1">Headline</label>
+                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Headline</label>
                           <input 
                             type="text"
                             value={editedHeadline}
                             onChange={(e) => setEditedHeadline(e.target.value)}
-                            placeholder="Headline"
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-3 text-white font-bold focus:outline-none focus:border-brand-purple"
+                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white font-bold text-xs focus:outline-none focus:border-brand-purple"
                           />
                         </div>
                         <div>
-                          <label className="text-xs text-text-muted font-semibold block mb-1">Caption</label>
+                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Caption</label>
                           <textarea 
                             value={editedCaption}
                             onChange={(e) => setEditedCaption(e.target.value)}
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-3 text-white focus:outline-none focus:border-brand-purple min-h-[120px] whitespace-pre-line"
+                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-brand-purple min-h-[100px] whitespace-pre-line leading-relaxed"
                           />
                         </div>
-                        <input 
-                          type="text"
-                          value={editedCta}
-                          onChange={(e) => setEditedCta(e.target.value)}
-                          placeholder="Call to Action"
-                          className="w-full bg-[#111e40] border border-border rounded-lg p-3 text-white focus:outline-none focus:border-brand-purple font-semibold text-brand-purple"
-                        />
-                        <input 
-                          type="text"
-                          value={editedHashtags}
-                          onChange={(e) => setEditedHashtags(e.target.value)}
-                          placeholder="Hashtags"
-                          className="w-full bg-[#111e40] border border-border rounded-lg p-3 text-blue-400 focus:outline-none focus:border-brand-purple"
-                        />
+                        <div>
+                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Call to Action (CTA)</label>
+                          <input 
+                            type="text"
+                            value={editedCta}
+                            onChange={(e) => setEditedCta(e.target.value)}
+                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white text-xs font-semibold text-brand-purple focus:outline-none focus:border-brand-purple"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Hashtags</label>
+                          <input 
+                            type="text"
+                            value={editedHashtags}
+                            onChange={(e) => setEditedHashtags(e.target.value)}
+                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-blue-400 text-xs focus:outline-none focus:border-brand-purple"
+                          />
+                        </div>
                       </div>
                     ) : (
                       <>
-                        <div className="whitespace-pre-line leading-relaxed text-gray-200">
+                        <div className="whitespace-pre-line text-slate-200">
                           {editedCaption}
                         </div>
                         
                         {editedCta && (
-                          <div className="mt-4 font-semibold text-brand-purple">
+                          <div className="mt-3 inline-block px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple font-bold text-xs border border-brand-purple/30">
                             {editedCta}
                           </div>
                         )}
                         
                         {editedHashtags && (
-                          <div className="mt-4 text-blue-400">
+                          <div className="mt-3 text-xs text-blue-400 font-medium leading-relaxed">
                             {editedHashtags.split(' ').filter(t => t.trim() !== "").map(tag => (tag.startsWith('#') ? tag : `#${tag}`)).join(' ')}
                           </div>
                         )}
                       </>
                     )}
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <button onClick={regenerateCaption} className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors">
-                      <RefreshCw className="w-4 h-4" /> Regenerate Caption
-                    </button>
-                    <button onClick={toggleEdit} className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-lg text-sm text-white transition-colors">
-                      {isEditing ? <><Save className="w-4 h-4" /> Done Editing</> : <><Edit2 className="w-4 h-4" /> Edit</>}
-                    </button>
-                  </div>
                 </div>
 
-                {/* Products */}
-                <div className="space-y-3">
-                  <h4 className="text-xs uppercase tracking-wider text-text-muted font-semibold">Selected Products</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {productIds.map(id => {
-                      const p = products.find(prod => prod.id === id);
-                      return p ? (
-                        <div key={id} className="flex items-center gap-2 bg-[#0a142c] border border-border px-3 py-1.5 rounded-full text-sm">
-                          <CheckCircle2 className="w-3 h-3 text-green-400" />
-                          {p.name}
-                        </div>
-                      ) : null;
-                    })}
-                  </div>
-                </div>
-
-
-
-                {/* Actions */}
-                <div className="pt-6 border-t border-border grid grid-cols-3 gap-3">
-                  <button onClick={savePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors cursor-pointer">
-                    <Save className="w-5 h-5" /> Save
+                {/* Actions: Save, Schedule, Publish */}
+                <div className="pt-4 border-t border-border grid grid-cols-3 gap-2.5">
+                  <button 
+                    type="button"
+                    onClick={savePost} 
+                    className="flex items-center justify-center gap-1.5 py-2.5 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <Save className="w-4 h-4 text-emerald-400" />
+                    <span>Save</span>
                   </button>
-                  <button onClick={schedulePost} className="flex items-center justify-center gap-2 py-3 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white font-medium transition-colors cursor-pointer">
-                    <Calendar className="w-5 h-5" /> Schedule
+
+                  <button 
+                    type="button"
+                    onClick={schedulePost} 
+                    className="flex items-center justify-center gap-1.5 py-2.5 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    <Calendar className="w-4 h-4 text-blue-400" />
+                    <span>Schedule</span>
                   </button>
-                  <button onClick={() => setShowPublishModal(true)} className="flex items-center justify-center gap-2 py-3 bg-brand-gradient hover:opacity-90 rounded-xl text-white font-medium transition-opacity shadow-lg shadow-purple-500/20 cursor-pointer">
-                    <Send className="w-5 h-5" /> Publish
+
+                  <button 
+                    type="button"
+                    onClick={() => setShowPublishModal(true)} 
+                    className="flex items-center justify-center gap-1.5 py-2.5 bg-brand-gradient hover:opacity-90 rounded-xl text-white text-xs font-bold transition-opacity shadow-lg shadow-purple-500/20 cursor-pointer"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Publish</span>
                   </button>
                 </div>
               </div>
@@ -669,72 +1248,75 @@ export default function AIPostPage() {
         </div>
       </div>
 
-      {/* Publish Platform Selection Modal */}
+      {/* ──────────────────────────────────────────────────
+          Publish Platform Selection Modal
+         ────────────────────────────────────────────────── */}
       {showPublishModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-[#0b1630] border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-6 relative">
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#0b1630] border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-5 relative">
             <div className="flex justify-between items-center border-b border-border/50 pb-4">
-              <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                <Send className="w-5 h-5 text-brand-purple" /> Select Platform to Publish
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <Send className="w-4 h-4 text-brand-purple" />
+                <span>Select Platform to Publish</span>
               </h3>
               <button 
+                type="button"
                 onClick={() => setShowPublishModal(false)}
-                className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                className="text-text-muted hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-sm text-text-muted">Choose which platform you want to publish this post to:</p>
+            <p className="text-xs text-text-muted leading-relaxed">
+              Select which connected social channel you want to publish this post to:
+            </p>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               <button
+                type="button"
                 onClick={() => handlePublishPlatform('instagram')}
                 disabled={isPublishingInstagram || isPublishingFacebook || isPublishingLinkedIn}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold transition-all shadow-lg disabled:opacity-50 cursor-pointer"
+                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white font-bold text-xs sm:text-sm transition-all shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingInstagram ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Publishing to Instagram...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Publishing to Instagram...</>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                    </svg>
-                    Publish to Instagram
+                    <InstagramIcon className="w-4 h-4" />
+                    <span>Publish to Instagram</span>
                   </>
                 )}
               </button>
 
               <button
+                type="button"
                 onClick={() => handlePublishPlatform('facebook')}
                 disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold transition-all shadow-lg disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-[#1877F2] hover:bg-[#166fe5] text-white font-bold text-xs sm:text-sm transition-all shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingFacebook ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Publishing to Facebook...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Publishing to Facebook...</>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                    </svg>
-                    Publish to Facebook
+                    <FacebookIcon className="w-4 h-4" />
+                    <span>Publish to Facebook</span>
                   </>
                 )}
               </button>
 
-
-
               <button
+                type="button"
                 onClick={() => handlePublishPlatform('linkedin')}
                 disabled={isPublishingFacebook || isPublishingInstagram || isPublishingLinkedIn}
-                className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold transition-all shadow-lg disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2.5 py-3 px-4 rounded-xl bg-[#0A66C2] hover:bg-[#095196] text-white font-bold text-xs sm:text-sm transition-all shadow-md disabled:opacity-50 cursor-pointer"
               >
                 {isPublishingLinkedIn ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Opening LinkedIn...</>
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Opening LinkedIn...</>
                 ) : (
                   <>
-                    <LinkedinIcon className="w-5 h-5" />
-                    Publish to LinkedIn
+                    <LinkedinIcon className="w-4 h-4" />
+                    <span>Publish to LinkedIn</span>
                   </>
                 )}
               </button>
@@ -743,7 +1325,7 @@ export default function AIPostPage() {
         </div>
       )}
 
-      {/* Floating Corner Dialog for Errors */}
+      {/* Floating Notifications */}
       <CornerDialog
         open={!!publishErrorMessage}
         onClose={() => setPublishErrorMessage(null)}
@@ -752,7 +1334,6 @@ export default function AIPostPage() {
         message={publishErrorMessage || ""}
       />
 
-      {/* Floating Corner Dialog for Success */}
       <CornerDialog
         open={!!publishSuccessMessage}
         onClose={() => setPublishSuccessMessage(null)}

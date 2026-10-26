@@ -6,7 +6,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Navbar } from "@/components/layout/Navbar";
 import { OnboardingProvider } from "@/components/onboarding/OnboardingProvider";
-import { SocialConnectReminderDialog } from "@/components/social/SocialConnectReminderDialog";
 import { Loader2 } from "lucide-react";
 import { SidebarProvider } from "@/components/layout/SidebarContext";
 import { AutomaticBrandKitModal } from "@/components/brand/AutomaticBrandKitModal";
@@ -60,7 +59,6 @@ export default function DashboardLayout({
             <div className="py-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
               <OnboardingProvider>
                 {children}
-                <SocialConnectReminderDialog />
               </OnboardingProvider>
             </div>
           </main>

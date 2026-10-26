@@ -34,6 +34,20 @@ export interface GenerateReelRequest {
   offer_end_date?: string;
   offer_terms?: string;
   additional_instruction?: string;
+
+  // Brand Kit properties
+  use_brand_kit?: boolean;
+  brand_kit_id?: string;
+  brand_name?: string;
+  brand_colors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+  };
+  brand_font?: string;
+  brand_tone?: string;
+  logo_url?: string;
+  include_logo?: boolean;
 }
 
 export interface ReelScene {

@@ -53,6 +53,10 @@ const InstagramBrandIcon = ({ className = "h-5 w-5" }: { className?: string }) =
 const SNOOZE_STORAGE_KEY = "su_social_reminder_snooze_until";
 
 export function SocialConnectReminderDialog() {
+  return null;
+}
+
+function _SocialConnectReminderDialogUnused() {
   const router = useRouter();
   const pathname = usePathname();
 

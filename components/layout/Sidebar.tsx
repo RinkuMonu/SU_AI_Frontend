@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, Megaphone, MessageSquare, Star, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones, X } from "lucide-react";
+import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, MessageSquare, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
@@ -40,7 +40,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Brand Kit", href: "/brand", icon: Palette },
-  { name: "AI Content", href: "/content", icon: Sparkles },
+  { name: "AI Content Generation", href: "/content", icon: Sparkles },
   { 
     name: "Image and Reel Generation", 
     icon: Share2, 
@@ -64,7 +64,6 @@ const navigation = [
   { name: "Influencers", href: "/influencers", icon: Users },
   { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
-  { name: "Campaigns", href: "/campaigns", icon: Megaphone },
   {
     name: "Social Platforms",
     icon: Globe,
@@ -75,7 +74,6 @@ const navigation = [
       { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
     ]
   },
-  { name: "Reviews", href: "/reviews", icon: Star },
   { name: "Analytics", href: "/analytics", icon: TrendingUp },
   { name: "Billing & Plans", href: "/subscription", icon: Store },
   { name: "Support", href: "/support", icon: Headphones },

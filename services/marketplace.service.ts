@@ -232,31 +232,38 @@ export const marketplaceService = {
         try {
           const infRes = await api.get(`/api/v1/influencers/discover${query}`);
           if (infRes.data?.data && Array.isArray(infRes.data.data)) {
-            const mappedItems: MarketplaceInfluencer[] = infRes.data.data.map((inf: any) => ({
-              id: inf.id,
-              user_id: inf.user_id,
-              fullName: inf.username ? inf.username.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) : "Featured Creator",
-              username: inf.username || "creator",
-              email: inf.email,
-              niche: inf.category || "Fashion",
-              category: inf.category || "Fashion",
-              bio: inf.bio,
-              location: inf.location || "India",
-              profile_image: inf.profile_image,
-              is_verified: true,
-              follower_count: inf.follower_count || 150000,
-              engagement_rate: inf.engagement_rate || 4.8,
-              expectedPricePerPost: 15000,
-              connected_platforms: ["instagram"],
-              platforms_data: [
-                {
-                  platform: "instagram",
-                  username: inf.username,
-                  followers: inf.follower_count || 150000,
-                  engagement_rate: inf.engagement_rate || 4.8,
-                }
-              ]
-            }));
+            const mappedItems: MarketplaceInfluencer[] = infRes.data.data.map((inf: any) => {
+              const cleanUsername = (inf.username || "creator").replace(/^@+/, "");
+              const cleanLocation = inf.location && !inf.location.toLowerCase().includes("none") && !inf.location.toLowerCase().includes("null") ? inf.location : "";
+              const realFollowers = (inf.follower_count !== undefined && inf.follower_count !== null) ? Number(inf.follower_count) : 0;
+              const realEngagement = (inf.engagement_rate !== undefined && inf.engagement_rate !== null) ? Number(inf.engagement_rate) : 0.0;
+              const realPrice = (inf.expectedPricePerPost !== undefined && inf.expectedPricePerPost !== null) ? Number(inf.expectedPricePerPost) : 5000;
+              return {
+                id: inf.id,
+                user_id: inf.user_id,
+                fullName: inf.fullName || cleanUsername.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()),
+                username: cleanUsername,
+                email: inf.email,
+                niche: inf.category || inf.niche || "Fashion",
+                category: inf.category || inf.niche || "Fashion",
+                bio: inf.bio,
+                location: cleanLocation,
+                profile_image: inf.profile_image,
+                is_verified: inf.is_verified !== undefined ? inf.is_verified : true,
+                follower_count: realFollowers,
+                engagement_rate: realEngagement,
+                expectedPricePerPost: realPrice,
+                connected_platforms: inf.connected_platforms && inf.connected_platforms.length > 0 ? inf.connected_platforms : ["instagram"],
+                platforms_data: [
+                  {
+                    platform: "instagram",
+                    username: cleanUsername,
+                    followers: realFollowers,
+                    engagement_rate: realEngagement,
+                  }
+                ]
+              };
+            });
             return {
               success: true,
               data: {

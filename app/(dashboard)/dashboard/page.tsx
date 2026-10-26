@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import {
-  Sparkles, Megaphone,
+  Sparkles,
   Image as ImageIcon, Video, Camera, TrendingUp, ArrowRight, Zap
 } from "lucide-react";
 import Link from "next/link";
@@ -167,15 +167,15 @@ export default function DashboardPage() {
                 AI Studios
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">High-impact creative engines to generate posts, reels, avatars &amp; ads in seconds</p>
+            <p className="text-xs text-slate-400 mt-1">High-impact creative engines to generate posts, reels, and avatars in seconds</p>
           </div>
           <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            4 Active Studios Ready
+            3 Active Studios Ready
           </span>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {/* 1. Create Post Banner */}
           <Link href="/ai-post" className="block group">
             <div
@@ -306,51 +306,6 @@ export default function DashboardPage() {
                 </h3>
                 <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
                   Realistic Indian presenters &amp; models
-                </p>
-              </div>
-            </div>
-          </Link>
-
-          {/* 4. Create Ad Banner */}
-          <Link href="/campaigns" className="block group">
-            <div
-              className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-cyan-500/25 bg-[#0C0E1A]/80 hover:border-cyan-400/80 hover:shadow-[0_16px_40px_rgba(6,182,212,0.3)] transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
-            >
-              {/* Top Luminous Neon Beam */}
-              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
-
-              {/* Background Vector Artwork */}
-              <div className="absolute inset-0 z-0">
-                <Image
-                  src="/images/vectors/banner-create-ad.svg"
-                  alt="Create Ad Vector"
-                  fill
-                  className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
-              </div>
-
-              {/* Top Bar: Pill & Action Disc */}
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-cyan-500/20 text-cyan-200 border border-cyan-400/30 shadow-xs">
-                  <Megaphone className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>High ROAS</span>
-                </span>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-cyan-600 group-hover:border-cyan-400/60">
-                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-                </div>
-              </div>
-
-              {/* Bottom Content */}
-              <div className="relative z-10">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-semibold text-cyan-300/90 tracking-wide uppercase">📈 Meta &amp; WA Creatives</span>
-                </div>
-                <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-cyan-200 transition-colors">
-                  Create Ad
-                </h3>
-                <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
-                  Targeted Meta &amp; Social creatives
                 </p>
               </div>
             </div>

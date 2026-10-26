@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Upload,
   Sparkles,
@@ -30,6 +30,7 @@ import {
   HelpCircle,
   Layers,
   Wand2,
+  Circle,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import {
@@ -54,6 +55,8 @@ import {
   CUSTOMER_TYPES,
   LOCATION_FOCUS_OPTIONS,
   CURATED_COLOR_PRESETS,
+  calculateBrandKitCompletion,
+  createSvgLogoFallback,
 } from "@/lib/brand-kit";
 
 interface BrandKitRegistrationModalProps {
@@ -149,6 +152,51 @@ export function BrandKitRegistrationModal({
   const [isDraftSaving, setIsDraftSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [logoNotice, setLogoNotice] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
+
+  // Non-blocking auto-dismiss for errors
+  useEffect(() => {
+    if (formError) {
+      const timer = setTimeout(() => setFormError(null), 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [formError]);
+
+  // Dynamic Brand Kit completion calculation from active form fields
+  const currentProgress = useMemo(() => {
+    return calculateBrandKitCompletion(
+      {
+        business_name: businessName,
+        business_description: businessDescription,
+        business_category: businessCategory,
+        logo_url: logoUrl,
+        primary_color: colors.primary,
+        secondary_color: colors.secondary,
+        accent_color: colors.accent,
+        font: selectedFont,
+        tone: selectedTone,
+        target_audience: `${selectedAgeGroup} | ${selectedGender} | ${selectedCustomerType}`,
+        customer_type: selectedCustomerType,
+        location_focus: selectedLocationFocus,
+        business_model: businessModel,
+      },
+      existingBusiness ? { ...existingBusiness, name: businessName || existingBusiness.name } : { name: businessName }
+    );
+  }, [
+    businessName,
+    businessDescription,
+    businessCategory,
+    logoUrl,
+    colors,
+    selectedFont,
+    selectedTone,
+    selectedAgeGroup,
+    selectedGender,
+    selectedCustomerType,
+    selectedLocationFocus,
+    businessModel,
+    existingBusiness,
+  ]);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -278,16 +326,18 @@ export function BrandKitRegistrationModal({
     }
   };
 
-  // Handle AI Logo Generation via dedicated brand logo pipeline
+  // Handle AI Logo Generation via dedicated brand logo pipeline with robust fallbacks
   const handleGenerateAiLogo = async (variationSeed?: number) => {
     const effectiveName = businessName.trim() || existingBusiness?.name || "Brand";
 
     setAiGenerating(true);
     setFormError(null);
+    setLogoNotice(null);
 
     try {
       const res = await generateBrandLogo({
         business_name: effectiveName,
+        brand_name: effectiveName,
         business_category: businessCategory,
         style: selectedLogoStyle,
         preferred_colors: [colors.primary, colors.secondary, colors.accent],
@@ -310,14 +360,43 @@ export function BrandKitRegistrationModal({
             { logo_url: res.logo_url, seed: res.seed || 101, style: selectedLogoStyle },
           ]);
         }
+        setLogoNotice({ type: "success", message: "AI Logo generated successfully!" });
         setFormSuccess("AI Logo generated successfully!");
-        setTimeout(() => setFormSuccess(null), 3500);
+        setTimeout(() => {
+          setLogoNotice(null);
+          setFormSuccess(null);
+        }, 3500);
       } else {
-        setFormError("Logo generation completed without a valid image reference. Please try again.");
+        // Fallback: Generate vector monogram logo with user's selected palette
+        const fallbackSvg = createSvgLogoFallback(effectiveName, colors.primary, colors.secondary);
+        setLogoUrl(fallbackSvg);
+        setLogoLoadFailed(false);
+        setGeneratedVariations([
+          { logo_url: fallbackSvg, seed: 101, style: selectedLogoStyle },
+          { logo_url: createSvgLogoFallback(effectiveName, colors.secondary, colors.accent), seed: 102, style: "monogram_gradient" },
+          { logo_url: createSvgLogoFallback(effectiveName, colors.primary, colors.accent), seed: 103, style: "monogram_bold" },
+        ]);
+        setLogoNotice({ type: "info", message: "Created custom vector monogram logo using your brand palette!" });
+        setTimeout(() => setLogoNotice(null), 4000);
       }
     } catch (err: any) {
-      const msg = err.response?.data?.detail?.message || err.response?.data?.detail || err.message || "AI Logo generation failed. Please try again.";
-      setFormError(typeof msg === "string" ? msg : JSON.stringify(msg));
+      // Preserve all entered form data!
+      // Fallback: Generate high-res vector monogram so user is never blocked
+      const fallbackSvg = createSvgLogoFallback(effectiveName, colors.primary, colors.secondary);
+      setLogoUrl(fallbackSvg);
+      setLogoLoadFailed(false);
+      setGeneratedVariations([
+        { logo_url: fallbackSvg, seed: 101, style: selectedLogoStyle },
+        { logo_url: createSvgLogoFallback(effectiveName, colors.secondary, colors.accent), seed: 102, style: "monogram_gradient" },
+        { logo_url: createSvgLogoFallback(effectiveName, colors.primary, colors.accent), seed: 103, style: "monogram_bold" },
+      ]);
+      const errMsg = err.response?.data?.detail?.message || err.response?.data?.detail || err.message;
+      const cleanErr = typeof errMsg === "string" ? errMsg : "AI service temporarily busy";
+      setLogoNotice({
+        type: "info",
+        message: `${cleanErr}. Generated a vector monogram logo using your brand palette.`,
+      });
+      setTimeout(() => setLogoNotice(null), 5000);
     } finally {
       setAiGenerating(false);
     }
@@ -368,6 +447,11 @@ export function BrandKitRegistrationModal({
       }
       setExistingBrand(savedBrandKit);
 
+      // Dispatch dynamic update event
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("brandkit:updated", { detail: savedBrandKit }));
+      }
+
       setFormSuccess("Brand Kit draft saved!");
       setTimeout(() => setFormSuccess(null), 3000);
     } catch (err: any) {
@@ -378,26 +462,15 @@ export function BrandKitRegistrationModal({
     }
   };
 
-  // Complete & Save Brand Kit (Full validation required)
+  // Complete & Save Brand Kit (Flexible partial submission allowed)
   const handleCompleteSubmission = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
 
-    // Field-level check for smooth UX
-    if (!businessName.trim()) {
+    const effectiveName = businessName.trim() || existingBusiness?.name || existingBrand?.business_name;
+    // Only genuinely essential field is business name
+    if (!effectiveName) {
       setCurrentStep("basics");
       setFormError("Please enter your business name.");
-      return;
-    }
-
-    if (!logoUrl) {
-      setCurrentStep("logo");
-      setFormError("Please upload or generate a logo for your brand.");
-      return;
-    }
-
-    if (!businessDescription.trim() || businessDescription.trim().length < 5) {
-      setCurrentStep("basics");
-      setFormError("Please provide a business description (at least 5 characters).");
       return;
     }
 
@@ -408,10 +481,10 @@ export function BrandKitRegistrationModal({
     try {
       // 1. Save / Update business entity
       const businessPayload = {
-        name: businessName.trim(),
+        name: effectiveName,
         category: businessCategory,
         location: selectedLocationFocus,
-        description: businessDescription.trim(),
+        description: businessDescription.trim() || undefined,
         target_customer: `${selectedAgeGroup} | ${selectedGender} | ${selectedCustomerType}`,
         preferred_language: "hinglish",
         contact_email: user?.email || "",
@@ -424,22 +497,22 @@ export function BrandKitRegistrationModal({
         await businessService.createBusiness(businessPayload);
       }
 
-      // 2. Prepare full Brand Kit payload
+      // 2. Prepare full Brand Kit payload (partial submission allowed)
       const audienceSummary = `Age: ${selectedAgeGroup} | Gender: ${selectedGender} | Type: ${selectedCustomerType} | Focus: ${selectedLocationFocus}`;
 
       const brandPayload: BrandCreate = {
-        logo_url: logoUrl,
+        logo_url: logoUrl || undefined,
         primary_color: colors.primary,
         secondary_color: colors.secondary,
         accent_color: colors.accent,
         font: selectedFont,
         tone: selectedTone,
-        business_description: businessDescription.trim(),
-        brand_description: businessDescription.trim(),
+        business_description: businessDescription.trim() || undefined,
+        brand_description: businessDescription.trim() || undefined,
         target_audience: audienceSummary,
         website: website.trim() || undefined,
         social_style: `Theme: ${colors.primary}-${colors.secondary} | Model: ${businessModel}`,
-        business_name: businessName.trim(),
+        business_name: effectiveName,
         business_type: businessType,
         registration_number: registrationNumber.trim() || undefined,
         business_model: businessModel,
@@ -463,7 +536,13 @@ export function BrandKitRegistrationModal({
       }
       setExistingBrand(savedBrandKit);
 
-      setFormSuccess("Brand Kit completed successfully!");
+      // Dispatch dynamic updates for side notification and toggles
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("brandkit:updated", { detail: savedBrandKit }));
+        window.dispatchEvent(new CustomEvent("brandkit:completed", { detail: savedBrandKit }));
+      }
+
+      setFormSuccess("Brand Kit saved successfully!");
 
       setTimeout(() => {
         if (onComplete) onComplete();
@@ -582,6 +661,42 @@ export function BrandKitRegistrationModal({
             </button>
           );
         })}
+      </div>
+
+      {/* BRAND KIT DYNAMIC COMPLETION INDICATOR */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-[#090C19] border border-brand-purple/20 space-y-2.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-white flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
+              Brand Kit completion: <span className="text-brand-pink font-extrabold">{currentProgress.percentage}%</span>
+            </span>
+            <span className="text-text-muted">•</span>
+            <span className="text-text-muted">
+              Remaining: <span className="text-slate-300 font-semibold">{currentProgress.remainingPercentage}%</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="text-emerald-400 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="w-3 h-3" />
+              {currentProgress.completedSections.length} of 4 completed
+            </span>
+            {currentProgress.pendingSections.length > 0 && (
+              <span className="text-slate-400">
+                ({currentProgress.pendingSections.join(", ")} pending)
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Dynamic Progress Bar Track */}
+        <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${currentProgress.percentage}%` }}
+          />
+        </div>
       </div>
 
       {/* GLOBAL ALERTS */}
@@ -741,18 +856,15 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={() => {
-                    if (!businessName.trim()) {
+                    const effective = businessName.trim() || existingBusiness?.name || existingBrand?.business_name;
+                    if (!effective) {
                       setFormError("Please enter your business name.");
-                      return;
-                    }
-                    if (!businessDescription.trim() || businessDescription.trim().length < 5) {
-                      setFormError("Please provide a business description (at least 5 characters).");
                       return;
                     }
                     setFormError(null);
                     setCurrentStep("logo");
                   }}
-                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all"
+                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
                 >
                   <span>Continue to Logo Studio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -939,6 +1051,34 @@ export function BrandKitRegistrationModal({
                       </div>
                       <span className="text-[11px] text-text-muted">Powered by AI Vector Engine</span>
                     </div>
+
+                    {/* Logo Feedback / Non-blocking inline notification */}
+                    {logoNotice && (
+                      <div
+                        className={`p-3 rounded-xl text-xs flex items-center justify-between animate-in fade-in ${
+                          logoNotice.type === "success"
+                            ? "bg-emerald-500/15 border border-emerald-500/30 text-emerald-300"
+                            : "bg-brand-purple/20 border border-brand-purple/40 text-purple-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {logoNotice.type === "success" ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                          ) : (
+                            <Sparkles className="w-4 h-4 text-brand-pink shrink-0" />
+                          )}
+                          <span>{logoNotice.message}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setLogoNotice(null)}
+                          className="text-text-muted hover:text-white p-0.5"
+                          title="Dismiss notice"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    )}
 
                     {/* 1. Logo Style Selector */}
                     <div className="space-y-2">
@@ -1639,18 +1779,48 @@ export function BrandKitRegistrationModal({
                         {businessDescription}
                       </p>
                     ) : (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormError("Please provide a business description (at least 5 characters).");
-                          setCurrentStep("basics");
-                        }}
-                        className="text-amber-400 hover:text-amber-300 text-xs flex items-center gap-1.5 underline underline-offset-2"
-                      >
-                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                        <span>Description missing — click here to add on Basics step</span>
-                      </button>
+                      <div className="flex items-center justify-between py-1 text-slate-400">
+                        <span className="italic text-[11px] text-slate-400">No description entered yet (Optional - can be added anytime)</span>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentStep("basics")}
+                          className="text-xs text-brand-purple hover:text-brand-pink underline"
+                        >
+                          Add description
+                        </button>
+                      </div>
                     )}
+                  </div>
+                </div>
+
+                {/* DYNAMIC PROGRESS BREAKDOWN ON REVIEW */}
+                <div className="p-4 rounded-2xl bg-[#080B17] border border-brand-purple/20 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-white flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
+                      Brand Kit completion: <span className="text-brand-pink font-extrabold">{currentProgress.percentage}%</span>
+                    </span>
+                    <span className="text-text-muted">
+                      Remaining: <strong className="text-slate-300">{currentProgress.remainingPercentage}%</strong>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
+                    {currentProgress.sections.map((sec) => (
+                      <div key={sec.id} className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 truncate">
+                          {sec.completed ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          ) : (
+                            <Circle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                          )}
+                          <span className={`text-[11px] truncate ${sec.completed ? "text-slate-200" : "text-text-muted"}`}>{sec.name}</span>
+                        </div>
+                        <span className={`text-[10px] font-mono ml-1 ${sec.completed ? "text-emerald-400 font-bold" : "text-slate-500"}`}>
+                          {sec.completed ? "Done" : "Pending"}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1668,7 +1838,7 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={() => setCurrentStep("audience")}
-                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Edit</span>
@@ -1678,7 +1848,7 @@ export function BrandKitRegistrationModal({
                   type="button"
                   onClick={handleSaveDraft}
                   disabled={isDraftSaving || isSubmitting}
-                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                 >
                   {isDraftSaving ? <Loader2 className="w-4 h-4 animate-spin text-brand-pink" /> : <Save className="w-4 h-4" />}
                   <span>Save Draft</span>
@@ -1693,11 +1863,11 @@ export function BrandKitRegistrationModal({
                   {isSubmitting ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Completing Brand Kit...</span>
+                      <span>Saving Brand Kit...</span>
                     </>
                   ) : (
                     <>
-                      <span>Complete & Save Brand Kit</span>
+                      <span>{currentProgress.percentage < 100 ? "Save & Complete Brand Kit" : "Complete & Save Brand Kit"}</span>
                       <ArrowRight className="w-5 h-5" />
                     </>
                   )}
