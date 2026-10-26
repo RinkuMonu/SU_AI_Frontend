@@ -46,8 +46,29 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
     }
     return { message: JSON.stringify(detail), code };
   }
-  if (error.response?.data?.message) {
+  if (error.response?.data?.message && typeof error.response.data.message === 'string') {
     return { message: error.response.data.message, code };
+  }
+  if (typeof error.response?.data === 'string' && error.response.data.trim() && !error.response.data.trim().startsWith('<')) {
+    return { message: error.response.data.trim(), code };
+  }
+  if (error.response?.status === 500) {
+    return {
+      message: 'Server error (500): The authentication service is temporarily unavailable or the backend server is unreachable. Please verify that the backend server is running on port 8000 and try again.',
+      code: 'SERVER_500'
+    };
+  }
+  if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
+    return {
+      message: 'Gateway error: Unable to reach the backend server. Please verify the backend is running.',
+      code: 'GATEWAY_ERROR'
+    };
+  }
+  if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
+    return {
+      message: 'Connection failed: Unable to connect to the backend server at http://127.0.0.1:8000. Please ensure the backend is running.',
+      code: 'ECONNREFUSED'
+    };
   }
   return { message: error.message || fallbackMessage, code };
 }

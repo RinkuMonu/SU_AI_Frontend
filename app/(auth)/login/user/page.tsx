@@ -818,7 +818,7 @@ export default function LoginPage() {
                 } else if (parsed.error_description) {
                   msg = parsed.error_description;
                 }
-              } else if (msg.includes("invalid_grant")) {
+              } else if (msg.includes("invalid_grant") || msg.toLowerCase().includes("already used") || msg.toLowerCase().includes("expired")) {
                 msg = "Google authorization code expired or was already verified. Please try signing in again.";
               }
             } catch (_) {}
@@ -910,10 +910,13 @@ export default function LoginPage() {
               provider: "Google",
               title: "Google Authentication Failed",
               message: msg,
+              actionText: "Try Again with Google",
+              actionHref: "/login/user",
             });
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
+            sessionStorage.removeItem(`google_code_processed_${code}`);
           }
         } finally {
           inFlightGoogleCode = null;
