@@ -23,11 +23,38 @@ function VerifyPhoneContent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
 
-  const phone = searchParams.get("phone") || "";
-  const email = searchParams.get("email") || "";
-  const name = searchParams.get("name") || "";
+  const phone = searchParams.get("phone") || user?.phone || user?.phone_number || "";
+  const email = searchParams.get("email") || user?.email || "";
+  const name = searchParams.get("name") || user?.name || "";
+
+  // Auto-redirect authenticated users who don't require phone verification (e.g. Gmail / OAuth / no phone registered)
+  useEffect(() => {
+    if (user) {
+      const userPhone = (user.phone || user.phone_number || user.mobile || "").trim();
+      const isOAuth = Boolean(
+        user.auth_provider === "google" ||
+        user.provider === "google" ||
+        user.google_id ||
+        user.googleId ||
+        user.auth_provider === "facebook" ||
+        user.provider === "facebook" ||
+        user.auth_provider === "instagram" ||
+        user.provider === "instagram" ||
+        user.auth_provider === "linkedin" ||
+        user.provider === "linkedin" ||
+        (!userPhone && user.email)
+      );
+
+      if (isOAuth || !userPhone || user.phone_verified !== false) {
+        const destination = needsRoleSelection(user)
+          ? "/select-role"
+          : getDashboardRouteForRole(user.role);
+        router.replace(destination);
+      }
+    }
+  }, [user, router]);
 
   // 60-second cooldown timer for SMS OTP resend
   useEffect(() => {
@@ -107,6 +134,21 @@ function VerifyPhoneContent() {
   };
 
   if (!phone) {
+    if (user) {
+      const destination = needsRoleSelection(user)
+        ? "/select-role"
+        : getDashboardRouteForRole(user.role);
+      router.replace(destination);
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+          <div className="flex items-center gap-3 text-text-muted">
+            <Loader2 className="w-5 h-5 animate-spin text-brand-purple" />
+            <span>Redirecting to your dashboard...</span>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md bg-card shadow-lg border-border">

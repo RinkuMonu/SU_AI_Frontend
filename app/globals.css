@@ -145,6 +145,10 @@ body {
 }
 
 html {
+  scroll-behavior: auto;
+}
+
+html:focus-within {
   scroll-behavior: smooth;
 }
 

@@ -1,10 +1,17 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { Button } from './ui/button';
 import { Sparkles, ArrowRight, PlayCircle, Check } from 'lucide-react';
 
 import { PhoneModel } from './PhoneModel';
-import { FallingIcons } from './FallingIcons';
+
+const FallingIcons = dynamic(
+  () => import('./FallingIcons').then((mod) => mod.FallingIcons),
+  { ssr: false }
+);
 
 export function Hero() {
   return (

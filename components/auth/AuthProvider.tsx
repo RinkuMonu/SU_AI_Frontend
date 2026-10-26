@@ -70,6 +70,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           const freshUser = await authService.getCurrentUser();
           const mergedUser: User = { ...(cachedUser || {}), ...freshUser };
+          const userPhone = (mergedUser.phone || mergedUser.phone_number || mergedUser.mobile || '').trim();
+          const isOAuth = Boolean(
+            mergedUser.auth_provider === 'google' ||
+            mergedUser.provider === 'google' ||
+            mergedUser.auth_provider === 'facebook' ||
+            mergedUser.provider === 'facebook' ||
+            mergedUser.auth_provider === 'instagram' ||
+            mergedUser.provider === 'instagram' ||
+            mergedUser.auth_provider === 'linkedin' ||
+            mergedUser.provider === 'linkedin' ||
+            mergedUser.google_id ||
+            mergedUser.googleId ||
+            (!userPhone && mergedUser.email)
+          );
+          if (isOAuth || !userPhone) {
+            mergedUser.phone_verified = true;
+          }
           setUser(mergedUser);
           localStorage.setItem('user', JSON.stringify(mergedUser));
         } catch (error) {
@@ -134,18 +151,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // CASE 2: Authenticated user
-      const isPhoneVerified = user.phone_verified !== false;
+      const userPhone = (user.phone || user.phone_number || user.mobile || '').trim();
+      const isOAuth = Boolean(
+        user.auth_provider === 'google' ||
+        user.provider === 'google' ||
+        user.google_id ||
+        user.googleId ||
+        user.auth_provider === 'facebook' ||
+        user.provider === 'facebook' ||
+        user.auth_provider === 'instagram' ||
+        user.provider === 'instagram' ||
+        user.auth_provider === 'linkedin' ||
+        user.provider === 'linkedin' ||
+        (!userPhone && user.email)
+      );
+
+      // Users authenticated via Google/OAuth or users without a phone number do not require phone verification
+      const isPhoneVerified = isOAuth || !userPhone || user.phone_verified === true || user.phone_verified !== false;
       const role = user.role;
 
-      // 2a: Unverified phone number
-      if (!isPhoneVerified) {
+      // 2a: Unverified phone number (only for accounts that actually registered a phone number and are not OAuth)
+      if (!isPhoneVerified && userPhone && !isOAuth) {
         if (!isVerifyRoute) {
-          router.replace('/verify-phone');
+          router.replace(`/verify-phone?phone=${encodeURIComponent(userPhone)}`);
         }
         return;
       }
 
-      // If user is verified and still on verify-phone page, direct them forward
+      // If user is verified / does not need phone verification and is still on verify-phone page, direct them forward
       if (isVerifyRoute) {
         if (needsRoleSelection(user)) {
           router.replace('/select-role');

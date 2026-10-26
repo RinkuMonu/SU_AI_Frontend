@@ -748,6 +748,8 @@ export default function LoginPage() {
 
             const finalUser = {
               ...userObj,
+              auth_provider: "google",
+              phone_verified: true,
               onboardingCompleted: isDone,
             };
             login(token, finalUser);

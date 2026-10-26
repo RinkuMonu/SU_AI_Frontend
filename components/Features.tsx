@@ -151,17 +151,23 @@ export function Features() {
 
   const activePreset = PRESET_REELS[activePresetIndex];
 
-  // Self-running Autonomous Showcase Loop
+  // Self-running Autonomous Showcase Loop with bulletproof timer tracking
   useEffect(() => {
     let isCancelled = false;
-    let typingInterval: NodeJS.Timeout | null = null;
-    let progressInterval: NodeJS.Timeout | null = null;
-    let timeoutRef: NodeJS.Timeout | null = null;
+    const timers: NodeJS.Timeout[] = [];
+
+    const safeTimeout = (cb: () => void, delay: number) => {
+      const id = setTimeout(() => {
+        if (!isCancelled) cb();
+      }, delay);
+      timers.push(id);
+      return id;
+    };
 
     const preset = PRESET_REELS[activePresetIndex];
     const targetText = preset.prompt;
 
-    // IMPORTANT: Sync video URL immediately with the active preset prompt!
+    // Sync video URL immediately with active preset
     setCurrentVideoUrl(preset.videoUrl);
     setDisplayedText('');
     setPhase('typing');
@@ -171,22 +177,20 @@ export function Features() {
 
     let charIdx = 0;
 
-    // STEP 1: Auto-Type Prompt character by character
-    typingInterval = setInterval(() => {
+    // STEP 1: Auto-Type Prompt character by character (recursive safeTimeout avoids setInterval flooding)
+    const typeNextChar = () => {
       if (isCancelled) return;
       charIdx++;
       setDisplayedText(targetText.slice(0, charIdx));
 
-      if (charIdx >= targetText.length) {
-        if (typingInterval) clearInterval(typingInterval);
-
+      if (charIdx < targetText.length) {
+        safeTimeout(typeNextChar, 22);
+      } else {
         // STEP 2: Auto-Tap "Generate Reel" Button
-        timeoutRef = setTimeout(() => {
-          if (isCancelled) return;
+        safeTimeout(() => {
           setPhase('tap_button');
 
-          timeoutRef = setTimeout(() => {
-            if (isCancelled) return;
+          safeTimeout(() => {
             // STEP 3: Circular Spinner inside Phone
             setPhase('generating');
             setGeneratingProgress(12);
@@ -201,18 +205,16 @@ export function Features() {
             ];
 
             let stageStep = 0;
-            progressInterval = setInterval(() => {
+            const runProgressStage = () => {
               if (isCancelled) return;
               if (stageStep < stages.length) {
                 setGeneratingProgress(stages[stageStep].p);
                 setGenerationStage(stages[stageStep].msg);
                 stageStep++;
+                safeTimeout(runProgressStage, 380);
               } else {
-                if (progressInterval) clearInterval(progressInterval);
-
                 // STEP 4: Video Plays inside Smartphone
-                timeoutRef = setTimeout(() => {
-                  if (isCancelled) return;
+                safeTimeout(() => {
                   setPhase('playing');
                   setGeneratingProgress(100);
 
@@ -222,46 +224,38 @@ export function Features() {
                   }
 
                   // Play video for 6.5 seconds, then transition to Auto-Publishing animation
-                  timeoutRef = setTimeout(() => {
-                    if (isCancelled) return;
-                    
+                  safeTimeout(() => {
                     // STEP 5: "Publishing on Facebook, Instagram, LinkedIn & Shorts"
                     setPhase('publishing');
                     setPublishedPlatforms([]);
                     setPublishingProgress(15);
 
                     // Platform 1: Instagram
-                    timeoutRef = setTimeout(() => {
-                      if (isCancelled) return;
+                    safeTimeout(() => {
                       setPublishedPlatforms((prev) => [...prev, 'instagram']);
                       setPublishingProgress(40);
 
                       // Platform 2: Facebook
-                      timeoutRef = setTimeout(() => {
-                        if (isCancelled) return;
+                      safeTimeout(() => {
                         setPublishedPlatforms((prev) => [...prev, 'facebook']);
                         setPublishingProgress(65);
 
                         // Platform 3: LinkedIn
-                        timeoutRef = setTimeout(() => {
-                          if (isCancelled) return;
+                        safeTimeout(() => {
                           setPublishedPlatforms((prev) => [...prev, 'linkedin']);
                           setPublishingProgress(85);
 
                           // Platform 4: YouTube Shorts
-                          timeoutRef = setTimeout(() => {
-                            if (isCancelled) return;
+                          safeTimeout(() => {
                             setPublishedPlatforms((prev) => [...prev, 'youtube']);
                             setPublishingProgress(100);
 
                             // STEP 6: "Successfully Published! 🎉" Celebration Modal
-                            timeoutRef = setTimeout(() => {
-                              if (isCancelled) return;
+                            safeTimeout(() => {
                               setPhase('published_popup');
 
                               // Display Celebration Popup for 3.2 seconds, then cycle to next preset
-                              timeoutRef = setTimeout(() => {
-                                if (isCancelled) return;
+                              safeTimeout(() => {
                                 setActivePresetIndex((prev) => (prev + 1) % PRESET_REELS.length);
                               }, 3200);
 
@@ -279,19 +273,21 @@ export function Features() {
 
                 }, 250);
               }
-            }, 380);
+            };
+
+            safeTimeout(runProgressStage, 380);
 
           }, 300);
 
         }, 550);
       }
-    }, 18);
+    };
+
+    safeTimeout(typeNextChar, 22);
 
     return () => {
       isCancelled = true;
-      if (typingInterval) clearInterval(typingInterval);
-      if (progressInterval) clearInterval(progressInterval);
-      if (timeoutRef) clearTimeout(timeoutRef);
+      timers.forEach(clearTimeout);
     };
   }, [activePresetIndex]);
 

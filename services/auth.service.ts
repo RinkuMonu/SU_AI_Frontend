@@ -127,6 +127,21 @@ export const authService = {
 
       const profileImg = rawUser.image || rawUser.profileImageUrl || rawUser.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
 
+      const hasPhone = Boolean((rawUser.phone || rawUser.phone_number || rawUser.mobile || '').trim());
+      const isOAuth = Boolean(
+        rawUser.auth_provider === 'google' ||
+        rawUser.provider === 'google' ||
+        rawUser.auth_provider === 'facebook' ||
+        rawUser.provider === 'facebook' ||
+        rawUser.auth_provider === 'instagram' ||
+        rawUser.provider === 'instagram' ||
+        rawUser.auth_provider === 'linkedin' ||
+        rawUser.provider === 'linkedin' ||
+        rawUser.google_id ||
+        rawUser.googleId ||
+        (!hasPhone && rawUser.email)
+      );
+
       return {
         ...rawUser,
         id: rawUser.id || rawUser._id || '',
@@ -137,6 +152,7 @@ export const authService = {
         accountType: rawUser.accountType || 'user',
         image: profileImg || undefined,
         profileImageUrl: profileImg || undefined,
+        phone_verified: isOAuth || !hasPhone ? true : (rawUser.phone_verified ?? true),
         email_verified: rawUser.email_verified ?? rawUser.emailVerified ?? true,
         onboardingCompleted: onboardingDone,
         onboarding_step: rawUser.onboarding_step ?? 1,

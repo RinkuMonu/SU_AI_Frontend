@@ -150,12 +150,18 @@ export function AIPhotoshoot() {
       ? (displayedText[displayedText.length - 1] === ' ' ? 'space' : displayedText[displayedText.length - 1].toUpperCase())
       : '';
 
-  // Autonomous showcase loop
+  // Autonomous showcase loop with bulletproof timer tracking
   useEffect(() => {
     let isCancelled = false;
-    let typingInterval: NodeJS.Timeout | null = null;
-    let progressInterval: NodeJS.Timeout | null = null;
-    let timeoutRef: NodeJS.Timeout | null = null;
+    const timers: NodeJS.Timeout[] = [];
+
+    const safeTimeout = (cb: () => void, delay: number) => {
+      const id = setTimeout(() => {
+        if (!isCancelled) cb();
+      }, delay);
+      timers.push(id);
+      return id;
+    };
 
     const preset = PHOTOSHOOT_PRESETS[activePresetIndex];
     const targetText = preset.prompt;
@@ -168,30 +174,26 @@ export function AIPhotoshoot() {
     setPublishingProgress(0);
 
     // STEP 1: Photo snap / upload animation (1.2 seconds)
-    timeoutRef = setTimeout(() => {
-      if (isCancelled) return;
+    safeTimeout(() => {
       setPhase('typing');
 
       let charIdx = 0;
 
-      // STEP 2: Auto-type outfit prompt with Virtual Keyboard OPEN on device
-      typingInterval = setInterval(() => {
+      // STEP 2: Auto-type outfit prompt (recursive safeTimeout avoids setInterval flooding)
+      const typeNextChar = () => {
         if (isCancelled) return;
         charIdx++;
         setDisplayedText(targetText.slice(0, charIdx));
 
-        // When full prompt has been typed
-        if (charIdx >= targetText.length) {
-          if (typingInterval) clearInterval(typingInterval);
-
+        if (charIdx < targetText.length) {
+          safeTimeout(typeNextChar, 25);
+        } else {
           // Pause showing full prompt, then auto-tap generate button
-          timeoutRef = setTimeout(() => {
-            if (isCancelled) return;
+          safeTimeout(() => {
             setPhase('tap_button');
 
             // STEP 3: Virtual Keyboard slides down and closes! Garment fitting kicks in
-            timeoutRef = setTimeout(() => {
-              if (isCancelled) return;
+            safeTimeout(() => {
               setPhase('generating');
               setGeneratingProgress(16);
               setGeneratingStage('Detecting 3D body posture & torso contours...');
@@ -204,68 +206,57 @@ export function AIPhotoshoot() {
               ];
 
               let stageStep = 0;
-              progressInterval = setInterval(() => {
+              const runProgressStage = () => {
                 if (isCancelled) return;
                 if (stageStep < stages.length) {
                   setGeneratingProgress(stages[stageStep].p);
                   setGeneratingStage(stages[stageStep].msg);
                   stageStep++;
+                  safeTimeout(runProgressStage, 340);
                 } else {
-                  if (progressInterval) clearInterval(progressInterval);
-
                   // STEP 4: High-Fashion 8K Photoshoot Result Revealed
-                  timeoutRef = setTimeout(() => {
-                    if (isCancelled) return;
+                  safeTimeout(() => {
                     setPhase('showing_photoshoot');
                     setGeneratingProgress(100);
 
-                    // Display the photoshoot for 3.4 seconds, then auto-publish to Facebook, WhatsApp, Instagram
-                    timeoutRef = setTimeout(() => {
-                      if (isCancelled) return;
-                      
+                    // Display the photoshoot for 3.4 seconds, then auto-publish
+                    safeTimeout(() => {
                       // STEP 5: Auto-Publishing across Facebook, WhatsApp, Instagram, LinkedIn, Pinterest
                       setPhase('exporting');
                       setPublishedChannels([]);
                       setPublishingProgress(15);
 
                       // Channel 1: Instagram Feed & Story
-                      timeoutRef = setTimeout(() => {
-                        if (isCancelled) return;
+                      safeTimeout(() => {
                         setPublishedChannels((prev) => [...prev, 'instagram']);
                         setPublishingProgress(35);
 
                         // Channel 2: Facebook Page & Feed
-                        timeoutRef = setTimeout(() => {
-                          if (isCancelled) return;
+                        safeTimeout(() => {
                           setPublishedChannels((prev) => [...prev, 'facebook']);
                           setPublishingProgress(55);
 
                           // Channel 3: WhatsApp Business & Catalog
-                          timeoutRef = setTimeout(() => {
-                            if (isCancelled) return;
+                          safeTimeout(() => {
                             setPublishedChannels((prev) => [...prev, 'whatsapp']);
                             setPublishingProgress(75);
 
                             // Channel 4: LinkedIn Showcase
-                            timeoutRef = setTimeout(() => {
-                              if (isCancelled) return;
+                            safeTimeout(() => {
                               setPublishedChannels((prev) => [...prev, 'linkedin']);
                               setPublishingProgress(90);
 
                               // Channel 5: Pinterest Fashion Pin
-                              timeoutRef = setTimeout(() => {
-                                if (isCancelled) return;
+                              safeTimeout(() => {
                                 setPublishedChannels((prev) => [...prev, 'pinterest']);
                                 setPublishingProgress(100);
 
                                 // STEP 6: "Photoshoot Published Successfully!" Celebration Popup
-                                timeoutRef = setTimeout(() => {
-                                  if (isCancelled) return;
+                                safeTimeout(() => {
                                   setPhase('exported_popup');
 
                                   // Show celebration modal for 2.8 seconds, then cycle to next preset
-                                  timeoutRef = setTimeout(() => {
-                                    if (isCancelled) return;
+                                  safeTimeout(() => {
                                     setActivePresetIndex((prev) => (prev + 1) % PHOTOSHOOT_PRESETS.length);
                                   }, 2800);
 
@@ -285,21 +276,23 @@ export function AIPhotoshoot() {
 
                   }, 300);
                 }
-              }, 340);
+              };
+
+              safeTimeout(runProgressStage, 340);
 
             }, 350);
 
           }, 500);
         }
-      }, 28);
+      };
+
+      safeTimeout(typeNextChar, 25);
 
     }, 1200);
 
     return () => {
       isCancelled = true;
-      if (typingInterval) clearInterval(typingInterval);
-      if (progressInterval) clearInterval(progressInterval);
-      if (timeoutRef) clearTimeout(timeoutRef);
+      timers.forEach(clearTimeout);
     };
   }, [activePresetIndex]);
 

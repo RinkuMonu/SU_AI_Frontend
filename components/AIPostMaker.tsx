@@ -177,12 +177,18 @@ export function AIPostMaker() {
       ? (displayedText[displayedText.length - 1] === ' ' ? 'space' : displayedText[displayedText.length - 1].toUpperCase())
       : '';
 
-  // Self-running autonomous loop with Virtual Device Keyboard
+  // Self-running autonomous loop with bulletproof timer tracking
   useEffect(() => {
     let isCancelled = false;
-    let typingInterval: NodeJS.Timeout | null = null;
-    let progressInterval: NodeJS.Timeout | null = null;
-    let timeoutRef: NodeJS.Timeout | null = null;
+    const timers: NodeJS.Timeout[] = [];
+
+    const safeTimeout = (cb: () => void, delay: number) => {
+      const id = setTimeout(() => {
+        if (!isCancelled) cb();
+      }, delay);
+      timers.push(id);
+      return id;
+    };
 
     const preset = POST_PRESETS[activePresetIndex];
     const targetText = preset.prompt;
@@ -196,24 +202,21 @@ export function AIPostMaker() {
 
     let charIdx = 0;
 
-    // STEP 1: Auto-type full prompt with Virtual Keyboard OPEN on device
-    typingInterval = setInterval(() => {
+    // STEP 1: Auto-type full prompt (recursive safeTimeout avoids setInterval flooding)
+    const typeNextChar = () => {
       if (isCancelled) return;
       charIdx++;
       setDisplayedText(targetText.slice(0, charIdx));
 
-      // When full prompt has been typed
-      if (charIdx >= targetText.length) {
-        if (typingInterval) clearInterval(typingInterval);
-
+      if (charIdx < targetText.length) {
+        safeTimeout(typeNextChar, 25);
+      } else {
         // Pause showing full prompt, then auto-tap generate button
-        timeoutRef = setTimeout(() => {
-          if (isCancelled) return;
+        safeTimeout(() => {
           setPhase('tap_button');
 
           // STEP 2: Virtual Keyboard slides down and closes! Generation kicks in
-          timeoutRef = setTimeout(() => {
-            if (isCancelled) return;
+          safeTimeout(() => {
             setPhase('generating');
             setGeneratingProgress(15);
             setGeneratingStage('Parsing campaign prompt & brand color palette...');
@@ -227,68 +230,57 @@ export function AIPostMaker() {
             ];
 
             let stageStep = 0;
-            progressInterval = setInterval(() => {
+            const runProgressStage = () => {
               if (isCancelled) return;
               if (stageStep < stages.length) {
                 setGeneratingProgress(stages[stageStep].p);
                 setGeneratingStage(stages[stageStep].msg);
                 stageStep++;
+                safeTimeout(runProgressStage, 320);
               } else {
-                if (progressInterval) clearInterval(progressInterval);
-
                 // STEP 3: Finished AI Post appears in full glory on device
-                timeoutRef = setTimeout(() => {
-                  if (isCancelled) return;
+                safeTimeout(() => {
                   setPhase('showing_post');
                   setGeneratingProgress(100);
 
                   // Display the generated post for 3.2 seconds, then auto-publish
-                  timeoutRef = setTimeout(() => {
-                    if (isCancelled) return;
-                    
+                  safeTimeout(() => {
                     // STEP 4: Auto-Publishing across all social channels
                     setPhase('publishing');
                     setPublishedChannels([]);
                     setPublishingProgress(15);
 
                     // Channel 1: Instagram Feed
-                    timeoutRef = setTimeout(() => {
-                      if (isCancelled) return;
+                    safeTimeout(() => {
                       setPublishedChannels((prev) => [...prev, 'instagram']);
                       setPublishingProgress(35);
 
                       // Channel 2: Facebook Page
-                      timeoutRef = setTimeout(() => {
-                        if (isCancelled) return;
+                      safeTimeout(() => {
                         setPublishedChannels((prev) => [...prev, 'facebook']);
                         setPublishingProgress(55);
 
                         // Channel 3: LinkedIn Feed
-                        timeoutRef = setTimeout(() => {
-                          if (isCancelled) return;
+                        safeTimeout(() => {
                           setPublishedChannels((prev) => [...prev, 'linkedin']);
                           setPublishingProgress(75);
 
                           // Channel 4: Twitter / X
-                          timeoutRef = setTimeout(() => {
-                            if (isCancelled) return;
+                          safeTimeout(() => {
                             setPublishedChannels((prev) => [...prev, 'twitter']);
                             setPublishingProgress(90);
 
                             // Channel 5: Pinterest Pin
-                            timeoutRef = setTimeout(() => {
-                              if (isCancelled) return;
+                            safeTimeout(() => {
                               setPublishedChannels((prev) => [...prev, 'pinterest']);
                               setPublishingProgress(100);
 
                               // STEP 5: "Post Published Successfully!" Celebration Popup
-                              timeoutRef = setTimeout(() => {
-                                if (isCancelled) return;
+                              safeTimeout(() => {
                                 setPhase('published_popup');
 
                                 // Show celebration modal for 2.8 seconds, then cycle to next preset
-                                timeoutRef = setTimeout(() => {
-                                  if (isCancelled) return;
+                                safeTimeout(() => {
                                   setActivePresetIndex((prev) => (prev + 1) % POST_PRESETS.length);
                                 }, 2800);
 
@@ -308,19 +300,21 @@ export function AIPostMaker() {
 
                 }, 300);
               }
-            }, 320);
+            };
+
+            safeTimeout(runProgressStage, 320);
 
           }, 350);
 
         }, 500);
       }
-    }, 28);
+    };
+
+    safeTimeout(typeNextChar, 25);
 
     return () => {
       isCancelled = true;
-      if (typingInterval) clearInterval(typingInterval);
-      if (progressInterval) clearInterval(progressInterval);
-      if (timeoutRef) clearTimeout(timeoutRef);
+      timers.forEach(clearTimeout);
     };
   }, [activePresetIndex]);
 

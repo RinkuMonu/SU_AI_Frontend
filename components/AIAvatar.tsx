@@ -167,12 +167,18 @@ export function AIAvatar() {
       ? (displayedText[displayedText.length - 1] === ' ' ? 'space' : displayedText[displayedText.length - 1].toUpperCase())
       : '';
 
-  // Autonomous showcase loop
+  // Autonomous showcase loop with bulletproof timer tracking
   useEffect(() => {
     let isCancelled = false;
-    let typingInterval: NodeJS.Timeout | null = null;
-    let progressInterval: NodeJS.Timeout | null = null;
-    let timeoutRef: NodeJS.Timeout | null = null;
+    const timers: NodeJS.Timeout[] = [];
+
+    const safeTimeout = (cb: () => void, delay: number) => {
+      const id = setTimeout(() => {
+        if (!isCancelled) cb();
+      }, delay);
+      timers.push(id);
+      return id;
+    };
 
     const preset = AVATAR_PRESETS[activePresetIndex];
     const targetText = preset.script;
@@ -186,24 +192,21 @@ export function AIAvatar() {
 
     let charIdx = 0;
 
-    // STEP 1: Auto-type avatar script with Virtual Keyboard OPEN on device
-    typingInterval = setInterval(() => {
+    // STEP 1: Auto-type avatar script (recursive safeTimeout avoids setInterval flooding)
+    const typeNextChar = () => {
       if (isCancelled) return;
       charIdx++;
       setDisplayedText(targetText.slice(0, charIdx));
 
-      // When full script has been typed
-      if (charIdx >= targetText.length) {
-        if (typingInterval) clearInterval(typingInterval);
-
+      if (charIdx < targetText.length) {
+        safeTimeout(typeNextChar, 25);
+      } else {
         // Pause showing full script, then auto-tap generate button
-        timeoutRef = setTimeout(() => {
-          if (isCancelled) return;
+        safeTimeout(() => {
           setPhase('tap_button');
 
           // STEP 2: Virtual Keyboard slides down and closes! Voice & LipSync kicks in
-          timeoutRef = setTimeout(() => {
-            if (isCancelled) return;
+          safeTimeout(() => {
             setPhase('generating');
             setGeneratingProgress(16);
             setGeneratingStage('Synthesizing studio voice & emotional tone...');
@@ -216,18 +219,16 @@ export function AIAvatar() {
             ];
 
             let stageStep = 0;
-            progressInterval = setInterval(() => {
+            const runProgressStage = () => {
               if (isCancelled) return;
               if (stageStep < stages.length) {
                 setGeneratingProgress(stages[stageStep].p);
                 setGeneratingStage(stages[stageStep].msg);
                 stageStep++;
+                safeTimeout(runProgressStage, 320);
               } else {
-                if (progressInterval) clearInterval(progressInterval);
-
                 // STEP 3: Video Plays with Avatar speaking the script
-                timeoutRef = setTimeout(() => {
-                  if (isCancelled) return;
+                safeTimeout(() => {
                   setPhase('playing');
                   setGeneratingProgress(100);
 
@@ -237,52 +238,43 @@ export function AIAvatar() {
                   }
 
                   // Play avatar video for 5.5 seconds, then auto-publish
-                  timeoutRef = setTimeout(() => {
-                    if (isCancelled) return;
-                    
+                  safeTimeout(() => {
                     // STEP 4: Auto-Publishing across YouTube, Instagram, Facebook, WhatsApp, LinkedIn
                     setPhase('publishing');
                     setPublishedChannels([]);
                     setPublishingProgress(15);
 
                     // Channel 1: YouTube Shorts
-                    timeoutRef = setTimeout(() => {
-                      if (isCancelled) return;
+                    safeTimeout(() => {
                       setPublishedChannels((prev) => [...prev, 'youtube']);
                       setPublishingProgress(35);
 
                       // Channel 2: Instagram Reels
-                      timeoutRef = setTimeout(() => {
-                        if (isCancelled) return;
+                      safeTimeout(() => {
                         setPublishedChannels((prev) => [...prev, 'instagram']);
                         setPublishingProgress(55);
 
                         // Channel 3: Facebook Video Feed
-                        timeoutRef = setTimeout(() => {
-                          if (isCancelled) return;
+                        safeTimeout(() => {
                           setPublishedChannels((prev) => [...prev, 'facebook']);
                           setPublishingProgress(75);
 
                           // Channel 4: WhatsApp Status
-                          timeoutRef = setTimeout(() => {
-                            if (isCancelled) return;
+                          safeTimeout(() => {
                             setPublishedChannels((prev) => [...prev, 'whatsapp']);
                             setPublishingProgress(90);
 
                             // Channel 5: LinkedIn Video Post
-                            timeoutRef = setTimeout(() => {
-                              if (isCancelled) return;
+                            safeTimeout(() => {
                               setPublishedChannels((prev) => [...prev, 'linkedin']);
                               setPublishingProgress(100);
 
                               // STEP 5: "AI Avatar Published Successfully!" Celebration Popup
-                              timeoutRef = setTimeout(() => {
-                                if (isCancelled) return;
+                              safeTimeout(() => {
                                 setPhase('published_popup');
 
                                 // Show celebration modal for 2.8 seconds, then cycle to next preset
-                                timeoutRef = setTimeout(() => {
-                                  if (isCancelled) return;
+                                safeTimeout(() => {
                                   setActivePresetIndex((prev) => (prev + 1) % AVATAR_PRESETS.length);
                                 }, 2800);
 
@@ -302,19 +294,21 @@ export function AIAvatar() {
 
                 }, 250);
               }
-            }, 320);
+            };
+
+            safeTimeout(runProgressStage, 320);
 
           }, 350);
 
         }, 500);
       }
-    }, 28);
+    };
+
+    safeTimeout(typeNextChar, 25);
 
     return () => {
       isCancelled = true;
-      if (typingInterval) clearInterval(typingInterval);
-      if (progressInterval) clearInterval(progressInterval);
-      if (timeoutRef) clearTimeout(timeoutRef);
+      timers.forEach(clearTimeout);
     };
   }, [activePresetIndex]);
 

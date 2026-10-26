@@ -105,8 +105,8 @@ function FallingIcon({ url, initialPosition }: { url: string; initialPosition: [
   return (
     <RigidBody
       ref={bodyRef}
-      colliders="hull"
-      restitution={0.8}
+      colliders="cuboid"
+      restitution={0.7}
       position={initialPosition}
       rotation={[Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI]}
     >
@@ -120,14 +120,14 @@ function FallingIcon({ url, initialPosition }: { url: string; initialPosition: [
 export function FallingIcons() {
   const instances = useMemo(() => {
     const items = [];
-    // 30 icons: exactly 3 of each of all 10 icons from public/3d
-    for (let i = 0; i < 30; i++) {
+    // 15 icons: balanced density and optimal 60fps performance
+    for (let i = 0; i < 15; i++) {
       items.push({
         id: i,
         url: ICONS[i % ICONS.length],
         initialPosition: [
           2 + (Math.random() - 0.5) * 18, // Spread nicely across X
-          14 + i * 1.5 + Math.random() * 3, // Staggered heights so they drop in a continuous cascade
+          14 + i * 2 + Math.random() * 3, // Staggered heights so they drop in a continuous cascade
           (Math.random() - 0.5) * 5,
         ] as [number, number, number],
       });
@@ -136,8 +136,13 @@ export function FallingIcons() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0 pointer-events-none opacity-50">
-      <Canvas camera={{ position: [0, 5, 20], fov: 50 }}>
+    <div className="absolute inset-0 z-0 pointer-events-none opacity-50 select-none">
+      <Canvas 
+        camera={{ position: [0, 5, 20], fov: 50 }}
+        style={{ pointerEvents: 'none' }}
+        dpr={[1, 1.5]}
+        gl={{ powerPreference: 'low-power', antialias: false }}
+      >
         <ambientLight intensity={1.5} />
         <directionalLight position={[10, 10, 5]} intensity={2} />
         <Environment preset="city" />
