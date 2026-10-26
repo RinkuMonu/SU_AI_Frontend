@@ -84,12 +84,6 @@ const allFeatures = [
     colorClass: 'bg-fuchsia-50 text-fuchsia-600 border border-fuchsia-100',
   },
   {
-    name: 'WhatsApp AI Assistant',
-    icon: MessageSquare,
-    route: '/features/whatsapp-ai',
-    colorClass: 'bg-green-50 text-green-600 border border-green-100',
-  },
-  {
     name: 'AI Review Manager',
     icon: Star,
     route: '/features/review-manager',

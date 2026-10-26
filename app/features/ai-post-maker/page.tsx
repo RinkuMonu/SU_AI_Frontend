@@ -93,12 +93,12 @@ const interactivePresets: InteractivePreset[] = [
     subtext: 'Handcrafted royal weaves, pure Banarasi silk collection & boutique designer wear.',
     offerText: 'FLAT 40% OFF',
     captions: {
-      hinglish: '✨ Apne style ko banayein royal! Shyamal & Kumkum ke exclusive collection par paayein Flat 40% OFF. Pure Banarasi silk sarees aur designer outfits available. Direct showroom visit karein ya WhatsApp par order book karein! 👗✨',
+      hinglish: '✨ Apne style ko banayein royal! Shyamal & Kumkum ke exclusive collection par paayein Flat 40% OFF. Pure Banarasi silk sarees aur designer outfits available. Direct showroom visit karein ya Social par order book karein! 👗✨',
       hindi: '✨ अपने अंदाज़ को बनाएं और भी ख़ास Shyamal & Kumkum के साथ! हमारे शुद्ध बनारसी सिल्क एवं डिज़ाइनर परिधानों पर पाएं फ्लैट 40% की विशेष छूट। सीमित स्टॉक उपलब्ध। आज ही व्हाट्सएप पर आर्डर करें! 👗✨',
-      english: '✨ Elevate your personal style with royal luxury from Shyamal & Kumkum Boutique. Enjoy Flat 40% OFF on handcrafted Banarasi silk sarees and designer ethnic wear. Order now via WhatsApp! 👗✨',
+      english: '✨ Elevate your personal style with royal luxury from Shyamal & Kumkum Boutique. Enjoy Flat 40% OFF on handcrafted Banarasi silk sarees and designer ethnic wear. Order now via Social Media! 👗✨',
     },
     hashtags: ['#EthnicWear', '#RoyalFashion', '#BanarasiSaree', '#ShyamalKumkum', '#LuxuryBoutique', '#VocalForLocal'],
-    ctaText: 'Order via WhatsApp 📲',
+    ctaText: 'Order via Social Media 📲',
     simulatedTime: '0.8s'
   },
   {
@@ -120,9 +120,9 @@ const interactivePresets: InteractivePreset[] = [
     subtext: 'Slow-cooked in clay pots with pure desi ghee and hand-pounded royal spices.',
     offerText: 'FLAT 25% OFF',
     captions: {
-      hinglish: 'Weekend crave solve karo! 🍛 Taste pure royal tradition with our slow-cooked Dum Biryani and melting Galouti Kebabs. Flat 25% discount on family dine-ins and WhatsApp direct deliveries! 🤤🔥',
+      hinglish: 'Weekend crave solve karo! 🍛 Taste pure royal tradition with our slow-cooked Dum Biryani and melting Galouti Kebabs. Flat 25% discount on family dine-ins and Social direct deliveries! 🤤🔥',
       hindi: 'स्वादिष्ट सप्ताहांत की दावत! 🍛 हमारी खास हांडी दम बिरयानी और कबाब पर पाएं फ्लैट 25% की छूट। पूरे परिवार के साथ पधारें या सीधे व्हाट्सएप पर गरमा-गरम आर्डर करें! 🤤🔥',
-      english: 'Indulge in royal culinary perfection! 🍛 Authentic slow-cooked Hyderabadi Dum Biryani & melt-in-mouth Galouti Kebabs with Flat 25% OFF on dine-in and WhatsApp takeaway orders! 🥘✨',
+      english: 'Indulge in royal culinary perfection! 🍛 Authentic slow-cooked Hyderabadi Dum Biryani & melt-in-mouth Galouti Kebabs with Flat 25% OFF on dine-in and Social takeaway orders! 🥘✨',
     },
     hashtags: ['#DumBiryani', '#WeekendFeast', '#HyderabadiBiryani', '#FoodieHeaven', '#DawatEKhaas', '#RoyalDining'],
     ctaText: 'Book Table / Order 🍗',
@@ -147,9 +147,9 @@ const interactivePresets: InteractivePreset[] = [
     subtext: 'Exquisite 22KT BIS Hallmarked gold, certified diamonds & Kundan Polki collection.',
     offerText: '0% MAKING CHARGES',
     captions: {
-      hinglish: 'Apne shubh avsar par ghar laayein kripa aur barkat! 🪙 Rang Mahals ke 100% BIS Hallmarked 22KT Gold and Polki jewellery par paayein ZERO Making Charges. Exclusive catalogue dekhne ke liye WhatsApp karein! ✨💍',
+      hinglish: 'Apne shubh avsar par ghar laayein kripa aur barkat! 🪙 Rang Mahals ke 100% BIS Hallmarked 22KT Gold and Polki jewellery par paayein ZERO Making Charges. Exclusive catalogue dekhne ke liye Social karein! ✨💍',
       hindi: 'अपने शुभ अवसरों पर घर लाएं सुख-समृद्धि और मां लक्ष्मी की कृपा! 🪙 रंग महल्स के 100% बीआईएस हॉलमार्क स्वर्ण आभूषणों पर 0% मेकिंग चार्ज। अपनी पसंद का आभूषण बुक करने के लिए व्हाट्सएप करें! ✨',
-      english: 'Celebrate timeless elegance with eternal heritage from Rang Mahals! 🪙 100% BIS Hallmarked 22KT Gold & Kundan Jewellery with Zero Making Charges. Request the private catalogue on WhatsApp! 💍✨',
+      english: 'Celebrate timeless elegance with eternal heritage from Rang Mahals! 🪙 100% BIS Hallmarked 22KT Gold & Kundan Jewellery with Zero Making Charges. Request the private catalogue on Social Media! 💍✨',
     },
     hashtags: ['#GoldJewellery', '#PolkiJewellery', '#BridalJewellery', '#BISHallmark', '#RangMahals', '#FineJewellery'],
     ctaText: 'Get Gold Catalogue 📲',
@@ -174,9 +174,9 @@ const interactivePresets: InteractivePreset[] = [
     subtext: 'Latest 5G flagship devices, free noise-cancelling earbuds & 0% EMI options.',
     offerText: 'FROM ₹14,999*',
     captions: {
-      hinglish: 'Sabse bada smartphone flash sale! 🚀 Flagship 5G smartphones par paayein flat ₹5,000 instant bank discount + Free ANC Earbuds. ₹0 Downpayment No-Cost EMI available. Stock limited hai, WhatsApp par book karein! 📱⚡',
+      hinglish: 'Sabse bada smartphone flash sale! 🚀 Flagship 5G smartphones par paayein flat ₹5,000 instant bank discount + Free ANC Earbuds. ₹0 Downpayment No-Cost EMI available. Stock limited hai, Social par book karein! 📱⚡',
       hindi: 'वर्ष की सबसे बड़ी स्मार्टफोन सेल! 🚀 सभी प्रमुख 5G मोबाइल पर पाएं फ्लैट ₹5,000 की तत्काल छूट एवं मुफ्त इयरबड्स। ₹0 डाउनपेमेंट पर आसान ईएमआई। आज ही बुक करें! 📱🔥',
-      english: 'Upgrade to lightning-fast 5G with our exclusive mega sale! 🚀 Flagship smartphones with ₹0 Down Payment, No-Cost EMI and Free ANC Wireless Earbuds worth ₹3,999. Limited stock available. Claim on WhatsApp! ⚡📱',
+      english: 'Upgrade to lightning-fast 5G with our exclusive mega sale! 🚀 Flagship smartphones with ₹0 Down Payment, No-Cost EMI and Free ANC Wireless Earbuds worth ₹3,999. Limited stock available. Claim on Social Media! ⚡📱',
     },
     hashtags: ['#5GSmartphone', '#MobileDeals', '#NoCostEMI', '#MegaTechSale', '#NextGenMobile', '#ElectronicsDeal'],
     ctaText: 'Claim 5G Deal 📱',
@@ -195,15 +195,15 @@ const interactivePresets: InteractivePreset[] = [
       story: '/images/salon-bridal-banner.jpg',
       banner: '/images/salon-bridal-banner.jpg',
     },
-    prompt: 'Design an elegant luxury bridal beauty package banner with gold borders, glowing Indian bride portrait and direct WhatsApp consultation button',
+    prompt: 'Design an elegant luxury bridal beauty package banner with gold borders, glowing Indian bride portrait and direct Social consultation button',
     badge: 'BRIDAL GLOW 💅',
     headline: 'Complete Pre-Wedding Luxury Bridal Glow Package',
     subtext: '7-Step Hydra-Facial, Moroccan hair spa, HD airbrush makeover & skin detox.',
     offerText: 'SAVE ₹4,000',
     captions: {
-      hinglish: 'Apne special day par dikhiye sabse khoobsurat! 👰 Pre-wedding luxury bridal package par paayein Flat ₹4,000 OFF. Includes Hydra-Facial, Hair Spa & HD Makeover trial. Limited slots, WhatsApp par abhi book karein! 💖✨',
+      hinglish: 'Apne special day par dikhiye sabse khoobsurat! 👰 Pre-wedding luxury bridal package par paayein Flat ₹4,000 OFF. Includes Hydra-Facial, Hair Spa & HD Makeover trial. Limited slots, Social par abhi book karein! 💖✨',
       hindi: 'अपनी शादी के दिन दिखें सबसे खास और चमकदार! 👰 हमारे विशेष ब्राइडल ग्लो पैकेज पर पाएं ₹4,000 की भारी बचत। सीमित स्लॉट उपलब्ध। परामर्श के लिए व्हाट्सएप करें! 💖',
-      english: 'Turn heads on your dream wedding day! 👰 Comprehensive 7-Step Pre-Bridal Glow ritual, luxury Moroccan hair spa, and master HD makeover. Save ₹4,000. Book consultation on WhatsApp! 💅💖',
+      english: 'Turn heads on your dream wedding day! 👰 Comprehensive 7-Step Pre-Bridal Glow ritual, luxury Moroccan hair spa, and master HD makeover. Save ₹4,000. Book consultation on Social Media! 💅💖',
     },
     hashtags: ['#BridalGlow', '#WeddingSeason', '#LuxurySalonMumbai', '#HDMakeover', '#PreBridalCare', '#AuraSalon'],
     ctaText: 'Book Salon Slot 💅',
@@ -228,12 +228,12 @@ const interactivePresets: InteractivePreset[] = [
     subtext: 'Pure combed cotton oversized tees, utility cargos & pan-India COD.',
     offerText: 'FLAT ₹599 + COD',
     captions: {
-      hinglish: 'Street drip is officially unlocked! 🔥 100% combed heavyweight cotton oversized tees & utility cargos starting flat ₹599 with Pan-India Cash on Delivery. WhatsApp pe tap karke size confirm karo! ⚡🧢',
+      hinglish: 'Street drip is officially unlocked! 🔥 100% combed heavyweight cotton oversized tees & utility cargos starting flat ₹599 with Pan-India Cash on Delivery. Social pe tap karke size confirm karo! ⚡🧢',
       hindi: 'नया स्ट्रीटवियर कलेक्शन आ गया है! 🔥 280 जीएसएम प्रीमियम कॉटन ओवरसाइज़्ड टी-शर्ट्स और कार्गो मात्र ₹599 में। कैश ऑन डिलीवरी उपलब्ध। अभी व्हाट्सएप पर ऑर्डर करें! ⚡',
-      english: 'Level up your daily street drip! 🔥 280 GSM Ultra-heavyweight combed cotton oversized tees and utility cargos starting flat ₹599. Pan-India COD available. Cop yours on WhatsApp now! 🧢⚡',
+      english: 'Level up your daily street drip! 🔥 280 GSM Ultra-heavyweight combed cotton oversized tees and utility cargos starting flat ₹599. Pan-India COD available. Cop yours on Social Media now! 🧢⚡',
     },
     hashtags: ['#StreetwearIndia', '#OversizedTee', '#UrbanDesi', '#GenZFashion', '#StreetwearDrop', '#DesiStreetwear'],
-    ctaText: 'Cop Drip via WhatsApp ⚡',
+    ctaText: 'Cop Drip via Social Media ⚡',
     simulatedTime: '0.7s'
   }
 ];
@@ -272,7 +272,7 @@ const backendPipelineSteps = [
   {
     step: '06',
     title: '1-Click Multi-Channel Syndication',
-    desc: 'Instantly publish or schedule across WhatsApp Status & Groups, Instagram Feed/Reels, Facebook, and LinkedIn without format degradation.',
+    desc: 'Instantly publish or schedule across Social Status & Groups, Instagram Feed/Reels, Facebook, and LinkedIn without format degradation.',
     badge: 'Step 6 • Instant Export'
   }
 ];
@@ -292,11 +292,11 @@ const faqs = [
   },
   {
     q: 'What aspect ratios are supported for different social media platforms?',
-    a: 'The engine generates three standard formats in one click: 1:1 Square (Instagram & Facebook feed), 9:16 Vertical (WhatsApp Status & Instagram Stories), and 16:9 Landscape (LinkedIn & website banners).'
+    a: 'The engine generates three standard formats in one click: 1:1 Square (Instagram & Facebook feed), 9:16 Vertical (Social Status & Instagram Stories), and 16:9 Landscape (LinkedIn & website banners).'
   },
   {
-    q: 'How does 1-click WhatsApp sharing and Instagram publishing work?',
-    a: 'After generating a post, clicking "Share via WhatsApp" opens WhatsApp with pre-filled captions, hashtags, and creative links ready to broadcast to your customers. You can also connect your Instagram/Facebook account for direct in-app publishing.'
+    q: 'How does 1-click Social sharing and Instagram publishing work?',
+    a: 'After generating a post, clicking "Share via Social Media" opens Social with pre-filled captions, hashtags, and creative links ready to broadcast to your customers. You can also connect your Instagram/Facebook account for direct in-app publishing.'
   },
   {
     q: 'Do I get complete commercial ownership of all generated creatives?',
@@ -334,9 +334,9 @@ export default function PostmakerPage() {
     }, 1400);
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareSocial = () => {
     const shareText = `${activePreset.headline}\n\n${activePreset.captions[selectedLang]}\n\n👉 *${activePreset.offerText}*\n${activePreset.ctaText}\n\n${activePreset.hashtags.join(' ')}`;
-    const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
+    const url = `https://api.social.com/send?text=${encodeURIComponent(shareText)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -374,7 +374,7 @@ export default function PostmakerPage() {
               </h1>
               
               <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed font-normal mb-8 max-w-xl">
-                Generate studio-grade festive posters, flash sale flyers, and engaging social posts in seconds. Zero design skills required — automatic brand logo sync, regional Hinglish copywriting, and 1-click WhatsApp &amp; Instagram publishing.
+                Generate studio-grade festive posters, flash sale flyers, and engaging social posts in seconds. Zero design skills required — automatic brand logo sync, regional Hinglish copywriting, and 1-click Social &amp; Instagram publishing.
               </p>
 
               {/* Feature Value Bullets */}
@@ -383,7 +383,7 @@ export default function PostmakerPage() {
                   '10,000+ High-Converting Brand Templates',
                   'Hinglish & Regional Captions',
                   'Auto-Logo & Brand Color Sync',
-                  'Instant WhatsApp & Instagram Export',
+                  'Instant Instagram & Facebook Export',
                   'Gemini Vision Reference Matching',
                   '8K Ultra-Realistic Commercial Graphics'
                 ].map((item, idx) => (
@@ -464,7 +464,7 @@ export default function PostmakerPage() {
                     </div>
                     <div>
                       <p className="text-xs font-bold">Studio-Grade Commercial Posters in 1-Click</p>
-                      <p className="text-[11px] text-slate-300">Auto-logo stamping &amp; WhatsApp status export</p>
+                      <p className="text-[11px] text-slate-300">Auto-logo stamping &amp; Social status export</p>
                     </div>
                   </div>
                   <Link href="/login/user">
@@ -498,7 +498,7 @@ export default function PostmakerPage() {
             </div>
             <div className="flex flex-col items-center justify-center p-2">
               <h3 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-orange-500 mb-1.5 tracking-tight">98.6%</h3>
-              <p className="text-xs sm:text-[13px] font-bold text-slate-600 uppercase tracking-wider">WhatsApp Engagement Lift</p>
+              <p className="text-xs sm:text-[13px] font-bold text-slate-600 uppercase tracking-wider">Social Engagement Lift</p>
             </div>
           </div>
         </div>
@@ -839,11 +839,11 @@ export default function PostmakerPage() {
                 {/* Direct Action Hub */}
                 <div className="pt-5 border-t border-orange-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <button
-                    onClick={handleShareWhatsApp}
+                    onClick={handleShareSocial}
                     className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
                   >
                     <MessageCircle className="w-4 h-4" />
-                    Share to WhatsApp
+                    Share to Social Media
                   </button>
 
                   <Link href="/login/user" className="w-full sm:w-auto">
@@ -966,8 +966,8 @@ export default function PostmakerPage() {
               },
               {
                 title: 'Salon, Spa & Beauty',
-                desc: 'Bridal glow packages, weekend haircut discounts, and seasonal skincare flyers with direct WhatsApp booking.',
-                tag: 'WhatsApp Ready',
+                desc: 'Bridal glow packages, weekend haircut discounts, and seasonal skincare flyers with direct Social booking.',
+                tag: 'Social Ready',
                 tagColor: 'bg-pink-100 text-pink-900'
               },
               {
@@ -1049,7 +1049,7 @@ export default function PostmakerPage() {
                   <td className="p-4 sm:p-5 font-black text-emerald-600 bg-orange-50/40">100% Automated Sync</td>
                 </tr>
                 <tr>
-                  <td className="p-4 sm:p-5 font-bold text-slate-900">1-Click WhatsApp Export</td>
+                  <td className="p-4 sm:p-5 font-bold text-slate-900">1-Click Social Export</td>
                   <td className="p-4 sm:p-5 text-slate-500">Email / Drive download</td>
                   <td className="p-4 sm:p-5 text-slate-500">Manual download &amp; re-upload</td>
                   <td className="p-4 sm:p-5 font-black text-emerald-600 bg-orange-50/40">Instant 1-Click Share</td>
@@ -1107,7 +1107,7 @@ export default function PostmakerPage() {
               },
               {
                 title: "Multi-Channel Direct Publish",
-                desc: "Send posts directly to Instagram, WhatsApp chat broadcast, Facebook page, and LinkedIn feed without downloading.",
+                desc: "Send posts directly to Instagram, Customer chat broadcast, Facebook page, and LinkedIn feed without downloading.",
                 icon: <Send className="w-6 h-6 text-pink-400" />
               }
             ].map((feature, idx) => (

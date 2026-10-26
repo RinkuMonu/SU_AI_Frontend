@@ -54,17 +54,17 @@ const playbooks: IndustryPlaybook[] = [
     projectedRoas: '5.2x ROAS',
     projectedRevenue: '₹1,56,000',
     image: '/images/product-banarasi-saree.jpg',
-    strategySummary: '3-Phase Hyper-Local & Pan-India strategy: Phase 1 teaser reels with festive hooks, Phase 2 Click-to-WhatsApp Meta Ads for high-ticket Kundan sets, Phase 3 COD & BOGO offers with urgent countdown.',
+    strategySummary: '3-Phase Hyper-Local & Pan-India strategy: Phase 1 teaser reels with festive hooks, Phase 2 Click-to-Social Meta Ads for high-ticket Kundan sets, Phase 3 COD & BOGO offers with urgent countdown.',
     milestones: [
       { day: 'Day 1-3', action: 'Competitor audit in Meta Ad Library & trending festive audio mapping', status: 'completed', channel: 'Market AI' },
       { day: 'Day 4-7', action: 'Publish 6 AI-generated Reels on Royal Banarasi Sarees & bridal looks', status: 'completed', channel: 'Instagram' },
       { day: 'Day 8-15', action: 'Launch Meta Advantage+ Ad Campaign with ₹1,200/day budget', status: 'active', channel: 'Meta Ads' },
-      { day: 'Day 16-21', action: 'Automated WhatsApp broadcast to past 2,400 customers with BOGO link', status: 'scheduled', channel: 'WhatsApp AI' }
+      { day: 'Day 16-21', action: 'Automated Social broadcast to past 2,400 customers with BOGO link', status: 'scheduled', channel: 'Social AI' }
     ],
     generatedAssets: [
       { title: 'Royal Banarasi Silk Saree Ad', format: '4:5 Feed Ad', description: 'Headline: Flat 60% OFF Festive Dhamaka with COD & Free Shipping' },
       { title: 'Bridal Kundan Choker Video Reel', format: '9:16 Instagram Reel', description: 'Hinglish audio voiceover explaining 22K gold-plated craftsmanship' },
-      { title: 'VIP Customer WhatsApp Blast', format: 'Rich Media Message', description: 'Pre-filled message: Namaste! Claim exclusive ₹500 festive voucher' }
+      { title: 'VIP Customer Social Blast', format: 'Rich Media Message', description: 'Pre-filled message: Namaste! Claim exclusive ₹500 festive voucher' }
     ]
   },
   {
@@ -84,7 +84,7 @@ const playbooks: IndustryPlaybook[] = [
       { day: 'Day 1-5', action: 'Create 8 Before-After aesthetic video reels with natural lighting', status: 'completed', channel: 'AI Reel Maker' },
       { day: 'Day 6-14', action: 'Test 4 ad hook variations (Kashmiri Kesar purity vs Chemical serums)', status: 'active', channel: 'Meta Ads' },
       { day: 'Day 15-22', action: 'Scale winning creative (BOGO angle) with automated budget scaling', status: 'scheduled', channel: 'Ad Scaler' },
-      { day: 'Day 23-30', action: 'Automated 7-day post-delivery WhatsApp check-in for 5-star Google reviews', status: 'scheduled', channel: 'Review AI' }
+      { day: 'Day 23-30', action: 'Automated 7-day post-delivery Social check-in for 5-star Google reviews', status: 'scheduled', channel: 'Review AI' }
     ],
     generatedAssets: [
       { title: '7-Day Glow Challenge Creative', format: 'Carousel Post', description: 'Step-by-step Ayurvedic routine showcasing Kumkumadi saffron oil' },
@@ -95,7 +95,7 @@ const playbooks: IndustryPlaybook[] = [
   {
     id: 'local-retail',
     tabLabel: '🏬 Local Retail & Restaurant',
-    badge: 'Hyperlocal Foot Traffic & WhatsApp Orders',
+    badge: 'Hyperlocal Foot Traffic & Social Orders',
     businessName: 'Royal Taste Sweets & Cafe',
     businessType: 'Artisanal Sweets, Dry Fruits & Bakery (Delhi NCR)',
     userPrompt: 'Weekend me restaurant aur sweet shop me foot traffic badhana hai. Diwali gifting boxes aur fresh snacks ka local 6km radius mein aggressive promotion chahiye.',
@@ -104,17 +104,17 @@ const playbooks: IndustryPlaybook[] = [
     projectedRoas: '6.1x Local ROI',
     projectedRevenue: '₹91,500',
     image: '/images/food-feast-banner.jpg',
-    strategySummary: 'Pin-code specific Meta Ads targeting sweet lovers & corporate gifters within 6 km. Instant WhatsApp menu delivery with 15% first-order discount code to capture repeat local customers.',
+    strategySummary: 'Pin-code specific Meta Ads targeting sweet lovers & corporate gifters within 6 km. Instant Social menu delivery with 15% first-order discount code to capture repeat local customers.',
     milestones: [
       { day: 'Day 1-2', action: 'Map local competition and setup Geo-fenced radius targeting (6 km)', status: 'completed', channel: 'Meta Ads' },
       { day: 'Day 3-5', action: 'Generate 5 mouthwatering video posts featuring festive packaging & sweets', status: 'completed', channel: 'AI Post Maker' },
-      { day: 'Day 6-8', action: 'Launch Click-to-WhatsApp campaign for instant gift box bookings', status: 'active', channel: 'WhatsApp AI' },
+      { day: 'Day 6-8', action: 'Launch Click-to-Social campaign for instant gift box bookings', status: 'active', channel: 'Social AI' },
       { day: 'Day 9-10', action: 'Send Friday evening alert to all local leads with weekend tasting invite', status: 'scheduled', channel: 'CRM Engine' }
     ],
     generatedAssets: [
-      { title: 'Festive Luxury Mithai Box Ad', format: 'Instagram Story Ad', description: 'Pure desi ghee sweets in royal packaging · Order on WhatsApp for same-day delivery' },
+      { title: 'Festive Luxury Mithai Box Ad', format: 'Instagram Story Ad', description: 'Pure desi ghee sweets in royal packaging · Order on Social Media for same-day delivery' },
       { title: 'Weekend Family Feast Reel', format: '9:16 Video Reel', description: 'Crisp visuals of hot samosas & kaju katli with trending festive background sound' },
-      { title: 'Corporate Bulk Gifting Catalog', format: 'WhatsApp PDF Brochure', description: 'Custom corporate branding on dry fruit hampers with tier-based discounts' }
+      { title: 'Corporate Bulk Gifting Catalog', format: 'Social PDF Brochure', description: 'Custom corporate branding on dry fruit hampers with tier-based discounts' }
     ]
   },
   {
@@ -134,7 +134,7 @@ const playbooks: IndustryPlaybook[] = [
       { day: 'Day 1-4', action: 'Identify trending wedding sherwani shades and create matching footwear ads', status: 'completed', channel: 'Catalogue AI' },
       { day: 'Day 5-12', action: 'Run A/B test on "Triple-Cushion Comfort" vs "Royal Royal Aesthetic" angles', status: 'active', channel: 'Meta Ads' },
       { day: 'Day 13-18', action: 'Scale top-converting angle with lookalike audiences of past footwear buyers', status: 'scheduled', channel: 'Growth AI' },
-      { day: 'Day 19-25', action: 'Automate size verification on WhatsApp before order dispatch to cut returns by 40%', status: 'scheduled', channel: 'CRM AI' }
+      { day: 'Day 19-25', action: 'Automate size verification on Social Media before order dispatch to cut returns by 40%', status: 'scheduled', channel: 'CRM AI' }
     ],
     generatedAssets: [
       { title: 'Royal Mojari Wedding Reel', format: 'Reel Video', description: 'Step in royal comfort: triple-padded velvet mojaris that never bite your feet' },
@@ -154,7 +154,7 @@ const capabilities = [
   {
     icon: Sparkles,
     title: 'End-to-End Creative Generation',
-    description: 'Doesn’t just give advice—it produces the actual assets. Generates Instagram Reels, Meta ad banners, festive WhatsApp greetings, and high-converting Hinglish captions.',
+    description: 'Doesn’t just give advice—it produces the actual assets. Generates Instagram Reels, Meta ad banners, festive Social greetings, and high-converting Hinglish captions.',
     tag: 'Creative Studio'
   },
   {
@@ -177,8 +177,8 @@ const capabilities = [
   },
   {
     icon: LineChart,
-    title: 'Closed-Loop Leads CRM & WhatsApp Sync',
-    description: 'Routes every ad lead straight to your WhatsApp sales team and Leads CRM. Pre-fills order details and follow-up reminders to ensure zero lost sales.',
+    title: 'Closed-Loop Leads CRM & Social Sync',
+    description: 'Routes every ad lead straight to your Social sales team and Leads CRM. Pre-fills order details and follow-up reminders to ensure zero lost sales.',
     tag: 'Conversion Funnel'
   }
 ];
@@ -186,7 +186,7 @@ const capabilities = [
 const faqs = [
   {
     q: 'How is DhandaGrow AI Marketing Agent different from generic tools like ChatGPT?',
-    a: 'ChatGPT only generates text when you prompt it. DhandaGrow AI Marketing Agent is an autonomous execution system specifically built for Indian business owners. It knows your products, your Brand Brain DNA, connects directly to Meta Ads & WhatsApp, generates complete multi-channel campaigns with real imagery, schedules the posts, and optimizes your ad spend daily without requiring manual supervision.'
+    a: 'ChatGPT only generates text when you prompt it. DhandaGrow AI Marketing Agent is an autonomous execution system specifically built for Indian business owners. It knows your products, your Brand Brain DNA, connects directly to Meta Ads & Social, generates complete multi-channel campaigns with real imagery, schedules the posts, and optimizes your ad spend daily without requiring manual supervision.'
   },
   {
     q: 'Do I need prior marketing or technical knowledge to use this agent?',
@@ -198,7 +198,7 @@ const faqs = [
   },
   {
     q: 'Can the agent handle Indian festivals and seasonal sales?',
-    a: 'Yes! The agent is natively integrated with our 100+ Indian Festival Engine. It proactively reminds you 15 to 20 days before festivals like Diwali, Karwa Chauth, Eid, Navratri, Holi, and wedding muhurats, preparing early-bird buzz, flash sales, and WhatsApp broadcasts in advance.'
+    a: 'Yes! The agent is natively integrated with our 100+ Indian Festival Engine. It proactively reminds you 15 to 20 days before festivals like Diwali, Karwa Chauth, Eid, Navratri, Holi, and wedding muhurats, preparing early-bird buzz, flash sales, and Social broadcasts in advance.'
   },
   {
     q: 'How does it connect with my other DhandaGrow features?',
@@ -263,7 +263,7 @@ export default function MarketingAgentPage() {
               <TrendingUp className="w-3.5 h-3.5 text-emerald-400" /> Avg. 4.8x ROAS Multiplier
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-bold text-cyan-300">
-              <MessageSquare className="w-3.5 h-3.5 text-cyan-400" /> Native WhatsApp Lead Funnel
+              <MessageSquare className="w-3.5 h-3.5 text-cyan-400" /> Native Direct Lead Funnel
             </span>
           </div>
 
@@ -353,7 +353,7 @@ export default function MarketingAgentPage() {
                   </div>
                   <div className="rounded-xl bg-slate-900/90 border border-slate-800 p-3.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
                     <p className="font-medium text-indigo-200">
-                      &quot;Mera Jaipur me Royal Ethnic & Saree business hai. Diwali sale ke liye ₹25,000 budget mein complete 30-day marketing blueprint, 10 reels aur Meta Click-to-WhatsApp ads ready kardo.&quot;
+                      &quot;Mera Jaipur me Royal Ethnic & Saree business hai. Diwali sale ke liye ₹25,000 budget mein complete 30-day marketing blueprint, 10 reels aur Meta Click-to-Social ads ready kardo.&quot;
                     </p>
                   </div>
                 </div>
@@ -377,7 +377,7 @@ export default function MarketingAgentPage() {
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <div>
                         <span className="font-semibold text-white">Created 3-Phase Campaign Funnel:</span>
-                        <p className="text-[11px] text-slate-400 mt-0.5">Phase 1: Brand Awareness Reels (₹6K) → Phase 2: Click-to-WhatsApp Ads (₹14K) → Phase 3: Last-Chance Retargeting (₹5K).</p>
+                        <p className="text-[11px] text-slate-400 mt-0.5">Phase 1: Brand Awareness Reels (₹6K) → Phase 2: Click-to-Social Ads (₹14K) → Phase 3: Last-Chance Retargeting (₹5K).</p>
                       </div>
                     </div>
 
@@ -432,7 +432,7 @@ export default function MarketingAgentPage() {
                       </div>
                       <div>
                         <h4 className="text-xs font-bold text-white">Diwali Mahotsav Mega Sale</h4>
-                        <p className="text-[11px] text-slate-400">1,248 WhatsApp inquiries · 89.2% positive sentiment</p>
+                        <p className="text-[11px] text-slate-400">1,248 Social inquiries · 89.2% positive sentiment</p>
                       </div>
                     </div>
                     <span className="text-xs font-extrabold text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-md border border-indigo-500/20">
@@ -721,7 +721,7 @@ export default function MarketingAgentPage() {
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   </div>
                   <p className="text-sm text-slate-300">
-                    <strong className="text-white">Instant WhatsApp Retargeting:</strong> Alerts previous purchasers with timely festive discount codes for high repeat purchases.
+                    <strong className="text-white">Instant Social Retargeting:</strong> Alerts previous purchasers with timely festive discount codes for high repeat purchases.
                   </p>
                 </div>
               </div>
@@ -848,7 +848,7 @@ export default function MarketingAgentPage() {
               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> No credit card required
             </span>
             <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 1-Click Meta & WhatsApp Connect
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 1-Click Meta & Social Connect
             </span>
             <span className="flex items-center gap-1.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Cancel anytime

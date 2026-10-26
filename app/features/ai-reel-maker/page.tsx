@@ -70,11 +70,11 @@ const reelPresets: ReelPreset[] = [
       },
       {
         title: 'Scene 3: Limited Festive Offer & CTA',
-        description: 'Bold discount badge with WhatsApp order button and link in bio prompt',
+        description: 'Bold discount badge with Social order button and link in bio prompt',
         onScreenText: 'FLAT 40% OFF — TAP LINK IN BIO!'
       }
     ],
-    caption: '✨ Iss festive season pehniye authentic Kanjeevaram Silk! Flat 40% OFF Diwali special. COD available across India. WhatsApp pe order karne ke liye tap link in bio! 🪔👗',
+    caption: '✨ Iss festive season pehniye authentic Kanjeevaram Silk! Flat 40% OFF Diwali special. COD available across India. Social pe order karne ke liye tap link in bio! 🪔👗',
     hashtags: ['#DiwaliReels', '#EthnicFashion', '#SareeLove', '#ViralReels', '#DhandaGrowAI'],
     gradient: 'from-amber-600 via-orange-600 to-rose-700'
   },
@@ -99,12 +99,12 @@ const reelPresets: ReelPreset[] = [
         onScreenText: 'AUTHENTIC DUM COOKED'
       },
       {
-        title: 'Scene 3: Direct WhatsApp / Zomato Callout',
+        title: 'Scene 3: Direct Social / Zomato Callout',
         description: 'Instant discount code popup with 20-minute delivery guarantee badge',
-        onScreenText: 'FLAT 25% OFF ON WHATSAPP 📲'
+        onScreenText: 'FLAT 25% OFF ONLINE 📲'
       }
     ],
-    caption: 'Weekend crave solve karo! 🤤 Authentic slow-cooked Hyderabadi Dum Biryani with rich spices & tender meat. WhatsApp or Swiggy pe 25% discount paane ke liye order now! 🍛🔥',
+    caption: 'Weekend crave solve karo! 🤤 Authentic slow-cooked Hyderabadi Dum Biryani with rich spices & tender meat. Social or Swiggy pe 25% discount paane ke liye order now! 🍛🔥',
     hashtags: ['#BiryaniReels', '#FoodieDiaries', '#WeekendFood', '#ZomatoSwiggy', '#FoodOffer'],
     gradient: 'from-orange-600 via-amber-700 to-red-800'
   },
@@ -160,11 +160,11 @@ const reelPresets: ReelPreset[] = [
       },
       {
         title: 'Scene 3: Radiant Bridal Glow & Booking CTA',
-        description: 'Stunning radiant bride smile with WhatsApp booking button & slot timer',
-        onScreenText: 'BOOK BRIDAL PACKAGE ON WHATSAPP 💖'
+        description: 'Stunning radiant bride smile with Social booking button & slot timer',
+        onScreenText: 'BOOK BRIDAL PACKAGE ONLINE 💖'
       }
     ],
-    caption: 'Turn heads on your special day! 👰 Experience our clinical Hydra-Glow bridal therapy. Slots booking fast for this wedding season. DM or WhatsApp us today! ✨💆‍♀️',
+    caption: 'Turn heads on your special day! 👰 Experience our clinical Hydra-Glow bridal therapy. Slots booking fast for this wedding season. DM or Social us today! ✨💆‍♀️',
     hashtags: ['#BridalGlow', '#SkincareReels', '#SalonTransformation', '#WeddingPrep', '#GlassSkin'],
     gradient: 'from-pink-600 via-rose-600 to-purple-800'
   }
@@ -247,7 +247,7 @@ export default function ReelMakerPage() {
                   'Viral Hooks & 3-Scene Storyboard',
                   'Natural Regional & Hinglish Voices',
                   'Word-by-Word Kinetic Subtitles',
-                  '1-Click WhatsApp & Instagram Export'
+                  '1-Click Instagram & Facebook Export'
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
                     <CheckCircle2 className="w-4 h-4 text-pink-500 shrink-0" />
@@ -608,7 +608,7 @@ export default function ReelMakerPage() {
               <div className="relative rounded-[28px] sm:rounded-[36px] overflow-hidden shadow-2xl border border-slate-200/80 group">
                 <img 
                   src="/images/ai-reel-maker-workflow.jpg" 
-                  alt="AI Reel Maker production studio with 3-scene storyboard, voiceover waveform, and WhatsApp order CTA" 
+                  alt="AI Reel Maker production studio with 3-scene storyboard, voiceover waveform, and Social order CTA" 
                   className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-500"
                 />
               </div>
@@ -718,8 +718,8 @@ export default function ReelMakerPage() {
                 icon: <Video className="w-6 h-6 text-emerald-400" />
               },
               {
-                title: "Direct WhatsApp Order CTAs",
-                desc: "Overlay custom WhatsApp contact stickers, discount vouchers, and bio link animations directly on the closing screen.",
+                title: "Direct Social Order CTAs",
+                desc: "Overlay custom Social contact stickers, discount vouchers, and bio link animations directly on the closing screen.",
                 icon: <Share2 className="w-6 h-6 text-pink-400" />
               }
             ].map((feature, idx) => (

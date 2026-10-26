@@ -93,13 +93,13 @@ In this comprehensive deep dive, we explore the tectonic shifts happening across
       {
         value: '24/7',
         label: 'Autonomous Lead Capture',
-        description: 'Integrated WhatsApp AI and DM assistants qualify incoming prospects around the clock.'
+        description: 'Integrated Social AI and DM assistants qualify incoming prospects around the clock.'
       }
     ],
     keyTakeaways: [
       'Prompt-to-Publish is the New Standard: The era of multi-week production cycles for a single campaign is over. Creative teams now leverage multi-modal models to assemble scripts, video frames, audio voiceovers, and ad copies in minutes.',
       'Hyper-Personalization at Scale: Instead of broadcasting a single generic message, AI dynamically tailors language, cultural context, and visual hooks to distinct regional and demographic audiences.',
-      'Conversational Funnels Close the Loop: Generating traffic is meaningless without conversion. AI agents integrated into WhatsApp and Instagram DMs turn transient viewers into paying customers instantaneously.',
+      'Conversational Funnels Close the Loop: Generating traffic is meaningless without conversion. AI agents integrated into Instagram and Facebook DMs turn transient viewers into paying customers instantaneously.',
       'Brand Identity is Your True Moat: As production costs approach zero and AI content floods feeds, generic AI output gets ignored. The winning brands are those that anchor AI tools into authentic founder storytelling and distinct brand guidelines.'
     ],
     sections: [
@@ -125,7 +125,7 @@ In this comprehensive deep dive, we explore the tectonic shifts happening across
         bullets: [
           'Short-Form Video & Reel Synthesis: Short-form vertical video (Instagram Reels, YouTube Shorts) accounts for more than 82% of all social media consumption. AI tools can now ingest a simple product link or prompt and generate a complete video reel — including intelligent scene pacing, dynamic background visuals, studio-grade neural voiceovers, synchronized subtitles, and high-impact callouts — in less than 60 seconds.',
           'Vernacular & Regional Contextualization: Especially in diverse markets like India, language and dialect are critical trust signals. AI engines effortlessly translate and transcreate marketing messaging across Hindi, Hinglish, Marathi, Gujarati, Tamil, and English, retaining cultural nuances and humor that resonate deeply with local buyers.',
-          'Autonomous DM & WhatsApp CRM Funnels: Capturing a customer’s attention is only the first step. When a prospective buyer comments “Price?” or drops a DM, AI marketing agents respond within seconds, answering product specifications, displaying digital catalogues, applying coupon codes, and completing checkout seamlessly.'
+          'Autonomous DM & Social CRM Funnels: Capturing a customer’s attention is only the first step. When a prospective buyer comments “Price?” or drops a DM, AI marketing agents respond within seconds, answering product specifications, displaying digital catalogues, applying coupon codes, and completing checkout seamlessly.'
         ]
       },
       {
@@ -233,10 +233,10 @@ In this deep-dive guide, we break down the exact operational architecture requir
           'Each layer handles a specialized phase of content synthesis, ensuring that every asset adheres strictly to your brand aesthetic and revenue goals:'
         ],
         bullets: [
-          'Layer 1: Trend Discovery & Customer Signal Ingestion — Automatically monitor trending audio tracks, customer search questions, popular competitors, and WhatsApp inquiries to seed your creative pipeline with validated audience demand.',
+          'Layer 1: Trend Discovery & Customer Signal Ingestion — Automatically monitor trending audio tracks, customer search questions, popular competitors, and Social inquiries to seed your creative pipeline with validated audience demand.',
           'Layer 2: Multimodal Generative AI Synthesis — Ingest raw product specs and marketing goals into LLMs and generative video pipelines to produce high-impact scripts, custom imagery, realistic voiceovers, and dynamic subtitle overlays.',
           'Layer 3: Brand DNA & Guardrail Governance — Enforce strict brand rules including official hex codes, approved typography, watermarks, brand logos, and linguistic tonality so every post looks 100% bespoke.',
-          'Layer 4: Omnichannel Auto-Scheduling & CRM Sync — Automatically publish formatted assets across Instagram Reels, YouTube Shorts, LinkedIn, Facebook, and WhatsApp Business catalogues at peak audience activity hours.'
+          'Layer 4: Omnichannel Auto-Scheduling & CRM Sync — Automatically publish formatted assets across Instagram Reels, YouTube Shorts, LinkedIn, Facebook, and Social Business catalogues at peak audience activity hours.'
         ],
         callout: {
           type: 'tip',
@@ -255,7 +255,7 @@ In this deep-dive guide, we break down the exact operational architecture requir
           'Week 1: Problem Awareness & Agitation (Days 1–7) — High-energy reels spotlighting common customer frustrations, educational problem-breakdown carousels, and interactive story polls.',
           'Week 2: The Solution & Behind-The-Scenes (Days 8–15) — Product demonstration reels, feature breakdowns, unboxing experiences, and founder manufacturing stories.',
           'Week 3: Social Proof & Customer Validation (Days 16–22) — Customer reviews, video testimonials, before-and-after transformation cards, and customer spotlight carousels.',
-          'Week 4: Festive Offers & High-Conversion Urgency (Days 23–30) — Limited-time promotional posters, festival greetings, flash discount reels with WhatsApp DM triggers, and countdown reminders.'
+          'Week 4: Festive Offers & High-Conversion Urgency (Days 23–30) — Limited-time promotional posters, festival greetings, flash discount reels with Social DM triggers, and countdown reminders.'
         ]
       },
       {
@@ -369,14 +369,14 @@ In this comprehensive guide, we unpack how modern growth teams leverage predicti
           'Each model processes real-time interaction streams to deliver clear, automated actions across your marketing stack:'
         ],
         bullets: [
-          'Propensity-to-Buy Scoring: Analyzes multi-touch user journeys — including reel view percentages, WhatsApp query sentiment, pricing page dwell time, and email open velocity — to assign a dynamic intent score from 1 to 100 to every prospect.',
+          'Propensity-to-Buy Scoring: Analyzes multi-touch user journeys — including reel view percentages, Social query sentiment, pricing page dwell time, and email open velocity — to assign a dynamic intent score from 1 to 100 to every prospect.',
           'Customer Churn Early-Warning Systems: Monitors subtle behavioral drop-offs (e.g., declining weekly logins, unread promotional broadcasts, reduced order frequency) to alert your team or trigger automatic win-back promotions before the customer churns permanently.',
           'Dynamic Next-Best-Action (NBA) Recommenders: Instead of blasting the same generic promotion to your entire contact list, NBA models automatically predict the exact next product recommendation, communication channel, and discount threshold most likely to induce an immediate order.'
         ],
         callout: {
           type: 'tip',
           title: 'Focus on Micro-Signals First',
-          text: 'You don’t need petabytes of data to benefit from predictive modeling. Tracking four simple micro-signals — time spent on specific product pages, repeat reel watches, WhatsApp inquiry topics, and cart abandonment speed — yields immediate 25%+ conversion boosts.'
+          text: 'You don’t need petabytes of data to benefit from predictive modeling. Tracking four simple micro-signals — time spent on specific product pages, repeat reel watches, Social inquiry topics, and cart abandonment speed — yields immediate 25%+ conversion boosts.'
         }
       },
       {
@@ -390,7 +390,7 @@ In this comprehensive guide, we unpack how modern growth teams leverage predicti
         checklist: [
           'T-Minus 45 Days (Early Affinity Seeding): Deploy low-cost brand awareness reels and interactive polls to harvest warm audience pixel cookies before ad rates surge.',
           'T-Minus 20 Days (Predictive Cart Reservation): Analyze wishlist items and abandoned browse sessions to pre-target high-intent buyers with exclusive early-bird VIP discount codes.',
-          'T-Minus 7 Days (Peak Festival Conversion Rush): Activate automated WhatsApp catalogue funnels and dynamic retargeting reels spotlighting guaranteed delivery deadlines.',
+          'T-Minus 7 Days (Peak Festival Conversion Rush): Activate automated Product catalogue funnels and dynamic retargeting reels spotlighting guaranteed delivery deadlines.',
           'Post-Festival Retention (Day +5): Automatically segment festive one-time purchasers into predictive re-engagement flows to convert holiday shoppers into year-round loyalists.'
         ]
       },
@@ -399,7 +399,7 @@ In this comprehensive guide, we unpack how modern growth teams leverage predicti
         subheading: 'How First-Party Machine Learning Replaces Decaying Third-Party Trackers',
         paragraphs: [
           'With browser privacy restrictions, iOS tracking blocks, and the phasing out of third-party cookies, traditional pixel tracking has lost over 40% of its attribution fidelity.',
-          'Smart brands are replacing third-party tracking dependencies with First-Party Data Intelligence. By integrating direct CRM signals, WhatsApp conversation records, and on-site behavioral events into unified machine learning models, you maintain crystal-clear conversion visibility without violating customer privacy.'
+          'Smart brands are replacing third-party tracking dependencies with First-Party Data Intelligence. By integrating direct CRM signals, Social conversation records, and on-site behavioral events into unified machine learning models, you maintain crystal-clear conversion visibility without violating customer privacy.'
         ],
         quote: {
           text: '“Third-party cookies were a rented crutch. First-party predictive intelligence is an owned asset that compounds in value every single day your business operates.”',
@@ -417,7 +417,7 @@ In this comprehensive guide, we unpack how modern growth teams leverage predicti
         bullets: [
           'Audit & Clean Your Customer Data: Unify contact lists, transaction records, and communication logs into a single centralized database free of duplicates.',
           'Deploy Intent Scoring on High-Value Channels: Connect your website, social ads, and messaging channels to capture behavioral engagement in real time.',
-          'Automate Conditional Triggers: Set up automated triggers (e.g., if customer intent score > 80 and cart idle for 20 mins, send customized WhatsApp discount with 2-hour expiration).',
+          'Automate Conditional Triggers: Set up automated triggers (e.g., if customer intent score > 80 and cart idle for 20 mins, send customized Social discount with 2-hour expiration).',
           'Measure Lift & Continuous Model Retraining: Track incremental revenue generated by predictive interventions versus control groups, feeding performance data back to improve prediction accuracy week over week.'
         ],
         callout: {

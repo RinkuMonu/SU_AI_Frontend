@@ -14,7 +14,7 @@ type FeatureKey =
   | 'social-calendar'
   | 'uni-ai'
   | 'website-builder'
-  | 'whatsapp-ai';
+  | 'social-ai';
 
 
   import { Bot, MessageSquare, Target, LineChart, Sparkles, CheckCircle2, } from 'lucide-react';
@@ -101,62 +101,62 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
   'brand-brain': {
     eyebrow: 'Central Neural Brand Architecture',
     title: 'An AI that remembers your Indian business, tone, products, and audience forever.',
-    description: 'DhandaGrow AI Brand Brain™ acts as your digital co-founder. It stores your brand identity, tone of voice, product catalog, and pricing guardrails, radiating consistent context to AI Reels, Photoshoots, WhatsApp Bots, and Ads.',
+    description: 'DhandaGrow AI Brand Brain™ acts as your digital co-founder. It stores your brand identity, tone of voice, product catalog, and pricing guardrails, radiating consistent context to AI Reels, Photoshoots, Social Bots, and Ads.',
     benefits: [
       { title: 'Zero Prompt Repetition', description: 'Never type “Use our brand colors and polite Hinglish tone” again. Brand Brain auto-injects brand parameters into every generation.' },
-      { title: 'Cross-Tool Intelligence Sync', description: 'When you update your festive offer or logo in Brand Brain, it reflects immediately in AI Post Maker, WhatsApp CRM, and Photoshoots.' },
+      { title: 'Cross-Tool Intelligence Sync', description: 'When you update your festive offer or logo in Brand Brain, it reflects immediately in AI Post Maker, Social CRM, and Photoshoots.' },
       { title: 'Strict Business Guardrails', description: 'Prevent AI hallucinations. Lock rules like “Never discount above 20%”, “Always mention BIS Hallmark”, or “Attach Razorpay UPI link”.' },
     ],
     steps: [
       { title: '1. Connect Website or Catalog', description: 'Input your store URL or upload your product catalog. Brand Brain automatically extracts colors, fonts, and brand tone in 10 seconds.' },
       { title: '2. Define Tone & Guardrails', description: 'Set your preferred language mix (Hinglish/Hindi/English), target buyer cities (Jaipur, Delhi, Mumbai), and payment preferences.' },
-      { title: '3. Radiate to All AI Engines', description: 'Every reel, photoshoot, WhatsApp reply, and ad creative automatically respects your exact brand identity.' },
+      { title: '3. Radiate to All AI Engines', description: 'Every reel, photoshoot, Social reply, and ad creative automatically respects your exact brand identity.' },
     ],
     faqs: [
-      { title: 'How does Brand Brain differ from generic ChatGPT prompts?', description: 'Generic AI forgets your context every session. DhandaGrow Brand Brain uses a persistent vector memory database, ensuring every post, reel, and WhatsApp reply matches your brand flawlessly.' },
-      { title: 'Can I set different tones for WhatsApp vs Instagram Reels?', description: 'Yes! Brand Brain lets you fine-tune channel-specific personas—e.g., highly polite and consultative on WhatsApp, while fast-paced and trendy on Instagram Reels.' },
+      { title: 'How does Brand Brain differ from generic ChatGPT prompts?', description: 'Generic AI forgets your context every session. DhandaGrow Brand Brain uses a persistent vector memory database, ensuring every post, reel, and Social reply matches your brand flawlessly.' },
+      { title: 'Can I set different tones for Social vs Instagram Reels?', description: 'Yes! Brand Brain lets you fine-tune channel-specific personas—e.g., highly polite and consultative on Social, while fast-paced and trendy on Instagram Reels.' },
       { title: 'Does Brand Brain work with Indian regional languages?', description: 'Yes. It natively supports Hindi, Hinglish, Marathi, Gujarati, Tamil, Telugu, and English, maintaining cultural greetings like “Namaste” and festival blessings.' },
     ],
     dark: true,
   },
   catalogue: {
     eyebrow: 'AI Smart Inventory & Catalogue',
-    title: 'From raw mobile photos to high-converting listings across WhatsApp, Instagram & Web.',
+    title: 'From raw mobile photos to high-converting listings across Social, Instagram & Web.',
     description: 'DhandaGrow AI automates product photography, writes persuasive Hinglish descriptions, synchronizes live stock levels across every selling channel, and issues instant UPI checkout links.',
     benefits: [
       { title: 'Zero Studio Expenses with AI Photoshoots', description: 'Snap a photo on any mobile phone. The AI removes messy backgrounds and puts your sarees, jewellery, or products on virtual Indian models.' },
-      { title: 'Real-Time Omnichannel Stock Lock', description: 'When an item sells on WhatsApp, stock decrements instantly on your Website and Instagram Shop, preventing embarrassing overselling.' },
+      { title: 'Real-Time Omnichannel Stock Lock', description: 'When an item sells on Social, stock decrements instantly on your Website and Instagram Shop, preventing embarrassing overselling.' },
       { title: 'Persuasive Multilingual Descriptions', description: 'Generate festival-ready product copy in Hinglish, Hindi, and English with auto-tagged sizes, care instructions, and SEO keywords.' },
     ],
     steps: [
       { title: '1. Snap & Upload Photo', description: 'Upload raw product snaps from your phone camera. No fancy studio or DSLR needed.' },
       { title: '2. AI Styling & Copy Generation', description: 'DhandaGrow AI enhances textures, generates model previews, and writes complete product descriptions with price and SKU.' },
-      { title: '3. 1-Click Multi-Channel Publish', description: 'Broadcast product cards to WhatsApp Business catalogue, Instagram Shop, and your live web storefront with dynamic UPI QR checkout.' },
+      { title: '3. 1-Click Multi-Channel Publish', description: 'Broadcast product cards to Social Business catalogue, Instagram Shop, and your live web storefront with dynamic UPI QR checkout.' },
     ],
     faqs: [
       { title: 'Can I upload photos taken directly from my phone camera?', description: 'Yes! DhandaGrow AI is built specifically for smartphone photos. It automatically removes wrinkles, corrects studio lighting, and places products on professional backdrops.' },
-      { title: 'How does multi-channel inventory sync work?', description: 'Your DhandaGrow Master Catalogue acts as the single source of truth. Any price change, discount, or stock update reflects in real-time across WhatsApp, Instagram, and Web.' },
+      { title: 'How does multi-channel inventory sync work?', description: 'Your DhandaGrow Master Catalogue acts as the single source of truth. Any price change, discount, or stock update reflects in real-time across Social, Instagram, and Web.' },
       { title: 'Can customers buy directly via UPI from the catalogue?', description: 'Yes. Every catalogue card includes a 1-tap Razorpay and UPI checkout link that allows customers to pay immediately via Google Pay, PhonePe, or Paytm.' },
     ],
     dark: true,
   },
   crm: {
     eyebrow: 'Autonomous AI Sales Pipeline',
-    title: 'Qualify, follow up, and close leads across WhatsApp, Instagram, YouTube, Facebook, LinkedIn & Twitter.',
-    description: 'Stop dropping high-intent buyers across fragmented channels. DhandaGrow AI automatically captures leads from YouTube, Facebook, LinkedIn, Twitter, Instagram & WhatsApp, evaluates purchasing probability with AI scoring, and schedules smart follow-up triggers.',
+    title: 'Qualify, follow up, and close leads across Social, Instagram, YouTube, Facebook, LinkedIn & Twitter.',
+    description: 'Stop dropping high-intent buyers across fragmented channels. DhandaGrow AI automatically captures leads from YouTube, Facebook, LinkedIn, Twitter, Instagram & Social, evaluates purchasing probability with AI scoring, and schedules smart follow-up triggers.',
     benefits: [
-      { title: 'AI Intent & Readiness Scoring', description: 'Our Gemini-powered engine scans inquiries from YouTube comments, DMs, and WhatsApp in Hinglish, Hindi, and English to instantly distinguish hot buyers from window shoppers.' },
-      { title: 'Unified Omnichannel Inbox', description: 'Consolidate WhatsApp, Instagram DMs, Facebook Ads & Messenger, YouTube video inquiries, LinkedIn B2B forms, and Twitter DMs into a single Kanban sales board.' },
+      { title: 'AI Intent & Readiness Scoring', description: 'Our Gemini-powered engine scans inquiries from YouTube comments, DMs, and Social in Hinglish, Hindi, and English to instantly distinguish hot buyers from window shoppers.' },
+      { title: 'Unified Omnichannel Inbox', description: 'Consolidate Social, Instagram DMs, Facebook Ads & Messenger, YouTube video inquiries, LinkedIn B2B forms, and Twitter DMs into a single Kanban sales board.' },
       { title: 'Zero-Effort Automated Follow-ups', description: 'Schedule intelligent 24h, 48h, and 7-day multi-channel follow-up nudges with personalized catalogue suggestions and coupon codes.' },
     ],
     steps: [
-      { title: '1. Ingest Leads Instantly', description: 'Every DM, YouTube comment, LinkedIn form, WhatsApp message, Facebook ad click, and Twitter inquiry flows directly into your live master pipeline.' },
+      { title: '1. Ingest Leads Instantly', description: 'Every DM, YouTube comment, LinkedIn form, Social message, Facebook ad click, and Twitter inquiry flows directly into your live master pipeline.' },
       { title: '2. AI Qualification & Scoring', description: 'UNI AI tags budget, urgency, and product interest, providing your sales team with a pre-written response and deal probability score.' },
       { title: '3. Close Deals via UPI & Catalogue', description: 'Send instant Razorpay or UPI payment links and product cards directly in chat, automatically marking won revenue.' },
     ],
     faqs: [
       { title: 'Can my sales team manage conversations together?', description: 'Yes. Shared inbox, automated lead routing, and role-based assignments ensure your top closers get the highest-value opportunities immediately.' },
-      { title: 'Which channels are natively supported?', description: 'WhatsApp Business API, Instagram DMs & Stories, YouTube Video Comments & Shorts, Facebook Messenger & Lead Ads, LinkedIn B2B Forms & InMail, Twitter (X) DMs, and Website Webhooks.' },
+      { title: 'Which channels are natively supported?', description: 'Social Business API, Instagram DMs & Stories, YouTube Video Comments & Shorts, Facebook Messenger & Lead Ads, LinkedIn B2B Forms & InMail, Twitter (X) DMs, and Website Webhooks.' },
       { title: 'How does the AI handle Indian languages & Hinglish?', description: 'The AI natively understands natural Hinglish (e.g., “Price kitna hai?”, “Bhaiya delivery kab tak hogi?”, “Discount milega kya?”) across all connected social channels.' },
     ],
   },
@@ -197,7 +197,7 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
     faqs: [
       { title: 'Can I prepare campaigns before a festival?', description: 'Yes. Planning ahead helps you build and review the campaign before the occasion arrives.' },
       { title: 'Can I customize the templates?', description: 'Use the campaign templates as a starting point and adapt the creative to your offer and branding.' },
-      { title: 'How can I share a campaign with customers?', description: 'Prepare campaign content for the channels available in your marketing workflow, including WhatsApp.' },
+      { title: 'How can I share a campaign with customers?', description: 'Prepare campaign content for the channels available in your marketing workflow, including Social.' },
     ],
   },
   'indian-ai': {
@@ -304,19 +304,19 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
   'uni-ai': {
     eyebrow: 'Autonomous AI Co-Founder',
     title: 'Speak in Hinglish. Watch UNI execute campaigns, sales, and analytics autonomously.',
-    description: 'UNI AI isn’t just a chatbot—it is the central intelligence director of DhandaGrow AI. Give a single voice note or chat prompt, and UNI commands your AI Reel Studio, Photoshoots, WhatsApp CRM, and Web Store simultaneously.',
+    description: 'UNI AI isn’t just a chatbot—it is the central intelligence director of DhandaGrow AI. Give a single voice note or chat prompt, and UNI commands your AI Reel Studio, Photoshoots, Social CRM, and Web Store simultaneously.',
     benefits: [
       { title: 'Natural Hinglish Voice & Text Commands', description: 'Talk to UNI like a business partner. It natively understands Indian business terms, festival timelines, and local bargaining nuances.' },
       { title: 'Multi-Agent Tool Orchestration', description: 'One instruction triggers simultaneous workflows: generating 9:16 reels, launching Meta ads, and notifying sales reps.' },
-      { title: 'Proactive Morning Business Briefs', description: 'UNI monitors your store 24/7. Get WhatsApp voice notes summarizing daily sales, top products, and lead recovery suggestions.' },
+      { title: 'Proactive Morning Business Briefs', description: 'UNI monitors your store 24/7. Get Social voice notes summarizing daily sales, top products, and lead recovery suggestions.' },
     ],
     steps: [
       { title: '1. Give a Voice or Chat Goal', description: 'Speak or type: “UNI, start Diwali festive campaign with 20% discount on silk sarees and silver coins”.' },
-      { title: '2. Autonomous Multi-Tool Execution', description: 'UNI scripts reels, updates catalog prices, prepares WhatsApp broadcasts, and syncs CRM pipelines in seconds.' },
+      { title: '2. Autonomous Multi-Tool Execution', description: 'UNI scripts reels, updates catalog prices, prepares Social broadcasts, and syncs CRM pipelines in seconds.' },
       { title: '3. Track Revenue & Celebrate', description: 'Review real-time conversion rates, won UPI orders, and automated customer follow-ups on your unified cockpit.' },
     ],
     faqs: [
-      { title: 'How does UNI AI differ from ChatGPT?', description: 'ChatGPT only gives text suggestions that you must execute manually. UNI AI is connected to your actual tools—it directly generates the video, updates your website, and sends the WhatsApp messages.' },
+      { title: 'How does UNI AI differ from ChatGPT?', description: 'ChatGPT only gives text suggestions that you must execute manually. UNI AI is connected to your actual tools—it directly generates the video, updates your website, and sends the Social messages.' },
       { title: 'Can I command UNI AI in Hindi or Hinglish?', description: 'Yes! UNI AI is trained specifically for Indian entrepreneurs and speaks fluent Hinglish, Hindi, and English.' },
       { title: 'Can UNI AI track real sales revenue and UPI payments?', description: 'Yes. UNI AI monitors your Leads CRM and Razorpay/UPI gateway, tracking which reels and broadcasts produced actual paid orders.' },
     ],
@@ -343,8 +343,8 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
     ],
     dark: true,
   },
-  'whatsapp-ai': {
-    eyebrow: 'More helpful WhatsApp conversations',
+  'social-ai': {
+    eyebrow: 'More helpful Social conversations',
     title: 'Turn your business chat into a smoother path from question to order.',
     description: 'Help customers discover products, get answers, and choose what to do next without leaving the conversation.',
     benefits: [
@@ -358,7 +358,7 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
       { title: 'Help them take action', description: 'Offer the next step, from a payment option to a conversation with your team.' },
     ],
     faqs: [
-      { title: 'Can customers browse products in WhatsApp?', description: 'Catalogue integration helps customers discover your products within the chat experience.' },
+      { title: 'Can customers browse products in Social?', description: 'Catalogue integration helps customers discover your products within the chat experience.' },
       { title: 'Can I accept payments through the conversation?', description: 'Share supported payment options, including available UPI or card payment links, when customers are ready.' },
       { title: 'Can the assistant support different languages?', description: 'Use multilingual support options to make customer conversations more accessible.' },
     ],

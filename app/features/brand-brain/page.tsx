@@ -67,7 +67,7 @@ export default function BrandBrainPage() {
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300/90 leading-relaxed mb-8 max-w-3xl mx-auto font-normal">
-            Stop repeating yourself to generic AI. DhandaGrow Brand Brain™ remembers your official logo, exact hex colors, polite Hinglish voice, 1,240+ Indian products, target audience, and pricing rules—radiating consistent branding across Reels, Photoshoots, WhatsApp, and Ads.
+            Stop repeating yourself to generic AI. DhandaGrow Brand Brain™ remembers your official logo, exact hex colors, polite Hinglish voice, 1,240+ Indian products, target audience, and pricing rules—radiating consistent branding across Reels, Photoshoots, Social, and Ads.
           </p>
 
           {/* Unified AI Memory Modules Bar */}
@@ -211,7 +211,7 @@ export default function BrandBrainPage() {
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Central Vector Brain radiating brand identity into Reel Studio, Photoshoot, WhatsApp CRM, and Ad Creator</span>
+                <span>Central Vector Brain radiating brand identity into Reel Studio, Photoshoot, Social CRM, and Ad Creator</span>
               </div>
             </div>
           ) : (
@@ -407,7 +407,7 @@ export default function BrandBrainPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Continuous Learning & Evolution</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                As you edit AI reels, publish festival posts, and approve WhatsApp messages, Brand Brain continuously adapts to your stylistic preferences, becoming smarter every week.
+                As you edit AI reels, publish festival posts, and approve Direct messages, Brand Brain continuously adapts to your stylistic preferences, becoming smarter every week.
               </p>
             </div>
           </div>
@@ -458,7 +458,7 @@ export default function BrandBrainPage() {
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Radiates Automatically to All 6 Engines</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
-                  Your AI Reel Studio, Photoshoot, WhatsApp CRM, and Ad Creator now produce 100% on-brand marketing without you ever re-typing instructions.
+                  Your AI Reel Studio, Photoshoot, Social CRM, and Ad Creator now produce 100% on-brand marketing without you ever re-typing instructions.
                 </p>
               </div>
             </div>

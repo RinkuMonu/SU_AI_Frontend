@@ -60,7 +60,7 @@ interface FestivalPreset {
   subheadline: string;
   hinglishCaption: string;
   hindiCaption: string;
-  whatsappMessage: string;
+  socialMessage: string;
   adMetrics: {
     roas: string;
     reach: string;
@@ -98,9 +98,9 @@ const festivalPresets: FestivalPreset[] = [
     offerBadge: 'FLAT 40% OFF',
     headline: 'Royal Ethnic Luxury Sale: Pure Banarasi Silk & Designer Outfits',
     subheadline: 'Handcrafted royal weaves, pure Banarasi silk sarees & festive celebration attire.',
-    hinglishCaption: 'Iss Diwali sajayein apne parivaar ko shahi banarasi andaaz mein! 🪔 Shyamal & Kumkum ki exclusive Diwali Festive Sale shuru ho chuki hai — Flat 40% OFF pure Banarasi sarees aur designer ethnic wear par. Free festive gift hamper har purchase ke saath! 🎁 Showroom visit karein ya WhatsApp par direct order book karein! ✨👗',
+    hinglishCaption: 'Iss Diwali sajayein apne parivaar ko shahi banarasi andaaz mein! 🪔 Shyamal & Kumkum ki exclusive Diwali Festive Sale shuru ho chuki hai — Flat 40% OFF pure Banarasi sarees aur designer ethnic wear par. Free festive gift hamper har purchase ke saath! 🎁 Showroom visit karein ya Social par direct order book karein! ✨👗',
     hindiCaption: 'शुभ दीपावली महासेल! 🪔 इस पावन त्यौहार पर अपने परिवार के लिए घर लाएं शाही बनारसी साड़ियां और डिज़ाइनर लहंगे फ्लैट 40% की विशेष छूट पर। आज ही व्हाट्सएप पर आर्डर बुक करें! 🪔✨',
-    whatsappMessage: 'Namaste Ji! 🙏 Iss Diwali Shyamal & Kumkum Boutique laaya hai aapke liye exclusive VIP Festive Offer! 🪔\n\n✨ Flat 40% OFF on all Designer Sarees & Kurtas\n🎁 Free Silver Coin on orders above ₹4,999\n🚚 Express Fast Delivery in Jaipur\n\nUse Code: DIWALI40\nReply "SHOW CATALOGUE" to view designs instantly!',
+    socialMessage: 'Namaste Ji! 🙏 Iss Diwali Shyamal & Kumkum Boutique laaya hai aapke liye exclusive VIP Festive Offer! 🪔\n\n✨ Flat 40% OFF on all Designer Sarees & Kurtas\n🎁 Free Silver Coin on orders above ₹4,999\n🚚 Express Fast Delivery in Jaipur\n\nUse Code: DIWALI40\nReply "SHOW CATALOGUE" to view designs instantly!',
     adMetrics: {
       roas: '5.8x',
       reach: '48,500+',
@@ -130,8 +130,8 @@ const festivalPresets: FestivalPreset[] = [
           scene_number: 3,
           duration: '12-20s',
           visual: 'Happy festive boutique shopping bags & festive celebration greeting',
-          on_screen_text: 'Tap To Order via WhatsApp 🛍️',
-          voiceover: 'Aaj hi WhatsApp karein aur paayein special Diwali discount coupon!'
+          on_screen_text: 'Tap To Order via Social Media 🛍️',
+          voiceover: 'Aaj hi Social karein aur paayein special Diwali discount coupon!'
         }
       ]
     }
@@ -152,9 +152,9 @@ const festivalPresets: FestivalPreset[] = [
     offerBadge: 'FLAT 30% OFF',
     headline: 'Shubh Navratri Mahotsav: 9 Days of Dandiya Beats & Festive Collection',
     subheadline: 'Handcrafted authentic mirror-work Chaniya Cholis, traditional Kedias & Garba jewellery.',
-    hinglishCaption: 'Navratri ke 9 din chamkein sabse khaas! 💃 Maa Durga Garba Collection laaya hai authentic mirror-work Chaniya Choli aur Kedia outfits par Flat 30% OFF. Free Dandiya sticks har order ke saath! 🌸 Showroom visit karein ya WhatsApp par direct order book karein! Shubh Navratri! ✨👗',
+    hinglishCaption: 'Navratri ke 9 din chamkein sabse khaas! 💃 Maa Durga Garba Collection laaya hai authentic mirror-work Chaniya Choli aur Kedia outfits par Flat 30% OFF. Free Dandiya sticks har order ke saath! 🌸 Showroom visit karein ya Social par direct order book karein! Shubh Navratri! ✨👗',
     hindiCaption: 'शुभ नवरात्रि! 🌸 माँ दुर्गा के पावन नौ दिनों के अवसर पर चनिया चोली और डांडिया परिधानों पर पाएं 30% की विशेष छूट। आज ही आर्डर करें! 💃✨',
-    whatsappMessage: 'Shubh Navratri! 🌸 Maa Durga Festive Collection laaya hai aapke liye special 9-day Garba offers!\n\n💃 Flat 30% OFF on Designer Chaniya Choli\n🎁 Free Dandiya Sticks with every order\n⚡ Same Day Delivery in Ahmedabad\n\nCode: NAVRATRI30\nReply "ORDER" to get festive collection!',
+    socialMessage: 'Shubh Navratri! 🌸 Maa Durga Festive Collection laaya hai aapke liye special 9-day Garba offers!\n\n💃 Flat 30% OFF on Designer Chaniya Choli\n🎁 Free Dandiya Sticks with every order\n⚡ Same Day Delivery in Ahmedabad\n\nCode: NAVRATRI30\nReply "ORDER" to get festive collection!',
     adMetrics: {
       roas: '5.5x',
       reach: '52,000+',
@@ -185,7 +185,7 @@ const festivalPresets: FestivalPreset[] = [
           duration: '12-20s',
           visual: 'Dandiya sticks celebration and festive shopping orders packed for dispatch',
           on_screen_text: 'Free Dandiya Sticks with Every Order! 🎁',
-          voiceover: 'Aaj hi WhatsApp par message karein aur festive gift paayein!'
+          voiceover: 'Aaj hi Social par message karein aur festive gift paayein!'
         }
       ]
     }
@@ -206,9 +206,9 @@ const festivalPresets: FestivalPreset[] = [
     offerBadge: 'FLAT 35% OFF',
     headline: 'Holi Celebration Mega Sale: Pure Kaju Gujiya & Organic Gulal Hampers',
     subheadline: 'Handcrafted pure desi ghee sweets, thandai packs & luxury organic herbal colors.',
-    hinglishCaption: 'Rangon ke tyohar mein mithas gholein! 🎨 Pure desi ghee ki crispy Kaju Gujiya, Kesar Thandai aur toxic-free Herbal Gulal gift hampers par Flat 35% OFF. Limited festive pre-orders open now! WhatsApp par message karein aur fresh delivery schedule karein! 🌈🥟',
+    hinglishCaption: 'Rangon ke tyohar mein mithas gholein! 🎨 Pure desi ghee ki crispy Kaju Gujiya, Kesar Thandai aur toxic-free Herbal Gulal gift hampers par Flat 35% OFF. Limited festive pre-orders open now! Social par message karein aur fresh delivery schedule karein! 🌈🥟',
     hindiCaption: 'रंगों का महापर्व होली! 🎨 शुद्ध देसी घी की खस्ता गुजिया और हर्बल गुलाल के स्पेशल गिफ्ट बॉक्स पर पाएं 35% की विशेष छूट। आज ही व्हाट्सएप पर प्री-आर्डर बुक करें! 🌈✨',
-    whatsappMessage: 'Holi Aayi Re! 🎨 Mithai Mahal lekar aaya hai aapke parivaar ke liye Shuddh Desi Ghee Gujiya aur Herbal Gulal Hampers!\n\n🌈 Flat 35% Pre-Order Discount\n🥛 Free Kesar Thandai Bottle on orders above ₹999\n⚡ Fresh Home Delivery on Holi Eve\n\nCoupon: HOLIRANG\nReply "ORDER" to get fresh sweets delivered!',
+    socialMessage: 'Holi Aayi Re! 🎨 Mithai Mahal lekar aaya hai aapke parivaar ke liye Shuddh Desi Ghee Gujiya aur Herbal Gulal Hampers!\n\n🌈 Flat 35% Pre-Order Discount\n🥛 Free Kesar Thandai Bottle on orders above ₹999\n⚡ Fresh Home Delivery on Holi Eve\n\nCoupon: HOLIRANG\nReply "ORDER" to get fresh sweets delivered!',
     adMetrics: {
       roas: '4.9x',
       reach: '36,200+',
@@ -238,8 +238,8 @@ const festivalPresets: FestivalPreset[] = [
           scene_number: 3,
           duration: '12-20s',
           visual: 'Festive gift boxes with colorful ribbons ready for swift delivery',
-          on_screen_text: 'Pre-Order Now on WhatsApp 📲',
-          voiceover: 'Ghar baithe fresh delivery book karein abhi WhatsApp par!'
+          on_screen_text: 'Pre-Order Now on Social Media 📲',
+          voiceover: 'Ghar baithe fresh delivery book karein abhi Social par!'
         }
       ]
     }
@@ -262,7 +262,7 @@ const festivalPresets: FestivalPreset[] = [
     subheadline: 'Exquisite 22KT BIS Hallmarked gold, certified diamonds & Kundan Polki collection.',
     hinglishCaption: 'Shubh Dhanteras par ghar laayein lakshmi aur barkat! 🪙 Rang Mahals ke pure 22KT Gold aur Bridal Polki collection par paayein ZERO Making Charges aur flat discount diamond rates par! ✨ Free Gold Coin offer for first 50 showroom bookings. Book slot now! 💍🪙',
     hindiCaption: 'शुभ धनतेरस व नवरात्रि! 🪙 100% बीआईएस हॉलमार्क 22KT गोल्ड एवं कुंदन ज्वेलरी पर पाएं 0% मेकिंग चार्ज। सीमित अवधि ऑफर। आज ही शोरूम विज़िट बुक करें! 💍✨',
-    whatsappMessage: 'Shubh Dhanteras Greetings! 🪙 Rang Mahals Jewellers offers exclusive festival privileges:\n\n✨ 0% Making Charges on Gold & Kundan\n💎 Flat 20% OFF on Certified Diamonds\n🪙 Free 1gm Gold Coin on purchases above ₹1 Lakh\n\nVisit Showroom or reply "CALL" for VIP video catalogue!',
+    socialMessage: 'Shubh Dhanteras Greetings! 🪙 Rang Mahals Jewellers offers exclusive festival privileges:\n\n✨ 0% Making Charges on Gold & Kundan\n💎 Flat 20% OFF on Certified Diamonds\n🪙 Free 1gm Gold Coin on purchases above ₹1 Lakh\n\nVisit Showroom or reply "CALL" for VIP video catalogue!',
     adMetrics: {
       roas: '6.4x',
       reach: '62,000+',
@@ -314,9 +314,9 @@ const festivalPresets: FestivalPreset[] = [
     offerBadge: 'UP TO 50% OFF',
     headline: 'Eid Mubarak Royal Offers: Artisanal Oudh, Attars & Luxury Festive Couture',
     subheadline: 'Pure handcrafted fragrance oils, regal sherwanis & embroidered festive kurtas.',
-    hinglishCaption: 'Eid ki khushiyan banayein aur bhi yaadgaar! 🌙 Zaraab ke pure luxury attars aur festive kurtas par paayein Up To 50% OFF. Pure rose, oudh aur amber fragrances ke festive hampers available. Free gift box packing! Order on WhatsApp now. ✨🌙',
+    hinglishCaption: 'Eid ki khushiyan banayein aur bhi yaadgaar! 🌙 Zaraab ke pure luxury attars aur festive kurtas par paayein Up To 50% OFF. Pure rose, oudh aur amber fragrances ke festive hampers available. Free gift box packing! Order on Social Media now. ✨🌙',
     hindiCaption: 'ईद मुबारक की दिली मुबारकबाद! 🌙 ज़राब के खास शाही अत्तर और लक्ज़री कुर्तों पर पाएं 50% तक की छूट। आज ही व्हाट्सएप पर अपना फेस्टिव गिफ्ट पैक बुक करें! 🌙✨',
-    whatsappMessage: 'Eid Mubarak Mubarakbaad! 🌙 Zaraab brings you the finest royal festive collection:\n\n✨ Up to 50% OFF on Luxury Oudh & Attars\n🎁 Free Premium Velvet Gift Box\n🚚 Express Fast Dispatch across India\n\nCoupon: EIDMUBARAK\nTap link to order festive gift sets!',
+    socialMessage: 'Eid Mubarak Mubarakbaad! 🌙 Zaraab brings you the finest royal festive collection:\n\n✨ Up to 50% OFF on Luxury Oudh & Attars\n🎁 Free Premium Velvet Gift Box\n🚚 Express Fast Dispatch across India\n\nCoupon: EIDMUBARAK\nTap link to order festive gift sets!',
     adMetrics: {
       roas: '5.1x',
       reach: '41,000+',
@@ -346,7 +346,7 @@ const festivalPresets: FestivalPreset[] = [
           scene_number: 3,
           duration: '12-20s',
           visual: 'Luxury green velvet box with golden engraving and festive ribbon',
-          on_screen_text: 'Send Eid Gift Hamper on WhatsApp 🎁',
+          on_screen_text: 'Send Eid Gift Hamper on Social Media 🎁',
           voiceover: 'Apne doston aur rishtedaaron ko bheinjiye luxury Eid gift hamper.'
         }
       ]
@@ -371,7 +371,7 @@ const annualCalendar = [
 
 export default function FestivalEnginePage() {
   const [selectedFestivalId, setSelectedFestivalId] = useState('diwali');
-  const [activeChannelTab, setActiveChannelTab] = useState<'post' | 'reel' | 'whatsapp' | 'ad'>('post');
+  const [activeChannelTab, setActiveChannelTab] = useState<'post' | 'reel' | 'social' | 'ad'>('post');
   const [isPlayingReel, setIsPlayingReel] = useState(false);
   const [activeReelScene, setActiveReelScene] = useState(0);
   const [isCopied, setIsCopied] = useState(false);
@@ -406,7 +406,7 @@ export default function FestivalEnginePage() {
           </h1>
           
           <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-10 font-medium max-w-3xl mx-auto">
-            AI automatically tracks all 100+ Indian festivals, generates complete 10-day multi-channel marketing campaigns (Social Posts, Reels, WhatsApp Blasts & Meta Ads), and prepares your store before the festive shopping rush begins.
+            AI automatically tracks all 100+ Indian festivals, generates complete 10-day multi-channel marketing campaigns (Social Posts, Reels, Social Blasts & Meta Ads), and prepares your store before the festive shopping rush begins.
           </p>
           
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -425,7 +425,7 @@ export default function FestivalEnginePage() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-500 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Pre-loaded 100+ Indian festivals</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> 10-Day Automated Campaign Blueprint</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> WhatsApp + Instagram + Ads Ready</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-600" /> Social + Instagram + Ads Ready</span>
           </div>
         </div>
 
@@ -553,7 +553,7 @@ export default function FestivalEnginePage() {
               Pick a Festival. Watch AI Build Your Complete 10-Day Campaign.
             </h2>
             <p className="mt-4 text-base md:text-lg text-slate-600">
-              In your actual DhandaGrow dashboard, AI monitors the Indian calendar, prepares banners, reels, ad copy, and WhatsApp messages, and schedules them with zero stress.
+              In your actual DhandaGrow dashboard, AI monitors the Indian calendar, prepares banners, reels, ad copy, and Direct messages, and schedules them with zero stress.
             </p>
           </div>
 
@@ -619,7 +619,7 @@ export default function FestivalEnginePage() {
               </div>
               <div className="bg-white p-3.5 rounded-2xl border border-slate-200">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase">Day 5</span>
-                <p className="text-xs font-bold text-slate-900 mt-0.5">VIP WhatsApp</p>
+                <p className="text-xs font-bold text-slate-900 mt-0.5">VIP Social</p>
                 <p className="text-[11px] text-slate-500 mt-1">Direct offer broadcast to existing customers</p>
                 <span className="inline-block mt-2 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Ready</span>
               </div>
@@ -663,14 +663,14 @@ export default function FestivalEnginePage() {
                 <span>🎬</span> AI Festive Reel
               </button>
               <button
-                onClick={() => setActiveChannelTab('whatsapp')}
+                onClick={() => setActiveChannelTab('social')}
                 className={`flex items-center gap-2 px-6 py-4 font-bold text-sm border-b-2 whitespace-nowrap transition-colors ${
-                  activeChannelTab === 'whatsapp'
+                  activeChannelTab === 'social'
                     ? 'border-orange-500 text-orange-600 bg-white'
                     : 'border-transparent text-slate-600 hover:text-slate-900'
                 }`}
               >
-                <span>💬</span> WhatsApp Broadcast
+                <span>💬</span> Social Broadcast
               </button>
               <button
                 onClick={() => setActiveChannelTab('ad')}
@@ -895,13 +895,13 @@ export default function FestivalEnginePage() {
                 </div>
               )}
 
-              {/* 3. WHATSAPP BROADCAST VIEW */}
-              {activeChannelTab === 'whatsapp' && (
+              {/* 3. SOCIAL CAMPAIGN VIEW */}
+              {activeChannelTab === 'social' && (
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                   <div className="lg:col-span-5 flex justify-center">
-                    {/* Realistic WhatsApp Chat Box */}
+                    {/* Realistic Customer Chat Box */}
                     <div className="w-full max-w-sm rounded-3xl bg-[#EFEAE2] border-4 border-slate-300 shadow-xl overflow-hidden text-left">
-                      {/* WhatsApp Header */}
+                      {/* Social Header */}
                       <div className="bg-[#075E54] text-white p-3.5 flex items-center gap-3">
                         <div className="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-sm">
                           {selectedPreset.emoji}
@@ -916,13 +916,13 @@ export default function FestivalEnginePage() {
                       <div className="p-4 space-y-3 min-h-[320px] flex flex-col justify-end bg-[radial-gradient(#d4cbbe_1px,transparent_1px)] [background-size:16px_16px]">
                         <div className="bg-white p-3.5 rounded-2xl rounded-tl-none shadow-sm max-w-[90%] border border-slate-200">
                           <div className="aspect-[4/3] rounded-lg overflow-hidden mb-2 relative">
-                            <img src={selectedPreset.bannerImage} alt="WhatsApp Offer" className="w-full h-full object-cover" />
+                            <img src={selectedPreset.bannerImage} alt="Social Offer" className="w-full h-full object-cover" />
                             <span className="absolute bottom-1 right-1 bg-black/70 text-white text-[9px] px-1.5 py-0.5 rounded font-mono">
                               Offer Poster
                             </span>
                           </div>
                           <p className="text-xs text-slate-800 whitespace-pre-line leading-relaxed font-sans">
-                            {selectedPreset.whatsappMessage}
+                            {selectedPreset.socialMessage}
                           </p>
                           <div className="flex items-center justify-end gap-1 mt-1.5 text-[10px] text-slate-400">
                             <span>10:30 AM</span>
@@ -933,7 +933,7 @@ export default function FestivalEnginePage() {
 
                       {/* Footer */}
                       <div className="bg-slate-100 p-2 text-center text-[10px] text-slate-500 font-medium border-t border-slate-200">
-                        1-Click Send via DhandaGrow WhatsApp Engine
+                        1-Click Send via DhandaGrow Social Engine
                       </div>
                     </div>
                   </div>
@@ -941,7 +941,7 @@ export default function FestivalEnginePage() {
                   <div className="lg:col-span-7 space-y-6 text-left">
                     <div>
                       <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
-                        High Conversion WhatsApp Broadcast
+                        High Conversion Social Broadcast
                       </span>
                       <h3 className="text-2xl font-bold text-slate-900 mt-2">
                         Reach 1,000+ Customers Directly on Their Phones
@@ -955,7 +955,7 @@ export default function FestivalEnginePage() {
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-xs font-bold text-emerald-900">Broadcast Template Message:</span>
                         <button
-                          onClick={() => handleCopyCaption(selectedPreset.whatsappMessage)}
+                          onClick={() => handleCopyCaption(selectedPreset.socialMessage)}
                           className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-800 font-semibold"
                         >
                           {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -963,7 +963,7 @@ export default function FestivalEnginePage() {
                         </button>
                       </div>
                       <pre className="text-xs text-slate-800 whitespace-pre-line font-sans leading-relaxed">
-                        {selectedPreset.whatsappMessage}
+                        {selectedPreset.socialMessage}
                       </pre>
                     </div>
 
@@ -981,7 +981,7 @@ export default function FestivalEnginePage() {
                     <div className="pt-2">
                       <Button className="h-12 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold" asChild>
                         <Link href="/login/user">
-                          Send WhatsApp Campaign <Send className="w-4 h-4 ml-2" />
+                          Send Social Campaign <Send className="w-4 h-4 ml-2" />
                         </Link>
                       </Button>
                     </div>
@@ -1154,7 +1154,7 @@ export default function FestivalEnginePage() {
               </div>
               <h3 className="text-xl font-bold text-slate-900 mb-3">1-Click Multi-Channel Sync</h3>
               <p className="text-slate-600 leading-relaxed text-sm">
-                Send festive wishes and sale offers straight to your customer WhatsApp broadcast list, schedule Instagram reels, and launch Meta Ads in just one tap.
+                Send festive wishes and sale offers straight to your customer Social broadcast list, schedule Instagram reels, and launch Meta Ads in just one tap.
               </p>
             </div>
           </div>

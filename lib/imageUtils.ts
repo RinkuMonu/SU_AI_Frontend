@@ -12,7 +12,7 @@ export function getAiFallbackImage(prompt?: string, seed?: number): string {
     "ultra-realistic luxury commercial product photography, 8k resolution, studio lighting, advertising style"
   ).trim();
   const s = seed ?? Math.floor(Math.random() * 1000000);
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1080&height=1080&nologo=true&seed=${s}`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(cleanPrompt)}?width=1080&height=1080&seed=${s}`;
 }
 
 export function resolveImageUrl(

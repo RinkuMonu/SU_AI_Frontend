@@ -23,7 +23,9 @@ import {
   Layers,
   ChevronRight,
   ShieldCheck,
-  Check
+  Check,
+  FileText,
+  Eye
 } from 'lucide-react';
 
 const Instagram = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -43,6 +45,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import marketplaceService, { HiringRequest } from '@/services/marketplace.service';
 import influencerService, { 
   InfluencerProfile, 
   DashboardSummary, 
@@ -64,6 +67,7 @@ export default function InfluencerDashboard() {
     total_earnings: 0
   });
   const [opportunities, setOpportunities] = useState<OpportunityItem[]>([]);
+  const [directHiringRequests, setDirectHiringRequests] = useState<HiringRequest[]>([]);
   const [pagination, setPagination] = useState({ page: 1, limit: 6, total: 0, total_pages: 1 });
   
   // UI States
@@ -102,6 +106,14 @@ export default function InfluencerDashboard() {
       }
       if (summaryRes.status === 'fulfilled' && summaryRes.value?.success) {
         setSummary(summaryRes.value.data);
+      }
+      try {
+        const hiringRes = await marketplaceService.getMyHiringRequests();
+        if (hiringRes?.success && Array.isArray(hiringRes.data)) {
+          setDirectHiringRequests(hiringRes.data);
+        }
+      } catch {
+        // Fallback
       }
     } catch (err: any) {
       console.error('Failed to load profile or summary:', err);
@@ -324,6 +336,100 @@ export default function InfluencerDashboard() {
           </div>
         </div>
       </section>
+
+      {/* ========================================================
+          PART 1A.5: DIRECT BRAND HIRING PROPOSALS & AGREEMENTS
+         ======================================================== */}
+      {directHiringRequests.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-2">
+              <FileText className="w-4 h-4 text-brand-purple" />
+              Direct Brand Proposals &amp; Bilateral Agreements ({directHiringRequests.length})
+            </h2>
+            <Link 
+              href="/influencer/content" 
+              className="text-xs text-[#be32ff] hover:text-[#d87aff] font-semibold flex items-center gap-1"
+            >
+              <span>Manage All in Content Hub</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {directHiringRequests.slice(0, 3).map((req) => {
+              const isActionNeeded = req.status === 'agreement_pending' || req.status === 'accepted' || req.status === 'pending_influencer_response';
+              const isSigned = req.status === 'influencer_signed' || req.influencer_signed;
+
+              return (
+                <Card 
+                  key={req.id || req.hiring_request_id}
+                  className={`bg-[#0f1019] border rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 ${
+                    isActionNeeded 
+                      ? 'border-brand-purple/40 shadow-[0_0_20px_rgba(190,50,255,0.12)]' 
+                      : 'border-white/10 hover:border-white/20'
+                  }`}
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="text-[10px] text-white/50 block font-medium">Brand Partner</span>
+                        <h4 className="font-bold text-white text-sm truncate">{req.business_name}</h4>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border shrink-0 ${
+                        req.status === 'agreement_pending' || req.status === 'accepted'
+                          ? 'bg-blue-500/15 text-blue-300 border-blue-500/30'
+                          : req.status === 'pending_influencer_response'
+                          ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                          : req.status === 'in_progress'
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                          : 'bg-white/5 text-white/70 border-white/10'
+                      }`}>
+                        {req.status.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+
+                    <div>
+                      <h5 className="text-xs font-semibold text-white/90 line-clamp-1">{req.campaign_name}</h5>
+                      <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5">{req.deliverables?.join(', ')}</p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-white/5 text-xs">
+                      <span className="text-white/40">Agreed Payout:</span>
+                      <span className="font-extrabold text-emerald-400">₹{req.proposed_compensation.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-white/5">
+                    <Link href="/influencer/content" className="block">
+                      <Button 
+                        size="sm" 
+                        className={`w-full text-xs font-semibold h-8 rounded-xl flex items-center justify-center gap-1.5 ${
+                          isActionNeeded
+                            ? 'bg-brand-purple hover:bg-brand-purple/90 text-white'
+                            : 'bg-white/5 hover:bg-white/10 text-white border border-white/10'
+                        }`}
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        <span>
+                          {req.status === 'agreement_pending' || req.status === 'accepted'
+                            ? 'Review & Sign Agreement'
+                            : req.status === 'pending_influencer_response'
+                            ? 'Review Brand Proposal'
+                            : isSigned
+                            ? 'View Agreement (Signed)'
+                            : 'View Collaboration'}
+                        </span>
+                        <ChevronRight className="w-3 h-3 ml-auto text-white/50" />
+                      </Button>
+                    </Link>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ========================================================
           PART 1B: DASHBOARD SUMMARY CARDS (REAL DATA DERIVED)

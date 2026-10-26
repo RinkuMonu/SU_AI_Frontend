@@ -151,12 +151,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // CASE 2: Authenticated user
-      const userPhone = (user.phone || user.phone_number || user.mobile || '').trim();
+      const role = user.role;
+      const userPhone = (user.phone || user.phone_number || (user as any).mobile || '').trim();
       const isOAuth = Boolean(
         user.auth_provider === 'google' ||
         user.provider === 'google' ||
         user.google_id ||
-        user.googleId ||
+        (user as any).googleId ||
         user.auth_provider === 'facebook' ||
         user.provider === 'facebook' ||
         user.auth_provider === 'instagram' ||
@@ -168,7 +169,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Users authenticated via Google/OAuth or users without a phone number do not require phone verification
       const isPhoneVerified = isOAuth || !userPhone || user.phone_verified === true || user.phone_verified !== false;
-      const role = user.role;
 
       // 2a: Unverified phone number (only for accounts that actually registered a phone number and are not OAuth)
       if (!isPhoneVerified && userPhone && !isOAuth) {
@@ -178,7 +178,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // If user is verified / does not need phone verification and is still on verify-phone page, direct them forward
+      // If authenticated user is on login or signup route, direct them to role selection or dashboard
+      if (isAuthRoute) {
+        if (needsRoleSelection(user)) {
+          router.replace('/select-role');
+        } else {
+          router.replace(getDashboardRouteForRole(role));
+        }
+        return;
+      }
+
+      // If authenticated user is on verify-phone page, direct them forward
       if (isVerifyRoute) {
         if (needsRoleSelection(user)) {
           router.replace('/select-role');

@@ -51,7 +51,6 @@ const sitemapData = [
       { name: "AI Marketing Agent", href: "/features/marketing-agent", icon: Bot },
       { name: "Social Media Calendar", href: "/features/social-calendar", icon: Calendar },
       { name: "Instagram Autopilot", href: "/features/ig-autopilot", icon: Hash },
-      { name: "WhatsApp AI Assistant", href: "/features/whatsapp-ai", icon: MessageCircle },
       { name: "Instagram DM AI", href: "/features/ig-dm", icon: MessageSquare },
       { name: "AI Review Manager", href: "/features/review-manager", icon: StarHalf },
       { name: "Business Analytics", href: "/features/analytics", icon: BarChart },

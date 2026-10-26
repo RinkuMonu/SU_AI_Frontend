@@ -80,7 +80,7 @@ interface Lead {
   id: string;
   name: string;
   city: string;
-  channel: 'whatsapp' | 'instagram' | 'youtube' | 'facebook' | 'linkedin' | 'twitter' | 'website';
+  channel: 'social' | 'instagram' | 'youtube' | 'facebook' | 'linkedin' | 'twitter' | 'website';
   channelHandle: string;
   inquiry: string;
   category: string;
@@ -106,7 +106,7 @@ const INITIAL_LEADS: Lead[] = [
     id: 'lead-1',
     name: 'Vikram Singh',
     city: 'Jaipur, Rajasthan',
-    channel: 'whatsapp',
+    channel: 'social',
     channelHandle: '+91 98290-34120',
     inquiry: 'Namaste! Banarasi bridal lehenga ka catalogue bhej dijiye. Friday tak delivery ho sakti hai kya Jaipur me?',
     category: 'Bridal & Ethnic Wear',
@@ -269,7 +269,7 @@ const INITIAL_LEADS: Lead[] = [
     id: 'lead-8',
     name: 'Amit Mishra',
     city: 'Jaipur, Rajasthan',
-    channel: 'whatsapp',
+    channel: 'social',
     channelHandle: '+91 87418-86688',
     inquiry: 'Corporate Diwali Gifting: We require 150 customised handcrafted gift boxes with branded sweets & dry fruit jars.',
     category: 'Corporate Gifting',
@@ -317,10 +317,10 @@ export default function LeadsCRMPage() {
 
   const getChannelBadge = (channel: Lead['channel']) => {
     switch (channel) {
-      case 'whatsapp':
+      case 'social':
         return (
           <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            <MessageCircle className="w-3 h-3 text-emerald-400" /> WhatsApp
+            <MessageCircle className="w-3 h-3 text-emerald-400" /> Social
           </span>
         );
       case 'instagram':
@@ -401,21 +401,21 @@ export default function LeadsCRMPage() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white mb-6">
-            Turn WhatsApp, Instagram, YouTube, Facebook, LinkedIn & Twitter Leads into{' '}
+            Turn Social, Instagram, YouTube, Facebook, LinkedIn & Twitter Leads into{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-emerald-400 to-cyan-300">
               Paid Customers.
             </span>
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300/90 leading-relaxed mb-8 max-w-3xl mx-auto font-normal">
-            No more lost inquiries across fragmented chats and spreadsheets. Our AI automatically captures leads from WhatsApp, Instagram DMs, YouTube comments, Facebook Ads, LinkedIn B2B forms, and Twitter (X) messages, scores buyer urgency with Gemini AI, and closes deals with instant UPI checkout.
+            No more lost inquiries across fragmented chats and spreadsheets. Our AI automatically captures leads from Social, Instagram DMs, YouTube comments, Facebook Ads, LinkedIn B2B forms, and Twitter (X) messages, scores buyer urgency with Gemini AI, and closes deals with instant UPI checkout.
           </p>
 
           {/* Social Platforms Connected Bar */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
             <span className="text-xs text-slate-400 font-semibold mr-1">Directly Ingesting:</span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400">
-              <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
+              <MessageCircle className="w-3.5 h-3.5" /> Social
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs font-bold text-pink-400">
               <MessageSquare className="w-3.5 h-3.5" /> Instagram
@@ -526,7 +526,7 @@ export default function LeadsCRMPage() {
                   <div className="bg-slate-900/90 backdrop-blur-md p-4 rounded-xl border border-slate-700 max-w-lg">
                     <p className="text-xs font-bold text-teal-400 uppercase tracking-wider mb-1">Live Omnichannel AI</p>
                     <p className="text-sm text-slate-200">
-                      Real-time synchronization across YouTube, Instagram, Facebook, LinkedIn, Twitter (X), and WhatsApp. Automatically drafts replies and sends UPI checkout links.
+                      Real-time synchronization across YouTube, Instagram, Facebook, LinkedIn, Twitter (X), and Social. Automatically drafts replies and sends UPI checkout links.
                     </p>
                   </div>
                 </div>
@@ -573,7 +573,7 @@ export default function LeadsCRMPage() {
                   </span>
                   {[
                     { id: 'all', label: 'All Channels' },
-                    { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
+                    { id: 'social', label: 'Social', icon: MessageCircle },
                     { id: 'instagram', label: 'Instagram', icon: MessageSquare },
                     { id: 'youtube', label: 'YouTube', icon: YouTubeIcon },
                     { id: 'facebook', label: 'Facebook', icon: FacebookIcon },
@@ -924,7 +924,7 @@ export default function LeadsCRMPage() {
                             window.open(`https://wa.me/?text=${encodeURIComponent(selectedLead.suggestedReply)}`, '_blank');
                           }}
                         >
-                          <MessageCircle className="w-3.5 h-3.5" /> Send WhatsApp / DM
+                          <MessageCircle className="w-3.5 h-3.5" /> Send Social / DM
                         </Button>
                         <Button
                           size="sm"
@@ -1023,7 +1023,7 @@ export default function LeadsCRMPage() {
                   <div>
                     <h4 className="font-bold text-white text-sm mb-1">1. YouTube, Meta, LinkedIn & X Ingestion</h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Every YouTube comment, Instagram DM, Facebook lead form, LinkedIn B2B inquiry, Twitter message, and WhatsApp chat streams instantly into your pipeline with source attribution.
+                      Every YouTube comment, Instagram DM, Facebook lead form, LinkedIn B2B inquiry, Twitter message, and Social chat streams instantly into your pipeline with source attribution.
                     </p>
                   </div>
                 </div>
@@ -1080,7 +1080,7 @@ export default function LeadsCRMPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">AI Buying Intent Scoring</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                The AI differentiates casual window shoppers from serious bulk buyers across YouTube, Instagram, LinkedIn, and WhatsApp. Stop wasting hours calling cold leads.
+                The AI differentiates casual window shoppers from serious bulk buyers across YouTube, Instagram, LinkedIn, and Social. Stop wasting hours calling cold leads.
               </p>
             </div>
 
@@ -1091,7 +1091,7 @@ export default function LeadsCRMPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">6-in-1 Omnichannel Inbox</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Reply to WhatsApp messages, Instagram DMs, YouTube comments, Facebook leads, LinkedIn B2B inquiries, and Twitter DMs from one unified screen.
+                Reply to Social messages, Instagram DMs, YouTube comments, Facebook leads, LinkedIn B2B inquiries, and Twitter DMs from one unified screen.
               </p>
             </div>
 
@@ -1124,7 +1124,7 @@ export default function LeadsCRMPage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Smart Sales Routing & Alerts</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Route enterprise and high-ticket leads (₹50k+) directly to your senior closers with instant WhatsApp notifications, while AI handles tier-3 inquiries automatically.
+                Route enterprise and high-ticket leads (₹50k+) directly to your senior closers with instant Social notifications, while AI handles tier-3 inquiries automatically.
               </p>
             </div>
 
@@ -1153,7 +1153,7 @@ export default function LeadsCRMPage() {
               How Much Revenue Are You Leaving on the Table?
             </h2>
             <p className="text-slate-400 text-base max-w-2xl mx-auto">
-              Calculate the extra monthly profit you recover by having sub-second AI follow-ups across YouTube, Facebook, LinkedIn, Twitter, Instagram & WhatsApp.
+              Calculate the extra monthly profit you recover by having sub-second AI follow-ups across YouTube, Facebook, LinkedIn, Twitter, Instagram & Social.
             </p>
           </div>
 
@@ -1295,7 +1295,7 @@ export default function LeadsCRMPage() {
               </thead>
               <tbody className="divide-y divide-slate-800/80 text-xs sm:text-sm">
                 <tr>
-                  <td className="py-4 px-4 font-semibold text-slate-300">All-Channel Auto-Sync (WhatsApp, IG, YouTube, FB, LinkedIn, X)</td>
+                  <td className="py-4 px-4 font-semibold text-slate-300">All-Channel Auto-Sync (Social, IG, YouTube, FB, LinkedIn, X)</td>
                   <td className="py-4 px-4 text-slate-500">❌ Manual copy-paste</td>
                   <td className="py-4 px-4 text-slate-400">⚠️ Expensive separate plugins</td>
                   <td className="py-4 px-4 font-bold text-teal-300 bg-teal-500/5">✅ Native 1-Click All-in-One API Sync</td>
@@ -1346,7 +1346,7 @@ export default function LeadsCRMPage() {
             Stop Losing Sales in Your DMs & Comments. Start Closing Them with AI.
           </h2>
           <p className="text-slate-400 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
-            Join hundreds of Indian brands, boutiques, and agencies scaling with DhandaGrow AI Leads CRM across YouTube, Facebook, LinkedIn, Twitter, Instagram & WhatsApp.
+            Join hundreds of Indian brands, boutiques, and agencies scaling with DhandaGrow AI Leads CRM across YouTube, Facebook, LinkedIn, Twitter, Instagram & Social.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
@@ -1362,7 +1362,7 @@ export default function LeadsCRMPage() {
               className="w-full sm:w-auto h-16 px-8 text-lg rounded-full border-slate-700 bg-slate-900/80 text-white hover:bg-slate-800"
               asChild
             >
-              <Link href="/features/whatsapp-ai">Explore WhatsApp AI</Link>
+              <Link href="/features/marketing-agent">Explore Marketing AI</Link>
             </Button>
           </div>
         </div>

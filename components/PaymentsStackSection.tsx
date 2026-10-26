@@ -26,7 +26,7 @@ import {
   Calendar
 } from 'lucide-react';
 
-export type TabType = 'facebook' | 'instagram' | 'whatsapp' | 'linkedin' | 'threads' | 'snapchat' | 'pinterest' | 'twitter' | 'telegram' | 'youtube';
+export type TabType = 'facebook' | 'instagram' | 'linkedin' | 'threads' | 'snapchat' | 'pinterest' | 'twitter' | 'telegram' | 'youtube';
 
 // Brand Social Icons
 const YoutubeIcon = ({ className }: { className?: string }) => (
@@ -368,129 +368,6 @@ const sectionsData: SectionCategory[] = [
             icon: <TrendingUp className="w-5 h-5 text-[#E1306C]" />,
             title: '3x Higher Conversion',
             desc: 'Fast conversational checkout reduces cart abandonment dramatically.'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'whatsapp',
-    label: 'WhatsApp',
-    badge: 'AI Marketing & Conversational CRM',
-    description: 'Turn WhatsApp into your highest-converting sales channel with automated broadcasts, AI sales bots, and instant UPI checkout.',
-    themeColor: '#25D366',
-    themeGradient: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)',
-    icon: WhatsAppIcon,
-    subItems: [
-      {
-        id: 'whatsapp-broadcast',
-        navTitle: 'Smart AI Broadcasts & Catalog',
-        heading: '1-Click WhatsApp Marketing & Catalog Blast',
-        inputCard: {
-          label: 'Customer Segment & Offer',
-          flag: '📱',
-          value: '5,000 Inactive Customers • Festive Offer',
-          badge: 'Broadcast Input'
-        },
-        hubIcon: <WhatsAppIcon className="w-6 h-6 text-white" />,
-        outputCard: {
-          title: 'WhatsApp Engine & CRM',
-          status: 'Dispatched in 120s',
-          progressText: '98% Open Rate',
-          items: [
-            {
-              icon: <Send className="w-4 h-4 text-[#25D366]" />,
-              label: 'Delivery Speed',
-              value: '5,000 Messages in 120 Seconds'
-            },
-            {
-              icon: <Sparkles className="w-4 h-4 text-[#25D366]" />,
-              label: 'Personalization',
-              value: 'Customer Name & Past Order Ref'
-            },
-            {
-              icon: <ShoppingBag className="w-4 h-4 text-[#25D366]" />,
-              label: 'Interactive CTA',
-              value: '"View Catalog" & "Order Now"'
-            },
-            {
-              icon: <TrendingUp className="w-4 h-4 text-[#25D366]" />,
-              label: 'Sales Generated',
-              value: '₹1.45 Lakhs Same-Day Sales'
-            }
-          ]
-        },
-        benefits: [
-          {
-            icon: <TrendingUp className="w-5 h-5 text-[#25D366]" />,
-            title: '98% Guaranteed Open Rates',
-            desc: 'Connect directly with customers where they check messages dozens of times a day.'
-          },
-          {
-            icon: <Bot className="w-5 h-5 text-[#25D366]" />,
-            title: 'Official Green-Tick API',
-            desc: 'Send bulk messages safely without any number ban or spam risks.'
-          },
-          {
-            icon: <Zap className="w-5 h-5 text-[#25D366]" />,
-            title: 'Smart Inactive Reactivation',
-            desc: 'Automatically re-engage old buyers with customized discount incentives.'
-          }
-        ]
-      },
-      {
-        id: 'whatsapp-chatbot',
-        navTitle: '24/7 AI Sales Agent & Checkout',
-        heading: 'Conversational AI Sales Bot with UPI Payments',
-        inputCard: {
-          label: 'Incoming Customer Query',
-          flag: '💬',
-          value: '"Bhaiya size M available hai kya?"',
-          badge: 'Live Query'
-        },
-        hubIcon: <WhatsAppIcon className="w-6 h-6 text-white" />,
-        outputCard: {
-          title: 'AI Sales Intelligence Hub',
-          status: 'Replied in 1.2s',
-          progressText: 'Hinglish AI Agent',
-          items: [
-            {
-              icon: <MessageSquare className="w-4 h-4 text-[#25D366]" />,
-              label: 'Natural AI Reply',
-              value: '"Haanji! In stock. Checkout link sent"'
-            },
-            {
-              icon: <Layers className="w-4 h-4 text-[#25D366]" />,
-              label: 'Catalog Images',
-              value: 'Auto-dispatched with size chart'
-            },
-            {
-              icon: <Zap className="w-4 h-4 text-[#25D366]" />,
-              label: 'Direct UPI Pay',
-              value: 'Dynamic PhonePe/GPay QR generated'
-            },
-            {
-              icon: <CheckCircle2 className="w-4 h-4 text-[#25D366]" />,
-              label: 'Order Confirmation',
-              value: 'Automated invoice & tracking dispatched'
-            }
-          ]
-        },
-        benefits: [
-          {
-            icon: <Bot className="w-5 h-5 text-[#25D366]" />,
-            title: 'Never Miss a Midnight Customer',
-            desc: 'Close sales automatically even at 2 AM without hiring extra support staff.'
-          },
-          {
-            icon: <Globe className="w-5 h-5 text-[#25D366]" />,
-            title: 'Native Hinglish & Regional Tone',
-            desc: 'Talks just like a friendly shop assistant in Hindi, Hinglish, or English.'
-          },
-          {
-            icon: <Zap className="w-5 h-5 text-[#25D366]" />,
-            title: 'Instant 1-Click UPI Payments',
-            desc: 'Customers can pay instantly through GPay, PhonePe, or Paytm inside WhatsApp.'
           }
         ]
       }
@@ -1387,7 +1264,7 @@ export function PaymentsStackSection() {
         window.requestAnimationFrame(() => {
           const pageY = window.pageYOffset || document.documentElement.scrollTop;
 
-          const tabs: TabType[] = ['facebook', 'instagram', 'whatsapp', 'linkedin', 'threads', 'snapchat', 'pinterest', 'twitter', 'telegram', 'youtube'];
+          const tabs: TabType[] = ['facebook', 'instagram', 'linkedin', 'threads', 'snapchat', 'pinterest', 'twitter', 'telegram', 'youtube'];
 
           // Near-bottom guard: if user scrolled near the bottom of the page, activate the last tab
           const isNearBottom = window.innerHeight + pageY >= document.documentElement.scrollHeight - 160;
@@ -1439,8 +1316,6 @@ export function PaymentsStackSection() {
             'facebook-page',
             'instagram-reels',
             'instagram-dm-funnel',
-            'whatsapp-broadcast',
-            'whatsapp-chatbot',
             'linkedin-b2b',
             'linkedin-carousels',
             'threads-viral',

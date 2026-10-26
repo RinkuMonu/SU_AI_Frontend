@@ -23,7 +23,7 @@ const mockMessages: Message[] = [
     _id: '3',
     customerName: 'Amit Sharma',
     message: 'Thank you for the quick delivery!',
-    platform: 'WhatsApp',
+    platform: 'Direct',
     status: 'Replied',
     reply: 'You are very welcome, Amit! We are glad you liked it.',
     createdAt: new Date(Date.now() - 86400000).toISOString(),

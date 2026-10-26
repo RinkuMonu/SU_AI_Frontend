@@ -4,18 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Loader2, 
-  Users, 
-  Wand2, 
-  Sparkles, 
-  Check, 
-  X, 
-  Bookmark, 
-  BookmarkCheck, 
-  Search, 
-  BarChart2, 
-  Trash2, 
+import {
+  Loader2,
+  Users,
+  Wand2,
+  Sparkles,
+  Check,
+  X,
+  Bookmark,
+  BookmarkCheck,
+  Search,
+  BarChart2,
+  Trash2,
   Plus,
   ShieldCheck,
   FileText,
@@ -30,21 +30,25 @@ import {
   Layers,
   IndianRupee,
   ChevronRight,
+  ChevronDown,
   Info,
   Eye,
   Paperclip,
   AlertTriangle,
   CheckCheck,
   ImageIcon,
-  PanelLeft
+  PanelLeft,
+  RefreshCw,
+  Upload,
+  Download
 } from 'lucide-react';
 import influencerService, { Influencer, InfluencerProfile, Campaign } from '@/services/influencer.service';
-import marketplaceService, { 
-  MarketplaceInfluencer, 
-  HiringRequest, 
-  AgreementDocument, 
+import marketplaceService, {
+  MarketplaceInfluencer,
+  HiringRequest,
+  AgreementDocument,
   PlatformServiceFee,
-  ChatMessage 
+  ChatMessage
 } from '@/services/marketplace.service';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { useRouter } from 'next/navigation';
@@ -65,9 +69,25 @@ export default function InfluencersPage() {
   const [shortlist, setShortlist] = useState<any[]>([]);
   const [crmCampaigns, setCrmCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>([
+    'Fashion & Lifestyle',
+    'Food & Dining',
+    'Tech & Gadgets',
+    'Beauty & Makeup',
+    'Fitness & Health',
+    'Travel & Hospitality'
+  ]);
 
   // Filters State
   const [filters, setFilters] = useState({
+    search: '',
+    category: '',
+    min_followers: '',
+    location: '',
+    platform: '',
+    sort_by: 'followers_desc'
+  });
+  const [appliedFilters, setAppliedFilters] = useState({
     search: '',
     category: '',
     min_followers: '',
@@ -80,6 +100,8 @@ export default function InfluencersPage() {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [locationSearchTerm, setLocationSearchTerm] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
 
   // Platform Fee Config
   const [platformFee, setPlatformFee] = useState<PlatformServiceFee>({
@@ -112,6 +134,7 @@ export default function InfluencersPage() {
     special_instructions: 'Ensure clear lighting, prominent product framing, and proper #ad tag.'
   });
   const [isSubmittingHiring, setIsSubmittingHiring] = useState(false);
+  const [hiringInfluencerId, setHiringInfluencerId] = useState<string | null>(null);
   const [showZaakpayHireModal, setShowZaakpayHireModal] = useState(false);
   const [zaakpayHireData, setZaakpayHireData] = useState<{
     hiring_request_id: string;
@@ -131,11 +154,29 @@ export default function InfluencersPage() {
   const [signerTitle, setSignerTitle] = useState('Authorized Brand Representative');
   const [declarationAccepted, setDeclarationAccepted] = useState(false);
   const [isSigningAgreement, setIsSigningAgreement] = useState(false);
+  const [uploadedSignature, setUploadedSignature] = useState<string | null>(null);
+  const signatureFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // PHASE 4: PAYMENT MODAL STATE
+  // PHASE 4: ESCROW ZAAKPAY PAYMENT & RESULT MODAL STATE
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentRequest, setPaymentRequest] = useState<HiringRequest | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [zaakpayEscrowOrder, setZaakpayEscrowOrder] = useState<{
+    order_id: string;
+    payment_url: string;
+    amount: number;
+    hiring_request_id: string;
+  } | null>(null);
+  const [verifyingEscrowPayment, setVerifyingEscrowPayment] = useState(false);
+  const [paymentResultModal, setPaymentResultModal] = useState<{
+    open: boolean;
+    status: 'success' | 'failed';
+    title: string;
+    message: string;
+    order_id?: string;
+    amount?: number;
+    hiringRequest?: HiringRequest | null;
+  } | null>(null);
 
   // PHASE 5: PRIVATE CHAT MODAL STATE
   interface ChatSessionItem {
@@ -211,11 +252,14 @@ export default function InfluencersPage() {
   const [campaignInsightsData, setCampaignInsightsData] = useState<any>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
 
-  // Outside click for location dropdown
+  // Outside click for location and category dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setShowLocationDropdown(false);
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setShowCategoryDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -273,29 +317,35 @@ export default function InfluencersPage() {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (overrideFilters?: typeof filters) => {
+    const activeFilters = overrideFilters || filters;
     try {
       setLoading(true);
-      const [infRes, hiringRes, colRes, shortRes, crmRes] = await Promise.all([
+      const [infRes, hiringRes, colRes, shortRes, crmRes, catRes] = await Promise.all([
         marketplaceService.discover({
-          search: filters.search,
-          niche: filters.category,
-          min_followers: filters.min_followers ? Number(filters.min_followers) : undefined,
-          location: filters.location,
-          platform: filters.platform,
-          sort_by: filters.sort_by
+          search: activeFilters.search,
+          niche: activeFilters.category,
+          min_followers: activeFilters.min_followers ? Number(activeFilters.min_followers) : undefined,
+          location: activeFilters.location,
+          platform: activeFilters.platform,
+          sort_by: activeFilters.sort_by
         }).catch(() => ({ success: false, data: { items: [], pagination: {} } })),
         marketplaceService.getMyHiringRequests().catch(() => ({ success: false, data: [] })),
         influencerService.getBusinessCollaborations().catch(() => ({ success: true, data: [] })),
         influencerService.getShortlist().catch(() => ({ data: [] })),
-        influencerService.getCampaigns().catch(() => ({ data: [] }))
+        influencerService.getCampaigns().catch(() => ({ data: [] })),
+        marketplaceService.getCategories().catch(() => ({ success: true, data: [] }))
       ]);
 
       setInfluencers(infRes.data?.items || []);
+      setAppliedFilters({ ...activeFilters });
       setHiringRequests(hiringRes.data || []);
       setCollaborations(colRes?.data || []);
       setShortlist(shortRes?.data || []);
       setCrmCampaigns(crmRes?.data || []);
+      if (catRes?.data && Array.isArray(catRes.data) && catRes.data.length > 0) {
+        setCategories(catRes.data);
+      }
     } catch (e) {
       console.error(e);
     } finally {
@@ -305,7 +355,7 @@ export default function InfluencersPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    fetchData();
+    fetchData(filters);
   };
 
   const handleToggleShortlist = async (id: string) => {
@@ -321,114 +371,100 @@ export default function InfluencersPage() {
     return shortlist.some(item => item.influencer_id === id || item.id === id);
   };
 
-  // Open Hire Modal
-  const openHireModal = (inf?: MarketplaceInfluencer) => {
-    const creator = inf || influencers[0] || null;
-    setSelectedInfluencer(creator);
-    setHiringForm({
-      influencer_id: creator ? creator.id : '',
-      business_name: user?.business_name || user?.company || (user?.name ? `${user.name}'s Brand` : 'My Enterprise'),
-      campaign_name: 'Product Promotion Campaign 2026',
-      product_or_service: 'Premium Brand Collection',
-      campaign_objectives: 'Boost brand awareness, organic engagement, and conversions.',
-      deliverables: ['1 Dedicated Instagram Reel (9:16)', '2 Instagram Stories with swipe link'],
-      customDeliverable: '',
-      social_platform: creator?.connected_platforms?.[0] || 'Instagram',
-      start_date: new Date().toISOString().split('T')[0],
-      end_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
-      proposed_compensation: creator?.expectedPricePerPost || 5000,
-      revision_requirements: 'Up to 2 creative revisions included (5-day acceptance policy).',
-      special_instructions: 'Ensure vibrant aesthetic, clear product framing, and mandatory #ad tag.'
+  // Check if an influencer has an unlocked paid hiring request
+  const getPaidRequestForInfluencer = (inf: MarketplaceInfluencer): HiringRequest | undefined => {
+    return hiringRequests.find(r => {
+      const matchCreator =
+        (r.influencer_id && (r.influencer_id === inf.id || r.influencer_id === inf.user_id)) ||
+        (r.influencer_user_id && (r.influencer_user_id === inf.id || r.influencer_user_id === inf.user_id)) ||
+        (r.influencer_username && inf.username && (
+          r.influencer_username.toLowerCase().replace(/^@+/, '') === inf.username.toLowerCase().replace(/^@+/, '')
+        ));
+
+      const isPaid =
+        r.fee_paid === true ||
+        (r as any).hire_fee_paid === true ||
+        (r as any).chat_active === true ||
+        r.status === 'in_progress' ||
+        r.status === 'accepted' ||
+        r.status === 'contract_drafted' ||
+        r.status === 'agreement_signed';
+
+      return matchCreator && isPaid;
     });
-    setShowHireModal(true);
   };
 
-  // Add deliverable chip
-  const addDeliverable = (item: string) => {
-    if (item && !hiringForm.deliverables.includes(item)) {
-      setHiringForm(prev => ({ ...prev, deliverables: [...prev.deliverables, item] }));
-    }
-  };
-
-  const removeDeliverable = (idx: number) => {
-    setHiringForm(prev => ({ ...prev, deliverables: prev.deliverables.filter((_, i) => i !== idx) }));
-  };
-
-  // Submit Hiring Request
-  const handleCreateHiringRequest = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!hiringForm.influencer_id) {
+  // DIRECT HIRE: Auto-initiates Zaakpay ₹200 Payment Gateway directly without any lengthy forms
+  const openHireModal = async (inf?: MarketplaceInfluencer) => {
+    const creator = inf || influencers[0] || null;
+    if (!creator) {
       alert("Please select an influencer to hire.");
       return;
     }
-    if (!hiringForm.campaign_name.trim()) {
-      alert("Please enter a campaign name.");
-      return;
-    }
-    if (hiringForm.deliverables.length === 0) {
-      alert("Please add at least 1 campaign deliverable.");
-      return;
-    }
+
+    setSelectedInfluencer(creator);
+    setHiringInfluencerId(creator.id);
+    setIsSubmittingHiring(true);
 
     try {
-      setIsSubmittingHiring(true);
+      const defaultCampaign = `Brand Collaboration with ${creator.fullName || creator.username}`;
       const res = await marketplaceService.createHiringRequest({
-        influencer_id: hiringForm.influencer_id,
-        business_name: hiringForm.business_name || user?.business_name || user?.name || 'Brand Enterprise',
-        campaign_name: hiringForm.campaign_name,
-        product_or_service: hiringForm.product_or_service,
-        campaign_objectives: hiringForm.campaign_objectives,
-        deliverables: hiringForm.deliverables,
-        social_platform: hiringForm.social_platform,
-        start_date: hiringForm.start_date,
-        end_date: hiringForm.end_date,
-        proposed_compensation: Number(hiringForm.proposed_compensation),
-        revision_requirements: hiringForm.revision_requirements,
-        special_instructions: hiringForm.special_instructions
+        influencer_id: creator.id,
+        business_name: user?.business_name || user?.company || (user?.name ? `${user.name}'s Brand` : 'Brand Enterprise'),
+        campaign_name: defaultCampaign,
+        product_or_service: 'Influencer Marketing & Promotion',
+        campaign_objectives: 'Boost brand awareness, organic engagement, and conversions.',
+        deliverables: ['1 Dedicated Instagram Reel (9:16)', '2 Instagram Stories with product tag'],
+        social_platform: creator.connected_platforms?.[0] || 'Instagram',
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+        proposed_compensation: creator.expectedPricePerPost || 5000,
+        revision_requirements: 'Up to 2 creative revisions included (5-day acceptance policy).',
+        special_instructions: 'Ensure vibrant aesthetic, clear product framing, and proper #ad tag.'
       });
 
       if (res.success && res.data) {
         const hiringReqId = res.data.hiring_request_id || res.data.id;
-        
-        // Initiate Zaakpay ₹200 platform hire fee payment
-        try {
-          const payRes = await marketplaceService.payHireFee(hiringReqId);
-          if (payRes.success) {
-            setZaakpayHireData({
-              hiring_request_id: hiringReqId,
-              order_id: payRes.order_id,
-              amount: payRes.amount || 200,
-              payment_url: payRes.payment_url
-            });
-            setShowHireModal(false);
-            setShowZaakpayHireModal(true);
-            
-            // Auto open live Zaakpay payment gateway in new tab if external URL
-            if (payRes.payment_url && payRes.payment_url.startsWith('http')) {
-              try {
-                window.open(payRes.payment_url, '_blank', 'noopener,noreferrer');
-              } catch (e) {
-                console.warn("Popup blocked, user can click button directly:", e);
-              }
-            }
-            return;
-          }
-        } catch (payErr) {
-          console.error("Zaakpay initiation warning:", payErr);
-        }
 
-        setShowHireModal(false);
-        setActiveTab('collaborations');
-        fetchData();
-        alert("Hiring request submitted! Please verify the ₹200 Zaakpay hiring fee.");
+        // Immediately initiate Zaakpay ₹200 fee payment
+        const payRes = await marketplaceService.payHireFee(hiringReqId);
+        if (payRes.success) {
+          setZaakpayHireData({
+            hiring_request_id: hiringReqId,
+            order_id: payRes.order_id,
+            amount: payRes.amount || 200,
+            payment_url: payRes.payment_url
+          });
+          setShowZaakpayHireModal(true);
+
+          // Automatically open live Zaakpay gateway in new tab
+          if (payRes.payment_url && payRes.payment_url.startsWith('http')) {
+            try {
+              window.open(payRes.payment_url, '_blank', 'noopener,noreferrer');
+            } catch (popupErr) {
+              console.warn("Popup blocked, user can click button directly:", popupErr);
+            }
+          }
+        } else {
+          alert(payRes.message || "Failed to initiate Zaakpay payment gateway.");
+        }
       } else {
         alert(res.message || "Failed to create hiring request.");
       }
     } catch (e: any) {
       console.error(e);
-      alert(e.response?.data?.detail || "Failed to submit hiring request.");
+      alert(e.response?.data?.detail || "Failed to connect to Zaakpay payment gateway.");
     } finally {
       setIsSubmittingHiring(false);
+      setHiringInfluencerId(null);
+    }
+  };
+
+  // Keep compatibility for any manual submit
+  const handleCreateHiringRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (selectedInfluencer) {
+      await openHireModal(selectedInfluencer);
     }
   };
 
@@ -446,10 +482,10 @@ export default function InfluencersPage() {
           setShowZaakpayHireModal(false);
           setHirePaymentSuccess(false);
           setZaakpayHireData(null);
-          setActiveTab('collaborations');
+          // Refresh data so creator card immediately displays Chat button
           await fetchData();
 
-          // Immediately Open Collaboration Chat Room!
+          // Immediately open 1-on-1 private collaboration chat room for THIS specific creator only
           try {
             const detailRes = await marketplaceService.getHiringRequestDetail(reqId);
             if (detailRes.success && detailRes.data) {
@@ -459,13 +495,6 @@ export default function InfluencersPage() {
           } catch (err) {
             console.error("Auto open chat error:", err);
           }
-          openChatModal({
-            hiring_request_id: reqId,
-            influencer_name: selectedInfluencer?.fullName || 'Creator',
-            influencer_username: selectedInfluencer?.username || '@creator',
-            campaign_name: hiringForm.campaign_name || 'Influencer Collaboration',
-            status: 'in_progress'
-          } as any);
         }, 1200);
       } else {
         alert(res.message || "Payment verification pending.");
@@ -485,6 +514,7 @@ export default function InfluencersPage() {
     setSignerLegalName(user?.name || user?.fullName || req.hirer_name || '');
     setSignerTitle('Authorized Brand Representative');
     setDeclarationAccepted(false);
+    setUploadedSignature(null);
 
     try {
       const reqId = req.hiring_request_id || req.id;
@@ -499,9 +529,35 @@ export default function InfluencersPage() {
     }
   };
 
+  const handleSignatureFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert("Please upload a valid image file (PNG, JPG, or WebP).");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("File size exceeds 5MB limit. Please upload a smaller image.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      setUploadedSignature(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSignAgreement = async () => {
     if (!signerLegalName.trim()) {
       alert("Please type your full legal name to sign.");
+      return;
+    }
+    if (!uploadedSignature) {
+      alert("Please upload your digital or handwritten signature image before proceeding.");
       return;
     }
     if (!declarationAccepted) {
@@ -514,9 +570,10 @@ export default function InfluencersPage() {
       setIsSigningAgreement(true);
       const reqId = activeAgreementRequest.hiring_request_id || activeAgreementRequest.id;
       const res = await marketplaceService.signAgreement(reqId, {
-        signer_name: signerLegalName,
+        signer_name: signerLegalName.trim(),
         declaration_accepted: true,
-        signer_title: signerTitle || 'Authorized Brand Representative'
+        signer_title: signerTitle || 'Authorized Brand Representative',
+        signature_image: uploadedSignature || undefined
       });
 
       if (res.success) {
@@ -524,11 +581,9 @@ export default function InfluencersPage() {
           setAgreementDoc(res.agreement);
         }
         await fetchData();
-        if (res.is_fully_signed) {
-          alert("🎉 Bilateral Agreement fully executed by both parties! Status is now Payment Pending. You can now deposit escrow funds to initiate campaign.");
-        } else {
-          alert("✅ Agreement signed successfully! Your cryptographic SHA-256 signature digest has been recorded on the audit trail. Awaiting creator's signature.");
-        }
+        setShowAgreementModal(false);
+        // AUTOMATICALLY PROCEED TO ZAAKPAY ESCROW PAYMENT
+        openPaymentModal(activeAgreementRequest);
       }
     } catch (e: any) {
       alert(e.response?.data?.detail || "Failed to sign agreement");
@@ -537,52 +592,175 @@ export default function InfluencersPage() {
     }
   };
 
-  // PHASE 4: PAYMENT ESCROW
-  const openPaymentModal = (req: HiringRequest) => {
+
+  
+  const [isDecliningAgreement, setIsDecliningAgreement] = useState(false);
+  const handleDeclineAgreement = async () => {
+    const reason = prompt("Please state the reason for declining this agreement (required):");
+    if (!reason || !reason.trim()) {
+      alert("Decline cancelled. A reason is required to decline the agreement.");
+      return;
+    }
+    const reqId = activeAgreementRequest?.hiring_request_id || activeAgreementRequest?.id;
+    if (!reqId) return;
+
+    try {
+      setIsDecliningAgreement(true);
+      const res = await marketplaceService.declineAgreement(reqId, reason.trim());
+      if (res.success) {
+        alert("Agreement has been declined.");
+        setShowAgreementModal(false);
+        fetchData();
+      }
+    } catch (e: any) {
+      alert(e.response?.data?.detail || "Failed to decline agreement");
+    } finally {
+      setIsDecliningAgreement(false);
+    }
+  };
+const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+  const handleDownloadPdf = async (requestId?: string, agreementNumber?: string) => {
+    try {
+      setIsDownloadingPdf(true);
+      const reqId = requestId || activeAgreementRequest?.hiring_request_id || activeAgreementRequest?.id;
+      if (!reqId) {
+        alert("Agreement request ID missing");
+        return;
+      }
+      const blob = await marketplaceService.downloadAgreementPdf(reqId);
+      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `Agreement_${agreementNumber || reqId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error("Failed to download PDF:", err);
+      alert(err.response?.data?.detail || "Failed to download agreement PDF.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+  // PHASE 4: PAYMENT ESCROW VIA ZAAKPAY GATEWAY
+  const openPaymentModal = async (req: HiringRequest) => {
     setPaymentRequest(req);
     setShowPaymentModal(true);
+    setPaymentLoading(true);
+    setZaakpayEscrowOrder(null);
+
+    try {
+      const reqId = req.hiring_request_id || req.id;
+      // 1. Create Zaakpay order in backend
+      const orderRes = await marketplaceService.createPaymentOrder(reqId);
+      if (orderRes.success && orderRes.data) {
+        const orderData = {
+          order_id: orderRes.data.order_id,
+          payment_url: orderRes.data.payment_url || '',
+          amount: orderRes.data.amount || (req.proposed_compensation + 236),
+          hiring_request_id: reqId,
+        };
+        setZaakpayEscrowOrder(orderData);
+
+        // 2. Automatically launch live Zaakpay payment gateway in new window
+        if (orderRes.data.payment_url && typeof window !== 'undefined') {
+          window.open(orderRes.data.payment_url, '_blank');
+        }
+      }
+    } catch (e: any) {
+      console.error("Failed to initiate Zaakpay Escrow Order:", e);
+      setPaymentResultModal({
+        open: true,
+        status: 'failed',
+        title: 'Payment Gateway Error',
+        message: e.response?.data?.detail || e.message || "Failed to initialize Zaakpay Payment Gateway.",
+        hiringRequest: req
+      });
+    } finally {
+      setPaymentLoading(false);
+    }
   };
 
-  const handleExecutePayment = async () => {
+  const handleVerifyZaakpayEscrowPayment = async () => {
     if (!paymentRequest) return;
     try {
-      setPaymentLoading(true);
+      setVerifyingEscrowPayment(true);
       const reqId = paymentRequest.hiring_request_id || paymentRequest.id;
-      // 1. Create order
-      const orderRes = await marketplaceService.createPaymentOrder(reqId);
-      if (!orderRes.success || !orderRes.data?.order_id) {
-        throw new Error("Failed to create order");
-      }
+      const orderId = zaakpayEscrowOrder?.order_id || `PAY_${Date.now()}`;
 
-      // 2. Verify order server-side
       const verifyRes = await marketplaceService.verifyPaymentOrder(reqId, {
-        order_id: orderRes.data.order_id,
-        payment_id: `TXN_GATEWAY_${Date.now()}`
+        order_id: orderId,
+        payment_id: `TXN_ZAAKPAY_${Date.now()}`
       });
 
       if (verifyRes.success) {
         setShowPaymentModal(false);
         await fetchData();
-        alert("🎉 Escrow deposit verified & held safely in Platform Escrow! Campaign is now In Progress and Collaboration Chat room is provisioned.");
-        
-        // Provision and open collaboration chat room immediately
-        try {
-          const detailRes = await marketplaceService.getHiringRequestDetail(reqId);
-          if (detailRes.success && detailRes.data) {
-            openChatModal(detailRes.data);
-          } else {
-            openChatModal(paymentRequest);
-          }
-        } catch {
-          openChatModal(paymentRequest);
-        }
+
+        // Show Payment Success Popup
+        setPaymentResultModal({
+          open: true,
+          status: 'success',
+          title: '🎉 Escrow Payment Successful!',
+          message: `Escrow deposit of ₹${(zaakpayEscrowOrder?.amount || (paymentRequest.proposed_compensation + 236)).toLocaleString()} has been verified & secured under Platform Escrow via Zaakpay. Campaign is now In Progress!`,
+          order_id: orderId,
+          amount: zaakpayEscrowOrder?.amount || (paymentRequest.proposed_compensation + 236),
+          hiringRequest: paymentRequest,
+        });
+      } else {
+        throw new Error(verifyRes.message || "Payment verification failed.");
       }
     } catch (e: any) {
-      alert(e.response?.data?.detail || e.message || "Payment verification failed.");
+      const errMsg = e.response?.data?.detail || e.message || "Payment verification failed or transaction could not be confirmed.";
+      setPaymentResultModal({
+        open: true,
+        status: 'failed',
+        title: '❌ Payment Verification Failed',
+        message: errMsg,
+        order_id: zaakpayEscrowOrder?.order_id,
+        amount: zaakpayEscrowOrder?.amount,
+        hiringRequest: paymentRequest,
+      });
     } finally {
-      setPaymentLoading(false);
+      setVerifyingEscrowPayment(false);
     }
   };
+
+  // REAL-TIME LISTENER: While chat box is open and awaiting admin approval, poll for admin approval.
+  // As soon as Admin approves on Admin Panel, AUTOMATICALLY pop up the agreement modal to review & sign!
+  useEffect(() => {
+    if (!showChatModal || !activeChatRequest) return;
+    const reqId = activeChatRequest.hiring_request_id || activeChatRequest.id;
+    if (!reqId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const detailRes = await marketplaceService.getHiringRequestDetail(reqId);
+        if (detailRes.success && detailRes.data) {
+          const fresh = detailRes.data;
+
+          // If status transitioned from awaiting_admin_approval to ready_for_signature
+          if (
+            (activeChatRequest.status === 'awaiting_admin_approval' || (activeChatRequest as any).agreement_status === 'awaiting_admin_approval') &&
+            (fresh.status === 'ready_for_signature' || fresh.status === 'agreement_approved' || fresh.status === 'payment_pending')
+          ) {
+            setActiveChatRequest(fresh);
+            // Auto pop-up agreement modal for user to review & sign
+            if (!showAgreementModal && (fresh.status === 'ready_for_signature' || fresh.status === 'agreement_approved')) {
+              openAgreementModal(fresh);
+            }
+          } else if (fresh.status !== activeChatRequest.status) {
+            setActiveChatRequest(fresh);
+          }
+        }
+      } catch (err) {
+        // silent polling error
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [showChatModal, activeChatRequest?.status, showAgreementModal]);
 
   // Save & Load chat history to localStorage for persistence
   const saveChatToStorage = (storageId: string, messages: ChatMessage[]) => {
@@ -732,7 +910,8 @@ export default function InfluencersPage() {
     };
     const updatedSessions = [newSession, ...chatSessions];
     setChatSessions(updatedSessions);
-    saveSessionsToStorage(updatedSessions);
+    const otherSessions = getSessionsFromStorage().filter(s => s.reqId !== reqId);
+    saveSessionsToStorage([...updatedSessions, ...otherSessions]);
     setActiveSessionId(newSessionId);
 
     const introMsg: ChatMessage = {
@@ -813,10 +992,11 @@ export default function InfluencersPage() {
     e.stopPropagation();
     const next = chatSessions.filter(s => s.id !== sessionId);
     setChatSessions(next);
-    saveSessionsToStorage(next);
+    const remainingStored = getSessionsFromStorage().filter(s => s.id !== sessionId);
+    saveSessionsToStorage(remainingStored);
     try {
       localStorage.removeItem(`collab_chat_${sessionId}`);
-    } catch {}
+    } catch { }
     if (activeSessionId === sessionId) {
       if (next.length > 0) {
         handleSelectSession(next[0]);
@@ -838,9 +1018,10 @@ export default function InfluencersPage() {
     const defaultSessionId = `session_${reqId}`;
     setActiveSessionId(defaultSessionId);
 
-    // Initialize or load sessions
+    // Initialize or load sessions strictly for THIS creator / hiring request only
     const storedSessions = getSessionsFromStorage();
-    let currentSessions = [...storedSessions];
+    const creatorSessions = storedSessions.filter(s => s.reqId === reqId);
+    let currentSessions = [...creatorSessions];
     const exists = currentSessions.some(s => s.id === defaultSessionId || s.reqId === reqId);
     if (!exists) {
       const initialSession: ChatSessionItem = {
@@ -854,12 +1035,13 @@ export default function InfluencersPage() {
         updatedAt: new Date().toISOString()
       };
       currentSessions = [initialSession, ...currentSessions];
-      saveSessionsToStorage(currentSessions);
+      const otherSessions = storedSessions.filter(s => s.reqId !== reqId);
+      saveSessionsToStorage([...currentSessions, ...otherSessions]);
     }
     setChatSessions(currentSessions);
 
-    const cachedRaw = getChatFromStorage(defaultSessionId).length > 0 
-      ? getChatFromStorage(defaultSessionId) 
+    const cachedRaw = getChatFromStorage(defaultSessionId).length > 0
+      ? getChatFromStorage(defaultSessionId)
       : getChatFromStorage(reqId);
 
     // Clean any duplicate system messages from cached
@@ -901,8 +1083,8 @@ export default function InfluencersPage() {
           });
         } else {
           const isDuplicate = deduplicated.some(
-            existing => (m.id && existing.id === m.id) || 
-                        (existing.message === m.message && Math.abs(new Date(existing.timestamp).getTime() - new Date(m.timestamp).getTime()) < 3000)
+            existing => (m.id && existing.id === m.id) ||
+              (existing.message === m.message && Math.abs(new Date(existing.timestamp).getTime() - new Date(m.timestamp).getTime()) < 3000)
           );
           if (!isDuplicate) {
             deduplicated.push(m);
@@ -1202,6 +1384,16 @@ export default function InfluencersPage() {
     switch (status) {
       case 'pending_influencer_response':
         return <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">Pending Creator Response</Badge>;
+      case 'awaiting_admin_approval':
+      case 'agreement_admin_review_pending':
+        return <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 font-bold">Awaiting Admin Review</Badge>;
+      case 'ready_for_signature':
+      case 'agreement_approved':
+        return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40 font-bold">Agreement Ready for Signature</Badge>;
+      case 'agreement_rejected':
+        return <Badge className="bg-rose-500/20 text-rose-300 border-rose-500/40 font-bold">Agreement Rejected</Badge>;
+      case 'hirer_signed':
+        return <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/40 font-semibold">Brand Signed • Awaiting Creator</Badge>;
       case 'accepted':
       case 'agreement_pending':
         return <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/30">Agreement Pending</Badge>;
@@ -1273,32 +1465,57 @@ export default function InfluencersPage() {
           <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3 bg-[#141522] p-4 rounded-xl border border-white/10">
             <div>
               <label className="text-xs text-white/60 mb-1 block">Search</label>
-              <input 
-                value={filters.search} 
-                onChange={e => setFilters({ ...filters, search: e.target.value })} 
-                type="text" 
-                placeholder="Name, @handle..." 
-                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none" 
+              <input
+                value={filters.search}
+                onChange={e => setFilters({ ...filters, search: e.target.value })}
+                type="text"
+                placeholder="Name, @handle..."
+                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
               />
             </div>
-            <div>
+            <div className="relative" ref={categoryDropdownRef}>
               <label className="text-xs text-white/60 mb-1 block">Niche / Category</label>
-              <input 
-                list="category-options" 
-                value={filters.category} 
-                onChange={e => setFilters({ ...filters, category: e.target.value })} 
-                type="text" 
-                placeholder="Fashion, Tech..." 
-                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none" 
-              />
-              <datalist id="category-options">
-                <option value="Fashion & Lifestyle" />
-                <option value="Food & Dining" />
-                <option value="Tech & Gadgets" />
-                <option value="Beauty & Makeup" />
-                <option value="Fitness & Health" />
-                <option value="Travel & Hospitality" />
-              </datalist>
+              <button
+                type="button"
+                onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none flex items-center justify-between text-left h-[38px] cursor-pointer"
+              >
+                <span className={`truncate text-xs ${filters.category ? 'text-white font-medium' : 'text-white/60'}`}>
+                  {filters.category || 'All Categories'}
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-white/60 transition-transform shrink-0 ml-1.5 ${showCategoryDropdown ? 'rotate-180 text-brand-purple' : ''}`} />
+              </button>
+              {showCategoryDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#151624] border border-white/20 rounded-xl shadow-2xl z-50 max-h-56 overflow-y-auto custom-scrollbar p-1.5">
+                  <div
+                    onClick={() => {
+                      setFilters({ ...filters, category: '' });
+                      setShowCategoryDropdown(false);
+                    }}
+                    className={`p-2 text-xs rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                      !filters.category ? 'bg-brand-purple text-white font-semibold' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <span>All Categories</span>
+                    {!filters.category && <Check className="w-3.5 h-3.5 text-white" />}
+                  </div>
+                  {categories.map((cat) => (
+                    <div
+                      key={cat}
+                      onClick={() => {
+                        setFilters({ ...filters, category: cat });
+                        setShowCategoryDropdown(false);
+                      }}
+                      className={`p-2 text-xs rounded-lg cursor-pointer transition-colors flex items-center justify-between ${
+                        filters.category === cat ? 'bg-brand-purple text-white font-semibold' : 'text-white/80 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      {filters.category === cat && <Check className="w-3.5 h-3.5 text-white" />}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <label className="text-xs text-white/60 mb-1 block">Platform</label>
@@ -1328,20 +1545,20 @@ export default function InfluencersPage() {
             </div>
             <div className="relative" ref={dropdownRef}>
               <label className="text-xs text-white/60 mb-1 block">Location</label>
-              <input 
-                value={filters.location} 
+              <input
+                value={filters.location}
                 onChange={e => {
                   setFilters({ ...filters, location: e.target.value });
                   setLocationSearchTerm(e.target.value);
-                }} 
-                type="text" 
-                placeholder="City, State..." 
-                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none" 
+                }}
+                type="text"
+                placeholder="City, State..."
+                className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
               />
               {showLocationDropdown && locationOptions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-[#1a1a24] border border-white/20 rounded-lg shadow-2xl z-50 max-h-40 overflow-y-auto">
                   {locationOptions.map((loc, idx) => (
-                    <div 
+                    <div
                       key={idx}
                       onClick={() => {
                         setFilters({ ...filters, location: loc });
@@ -1356,11 +1573,63 @@ export default function InfluencersPage() {
               )}
             </div>
             <div className="flex items-end">
-              <Button type="submit" className="w-full bg-brand-purple hover:bg-brand-purple/90 text-white font-medium h-[38px]">
-                <Search className="w-4 h-4 mr-1.5" /> Apply Filters
+              <Button type="submit" disabled={loading} className="w-full bg-brand-purple hover:bg-brand-purple/90 text-white font-medium h-[38px] transition-all">
+                {loading ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Search className="w-4 h-4 mr-1.5" />}
+                {loading ? "Filtering..." : "Apply Filters"}
               </Button>
             </div>
           </form>
+
+          {/* Active Applied Filters Summary */}
+          {(appliedFilters.search || appliedFilters.category || appliedFilters.platform || appliedFilters.min_followers || appliedFilters.location) && (
+            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-[#171828] border border-brand-purple/40 rounded-xl px-4 py-3 text-xs shadow-md">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-white/70 font-semibold flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Active Filters:
+                </span>
+                {appliedFilters.search && (
+                  <span className="bg-brand-purple/20 border border-brand-purple/40 text-brand-purple px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                    Search: "{appliedFilters.search}"
+                  </span>
+                )}
+                {appliedFilters.category && (
+                  <span className="bg-brand-purple/20 border border-brand-purple/40 text-brand-purple px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                    Niche: {appliedFilters.category}
+                  </span>
+                )}
+                {appliedFilters.platform && (
+                  <span className="bg-brand-purple/20 border border-brand-purple/40 text-brand-purple px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                    Platform: {appliedFilters.platform}
+                  </span>
+                )}
+                {appliedFilters.min_followers && (
+                  <span className="bg-brand-purple/20 border border-brand-purple/40 text-brand-purple px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                    Min Followers: {Number(appliedFilters.min_followers).toLocaleString()}+
+                  </span>
+                )}
+                {appliedFilters.location && (
+                  <span className="bg-brand-purple/20 border border-brand-purple/40 text-brand-purple px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                    Location: {appliedFilters.location}
+                  </span>
+                )}
+                <span className="text-white/30 hidden sm:inline">|</span>
+                <span className="text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-md">
+                  {influencers.length} {influencers.length === 1 ? 'creator' : 'creators'} found
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const reset = { search: '', category: '', min_followers: '', location: '', platform: '', sort_by: 'followers_desc' };
+                  setFilters(reset);
+                  fetchData(reset);
+                }}
+                className="text-brand-pink hover:text-white flex items-center gap-1 font-semibold text-xs transition-colors ml-auto hover:bg-brand-pink/10 px-2.5 py-1 rounded-md border border-brand-pink/30"
+              >
+                <X className="w-3.5 h-3.5" /> Clear Filters
+              </button>
+            </div>
+          )}
 
           {/* Creators Grid */}
           {loading ? (
@@ -1373,10 +1642,11 @@ export default function InfluencersPage() {
               <Users className="w-12 h-12 text-white/30 mx-auto mb-3" />
               <h3 className="text-lg font-bold text-white">No Influencers Found</h3>
               <p className="text-sm text-white/60 mt-1">Try clearing filters or search terms to see available creators.</p>
-              <Button 
+              <Button
                 onClick={() => {
-                  setFilters({ search: '', category: '', min_followers: '', location: '', platform: '', sort_by: 'followers_desc' });
-                  fetchData();
+                  const reset = { search: '', category: '', min_followers: '', location: '', platform: '', sort_by: 'followers_desc' };
+                  setFilters(reset);
+                  fetchData(reset);
                 }}
                 className="mt-4 bg-brand-purple text-white"
               >
@@ -1386,8 +1656,8 @@ export default function InfluencersPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {influencers.map((inf) => (
-                <div 
-                  key={inf.id} 
+                <div
+                  key={inf.id}
                   className="bg-[#141522] border border-white/10 rounded-2xl p-5 hover:border-brand-purple/50 transition-all flex flex-col justify-between group shadow-lg"
                 >
                   <div>
@@ -1395,10 +1665,10 @@ export default function InfluencersPage() {
                     <div className="flex justify-between items-start mb-4">
                       <div className="relative">
                         <div className="w-16 h-16 rounded-full bg-white/5 overflow-hidden border-2 border-brand-purple/40">
-                          <img 
-                            src={inf.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${inf.username}`} 
-                            alt={inf.fullName} 
-                            className="w-full h-full object-cover" 
+                          <img
+                            src={inf.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${inf.username}`}
+                            alt={inf.fullName}
+                            className="w-full h-full object-cover"
                           />
                         </div>
                         {inf.is_verified && (
@@ -1408,7 +1678,7 @@ export default function InfluencersPage() {
                         )}
                       </div>
                       <div className="flex gap-1.5">
-                        <button 
+                        <button
                           onClick={() => handleToggleShortlist(inf.id)}
                           className={`p-2 rounded-full transition-colors ${isShortlisted(inf.id) ? 'bg-brand-pink/20 text-brand-pink' : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white'}`}
                           title="Shortlist"
@@ -1420,13 +1690,18 @@ export default function InfluencersPage() {
 
                     {/* Name & Handles */}
                     <div className="mb-2">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <h3 className="text-lg font-bold text-white group-hover:text-brand-purple transition-colors truncate">
                           {inf.fullName}
                         </h3>
                         {inf.is_verified && <ShieldCheck className="w-4 h-4 text-brand-purple shrink-0" />}
+                        {getPaidRequestForInfluencer(inf) && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            <MessageSquare className="w-3 h-3 text-emerald-400" /> Chat Unlocked
+                          </span>
+                        )}
                       </div>
-                      <p className="text-xs text-[#fc9a5d] font-semibold">{inf.username}</p>
+                      <p className="text-xs text-[#fc9a5d] font-semibold">@{inf.username.replace(/^@+/, '')}</p>
                     </div>
 
                     {/* Category & Location Badges */}
@@ -1476,21 +1751,41 @@ export default function InfluencersPage() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
-                    <Button 
-                      onClick={() => openHireModal(inf)}
-                      className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold text-xs h-9 border-0"
-                    >
-                      <Plus className="w-3.5 h-3.5 mr-1" /> Hire Influencer
-                    </Button>
-                    <Button 
-                      onClick={() => initiatePitch(inf)}
-                      variant="outline"
-                      className="bg-white/5 border-white/10 hover:bg-white/10 text-white text-xs h-9"
-                    >
-                      <Wand2 className="w-3.5 h-3.5 mr-1" /> AI Pitch
-                    </Button>
-                  </div>
+                  {(() => {
+                    const paidReq = getPaidRequestForInfluencer(inf);
+                    return (
+                      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
+                        {paidReq ? (
+                          <Button
+                            onClick={() => openChatModal(paidReq)}
+                            className="bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 hover:opacity-95 text-white font-bold text-xs h-9 border-0 shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5 mr-1 text-white" /> Chat
+                          </Button>
+                        ) : (
+                          <Button
+                            onClick={() => openHireModal(inf)}
+                            disabled={isSubmittingHiring && hiringInfluencerId === inf.id}
+                            className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold text-xs h-9 border-0"
+                          >
+                            {isSubmittingHiring && hiringInfluencerId === inf.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                            ) : (
+                              <Plus className="w-3.5 h-3.5 mr-1" />
+                            )}
+                            {isSubmittingHiring && hiringInfluencerId === inf.id ? "Connecting Zaakpay..." : "Hire Influencer"}
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => initiatePitch(inf)}
+                          variant="outline"
+                          className="bg-white/5 border-white/10 hover:bg-white/10 text-white text-xs h-9"
+                        >
+                          <Wand2 className="w-3.5 h-3.5 mr-1" /> AI Pitch
+                        </Button>
+                      </div>
+                    );
+                  })()}
                 </div>
               ))}
             </div>
@@ -1513,7 +1808,7 @@ export default function InfluencersPage() {
           ) : (
             <div className="space-y-4">
               {hiringRequests.map((req) => (
-                <div 
+                <div
                   key={req.id || req.hiring_request_id}
                   onClick={() => openDetailModal(req)}
                   role="button"
@@ -1567,7 +1862,7 @@ export default function InfluencersPage() {
                   {/* Action Triggers based on Lifecycle Status */}
                   <div className="flex flex-wrap md:flex-col items-stretch gap-2 shrink-0 w-full md:w-auto">
                     {/* View Details Action Button */}
-                    <Button 
+                    <Button
                       onClick={(e) => {
                         e.stopPropagation();
                         openDetailModal(req);
@@ -1580,49 +1875,143 @@ export default function InfluencersPage() {
                       <ChevronRight className="w-3 h-3 text-white/40 group-hover:translate-x-0.5 transition-transform" />
                     </Button>
 
-                    {/* Status: agreement_pending -> Review & Sign Agreement */}
-                    {(req.status === 'agreement_pending' || req.status === 'accepted') && (
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openAgreementModal(req);
-                        }}
-                        className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs h-9 px-4"
-                      >
-                        <FileText className="w-3.5 h-3.5 mr-1.5" /> Review & Sign Agreement
-                      </Button>
-                    )}
-
-                    {/* Status: payment_pending -> Pay Platform Fee & Escrow */}
-                    {req.status === 'payment_pending' && (
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openPaymentModal(req);
-                        }}
-                        className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold text-xs h-9 px-4 border-0"
-                      >
-                        <CreditCard className="w-3.5 h-3.5 mr-1.5" /> Deposit Escrow (₹{req.total_payable})
-                      </Button>
-                    )}
-
-                    {/* Status: in_progress, work_submitted, revision_requested, completed -> Open Chat */}
-                    {['in_progress', 'work_submitted', 'under_review', 'revision_requested', 'completed', 'disputed'].includes(req.status) && (
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openChatModal(req);
-                        }}
-                        variant="outline"
-                        className="bg-white/5 border-white/10 hover:bg-brand-purple text-white text-xs h-9 px-4"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5 mr-1.5 text-brand-purple" /> Collaboration Chat
-                      </Button>
+                    {/* Actions based on manual Admin Review, E-Sign & Final Payment lifecycle */}
+                    {req.status === 'awaiting_admin_approval' || (req as any).agreement_status === 'awaiting_admin_approval' ? (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAgreementModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20 text-amber-300 text-xs h-9 px-3.5 flex items-center justify-center gap-1.5"
+                        >
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                          <span>View Agreement (Under Review)</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openChatModal(req);
+                          }}
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs h-9 px-4 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Open Chat</span>
+                        </Button>
+                      </>
+                    ) : (req.status === 'ready_for_signature' || req.status === 'agreement_approved' || (!req.hirer_signed && req.status === 'accepted')) ? (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAgreementModal(req);
+                          }}
+                          className="bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:opacity-95 text-white font-bold text-xs h-9 px-4 flex items-center justify-center gap-1.5 shadow-lg shadow-purple-500/30 animate-pulse"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>View Agreement & Sign</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openChatModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-white/5 border-white/10 hover:bg-white/10 text-white text-xs h-9 px-3 flex items-center justify-center gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-brand-purple" />
+                          <span>Open Chat</span>
+                        </Button>
+                      </>
+                    ) : req.status === 'hirer_signed' ? (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAgreementModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-indigo-500/10 border-indigo-500/30 text-indigo-300 text-xs h-9 px-3.5 flex items-center justify-center gap-1.5"
+                        >
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>View Agreement (Signed by You)</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openChatModal(req);
+                          }}
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs h-9 px-4 flex items-center justify-center gap-1.5 shadow-md"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Open Chat</span>
+                        </Button>
+                      </>
+                    ) : (req.status === 'payment_pending' || (req as any).agreement_status === 'fully_signed') ? (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openPaymentModal(req);
+                          }}
+                          className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-95 text-white font-extrabold text-xs h-9 px-4 border-0 shadow-lg shadow-emerald-500/30 animate-pulse flex items-center justify-center gap-1.5"
+                        >
+                          <CreditCard className="w-3.5 h-3.5" />
+                          <span>Proceed to Final Payment</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAgreementModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-white/5 border-white/10 hover:bg-white/10 text-white/90 text-xs h-9 px-3 flex items-center justify-center gap-1.5"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>View Signed Agreement</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openChatModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-white/5 border-white/10 hover:bg-white/10 text-white text-xs h-9 px-3 flex items-center justify-center gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5 text-brand-purple" />
+                          <span>Open Chat</span>
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openChatModal(req);
+                          }}
+                          className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:opacity-95 text-white font-bold text-xs h-9 px-4 flex items-center justify-center gap-1.5 shadow-md"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
+                          <span>Collaboration Chat</span>
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openAgreementModal(req);
+                          }}
+                          variant="outline"
+                          className="bg-white/5 border-white/10 hover:bg-white/15 text-white/90 text-xs h-9 px-3 flex items-center justify-center gap-1.5"
+                        >
+                          <FileText className="w-3.5 h-3.5 text-brand-purple" />
+                          <span>View Signed Agreement</span>
+                        </Button>
+                      </>
                     )}
 
                     {/* Status: work_submitted -> Review Deliverables */}
                     {(req.status === 'work_submitted' || req.status === 'under_review') && (
-                      <Button 
+                      <Button
                         onClick={(e) => {
                           e.stopPropagation();
                           openReviewModal(req);
@@ -1657,13 +2046,27 @@ export default function InfluencersPage() {
                       <h4 className="font-bold text-white">{inf?.fullName || s.influencer_id}</h4>
                       <p className="text-xs text-[#fc9a5d]">{inf?.username || '@creator'}</p>
                     </div>
-                    <Button 
-                      onClick={() => openHireModal(inf)}
-                      size="sm"
-                      className="bg-brand-purple text-white text-xs"
-                    >
-                      Hire
-                    </Button>
+                    {inf && getPaidRequestForInfluencer(inf) ? (
+                      <Button
+                        onClick={() => openChatModal(getPaidRequestForInfluencer(inf)!)}
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 mr-1" /> Chat
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => openHireModal(inf)}
+                        disabled={isSubmittingHiring && hiringInfluencerId === inf?.id}
+                        size="sm"
+                        className="bg-brand-purple text-white text-xs"
+                      >
+                        {isSubmittingHiring && hiringInfluencerId === inf?.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
+                        ) : null}
+                        {isSubmittingHiring && hiringInfluencerId === inf?.id ? "Connecting..." : "Hire"}
+                      </Button>
+                    )}
                   </div>
                 );
               })}
@@ -1689,7 +2092,7 @@ export default function InfluencersPage() {
                     </Badge>
                   </div>
                   <p className="text-xs text-white/60">Budget: ₹{camp.budget || 0}</p>
-                  <Button 
+                  <Button
                     onClick={() => openInsights(camp)}
                     variant="outline"
                     className="w-full bg-white/5 border-white/10 text-white text-xs h-8"
@@ -1704,288 +2107,33 @@ export default function InfluencersPage() {
       </Tabs>
 
       {/* ============================================================== */}
-      {/* PHASE 2 MODAL: HIRING REQUEST FORM */}
-      {/* ============================================================== */}
-      <Dialog open={showHireModal} onOpenChange={setShowHireModal}>
-        <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Plus className="text-[#fc9a5d] w-5 h-5" /> 
-              Hire Influencer Proposal
-            </DialogTitle>
-            <DialogDescription className="text-white/60">
-              Submit formal campaign brief and compensation terms. An electronic agreement will be generated upon creator acceptance.
-            </DialogDescription>
-          </DialogHeader>
-
-          <form onSubmit={handleCreateHiringRequest} className="space-y-4 py-3">
-            {/* Instant Zaakpay Gateway Quick-Pay Banner */}
-            <div className="p-4 rounded-xl bg-gradient-to-r from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/20 border border-[#fc9a5d]/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-5 h-5 text-[#fc9a5d]" />
-                  <span className="text-white font-extrabold text-sm">Instant Zaakpay Platform Activation (₹200)</span>
-                </div>
-                <p className="text-xs text-neutral-300">
-                  Pay ₹200 fee via Zaakpay to immediately unlock direct 1-on-1 collaboration chat with {selectedInfluencer?.fullName || 'this creator'}.
-                </p>
-              </div>
-              <Button 
-                type="submit" 
-                disabled={isSubmittingHiring}
-                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-xs h-10 px-5 shrink-0 rounded-xl shadow-[0_0_20px_rgba(252,154,93,0.4)] border-0"
-              >
-                {isSubmittingHiring ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <CreditCard className="w-4 h-4 mr-1.5" />}
-                {isSubmittingHiring ? "Connecting Zaakpay..." : "Pay ₹200 & Unlock Chat"}
-              </Button>
-            </div>
-
-            {/* Creator Selection Preview */}
-            <div className="p-3.5 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10">
-                  <img 
-                    src={selectedInfluencer?.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedInfluencer?.username || 'user'}`} 
-                    alt="Creator"
-                    className="w-full h-full object-cover" 
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <h4 className="font-bold text-white text-sm">{selectedInfluencer?.fullName || 'Select Influencer'}</h4>
-                    {selectedInfluencer?.is_verified && (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#fc9a5d]" />
-                    )}
-                  </div>
-                  <p className="text-xs text-[#fc9a5d]">{selectedInfluencer?.username}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-[10px] text-white/50">Creator Standard Rate</p>
-                <p className="text-sm font-bold text-white">₹{selectedInfluencer?.expectedPricePerPost?.toLocaleString() || '5,000'}</p>
-              </div>
-            </div>
-
-            {/* Hirer Identity & Brand Entity */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-xl">
-              <div className="space-y-1">
-                <label className="text-[11px] text-white/60 font-medium block">Brand / Company Name *</label>
-                <input 
-                  type="text"
-                  required
-                  value={hiringForm.business_name}
-                  onChange={e => setHiringForm({ ...hiringForm, business_name: e.target.value })}
-                  className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none"
-                  placeholder="e.g. My Brand Enterprise"
-                />
-              </div>
-              <div className="space-y-1">
-                <span className="text-[11px] text-white/60 font-medium block">Authenticated Hirer</span>
-                <div className="p-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white/80 flex items-center justify-between">
-                  <span className="truncate">{user?.name || user?.fullName || 'Verified Brand Hirer'}</span>
-                  <span className="text-[10px] text-emerald-400 font-mono bg-emerald-500/10 px-1.5 py-0.5 rounded shrink-0">Verified</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Campaign Name & Product */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Campaign Title *</label>
-                <input 
-                  type="text"
-                  required
-                  value={hiringForm.campaign_name}
-                  onChange={e => setHiringForm({ ...hiringForm, campaign_name: e.target.value })}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                  placeholder="e.g. Festive Summer Launch 2026"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Product or Service Scope *</label>
-                <input 
-                  type="text"
-                  required
-                  value={hiringForm.product_or_service}
-                  onChange={e => setHiringForm({ ...hiringForm, product_or_service: e.target.value })}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                  placeholder="e.g. Organic Serum Collection"
-                />
-              </div>
-            </div>
-
-            {/* Campaign Objectives */}
-            <div className="space-y-1.5">
-              <label className="text-xs text-white/70 font-medium">Campaign Goals & Objectives</label>
-              <textarea 
-                rows={2}
-                value={hiringForm.campaign_objectives}
-                onChange={e => setHiringForm({ ...hiringForm, campaign_objectives: e.target.value })}
-                className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                placeholder="What key features, brand values, or conversion CTA should the creator emphasize?"
-              />
-            </div>
-
-            {/* Deliverables Section */}
-            <div className="space-y-2">
-              <label className="text-xs text-white/70 font-medium">Deliverables Array *</label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {hiringForm.deliverables.map((item, idx) => (
-                  <span key={idx} className="bg-brand-purple/20 border border-brand-purple/30 text-white text-xs px-2.5 py-1 rounded-md flex items-center gap-1.5">
-                    {item}
-                    <button type="button" onClick={() => removeDeliverable(idx)} className="hover:text-red-400">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                ))}
-              </div>
-
-              {/* Quick Deliverable Presets */}
-              <div className="flex flex-wrap gap-1.5">
-                <span className="text-[11px] text-white/40 self-center">Quick add:</span>
-                {['1 Instagram Reel (9:16)', '2 Instagram Stories', '1 Dedicated YouTube Video', '1 Carousel Post', '1 UGC Video'].map((preset, i) => (
-                  <button 
-                    key={i} 
-                    type="button" 
-                    onClick={() => addDeliverable(preset)}
-                    className="text-[11px] bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 px-2 py-0.5 rounded transition-colors"
-                  >
-                    + {preset}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Platform & Dates */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Target Platform</label>
-                <select
-                  value={hiringForm.social_platform}
-                  onChange={e => setHiringForm({ ...hiringForm, social_platform: e.target.value })}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                >
-                  <option value="Instagram" className="bg-[#141522]">Instagram</option>
-                  <option value="YouTube" className="bg-[#141522]">YouTube</option>
-                  <option value="Facebook" className="bg-[#141522]">Facebook</option>
-                  <option value="LinkedIn" className="bg-[#141522]">LinkedIn</option>
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Start Date</label>
-                <input 
-                  type="date"
-                  value={hiringForm.start_date}
-                  onChange={e => setHiringForm({ ...hiringForm, start_date: e.target.value })}
-                  className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Completion Deadline</label>
-                <input 
-                  type="date"
-                  value={hiringForm.end_date}
-                  onChange={e => setHiringForm({ ...hiringForm, end_date: e.target.value })}
-                  className="w-full p-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Compensation */}
-            <div className="space-y-1.5">
-              <label className="text-xs text-white/70 font-medium">Agreed Creator Compensation (₹ INR) *</label>
-              <input 
-                type="number"
-                required
-                min={500}
-                value={hiringForm.proposed_compensation}
-                onChange={e => setHiringForm({ ...hiringForm, proposed_compensation: Number(e.target.value) })}
-                className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:border-brand-purple focus:outline-none"
-                placeholder="5000"
-              />
-            </div>
-
-            {/* Dynamic Platform Service Fee Card (₹200 base + 18% GST = ₹236 total) */}
-            <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xl space-y-2 text-xs">
-              <div className="flex justify-between text-white/70">
-                <span>Agreed Creator Compensation:</span>
-                <span className="font-semibold text-white">₹{Number(hiringForm.proposed_compensation || 0).toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-white/70">
-                <span className="flex items-center gap-1">
-                  Dynamic Platform Service Fee:
-                  <Info className="w-3 h-3 text-white/40" />
-                </span>
-                <span className="font-semibold text-white">₹{platformFee.service_fee} base + 18% GST (₹{platformFee.tax_amount}) = ₹{platformFee.total_fee}</span>
-              </div>
-              <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-sm text-[#fc9a5d]">
-                <span>Total Amount Payable (Escrow Deposit):</span>
-                <span>₹{(Number(hiringForm.proposed_compensation || 0) + platformFee.total_fee).toLocaleString()}</span>
-              </div>
-            </div>
-
-            {/* Revision Requirements & Special Instructions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Revision Policy</label>
-                <input 
-                  type="text"
-                  value={hiringForm.revision_requirements}
-                  onChange={e => setHiringForm({ ...hiringForm, revision_requirements: e.target.value })}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-white/70 font-medium">Special Brand Instructions</label>
-                <input 
-                  type="text"
-                  value={hiringForm.special_instructions}
-                  onChange={e => setHiringForm({ ...hiringForm, special_instructions: e.target.value })}
-                  className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none"
-                  placeholder="e.g. Mandatory #ad tag and swipe link"
-                />
-              </div>
-            </div>
-
-            {/* Zaakpay Activation Banner */}
-            <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-purple-400" />
-                <div>
-                  <span className="text-white font-semibold block">Platform Hiring Fee (Zaakpay Gateway):</span>
-                  <span className="text-[11px] text-white/50">Cuts ₹200 fee upon proposal submission</span>
-                </div>
-              </div>
-              <span className="font-extrabold text-[#fc9a5d] text-sm">₹200.00</span>
-            </div>
-
-            <DialogFooter className="pt-2">
-              <Button type="button" variant="outline" onClick={() => setShowHireModal(false)} className="border-white/10 text-white hover:bg-white/10">
-                Cancel
-              </Button>
-              <Button 
-                type="submit" 
-                disabled={isSubmittingHiring}
-                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-semibold h-10 px-5 rounded-xl shadow-lg"
-              >
-                {isSubmittingHiring ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                {isSubmittingHiring ? "Connecting Zaakpay..." : "Pay ₹200 via Zaakpay & Send Hiring Proposal"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* ============================================================== */}
       {/* PHASE 3 MODAL: ELECTRONIC AGREEMENT & SIGNING */}
       {/* ============================================================== */}
       <Dialog open={showAgreementModal} onOpenChange={setShowAgreementModal}>
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <FileText className="text-brand-purple w-5 h-5" /> 
-              Bilateral Influencer Marketing Agreement
-            </DialogTitle>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                <FileText className="text-brand-purple w-5 h-5" />
+                Bilateral Influencer Marketing Agreement
+              </DialogTitle>
+              {agreementDoc && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDownloadPdf()}
+                  disabled={isDownloadingPdf}
+                  className="bg-brand-purple/20 hover:bg-brand-purple/30 text-brand-purple border-brand-purple/30 text-xs h-8 px-3"
+                >
+                  {isDownloadingPdf ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  Download Agreement PDF
+                </Button>
+              )}
+            </div>
             <DialogDescription className="text-white/60">
               Legally binding collaboration contract. Both parties must execute electronic signatures to activate the campaign.
             </DialogDescription>
@@ -1998,6 +2146,48 @@ export default function InfluencersPage() {
             </div>
           ) : agreementDoc ? (
             <div className="space-y-4 py-3 text-xs text-white/80">
+              {/* Agreement Lifecycle Status & Bilateral Timeline */}
+              <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-2 mb-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-white/80">Agreement Lifecycle Status:</span>
+                  <span className={`px-2.5 py-0.5 rounded-full font-bold uppercase text-[10px] ${
+                    agreementDoc.status === 'signed' || agreementDoc.status === 'fully_signed'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      : agreementDoc.status === 'declined'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                  }`}>
+                    {agreementDoc.status?.replace(/_/g, ' ')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-[11px] text-center">
+                  <div className="p-1.5 rounded bg-white/5 border border-white/10 text-emerald-400 font-medium">
+                    ✓ 1. Draft Generated
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    agreementDoc.signatures?.hirer?.signed
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                      : 'bg-white/5 border-white/10 text-white/50'
+                  }`}>
+                    {agreementDoc.signatures?.hirer?.signed ? '✓ 2. Brand Signed' : '2. Brand Sign Pending'}
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    agreementDoc.signatures?.influencer?.signed
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-medium'
+                      : 'bg-white/5 border-white/10 text-white/50'
+                  }`}>
+                    {agreementDoc.signatures?.influencer?.signed ? '✓ 3. Creator Signed' : '3. Creator Sign Pending'}
+                  </div>
+                  <div className={`p-1.5 rounded border ${
+                    (agreementDoc.signatures?.hirer?.signed && agreementDoc.signatures?.influencer?.signed)
+                      ? 'bg-brand-purple/20 border-brand-purple/40 text-brand-purple font-bold'
+                      : 'bg-white/5 border-white/10 text-white/40'
+                  }`}>
+                    4. Escrow Deposit
+                  </div>
+                </div>
+              </div>
+
               {/* Document Header */}
               <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
                 <div>
@@ -2107,6 +2297,15 @@ export default function InfluencersPage() {
                         <Check className="w-4 h-4 text-emerald-400" />
                         <span>Signed by {agreementDoc.signatures.hirer.signer_name}</span>
                       </div>
+                      {agreementDoc.signatures.hirer.signature_image && (
+                        <div className="h-12 w-44 bg-white/95 rounded-lg p-1 my-1.5 flex items-center justify-center border border-white/20 shadow-sm">
+                          <img
+                            src={agreementDoc.signatures.hirer.signature_image}
+                            alt="Hirer Signature"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      )}
                       <div className="text-[10px] text-white/60">Title: {agreementDoc.signatures.hirer.signer_title || 'Authorized Signatory'}</div>
                       <div className="text-[10px] text-white/50">
                         Date: {new Date(agreementDoc.signatures.hirer.signed_at || '').toLocaleString()} (IP: {agreementDoc.signatures.hirer.ip_address || '127.0.0.1'})
@@ -2131,6 +2330,15 @@ export default function InfluencersPage() {
                         <Check className="w-4 h-4 text-emerald-400" />
                         <span>Signed by {agreementDoc.signatures.influencer.signer_name}</span>
                       </div>
+                      {agreementDoc.signatures.influencer.signature_image && (
+                        <div className="h-12 w-44 bg-white/95 rounded-lg p-1 my-1.5 flex items-center justify-center border border-white/20 shadow-sm">
+                          <img
+                            src={agreementDoc.signatures.influencer.signature_image}
+                            alt="Influencer Signature"
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      )}
                       <div className="text-[10px] text-white/50">
                         Date: {new Date(agreementDoc.signatures.influencer.signed_at || '').toLocaleString()} (IP: {agreementDoc.signatures.influencer.ip_address || '127.0.0.1'})
                       </div>
@@ -2168,18 +2376,44 @@ export default function InfluencersPage() {
                     <CreditCard className="w-3.5 h-3.5 mr-1.5" /> Proceed to Escrow Deposit (₹{((activeAgreementRequest?.proposed_compensation || 0) + 236).toLocaleString()})
                   </Button>
                 </div>
+              ) : agreementDoc.admin_approval?.status === 'pending_admin_review' ? (
+                <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center gap-2.5">
+                  <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+                  <div>
+                    <span className="font-bold">Awaiting Admin Approval:</span>
+                    <p className="text-[11px] text-amber-200/90 mt-0.5">
+                      The agreement draft has been submitted to Platform Admin for manual compliance review. Electronic signature will be unlocked once approved.
+                    </p>
+                  </div>
+                </div>
+              ) : agreementDoc.admin_approval?.status === 'rejected' ? (
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-300 text-xs flex items-center gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <div>
+                    <span className="font-bold">Agreement Rejected by Admin:</span>
+                    <p className="text-[11px] text-rose-200/90 mt-0.5">
+                      {agreementDoc.rejection_reason || 'Compliance review failed. Please contact platform support.'}
+                    </p>
+                  </div>
+                </div>
               ) : !agreementDoc.signatures?.hirer?.signed ? (
                 /* Digital Signature Execution Form for Hirer */
                 <div className="p-4 bg-brand-purple/10 border border-brand-purple/30 rounded-xl space-y-3">
-                  <h5 className="font-bold text-white text-sm flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-brand-purple" />
-                    <span>Execute Electronic Signature (Hirer / Brand)</span>
-                  </h5>
+                  <div className="flex items-center justify-between">
+                    <h5 className="font-bold text-white text-sm flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-brand-purple" />
+                      <span>Execute Electronic Signature (Hirer / Brand)</span>
+                    </h5>
+                    <span className="text-[10px] text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded font-mono">
+                      Legally Binding
+                    </span>
+                  </div>
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <label className="text-xs text-white/70">Full Legal Signatory Name *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={signerLegalName}
                         onChange={e => setSignerLegalName(e.target.value)}
                         placeholder="e.g. John Doe"
@@ -2188,8 +2422,8 @@ export default function InfluencersPage() {
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs text-white/70">Signatory Title / Designation *</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={signerTitle}
                         onChange={e => setSignerTitle(e.target.value)}
                         placeholder="e.g. Authorized Brand Representative"
@@ -2197,8 +2431,101 @@ export default function InfluencersPage() {
                       />
                     </div>
                   </div>
+
+                  {/* SIGNATURE UPLOAD BUTTON & PREVIEW SECTION */}
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
+                        <Upload className="w-3.5 h-3.5 text-[#fc9a5d]" />
+                        <span>Upload Handwritten / Digital Signature *</span>
+                        <span className="text-[10px] text-amber-400 font-medium bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 rounded">
+                          (Mandatory to Proceed)
+                        </span>
+                      </label>
+                      {uploadedSignature && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUploadedSignature(null);
+                            if (signatureFileInputRef.current) signatureFileInputRef.current.value = '';
+                          }}
+                          className="text-[11px] text-rose-400 hover:text-rose-300 hover:underline flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" /> Remove Signature
+                        </button>
+                      )}
+                    </div>
+
+                    <input
+                      type="file"
+                      ref={signatureFileInputRef}
+                      accept="image/png, image/jpeg, image/jpg, image/webp"
+                      onChange={handleSignatureFileChange}
+                      className="hidden"
+                    />
+
+                    {uploadedSignature ? (
+                      <div className="p-3 bg-white/5 border border-emerald-500/40 rounded-xl flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-14 w-44 bg-white rounded-lg p-1.5 flex items-center justify-center border border-white/20 shadow-sm">
+                            <img
+                              src={uploadedSignature}
+                              alt="Uploaded Signature Preview"
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1 text-emerald-400 text-xs font-semibold">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Signature Ready & Verified</span>
+                            </div>
+                            <p className="text-[10px] text-white/50 mt-0.5">
+                              Will be cryptographically affixed to your bilateral contract
+                            </p>
+                          </div>
+                        </div>
+
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => signatureFileInputRef.current?.click()}
+                          className="border-white/20 text-white hover:bg-white/10 text-xs h-8"
+                        >
+                          <Upload className="w-3 h-3 mr-1 text-[#fc9a5d]" /> Change Signature
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => signatureFileInputRef.current?.click()}
+                        role="button"
+                        tabIndex={0}
+                        className="w-full p-4 border-2 border-dashed border-amber-500/30 hover:border-[#fc9a5d] bg-amber-500/[0.02] hover:bg-white/[0.05] rounded-xl flex items-center justify-center gap-3 text-xs text-white/70 hover:text-white cursor-pointer transition-all group select-none"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-amber-500/10 group-hover:bg-[#fc9a5d]/20 flex items-center justify-center text-[#fc9a5d] transition-colors">
+                          <Upload className="w-4 h-4" />
+                        </div>
+                        <div className="text-left">
+                          <span className="font-semibold text-white block group-hover:text-[#fc9a5d] transition-colors">
+                            Click to Upload Signature Image *
+                          </span>
+                          <span className="text-[10px] text-amber-300/80">
+                            Required: Upload image of your handwritten or electronic signature (PNG, JPG, WebP)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {!uploadedSignature && (
+                    <div className="text-[11px] text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg flex items-center gap-2">
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                      <span>Digital signature upload is required before proceeding to payment.</span>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-2 pt-1">
-                    <input 
+                    <input
                       type="checkbox"
                       id="declaration"
                       checked={declarationAccepted}
@@ -2220,82 +2547,300 @@ export default function InfluencersPage() {
                 <Button variant="outline" onClick={() => setShowAgreementModal(false)} className="border-white/10 text-white hover:bg-white/10 text-xs">
                   Close
                 </Button>
-                {!agreementDoc.signatures?.hirer?.signed && (
-                  <Button 
+                {agreementDoc && !agreementDoc.signatures?.hirer?.signed && agreementDoc.status !== 'declined' && (
+                  <Button
+                    variant="outline"
+                    onClick={handleDeclineAgreement}
+                    disabled={isDecliningAgreement}
+                    className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs"
+                  >
+                    {isDecliningAgreement ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <X className="w-3.5 h-3.5 mr-1.5" />}
+                    Decline Agreement
+                  </Button>
+                )}
+                {agreementDoc && (
+                  <Button
+                    variant="outline"
+                    onClick={() => handleDownloadPdf()}
+                    disabled={isDownloadingPdf}
+                    className="border-brand-purple/40 text-brand-purple hover:bg-brand-purple/10 text-xs"
+                  >
+                    {isDownloadingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <Download className="w-3.5 h-3.5 mr-1.5" />}
+                    Download Agreement PDF
+                  </Button>
+                )}
+                {!agreementDoc.signatures?.hirer?.signed && agreementDoc.admin_approval?.status !== 'pending_admin_review' && agreementDoc.admin_approval?.status !== 'rejected' && (
+                  <Button
                     onClick={handleSignAgreement}
-                    disabled={isSigningAgreement || !declarationAccepted || !signerLegalName.trim()}
-                    className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs"
+                    disabled={isSigningAgreement || !declarationAccepted || !signerLegalName.trim() || !uploadedSignature}
+                    className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs disabled:opacity-50"
                   >
                     {isSigningAgreement ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <FileText className="w-4 h-4 mr-2" />}
-                    {isSigningAgreement ? "Affixing Electronic Signature..." : "Sign Agreement Electronically"}
+                    {isSigningAgreement ? "Affixing Electronic Signature..." : "Sign & Proceed to Payment"}
                   </Button>
                 )}
               </DialogFooter>
             </div>
-          ) : null}
+          ) : (
+            <div className="flex flex-col items-center justify-center py-12 space-y-3 text-center">
+              <AlertCircle className="w-10 h-10 text-amber-400" />
+              <div className="text-white font-semibold text-sm">Agreement Document Ready</div>
+              <p className="text-xs text-white/60 max-w-sm">
+                Click below to fetch and initialize the bilateral contract draft for this collaboration.
+              </p>
+              <Button
+                onClick={() => activeAgreementRequest && openAgreementModal(activeAgreementRequest)}
+                className="bg-brand-purple hover:bg-brand-purple/90 text-white text-xs h-9 px-4 flex items-center gap-1.5"
+              >
+                <FileText className="w-3.5 h-3.5" /> Initialize Agreement View
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
       {/* ============================================================== */}
       {/* PHASE 4 MODAL: PAYMENT GATEWAY & ESCROW DEPOSIT */}
       {/* ============================================================== */}
+      {/* ============================================================== */}
+      {/* PHASE 4 MODAL: ZAAKPAY PAYMENT GATEWAY & ESCROW DEPOSIT */}
+      {/* ============================================================== */}
       <Dialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
-        <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-md">
+        <DialogContent className="bg-[#12131b] border-white/10 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <CreditCard className="text-[#fc9a5d] w-5 h-5" /> 
-              Deposit Campaign Escrow
-            </DialogTitle>
-            <DialogDescription className="text-white/60">
-              Deposit campaign funds safely into SevenUnique Escrow. Money is disbursed only upon your approval of the final deliverables.
-            </DialogDescription>
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d]/20 to-[#be32ff]/20 border border-[#fc9a5d]/30 flex items-center justify-center">
+                <CreditCard className="text-[#fc9a5d] w-5 h-5" />
+              </div>
+              <div>
+                <DialogTitle className="text-lg font-bold text-white flex items-center gap-2">
+                  <span>Zaakpay Escrow Checkout</span>
+                  <span className="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-normal">
+                    Secure 256-bit
+                  </span>
+                </DialogTitle>
+                <DialogDescription className="text-white/50 text-xs mt-0.5">
+                  Deposit campaign funds into Platform Escrow via Zaakpay / Finunique.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
           {paymentRequest && (
-            <div className="space-y-4 py-3 text-xs">
+            <div className="space-y-4 py-2 text-xs">
+              {/* Commercials card */}
               <div className="p-4 bg-white/[0.03] border border-white/10 rounded-xl space-y-2.5">
                 <div className="flex justify-between text-white/70">
-                  <span>Campaign Name:</span>
+                  <span>Campaign:</span>
                   <strong className="text-white">{paymentRequest.campaign_name}</strong>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>Creator:</span>
-                  <strong className="text-white">{paymentRequest.influencer_name}</strong>
+                  <span>Target Influencer:</span>
+                  <strong className="text-[#fc9a5d]">{paymentRequest.influencer_name}</strong>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>Agreed Creator Fee:</span>
+                  <span>Gateway Provider:</span>
+                  <span className="text-[#be32ff] font-bold">Zaakpay / Finunique</span>
+                </div>
+                {zaakpayEscrowOrder?.order_id && (
+                  <div className="flex justify-between text-white/70 font-mono text-[11px]">
+                    <span>Order Reference:</span>
+                    <span className="text-neutral-300">{zaakpayEscrowOrder.order_id}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-white/70">
+                  <span>Creator Fee:</span>
                   <span className="font-semibold text-white">₹{paymentRequest.proposed_compensation.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-white/70">
-                  <span>Platform Escrow & Protection Fee:</span>
-                  <span className="font-semibold text-white">₹200 base + 18% GST (₹36) = ₹236</span>
+                  <span>Platform Fee (₹200 base + 18% GST):</span>
+                  <span className="font-semibold text-white">₹236</span>
                 </div>
-                <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-base text-[#fc9a5d]">
-                  <span>Total Escrow Deposit:</span>
-                  <span>₹{(paymentRequest.total_payable || (paymentRequest.proposed_compensation + 236)).toLocaleString()}</span>
+                <div className="flex justify-between text-emerald-400 font-medium">
+                  <span>Previously Paid Fee:</span>
+                  <span className="font-bold text-emerald-400">-₹200 (Paid ✓)</span>
+                </div>
+                <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-base text-white">
+                  <span>Escrow Amount Payable:</span>
+                  <span className="text-[#fc9a5d] text-lg font-extrabold">
+                    ₹{(zaakpayEscrowOrder?.amount || (paymentRequest.proposed_compensation + 36)).toLocaleString()}
+                  </span>
                 </div>
               </div>
 
+              {/* Escrow Protection Badge */}
               <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 text-[11px] flex items-start gap-2">
                 <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
-                  <strong>100% Escrow Protection:</strong> Funds are secured under Platform Escrow. Payout is released to the creator only upon your review and approval of deliverables.
+                  <strong>100% Escrow Protection:</strong> Funds are locked in escrow and only disbursed to the creator once you review and approve the submitted deliverables.
                 </span>
               </div>
 
-              <DialogFooter className="pt-2">
-                <Button variant="outline" onClick={() => setShowPaymentModal(false)} className="border-white/10 text-white hover:bg-white/10">
+              {/* Live Zaakpay Gateway Window Link */}
+              {zaakpayEscrowOrder?.payment_url && (
+                <div className="p-3 bg-[#be32ff]/10 border border-[#be32ff]/30 rounded-xl text-center space-y-2">
+                  <p className="text-[11px] text-purple-200">
+                    A secure Zaakpay payment window was launched. If your browser blocked the popup, click below:
+                  </p>
+                  <a
+                    href={zaakpayEscrowOrder.payment_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#be32ff] hover:bg-[#be32ff]/90 text-white text-xs font-semibold shadow transition-colors"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" /> Open Zaakpay Gateway Window
+                  </a>
+                </div>
+              )}
+
+              <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowPaymentModal(false)}
+                  className="border-white/10 text-white hover:bg-white/10 w-full sm:w-auto"
+                >
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleExecutePayment}
-                  disabled={paymentLoading}
-                  className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold"
+                <Button
+                  onClick={handleVerifyZaakpayEscrowPayment}
+                  disabled={paymentLoading || verifyingEscrowPayment}
+                  className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold flex-1 shadow-md"
                 >
-                  {paymentLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                  {paymentLoading ? "Confirming Escrow..." : `Deposit ₹${(paymentRequest.total_payable || (paymentRequest.proposed_compensation + 236)).toLocaleString()} via Gateway`}
+                  {verifyingEscrowPayment ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Verifying Zaakpay Receipt...
+                    </>
+                  ) : paymentLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      Connecting Zaakpay Gateway...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      I Have Paid → Verify & Activate Escrow
+                    </>
+                  )}
                 </Button>
               </DialogFooter>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ============================================================== */}
+      {/* PAYMENT RESULT POPUP (SUCCESS / FAILED) */}
+      {/* ============================================================== */}
+      <Dialog
+        open={Boolean(paymentResultModal?.open)}
+        onOpenChange={(isOpen) => {
+          if (!isOpen) setPaymentResultModal(null);
+        }}
+      >
+        <DialogContent className="bg-[#12131b] border-white/10 text-white sm:max-w-md p-6 overflow-hidden">
+          {paymentResultModal && (
+            <div className="flex flex-col items-center text-center space-y-4">
+              {/* Animated Icon */}
+              {paymentResultModal.status === 'success' ? (
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500/50 flex items-center justify-center text-emerald-400 shadow-[0_0_30px_rgba(16,185,129,0.35)]">
+                    <CheckCircle2 className="w-9 h-9" />
+                  </div>
+                  <Sparkles className="w-5 h-5 text-emerald-300 absolute -top-1 -right-1 animate-pulse" />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-rose-500/20 border-2 border-rose-500/50 flex items-center justify-center text-rose-400 shadow-[0_0_30px_rgba(244,63,94,0.35)]">
+                  <AlertCircle className="w-9 h-9" />
+                </div>
+              )}
+
+              {/* Title & Message */}
+              <div className="space-y-1">
+                <DialogTitle className={`text-xl font-bold ${paymentResultModal.status === 'success' ? 'text-white' : 'text-rose-400'}`}>
+                  {paymentResultModal.title}
+                </DialogTitle>
+                <DialogDescription className="text-white/70 text-xs max-w-sm">
+                  {paymentResultModal.message}
+                </DialogDescription>
+              </div>
+
+              {/* Transaction Summary Card */}
+              <div className="w-full p-4 bg-white/[0.03] border border-white/10 rounded-xl text-xs space-y-2 text-left">
+                {paymentResultModal.order_id && (
+                  <div className="flex justify-between items-center text-white/60">
+                    <span>Order Reference:</span>
+                    <span className="font-mono text-white text-[11px]">{paymentResultModal.order_id}</span>
+                  </div>
+                )}
+                {paymentResultModal.amount && (
+                  <div className="flex justify-between items-center text-white/60">
+                    <span>Amount:</span>
+                    <span className="font-bold text-[#fc9a5d] text-sm">₹{paymentResultModal.amount.toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center text-white/60">
+                  <span>Payment Gateway:</span>
+                  <span className="text-[#be32ff] font-semibold">Zaakpay / Finunique</span>
+                </div>
+                <div className="flex justify-between items-center text-white/60">
+                  <span>Status:</span>
+                  <span className={`font-bold capitalize ${paymentResultModal.status === 'success' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                    {paymentResultModal.status === 'success' ? 'Verified & Escrow Secured ✓' : 'Failed ✕'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="w-full pt-2 flex flex-col gap-2">
+                {paymentResultModal.status === 'success' ? (
+                  <>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const hr = paymentResultModal.hiringRequest;
+                        setPaymentResultModal(null);
+                        if (hr) openChatModal(hr);
+                      }}
+                      className="w-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] hover:opacity-95 text-white font-semibold text-xs h-10 shadow-lg"
+                    >
+                      <MessageSquare className="w-4 h-4 mr-1.5" />
+                      Open Collaboration Chat Room
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setPaymentResultModal(null)}
+                      className="w-full border-white/10 text-white hover:bg-white/10 text-xs h-9"
+                    >
+                      Done
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      type="button"
+                      onClick={() => {
+                        const hr = paymentResultModal.hiringRequest;
+                        setPaymentResultModal(null);
+                        if (hr) openPaymentModal(hr);
+                      }}
+                      className="w-full bg-[#be32ff] hover:bg-[#be32ff]/90 text-white font-semibold text-xs h-10 shadow-lg"
+                    >
+                      <CreditCard className="w-4 h-4 mr-1.5" />
+                      Retry Zaakpay Payment
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setPaymentResultModal(null)}
+                      className="w-full border-white/10 text-white hover:bg-white/10 text-xs h-9"
+                    >
+                      Close
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </DialogContent>
@@ -2357,11 +2902,10 @@ export default function InfluencersPage() {
                         onClick={() => handleSelectSession(s)}
                         role="button"
                         tabIndex={0}
-                        className={`w-full group text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${
-                          isActive
+                        className={`w-full group text-left p-2.5 rounded-xl text-xs transition-all flex items-center justify-between gap-2 cursor-pointer ${isActive
                             ? 'bg-gradient-to-r from-brand-purple/30 to-brand-purple/10 border border-brand-purple/50 text-white font-semibold shadow-sm'
                             : 'hover:bg-white/5 text-white/70 hover:text-white border border-transparent'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2.5 min-w-0 flex-1">
                           <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-[#fc9a5d]' : 'text-white/40 group-hover:text-white/70'}`} />
@@ -2467,6 +3011,90 @@ export default function InfluencersPage() {
               <span className="text-[10px] text-emerald-400 font-mono hidden sm:inline">100% Protected</span>
             </div>
 
+            {/* PHASE 5: DYNAMIC AGREEMENT STATUS BANNER INSIDE CHAT */}
+            {activeChatRequest && (
+              <div className="px-4 py-2 bg-white/[0.04] border-b border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="text-white/50 text-[11px] font-semibold uppercase tracking-wider">Agreement:</span>
+                  {activeChatRequest.status === 'awaiting_admin_approval' || (activeChatRequest as any).agreement_status === 'awaiting_admin_approval' ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <Clock className="w-3 h-3 text-amber-400" /> Awaiting Admin Review
+                    </span>
+                  ) : activeChatRequest.status === 'ready_for_signature' || activeChatRequest.status === 'agreement_approved' ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/40">
+                      <Sparkles className="w-3 h-3 text-indigo-400" /> Agreement Approved • Ready for Signature
+                    </span>
+                  ) : activeChatRequest.status === 'hirer_signed' ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      <Check className="w-3 h-3 text-purple-400" /> Awaiting Influencer Signature
+                    </span>
+                  ) : activeChatRequest.status === 'payment_pending' || (activeChatRequest as any).agreement_status === 'fully_signed' ? (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Agreement Fully Signed • Final Payment Pending
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Collaboration In Progress
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {(activeChatRequest.status === 'ready_for_signature' || activeChatRequest.status === 'agreement_approved') && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => openAgreementModal(activeChatRequest)}
+                      className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:opacity-95 text-white font-bold text-[11px] h-7 px-3 rounded-lg shadow-sm"
+                    >
+                      <FileText className="w-3 h-3 mr-1" /> View Agreement & Sign
+                    </Button>
+                  )}
+
+                  {(activeChatRequest.status === 'payment_pending' || (activeChatRequest as any).agreement_status === 'fully_signed') && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => openPaymentModal(activeChatRequest)}
+                      className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-white font-extrabold text-[11px] h-7 px-3 rounded-lg shadow-sm"
+                    >
+                      <CreditCard className="w-3 h-3 mr-1" /> Proceed to Final Payment
+                    </Button>
+                  )}
+
+                  {activeChatRequest.status === 'awaiting_admin_approval' && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const reqId = activeChatRequest.hiring_request_id || activeChatRequest.id;
+                          const res = await marketplaceService.getHiringRequestDetail(reqId);
+                          if (res.success && res.data) {
+                            setActiveChatRequest(res.data);
+                            if (res.data.status === 'ready_for_signature' || res.data.status === 'agreement_approved') {
+                              openAgreementModal(res.data);
+                            } else {
+                              alert(`Current Status: ${res.data.status.replace(/_/g, ' ')}. Still awaiting admin approval.`);
+                            }
+                          }
+                        }}
+                        className="text-[11px] text-amber-300 hover:text-amber-200 bg-amber-500/15 hover:bg-amber-500/25 px-2.5 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1.5 font-semibold transition-colors"
+                      >
+                        <RefreshCw className="w-3 h-3" /> Check Admin Approval
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => openAgreementModal(activeChatRequest)}
+                        className="text-[11px] text-white/50 hover:text-white hover:underline flex items-center gap-1"
+                      >
+                        <Eye className="w-3 h-3" /> View Draft
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Messages Scroll Area */}
             <div ref={chatScrollRef} className="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-3.5 bg-[#0f1019]/60">
               {chatLoading ? (
@@ -2540,11 +3168,10 @@ export default function InfluencersPage() {
                         <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
 
-                      <div className={`p-3.5 rounded-2xl max-w-md text-xs shadow-md space-y-2 ${
-                        isMe 
-                          ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white rounded-br-sm' 
+                      <div className={`p-3.5 rounded-2xl max-w-md text-xs shadow-md space-y-2 ${isMe
+                          ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white rounded-br-sm'
                           : 'bg-[#181926] border border-white/10 text-white rounded-bl-sm'
-                      }`}>
+                        }`}>
                         {/* Image attachments if any */}
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className="space-y-1.5">
@@ -2599,9 +3226,9 @@ export default function InfluencersPage() {
                   <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
                   <span>{chatSecurityWarning}</span>
                 </div>
-                <button 
-                  type="button" 
-                  onClick={() => setChatSecurityWarning(null)} 
+                <button
+                  type="button"
+                  onClick={() => setChatSecurityWarning(null)}
                   className="text-red-300 hover:text-white p-1"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -2614,13 +3241,13 @@ export default function InfluencersPage() {
               <div className="px-4 py-2 bg-white/5 border-t border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
                   <div className="relative">
-                    <img 
-                      src={chatAttachment.url} 
-                      alt="Preview" 
-                      className="w-10 h-10 object-cover rounded-lg border border-white/20" 
+                    <img
+                      src={chatAttachment.url}
+                      alt="Preview"
+                      className="w-10 h-10 object-cover rounded-lg border border-white/20"
                     />
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => setChatAttachment(null)}
                       className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600 shadow"
                     >
@@ -2649,12 +3276,12 @@ export default function InfluencersPage() {
             {/* Message Input & Attachment Pin Bar */}
             <form onSubmit={handleSendMessage} className="p-3 bg-white/[0.03] border-t border-white/10 flex items-center gap-2">
               {/* Hidden File Input for Pin */}
-              <input 
-                type="file" 
-                ref={chatFileRef} 
-                accept="image/*" 
-                onChange={handleImageSelected} 
-                className="hidden" 
+              <input
+                type="file"
+                ref={chatFileRef}
+                accept="image/*"
+                onChange={handleImageSelected}
+                className="hidden"
               />
 
               {/* Pin / Paperclip Attachment Button */}
@@ -2669,7 +3296,7 @@ export default function InfluencersPage() {
                 <Paperclip className="w-4 h-4 text-[#fc9a5d]" />
               </Button>
 
-              <input 
+              <input
                 type="text"
                 value={newChatMessage}
                 onChange={e => {
@@ -2680,8 +3307,8 @@ export default function InfluencersPage() {
                 className="flex-1 p-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-xs placeholder:text-white/30 focus:border-brand-purple focus:outline-none h-10"
               />
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={sendingMessage || (!newChatMessage.trim() && !chatAttachment)}
                 className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white h-10 px-5 rounded-xl shrink-0 shadow-lg font-semibold"
               >
@@ -2699,7 +3326,7 @@ export default function InfluencersPage() {
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <CheckCircle2 className="text-emerald-400 w-5 h-5" /> 
+              <CheckCircle2 className="text-emerald-400 w-5 h-5" />
               Review Creator Deliverables
             </DialogTitle>
             <DialogDescription className="text-white/60">
@@ -2730,7 +3357,7 @@ export default function InfluencersPage() {
               {/* Revision / Feedback Input */}
               <div className="space-y-1.5">
                 <label className="text-xs text-white/70 font-medium">Feedback / Revision Notes (if requesting changes)</label>
-                <textarea 
+                <textarea
                   rows={2}
                   value={reviewNotes}
                   onChange={e => setReviewNotes(e.target.value)}
@@ -2742,7 +3369,7 @@ export default function InfluencersPage() {
               {/* Dispute Reason */}
               <div className="space-y-1.5">
                 <label className="text-xs text-white/70 font-medium">Dispute Reason (only if reporting a critical breach)</label>
-                <input 
+                <input
                   type="text"
                   value={disputeReason}
                   onChange={e => setDisputeReason(e.target.value)}
@@ -2752,7 +3379,7 @@ export default function InfluencersPage() {
               </div>
 
               <DialogFooter className="pt-2 flex flex-col sm:flex-row gap-2">
-                <Button 
+                <Button
                   onClick={() => handleReviewAction('dispute')}
                   disabled={reviewLoading || !disputeReason.trim()}
                   variant="outline"
@@ -2760,7 +3387,7 @@ export default function InfluencersPage() {
                 >
                   Raise Dispute
                 </Button>
-                <Button 
+                <Button
                   onClick={() => handleReviewAction('request_revision')}
                   disabled={reviewLoading}
                   variant="outline"
@@ -2768,7 +3395,7 @@ export default function InfluencersPage() {
                 >
                   Request Revision
                 </Button>
-                <Button 
+                <Button
                   onClick={() => handleReviewAction('approve')}
                   disabled={reviewLoading}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs"
@@ -2795,7 +3422,18 @@ export default function InfluencersPage() {
             </div>
             <div>
               <label className="text-white/60 mb-1 block">Niche</label>
-              <input type="text" value={newInfluencer.niche} onChange={e => setNewInfluencer({ ...newInfluencer, niche: e.target.value })} className="w-full p-2 bg-white/5 border border-white/10 rounded text-white" placeholder="Fashion, Tech..." />
+              <select 
+                value={newInfluencer.niche} 
+                onChange={e => setNewInfluencer({ ...newInfluencer, niche: e.target.value })} 
+                className="w-full p-2 bg-white/5 border border-white/10 rounded text-white text-xs focus:border-brand-purple focus:outline-none cursor-pointer"
+              >
+                <option value="" className="bg-[#141522] text-white">Select category...</option>
+                {categories.map((cat) => (
+                  <option key={cat} value={cat} className="bg-[#141522] text-white">
+                    {cat}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
@@ -2823,7 +3461,7 @@ export default function InfluencersPage() {
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Sparkles className="text-brand-purple w-5 h-5" /> 
+              <Sparkles className="text-brand-purple w-5 h-5" />
               Generate AI Pitch
             </DialogTitle>
             <DialogDescription className="text-white/60">
@@ -2912,11 +3550,37 @@ export default function InfluencersPage() {
               <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               <div>
                 <span className="font-bold">Payment of ₹200 verified successfully!</span>
-                <p className="text-[11px] text-emerald-200 mt-0.5">Opening 1-on-1 Private Collaboration Chat room with creator...</p>
+                <p className="text-[11px] text-emerald-200 mt-0.5">Opening 1-on-1 Private Collaboration Chat room with {selectedInfluencer?.fullName || 'the creator'}...</p>
               </div>
             </div>
           ) : (
             <div className="space-y-4 py-2">
+              {/* Creator Info Card */}
+              {selectedInfluencer && (
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden border border-white/15 shrink-0">
+                    <img
+                      src={selectedInfluencer.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedInfluencer.username || 'creator'}`}
+                      alt={selectedInfluencer.fullName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <h4 className="font-bold text-white text-xs truncate">{selectedInfluencer.fullName}</h4>
+                      {selectedInfluencer.is_verified && (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#fc9a5d] shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-[11px] text-[#fc9a5d] truncate">@{selectedInfluencer.username.replace(/^@+/, '')}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="text-[10px] text-white/50 block">Creator Rate</span>
+                    <span className="text-xs font-bold text-white">₹{selectedInfluencer.expectedPricePerPost || 5000}</span>
+                  </div>
+                </div>
+              )}
+
               <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-white/60">Service:</span>
@@ -3112,16 +3776,21 @@ export default function InfluencersPage() {
               Close
             </Button>
 
-            {selectedHiringDetail && (selectedHiringDetail.status === 'agreement_pending' || selectedHiringDetail.status === 'accepted') && (
+            {selectedHiringDetail && (
               <Button
                 type="button"
                 onClick={() => {
                   setShowDetailModal(false);
                   openAgreementModal(selectedHiringDetail);
                 }}
-                className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs h-9 px-4"
+                className="bg-brand-purple hover:bg-brand-purple/90 text-white font-semibold text-xs h-9 px-4 flex items-center gap-1.5"
               >
-                <FileText className="w-3.5 h-3.5 mr-1.5" /> Review & Sign Agreement
+                <FileText className="w-3.5 h-3.5 mr-1" />
+                <span>
+                  {['pending_influencer_response', 'agreement_pending', 'accepted'].includes(selectedHiringDetail.status) && !selectedHiringDetail.hirer_signed
+                    ? 'Review & Sign Agreement'
+                    : 'View Digital Agreement'}
+                </span>
               </Button>
             )}
 

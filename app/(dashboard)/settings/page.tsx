@@ -1031,7 +1031,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                   <Label htmlFor="businessPhone" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-emerald-400" />
-                    Business Contact / WhatsApp No.
+                    Business Contact / Phone No.
                   </Label>
                   <Input
                     id="businessPhone"

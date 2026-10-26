@@ -27,7 +27,7 @@ export interface FestivalAssetContent {
 
 export interface FestivalAsset {
   id: string;
-  type: "post" | "reel" | "ad" | "whatsapp" | "content";
+  type: "post" | "reel" | "ad" | "content";
   platform: string;
   day?: number;
   scheduled_date?: string;

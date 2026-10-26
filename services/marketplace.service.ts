@@ -82,10 +82,32 @@ export interface HiringRequest {
   revision_requirements: string;
   special_instructions?: string;
   status: string;
+  fee_paid?: boolean;
+  hire_fee_paid?: boolean;
+  chat_active?: boolean;
   payment_id?: string;
   order_id?: string;
+  payment_status?: string;
+  agreement_number?: string;
+  agreement_version?: string;
+  agreement_status?: string;
+  hirer_signed?: boolean;
+  influencer_signed?: boolean;
+  hirer_signature_hash?: string;
+  influencer_signature_hash?: string;
+  hirer_signed_at?: string;
+  influencer_signed_at?: string;
   submitted_deliverables?: any;
   review_notes?: string;
+  admin_approval?: {
+    status: string;
+    reviewed_by?: string;
+    reviewed_at?: string;
+    notes?: string;
+  };
+  admin_reviewed?: boolean;
+  admin_review_decision?: string;
+  rejection_reason?: string;
   audit_trail: any[];
   created_at: string;
   updated_at: string;
@@ -99,6 +121,7 @@ export interface AgreementSignatureInfo {
   ip_address?: string;
   signature_hash?: string;
   digest?: string;
+  signature_image?: string;
 }
 
 export interface AgreementDocument {
@@ -145,6 +168,14 @@ export interface AgreementDocument {
     hirer: AgreementSignatureInfo;
     influencer: AgreementSignatureInfo;
   };
+  admin_approval?: {
+    status: string;
+    reviewed_by?: string;
+    admin_id?: string;
+    reviewed_at?: string;
+    notes?: string;
+  };
+  rejection_reason?: string;
   status: string;
   created_at: string;
   updated_at: string;
@@ -155,6 +186,7 @@ export interface ChatMessage {
   hiring_request_id: string;
   sender_id: string;
   sender_name: string;
+  sender_role?: string;
   message: string;
   attachments?: any[];
   timestamp: string;
@@ -244,6 +276,15 @@ export const marketplaceService = {
   },
 
   // Platform Service Fee
+  getCategories: async (): Promise<{ success: boolean; data: string[] }> => {
+    try {
+      const res = await api.get('/api/v1/marketplace/categories');
+      return res.data;
+    } catch {
+      return { success: true, data: [] };
+    }
+  },
+
   getServiceFee: async (): Promise<{ success: boolean; data: PlatformServiceFee }> => {
     try {
       const res = await api.get('/api/v1/marketplace/service-fee');
@@ -289,14 +330,55 @@ export const marketplaceService = {
     return res.data;
   },
 
+  makeAgreement: async (requestId: string): Promise<{ success: boolean; message: string; hiring_request?: HiringRequest; agreement?: AgreementDocument }> => {
+    const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/make-agreement`);
+    return res.data;
+  },
+
   // Agreement
   getAgreement: async (requestId: string): Promise<{ success: boolean; data: AgreementDocument }> => {
     const res = await api.get(`/api/v1/marketplace/hiring/${requestId}/agreement`);
     return res.data;
   },
 
-  signAgreement: async (requestId: string, payload: { signer_name: string; declaration_accepted: boolean; signer_title?: string }): Promise<{ success: boolean; message: string; is_fully_signed?: boolean; agreement?: AgreementDocument }> => {
+  signAgreement: async (requestId: string, payload: { signer_name: string; declaration_accepted: boolean; signer_title?: string; signature_image?: string }): Promise<{ success: boolean; message: string; is_fully_signed?: boolean; agreement?: AgreementDocument }> => {
     const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/sign-agreement`, payload);
+    return res.data;
+  },
+
+  downloadAgreementPdf: async (requestId: string): Promise<Blob> => {
+    const res = await api.get(`/api/v1/marketplace/hiring/${requestId}/agreement/pdf`, {
+      responseType: 'blob'
+    });
+    return res.data;
+  },
+
+  downloadAgreementPdfByNumber: async (agreementNumber: string): Promise<Blob> => {
+    const res = await api.get(`/api/v1/marketplace/agreements/${agreementNumber}/pdf`, {
+      responseType: 'blob'
+    });
+    return res.data;
+  },
+
+  getAllAgreements: async (status?: string): Promise<{ success: boolean; data: AgreementDocument[] }> => {
+    const query = status ? `?status=${status}` : '';
+    const res = await api.get(`/api/v1/marketplace/agreements${query}`);
+    return res.data;
+  },
+
+  listMyAgreements: async (status?: string): Promise<{ success: boolean; data: AgreementDocument[] }> => {
+    const query = status ? `?status=${status}` : '';
+    const res = await api.get(`/api/v1/marketplace/agreements${query}`);
+    return res.data;
+  },
+
+  declineAgreement: async (requestId: string, reason: string): Promise<{ success: boolean; message: string }> => {
+    const res = await api.post(`/api/v1/marketplace/hiring/${requestId}/decline-agreement`, { reason });
+    return res.data;
+  },
+
+  getAgreementAudit: async (requestId: string): Promise<{ success: boolean; data: any }> => {
+    const res = await api.get(`/api/v1/marketplace/hiring/${requestId}/agreement/audit`);
     return res.data;
   },
 
@@ -369,6 +451,22 @@ export const marketplaceService = {
 
   adminResolveDispute: async (requestId: string, payload: { action: 'favor_hirer' | 'favor_influencer' | 'mutual_cancel'; resolution_notes: string }): Promise<{ success: boolean; message: string }> => {
     const res = await api.post(`/api/v1/marketplace/admin/hiring-requests/${requestId}/resolve-dispute`, payload);
+    return res.data;
+  },
+
+  adminReviewAgreement: async (requestId: string, payload: { action: 'approve' | 'reject' | 'request_changes'; notes?: string }): Promise<{ success: boolean; message: string; status: string; admin_approval: any }> => {
+    const res = await api.post(`/api/v1/marketplace/admin/hiring-requests/${requestId}/review-agreement`, payload);
+    return res.data;
+  },
+
+  // Creator Wallet APIs
+  getWallet: async (): Promise<{ success: boolean; data: any }> => {
+    const res = await api.get('/api/v1/marketplace/wallet');
+    return res.data;
+  },
+
+  adminReleasePayoutToWallet: async (requestId: string, notes?: string): Promise<{ success: boolean; message: string; credited_amount?: number; wallet_balance?: number; transaction_id?: string }> => {
+    const res = await api.post(`/api/v1/marketplace/admin/hiring-requests/${requestId}/release-payout-to-wallet${notes ? `?notes=${encodeURIComponent(notes)}` : ''}`);
     return res.data;
   }
 };

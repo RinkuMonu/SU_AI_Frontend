@@ -160,7 +160,7 @@ export default function CataloguePage() {
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.1] text-white mb-6">
             Turn Phone Snaps into High-Converting Catalogues.{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">
-              Auto-Sync Across WhatsApp, Web & CRM.
+              Auto-Sync Across Social, Web & CRM.
             </span>
           </h1>
 
@@ -172,7 +172,7 @@ export default function CataloguePage() {
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-10">
             <span className="text-xs text-slate-400 font-semibold mr-1">Natively Synchronizing:</span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-xs font-bold text-emerald-400">
-              <Smartphone className="w-3.5 h-3.5" /> WhatsApp Shop
+              <Smartphone className="w-3.5 h-3.5" /> Social Shop
             </span>
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-xs font-bold text-pink-400">
               <Share2 className="w-3.5 h-3.5" /> Instagram DMs
@@ -242,7 +242,7 @@ export default function CataloguePage() {
                 Live Master Inventory Cockpit (1,240 SKUs)
               </h3>
               <p className="text-xs text-slate-400 mt-1">
-                Real-time synchronized inventory across WhatsApp Shop, Instagram DMs & Web Storefront.
+                Real-time synchronized inventory across Social Shop, Instagram DMs & Web Storefront.
               </p>
             </div>
 
@@ -392,21 +392,21 @@ export default function CataloguePage() {
               How the Omnichannel Stock Sync Engine Works.
             </h2>
             <p className="text-slate-400 text-base sm:text-lg">
-              One master inventory server radiates changes across WhatsApp, Instagram, and Web Store in under 250 milliseconds.
+              One master inventory server radiates changes across Social, Instagram, and Web Store in under 250 milliseconds.
             </p>
           </div>
 
           {/* Sync Animation UI Hub */}
           <div className="relative mx-auto w-full max-w-5xl py-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
-              {/* Left Endpoints: WhatsApp & Instagram */}
+              {/* Left Endpoints: Instagram & Facebook */}
               <div className="space-y-4">
                 <div className="p-5 rounded-2xl bg-slate-900/80 border border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.1)] flex items-center gap-4">
                   <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                     <Smartphone className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-white text-sm">WhatsApp Business Shop</h4>
+                    <h4 className="font-bold text-white text-sm">Social Business Shop</h4>
                     <p className="text-xs text-slate-400 mt-0.5">Automated carts & in-chat orders</p>
                     <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400 font-bold mt-1">
                       <RefreshCw className="w-3 h-3 animate-spin" /> Live Synced (12ms)
@@ -531,7 +531,7 @@ export default function CataloguePage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Omnichannel Stock Lock</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                When a customer buys your last bridal saree on WhatsApp, stock decrements instantly on your Website and Instagram Shop, preventing embarrassing double sales.
+                When a customer buys your last bridal saree on Social Media, stock decrements instantly on your Website and Instagram Shop, preventing embarrassing double sales.
               </p>
             </div>
 
@@ -564,7 +564,7 @@ export default function CataloguePage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Predictive Restock Alerts</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Receive proactive WhatsApp alerts when fast-moving items dip below safety thresholds, forecasting supplier reorder times before peak wedding rush.
+                Receive proactive Instant alerts when fast-moving items dip below safety thresholds, forecasting supplier reorder times before peak wedding rush.
               </p>
             </div>
           </div>
@@ -587,7 +587,7 @@ export default function CataloguePage() {
             Stop Managing Products in Messy Excel. Let DhandaGrow AI Run Your Catalogue.
           </h2>
           <p className="text-slate-400 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
-            Sync across WhatsApp, Instagram, and your Web Store in 60 seconds with instant UPI checkout.
+            Sync across Social, Instagram, and your Web Store in 60 seconds with instant UPI checkout.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button

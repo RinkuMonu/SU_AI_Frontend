@@ -55,8 +55,8 @@ interface AnalyticsPreset {
   scoreColor: string;
   reach: string;
   reachNum: number;
-  whatsappEnquiries: string;
-  whatsappNum: number;
+  socialEnquiries: string;
+  socialNum: number;
   leads: string;
   leadsNum: number;
   roas: string;
@@ -86,15 +86,15 @@ const analyticsPresets: AnalyticsPreset[] = [
     scoreColor: '#10B981',
     reach: '850K',
     reachNum: 850,
-    whatsappEnquiries: '1,240',
-    whatsappNum: 1240,
+    socialEnquiries: '1,240',
+    socialNum: 1240,
     leads: '482',
     leadsNum: 482,
     roas: '4.2x',
     peakTime: '7:30 PM - 9:30 PM',
     festiveCampaign: 'Navratri & Diwali Bridal Blast',
     geminiInsightTitle: 'High-Converting Festive Asset Identified',
-    geminiInsightText: 'Velvet Lehenga reels drove 3.4x higher WhatsApp catalogue inquiries than static posts. Boost evening reel scheduling between 7:30 PM and 9:15 PM ahead of Dhanteras rush.',
+    geminiInsightText: 'Velvet Lehenga reels drove 3.4x higher Product catalogue inquiries than static posts. Boost evening reel scheduling between 7:30 PM and 9:15 PM ahead of Dhanteras rush.',
     recommendationAction: 'Schedule 2 Velvet Reels for Tonight'
   },
   {
@@ -115,8 +115,8 @@ const analyticsPresets: AnalyticsPreset[] = [
     scoreColor: '#10B981',
     reach: '620K',
     reachNum: 620,
-    whatsappEnquiries: '980',
-    whatsappNum: 980,
+    socialEnquiries: '980',
+    socialNum: 980,
     leads: '345',
     leadsNum: 345,
     roas: '5.1x',
@@ -144,15 +144,15 @@ const analyticsPresets: AnalyticsPreset[] = [
     scoreColor: '#BE32FF',
     reach: '1.12M',
     reachNum: 1120,
-    whatsappEnquiries: '2,150',
-    whatsappNum: 2150,
+    socialEnquiries: '2,150',
+    socialNum: 2150,
     leads: '890',
     leadsNum: 890,
     roas: '3.8x',
     peakTime: '6:00 PM - 9:30 PM (Dinner Rush)',
     festiveCampaign: 'Weekend Royal Handi Feast',
     geminiInsightTitle: 'Immediate Revenue Opportunity',
-    geminiInsightText: 'Weekend Biryani handi promo reels delivered 48% direct WhatsApp online orders. Launch an evening flash story with Flat 25% discount code precisely at 6:45 PM for maximum dinner pickup.',
+    geminiInsightText: 'Weekend Biryani handi promo reels delivered 48% direct Social online orders. Launch an evening flash story with Flat 25% discount code precisely at 6:45 PM for maximum dinner pickup.',
     recommendationAction: 'Launch Evening Biryani Promo'
   }
 ];
@@ -173,7 +173,7 @@ export default function AnalyticsPage() {
   const scaledCaptions = Math.round(activePreset.captions * multiplier);
   const scaledTotalGen = Math.round(activePreset.totalGenerations * multiplier);
   const scaledCredits = Math.round(activePreset.creditsUsed * multiplier);
-  const scaledWhatsapp = Math.round(activePreset.whatsappNum * multiplier);
+  const scaledSocial = Math.round(activePreset.socialNum * multiplier);
   const scaledLeads = Math.round(activePreset.leadsNum * multiplier);
   const scaledReach = timeRange === 7 
     ? `${Math.round(activePreset.reachNum * 0.35)}K` 
@@ -213,7 +213,7 @@ export default function AnalyticsPage() {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed font-medium mb-10 max-w-3xl mx-auto">
-            One unified intelligence cockpit tailored for Indian businesses. Monitor AI content velocity across Reels, Posts & Photoshoots, track WhatsApp catalogue conversions, and get predictive Gemini recommendations on peak posting times and festival campaigns.
+            One unified intelligence cockpit tailored for Indian businesses. Monitor AI content velocity across Reels, Posts & Photoshoots, track Product catalogue conversions, and get predictive Gemini recommendations on peak posting times and festival campaigns.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -231,7 +231,7 @@ export default function AnalyticsPage() {
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Gemini Marketing Health Score (0-100)</span>
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cyan-400" /> WhatsApp & Instagram Lead Attribution</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cyan-400" /> Instagram & Facebook Lead Attribution</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-purple-400" /> Automated Festival Spike Alerts</span>
           </div>
         </div>
@@ -585,7 +585,7 @@ export default function AnalyticsPage() {
 
                   <div>
                     <div className="flex justify-between text-[11px] text-slate-400 mb-1">
-                      <span>WhatsApp Enquiries Funnel</span>
+                      <span>Social Enquiries Funnel</span>
                       <span className="font-bold text-emerald-400">92%</span>
                     </div>
                     <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
@@ -622,7 +622,7 @@ export default function AnalyticsPage() {
 
             </div>
 
-            {/* Omnichannel External Signals Row (Instagram Reach, WhatsApp Enquiries, Leads, ROAS) */}
+            {/* Omnichannel External Signals Row (Instagram Reach, Social Enquiries, Leads, ROAS) */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
               
               <div className="p-4 rounded-2xl bg-[#121726] border border-slate-800 flex items-center justify-between">
@@ -638,8 +638,8 @@ export default function AnalyticsPage() {
 
               <div className="p-4 rounded-2xl bg-[#121726] border border-slate-800 flex items-center justify-between">
                 <div>
-                  <p className="text-[11px] text-slate-400 font-semibold">WhatsApp Enquiries</p>
-                  <p className="text-xl sm:text-2xl font-extrabold text-emerald-400 mt-0.5">{scaledWhatsapp}</p>
+                  <p className="text-[11px] text-slate-400 font-semibold">Social Enquiries</p>
+                  <p className="text-xl sm:text-2xl font-extrabold text-emerald-400 mt-0.5">{scaledSocial}</p>
                   <span className="text-[10px] text-emerald-400 font-bold">1-Tap Direct Chats</span>
                 </div>
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center">
@@ -728,7 +728,7 @@ export default function AnalyticsPage() {
             <div className="lg:col-span-7 rounded-3xl border border-slate-800 overflow-hidden shadow-2xl relative aspect-[16/9] group">
               <Image
                 src="/images/analytics-intelligence-showcase.jpg"
-                alt="AI Marketing Intelligence India Market with WhatsApp Funnel and Festive Spikes"
+                alt="AI Marketing Intelligence India Market with Direct Funnel and Festive Spikes"
                 fill
                 className="object-cover group-hover:scale-102 transition-transform duration-500"
               />
@@ -758,10 +758,10 @@ export default function AnalyticsPage() {
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
                     <MessageCircle className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-bold text-white">Full WhatsApp & CRM Funnel</h3>
+                  <h3 className="text-base font-bold text-white">Full Social & CRM Funnel</h3>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Trace the complete journey from an Instagram impression to a WhatsApp catalogue click and instant UPI checkout—all tracked automatically without manual pixel setups.
+                  Trace the complete journey from an Instagram impression to a Product catalogue click and instant UPI checkout—all tracked automatically without manual pixel setups.
                 </p>
               </div>
 

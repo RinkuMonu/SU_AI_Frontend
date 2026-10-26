@@ -25,36 +25,39 @@ function VerifyPhoneContent() {
   const searchParams = useSearchParams();
   const { user, login } = useAuth();
 
-  const phone = searchParams.get("phone") || user?.phone || user?.phone_number || "";
+  const phoneParam = searchParams.get("phone") || "";
+  const rawUserPhone = user?.phone_number || (user as any)?.phone || (user as any)?.mobile || "";
+  const phone = phoneParam || rawUserPhone;
   const email = searchParams.get("email") || user?.email || "";
   const name = searchParams.get("name") || user?.name || "";
 
-  // Auto-redirect authenticated users who don't require phone verification (e.g. Gmail / OAuth / no phone registered)
+  // Auto-redirect authenticated users who don't require phone verification (e.g. Gmail / OAuth / no phone registered / already verified)
   useEffect(() => {
     if (user) {
-      const userPhone = (user.phone || user.phone_number || user.mobile || "").trim();
+      const uPhone = (user.phone || user.phone_number || (user as any)?.mobile || "").trim();
       const isOAuth = Boolean(
         user.auth_provider === "google" ||
         user.provider === "google" ||
         user.google_id ||
-        user.googleId ||
+        (user as any)?.googleId ||
         user.auth_provider === "facebook" ||
         user.provider === "facebook" ||
         user.auth_provider === "instagram" ||
         user.provider === "instagram" ||
         user.auth_provider === "linkedin" ||
         user.provider === "linkedin" ||
-        (!userPhone && user.email)
+        (!uPhone && user.email)
       );
 
-      if (isOAuth || !userPhone || user.phone_verified !== false) {
+      const hasSelectedRole = !needsRoleSelection(user);
+      if (isOAuth || !uPhone || user.phone_verified === true || hasSelectedRole) {
         const destination = needsRoleSelection(user)
           ? "/select-role"
           : getDashboardRouteForRole(user.role);
         router.replace(destination);
       }
     }
-  }, [user, router]);
+  }, [user, phone, router]);
 
   // 60-second cooldown timer for SMS OTP resend
   useEffect(() => {
@@ -148,7 +151,6 @@ function VerifyPhoneContent() {
         </div>
       );
     }
-
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md bg-card shadow-lg border-border">

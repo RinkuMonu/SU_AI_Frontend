@@ -75,6 +75,7 @@ export function Navbar() {
             width={120}
             height={32}
             className={cn("h-8 w-auto object-contain transition-all duration-300", isLightNav ? "" : "brightness-0 invert")}
+            style={{ width: "auto", height: "auto" }}
             priority
           />
         </Link>

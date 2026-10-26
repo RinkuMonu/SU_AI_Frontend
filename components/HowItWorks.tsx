@@ -27,7 +27,7 @@ const stepsData: ProcessStep[] = [
   {
     number: 2,
     title: 'Publish',
-    description: 'Auto-schedule & publish across Instagram, WhatsApp & Meta.',
+    description: 'Auto-schedule & publish across Instagram, YouTube & Meta.',
     icon: Send,
     colorFrom: '#ec4899',
     colorTo: '#be185d',

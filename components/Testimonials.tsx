@@ -91,7 +91,7 @@ const singleCustomerReview: CustomerReview = {
   city: 'Jaipur, Rajasthan',
   image: '/images/logo-icon.png',
   rating: 5,
-  quote: '“DhandaGrow AI completely changed how we handle social media marketing. From automatic festival creatives to daily WhatsApp updates, our store footfall and festival orders increased significantly without hiring an expensive agency.”'
+  quote: '“DhandaGrow AI completely changed how we handle social media marketing. From automatic festival creatives to daily marketing updates, our store footfall and festival orders increased significantly without hiring an expensive agency.”'
 };
 
 export function Testimonials() {

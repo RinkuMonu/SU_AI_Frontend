@@ -41,13 +41,13 @@ const categories = [
     links: ["Instagram connection", "Instagram Autopilot", "Instagram DM AI", "Social Media Calendar", "Publishing"]
   },
   {
-    title: "WhatsApp AI",
+    title: "Social AI",
     icon: MessageCircle,
-    desc: "Set up AI-powered customer conversations on WhatsApp.",
+    desc: "Set up AI-powered customer conversations on Social Media.",
     color: "text-emerald-400",
     bgColor: "bg-emerald-400/10",
     borderColor: "group-hover:border-emerald-400/30",
-    links: ["Connect WhatsApp", "Product catalogue", "Automated replies", "Customer questions", "WhatsApp campaigns"]
+    links: ["Connect Social", "Product catalogue", "Automated replies", "Customer questions", "Social campaigns"]
   },
   {
     title: "Business & Analytics",
@@ -92,7 +92,7 @@ const popularGuides = [
   { title: "Generate your first AI reel", icon: Share2, desc: "Learn how to turn text into highly engaging Instagram Reels instantly." },
   { title: "Set up your business profile", icon: Rocket, desc: "Complete your brand profile so AI understands your tone and style." },
   { title: "Connect Instagram", icon: MessageSquare, desc: "Link your Instagram account to enable Autopilot and DM AI features." },
-  { title: "Connect WhatsApp", icon: MessageCircle, desc: "Start automating your WhatsApp business conversations in 5 minutes." },
+  { title: "Connect Social", icon: MessageCircle, desc: "Start automating your Social business conversations in 5 minutes." },
   { title: "Create your first campaign", icon: BarChart3, desc: "Launch an AI-generated ad campaign and track your leads effortlessly." }
 ];
 
@@ -101,7 +101,7 @@ const faqs = [
   { q: "How do I create my first AI post?", a: "Navigate to the AI Post Maker from your dashboard, describe what you want to post about, and let UNI AI generate the image, caption, and hashtags for you." },
   { q: "How do AI credits work?", a: "Each AI generation (post, reel, photoshoot) consumes credits. Your monthly subscription includes a set number of credits which reset every billing cycle." },
   { q: "How can I connect Instagram?", a: "Go to Settings > Integrations and click 'Connect Instagram'. You will be redirected to securely authenticate with your Facebook/Instagram account." },
-  { q: "How can I connect WhatsApp?", a: "In the WhatsApp AI tab, scan the provided QR code with your WhatsApp Business app to link your account to our AI responders." },
+  { q: "How can I connect Social?", a: "In the Social AI tab, scan the provided QR code with your Social Business app to link your account to our AI responders." },
   { q: "Can I cancel my subscription?", a: "Yes, you can cancel or downgrade your subscription at any time from the Account & Billing settings page." },
   { q: "How do I create an AI Reel?", a: "Open the AI Reel Maker, select your product or enter a script prompt, choose a voiceover style, and hit generate." },
   { q: "How do I contact support?", a: "You can use the Live Chat widget in the bottom right corner of your dashboard, or email us directly at support@dhandagrow.ai." }
@@ -164,7 +164,7 @@ export default function HelpCenterPage() {
           {/* Popular Searches */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <span className="text-sm font-medium text-slate-500 mr-2">Popular searches:</span>
-            {["AI Post Maker", "AI Reel Maker", "AI Photoshoot", "WhatsApp AI", "Instagram Automation", "Billing", "Account"].map((tag) => (
+            {["AI Post Maker", "AI Reel Maker", "AI Photoshoot", "Social AI", "Instagram Automation", "Billing", "Account"].map((tag) => (
               <button 
                 key={tag}
                 onClick={() => setSearchQuery(tag)}
