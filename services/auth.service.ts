@@ -21,6 +21,9 @@ export interface AuthSuccessResponse {
   message?: string;
   requiresOtp?: boolean;
   verification_token?: string;
+  phone_verification_token?: string;
+  requires_role_selection?: boolean;
+  dashboard_route?: string;
 }
 
 export interface VerifyOtpRequest {
@@ -29,6 +32,8 @@ export interface VerifyOtpRequest {
   countryCode?: string;
   country_code?: string;
   email?: string;
+  channel?: OtpDeliveryChannel;
+  mode?: 'signup' | 'login';
 }
 
 function parseErrorDetail(error: any, fallbackMessage: string): { message: string; code?: string } {
@@ -46,6 +51,8 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
   }
   return { message: error.message || fallbackMessage, code };
 }
+
+export type OtpDeliveryChannel = 'sms' | 'whatsapp';
 
 export const authService = {
   /**
@@ -179,7 +186,7 @@ export const authService = {
    * Verify 6-digit Mobile OTP
    */
   verifyOtp: async (
-    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string; channel?: OtpDeliveryChannel; mode?: 'signup' | 'login' },
     otpCode?: string,
     emailArg?: string
   ): Promise<AuthSuccessResponse> => {
@@ -187,6 +194,8 @@ export const authService = {
       const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
       const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
       const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
+      const rawChannel = typeof phoneOrObj === 'object' ? phoneOrObj.channel : undefined;
+      const rawMode = typeof phoneOrObj === 'object' ? phoneOrObj.mode : undefined;
       const rawOtp = otpCode || '';
 
       const cleanPhone = (rawPhone || '').trim();
@@ -203,40 +212,60 @@ export const authService = {
       if (rawEmail && rawEmail.trim()) {
         payload.email = rawEmail.trim().toLowerCase();
       }
+      if (rawChannel) {
+        payload.channel = rawChannel;
+      }
+      if (rawMode) {
+        payload.mode = rawMode;
+      }
 
       const response = await api.post('/api/v1/auth/verify-otp', payload);
+      const resData = response.data;
+      const vToken = resData?.phone_verification_token || resData?.verification_token || resData?.access_token || resData?.token;
+
       return {
-        token: response.data?.access_token || response.data?.token,
-        user: response.data?.user,
-        status: response.data?.status || 'success',
-        message: response.data?.detail || response.data?.message || 'Mobile OTP verified successfully.',
-        verification_token: response.data?.verification_token || response.data?.token,
+        token: resData?.access_token || resData?.token,
+        user: resData?.user,
+        status: resData?.status || 'success',
+        message: resData?.detail || resData?.message || 'Mobile OTP verified successfully.',
+        verification_token: vToken,
+        phone_verification_token: vToken,
+        requires_role_selection: resData?.requires_role_selection,
+        dashboard_route: resData?.dashboard_route,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid or expired OTP. Please try again.');
       const err = new Error(message) as any;
       err.code = code;
+      err.status = error.response?.status;
+      err.response = error.response;
       throw err;
     }
   },
 
   /**
-   * Send Mobile OTP
+   * Send Mobile OTP via SMS (Fast2SMS) or WhatsApp (MSG91)
    */
   sendOtp: async (
-    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
-    emailArg?: string
-  ): Promise<{ status: string; message: string; canonical_phone_number?: string }> => {
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string; channel?: OtpDeliveryChannel },
+    emailArg?: string,
+    channelArg?: OtpDeliveryChannel
+  ): Promise<{ status: string; message: string; canonical_phone_number?: string; channel?: OtpDeliveryChannel }> => {
     try {
       const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
       const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
       const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
+      const channel: OtpDeliveryChannel = (typeof phoneOrObj === 'object' ? phoneOrObj.channel : channelArg) || 'sms';
 
       const cleanPhone = (rawPhone || '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,
         mobile: cleanPhone,
+        channel,
+        delivery_method: channel,
+        medium: channel,
+        provider: channel === 'whatsapp' ? 'msg91' : 'fast2sms',
       };
       if (rawCc) {
         payload.country_code = rawCc;
@@ -247,13 +276,19 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/send-otp', payload);
+      const fallbackMsg = channel === 'whatsapp'
+        ? 'Verification code sent to your WhatsApp via MSG91.'
+        : 'Verification code sent to your mobile phone via SMS.';
+
       return {
         status: response.data?.status || 'success',
-        message: response.data?.detail || response.data?.message || 'Verification code sent to your mobile phone.',
+        message: response.data?.detail || response.data?.message || fallbackMsg,
         canonical_phone_number: response.data?.canonical_phone_number,
+        channel,
       };
     } catch (error: any) {
-      const { message, code } = parseErrorDetail(error, 'Failed to send OTP. Please wait before retrying.');
+      const defaultErr = 'Failed to send verification code. Please wait before retrying.';
+      const { message, code } = parseErrorDetail(error, defaultErr);
       const err = new Error(message) as any;
       err.code = code;
       throw err;
@@ -261,13 +296,14 @@ export const authService = {
   },
 
   /**
-   * Resend Mobile OTP (alias to sendOtp for semantic clarity)
+   * Resend Mobile OTP (alias to sendOtp with channel support)
    */
   resendOtp: async (
-    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string },
-    emailArg?: string
-  ): Promise<{ status: string; message: string }> => {
-    return authService.sendOtp(phoneOrObj, emailArg);
+    phoneOrObj: string | { phone: string; countryCode?: string; country_code?: string; email?: string; channel?: OtpDeliveryChannel },
+    emailArg?: string,
+    channelArg?: OtpDeliveryChannel
+  ): Promise<{ status: string; message: string; canonical_phone_number?: string; channel?: OtpDeliveryChannel }> => {
+    return authService.sendOtp(phoneOrObj, emailArg, channelArg);
   },
 
   /**
@@ -314,6 +350,9 @@ export const authService = {
     mode = 'login',
     phone,
     countryCode,
+    country_code,
+    phone_verification_token,
+    verification_token,
   }: {
     code?: string;
     access_token?: string;
@@ -323,7 +362,19 @@ export const authService = {
     mode?: 'login' | 'signup';
     phone?: string;
     countryCode?: string;
-  }): Promise<{ token: string; user: User; message?: string }> => {
+    country_code?: string;
+    phone_verification_token?: string;
+    verification_token?: string;
+  }): Promise<{
+    token: string;
+    user: User;
+    message?: string;
+    exists?: boolean;
+    is_existing_user?: boolean;
+    user_exists?: boolean;
+    next_step?: string;
+    requires_role_selection?: boolean;
+  }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/google/signup' : '/api/v1/auth/google/login';
       const cleanPhone = (phone || '').trim();
@@ -341,9 +392,15 @@ export const authService = {
         payload.phone = cleanPhone;
         payload.mobile = cleanPhone;
       }
-      if (countryCode) {
-        payload.country_code = countryCode;
-        payload.countryCode = countryCode;
+      const cc = countryCode || country_code;
+      if (cc) {
+        payload.country_code = cc;
+        payload.countryCode = cc;
+      }
+      const vToken = phone_verification_token || verification_token;
+      if (vToken) {
+        payload.phone_verification_token = vToken;
+        payload.verification_token = vToken;
       }
 
       const response = await api.post(endpoint, payload);
@@ -377,10 +434,24 @@ export const authService = {
         onboarding_step: user.onboarding_step ?? 1,
       };
 
+      const isExisting = Boolean(
+        raw?.exists ?? 
+        data?.exists ?? 
+        raw?.is_existing_user ?? 
+        data?.is_existing_user ?? 
+        raw?.user_exists ?? 
+        data?.user_exists
+      );
+
       return {
         token,
         user: normalizedUser,
         message: raw?.message || data?.message,
+        exists: isExisting,
+        is_existing_user: isExisting,
+        user_exists: isExisting,
+        next_step: raw?.next_step ?? data?.next_step,
+        requires_role_selection: raw?.requires_role_selection ?? data?.requires_role_selection,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'An error occurred during Google authentication');

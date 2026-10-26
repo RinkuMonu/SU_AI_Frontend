@@ -696,6 +696,10 @@ export default function LoginPage() {
         const savedMode = sessionStorage.getItem("google_auth_mode");
         const preservedPhone = sessionStorage.getItem("google_auth_phone") || undefined;
         const preservedCc = sessionStorage.getItem("google_auth_country_code") || undefined;
+        const preservedToken =
+          sessionStorage.getItem("google_auth_verification_token") ||
+          sessionStorage.getItem("phone_verification_token") ||
+          undefined;
         const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
         const mode = isSignup ? "signup" : "login";
 
@@ -717,12 +721,37 @@ export default function LoginPage() {
             mode,
             phone: preservedPhone,
             countryCode: preservedCc,
+            phone_verification_token: preservedToken,
+            verification_token: preservedToken,
           });
 
           const token = res.token;
           const userObj = res.user;
 
           if (token && userObj) {
+            // Check if this was a signup attempt for an existing user
+            const isExistingUser = Boolean(res.exists || res.is_existing_user || res.user_exists);
+
+            if (isSignup && isExistingUser) {
+              const existingMsg = "This email is already registered. Please log in instead.";
+              setError(existingMsg);
+              setAuthModal({
+                open: true,
+                status: "error",
+                provider: "Google",
+                title: "Email Already Registered",
+                message: existingMsg,
+                actionText: "Log In",
+                actionHref: "/login/user",
+              });
+              sessionStorage.removeItem("google_auth_mode");
+              sessionStorage.removeItem("google_auth_phone");
+              sessionStorage.removeItem("google_auth_country_code");
+              sessionStorage.removeItem("google_auth_verification_token");
+              sessionStorage.removeItem("phone_verification_token");
+              return;
+            }
+
             let isDone = Boolean(userObj.onboardingCompleted);
             try {
               const statusDone = await OnboardingService.isCompleted(token);
@@ -739,7 +768,23 @@ export default function LoginPage() {
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
+            sessionStorage.removeItem("google_auth_verification_token");
+            sessionStorage.removeItem("phone_verification_token");
 
+            if (isSignup) {
+              // Requirement 6: For a genuinely new user, create the account and navigate to /select-role
+              setAuthModal({
+                open: true,
+                status: "navigating",
+                provider: "Google",
+                title: "Welcome to DhandaGrow AI!",
+                message: "Account created successfully! Navigating to role selection...",
+              });
+              router.push("/select-role");
+              return;
+            }
+
+            // Existing user login
             setAuthModal({
               open: true,
               status: "navigating",
@@ -777,6 +822,52 @@ export default function LoginPage() {
                 msg = "Google authorization code expired or was already verified. Please try signing in again.";
               }
             } catch (_) {}
+          }
+
+          const isPhoneVerificationRequired =
+            msg.toLowerCase().includes("verification is required") ||
+            msg.toLowerCase().includes("verify your mobile number") ||
+            msg.toLowerCase().includes("verification_token");
+
+          if (isSignup && isPhoneVerificationRequired) {
+            const reqMsg = "Mobile phone verification is required before completing signup. Please verify your mobile number first.";
+            setError(reqMsg);
+            setAuthModal({
+              open: true,
+              status: "error",
+              provider: "Google",
+              title: "Phone Verification Required",
+              message: reqMsg,
+              actionText: "Verify Phone",
+              actionHref: preservedPhone ? `/signup?phone=${encodeURIComponent(preservedPhone)}` : "/signup",
+            });
+            return;
+          }
+
+          const isAlreadyRegistered =
+            msg.toLowerCase().includes("already registered") ||
+            msg.toLowerCase().includes("already exist") ||
+            err.status === 409 ||
+            err.code === "EMAIL_ALREADY_EXISTS";
+
+          if (isSignup && isAlreadyRegistered) {
+            const existingMsg = "This email is already registered. Please log in instead.";
+            setError(existingMsg);
+            setAuthModal({
+              open: true,
+              status: "error",
+              provider: "Google",
+              title: "Email Already Registered",
+              message: existingMsg,
+              actionText: "Log In",
+              actionHref: "/login/user",
+            });
+            sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_auth_phone");
+            sessionStorage.removeItem("google_auth_country_code");
+            sessionStorage.removeItem("google_auth_verification_token");
+            sessionStorage.removeItem("phone_verification_token");
+            return;
           }
 
           const isUnregistered =
