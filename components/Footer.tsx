@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { 
+import {
   ShieldCheck,
   ChevronDown,
   Globe2,
@@ -45,57 +45,62 @@ export function Footer() {
       {/* 2. Main Footer Links */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-10">
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-0 lg:divide-x lg:divide-slate-200">
-          
+
           {/* Column 1: Brand & Newsletter (Wider) */}
           <div className="w-full lg:w-[380px] shrink-0 lg:pr-10">
-            <Link href="/" className="inline-block mb-6">
-              <Image
-                src="/images/dhandagrow.png"
-                alt="DhandaGrow"
-                width={200}
-                height={55}
-                className="h-9 w-auto object-contain"
-                style={{ width: "auto", height: "auto" }}
-              />
-            </Link>
+            <div className="mb-4">
+              <Link href="/" className="inline-block">
+                <Image
+                  src="/images/dhandagrow.png"
+                  alt="DhandaGrow"
+                  width={200}
+                  height={55}
+                  className="h-9 w-auto object-contain"
+                  style={{ width: "auto", height: "auto" }}
+                />
+              </Link>
+              <p className="text-[12px] text-slate-500 font-medium mt-1">
+                DhandaGrow is powered by <span className="text-slate-800 font-semibold">Finunique Small Private Limited</span>
+              </p>
+            </div>
             <p className="text-slate-500 text-[14px] leading-relaxed mb-8">
               DhandaGrow is your all-in-one AI platform to automate marketing, create stunning visuals, manage leads, and grow your business effortlessly. Built for modern Indian businesses to scale faster.
             </p>
 
             {/* Social Icons */}
             <div className="flex items-center gap-3 mb-8">
-              <a 
-                href="https://www.instagram.com/dhandagrow" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="Instagram" 
+              <a
+                href="https://www.instagram.com/dhandagrow"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-gradient-to-r hover:from-[#f09433] hover:via-[#dc2743] hover:to-[#bc1888] hover:text-white transition-all shadow-xs"
               >
                 <InstagramIcon />
               </a>
-              <a 
-                href="https://www.linkedin.com/company/dhandagrow/" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="LinkedIn" 
+              <a
+                href="https://www.linkedin.com/company/dhandagrow/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#0A66C2] hover:text-white transition-all shadow-xs"
               >
                 <LinkedinIcon />
               </a>
-              <a 
-                href="https://www.youtube.com/@DhandhaGrow" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="YouTube" 
+              <a
+                href="https://www.youtube.com/@DhandhaGrow"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="YouTube"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#FF0000] hover:text-white transition-all shadow-xs"
               >
                 <YoutubeIcon />
               </a>
-              <a 
-                href="https://www.facebook.com/profile.php?id=61595209640733" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="Facebook" 
+              <a
+                href="https://www.facebook.com/profile.php?id=61595209640733"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
                 className="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 text-slate-600 hover:bg-[#1877F2] hover:text-white transition-all shadow-xs"
               >
                 <FacebookIcon />
@@ -115,12 +120,12 @@ export function Footer() {
                 </div>
               ) : (
                 <form onSubmit={handleSubscribe} className="flex gap-2">
-                  <input 
-                    type="email" 
+                  <input
+                    type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address" 
+                    placeholder="Enter your email address"
                     className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-purple-400 bg-white"
                   />
                   <button type="submit" className="bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors shrink-0">
@@ -133,7 +138,7 @@ export function Footer() {
 
           {/* Links Grid */}
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 lg:gap-6 lg:pl-10">
-            
+
             {/* Products */}
             <div className="flex flex-col">
               <h4 className="text-[#D95A2B] font-bold text-[16px] mb-4">Products</h4>
@@ -230,7 +235,7 @@ export function Footer() {
       {/* 3. App & Trust Badges */}
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 mb-8">
         <div className="border-t border-slate-100 pt-8 flex flex-wrap xl:flex-nowrap items-center justify-between gap-8">
-          
+
           {/* App Download */}
           <div className="flex items-center gap-4 bg-purple-50/50 p-3 rounded-2xl border border-purple-100/50">
             <Link href="/download" className="flex items-center gap-4 group">
@@ -286,10 +291,14 @@ export function Footer() {
       {/* 4. Absolute Bottom Bar */}
       <div className="bg-[#1C1E32] text-slate-300 py-5 text-xs sm:text-sm">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row justify-between items-center gap-4">
-          <div className="text-center xl:text-left text-slate-400">
-            © 2026 DhandaGrow AI • FINUNIQUE SMALL PRIVATE LIMITED. All rights reserved.
+          <div className="text-center xl:text-left text-slate-400 text-xs sm:text-sm">
+            <span>&copy; 2026 DhandaGrow AI. All rights reserved.</span>
+            <span className="hidden sm:inline mx-2 text-slate-600">&bull;</span>
+            <span className="block sm:inline text-slate-300">
+              DhandaGrow is powered by <strong className="text-white font-medium">Finunique Small Private Limited</strong>.
+            </span>
           </div>
-          
+
           <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-5 gap-y-2 text-slate-300">
             <Link href="/legal/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">Privacy Policy</Link>
             <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
