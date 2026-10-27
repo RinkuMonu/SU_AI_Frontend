@@ -117,8 +117,10 @@ export class ActivityService {
           actionUrl: "/content",
         });
       }
-    } catch (e) {
-      console.warn("Could not fetch remote content activities:", e);
+    } catch (e: any) {
+      if (e?.response?.status !== 401) {
+        console.warn("Could not fetch remote content activities:", e);
+      }
     }
 
     // 2. Check Facebook Live Connection

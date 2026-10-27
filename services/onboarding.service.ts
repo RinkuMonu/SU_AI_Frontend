@@ -40,6 +40,18 @@ export const OnboardingService = {
   updateProgress: async (payload: Partial<OnboardingStatus> & Record<string, any>) => {
     const { data } = await api.patch('/api/v1/onboarding/progress', payload);
     return data;
+  },
+
+  completeOnboarding: async () => {
+    try {
+      const { data } = await api.patch('/api/v1/onboarding/progress', {
+        onboarding_completed: true,
+        is_completed: true,
+      });
+      return data;
+    } catch (_) {
+      return null;
+    }
   }
 };
 

@@ -99,8 +99,10 @@ export const analyticsService = {
       }
       
       return data;
-    } catch (error) {
-      console.warn("Analytics API failed, returning dynamic mock data");
+    } catch (error: any) {
+      if (error?.response?.status !== 401 && error?.response?.status !== 404) {
+        console.warn("Analytics API failed, returning dynamic mock data");
+      }
       return generateDynamicMockData(range);
     }
   },

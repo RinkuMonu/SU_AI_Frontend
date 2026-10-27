@@ -38,39 +38,87 @@ export interface VerifyOtpRequest {
 
 function parseErrorDetail(error: any, fallbackMessage: string): { message: string; code?: string } {
   const code = error.response?.data?.code;
-  if (error.response?.data?.detail) {
-    const detail = error.response.data.detail;
-    if (typeof detail === 'string') return { message: detail, code };
-    if (Array.isArray(detail)) {
-      return { message: detail.map((d: any) => d.msg || JSON.stringify(d)).join(', '), code };
-    }
-    return { message: JSON.stringify(detail), code };
-  }
-  if (error.response?.data?.message && typeof error.response.data.message === 'string') {
-    return { message: error.response.data.message, code };
-  }
-  if (typeof error.response?.data === 'string' && error.response.data.trim() && !error.response.data.trim().startsWith('<')) {
-    return { message: error.response.data.trim(), code };
-  }
-  if (error.response?.status === 500) {
+  const status = error.response?.status;
+
+  if (error.code === 'ECONNRESET' || error.message?.includes('socket hang up') || error.code === 'ECONNABORTED') {
     return {
-      message: 'Server error (500): The authentication service is temporarily unavailable or the backend server is unreachable. Please verify that the backend server is running on port 8000 and try again.',
-      code: 'SERVER_500'
-    };
-  }
-  if (error.response?.status === 502 || error.response?.status === 503 || error.response?.status === 504) {
-    return {
-      message: 'Gateway error: Unable to reach the backend server. Please verify the backend is running.',
-      code: 'GATEWAY_ERROR'
+      message: 'Server connection was interrupted. Please wait a moment and try again.',
+      code: 'ECONNRESET'
     };
   }
   if (error.code === 'ECONNREFUSED' || error.message?.includes('Network Error')) {
     return {
-      message: 'Connection failed: Unable to connect to the backend server at http://127.0.0.1:8000. Please ensure the backend is running.',
+      message: 'Unable to connect to the authentication server. Please ensure the backend service is running.',
       code: 'ECONNREFUSED'
     };
   }
-  return { message: error.message || fallbackMessage, code };
+  if (status === 502 || status === 503 || status === 504) {
+    return {
+      message: 'Gateway error: The authentication service is temporarily unavailable. Please try again shortly.',
+      code: 'GATEWAY_ERROR'
+    };
+  }
+
+  const rawDetail = error.response?.data?.detail ?? error.response?.data?.message;
+
+  if (rawDetail) {
+    if (typeof rawDetail === 'string') {
+      const lower = rawDetail.toLowerCase();
+      if (lower.includes('fast2sms') || lower.includes('sms delivery failed') || lower.includes('sms gateway') || lower.includes('sms provider')) {
+        return {
+          message: 'SMS delivery service is temporarily busy. Please choose WhatsApp or try again in a few moments.',
+          code: 'SMS_GATEWAY_ERROR'
+        };
+      }
+      if (lower.includes('msg91') || lower.includes('whatsapp delivery failed') || lower.includes('whatsapp gateway')) {
+        return {
+          message: 'WhatsApp delivery service is temporarily busy. Please choose SMS or try again in a few moments.',
+          code: 'WHATSAPP_GATEWAY_ERROR'
+        };
+      }
+      if (lower === 'internal server error' || lower.includes('internal server error') || status === 500) {
+        return {
+          message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+          code: 'SERVER_500'
+        };
+      }
+      return { message: rawDetail, code };
+    }
+    if (Array.isArray(rawDetail)) {
+      return { message: rawDetail.map((d: any) => d.msg || JSON.stringify(d)).join(', '), code };
+    }
+    if (typeof rawDetail === 'object') {
+      return { message: JSON.stringify(rawDetail), code };
+    }
+  }
+
+  if (typeof error.response?.data === 'string' && error.response.data.trim() && !error.response.data.trim().startsWith('<')) {
+    const rawStr = error.response.data.trim();
+    if (rawStr.toLowerCase().includes('internal server error') || status === 500) {
+      return {
+        message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+        code: 'SERVER_500'
+      };
+    }
+    return { message: rawStr, code };
+  }
+
+  if (status === 500) {
+    return {
+      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      code: 'SERVER_500'
+    };
+  }
+
+  const errMessage = error.message || '';
+  if (errMessage.toLowerCase().includes('internal server error')) {
+    return {
+      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      code: 'SERVER_500'
+    };
+  }
+
+  return { message: errMessage || fallbackMessage, code };
 }
 
 export type OtpDeliveryChannel = 'sms' | 'whatsapp';
@@ -272,21 +320,21 @@ export const authService = {
     emailArg?: string,
     channelArg?: OtpDeliveryChannel
   ): Promise<{ status: string; message: string; canonical_phone_number?: string; channel?: OtpDeliveryChannel }> => {
-    try {
-      const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
-      const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
-      const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
-      const channel: OtpDeliveryChannel = (typeof phoneOrObj === 'object' ? phoneOrObj.channel : channelArg) || 'sms';
+    const rawPhone = typeof phoneOrObj === 'object' ? phoneOrObj.phone : phoneOrObj;
+    const rawCc = typeof phoneOrObj === 'object' ? (phoneOrObj.countryCode || phoneOrObj.country_code) : undefined;
+    const rawEmail = typeof phoneOrObj === 'object' ? phoneOrObj.email : emailArg;
+    const activeChannel: OtpDeliveryChannel = (typeof phoneOrObj === 'object' ? phoneOrObj.channel : channelArg) || 'sms';
 
+    try {
       const cleanPhone = (rawPhone || '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,
         mobile: cleanPhone,
-        channel,
-        delivery_method: channel,
-        medium: channel,
-        provider: channel === 'whatsapp' ? 'msg91' : 'fast2sms',
+        channel: activeChannel,
+        delivery_method: activeChannel,
+        medium: activeChannel,
+        provider: activeChannel === 'whatsapp' ? 'msg91' : 'fast2sms',
       };
       if (rawCc) {
         payload.country_code = rawCc;
@@ -297,7 +345,7 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/send-otp', payload);
-      const fallbackMsg = channel === 'whatsapp'
+      const fallbackMsg = activeChannel === 'whatsapp'
         ? 'Verification code sent to your WhatsApp via MSG91.'
         : 'Verification code sent to your mobile phone via SMS.';
 
@@ -305,13 +353,35 @@ export const authService = {
         status: response.data?.status || 'success',
         message: response.data?.detail || response.data?.message || fallbackMsg,
         canonical_phone_number: response.data?.canonical_phone_number,
-        channel,
+        channel: activeChannel,
       };
     } catch (error: any) {
       const defaultErr = 'Failed to send verification code. Please wait before retrying.';
       const { message, code } = parseErrorDetail(error, defaultErr);
-      const err = new Error(message) as any;
-      err.code = code;
+
+      let finalMsg = message;
+      let finalCode = code;
+
+      // Handle server 500 or gateway failure specifically for the active channel
+      if (
+        code === 'SERVER_500' ||
+        code === 'SMS_GATEWAY_ERROR' ||
+        error.response?.status === 500 ||
+        finalMsg.toLowerCase().includes('internal server error')
+      ) {
+        if (activeChannel === 'sms') {
+          finalMsg = 'SMS delivery is temporarily unavailable. Please choose WhatsApp or try again shortly.';
+          finalCode = 'SMS_GATEWAY_ERROR';
+        } else {
+          finalMsg = 'WhatsApp delivery is temporarily unavailable. Please choose SMS or try again shortly.';
+          finalCode = 'WHATSAPP_GATEWAY_ERROR';
+        }
+      }
+
+      const err = new Error(finalMsg) as any;
+      err.code = finalCode;
+      err.status = error.response?.status;
+      err.channel = activeChannel;
       throw err;
     }
   },

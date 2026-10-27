@@ -40,6 +40,22 @@ export function BrandKitCompletionNotification() {
     const role = normalizeRole(user.role);
     if (role !== "businessman") return;
 
+    // Check online presence from local cache, session storage, or user profile
+    const presence =
+      (typeof window !== "undefined"
+        ? localStorage.getItem("business_online_presence") || sessionStorage.getItem("business_online_presence")
+        : null) ||
+      (user as any)?.online_presence ||
+      (user as any)?.business_online_presence ||
+      "";
+
+    // RULE: Website, Google Maps, Marketplace, and Wholesale/B2B users
+    // do NOT show the Brand Kit completion popup. Business info is already available.
+    if (presence && presence !== "none") {
+      setProgress(null);
+      return;
+    }
+
     try {
       const [brandRes, bizRes] = await Promise.allSettled([
         getBrandKit(),
@@ -48,6 +64,20 @@ export function BrandKitCompletionNotification() {
 
       const brand = brandRes.status === "fulfilled" ? brandRes.value : null;
       const biz = bizRes.status === "fulfilled" ? bizRes.value : null;
+
+      // Re-verify online presence from fetched business record if not in local storage
+      const resolvedPresence =
+        presence ||
+        (biz as any)?.online_presence ||
+        (biz as any)?.business_online_presence ||
+        (biz?.website ? "website" : "") ||
+        ((biz as any)?.google_maps_url || (user as any)?.google_maps_url ? "google_maps" : "") ||
+        "";
+
+      if (resolvedPresence && resolvedPresence !== "none") {
+        setProgress(null);
+        return;
+      }
 
       const calc = calculateBrandKitCompletion(brand, biz);
       setProgress(calc);
@@ -72,8 +102,20 @@ export function BrandKitCompletionNotification() {
     };
   }, [user?.id, isLoading]);
 
-  // Do not show on public auth pages or on the dedicated /brand page itself
+  // Check online presence directly before rendering
+  const activePresence =
+    (typeof window !== "undefined"
+      ? localStorage.getItem("business_online_presence") || sessionStorage.getItem("business_online_presence")
+      : null) ||
+    (user as any)?.online_presence ||
+    (user as any)?.business_online_presence ||
+    ((user as any)?.google_maps_url ? "google_maps" : "") ||
+    "";
+
+  // Do not show on public auth pages, on the dedicated /brand page itself,
+  // or for any user whose online presence is Website, Google Maps, Marketplace, or Wholesale/B2B
   if (!isMounted || isLoading || !user || isDismissed) return null;
+  if (activePresence && activePresence !== "none") return null;
   if (pathname === "/brand" || pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
   if (!progress || progress.percentage >= 100) return null;
 

@@ -6,8 +6,10 @@ export const creditService = {
     try {
       const response = await api.get("/api/v1/credits/me");
       return response.data;
-    } catch (error) {
-      console.warn("Credit API failed, returning mock data");
+    } catch (error: any) {
+      if (error?.response?.status !== 401 && error?.response?.status !== 404) {
+        console.warn("Credit API failed, returning fallback data");
+      }
       return {
         plan: "FREE",
         credits_total: 5,

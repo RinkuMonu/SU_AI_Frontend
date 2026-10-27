@@ -60,7 +60,7 @@ export function Footer() {
                 />
               </Link>
               <p className="text-[12px] text-slate-500 font-medium mt-1">
-                DhandaGrow is powered by <span className="text-slate-800 font-semibold">Finunique Small Private Limited</span>
+                DhandaGrow is powered by <span className="text-slate-800 font-semibold">Seven Unique Private Limited</span>
               </p>
             </div>
             <p className="text-slate-500 text-[14px] leading-relaxed mb-8">
@@ -295,7 +295,7 @@ export function Footer() {
             <span>&copy; 2026 DhandaGrow AI. All rights reserved.</span>
             <span className="hidden sm:inline mx-2 text-slate-600">&bull;</span>
             <span className="block sm:inline text-slate-300">
-              DhandaGrow is powered by <strong className="text-white font-medium">Finunique Small Private Limited</strong>.
+              DhandaGrow is powered by <strong className="text-white font-medium">Seven Unique Private Limited</strong>.
             </span>
           </div>
 

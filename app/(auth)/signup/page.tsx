@@ -203,11 +203,15 @@ export default function SignupPage() {
       const channelLabel = channel === "whatsapp" ? "WhatsApp" : "SMS";
       setSuccessMsg(`6-digit verification code sent via ${channelLabel}.`);
     } catch (err: any) {
-      console.error("Failed to send OTP:", err);
-      const errMsg = err.message || "";
+      console.warn("Failed to send OTP:", err?.message || err);
+      const errMsg = err?.message || "";
       if (errMsg.toLowerCase().includes("already registered") || errMsg.toLowerCase().includes("already exist")) {
         setExistingUserPrompt(e164);
         setError("An account with this phone number already exists. Please log in instead.");
+      } else if (err.code === "SMS_GATEWAY_ERROR" || errMsg.toLowerCase().includes("sms")) {
+        setError(errMsg || "SMS service is temporarily delayed. Try WhatsApp OTP instead.");
+      } else if (err.code === "WHATSAPP_GATEWAY_ERROR" || errMsg.toLowerCase().includes("whatsapp")) {
+        setError(errMsg || "WhatsApp service is temporarily delayed. Try SMS OTP instead.");
       } else {
         setError(errMsg || "Failed to send verification code. Please check your number and retry.");
       }
@@ -260,7 +264,7 @@ export default function SignupPage() {
         handleGoogleSignup(targetPhone, countryCode, vToken);
       }, 400);
     } catch (err: any) {
-      console.error("OTP verification failed:", err);
+      console.warn("OTP verification failed:", err?.message || err);
       const errMsg = err.message || "";
       if (
         errMsg.toLowerCase().includes("already registered") ||
@@ -377,7 +381,7 @@ export default function SignupPage() {
         window.location.href = authUrl;
       }, 250);
     } catch (err: any) {
-      console.error("Google connect error:", err);
+      console.warn("Google connect error:", err?.message || err);
       setError(err.message || "Failed to initialize Google registration.");
       setSocialLoading(null);
       setAuthModal(null);
@@ -462,14 +466,26 @@ export default function SignupPage() {
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
                   <span className="leading-relaxed">{error}</span>
                 </div>
-                {existingUserPrompt && (
+                {existingUserPrompt ? (
                   <Link
                     href={`/login/user?phone=${encodeURIComponent(existingUserPrompt)}`}
                     className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
                   >
                     Log In &rarr;
                   </Link>
-                )}
+                ) : (error.toLowerCase().includes("sms") || error.toLowerCase().includes("whatsapp") || error.toLowerCase().includes("temporarily unavailable")) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextChannel = selectedChannel === "sms" ? "whatsapp" : "sms";
+                      handleSendOtp(nextChannel);
+                    }}
+                    disabled={isSendingOtp}
+                    className="shrink-0 font-bold text-xs text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    Try {selectedChannel === "sms" ? "WhatsApp" : "SMS"} &rarr;
+                  </button>
+                ) : null}
               </div>
             )}
 

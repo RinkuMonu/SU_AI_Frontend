@@ -11,8 +11,10 @@ export const campaignService = {
     try {
       const response = await api.get('/api/v1/campaigns');
       return { data: response.data.data };
-    } catch (e) {
-      console.warn("Campaign API failed, returning mock data");
+    } catch (e: any) {
+      if (e?.response?.status !== 401 && e?.response?.status !== 404) {
+        console.warn("Campaign API failed, returning mock data");
+      }
       return { data: [] };
     }
   },

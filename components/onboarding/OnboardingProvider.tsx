@@ -36,7 +36,12 @@ export const OnboardingProvider = ({ children }: { children: React.ReactNode }) 
         setShowBusinessSuccess(true);
       }
     } catch (e: any) {
-      if (e?.response?.status !== 404 && e?.code !== "ERR_NETWORK" && e?.message !== "Network Error") {
+      if (
+        e?.response?.status !== 401 &&
+        e?.response?.status !== 404 &&
+        e?.code !== "ERR_NETWORK" &&
+        e?.message !== "Network Error"
+      ) {
         console.warn("onboarding status error:", e?.message || e);
       }
     }

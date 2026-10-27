@@ -215,12 +215,34 @@ export default function AIPostPage() {
     loadProducts();
 
     if (typeof window !== "undefined") {
-      const storedPost = sessionStorage.getItem("onboarding_post_for_edit");
+      const searchParams = new URLSearchParams(window.location.search);
+      const editPostId = searchParams.get("edit_post_id");
+
+      const storedPost =
+        sessionStorage.getItem("onboarding_post_for_edit") ||
+        localStorage.getItem("onboarding_post_for_edit");
+
       if (storedPost) {
         try {
           const parsed = JSON.parse(storedPost);
           if (parsed && (parsed.image_url || parsed.media_url || parsed.caption || parsed.headline)) {
             setGeneratedPost(parsed);
+            setEditedHeadline(parsed.headline || "");
+            setEditedCaption(parsed.caption || "");
+            setEditedCta(parsed.call_to_action || "Learn More");
+            setEditedHashtags(
+              Array.isArray(parsed.hashtags)
+                ? parsed.hashtags.join(" ")
+                : parsed.hashtags || ""
+            );
+            const postImg = parsed.image_url || parsed.media_url;
+            if (postImg) {
+              setUploadedImages([postImg]);
+            }
+            if (parsed.headline || parsed.caption) {
+              setCreativeInstruction(parsed.headline || parsed.caption);
+            }
+            setIsEditing(true);
             sessionStorage.removeItem("onboarding_post_for_edit");
           }
         } catch (_) {}
@@ -280,20 +302,36 @@ export default function AIPostPage() {
         generate_hashtags: generateHashtags,
       };
 
-      // Apply Brand Kit parameters if enabled and valid
-      if (useBrandKit && loadedBrandKit && isBrandKitComplete) {
+      // Check online presence from local cache, session storage, or user profile
+      const presence =
+        (typeof window !== "undefined"
+          ? localStorage.getItem("business_online_presence") || sessionStorage.getItem("business_online_presence")
+          : null) ||
+        (user as any)?.online_presence ||
+        (user as any)?.business_online_presence ||
+        "";
+
+      const isOnlinePresenceLinked =
+        presence === "website" ||
+        presence === "google_maps" ||
+        presence === "marketplace" ||
+        presence === "b2b" ||
+        Boolean((user as any)?.google_maps_url);
+
+      // Apply Brand Kit parameters if enabled and valid OR if online presence is linked
+      if (useBrandKit && ((loadedBrandKit && isBrandKitComplete) || isOnlinePresenceLinked)) {
         requestPayload.use_brand_kit = true;
-        requestPayload.brand_kit_id = loadedBrandKit.id;
-        requestPayload.brand_name = loadedBrandKit.business_name || user?.businessName || user?.name;
+        requestPayload.brand_kit_id = loadedBrandKit?.id;
+        requestPayload.brand_name = loadedBrandKit?.business_name || user?.businessName || user?.name || "My Business";
         requestPayload.brand_colors = {
-          primary: loadedBrandKit.primary_color,
-          secondary: loadedBrandKit.secondary_color,
-          accent: loadedBrandKit.accent_color,
+          primary: loadedBrandKit?.primary_color || "#8B5CF6",
+          secondary: loadedBrandKit?.secondary_color || "#EC4899",
+          accent: loadedBrandKit?.accent_color || "#F59E0B",
         };
-        requestPayload.brand_font = loadedBrandKit.font;
-        requestPayload.brand_tone = loadedBrandKit.tone;
-        requestPayload.logo_url = loadedBrandKit.logo_url;
-        requestPayload.include_logo = includeLogo && Boolean(loadedBrandKit.logo_url);
+        requestPayload.brand_font = loadedBrandKit?.font || "Inter";
+        requestPayload.brand_tone = loadedBrandKit?.tone || "Professional";
+        requestPayload.logo_url = loadedBrandKit?.logo_url;
+        requestPayload.include_logo = includeLogo && Boolean(loadedBrandKit?.logo_url);
       } else {
         requestPayload.use_brand_kit = false;
         requestPayload.brand_tone = manualTone;

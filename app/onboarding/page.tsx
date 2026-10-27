@@ -47,7 +47,8 @@ import {
   Bell,
   AlertTriangle,
   Shield,
-  Volume2
+  Volume2,
+  LayoutDashboard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -701,6 +702,7 @@ export default function OnboardingPage() {
 
     if (typeof window !== "undefined") {
       sessionStorage.setItem("business_online_presence", selectedOnlinePresence);
+      localStorage.setItem("business_online_presence", selectedOnlinePresence);
     }
 
     // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
@@ -2076,7 +2078,10 @@ export default function OnboardingPage() {
       const accentColor = brandPreferences.palette[2] || "#FC9A5D";
 
       if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_online_presence", "none");
+        localStorage.setItem("business_online_presence", "none");
         sessionStorage.setItem("brand_preferences_data", JSON.stringify(brandPreferences));
+        localStorage.setItem("brand_preferences_data", JSON.stringify(brandPreferences));
         sessionStorage.setItem("selected_font", selectedFont);
       }
 
@@ -2102,6 +2107,7 @@ export default function OnboardingPage() {
         await OnboardingService.updateProgress({
           brand_colors: brandPreferences.palette,
           onboarding_step: 4,
+          online_presence: "none",
         });
       } catch (_) {}
 
@@ -2121,6 +2127,10 @@ export default function OnboardingPage() {
 
   const handleNoneBrandKitSkip = () => {
     setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_online_presence", "none");
+      localStorage.setItem("business_online_presence", "none");
+    }
     // Advance to common completion screen: "Let's make your first thing"
     const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
     const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
@@ -2897,22 +2907,42 @@ export default function OnboardingPage() {
   };
 
   const handleOpenUnlockedPostInCreate = () => {
-    const postToOpen = generatedOnboardingPost || {
+    const postHeadline =
+      generatedOnboardingPost?.headline ||
+      `${businessProfile.business_name || businessDetails.business_name || "Business"} Special Launch`;
+    const postCaption =
+      generatedOnboardingPost?.caption ||
+      `Elevate your business with ${businessProfile.business_name || businessDetails.business_name || "us"}! Visit us today.`;
+    const postImage =
+      generatedOnboardingPost?.image_url ||
+      promoPhoto ||
+      DEFAULT_BUSINESS_PHOTOS[0];
+    const postId = (generatedOnboardingPost as any)?.id || "onboarding_post_unlocked";
+
+    const postToOpen: GeneratedPost = {
+      id: postId,
       product_id: "onboarding_sample",
       platform: "Instagram",
       objective: "Promotion",
-      headline: `${businessProfile.business_name || businessDetails.business_name} Special Launch`,
-      caption: `Elevate your business with ${businessProfile.business_name || businessDetails.business_name}! Visit us today.`,
-      call_to_action: "Visit profile link",
-      hashtags: ["#BusinessGrowth", "#Marketing", "#Viral"],
-      image_url: promoPhoto || DEFAULT_BUSINESS_PHOTOS[0],
-      media_url: promoPhoto || DEFAULT_BUSINESS_PHOTOS[0],
+      headline: postHeadline,
+      caption: postCaption,
+      call_to_action: generatedOnboardingPost?.call_to_action || "Visit profile link",
+      hashtags: generatedOnboardingPost?.hashtags || ["#BusinessGrowth", "#Marketing", "#Viral"],
+      image_url: postImage,
+      media_url: postImage,
+      creative_direction: generatedOnboardingPost?.creative_direction || postHeadline,
     };
 
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_post_for_edit", JSON.stringify(postToOpen));
+      localStorage.setItem("onboarding_post_for_edit", JSON.stringify(postToOpen));
     }
-    router.push("/ai-post");
+
+    try {
+      OnboardingService.completeOnboarding().catch(() => {});
+    } catch (_) {}
+
+    router.push(`/ai-post?edit_post_id=${encodeURIComponent(postId)}&from=onboarding`);
   };
 
   const handleLockedPostClick = () => {
@@ -7763,22 +7793,40 @@ export default function OnboardingPage() {
       {currentStepObj.id === "post_maker_ready" && (
         <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
           <div>
-            {/* Top Header: Back button + Full Progress Indicator */}
-            <div className="flex items-center gap-3 w-full mb-4">
+            {/* Top Header: Back button + Full Progress Indicator + Go to Dashboard */}
+            <div className="flex items-center justify-between gap-3 w-full mb-4">
+              <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                <button
+                  type="button"
+                  onClick={handlePostMakerReadyBack}
+                  aria-label="Go back"
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden min-w-[50px]">
+                  <div
+                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+              </div>
+
+              {/* Direct Dashboard Button in Upper-Right */}
               <button
                 type="button"
-                onClick={handlePostMakerReadyBack}
-                aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                id="onboarding-go-to-dashboard-btn"
+                onClick={() => {
+                  try {
+                    OnboardingService.completeOnboarding().catch(() => {});
+                  } catch (_) {}
+                  router.push("/dashboard");
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 transition-all cursor-pointer shrink-0 active:scale-95 shadow-sm"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
+                <span className="whitespace-nowrap">Go to Dashboard</span>
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
-                  style={{ width: "100%" }}
-                />
-              </div>
             </div>
 
             {/* Header Titles */}
@@ -7819,15 +7867,29 @@ export default function OnboardingPage() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-between p-2.5">
-                  <span className="self-start text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow">
-                    Unlocked
-                  </span>
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow">
+                      Unlocked
+                    </span>
+                    <button
+                      type="button"
+                      id="edit-unlocked-post-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenUnlockedPostInCreate();
+                      }}
+                      className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-500/90 hover:bg-emerald-400 text-white px-2 py-0.5 rounded-full shadow-md backdrop-blur-sm transition-all"
+                    >
+                      <Pencil className="w-2.5 h-2.5" />
+                      <span>Edit</span>
+                    </button>
+                  </div>
                   <div>
                     <p className="text-[11px] font-bold text-white line-clamp-2 leading-tight drop-shadow">
                       {generatedOnboardingPost?.headline || "Promo post"}
                     </p>
-                    <span className="text-[9px] text-emerald-300 flex items-center gap-0.5 mt-1 font-medium">
-                      Tap to edit ↗
+                    <span className="text-[9px] text-emerald-300 flex items-center gap-0.5 mt-1 font-semibold group-hover:underline">
+                      Tap to edit in AI Post Maker ↗
                     </span>
                   </div>
                 </div>
@@ -7878,10 +7940,26 @@ export default function OnboardingPage() {
 
             <button
               type="button"
+              id="edit-unlocked-post-action-btn"
               onClick={handleOpenUnlockedPostInCreate}
-              className="w-full text-center text-xs text-neutral-400 hover:text-emerald-400 transition-colors py-1.5 font-medium cursor-pointer"
+              className="w-full text-center text-xs text-neutral-300 hover:text-emerald-400 transition-colors py-1.5 font-medium cursor-pointer flex items-center justify-center gap-1.5"
             >
-              Open unlocked post in Create Post →
+              <Pencil className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Edit unlocked post in AI Post Maker →</span>
+            </button>
+
+            <button
+              type="button"
+              id="bottom-go-to-dashboard-btn"
+              onClick={() => {
+                try {
+                  OnboardingService.completeOnboarding().catch(() => {});
+                } catch (_) {}
+                router.push("/dashboard");
+              }}
+              className="w-full text-center text-xs text-neutral-400 hover:text-white transition-colors py-1 font-medium cursor-pointer"
+            >
+              Skip to Dashboard →
             </button>
           </div>
         </div>

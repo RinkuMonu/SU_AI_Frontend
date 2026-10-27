@@ -92,7 +92,26 @@ export function BrandKitToggleCard({
         setBusiness(loadedBiz);
         setHasLoaded(true);
 
-        const complete = isBrandKitComplete(loadedBrand, loadedBiz);
+        const loadedPresence =
+          (typeof window !== "undefined"
+            ? localStorage.getItem("business_online_presence") || sessionStorage.getItem("business_online_presence")
+            : null) ||
+          (user as any)?.online_presence ||
+          (user as any)?.business_online_presence ||
+          (loadedBiz as any)?.online_presence ||
+          (loadedBiz as any)?.business_online_presence ||
+          "";
+
+        const isPresenceLinked =
+          loadedPresence === "website" ||
+          loadedPresence === "google_maps" ||
+          loadedPresence === "marketplace" ||
+          loadedPresence === "b2b" ||
+          Boolean(loadedBiz?.website) ||
+          Boolean((user as any)?.google_maps_url) ||
+          Boolean((loadedBiz as any)?.google_maps_url);
+
+        const complete = isBrandKitComplete(loadedBrand, loadedBiz) || isPresenceLinked;
         if (onBrandKitLoaded) {
           onBrandKitLoaded(loadedBrand, complete);
         }
@@ -117,13 +136,74 @@ export function BrandKitToggleCard({
     };
   }, [enabled, user?.id]);
 
-  const complete = isBrandKitComplete(brandKit, business);
-  const effectiveBusinessName = brandKit?.business_name || business?.name || user?.businessName || user?.name || "My Brand";
-  const primaryColor = brandKit?.primary_color || "#8B5CF6";
-  const secondaryColor = brandKit?.secondary_color || "#EC4899";
-  const accentColor = brandKit?.accent_color || "#F59E0B";
-  const fontName = brandKit?.font || "Inter";
-  const toneName = brandKit?.tone || "Professional";
+  // Online presence detection (website, google_maps, marketplace, b2b)
+  const currentPresence =
+    (typeof window !== "undefined"
+      ? localStorage.getItem("business_online_presence") || sessionStorage.getItem("business_online_presence")
+      : null) ||
+    (user as any)?.online_presence ||
+    (user as any)?.business_online_presence ||
+    (business as any)?.online_presence ||
+    "";
+
+  const isOnlinePresenceLinked =
+    currentPresence === "website" ||
+    currentPresence === "google_maps" ||
+    currentPresence === "marketplace" ||
+    currentPresence === "b2b" ||
+    Boolean(business?.website) ||
+    Boolean((user as any)?.google_maps_url) ||
+    Boolean((business as any)?.google_maps_url);
+
+  // Fallbacks from business profile / user / onboarding cached data
+  const cachedBrandPrefs = typeof window !== "undefined" ? (() => {
+    try {
+      const stored = sessionStorage.getItem("brand_preferences_data") || localStorage.getItem("brand_preferences_data");
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  })() : null;
+
+  const complete = isBrandKitComplete(brandKit, business) || isOnlinePresenceLinked;
+  const effectiveBusinessName =
+    brandKit?.business_name ||
+    business?.name ||
+    user?.businessName ||
+    user?.name ||
+    "My Brand";
+
+  const primaryColor =
+    brandKit?.primary_color ||
+    cachedBrandPrefs?.palette?.[0] ||
+    (business as any)?.brand_colors?.[0] ||
+    "#8B5CF6";
+
+  const secondaryColor =
+    brandKit?.secondary_color ||
+    cachedBrandPrefs?.palette?.[1] ||
+    (business as any)?.brand_colors?.[1] ||
+    "#EC4899";
+
+  const accentColor =
+    brandKit?.accent_color ||
+    cachedBrandPrefs?.palette?.[2] ||
+    (business as any)?.brand_colors?.[2] ||
+    "#F59E0B";
+
+  const effectiveLogoUrl =
+    brandKit?.logo_url ||
+    (business as any)?.logo_url ||
+    (user as any)?.businessLogo ||
+    (user as any)?.avatar ||
+    (typeof window !== "undefined" ? sessionStorage.getItem("brand_kit_logo") : null);
+
+  const fontName =
+    brandKit?.font ||
+    (typeof window !== "undefined" ? sessionStorage.getItem("selected_font") : null) ||
+    "Inter";
+
+  const toneName =
+    brandKit?.tone ||
+    (cachedBrandPrefs?.tones ? cachedBrandPrefs.tones.join(", ") : "Professional");
 
   return (
     <div
@@ -161,7 +241,7 @@ export function BrandKitToggleCard({
                 >
                   {complete ? (
                     <>
-                      <CheckCircle2 className="w-3 h-3" /> Brand Kit Applied
+                      <CheckCircle2 className="w-3 h-3" /> Brand Style Applied
                     </>
                   ) : (
                     <>
@@ -215,15 +295,15 @@ export function BrandKitToggleCard({
               <Loader2 className="w-4 h-4 animate-spin text-brand-purple" />
               <span>Fetching your saved Brand Kit settings...</span>
             </div>
-          ) : complete && brandKit ? (
+          ) : complete ? (
             <div className="space-y-3.5 animate-in fade-in duration-200">
               {/* Brand Summary Row */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface/60 border border-border/80 rounded-xl p-3 sm:p-3.5">
                 <div className="flex items-center gap-3 min-w-0">
-                  {brandKit.logo_url ? (
+                  {effectiveLogoUrl ? (
                     <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 p-1 flex items-center justify-center shrink-0 overflow-hidden">
                       <img
-                        src={brandKit.logo_url}
+                        src={effectiveLogoUrl}
                         alt={effectiveBusinessName}
                         className="w-full h-full object-contain"
                       />
@@ -242,7 +322,10 @@ export function BrandKitToggleCard({
                       <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                     </div>
                     <p className="text-[11px] text-text-muted truncate">
-                      {brandKit.business_category || brandKit.business_type || "Business Identity Active"}
+                      {brandKit?.business_category ||
+                        brandKit?.business_type ||
+                        (business as any)?.category ||
+                        "Business Identity Active"}
                     </p>
                   </div>
                 </div>
@@ -314,12 +397,14 @@ export function BrandKitToggleCard({
               <p className="text-[11px] text-emerald-400/90 flex items-center gap-1.5 pt-0.5">
                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>
-                  Saved colors, logo, font, and brand voice will be automatically applied to generation.
+                  {isOnlinePresenceLinked
+                    ? "Brand style from your business profile is automatically applied to generation."
+                    : "Saved colors, logo, font, and brand voice will be automatically applied to generation."}
                 </span>
               </p>
             </div>
           ) : (
-            /* Incomplete or Missing Brand Kit */
+            /* Incomplete or Missing Brand Kit for paths that require manual setup */
             <div className="rounded-xl bg-amber-500/10 border border-amber-500/30 p-3.5 space-y-2.5 animate-in fade-in duration-200">
               <div className="flex items-start gap-2.5">
                 <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />

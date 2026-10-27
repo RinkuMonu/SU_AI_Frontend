@@ -95,6 +95,7 @@ export interface GeneratePostRequest {
 }
 
 export interface GeneratedPost {
+  id?: string;
   product_id: string;
   platform: string;
   objective: string;

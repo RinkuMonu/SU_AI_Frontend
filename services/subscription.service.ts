@@ -6,8 +6,10 @@ export const subscriptionService = {
     try {
       const response = await api.get("/api/v1/subscription/me");
       return response.data.data;
-    } catch (e) {
-      console.warn("Using mock subscription data");
+    } catch (e: any) {
+      if (e?.response?.status !== 401 && e?.response?.status !== 404) {
+        console.warn("Using mock subscription data");
+      }
       return {
         id: "sub_1",
         user_id: "user_1",

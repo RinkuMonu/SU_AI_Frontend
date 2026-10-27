@@ -255,10 +255,14 @@ export default function LoginPage() {
       const channelLabel = channel === "whatsapp" ? "WhatsApp" : "SMS";
       setSuccessMsg(`6-digit verification code sent via ${channelLabel}.`);
     } catch (err: any) {
-      console.error("Failed to send OTP:", err);
-      const errMsg = err.message || "";
+      console.warn("Failed to send OTP:", err?.message || err);
+      const errMsg = err?.message || "";
       if (errMsg.toLowerCase().includes("not registered") || errMsg.toLowerCase().includes("not found")) {
         setError("No account found with this phone number. Please sign up below.");
+      } else if (err.code === "SMS_GATEWAY_ERROR" || errMsg.toLowerCase().includes("sms")) {
+        setError(errMsg || "SMS service is temporarily delayed. Try WhatsApp OTP instead.");
+      } else if (err.code === "WHATSAPP_GATEWAY_ERROR" || errMsg.toLowerCase().includes("whatsapp")) {
+        setError(errMsg || "WhatsApp service is temporarily delayed. Try SMS OTP instead.");
       } else {
         setError(errMsg || "Failed to send verification code. Please check your number and retry.");
       }
@@ -315,7 +319,7 @@ export default function LoginPage() {
         throw new Error(response.message || "OTP verification did not return session.");
       }
     } catch (err: any) {
-      console.error("OTP verification failed:", err);
+      console.warn("OTP verification failed:", err?.message || err);
       setOtpError(err.message || "Invalid or expired OTP. Please check and try again.");
     } finally {
       setIsVerifyingOtp(false);
@@ -413,7 +417,7 @@ export default function LoginPage() {
         window.location.href = authUrl;
       }, 250);
     } catch (err: any) {
-      console.error("Google connect error:", err);
+      console.warn("Google connect error:", err?.message || err);
       setError(err.message || "Failed to initialize Google sign-in.");
       setSocialLoading(null);
       setAuthModal(null);
@@ -533,7 +537,7 @@ export default function LoginPage() {
             throw new Error(res.message || "Google authentication did not return session token.");
           }
         } catch (err: any) {
-          console.error("Google authentication error:", err);
+          console.warn("Google authentication error:", err?.message || err);
           // If session token was already set by a parallel flow, safely navigate to dashboard
           const existingToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
           if (existingToken) {
@@ -728,12 +732,26 @@ export default function LoginPage() {
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
                   <span className="leading-relaxed">{error}</span>
                 </div>
-                <Link
-                  href="/signup"
-                  className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
-                >
-                  Sign Up &rarr;
-                </Link>
+                {error.includes("No account found") || error.includes("sign up") ? (
+                  <Link
+                    href="/signup"
+                    className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
+                  >
+                    Sign Up &rarr;
+                  </Link>
+                ) : (error.toLowerCase().includes("sms") || error.toLowerCase().includes("whatsapp") || error.toLowerCase().includes("temporarily unavailable")) ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextChannel = selectedChannel === "sms" ? "whatsapp" : "sms";
+                      handleSendOtp(nextChannel);
+                    }}
+                    disabled={isSendingOtp}
+                    className="shrink-0 font-bold text-xs text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    Try {selectedChannel === "sms" ? "WhatsApp" : "SMS"} &rarr;
+                  </button>
+                ) : null}
               </div>
             )}
 
