@@ -213,6 +213,19 @@ export default function AIPostPage() {
       }
     }
     loadProducts();
+
+    if (typeof window !== "undefined") {
+      const storedPost = sessionStorage.getItem("onboarding_post_for_edit");
+      if (storedPost) {
+        try {
+          const parsed = JSON.parse(storedPost);
+          if (parsed && (parsed.image_url || parsed.media_url || parsed.caption || parsed.headline)) {
+            setGeneratedPost(parsed);
+            sessionStorage.removeItem("onboarding_post_for_edit");
+          }
+        } catch (_) {}
+      }
+    }
   }, []);
 
   // Update suggestions according to active content type

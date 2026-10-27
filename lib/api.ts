@@ -15,7 +15,7 @@ export const getBaseUrl = () => {
     process.env.NEXT_PUBLIC_API_URL ||
     "http://127.0.0.1:8000";
 
-  return backend.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
+  return backend.replace(/\/docs\/?$/, "").replace(/\/+$/, "").replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1");
 };
 
 const api = axios.create({

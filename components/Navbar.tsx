@@ -13,6 +13,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { featuresMenu } from '@/data/features';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export function Navbar() {
   const { user } = useAuth();
@@ -40,7 +41,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const webHref = mounted && user ? '/dashboard' : '/login/user';
+  const webHref = '/select-role';
 
   const isLightNav = isLightPage || isScrolled;
 
@@ -170,7 +171,8 @@ export function Navbar() {
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-3">
+          <LanguageSelector align="right" />
           <Button
             variant="outline"
             size="sm"
@@ -239,7 +241,11 @@ export function Navbar() {
           <Link href="/#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-white/90 hover:text-white transition-colors">Pricing</Link>
           <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-medium text-white/90 hover:text-white transition-colors">Contact</Link>
           
-          <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
+          <div className="flex items-center justify-between py-2 border-t border-white/10">
+            <span className="text-sm font-medium text-white/80">Language</span>
+            <LanguageSelector align="right" />
+          </div>
+          <div className="flex flex-col gap-3 mt-2">
             <Button variant="outline" className="w-full" asChild>
               <Link href={webHref} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
             </Button>

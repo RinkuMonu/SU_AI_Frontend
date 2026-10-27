@@ -139,12 +139,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // CASE 1: Unauthenticated visitor
       if (!user) {
-        if (isAuthRoute) {
+        if (isAuthRoute || isSelectRoleRoute) {
           return;
         }
         if (isAdminRoute) {
           router.replace('/login/admin');
-        } else if (isProtectedRoute || isSelectRoleRoute) {
+        } else if (isProtectedRoute) {
           router.replace('/login/user');
         }
         return;
@@ -178,10 +178,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      // If authenticated user is on login or signup route, direct them to role selection or dashboard
+      const isOnboardingComplete = Boolean(
+        user.onboardingCompleted === true ||
+        (user as any).onboarding_completed === true ||
+        (user as any).is_completed === true
+      );
+
+      // If authenticated user is on login or signup route, direct them to onboarding or dashboard
       if (isAuthRoute) {
-        if (needsRoleSelection(user)) {
-          router.replace('/select-role');
+        if (!isOnboardingComplete && role !== 'admin') {
+          router.replace('/onboarding');
         } else {
           router.replace(getDashboardRouteForRole(role));
         }
@@ -190,8 +196,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // If authenticated user is on verify-phone page, direct them forward
       if (isVerifyRoute) {
-        if (needsRoleSelection(user)) {
-          router.replace('/select-role');
+        if (!isOnboardingComplete && role !== 'admin') {
+          router.replace('/onboarding');
         } else {
           router.replace(getDashboardRouteForRole(role));
         }
@@ -209,28 +215,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // 2c: Non-admin trying to access admin route
       if (isAdminRoute && role !== 'admin') {
         console.warn('Admin access rejected: user does not have admin role.');
-        if (needsRoleSelection(user)) {
-          router.replace('/select-role');
-        } else {
-          router.replace(getDashboardRouteForRole(role));
-        }
-        return;
-      }
-
-      // 2d: Regular user who STILL NEEDS role selection
-      if (needsRoleSelection(user)) {
-        if (isProtectedRoute || isAuthRoute) {
-          router.replace('/select-role');
-        }
+        router.replace(getDashboardRouteForRole(role));
         return;
       }
 
       // 2e: Regular user who ALREADY HAS a role selected
       const targetDashboard = getDashboardRouteForRole(role);
 
-      // Do not allow returning users with saved role to revisit auth or role-selection screens
-      if (isAuthRoute || isSelectRoleRoute) {
-        router.replace(targetDashboard);
+      // Do not allow returning users with saved role to revisit auth screens
+      if (isAuthRoute) {
+        if (!isOnboardingComplete && role !== 'admin') {
+          router.replace('/onboarding');
+        } else {
+          router.replace(targetDashboard);
+        }
       }
     }
   }, [user, isLoading, pathname, router]);

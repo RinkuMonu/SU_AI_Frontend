@@ -60,11 +60,9 @@ function VerifyPhoneContent() {
         (!uPhone && user.email)
       );
 
-      const hasSelectedRole = !needsRoleSelection(user);
+      const hasSelectedRole = true;
       if (isOAuth || !uPhone || user.phone_verified === true || hasSelectedRole) {
-        const destination = needsRoleSelection(user)
-          ? "/select-role"
-          : getDashboardRouteForRole(user.role);
+        const destination = getDashboardRouteForRole(user.role);
         router.replace(destination);
       }
     }
@@ -117,9 +115,7 @@ function VerifyPhoneContent() {
 
       if (response.token && response.user) {
         login(response.token, response.user);
-        const destination = needsRoleSelection(response.user)
-          ? "/select-role"
-          : getDashboardRouteForRole(response.user.role);
+        const destination = getDashboardRouteForRole(response.user.role);
         setTimeout(() => {
           router.replace(destination);
         }, 800);
@@ -174,9 +170,7 @@ function VerifyPhoneContent() {
 
   if (!phone) {
     if (user) {
-      const destination = needsRoleSelection(user)
-        ? "/select-role"
-        : getDashboardRouteForRole(user.role);
+      const destination = getDashboardRouteForRole(user.role);
       router.replace(destination);
       return (
         <div className="min-h-screen flex items-center justify-center p-4 bg-background">

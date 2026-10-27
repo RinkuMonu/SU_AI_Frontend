@@ -22,14 +22,10 @@ export function normalizeRole(role?: string | null): UserRole | null {
 
 /**
  * Determines if an authenticated user must complete the role selection step.
- * Returns true if the user does NOT have a valid persisted role assigned yet.
+ * Disabled post-login as role selection is already integrated into 'Use on Web'.
  */
 export function needsRoleSelection(user?: User | null): boolean {
-  if (!user) return false;
-  // If user role is null, undefined, empty, or generic 'user', they need role selection
-  if (!user.role || user.role === 'user') return true;
-  const normalized = normalizeRole(user.role);
-  return normalized === null;
+  return false;
 }
 
 /**
@@ -45,7 +41,7 @@ export function getDashboardRouteForRole(role?: string | null): string {
     case 'admin':
       return '/admin';
     default:
-      return '/select-role';
+      return '/dashboard';
   }
 }
 

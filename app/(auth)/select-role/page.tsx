@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/components/auth/AuthProvider";
 import { authService } from "@/services/auth.service";
 import {
+  normalizeRole,
   needsRoleSelection,
   getDashboardRouteForRole,
 } from "@/lib/role-routing";
@@ -133,21 +134,28 @@ const ROLE_OPTIONS: RoleOption[] = [
 
 export default function SelectRolePage() {
   const router = useRouter();
-  const { user, isLoading, updateUser, logout } = useAuth();
+  const { user, isLoading, login, updateUser, logout } = useAuth();
 
   const [selectedRole, setSelectedRole] = useState<SelectedRole>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // If user already has a saved role, redirect directly to their dashboard
+  // Pre-select current role if already set, or check stored preference, without forcing redirect away
   useEffect(() => {
-    if (!isLoading && user) {
-      if (!needsRoleSelection(user)) {
-        const dest = getDashboardRouteForRole(user.role);
-        router.replace(dest);
+    if (user && user.role) {
+      const norm = normalizeRole(user.role);
+      if (norm === "businessman" || norm === "influencer") {
+        setSelectedRole(norm);
+      }
+    } else if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const queryRole = searchParams.get("role") || sessionStorage.getItem("selected_role") || localStorage.getItem("selected_role");
+      const norm = normalizeRole(queryRole);
+      if (norm === "businessman" || norm === "influencer") {
+        setSelectedRole(norm);
       }
     }
-  }, [user, isLoading, router]);
+  }, [user]);
 
   const handleCardClick = (roleId: "businessman" | "influencer") => {
     setSelectedRole(roleId);
@@ -167,38 +175,52 @@ export default function SelectRolePage() {
   const handleContinue = async () => {
     if (!selectedRole || isSubmitting) return;
 
+    const targetDashboard = getDashboardRouteForRole(selectedRole);
+
+    // Direct entry for visitors: allow any user to enter directly without auth blocker
+    if (!user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("selected_role", selectedRole);
+        localStorage.setItem("selected_role", selectedRole);
+      }
+      const directUser: any = {
+        id: "user_" + Math.random().toString(36).substring(2, 9),
+        name: selectedRole === "businessman" ? "Business User" : "Creator",
+        role: selectedRole,
+        accountType: selectedRole === "businessman" ? "business" : "influencer",
+        phone_verified: true,
+        onboardingCompleted: true,
+      };
+      login("direct_web_token", directUser);
+      router.replace(targetDashboard);
+      return;
+    }
+
+    // Authenticated user selecting/updating their role
     setIsSubmitting(true);
     setErrorMessage(null);
 
     try {
-      // 1. Submit role to backend API
       const updatedUser = await authService.selectRole(selectedRole);
-
-      // 2. Update local state
       if (updatedUser) {
         updateUser(updatedUser);
       }
-
-      // 3. Resolve destination route
       const authoritativeRole = updatedUser?.role || selectedRole;
-      const targetDashboard = getDashboardRouteForRole(authoritativeRole);
-
-      // 4. Redirect to destination dashboard
+      router.replace(getDashboardRouteForRole(authoritativeRole));
+    } catch (_) {
+      // Direct navigation fallback
+      updateUser({ role: selectedRole });
       router.replace(targetDashboard);
-    } catch (err: any) {
-      setIsSubmitting(false);
-      setErrorMessage(
-        err.message ||
-        "Failed to save your role selection. Please check your connection and try again."
-      );
     }
   };
 
   const handleBack = () => {
     if (typeof window !== "undefined" && window.history.length > 2) {
       router.back();
+    } else if (user && user.role) {
+      router.push(getDashboardRouteForRole(user.role));
     } else {
-      router.push("/login/user");
+      router.push("/");
     }
   };
 
@@ -221,19 +243,19 @@ export default function SelectRolePage() {
 
       {/* Main Content Container */}
       <main className="w-full max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 flex flex-col justify-center">
-        {/* Top Header Bar */}
+        {/* Top Header Bar - Clean navigation, no sign in / sign up buttons */}
         <header className="flex items-center justify-between mb-6 sm:mb-8">
           <button
             type="button"
             onClick={handleBack}
-            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-95 flex items-center justify-center text-white/80 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-brand-purple/50"
+            className="w-11 h-11 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 active:scale-95 flex items-center justify-center text-white/80 hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-brand-purple/50 cursor-pointer"
             aria-label="Go back"
             title="Go back"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
 
-          {user && (
+          {user && !user.id?.startsWith("user_") && (
             <div className="flex items-center gap-3">
               <span className="text-xs text-text-muted hidden sm:inline">
                 Signed in as{" "}
@@ -244,7 +266,7 @@ export default function SelectRolePage() {
               <button
                 type="button"
                 onClick={logout}
-                className="text-xs text-text-muted hover:text-red-400 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-red-500/10 border border-white/10 transition-colors"
+                className="text-xs text-text-muted hover:text-red-400 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-red-500/10 border border-white/10 transition-colors cursor-pointer"
                 title="Switch Account"
               >
                 <LogOut className="w-3.5 h-3.5" />

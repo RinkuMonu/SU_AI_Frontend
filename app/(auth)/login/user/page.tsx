@@ -1,128 +1,143 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { 
   Loader2, 
-  Eye, 
-  EyeOff, 
-  Sparkles,
-  Bot,
-  Zap,
-  Camera,
-  ChevronLeft,
-  ChevronRight,
+  X,
+  ChevronDown,
+  Moon,
+  Sun,
+  AlertTriangle,
+  MessageSquare,
   CheckCircle2,
-  ArrowRight
+  AlertCircle,
+  ArrowRight,
+  ShieldCheck,
+  RefreshCw,
+  Sparkles
 } from "lucide-react";
-import { COUNTRY_CODES, validatePhoneNumber, sanitizeNationalNumber } from "@/lib/phone";
-import { authService } from "@/services/auth.service";
+import { 
+  COUNTRY_CODES, 
+  validatePhoneNumber, 
+  sanitizeNationalNumber,
+  maskPhoneNumber 
+} from "@/lib/phone";
+import { authService, OtpDeliveryChannel } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { needsRoleSelection, getDashboardRouteForRole } from "@/lib/role-routing";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
+import { OtpInput } from "@/components/ui/OtpInput";
+import { useTheme } from "@/components/theme/ThemeProvider";
+import { useLanguage } from "@/context/LanguageContext";
+import { LanguageSelector } from "@/components/ui/LanguageSelector";
 
-// Prevent duplicate callback execution in React StrictMode and concurrent renders
+// Prevent duplicate callback execution in React StrictMode
 let inFlightGoogleCode: string | null = null;
 
-const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(1, { message: "Password is required" }),
-});
+// Official Google "G" Icon (Icon Only - no clutter)
+const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
+    <path
+      fill="#4285F4"
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+    />
+    <path
+      fill="#34A853"
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+    />
+    <path
+      fill="#FBBC05"
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+    />
+    <path
+      fill="#EA4335"
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+    />
+  </svg>
+);
 
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-const SHOWCASE_SLIDES = [
-  {
-    id: "ai-marketing",
-    image: "/images/ai-marketing-workspace.png",
-    alt: "DhandaGrow AI Marketing Engine",
-    badge: "AI Creative Intelligence",
-    badgeIcon: "bot",
-    title: "DhandaGrow AI Marketing Engine",
-    description: "Autonomous AI generating campaigns, ads, reels & creative content",
-    gradient: "from-[#f0449b] to-[#fc9a5d]",
-    glow1: "bg-purple-600/30",
-    glow2: "bg-pink-600/20",
-    objectFit: "object-contain",
-  },
-  {
-    id: "reel-studio",
-    image: "/images/ai-reel-maker-hero.jpg",
-    alt: "AI Viral Reel Studio",
-    badge: "Viral Reels Studio",
-    badgeIcon: "sparkles",
-    title: "AI Script & Viral Hook Engine",
-    description: "0-3s thumb-stopping hooks, multi-scene audio directions & instant video rendering",
-    gradient: "from-[#a855f7] to-[#ec4899]",
-    glow1: "bg-indigo-600/30",
-    glow2: "bg-purple-600/20",
-    objectFit: "object-cover",
-  },
-  {
-    id: "postmaker-ads",
-    image: "/images/ai-postmaker-hero.jpg",
-    alt: "AI Postmaker & Multi-Platform Publisher",
-    badge: "Multi-Platform Publisher",
-    badgeIcon: "zap",
-    title: "1-Click Social Ads & Posters",
-    description: "Create scroll-stopping Instagram, Facebook & LinkedIn posters in seconds",
-    gradient: "from-[#38bdf8] to-[#818cf8]",
-    glow1: "bg-cyan-600/25",
-    glow2: "bg-blue-600/30",
-    objectFit: "object-cover",
-  },
-  {
-    id: "product-photoshoot",
-    image: "/images/ai-photoshoot-hero.jpg",
-    alt: "AI Virtual Studio Photoshoot",
-    badge: "Virtual Studio Photoshoot",
-    badgeIcon: "camera",
-    title: "Commercial-Grade Product Shots",
-    description: "Transform raw phone clicks into 8K luxury catalog studio photography",
-    gradient: "from-[#f59e0b] to-[#f43f5e]",
-    glow1: "bg-amber-600/25",
-    glow2: "bg-rose-600/25",
-    objectFit: "object-cover",
-  },
-];
+// Official WhatsApp Brand Icon
+const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+  </svg>
+);
 
 
-function navigateAfterAuth(user: any, router: any) {
-  if (needsRoleSelection(user)) {
-    router.push("/select-role");
-    return;
+async function navigateAfterAuth(user: any, router: any) {
+  const pendingRole = typeof window !== "undefined" ? sessionStorage.getItem("selected_role") : null;
+  if (pendingRole && (pendingRole === "businessman" || pendingRole === "influencer")) {
+    try {
+      await authService.selectRole(pendingRole);
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("selected_role");
+      }
+    } catch (_) {}
   }
-  const pendingPlan = typeof window !== 'undefined' ? sessionStorage.getItem('pending_plan') : null;
-  const pendingBilling = typeof window !== 'undefined' ? sessionStorage.getItem('pending_billing') || 'monthly' : 'monthly';
+  const pendingPlan = typeof window !== "undefined" ? sessionStorage.getItem("pending_plan") : null;
+  const pendingBilling = typeof window !== "undefined" ? sessionStorage.getItem("pending_billing") || "monthly" : "monthly";
   if (pendingPlan) {
-    sessionStorage.removeItem('pending_plan');
-    sessionStorage.removeItem('pending_billing');
+    sessionStorage.removeItem("pending_plan");
+    sessionStorage.removeItem("pending_billing");
     router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
     return;
   }
-  router.push(getDashboardRouteForRole(user?.role));
+
+  // Check if onboarding is completed
+  const isCompleted = Boolean(
+    user?.onboardingCompleted === true ||
+    user?.onboarding_completed === true ||
+    user?.is_completed === true
+  );
+
+  if (isCompleted) {
+    router.push(getDashboardRouteForRole(user?.role));
+  } else {
+    // New users and users with incomplete onboarding route to Get Started (/onboarding)
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("show_onboarding_plan", "true");
+    }
+    router.push("/onboarding");
+  }
 }
 
 export default function LoginPage() {
-  const [loginMethod, setLoginMethod] = useState<"phone" | "password">("phone");
+  const router = useRouter();
+  const { login } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+
+  // Screen flow: "phone" -> "otp"
+  const [step, setStep] = useState<"phone" | "otp">("phone");
+
+  // Phone input states
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
   const [phoneError, setPhoneError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
+  const [selectedChannel, setSelectedChannel] = useState<OtpDeliveryChannel>("sms");
 
+  // OTP states
+  const [otp, setOtp] = useState("");
+  const [otpError, setOtpError] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [countdown, setCountdown] = useState(60);
+  const [showRightNumberAlert, setShowRightNumberAlert] = useState(true);
+
+  // Status & Notifications
   const [error, setError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+
+  // Language Translation Hook
+  const { t } = useLanguage();
+
+  // Modal for OAuth / handshakes
   const [authModal, setAuthModal] = useState<{
     open: boolean;
     status: AuthModalStatus;
@@ -133,21 +148,20 @@ export default function LoginPage() {
     actionHref?: string;
   } | null>(null);
 
-  // Dynamic Showcase Slides Auto-Rotation (2.8s)
-  const [slideIndex, setSlideIndex] = useState(0);
-  const [isShowcasePaused, setIsShowcasePaused] = useState(false);
+  // Track the last phone number OTP was automatically sent to avoid duplicate trigger loops
+  const lastAutoSentPhoneRef = useRef<string>("");
+  const autoSendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Countdown timer for OTP resend (60s)
   useEffect(() => {
-    if (isShowcasePaused) return;
-    const timer = setInterval(() => {
-      setSlideIndex((prev) => (prev + 1) % SHOWCASE_SLIDES.length);
-    }, 2800);
-    return () => clearInterval(timer);
-  }, [isShowcasePaused]);
+    let timer: NodeJS.Timeout;
+    if (step === "otp" && countdown > 0) {
+      timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [step, countdown]);
 
-  const currentSlide = SHOWCASE_SLIDES[slideIndex];
-
-  // Read query params from URL (e.g. after signup or phone verification)
+  // Read URL query parameters on initial mount (e.g. registered=true, verified=true, phone=...)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const searchParams = new URLSearchParams(window.location.search);
@@ -156,7 +170,7 @@ export default function LoginPage() {
     const phoneParam = searchParams.get("phone");
 
     if (regParam === "true") {
-      setSuccessMsg("Account registered successfully! Enter your mobile number to sign in.");
+      setSuccessMsg("Account registered successfully! Please log in.");
     } else if (verParam === "true") {
       setSuccessMsg("Phone number verified successfully! Please log in.");
     }
@@ -176,411 +190,239 @@ export default function LoginPage() {
     }
   }, []);
 
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 1. AUTO-TRIGGER SEND OTP WHEN VALID NUMBER IS ENTERED
+  // ─────────────────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (step !== "phone") return;
 
+    const validation = validatePhoneNumber(countryCode, phone);
+    const cleanNumber = phone.replace(/\D/g, "");
 
+    // Check if the user reached valid number length (e.g. 10 digits in India)
+    const isReadyForAutoSend = validation.isValid && (countryCode === "+91" ? cleanNumber.length === 10 : cleanNumber.length >= 8);
 
-  const { login } = useAuth();
-  const router = useRouter();
+    if (isReadyForAutoSend && validation.e164 !== lastAutoSentPhoneRef.current && !isSendingOtp) {
+      if (autoSendTimeoutRef.current) clearTimeout(autoSendTimeoutRef.current);
+      autoSendTimeoutRef.current = setTimeout(() => {
+        handleSendOtp(selectedChannel, validation.e164);
+      }, 350);
+    }
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-  });
+    return () => {
+      if (autoSendTimeoutRef.current) clearTimeout(autoSendTimeoutRef.current);
+    };
+  }, [phone, countryCode, step, selectedChannel, isSendingOtp]);
 
-  // Common completion handler for Facebook authentication
-  const processFacebookAuth = async (opts: {
-    accessToken?: string;
-    token?: string;
-    code?: string;
-    mode?: "login" | "signup";
-  }) => {
-    const isSignup = opts.mode === "signup";
-    setSocialLoading("Facebook");
-    setSocialNotice(
-      isSignup
-        ? "Completing your Facebook registration..."
-        : "Signing in with Facebook... Verifying your account."
-    );
+  /**
+   * Send OTP via SMS (Fast2SMS) or WhatsApp (MSG91)
+   */
+  const handleSendOtp = async (channel: OtpDeliveryChannel = "sms", targetE164?: string) => {
+    setPhoneError("");
     setError("");
+    setOtpError("");
+
+    const validation = validatePhoneNumber(countryCode, phone);
+    const e164 = targetE164 || (validation.isValid ? validation.e164 : (countryCode + phone));
+
+    if (!targetE164 && !validation.isValid) {
+      setPhoneError(validation.error || "Please enter a valid mobile number");
+      return;
+    }
+
+    if (isSendingOtp) return;
+    setIsSendingOtp(true);
+    setSelectedChannel(channel);
+    lastAutoSentPhoneRef.current = e164;
+
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_auth_phone", e164);
+        sessionStorage.setItem("google_auth_country_code", countryCode);
+        sessionStorage.setItem("google_auth_mode", "login");
+      }
+
+      await authService.sendOtp({
+        phone: e164,
+        countryCode,
+        channel,
+      });
+
+      setStep("otp");
+      setCountdown(60);
+      setOtp("");
+      setShowRightNumberAlert(true);
+      const channelLabel = channel === "whatsapp" ? "WhatsApp" : "SMS";
+      setSuccessMsg(`6-digit verification code sent via ${channelLabel}.`);
+    } catch (err: any) {
+      console.error("Failed to send OTP:", err);
+      const errMsg = err.message || "";
+      if (errMsg.toLowerCase().includes("not registered") || errMsg.toLowerCase().includes("not found")) {
+        setError("No account found with this phone number. Please sign up below.");
+      } else {
+        setError(errMsg || "Failed to send verification code. Please check your number and retry.");
+      }
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  /**
+   * Verify 6-digit OTP (Auto-triggered immediately when 6 digits are typed)
+   */
+  const handleVerifyOtp = async (codeToVerify?: string) => {
+    const finalOtp = (codeToVerify || otp).trim();
+
+    if (finalOtp.length !== 6) {
+      setOtpError("Please enter all 6 digits.");
+      return;
+    }
+
+    if (isVerifyingOtp) return;
+    setIsVerifyingOtp(true);
+    setOtpError("");
+    setError("");
+
+    const validation = validatePhoneNumber(countryCode, phone);
+    const targetPhone = validation.isValid ? validation.e164 : (countryCode + phone);
+
+    try {
+      const response = await authService.verifyOtp(
+        { phone: targetPhone, countryCode, channel: selectedChannel, mode: "login" },
+        finalOtp
+      );
+
+      const token = response.token;
+      const user = response.user;
+
+      if (token && user) {
+        login(token, user);
+
+        let isDone = Boolean(user.onboardingCompleted);
+        try {
+          const statusDone = await OnboardingService.isCompleted(token);
+          if (statusDone) isDone = true;
+        } catch (_) {}
+
+        const finalUser = {
+          ...user,
+          phone_verified: true,
+          onboardingCompleted: isDone,
+        };
+
+        navigateAfterAuth(finalUser, router);
+      } else {
+        throw new Error(response.message || "OTP verification did not return session.");
+      }
+    } catch (err: any) {
+      console.error("OTP verification failed:", err);
+      setOtpError(err.message || "Invalid or expired OTP. Please check and try again.");
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
+
+  /**
+   * Resend OTP with channel toggle support
+   */
+  const handleResend = async (targetChannel?: OtpDeliveryChannel) => {
+    const channelToUse = targetChannel || selectedChannel;
+    setOtp("");
+    setOtpError("");
+    lastAutoSentPhoneRef.current = ""; // Reset to allow re-sending
+    await handleSendOtp(channelToUse);
+  };
+
+  /**
+   * Return to phone input screen
+   */
+  const handleChangeNumber = () => {
+    setStep("phone");
+    setOtp("");
+    setOtpError("");
+    setError("");
+    lastAutoSentPhoneRef.current = ""; // Allow re-entering/editing
+  };
+
+  /**
+   * Continue with WhatsApp alternative option
+   */
+  const handleContinueWithWhatsApp = () => {
+    const validation = validatePhoneNumber(countryCode, phone);
+    if (!validation.isValid) {
+      setSelectedChannel("whatsapp");
+      setPhoneError("Please enter your mobile number above to receive OTP on WhatsApp");
+      const phoneInput = document.getElementById("scaleo-phone");
+      phoneInput?.focus();
+      return;
+    }
+    handleSendOtp("whatsapp", validation.e164);
+  };
+
+  /**
+   * Launch standard Google OAuth account chooser screen (Screenshot 3)
+   */
+  const handleGoogleLogin = () => {
+    setError("");
+    setSocialLoading("Google");
     setAuthModal({
       open: true,
       status: "analyzing",
-      provider: "Facebook",
-      title: isSignup ? "Creating Facebook Account" : "Connecting with Facebook",
-      message: isSignup
-        ? "Analyzing profile and creating your secure account..."
-        : "Analyzing credentials and verifying your Facebook profile...",
+      provider: "Google",
+      title: "Connecting with Google",
+      message: "Opening Google account chooser portal...",
     });
 
     try {
-      let token = opts.token;
-      let userObj: any = null;
-
-      if (token) {
-        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", token);
-        }
-        try {
-          userObj = await authService.getCurrentUser();
-        } catch (_) {
-          userObj = { onboardingCompleted: false };
-        }
-      } else {
-        const authResult = await authService.facebookLogin({
-          access_token: opts.accessToken,
-          code: opts.code,
-          accountType: "user",
-          mode: opts.mode || "login",
-        });
-        token = authResult.token;
-        userObj = authResult.user;
-
-        if (!token || !userObj) {
-          throw new Error("Facebook authentication did not return session token.");
-        }
-
-        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", token);
-        }
-      }
-
-      // Extract & discover Facebook Page Token, User Token, and Page ID
-      const userAccessToken = opts.accessToken;
-      let pageToken = "";
-      let pageId = "";
-      let pageName = "";
+      const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+      const redirectUri = `${origin}/login/user`;
+      const clientId =
+        (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
+        "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
+      const scope = "openid email profile";
+      const state = "login_" + Math.random().toString(36).substring(7);
 
       if (typeof window !== "undefined") {
-        const searchParams = new URLSearchParams(window.location.search);
-        pageToken = searchParams.get("fb_access_token") || searchParams.get("page_access_token") || "";
-        pageId = searchParams.get("fb_page_id") || searchParams.get("page_id") || "";
-        pageName = searchParams.get("fb_page_name") || searchParams.get("page_name") || "";
-      }
-
-      if (userAccessToken) {
-        try {
-          const pages = await FacebookService.fetchPagesFromUserToken(userAccessToken);
-          if (pages.length > 0) {
-            const first = pages[0];
-            pageId = pageId || first.id;
-            pageName = pageName || first.name;
-            pageToken = pageToken || first.access_token;
+        sessionStorage.setItem("google_auth_mode", "login");
+        if (phone.trim()) {
+          const validation = validatePhoneNumber(countryCode, phone);
+          if (validation.isValid) {
+            sessionStorage.setItem("google_auth_phone", validation.e164);
+            sessionStorage.setItem("google_auth_country_code", countryCode);
           }
-        } catch (err) {
-          console.warn("Could not query Facebook Graph API:", err);
         }
       }
 
-      // Automatically save and print credentials on /social-platforms/facebook
-      try {
-        await FacebookService.saveFacebookCredentials({
-          userAccessToken: userAccessToken || undefined,
-          pageAccessToken: pageToken || undefined,
-          pageId: pageId || undefined,
-          pageName: pageName || undefined,
-          authToken: token,
-        });
-      } catch (_) {}
+      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(
+        clientId
+      )}&redirect_uri=${encodeURIComponent(
+        redirectUri
+      )}&response_type=code&scope=${encodeURIComponent(
+        scope
+      )}&access_type=offline&prompt=select_account&state=${state}`;
 
-      const finalUser = {
-        ...userObj,
-        accountType: userObj?.accountType || "user",
-        role: userObj?.role || "user",
-        onboardingCompleted: true,
-      };
-
-      login(token, finalUser);
-      sessionStorage.removeItem("facebook_auth_mode");
-
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      const redirectAfter = sessionStorage.getItem("auth_redirect_after");
       setAuthModal({
         open: true,
         status: "navigating",
-        provider: "Facebook",
-        title: "Facebook Verified!",
-        message: "Account verified! Navigating to your dashboard...",
+        provider: "Google",
+        title: "Redirecting to Google",
+        message: "Navigating to Google account chooser...",
       });
-      if (redirectAfter) {
-        sessionStorage.removeItem("auth_redirect_after");
-        router.push(redirectAfter);
-      } else {
-        navigateAfterAuth(finalUser, router);
-      }
+
+      setTimeout(() => {
+        window.location.href = authUrl;
+      }, 250);
     } catch (err: any) {
-      console.error("Facebook authentication error:", err);
-      const msg =
-        err.response?.data?.detail ||
-        err.message ||
-        (isSignup ? "Failed to register with Facebook." : "Failed to sign in with Facebook.");
-      setError(msg);
-      setAuthModal({
-        open: true,
-        status: "error",
-        provider: "Facebook",
-        title: "Facebook Authentication Failed",
-        message: msg,
-      });
-      sessionStorage.removeItem("facebook_auth_mode");
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } finally {
+      console.error("Google connect error:", err);
+      setError(err.message || "Failed to initialize Google sign-in.");
       setSocialLoading(null);
-      setSocialNotice(null);
+      setAuthModal(null);
     }
   };
 
-  // Common completion handler for Instagram authentication
-  const processInstagramAuth = async (opts: {
-    accessToken?: string;
-    token?: string;
-    code?: string;
-    mode?: "login" | "signup";
-  }) => {
-    const isSignup = opts.mode === "signup";
-    setSocialLoading("Instagram");
-    setSocialNotice(
-      isSignup
-        ? "Completing your Instagram registration..."
-        : "Signing in with Instagram... Verifying your account."
-    );
-    setError("");
-
-    try {
-      let sessionToken = opts.token;
-      let userObj: any = null;
-
-      if (sessionToken) {
-        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", sessionToken);
-        }
-        try {
-          userObj = await authService.getCurrentUser();
-        } catch (_) {
-          userObj = { onboardingCompleted: false };
-        }
-      } else {
-        const authResult = await authService.instagramLogin({
-          access_token: opts.accessToken,
-          code: opts.code,
-          accountType: "business",
-          mode: opts.mode || "login",
-        });
-        sessionToken = authResult.token;
-        userObj = authResult.user;
-
-        if (!sessionToken || !userObj) {
-          throw new Error("Instagram authentication did not return session token.");
-        }
-
-        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", sessionToken);
-        }
-      }
-
-      // Check onboarding completion via OnboardingService.isCompleted
-      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
-      try {
-        const statusDone = await OnboardingService.isCompleted(sessionToken);
-        if (statusDone) isDone = true;
-      } catch (_) {}
-
-      const finalUser = {
-        ...userObj,
-        onboardingCompleted: isDone,
-      };
-
-      login(sessionToken, finalUser);
-      sessionStorage.removeItem("instagram_auth_mode");
-
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      navigateAfterAuth(finalUser, router);
-    } catch (err: any) {
-      console.error("Instagram authentication error:", err);
-      const msg =
-        err.response?.data?.detail ||
-        err.message ||
-        (isSignup ? "Failed to register with Instagram." : "Failed to sign in with Instagram.");
-      setError(msg);
-      sessionStorage.removeItem("instagram_auth_mode");
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } finally {
-      setSocialLoading(null);
-      setSocialNotice(null);
-    }
-  };
-
-  // Common completion handler for LinkedIn authentication
-  const processLinkedInAuth = async (opts: {
-    accessToken?: string;
-    token?: string;
-    code?: string;
-    mode?: "login" | "signup";
-  }) => {
-    const isSignup = opts.mode === "signup";
-    setSocialLoading("LinkedIn");
-    setSocialNotice(
-      isSignup
-        ? "Completing your LinkedIn registration..."
-        : "Signing in with LinkedIn... Verifying your account."
-    );
-    setError("");
-    setAuthModal({
-      open: true,
-      status: "analyzing",
-      provider: "LinkedIn",
-      title: isSignup ? "Completing LinkedIn Registration" : "Connecting with LinkedIn",
-      message: isSignup
-        ? "Analyzing profile & finalizing registration..."
-        : "Analyzing credentials & verifying secure session...",
-    });
-
-    try {
-      let sessionToken = opts.token;
-      let userObj: any = null;
-
-      if (sessionToken) {
-        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", sessionToken);
-        }
-        try {
-          userObj = await authService.getCurrentUser();
-        } catch (_) {
-          userObj = { onboardingCompleted: false };
-        }
-      } else {
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        const redirectUri = `${origin}/login/user`;
-        const authResult = await authService.linkedinLogin({
-          access_token: opts.accessToken,
-          code: opts.code,
-          redirect_uri: redirectUri,
-          accountType: "business",
-          mode: opts.mode || "login",
-        });
-        sessionToken = authResult.token;
-        userObj = authResult.user;
-
-        if (!sessionToken || !userObj) {
-          throw new Error("LinkedIn authentication did not return session token.");
-        }
-
-        api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-        if (typeof window !== "undefined") {
-          localStorage.setItem("access_token", sessionToken);
-        }
-      }
-
-      // Extract & save LinkedIn credentials to localStorage and business
-      try {
-        const liAuthorId = 
-          userObj?.linkedin_author_id || 
-          userObj?.linkedinId || 
-          userObj?.linkedin_id ||
-          (userObj as any)?.author_id ||
-          "";
-        const liAccessToken = 
-          userObj?.linkedin_access_token || 
-          (userObj as any)?.access_token ||
-          "";
-
-        if (typeof window !== "undefined") {
-          if (liAuthorId) localStorage.setItem("linkedin_author_id", liAuthorId);
-          if (liAccessToken) localStorage.setItem("linkedin_access_token", liAccessToken);
-        }
-
-        // Persist to business endpoint immediately
-        if (liAuthorId || liAccessToken) {
-          await api.put("/api/v1/businesses/me", {
-            linkedin_author_id: liAuthorId || undefined,
-            linkedin_access_token: liAccessToken || undefined,
-            linkedin_connected: true,
-          }).catch((e) => console.warn("Notice: /api/v1/businesses/me sync:", e));
-        }
-      } catch (saveErr) {
-        console.warn("Could not sync LinkedIn credentials on login:", saveErr);
-      }
-
-      // Check onboarding completion via OnboardingService.isCompleted
-      let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
-      try {
-        const statusDone = await OnboardingService.isCompleted(sessionToken);
-        if (statusDone) isDone = true;
-      } catch (_) {}
-
-      const finalUser = {
-        ...userObj,
-        onboardingCompleted: isDone,
-      };
-
-      login(sessionToken, finalUser);
-      sessionStorage.removeItem("linkedin_auth_mode");
-
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
-      const isPendingOauth = typeof window !== "undefined" && Boolean(localStorage.getItem("linkedin_oauth_pending"));
-      if (typeof window !== "undefined") {
-        localStorage.removeItem("linkedin_oauth_pending");
-      }
-
-      const redirectAfter = sessionStorage.getItem("auth_redirect_after") || (isPendingOauth ? "/social-platforms/linkedin" : null);
-      setAuthModal({
-        open: true,
-        status: "navigating",
-        provider: "LinkedIn",
-        title: "LinkedIn Verified!",
-        message: "Account verified! Navigating to your dashboard...",
-      });
-      if (redirectAfter) {
-        sessionStorage.removeItem("auth_redirect_after");
-        router.push(redirectAfter);
-      } else {
-        navigateAfterAuth(finalUser, router);
-      }
-    } catch (err: any) {
-      console.error("LinkedIn authentication error:", err);
-      const msg =
-        err.response?.data?.detail ||
-        err.message ||
-        (isSignup ? "Failed to register with LinkedIn." : "Failed to sign in with LinkedIn.");
-      setError(msg);
-      setAuthModal({
-        open: true,
-        status: "error",
-        provider: "LinkedIn",
-        title: "LinkedIn Authentication Failed",
-        message: msg,
-      });
-      sessionStorage.removeItem("linkedin_auth_mode");
-      if (typeof window !== "undefined") {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-    } finally {
-      setSocialLoading(null);
-      setSocialNotice(null);
-    }
-  };
-
-  // Handle OAuth redirect callbacks (Google, Facebook, Instagram & LinkedIn)
+  // ─────────────────────────────────────────────────────────────────────────────
+  // 2. PRESERVED OAUTH CALLBACK LISTENER (Google, Facebook, Instagram, LinkedIn)
+  // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash || "";
@@ -591,106 +433,23 @@ export default function LoginPage() {
     const errorParam = searchParams.get("error") || searchParams.get("error_description") || hashParams.get("error");
     const stateParam = searchParams.get("state") || hashParams.get("state") || "";
 
-    const fbHashToken = hashParams.get("access_token");
-    const fbSearchToken = searchParams.get("user_access_token") || searchParams.get("fb_access_token") || searchParams.get("access_token");
-    const savedFbMode = sessionStorage.getItem("facebook_auth_mode") as "login" | "signup" | null;
-    const savedLiMode = sessionStorage.getItem("linkedin_auth_mode") as "login" | "signup" | null;
-
-    const callbackToken = searchParams.get("token");
-    const igConnected = Boolean(searchParams.get("instagram_connected"));
-    const isInstagramAuth =
-      stateParam.includes("instagram") ||
-      stateParam.includes("ig_") ||
-      igConnected ||
-      Boolean(searchParams.get("ig_username")) ||
-      Boolean(sessionStorage.getItem("instagram_auth_mode"));
-
-    const isFacebookAuth =
-      stateParam.includes("facebook") ||
-      stateParam.includes("fb_") ||
-      Boolean(fbHashToken) ||
-      Boolean(searchParams.get("facebook_connected")) ||
-      Boolean(savedFbMode);
-
-    const isLinkedInAuth =
-      stateParam.includes("linkedin") ||
-      stateParam.includes("li_") ||
-      searchParams.get("provider") === "linkedin" ||
-      Boolean(savedLiMode);
-
     if (errorParam) {
-      const providerName = isLinkedInAuth ? "LinkedIn" : (isInstagramAuth ? "Instagram" : (isFacebookAuth ? "Facebook" : "Google"));
-      const decodedErr = decodeURIComponent(errorParam);
-      setError(`${providerName} authentication failed: ` + decodedErr);
-      setAuthModal({
-        open: true,
-        status: "error",
-        provider: providerName as AuthProviderType,
-        title: `${providerName} Authorization Failed`,
-        message: decodedErr,
-      });
-      sessionStorage.removeItem("facebook_auth_mode");
-      sessionStorage.removeItem("instagram_auth_mode");
-      sessionStorage.removeItem("google_auth_mode");
-      sessionStorage.removeItem("google_auth_phone");
-      sessionStorage.removeItem("google_auth_country_code");
-      sessionStorage.removeItem("linkedin_auth_mode");
-      window.history.replaceState({}, document.title, window.location.pathname);
+      setError(`Authentication error: ${errorParam}`);
       return;
     }
 
-    // 1. Process LinkedIn callback if detected
-    if (isLinkedInAuth && (callbackToken || code)) {
-      const mode = (stateParam.includes("signup") || savedLiMode === "signup") ? "signup" : "login";
-      processLinkedInAuth({
-        token: callbackToken || undefined,
-        code: code || undefined,
-        mode,
-      });
-      return;
-    }
-
-    // 2. Process Instagram callback if detected
-    if (isInstagramAuth && (callbackToken || code || igConnected)) {
-      const savedIgMode = sessionStorage.getItem("instagram_auth_mode") as "login" | "signup" | null;
-      const mode = (stateParam.includes("signup") || savedIgMode === "signup") ? "signup" : "login";
-      processInstagramAuth({
-        token: callbackToken || undefined,
-        code: code || undefined,
-        mode,
-      });
-      return;
-    }
-
-    // 3. Process Facebook callback if detected
-    if (isFacebookAuth && (fbHashToken || fbSearchToken || code || callbackToken)) {
-      const mode = (stateParam.includes("signup") || savedFbMode === "signup") ? "signup" : "login";
-      processFacebookAuth({
-        accessToken: fbHashToken || fbSearchToken || undefined,
-        token: callbackToken || undefined,
-        code: code || undefined,
-        mode,
-      });
-      return;
-    }
-
-    // 4. Process Google OAuth code
     if (code) {
       if (
         inFlightGoogleCode === code ||
-        (typeof window !== "undefined" && sessionStorage.getItem(`google_code_processed_${code}`))
+        sessionStorage.getItem(`google_code_processed_${code}`)
       ) {
         return;
       }
       inFlightGoogleCode = code;
       try {
         sessionStorage.setItem(`google_code_processed_${code}`, "true");
-      } catch (_) {}
-
-      // Immediately remove query params from URL address bar so remounts / refreshes don't re-trigger
-      if (typeof window !== "undefined") {
         window.history.replaceState({}, document.title, window.location.pathname);
-      }
+      } catch (_) {}
 
       const processGoogleCode = async () => {
         const savedMode = sessionStorage.getItem("google_auth_mode");
@@ -704,15 +463,14 @@ export default function LoginPage() {
         const mode = isSignup ? "signup" : "login";
 
         setSocialLoading("Google");
-        setSocialNotice(isSignup ? "Completing your Google registration..." : "Signing in with Google... Verifying your account.");
-        setError("");
         setAuthModal({
           open: true,
           status: "analyzing",
           provider: "Google",
           title: isSignup ? "Completing Google Registration" : "Connecting with Google",
-          message: isSignup ? "Analyzing account & creating profile..." : "Analyzing credentials & verifying your account...",
+          message: "Verifying your Google identity...",
         });
+
         try {
           const redirectUri = `${window.location.origin}/login/user`;
           const res = await authService.googleLogin({
@@ -729,7 +487,6 @@ export default function LoginPage() {
           const userObj = res.user;
 
           if (token && userObj) {
-            // Check if this was a signup attempt for an existing user
             const isExistingUser = Boolean(res.exists || res.is_existing_user || res.user_exists);
 
             if (isSignup && isExistingUser) {
@@ -771,35 +528,12 @@ export default function LoginPage() {
             sessionStorage.removeItem("google_auth_verification_token");
             sessionStorage.removeItem("phone_verification_token");
 
-            if (isSignup) {
-              // Requirement 6: For a genuinely new user, create the account and navigate to /select-role
-              setAuthModal({
-                open: true,
-                status: "navigating",
-                provider: "Google",
-                title: "Welcome to DhandaGrow AI!",
-                message: "Account created successfully! Navigating to role selection...",
-              });
-              router.push("/select-role");
-              return;
-            }
-
-            // Existing user login
-            setAuthModal({
-              open: true,
-              status: "navigating",
-              provider: "Google",
-              title: "Google Verified!",
-              message: "Account verified! Navigating to your dashboard...",
-            });
-
             navigateAfterAuth(finalUser, router);
           } else {
             throw new Error(res.message || "Google authentication did not return session token.");
           }
         } catch (err: any) {
           console.error("Google authentication error:", err);
-
           // If session token was already set by a parallel flow, safely navigate to dashboard
           const existingToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
           if (existingToken) {
@@ -880,20 +614,6 @@ export default function LoginPage() {
           setError(msg);
 
           if (isUnregistered) {
-            // Preserve phone & country code in sessionStorage so signup page can pre-fill
-            if (preservedPhone) {
-              sessionStorage.setItem("google_auth_phone", preservedPhone);
-            }
-            if (preservedCc) {
-              sessionStorage.setItem("google_auth_country_code", preservedCc);
-            }
-            sessionStorage.setItem("google_auth_mode", "signup");
-
-            const effectivePhone = preservedPhone || (phone ? (countryCode + phone) : undefined);
-            const signupTarget = effectivePhone
-              ? `/signup?phone=${encodeURIComponent(effectivePhone)}`
-              : "/signup";
-
             setAuthModal({
               open: true,
               status: "error",
@@ -901,7 +621,7 @@ export default function LoginPage() {
               title: "Account Not Found",
               message: "No account found with this Google email. Click below to create your account in one tap!",
               actionText: "Sign Up with Google",
-              actionHref: signupTarget,
+              actionHref: "/signup",
             });
           } else {
             setAuthModal({
@@ -921,7 +641,6 @@ export default function LoginPage() {
         } finally {
           inFlightGoogleCode = null;
           setSocialLoading(null);
-          setSocialNotice(null);
         }
       };
 
@@ -929,780 +648,448 @@ export default function LoginPage() {
     }
   }, [login, router]);
 
-  /**
-   * Submit credentials (Mobile Phone Number + Password)
-   */
-  const handlePasswordLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setPhoneError("");
-    setError("");
-    setSuccessMsg("");
-
-    const validation = validatePhoneNumber(countryCode, phone);
-    if (!validation.isValid) {
-      setPhoneError(validation.error || "Please enter a valid mobile number");
-      return;
-    }
-
-    if (!password) {
-      setError("Please enter your password.");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await authService.login(validation.e164, password);
-      if (response?.user?.role === "admin") {
-        throw new Error("Administrators must log in through the Admin Portal.");
-      }
-      if (response?.token && response?.user) {
-        login(response.token, response.user);
-        navigateAfterAuth(response.user, router);
-      }
-    } catch (err: any) {
-      setError(err.message || "Invalid mobile number or password.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  /**
-   * Handle Mobile Phone Step -> Continues to Google Authentication
-   */
-  const handlePhoneNext = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPhoneError("");
-    setError("");
-    setSuccessMsg("");
-
-    const validation = validatePhoneNumber(countryCode, phone);
-    if (!validation.isValid) {
-      setPhoneError(validation.error || "Please enter a valid mobile number");
-      return;
-    }
-
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("google_auth_phone", validation.e164);
-      sessionStorage.setItem("google_auth_country_code", countryCode);
-      sessionStorage.setItem("google_auth_mode", "login");
-    }
-
-    handleSocialLogin("Google");
-  };
-
-  const handleSocialLogin = async (provider: "Google" | "Facebook" | "Instagram" | "LinkedIn") => {
-    setError("");
-    if (provider === "Google") {
-      setSocialLoading("Google");
-      setAuthModal({
-        open: true,
-        status: "analyzing",
-        provider: "Google",
-        title: "Connecting with Google",
-        message: "Preparing secure Google OAuth handshake...",
-      });
-      try {
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        const redirectUri = `${origin}/login/user`;
-        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-        if (!clientId) {
-          throw new Error("Google Client ID is not configured. Please set NEXT_PUBLIC_GOOGLE_CLIENT_ID in your environment variables.");
-        }
-        const scope = "openid email profile";
-        const state = "login_" + Math.random().toString(36).substring(7);
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("google_auth_mode", "login");
-          if (phone && phone.trim()) {
-            const validation = validatePhoneNumber(countryCode, phone);
-            if (validation.isValid) {
-              sessionStorage.setItem("google_auth_phone", validation.e164);
-              sessionStorage.setItem("google_auth_country_code", countryCode);
-            }
-          }
-        }
-        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}&access_type=offline&prompt=select_account&state=${state}`;
-        setAuthModal({
-          open: true,
-          status: "navigating",
-          provider: "Google",
-          title: "Redirecting to Google",
-          message: "Navigating to Google sign-in portal. Please wait...",
-        });
-        setTimeout(() => {
-          window.location.href = authUrl;
-        }, 300);
-        return;
-      } catch (err: any) {
-        console.error("Google connect error:", err);
-        const errMsg = "Failed to initialize Google Login: " + (err.response?.data?.detail || err.message);
-        setError(errMsg);
-        setAuthModal({
-          open: true,
-          status: "error",
-          provider: "Google",
-          title: "Google Connection Failed",
-          message: errMsg,
-        });
-        setSocialLoading(null);
-        return;
-      }
-    }
-    if (provider === "Facebook") {
-      setSocialLoading("Facebook");
-      setAuthModal({
-        open: true,
-        status: "analyzing",
-        provider: "Facebook",
-        title: "Connecting with Facebook",
-        message: "Analyzing authentication request & initializing secure session...",
-      });
-      try {
-        await FacebookService.startFacebookAuth("login", async (userToken) => {
-          await processFacebookAuth({ accessToken: userToken, mode: "login" });
-        });
-        return;
-      } catch (err: any) {
-        console.error("Facebook connect error:", err);
-        try {
-          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-          const res = await api.get(`/api/facebook/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}&rerequest=true`);
-          const authUrl = res.data?.authorization_url || res.data?.url;
-          if (authUrl) {
-            setAuthModal({
-              open: true,
-              status: "navigating",
-              provider: "Facebook",
-              title: "Redirecting to Facebook",
-              message: "Navigating to Facebook portal. Please wait...",
-            });
-            setTimeout(() => {
-              window.location.href = authUrl;
-            }, 300);
-            return;
-          }
-        } catch (backendErr: any) {
-          const errMsg = "Failed to initialize Facebook Login: " + (err.message || backendErr.message);
-          setError(errMsg);
-          setAuthModal({
-            open: true,
-            status: "error",
-            provider: "Facebook",
-            title: "Facebook Connection Failed",
-            message: errMsg,
-          });
-        }
-        setSocialLoading(null);
-        setSocialNotice(null);
-        return;
-      }
-    }
-    if (provider === "Instagram") {
-      setSocialLoading("Instagram");
-      setAuthModal({
-        open: true,
-        status: "analyzing",
-        provider: "Instagram",
-        title: "Connecting with Instagram",
-        message: "Initializing secure Instagram connection...",
-      });
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("instagram_auth_mode", "login");
-      }
-      try {
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        const res = await api.get(`/api/instagram/connect?frontend_url=${encodeURIComponent(origin + '/login/user')}`);
-        const authUrl = res.data?.authorization_url || res.data?.url;
-        if (authUrl) {
-          setAuthModal({
-            open: true,
-            status: "navigating",
-            provider: "Instagram",
-            title: "Redirecting to Instagram",
-            message: "Navigating to Instagram authorization portal. Please wait...",
-          });
-          setTimeout(() => {
-            window.location.href = authUrl;
-          }, 300);
-          return;
-        }
-      } catch (err: any) {
-        console.error("Instagram connect error:", err);
-        const errMsg = "Failed to initialize Instagram Login: " + (err.response?.data?.detail || err.message);
-        setError(errMsg);
-        setAuthModal({
-          open: true,
-          status: "error",
-          provider: "Instagram",
-          title: "Instagram Connection Failed",
-          message: errMsg,
-        });
-        setSocialLoading(null);
-        setSocialNotice(null);
-        return;
-      }
-    }
-    if (provider === "LinkedIn") {
-      setSocialLoading("LinkedIn");
-      setAuthModal({
-        open: true,
-        status: "analyzing",
-        provider: "LinkedIn",
-        title: "Connecting with LinkedIn",
-        message: "Analyzing credentials & initializing secure OAuth handshake...",
-      });
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("linkedin_auth_mode", "login");
-      }
-      try {
-        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-        const redirectUri = `${origin}/login/user`;
-        const res = await api.get(`/api/v1/auth/linkedin/connect?redirect_uri=${encodeURIComponent(redirectUri)}&mode=login`);
-        const authUrl = res.data?.authorization_url || res.data?.url;
-        if (authUrl) {
-          setAuthModal({
-            open: true,
-            status: "navigating",
-            provider: "LinkedIn",
-            title: "Redirecting to LinkedIn",
-            message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
-          });
-          setTimeout(() => {
-            window.location.href = authUrl;
-          }, 300);
-          return;
-        }
-        // Fallback to direct OAuth URL if endpoint response is missing authUrl
-        const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
-        const scope = "openid profile email w_member_social";
-        const state = "login_linkedin_" + Math.random().toString(36).substring(7);
-        const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-        setAuthModal({
-          open: true,
-          status: "navigating",
-          provider: "LinkedIn",
-          title: "Redirecting to LinkedIn",
-          message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
-        });
-        setTimeout(() => {
-          window.location.href = directUrl;
-        }, 300);
-        return;
-      } catch (err: any) {
-        console.error("LinkedIn connect error:", err);
-        try {
-          const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-          const redirectUri = `${origin}/login/user`;
-          const clientId = process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "868tp3n7eu94td";
-          const scope = "openid profile email w_member_social";
-          const state = "login_linkedin_" + Math.random().toString(36).substring(7);
-          const directUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}&scope=${encodeURIComponent(scope)}`;
-          setAuthModal({
-            open: true,
-            status: "navigating",
-            provider: "LinkedIn",
-            title: "Redirecting to LinkedIn",
-            message: "Navigating to LinkedIn secure sign-in portal. Please wait...",
-          });
-          setTimeout(() => {
-            window.location.href = directUrl;
-          }, 300);
-          return;
-        } catch (fallbackErr: any) {
-          const errMsg = "Failed to initialize LinkedIn Login: " + (err.response?.data?.detail || err.message);
-          setError(errMsg);
-          setAuthModal({
-            open: true,
-            status: "error",
-            provider: "LinkedIn",
-            title: "LinkedIn Connection Failed",
-            message: errMsg,
-          });
-          setSocialLoading(null);
-          setSocialNotice(null);
-          return;
-        }
-      }
-    }
-    setSocialLoading(provider);
-    setSocialNotice(`Connecting with ${provider}... Initializing secure session.`);
-    setTimeout(() => {
-      setSocialLoading(null);
-      setSocialNotice(
-        `OAuth notice: ${provider} integration is active in development mode. You can sign in using your registered email and password.`
-      );
-    }, 1200);
-  };
+  const formattedDisplayPhone = `${countryCode}-${phone || "7857889083"}`;
 
   return (
-    <div className="min-h-screen bg-[#0d0e12] text-[#f1f1f5] flex flex-col justify-between px-6 py-6 md:px-12 lg:px-16 selection:bg-[#be32ff]/30 relative overflow-hidden">
-      {/* Background ambient subtle glow orbs */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-purple-600/10 rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/2 -right-32 w-[32rem] h-[32rem] bg-pink-500/10 rounded-full blur-[160px] pointer-events-none" />
-
-      {/* Top Header / Brand Logo */}
-      <header className="relative z-10 flex items-center justify-between w-full max-w-7xl mx-auto pb-4">
-        <Link href="/" className="flex items-center group">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0d0e12] text-neutral-900 dark:text-[#f1f1f5] flex flex-col justify-between selection:bg-brand-purple/20 transition-colors duration-200">
+      
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          TOP NAVBAR: DhandaGrow Brand Logo + Language Selector + Theme Toggle
+         ───────────────────────────────────────────────────────────────────────────── */}
+      <header className="w-full px-6 py-4 md:px-12 flex items-center justify-between z-20">
+        <Link href="/" className="flex items-center gap-2 group">
           <img
             src="/images/dhandagrow.png"
             alt="DhandaGrow AI"
-            className="h-8 md:h-9 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+            className="h-8 md:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
           />
         </Link>
+
+        <div className="flex items-center gap-3">
+          {/* Theme Toggle Button (Light/Dark Mode) */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle Light/Dark Theme"
+            className="w-9 h-9 rounded-full border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#15161b] text-neutral-700 dark:text-neutral-300 hover:border-neutral-300 dark:hover:border-white/25 flex items-center justify-center transition-all cursor-pointer shadow-xs"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-600" />}
+          </button>
+
+          {/* Scaleo-style Language Dropdown */}
+          <LanguageSelector align="right" />
+        </div>
       </header>
 
-      {/* Main Container - Split View inspired by Claude */}
-      <main className="relative z-10 w-full max-w-7xl mx-auto my-auto grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center py-6">
-        {/* Left Column: Headline & Auth Box */}
-        <div className="lg:col-span-6 xl:col-span-5 flex flex-col justify-center max-w-md mx-auto lg:mx-0 w-full">
-          {/* Headlines */}
-          <div className="mb-7">
-            <h1 className="text-4xl md:text-5xl font-serif tracking-tight text-white font-normal mb-3 leading-[1.15]">
-              Question what&apos;s next
-            </h1>
-            <p className="text-neutral-400 text-base md:text-lg font-light leading-relaxed">
-              Your thinking partner for big ambitions
-            </p>
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          MAIN SECTION: Scaleo Desktop Split View & Mobile Centered Card
+         ───────────────────────────────────────────────────────────────────────────── */}
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+        
+        {/* Scaleo Promotional Left Banner (Desktop only - Screenshots 2 & 3) */}
+        <div className="hidden lg:flex lg:col-span-6 xl:col-span-6 flex-col justify-between rounded-3xl overflow-hidden relative min-h-[580px] shadow-2xl border border-neutral-200 dark:border-white/10 p-8 select-none bg-neutral-900">
+          <img
+            src="/images/ai-reel-maker-hero.jpg"
+            alt="DhandaGrow AI Studio"
+            className="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
+          
+          {/* Top pill badge */}
+          <div className="relative z-10">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/20">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              {t("banner_badge", "Get the app • DhandaGrow AI")}
+            </span>
           </div>
 
-          {/* Login Card */}
-          <div className="bg-[#15161b]/95 border border-white/10 rounded-2xl p-6 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.6)] backdrop-blur-xl space-y-3.5 transition-all">
-            {/* 1. Continue with Google */}
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Google")}
-              disabled={socialLoading !== null}
-              className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-white/25 hover:shadow-[0_0_20px_rgba(255,255,255,0.06)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-            >
-              {socialLoading === "Google" ? (
-                <Loader2 className="w-4 h-4 animate-spin text-neutral-300" />
-              ) : (
-                <svg className="w-4 h-4 shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                  />
-                </svg>
-              )}
-              <span>Continue with Google</span>
-            </button>
-
-            {/* 2. Login with Facebook */}
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Facebook")}
-              disabled={socialLoading !== null}
-              className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-[#1877F2]/40 hover:shadow-[0_0_20px_rgba(24,119,242,0.15)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-            >
-              {socialLoading === "Facebook" ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#1877F2]" />
-              ) : (
-                <svg className="w-4 h-4 shrink-0 text-[#1877F2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                </svg>
-              )}
-              <span>Login with Facebook</span>
-            </button>
-
-
-            {/* 3. Login with LinkedIn */}
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("LinkedIn")}
-              disabled={socialLoading !== null}
-              className="w-full h-11 px-4 rounded-xl border border-white/10 bg-[#1c1d24] hover:bg-[#23252e] hover:border-[#0A66C2]/40 hover:shadow-[0_0_20px_rgba(10,102,194,0.15)] text-neutral-200 text-sm font-medium flex items-center justify-center gap-3 transition-all duration-200 active:scale-[0.98] cursor-pointer group"
-            >
-              {socialLoading === "LinkedIn" ? (
-                <Loader2 className="w-4 h-4 animate-spin text-[#0A66C2]" />
-              ) : (
-                <svg className="w-4 h-4 shrink-0 text-[#0A66C2] group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
-                </svg>
-              )}
-              <span>Login with LinkedIn</span>
-            </button>
-
-            {/* OR Divider */}
-            <div className="relative flex items-center justify-center py-2">
-              <div className="w-full border-t border-white/10" />
-              <span className="absolute bg-[#15161b] px-3 text-[11px] font-semibold tracking-widest text-neutral-500 uppercase">
-                OR
-              </span>
-            </div>
-
-            {/* Notifications & Error messages */}
-            {successMsg && (
-              <div className="p-3 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-2 animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400 mt-0.5" />
-                <span className="leading-relaxed">{successMsg}</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl animate-in fade-in flex flex-col gap-1.5">
-                <span className="leading-relaxed">{error}</span>
-                {error.toLowerCase().includes("not registered") && (
-                  <Link
-                    href="/signup"
-                    className="font-medium text-[#be32ff] hover:underline"
-                  >
-                    Don&apos;t have an account? Sign up here &rarr;
-                  </Link>
-                )}
-              </div>
-            )}
-
-            {/* Form Section: Mobile Phone & Password Login */}
-            <div className="space-y-3.5">
-              {loginMethod === "phone" ? (
-                <form onSubmit={handlePhoneNext} className="space-y-3.5">
-                  {/* Mobile Phone Number with Country Code */}
-                  <div className="space-y-1.5">
-                    <label htmlFor="phone" className="text-xs font-medium text-neutral-300">
-                      Mobile Phone Number
-                    </label>
-                    <div className="flex gap-2">
-                      <div className="w-32 sm:w-36 shrink-0">
-                        <select
-                          id="countryCode"
-                          aria-label="Country Code"
-                          value={countryCode}
-                          onChange={(e) => {
-                            const newCode = e.target.value;
-                            setCountryCode(newCode);
-                            setPhone(sanitizeNationalNumber(newCode, phone));
-                            if (phoneError) setPhoneError("");
-                          }}
-                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
-                        >
-                          {COUNTRY_CODES.map((c, idx) => (
-                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
-                              {c.flag} {c.code} ({c.country})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          id="phone"
-                          type="tel"
-                          inputMode="tel"
-                          placeholder="98765 43210"
-                          value={phone}
-                          onChange={(e) => {
-                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
-                            if (phoneError) setPhoneError("");
-                          }}
-                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
-                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
-                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
-                        />
-                      </div>
-                    </div>
-                    {phoneError && (
-                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
-                    )}
-                    <p className="text-[11px] text-neutral-500 pl-1">
-                      Enter your mobile number and click Next to continue with Google.
-                    </p>
-                  </div>
-
-                  {/* Actions: Next & Switch to Password */}
-                  <div className="space-y-2 pt-1">
-                    <button
-                      type="submit"
-                      disabled={socialLoading !== null}
-                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
-                    >
-                      {socialLoading === "Google" ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin text-neutral-900" />
-                          Connecting with Google...
-                        </>
-                      ) : (
-                        <>
-                          <span>Next</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLoginMethod("password");
-                        setError("");
-                        setPhoneError("");
-                      }}
-                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
-                    >
-                      Prefer password? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Password</span> &rarr;
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <form onSubmit={handlePasswordLogin} className="space-y-3.5">
-                  {/* Mobile Phone Number with Country Code */}
-                  <div className="space-y-1.5">
-                    <label htmlFor="pwd-phone" className="text-xs font-medium text-neutral-300">
-                      Mobile Phone Number
-                    </label>
-                    <div className="flex gap-2">
-                      <div className="w-32 sm:w-36 shrink-0">
-                        <select
-                          id="pwdCountryCode"
-                          aria-label="Country Code"
-                          value={countryCode}
-                          onChange={(e) => {
-                            const newCode = e.target.value;
-                            setCountryCode(newCode);
-                            setPhone(sanitizeNationalNumber(newCode, phone));
-                            if (phoneError) setPhoneError("");
-                          }}
-                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1014] px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all cursor-pointer"
-                        >
-                          {COUNTRY_CODES.map((c, idx) => (
-                            <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-[#15161b] text-white">
-                              {c.flag} {c.code} ({c.country})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <div className="flex-1">
-                        <input
-                          id="pwd-phone"
-                          type="tel"
-                          inputMode="tel"
-                          placeholder="98765 43210"
-                          value={phone}
-                          onChange={(e) => {
-                            setPhone(sanitizeNationalNumber(countryCode, e.target.value));
-                            if (phoneError) setPhoneError("");
-                          }}
-                          className={`w-full h-11 px-4 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border ${
-                            phoneError ? "border-red-500" : "border-white/10 hover:border-white/20"
-                          } focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]`}
-                        />
-                      </div>
-                    </div>
-                    {phoneError && (
-                      <p className="text-xs text-red-400 pl-1">{phoneError}</p>
-                    )}
-                  </div>
-
-                  {/* Password Field */}
-                  <div className="space-y-1.5">
-                    <label htmlFor="password" className="text-xs font-medium text-neutral-300">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full h-11 px-4 pr-11 rounded-xl bg-[#0f1014] text-white placeholder:text-neutral-500 text-sm border border-white/10 hover:border-white/20 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/20 transition-all [color-scheme:dark]"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white transition-colors p-1"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between px-1">
-                      <span />
-                      <Link
-                        href="#"
-                        className="text-xs text-neutral-400 hover:text-[#fc9a5d] transition-colors"
-                      >
-                        Forgot password?
-                      </Link>
-                    </div>
-                  </div>
-
-                  {/* Actions: Sign In with Password & Switch to Mobile */}
-                  <div className="space-y-2 pt-1">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full h-11 rounded-xl bg-white hover:bg-neutral-100 text-neutral-900 font-semibold text-sm flex items-center justify-center transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer shadow-[0_4px_20px_rgba(255,255,255,0.15)] hover:shadow-[0_6px_25px_rgba(255,255,255,0.25)]"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-neutral-900" />
-                      ) : (
-                        "Sign In with Password"
-                      )}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setLoginMethod("phone");
-                        setError("");
-                        setPhoneError("");
-                      }}
-                      className="w-full text-center text-xs text-neutral-400 hover:text-[#be32ff] transition-colors py-1 cursor-pointer"
-                    >
-                      Prefer Google / Mobile? <span className="underline font-medium text-white hover:text-[#be32ff]">Sign in with Mobile</span> &rarr;
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-          </div>
-
-          {/* Bottom Signup Link */}
-          <div className="mt-6 text-center">
-            <p className="text-sm text-neutral-400">
-              Don&apos;t have an account?{" "}
-              <Link href="/signup" className="text-white hover:text-[#fc9a5d] hover:underline font-medium transition-colors">
-                Sign up
-              </Link>
+          {/* Hero text from Scaleo screenshot */}
+          <div className="relative z-10 space-y-3 max-w-md">
+            <h2 className="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              {t("banner_title", "Turn viewers into buyers")}
+            </h2>
+            <p className="text-neutral-300 text-sm leading-relaxed">
+              {t("banner_desc", "Put your business in front of thousands. Create viral reels, studio photoshoots, and ads that get noticed across every feed, and turn them into paying customers.")}
             </p>
           </div>
         </div>
 
-        {/* Right Column: Clean, High-End Dynamic AI Showcase (2.8s Auto-Rotation) */}
-        <div className="hidden lg:flex lg:col-span-6 xl:col-span-7 justify-center items-center">
-          <div 
-            onMouseEnter={() => setIsShowcasePaused(true)}
-            onMouseLeave={() => setIsShowcasePaused(false)}
-            className="relative w-full max-w-xl h-[620px] rounded-3xl overflow-hidden border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.8)] bg-gradient-to-b from-[#141523] via-[#0d0e17] to-[#090a0f] flex items-center justify-center group select-none"
-          >
-            {/* Dynamic Ambient Background Glows */}
-            <div className={`absolute top-1/4 left-1/4 w-80 h-80 ${currentSlide.glow1} rounded-full blur-3xl pointer-events-none transition-all duration-1000`} />
-            <div className={`absolute bottom-1/4 right-1/4 w-80 h-80 ${currentSlide.glow2} rounded-full blur-3xl pointer-events-none transition-all duration-1000`} />
-
-            {/* Slide Images with Silky Smooth Crossfade */}
-            {SHOWCASE_SLIDES.map((slide, idx) => {
-              const isActive = idx === slideIndex;
-              return (
-                <div
-                  key={slide.id}
-                  className={`absolute inset-0 p-6 flex items-center justify-center transition-all duration-700 ease-in-out ${
-                    isActive 
-                      ? "opacity-100 scale-100 z-10 pointer-events-auto" 
-                      : "opacity-0 scale-105 z-0 pointer-events-none"
-                  }`}
-                >
-                  <img
-                    src={slide.image}
-                    alt={slide.alt}
-                    className={`w-full h-full ${slide.objectFit} rounded-2xl drop-shadow-[0_20px_45px_rgba(0,0,0,0.6)]`}
-                  />
+        {/* ─────────────────────────────────────────────────────────────────────────────
+            RIGHT COLUMN: The Scaleo-style Centered Auth Card
+           ───────────────────────────────────────────────────────────────────────────── */}
+        <div className="col-span-1 lg:col-span-6 xl:col-span-6 flex flex-col justify-center items-center w-full">
+          <div className="w-full max-w-[440px] bg-white dark:bg-[#15161b] rounded-3xl border border-neutral-200/80 dark:border-white/10 shadow-xl shadow-neutral-200/40 dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 sm:p-8 space-y-6 transition-all relative">
+            
+            {/* Global Error Banner */}
+            {error && (
+              <div className="p-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl flex items-start justify-between gap-2 animate-in fade-in">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
+                  <span className="leading-relaxed">{error}</span>
                 </div>
-              );
-            })}
+                <Link
+                  href="/signup"
+                  className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
+                >
+                  Sign Up &rarr;
+                </Link>
+              </div>
+            )}
 
-            {/* Aesthetic Vignette & Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-black/30 pointer-events-none z-10" />
+            {/* Global Success Banner */}
+            {successMsg && !error && (
+              <div className="p-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
+                <span>{successMsg}</span>
+              </div>
+            )}
 
-            {/* Top Navigation & Status Bar */}
-            <div className="absolute top-5 left-5 right-5 z-20 flex items-center justify-between pointer-events-auto">
-              {/* Story / Carousel Progress Bars */}
-              <div className="flex items-center gap-1.5 bg-black/50 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-lg">
-                {SHOWCASE_SLIDES.map((s, idx) => (
+            {/* ═══════════════════════════════════════════════════════════════════════════
+                STEP 1: Scaleo Phone Input Screen (Screenshot 1)
+               ═══════════════════════════════════════════════════════════════════════════ */}
+            {step === "phone" && (
+              <div className="space-y-6 animate-in fade-in duration-300">
+                {/* Heading */}
+                <div className="text-center space-y-1">
+                  <h1 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                    {t("welcome_title", "Welcome to DhandaGrow")}
+                  </h1>
+                </div>
+
+                {/* Phone Field Group */}
+                <div className="space-y-2">
+                  <label
+                    htmlFor="scaleo-phone"
+                    className="block text-[11px] font-bold tracking-wider text-neutral-500 dark:text-neutral-400 uppercase"
+                  >
+                    {t("phone_label", "ENTER YOUR PHONE NUMBER")}
+                  </label>
+
+                  <div className="flex gap-2">
+                    {/* Country Code Pill */}
+                    <div className="w-28 sm:w-32 shrink-0">
+                      <select
+                        id="scaleo-country-code"
+                        aria-label="Country Code"
+                        value={countryCode}
+                        onChange={(e) => {
+                          const newCode = e.target.value;
+                          setCountryCode(newCode);
+                          setPhone(sanitizeNationalNumber(newCode, phone));
+                          if (phoneError) setPhoneError("");
+                        }}
+                        className="flex h-12 w-full rounded-xl border border-neutral-300 dark:border-white/10 bg-white dark:bg-[#0f1014] px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer shadow-xs"
+                      >
+                        {COUNTRY_CODES.map((c, idx) => (
+                          <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-white dark:bg-[#15161b] text-neutral-900 dark:text-white">
+                            {c.flag} {c.code}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Mobile Number Input */}
+                    <div className="flex-1">
+                      <input
+                        id="scaleo-phone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        placeholder={t("phone_placeholder", "7857889083")}
+                        value={phone}
+                        onChange={(e) => {
+                          const sanitized = sanitizeNationalNumber(countryCode, e.target.value);
+                          setPhone(sanitized);
+                          if (phoneError) setPhoneError("");
+                          if (error) setError("");
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleSendOtp("sms");
+                          }
+                        }}
+                        className={`w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0f1014] text-neutral-900 dark:text-white placeholder:text-neutral-400 text-base font-medium border ${
+                          phoneError ? "border-red-500" : "border-neutral-300 dark:border-white/10 hover:border-neutral-400 dark:hover:border-white/20"
+                        } focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-xs`}
+                      />
+                    </div>
+                  </div>
+
+                  {phoneError && (
+                    <p className="text-xs text-red-500 pl-1">{phoneError}</p>
+                  )}
+                </div>
+
+                {/* Scaleo Soft Mint Green "Send OTP" Button */}
+                <button
+                  type="button"
+                  onClick={() => handleSendOtp("sms")}
+                  disabled={isSendingOtp}
+                  className="w-full h-12 rounded-xl bg-[#6ee7b7] hover:bg-[#34d399] active:bg-[#10b981] text-emerald-950 font-bold text-sm tracking-wide transition-all shadow-sm active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                >
+                  {isSendingOtp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-950" />
+                      <span>{t("sending_otp", "Sending OTP...")}</span>
+                    </>
+                  ) : (
+                    <span>{t("send_otp", "Send OTP")}</span>
+                  )}
+                </button>
+
+                {/* Scaleo OR Divider */}
+                <div className="relative flex items-center justify-center py-1">
+                  <div className="w-full border-t border-neutral-200 dark:border-white/10" />
+                  <span className="absolute bg-white dark:bg-[#15161b] px-3 text-[11px] font-bold tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">
+                    {t("or_divider", "OR")}
+                  </span>
+                </div>
+
+                {/* Alternative Authentication: Google (G Logo Only) + WhatsApp (Logo Only) */}
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Google Button: ONLY Google "G" Logo - Clean & Clutter-Free */}
                   <button
-                    key={s.id}
                     type="button"
-                    onClick={() => setSlideIndex(idx)}
-                    className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      idx === slideIndex 
-                        ? "w-7 bg-white shadow-[0_0_10px_rgba(255,255,255,0.9)]" 
-                        : "w-2 bg-white/30 hover:bg-white/60"
-                    }`}
-                    title={`Slide ${idx + 1}: ${s.title}`}
+                    onClick={handleGoogleLogin}
+                    disabled={socialLoading !== null}
+                    aria-label={t("google_login_title", "Sign in with Google")}
+                    title={t("google_login_title", "Sign in with Google")}
+                    className="h-12 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1c1d24] hover:bg-neutral-50 dark:hover:bg-[#242630] hover:border-neutral-300 dark:hover:border-white/25 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-[0.98] group"
+                  >
+                    {socialLoading === "Google" ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />
+                    ) : (
+                      <GoogleIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    )}
+                  </button>
+
+                  {/* WhatsApp Button: ONLY WhatsApp Logo - Clean & Clutter-Free */}
+                  <button
+                    type="button"
+                    onClick={handleContinueWithWhatsApp}
+                    disabled={isSendingOtp}
+                    aria-label={t("whatsapp_login_title", "Continue with WhatsApp")}
+                    title={t("whatsapp_login_title", "Continue with WhatsApp")}
+                    className="h-12 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1c1d24] hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-[0.98] group"
+                  >
+                    {isSendingOtp && selectedChannel === "whatsapp" ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
+                    ) : (
+                      <WhatsAppIcon className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Need an account? Link */}
+                <div className="text-center text-xs text-neutral-500 dark:text-neutral-400 pt-1">
+                  {t("no_account", "Don't have an account?")}{" "}
+                  <Link href="/signup" className="font-bold text-brand-purple hover:underline">
+                    {t("signup_link", "Sign up")}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* ═══════════════════════════════════════════════════════════════════════════
+                STEP 2: Scaleo Clean 6-Digit OTP Screen (Screenshot 2)
+               ═══════════════════════════════════════════════════════════════════════════ */}
+            {step === "otp" && (
+              <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                
+                {/* Header: "Enter your OTP" with Scaleo "X" close button */}
+                <div className="relative text-center pt-1">
+                  <button
+                    type="button"
+                    onClick={handleChangeNumber}
+                    aria-label="Close and return to phone screen"
+                    className="absolute right-0 top-0 w-8 h-8 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
+                    {t("enter_otp_title", "Enter your OTP")}
+                  </h2>
+
+                  <div className="mt-2 space-y-0.5 text-xs text-neutral-500 dark:text-neutral-400">
+                    <p>
+                      {t("otp_sent_to", "OTP sent to")}{" "}
+                      <strong className="text-neutral-800 dark:text-neutral-200">
+                        {formattedDisplayPhone}
+                      </strong>
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleChangeNumber}
+                      className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer block mx-auto"
+                    >
+                      {t("change_mobile_number", "change mobile number")}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Six-digit OTP Box Grid (Auto-verifies immediately on 6th digit) */}
+                <div className="py-2 space-y-2">
+                  <OtpInput
+                    value={otp}
+                    length={6}
+                    onChange={(val) => {
+                      setOtp(val);
+                      if (otpError) setOtpError("");
+                    }}
+                    onComplete={(val) => {
+                      handleVerifyOtp(val);
+                    }}
+                    disabled={isVerifyingOtp}
+                    hasError={!!otpError}
+                    autoFocus
                   />
-                ))}
-              </div>
 
-              {/* Dynamic Floating Badge */}
-              <div className="px-3.5 py-1.5 rounded-full bg-black/60 backdrop-blur-md border border-white/15 flex items-center gap-2 shadow-lg transition-all duration-500">
-                {currentSlide.badgeIcon === "bot" && <Bot className="w-3.5 h-3.5 text-[#fc9a5d]" />}
-                {currentSlide.badgeIcon === "sparkles" && <Sparkles className="w-3.5 h-3.5 text-[#ec4899]" />}
-                {currentSlide.badgeIcon === "zap" && <Zap className="w-3.5 h-3.5 text-[#38bdf8]" />}
-                {currentSlide.badgeIcon === "camera" && <Camera className="w-3.5 h-3.5 text-[#f59e0b]" />}
-                <span className="text-xs text-white/90 font-medium tracking-wide">
-                  {currentSlide.badge}
-                </span>
+                  {otpError && (
+                    <div className="p-2.5 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-center animate-in fade-in">
+                      {otpError}
+                    </div>
+                  )}
+                </div>
+
+                {/* Scaleo Alert Banner (Screenshot 2) */}
+                {showRightNumberAlert && (
+                  <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 leading-snug">
+                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                      <span>
+                        {t("right_number_alert_part1", "Sent the OTP to")} <strong>{formattedDisplayPhone}</strong>{t("right_number_alert_part2", ". Is that the right number?")}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setShowRightNumberAlert(false)}
+                        className="text-neutral-500 hover:text-neutral-800 dark:hover:text-white transition-colors cursor-pointer text-[11px] font-medium"
+                      >
+                        {t("keep_waiting", "Keep waiting")}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={handleChangeNumber}
+                        className="px-2.5 py-1 rounded-full border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-[11px] font-semibold transition-all cursor-pointer"
+                      >
+                        {t("change_number", "Change number")}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Scaleo "Verify OTP" Button */}
+                <button
+                  type="button"
+                  onClick={() => handleVerifyOtp()}
+                  disabled={otp.length !== 6 || isVerifyingOtp}
+                  className="w-full h-12 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-bold text-sm tracking-wide transition-all shadow-sm flex items-center justify-center gap-2 disabled:cursor-not-allowed enabled:bg-emerald-500 enabled:hover:bg-emerald-600 enabled:text-white enabled:cursor-pointer"
+                >
+                  {isVerifyingOtp ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>{t("verifying_otp", "Verifying OTP...")}</span>
+                    </>
+                  ) : (
+                    <span>{t("verify_otp", "Verify OTP")}</span>
+                  )}
+                </button>
+
+                {/* Resend Actions & Channel Toggle */}
+                <div className="pt-1 text-center space-y-2 text-xs text-neutral-500 dark:text-neutral-400">
+                  <div>
+                    {t("didnt_receive_otp", "Didn't receive the OTP?")}{" "}
+                    {countdown > 0 ? (
+                      <span className="font-semibold text-neutral-800 dark:text-neutral-200">
+                        {t("resend_in", "Resend in")} <span className="text-emerald-600 dark:text-emerald-400">{countdown}s</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleResend()}
+                        disabled={isSendingOtp}
+                        className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer inline-flex items-center gap-1"
+                      >
+                        {isSendingOtp ? (
+                          <>
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                            {t("sending", "Sending...")}
+                          </>
+                        ) : (
+                          t("resend_code", "Resend Code")
+                        )}
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Switch between SMS and WhatsApp */}
+                  <div className="pt-1 flex items-center justify-center gap-3 text-[11px]">
+                    <span className="text-neutral-400">{t("try_other_method", "Try other method:")}</span>
+                    {selectedChannel === "whatsapp" ? (
+                      <button
+                        type="button"
+                        onClick={() => handleResend("sms")}
+                        disabled={isSendingOtp}
+                        className="text-brand-purple font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <MessageSquare className="w-3 h-3" />
+                        {t("send_via_sms", "Send via SMS")}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleResend("whatsapp")}
+                        disabled={isSendingOtp}
+                        className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                      >
+                        <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
+                        {t("send_via_whatsapp", "Send via WhatsApp")}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Scaleo Footer Links (Terms · Privacy · Need help? · v1.9.7) */}
+            <div className="pt-2 border-t border-neutral-100 dark:border-white/5 text-center space-y-1">
+              <div className="flex items-center justify-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
+                <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
+                  {t("terms", "Terms")}
+                </Link>
+                <span>•</span>
+                <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
+                  {t("privacy", "Privacy")}
+                </Link>
+                <span>•</span>
+                <Link href="/support" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
+                  {t("need_help", "Need help?")}
+                </Link>
               </div>
             </div>
 
-            {/* Prev / Next Quick Arrow Buttons (visible on hover) */}
-            <button
-              type="button"
-              onClick={() => setSlideIndex((prev) => (prev - 1 + SHOWCASE_SLIDES.length) % SHOWCASE_SLIDES.length)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/15 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg"
-              title="Previous slide"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setSlideIndex((prev) => (prev + 1) % SHOWCASE_SLIDES.length)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 backdrop-blur-md border border-white/15 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg"
-              title="Next slide"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-
-            {/* Bottom Floating Info Card with Slide Details */}
-            <div className="absolute bottom-6 left-6 right-6 z-20 p-4 rounded-2xl bg-black/65 backdrop-blur-md border border-white/10 shadow-2xl flex items-center justify-between transition-all duration-500">
-              <div className="flex-1 pr-3">
-                <p className={`text-xs uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r ${currentSlide.gradient} font-extrabold transition-all duration-500`}>
-                  {currentSlide.title}
-                </p>
-                <p className="text-sm text-neutral-200 font-medium mt-0.5 line-clamp-1 transition-all duration-500">
-                  {currentSlide.description}
-                </p>
-              </div>
-              <div className="h-9 w-9 shrink-0 rounded-xl bg-white/10 flex items-center justify-center text-white">
-                <Sparkles className="w-4 h-4 text-[#fc9a5d]" />
-              </div>
-            </div>
           </div>
+
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="relative z-10 w-full max-w-7xl mx-auto pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 border-t border-white/5">
-        <p>&copy; {new Date().getFullYear()} DhandaGrow AI. All rights reserved.</p>
-        <div className="flex items-center gap-4 mt-2 sm:mt-0">
-          <Link href="#" className="hover:text-neutral-300 transition-colors">Privacy Policy</Link>
-          <Link href="#" className="hover:text-neutral-300 transition-colors">Terms of Service</Link>
-        </div>
-      </footer>
-
-      {/* Centered Beautiful Status / Analysis / Error / Navigation Modal */}
+      {/* Auth Center Modal for OAuth Handshakes */}
       {authModal && (
         <AuthCenterModal
           open={authModal.open}
-          onClose={() => {
-            setAuthModal(null);
-            setError("");
-            setSocialLoading(null);
-          }}
           status={authModal.status}
           provider={authModal.provider}
           title={authModal.title}
           message={authModal.message}
           actionText={authModal.actionText}
           actionHref={authModal.actionHref}
+          onClose={() => setAuthModal(null)}
         />
       )}
     </div>

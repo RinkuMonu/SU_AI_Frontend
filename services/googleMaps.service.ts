@@ -1,4 +1,4 @@
-﻿import api from '@/lib/api';
+import api from '@/lib/api';
 
 export const GOOGLE_MAPS_API_KEY =
   process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ||
@@ -26,8 +26,43 @@ export interface LocationSearchResult {
   };
 }
 
+export interface GooglePlaceResult {
+  id: string;
+  name: string;
+  address: string;
+  rating?: number;
+  userRatingCount?: number;
+  website?: string;
+  phone?: string;
+  photos: string[];
+  types?: string[];
+  googleMapsUrl: string;
+  lat?: number;
+  lng?: number;
+}
+
 export const googleMapsService = {
   getApiKey: () => GOOGLE_MAPS_API_KEY,
+
+  /**
+   * Search Google Places (businesses, shops) with photo, rating, and address details
+   */
+  searchGooglePlaces: async (query: string): Promise<GooglePlaceResult[]> => {
+    if (!query || query.trim().length === 0) {
+      return [];
+    }
+    const clean = query.trim();
+    try {
+      const res = await fetch(`/api/maps/search?q=${encodeURIComponent(clean)}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.places)) {
+        return data.places;
+      }
+    } catch (err) {
+      console.warn("Error calling /api/maps/search:", err);
+    }
+    return [];
+  },
 
   /**
    * Search locations / autocomplete places via backend Google Maps integration

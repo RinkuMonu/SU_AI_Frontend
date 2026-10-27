@@ -1,15 +1,23 @@
 import type { NextConfig } from "next";
 
 const getBackendUrl = () => {
-  const url =
+  let url =
     process.env.INTERNAL_BACKEND_URL ||
     process.env.BACKEND_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "http://127.0.0.1:8000";
-  return url.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
+  url = url.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
+  return url.replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1");
 };
 
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_GOOGLE_CLIENT_ID:
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com",
+    NEXT_PUBLIC_API_URL:
+      (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1"),
+  },
   turbopack: {
     root: __dirname,
   },

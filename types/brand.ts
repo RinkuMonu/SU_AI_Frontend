@@ -45,6 +45,26 @@ export interface BrandKit {
     customer_type?: string;
     location_focus?: string;
 
+    // Website Onboarding Extracted & Brand Kit Fields
+    palette?: string[];
+    brand_colors?: string[];
+    tones?: string[];
+    business_types?: string[];
+    primary_business_type?: string;
+    sub_category?: string;
+    city?: string;
+    differentiators?: string[];
+    products_services?: string[];
+    selected_photos?: string[];
+    target_audience_summary?: string;
+    services_products_summary?: string[];
+    tagline?: string;
+    language?: string;
+    marketplaces?: string[];
+    marketplace_listings?: string[];
+    b2b_platforms?: string[];
+    b2b_listings?: string[];
+
     created_at?: string;
     updated_at?: string;
 }
@@ -76,6 +96,26 @@ export interface BrandCreate {
     gender?: string;
     customer_type?: string;
     location_focus?: string;
+
+    // Website Onboarding Extracted & Brand Kit Fields
+    palette?: string[];
+    brand_colors?: string[];
+    tones?: string[];
+    business_types?: string[];
+    primary_business_type?: string;
+    sub_category?: string;
+    city?: string;
+    differentiators?: string[];
+    products_services?: string[];
+    selected_photos?: string[];
+    target_audience_summary?: string;
+    services_products_summary?: string[];
+    tagline?: string;
+    language?: string;
+    marketplaces?: string[];
+    marketplace_listings?: string[];
+    b2b_platforms?: string[];
+    b2b_listings?: string[];
 }
 
 export type BrandUpdate = Partial<BrandCreate>;

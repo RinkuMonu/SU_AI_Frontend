@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { LanguageProvider } from "@/context/LanguageContext";
 import { SecurityShield } from "@/components/security/SecurityShield";
 
 const inter = Inter({
@@ -29,9 +30,11 @@ export default function RootLayout({
     <html lang="en" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
         <SecurityShield />
-        <AuthProvider>
+        <LanguageProvider>
+          <AuthProvider>
           {children}
         </AuthProvider>
+        </LanguageProvider>
         <Script
           id="google-maps-sdk"
           src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async`}

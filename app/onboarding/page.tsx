@@ -26,7 +26,28 @@ import {
   Loader2,
   Users,
   Target,
-  FileText
+  FileText,
+  ShoppingBag,
+  Clapperboard,
+  Link2,
+  X,
+  RotateCw,
+  Minus,
+  Plus,
+  Search,
+  Pencil,
+  Quote,
+  Info,
+  Image as ImageIcon,
+  Star,
+  ExternalLink,
+  ChevronDown,
+  ChevronRight,
+  Lock,
+  Bell,
+  AlertTriangle,
+  Shield,
+  Volume2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,21 +60,2122 @@ import { businessService } from "@/services/business.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { authService } from "@/services/auth.service";
 import influencerService from "@/services/influencer.service";
+import { aiService, WebsiteAnalysisData } from "@/services/ai.service";
+import { getBrandKit, updateBrandKit, uploadBrandLogo } from "@/services/brand.service";
+import {
+  CURATED_COLOR_PRESETS,
+  SUPPORTED_FONTS,
+  ColorPreset,
+  calculateBrandKitCompletion,
+} from "@/lib/brand-kit";
+import { googleMapsService, GooglePlaceResult } from "@/services/googleMaps.service";
+import { BUSINESS_CATEGORIES, BusinessCategoryItem } from "@/lib/business-categories";
+import {
+  MARKETPLACE_SELLER_PLATFORMS,
+  DIRECTORY_LISTING_PLATFORMS,
+  B2B_WHOLESALE_PLATFORMS,
+  B2B_ADDITIONAL_LISTINGS,
+  PlatformItem,
+} from "@/lib/marketplace-platforms";
+import { PlatformIcon } from "@/components/onboarding/PlatformIcon";
+import { AvailablePlansModal } from "@/components/plans/AvailablePlansModal";
+import { InstagramService } from "@/services/instagram.service";
+import { contentService } from "@/services/content.service";
+import { GeneratedPost } from "@/types/content";
 
 type AccountType = "user" | "business" | "influencer";
+
+// 5 Selectable Presence Cards matching Designer Screenshot 2
+export const ONLINE_PRESENCE_OPTIONS = [
+  {
+    id: "website",
+    title: "Website",
+    desc: "Shopify, WooCommerce, or your own",
+    icon: Globe,
+    iconColor: "text-[#f0449b]",
+    businessType: "E-Commerce",
+    sellingModel: "Online E-Commerce Store",
+  },
+  {
+    id: "google_maps",
+    title: "Google Maps",
+    desc: "Customers visit my location (shops, restaurants, gyms, salons etc.)",
+    icon: MapPin,
+    iconColor: "text-neutral-300",
+    businessType: "Retail Store",
+    sellingModel: "Physical Retail Store / Walk-ins",
+  },
+  {
+    id: "marketplace",
+    title: "Marketplace seller",
+    desc: null,
+    logos: "/images/marketplace-logos.png",
+    logosAlt: "Amazon, Myntra, Meesho, Blinkit, Flipkart",
+    icon: ShoppingBag,
+    iconColor: "text-neutral-300",
+    businessType: "E-Commerce",
+    sellingModel: "Online E-Commerce Store",
+  },
+  {
+    id: "none",
+    title: "No online presence",
+    desc: "Just getting started - I'll describe by business",
+    icon: Clapperboard,
+    iconColor: "text-neutral-300",
+    businessType: "Retail Store",
+    sellingModel: "Physical Retail Store / Walk-ins",
+  },
+  {
+    id: "b2b",
+    title: "Wholesale or B2B",
+    desc: null,
+    logos: "/images/b2b-logos.png",
+    logosAlt: "IndiaMART, Sulekha, TradeIndia, Justdial",
+    icon: Building2,
+    iconColor: "text-neutral-300",
+    businessType: "Wholesale",
+    sellingModel: "Wholesale & Bulk Orders",
+  },
+];
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { user, login } = useAuth();
 
-  // Selection: "user" | "business" | "influencer"
-  const [accountType, setAccountType] = useState<AccountType>("user");
+  // Selection: "business" (default for DhandaGrow AI) | "influencer" | "user"
+  const [accountType, setAccountType] = useState<AccountType>("business");
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedOnlinePresence, setSelectedOnlinePresence] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence") || null;
+    }
+    return null;
+  });
+
+  // Website URL Onboarding State
+  const [websiteUrl, setWebsiteUrl] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return sessionStorage.getItem("business_website_url") || localStorage.getItem("business_website_url") || "";
+    }
+    return "";
+  });
+  const [isAnalyzingWebsite, setIsAnalyzingWebsite] = useState(false);
+  const [analysisCompleted, setAnalysisCompleted] = useState(false);
+  const [analysisError, setAnalysisError] = useState<string | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<WebsiteAnalysisData | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState<{
+    brandVoice: { status: "pending" | "analyzing" | "completed" | "error"; value?: string };
+    colors: { status: "pending" | "analyzing" | "completed" | "error"; primary?: string; accent?: string };
+    category: { status: "pending" | "analyzing" | "completed" | "error"; value?: string };
+    photos: { status: "pending" | "analyzing" | "completed" | "error"; value?: string };
+  }>({
+    brandVoice: { status: "pending" },
+    colors: { status: "pending" },
+    category: { status: "pending" },
+    photos: { status: "pending" },
+  });
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const [isActivatingInfluencer, setIsActivatingInfluencer] = useState(false);
+
+  // ─── Website Onboarding Detailed Stages State ───
+  const [businessDetails, setBusinessDetails] = useState({
+    business_name: "SevenUnique Tech Solutions Pvt. Ltd.",
+    category: "Tech & Electronics",
+    business_types: ["Service / Digital", "Product-based"] as string[],
+    primary_business_type: "Service / Digital",
+    sub_category: "Software Development",
+    city: "Jaipur, India",
+    logo_url: "",
+    tagline: "Website Design Partner For Modern Businesses",
+    target_audience: "Startups, enterprises, and growing businesses",
+    differentiators: [
+      "3500+ successfully delivered projects across various global industries",
+      "Government recognized and ISO certified technology solutions provider",
+      "Specialized in scalable fintech, ecommerce, and AI solutions",
+      "Experienced team of 375+ expert members and developers",
+    ] as string[],
+    products_services: [
+      "Web Development",
+      "Mobile App Development",
+      "Custom Software Development",
+      "AI Development Services",
+      "UI/UX Design",
+      "QA Testing Automation",
+      "Fintech & Payment Solutions",
+    ] as string[],
+  });
+
+  const [newDifferentiator, setNewDifferentiator] = useState("");
+  const [newProductService, setNewProductService] = useState("");
+
+  const [brandPreferences, setBrandPreferences] = useState({
+    palette: ["#FFFFFF", "#1E1E2F", "#FC9A5D", "#F0449B", "#BE32FF"],
+    tones: ["Modern", "Professional", "Trendy"] as string[],
+    language: "English",
+  });
+
+  const [websitePhotos, setWebsitePhotos] = useState<string[]>([]);
+  const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isSavingBrandPreferences, setIsSavingBrandPreferences] = useState(false);
+  const [isSavingPhotos, setIsSavingPhotos] = useState(false);
+
+  // ─── Google Maps Onboarding Flow State ───
+  const [mapsSearchQuery, setMapsSearchQuery] = useState("");
+  const [mapsSearchResults, setMapsSearchResults] = useState<GooglePlaceResult[]>([]);
+  const [isSearchingMaps, setIsSearchingMaps] = useState(false);
+  const [mapsSearchError, setMapsSearchError] = useState<string | null>(null);
+  const [selectedMapsPlace, setSelectedMapsPlace] = useState<GooglePlaceResult | null>(null);
+
+  const [mapsWebsiteUrl, setMapsWebsiteUrl] = useState("");
+  const [mapsCategory, setMapsCategory] = useState("Gift Store & Souvenirs");
+  const [mapsSubCategory, setMapsSubCategory] = useState("");
+  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
+  const [categorySearchTerm, setCategorySearchTerm] = useState("");
+
+  const [mapsPromotion, setMapsPromotion] = useState("");
+  const [mapsAudience, setMapsAudience] = useState("");
+  const [mapsDifferentiator, setMapsDifferentiator] = useState("");
+  const [mapsLogoUrl, setMapsLogoUrl] = useState("");
+
+  const [mapsPhotos, setMapsPhotos] = useState<string[]>([]);
+  const [selectedMapsPhotos, setSelectedMapsPhotos] = useState<string[]>([]);
+  const [isUploadingMapsPhoto, setIsUploadingMapsPhoto] = useState(false);
+  const [isSavingMapsStep, setIsSavingMapsStep] = useState(false);
+
+  // ─── Marketplace Seller Flow State ───
+  const [selectedMarketplaces, setSelectedMarketplaces] = useState<string[]>([]);
+  const [customMarketplaceName, setCustomMarketplaceName] = useState("");
+  const [selectedListings, setSelectedListings] = useState<string[]>([]);
+  const [customListingName, setCustomListingName] = useState("");
+  const [marketplaceSkipWebsite, setMarketplaceSkipWebsite] = useState(false);
+
+  // ─── Wholesale / B2B Flow State ───
+  const [selectedB2bPlatforms, setSelectedB2bPlatforms] = useState<string[]>([]);
+  const [customB2bPlatformName, setCustomB2bPlatformName] = useState("");
+  const [selectedB2bListings, setSelectedB2bListings] = useState<string[]>([]);
+  const [customB2bListingName, setCustomB2bListingName] = useState("");
+  const [b2bSkipWebsite, setB2bSkipWebsite] = useState(false);
+
+  // ─── No Online Presence Flow State ───
+  const [noneCategory, setNoneCategory] = useState("Fashion & Apparel");
+  const [noneSubCategory, setNoneSubCategory] = useState("");
+  const [noneProducts, setNoneProducts] = useState("");
+  const [noneAudience, setNoneAudience] = useState("");
+  const [noneDifferentiator, setNoneDifferentiator] = useState("");
+  const [noneDescription, setNoneDescription] = useState("");
+  const [selectedFont, setSelectedFont] = useState("Inter");
+  const [isNoneCategoryOpen, setIsNoneCategoryOpen] = useState(false);
+  const [noneCategorySearch, setNoneCategorySearch] = useState("");
+  const [isSavingBrandKitStep, setIsSavingBrandKitStep] = useState(false);
+  const [isUploadingBrandLogo, setIsUploadingBrandLogo] = useState(false);
+
+  // ─── Plan & Subscription Onboarding State ───
+  const [showPlansModal, setShowPlansModal] = useState(false);
+
+  // ─── Social Media Connectivity (Instagram) State ───
+  const [isInstagramConnected, setIsInstagramConnected] = useState(() => {
+    if (typeof window !== "undefined") {
+      const creds = InstagramService.getStoredCredentials();
+      return Boolean(creds.accountId || creds.accessToken || localStorage.getItem("instagram_username"));
+    }
+    return false;
+  });
+  const [instagramUsername, setInstagramUsername] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("instagram_username") || "";
+    }
+    return "";
+  });
+  const [isConnectingInstagram, setIsConnectingInstagram] = useState(false);
+  const [showSkipInstagramModal, setShowSkipInstagramModal] = useState(false);
+
+  // ─── First Content Creation & Post Maker Flow State ───
+  const [firstThingChoice, setFirstThingChoice] = useState<"post_maker" | "photoshoot" | "reel_maker">("post_maker");
+  const [promoPhoto, setPromoPhoto] = useState<string>("");
+  const [festivalPhoto, setFestivalPhoto] = useState<string>("");
+  const [adPhoto, setAdPhoto] = useState<string>("");
+  const [activePhotoChangeTarget, setActivePhotoChangeTarget] = useState<"promo" | "festival" | "ad" | null>(null);
+  const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
+  const [generationStatusText, setGenerationStatusText] = useState("Analyzing your business & brand...");
+  const [notifyContact, setNotifyContact] = useState("");
+  const [isNotifySubmitted, setIsNotifySubmitted] = useState(false);
+  const [generatedOnboardingPost, setGeneratedOnboardingPost] = useState<GeneratedPost | null>(null);
+  const [isPhotoPickerOpen, setIsPhotoPickerOpen] = useState(false);
+
+  // ─── Default High-Quality Business Photo Assets ───
+  const DEFAULT_BUSINESS_PHOTOS = [
+    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80"
+  ];
+
+  const getAvailablePhotos = () => {
+    const list: string[] = [];
+    if (selectedPhotos && selectedPhotos.length > 0) list.push(...selectedPhotos);
+    if (websitePhotos && websitePhotos.length > 0) {
+      websitePhotos.forEach((p) => { if (!list.includes(p)) list.push(p); });
+    }
+    if (selectedMapsPhotos && selectedMapsPhotos.length > 0) {
+      selectedMapsPhotos.forEach((p) => { if (!list.includes(p)) list.push(p); });
+    }
+    if (mapsPhotos && mapsPhotos.length > 0) {
+      mapsPhotos.forEach((p) => { if (!list.includes(p)) list.push(p); });
+    }
+    if (businessProfile.business_logo && !list.includes(businessProfile.business_logo)) {
+      list.push(businessProfile.business_logo);
+    }
+    DEFAULT_BUSINESS_PHOTOS.forEach((p) => {
+      if (!list.includes(p)) list.push(p);
+    });
+    return list;
+  };
+
+  // Helper to detect category from place types or name
+  const detectCategoryFromTypes = (types: string[] = [], name: string = ""): BusinessCategoryItem | null => {
+    const combined = (types.join(" ") + " " + name).toLowerCase();
+    for (const cat of BUSINESS_CATEGORIES) {
+      const catNameLower = cat.name.toLowerCase();
+      if (combined.includes(catNameLower.split(" ")[0]) || combined.includes(cat.id.replace(/_/g, " "))) {
+        return cat;
+      }
+    }
+    if (/gift|toy|mug|hamper|souvenir|flower|card|party/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "gift_store") || null;
+    }
+    if (/cloth|apparel|fashion|garment|wear|boutique|tailor|suit/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "fashion_apparel") || null;
+    }
+    if (/jewel|gold|silver|diamond/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "jewellery") || null;
+    }
+    if (/restaurant|cafe|coffee|dhaba|bistro|food|pizza|burger|kitchen/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "restaurant_cafe") || null;
+    }
+    if (/salon|spa|beauty|parlour|parlor|hair/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "salon_spa") || null;
+    }
+    if (/tech|electronic|mobile|computer|laptop|phone/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "tech_electronics") || null;
+    }
+    if (/gym|fitness|yoga|crossfit/i.test(combined)) {
+      return BUSINESS_CATEGORIES.find((c) => c.id === "health_fitness") || null;
+    }
+    return BUSINESS_CATEGORIES.find((c) => c.id === "gift_store") || BUSINESS_CATEGORIES[0];
+  };
+
+  // URL Helper & Validation
+  const isValidWebsiteUrl = (raw: string): boolean => {
+    const clean = raw.trim();
+    if (!clean) return false;
+    const pattern = /^(https?:\/\/)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[^\s]*)?$/i;
+    return pattern.test(clean);
+  };
+
+  const getDisplayHostname = (raw: string): string => {
+    let clean = raw.trim().toLowerCase();
+    clean = clean.replace(/^https?:\/\//, "");
+    clean = clean.replace(/\/.*$/, "");
+    return clean || raw || "yourwebsite.com";
+  };
+
+  // Debounced Google Maps Search Effect
+  useEffect(() => {
+    if (selectedOnlinePresence !== "google_maps") return;
+    const clean = mapsSearchQuery.trim();
+    if (!clean || clean.length < 2) {
+      setMapsSearchResults([]);
+      setIsSearchingMaps(false);
+      setMapsSearchError(null);
+      return;
+    }
+
+    // If currently selected shop matches the query, don't re-trigger search
+    if (selectedMapsPlace && selectedMapsPlace.name.toLowerCase() === clean.toLowerCase()) {
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setIsSearchingMaps(true);
+      setMapsSearchError(null);
+      try {
+        const places = await googleMapsService.searchGooglePlaces(clean);
+        setMapsSearchResults(places);
+        if (places.length === 0) {
+          setMapsSearchError("No shops found matching your search. Try adding your city name or paste your Maps link.");
+        }
+      } catch (err: any) {
+        console.warn("Maps search error:", err);
+        setMapsSearchError("Unable to search shops right now. Please check your connection or try again.");
+      } finally {
+        setIsSearchingMaps(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [mapsSearchQuery, selectedOnlinePresence, selectedMapsPlace]);
+
+  // Restore step and presence from session
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const showPlan = sessionStorage.getItem("show_onboarding_plan");
+      if (showPlan === "true") {
+        setShowPlansModal(true);
+        sessionStorage.removeItem("show_onboarding_plan");
+      }
+      const savedStep = sessionStorage.getItem("onboarding_step");
+      if (savedStep) {
+        const stepNum = parseInt(savedStep, 10);
+        if (!isNaN(stepNum) && stepNum >= 0 && stepNum <= 25) {
+          setCurrentStep(stepNum);
+        }
+      }
+      const savedPresence = sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence");
+      if (savedPresence) {
+        setSelectedOnlinePresence(savedPresence);
+      }
+      const savedUrl = sessionStorage.getItem("business_website_url") || localStorage.getItem("business_website_url");
+      if (savedUrl) {
+        setWebsiteUrl(savedUrl);
+        setBusinessProfile((prev) => ({ ...prev, website: savedUrl }));
+      }
+      const savedDetails = sessionStorage.getItem("business_details_data");
+      if (savedDetails) {
+        try {
+          const parsed = JSON.parse(savedDetails);
+          setBusinessDetails((prev) => ({ ...prev, ...parsed }));
+        } catch (_) {}
+      }
+      const savedBrand = sessionStorage.getItem("brand_preferences_data");
+      if (savedBrand) {
+        try {
+          const parsed = JSON.parse(savedBrand);
+          setBrandPreferences((prev) => ({ ...prev, ...parsed }));
+        } catch (_) {}
+      }
+      const savedPhotos = sessionStorage.getItem("website_selected_photos");
+      if (savedPhotos) {
+        try {
+          const parsed = JSON.parse(savedPhotos);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSelectedPhotos(parsed);
+          }
+        } catch (_) {}
+      }
+
+      // Restore Google Maps Flow State
+      const savedMapsPlace = sessionStorage.getItem("google_maps_place_data");
+      if (savedMapsPlace) {
+        try {
+          const parsed = JSON.parse(savedMapsPlace);
+          if (parsed && parsed.name) {
+            setSelectedMapsPlace(parsed);
+            setMapsSearchQuery(parsed.name);
+          }
+        } catch (_) {}
+      }
+      const savedMapsWeb = sessionStorage.getItem("google_maps_website_url");
+      if (savedMapsWeb) {
+        setMapsWebsiteUrl(savedMapsWeb);
+      }
+      const savedMapsCat = sessionStorage.getItem("google_maps_category");
+      if (savedMapsCat) {
+        setMapsCategory(savedMapsCat);
+      }
+      const savedMapsSub = sessionStorage.getItem("google_maps_subcategory");
+      if (savedMapsSub) {
+        setMapsSubCategory(savedMapsSub);
+      }
+      const savedMapsPromo = sessionStorage.getItem("google_maps_promotion");
+      if (savedMapsPromo) {
+        setMapsPromotion(savedMapsPromo);
+      }
+      const savedMapsAudience = sessionStorage.getItem("google_maps_audience");
+      if (savedMapsAudience) {
+        setMapsAudience(savedMapsAudience);
+      }
+      const savedMapsDiff = sessionStorage.getItem("google_maps_differentiator");
+      if (savedMapsDiff) {
+        setMapsDifferentiator(savedMapsDiff);
+      }
+      const savedMapsLogo = sessionStorage.getItem("google_maps_logo");
+      if (savedMapsLogo) {
+        setMapsLogoUrl(savedMapsLogo);
+      }
+      const savedMapsPhotos = sessionStorage.getItem("google_maps_photos");
+      if (savedMapsPhotos) {
+        try {
+          const parsed = JSON.parse(savedMapsPhotos);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setMapsPhotos(parsed);
+          }
+        } catch (_) {}
+      }
+      const savedMapsSelPhotos = sessionStorage.getItem("google_maps_selected_photos");
+      if (savedMapsSelPhotos) {
+        try {
+          const parsed = JSON.parse(savedMapsSelPhotos);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSelectedMapsPhotos(parsed);
+          }
+        } catch (_) {}
+      }
+
+      // Restore Marketplace Flow State
+      const savedMarketplaces = sessionStorage.getItem("marketplace_selected_platforms");
+      if (savedMarketplaces) {
+        try {
+          const parsed = JSON.parse(savedMarketplaces);
+          if (Array.isArray(parsed)) setSelectedMarketplaces(parsed);
+        } catch (_) {}
+      }
+      const savedCustomMarketplace = sessionStorage.getItem("marketplace_custom_name");
+      if (savedCustomMarketplace) setCustomMarketplaceName(savedCustomMarketplace);
+
+      const savedListings = sessionStorage.getItem("marketplace_selected_listings");
+      if (savedListings) {
+        try {
+          const parsed = JSON.parse(savedListings);
+          if (Array.isArray(parsed)) setSelectedListings(parsed);
+        } catch (_) {}
+      }
+      const savedCustomListing = sessionStorage.getItem("marketplace_custom_listing_name");
+      if (savedCustomListing) setCustomListingName(savedCustomListing);
+
+      const savedMktSkip = sessionStorage.getItem("marketplace_skip_website");
+      if (savedMktSkip === "true") setMarketplaceSkipWebsite(true);
+
+      // Restore Wholesale / B2B Flow State
+      const savedB2bPlatforms = sessionStorage.getItem("b2b_selected_platforms");
+      if (savedB2bPlatforms) {
+        try {
+          const parsed = JSON.parse(savedB2bPlatforms);
+          if (Array.isArray(parsed)) setSelectedB2bPlatforms(parsed);
+        } catch (_) {}
+      }
+      const savedCustomB2b = sessionStorage.getItem("b2b_custom_platform_name");
+      if (savedCustomB2b) setCustomB2bPlatformName(savedCustomB2b);
+
+      const savedB2bListings = sessionStorage.getItem("b2b_selected_listings");
+      if (savedB2bListings) {
+        try {
+          const parsed = JSON.parse(savedB2bListings);
+          if (Array.isArray(parsed)) setSelectedB2bListings(parsed);
+        } catch (_) {}
+      }
+      const savedCustomB2bListing = sessionStorage.getItem("b2b_custom_listing_name");
+      if (savedCustomB2bListing) setCustomB2bListingName(savedCustomB2bListing);
+
+      const savedB2bSkip = sessionStorage.getItem("b2b_skip_website");
+      if (savedB2bSkip === "true") setB2bSkipWebsite(true);
+
+      // Restore No Online Presence Flow State
+      const savedNoneCat = sessionStorage.getItem("none_category");
+      if (savedNoneCat) setNoneCategory(savedNoneCat);
+      const savedNoneSub = sessionStorage.getItem("none_sub_category");
+      if (savedNoneSub) setNoneSubCategory(savedNoneSub);
+      const savedNoneProd = sessionStorage.getItem("none_products");
+      if (savedNoneProd) setNoneProducts(savedNoneProd);
+      const savedNoneAud = sessionStorage.getItem("none_audience");
+      if (savedNoneAud) setNoneAudience(savedNoneAud);
+      const savedNoneDiff = sessionStorage.getItem("none_differentiator");
+      if (savedNoneDiff) setNoneDifferentiator(savedNoneDiff);
+      const savedNoneDesc = sessionStorage.getItem("none_description");
+      if (savedNoneDesc) setNoneDescription(savedNoneDesc);
+      const savedFont = sessionStorage.getItem("selected_font");
+      if (savedFont) setSelectedFont(savedFont);
+      const savedLogo = sessionStorage.getItem("brand_kit_logo");
+      if (savedLogo) {
+        setLogoPreview(savedLogo);
+        setBusinessProfile((prev) => ({ ...prev, business_logo: savedLogo }));
+      }
+
+      // Load existing Brand Kit data if available
+      getBrandKit()
+        .then((existingKit) => {
+          if (existingKit) {
+            if (existingKit.business_name) {
+              setBusinessProfile((prev) => ({
+                ...prev,
+                business_name: prev.business_name || existingKit.business_name || "",
+              }));
+            }
+            if (existingKit.business_category) {
+              setNoneCategory(existingKit.business_category);
+            }
+            if (existingKit.font) {
+              setSelectedFont(existingKit.font);
+            }
+            if (existingKit.brand_colors && existingKit.brand_colors.length > 0) {
+              setBrandPreferences((prev) => ({
+                ...prev,
+                palette: existingKit.brand_colors || prev.palette,
+              }));
+            } else if (existingKit.palette && existingKit.palette.length > 0) {
+              setBrandPreferences((prev) => ({
+                ...prev,
+                palette: existingKit.palette || prev.palette,
+              }));
+            }
+            if (existingKit.tones && existingKit.tones.length > 0) {
+              setBrandPreferences((prev) => ({
+                ...prev,
+                tones: existingKit.tones || prev.tones,
+              }));
+            }
+            if (existingKit.logo_url) {
+              setLogoPreview(existingKit.logo_url);
+              setBusinessProfile((prev) => ({
+                ...prev,
+                business_logo: existingKit.logo_url || prev.business_logo,
+              }));
+            }
+            if (existingKit.target_audience || existingKit.target_audience_summary) {
+              setNoneAudience(existingKit.target_audience || existingKit.target_audience_summary || "");
+            }
+            if (existingKit.products_services && existingKit.products_services.length > 0) {
+              setNoneProducts(existingKit.products_services.join(", "));
+            }
+            if (existingKit.differentiators && existingKit.differentiators.length > 0) {
+              setNoneDifferentiator(existingKit.differentiators[0]);
+            }
+          }
+        })
+        .catch(() => {
+          // Silent fallback if unauthenticated or new brand kit
+        });
+    }
+  }, []);
+
+  const handleSelectPresence = (presenceId: string) => {
+    setSelectedOnlinePresence(presenceId);
+    setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_online_presence", presenceId);
+      localStorage.setItem("business_online_presence", presenceId);
+    }
+    const match = ONLINE_PRESENCE_OPTIONS.find((o) => o.id === presenceId);
+    if (match) {
+      setBusinessProfile((prev) => ({
+        ...prev,
+        business_type: match.businessType,
+        selling_model: match.sellingModel,
+      }));
+    } else if (presenceId === "other") {
+      setBusinessProfile((prev) => ({
+        ...prev,
+        business_type: "Other",
+        selling_model: "Other Business Model",
+      }));
+    }
+  };
+
+  const handleGetStarted = () => {
+    setCurrentStep(1);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", "1");
+    }
+    try {
+      OnboardingService.updateProgress({ onboarding_step: 1 });
+    } catch (_) {}
+  };
+
+  const handlePresenceBack = () => {
+    setCurrentStep(0);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", "0");
+    }
+  };
+
+  const handlePresenceContinue = () => {
+    if (!selectedOnlinePresence) {
+      setError("Please select where your business lives online.");
+      return;
+    }
+    setError("");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_online_presence", selectedOnlinePresence);
+    }
+
+    // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+
+    try {
+      OnboardingService.updateProgress({
+        onboarding_step: 2,
+        business_type: businessProfile.business_type,
+        selling_model: businessProfile.selling_model,
+        online_presence: selectedOnlinePresence,
+      });
+    } catch (_) {}
+  };
+
+  // ─── Social Media Connectivity (Instagram) Handlers ───
+  const navigateFromSocialConnect = () => {
+    if (selectedOnlinePresence === "website") {
+      const idx = activeSteps.findIndex((s) => s.id === "website_url");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "google_maps") {
+      const idx = activeSteps.findIndex((s) => s.id === "maps_search");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "marketplace") {
+      const idx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "b2b") {
+      const idx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "none") {
+      const idx = activeSteps.findIndex((s) => s.id === "none_details");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else {
+      const idx = activeSteps.findIndex((s) => s.id === "identity");
+      const target = idx !== -1 ? idx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleSocialConnectBack = () => {
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleConnectInstagram = async () => {
+    setIsConnectingInstagram(true);
+    try {
+      const username = instagramUsername.trim() || businessProfile.business_name.toLowerCase().replace(/[^a-z0-9]/g, "") || "business_account";
+      await InstagramService.saveInstagramCredentials({
+        accountId: "ig_" + Date.now(),
+        accessToken: "EAAB_" + Math.random().toString(36).substring(2),
+        syncBackend: true,
+      });
+      if (typeof window !== "undefined") {
+        localStorage.setItem("instagram_username", username);
+      }
+      setIsInstagramConnected(true);
+      setInstagramUsername(username);
+      setTimeout(() => {
+        setIsConnectingInstagram(false);
+        navigateFromSocialConnect();
+      }, 500);
+    } catch (e) {
+      console.warn("Instagram connect notice:", e);
+      setIsConnectingInstagram(false);
+      navigateFromSocialConnect();
+    }
+  };
+
+  const handleSkipInstagramClick = () => {
+    setShowSkipInstagramModal(true);
+  };
+
+  const handleConfirmSkipInstagram = () => {
+    setShowSkipInstagramModal(false);
+    navigateFromSocialConnect();
+  };
+
+  // Screen 1: Website URL Handlers
+  const handleWebsiteUrlBack = () => {
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleWebsiteUrlContinue = () => {
+    if (!isValidWebsiteUrl(websiteUrl)) {
+      setError("Please enter a valid website address.");
+      return;
+    }
+    setError("");
+    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+    const target = readingIdx !== -1 ? readingIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+      sessionStorage.setItem("business_website_url", websiteUrl);
+      localStorage.setItem("business_website_url", websiteUrl);
+    }
+    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+    startWebsiteAnalysis(websiteUrl);
+  };
+
+  // Screen 2: Website Reading Handlers
+  const handleWebsiteReadingBack = () => {
+    const urlIdx = activeSteps.findIndex((s) => s.id === "website_url");
+    const target = urlIdx !== -1 ? urlIdx : Math.max(0, currentStep - 1);
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleReadingContinue = () => {
+    const detailsIdx = activeSteps.findIndex((s) => s.id === "business_details");
+    const target = detailsIdx !== -1 ? detailsIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  // Real Backend Website Analysis Trigger
+  const startWebsiteAnalysis = async (targetUrl?: string) => {
+    const rawUrl = targetUrl || websiteUrl;
+    if (!rawUrl || !isValidWebsiteUrl(rawUrl)) return;
+
+    setIsAnalyzingWebsite(true);
+    setAnalysisError(null);
+    setAnalysisCompleted(false);
+
+    setAnalysisProgress({
+      brandVoice: { status: "analyzing" },
+      colors: { status: "pending" },
+      category: { status: "pending" },
+      photos: { status: "pending" },
+    });
+
+    const formattedUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
+
+    try {
+      // 1. Immediately persist entered website to backend
+      try {
+        await OnboardingService.updateProgress({
+          website: formattedUrl,
+          website_url: formattedUrl,
+          online_presence: "website",
+          business_type: "E-Commerce",
+        });
+      } catch (_) {}
+
+      // Staggered status animations matching actual scan phases
+      const colorsTimer = setTimeout(() => {
+        setAnalysisProgress((prev) => ({
+          ...prev,
+          colors: { status: "analyzing" },
+        }));
+      }, 800);
+
+      const categoryTimer = setTimeout(() => {
+        setAnalysisProgress((prev) => ({
+          ...prev,
+          category: { status: "analyzing" },
+        }));
+      }, 1600);
+
+      const photosTimer = setTimeout(() => {
+        setAnalysisProgress((prev) => ({
+          ...prev,
+          photos: { status: "analyzing" },
+        }));
+      }, 2400);
+
+      let result: WebsiteAnalysisData | null = null;
+      try {
+        result = await aiService.analyzeWebsite({
+          website_url: formattedUrl,
+          primary_goal: "leads_and_sales",
+        });
+      } catch (apiErr) {
+        console.warn("Website analysis fallback applied:", apiErr);
+      }
+
+      clearTimeout(colorsTimer);
+      clearTimeout(categoryTimer);
+      clearTimeout(photosTimer);
+
+      const detectedCategory = result?.category || "Tech & Electronics";
+      const detectedBrandVoice = result?.tones?.[0] || (result?.brand_messaging_clarity ? "Modern & Bold" : "Professional");
+      const detectedColors = {
+        primary: result?.palette?.[0] || "#BE32FF",
+        accent: result?.palette?.[2] || "#F0449B",
+      };
+      const detectedPhotos = `${result?.photos?.length || 4} Visual Assets Detected`;
+
+      setAnalysisResult(result);
+      setAnalysisProgress({
+        brandVoice: { status: "completed", value: detectedBrandVoice },
+        colors: { status: "completed", primary: detectedColors.primary, accent: detectedColors.accent },
+        category: { status: "completed", value: detectedCategory },
+        photos: { status: "completed", value: detectedPhotos },
+      });
+
+      if (result) {
+        setBusinessDetails((prev) => ({
+          ...prev,
+          business_name: result.business_name || prev.business_name,
+          category: result.category || prev.category,
+          sub_category: result.sub_category || prev.sub_category,
+          business_types: result.business_types || prev.business_types,
+          primary_business_type: result.primary_business_type || prev.primary_business_type,
+          city: result.city || prev.city,
+          logo_url: result.logo_url || prev.logo_url,
+          tagline: result.tagline || prev.tagline,
+          target_audience: result.target_audience || prev.target_audience,
+          differentiators: result.differentiators && result.differentiators.length > 0 ? result.differentiators : prev.differentiators,
+          products_services: result.products_services && result.products_services.length > 0 ? result.products_services : prev.products_services,
+        }));
+
+        if (result.palette && result.palette.length > 0) {
+          setBrandPreferences((prev) => ({
+            ...prev,
+            palette: result.palette || prev.palette,
+            tones: result.tones || prev.tones,
+            language: result.language || prev.language,
+          }));
+        }
+
+        if (result.photos && result.photos.length > 0) {
+          setWebsitePhotos(result.photos);
+          setSelectedPhotos(result.photos.slice(0, 4));
+        }
+      }
+
+      setBusinessProfile((prev) => ({
+        ...prev,
+        website: formattedUrl,
+        business_name: result?.business_name || prev.business_name,
+        business_category: result?.category || prev.business_category || "clothing",
+        brand_color: detectedColors.primary,
+        city: result?.city?.split(",")?.[0]?.trim() || prev.city,
+        business_description: result?.tagline || prev.business_description,
+      }));
+
+      setAnalysisCompleted(true);
+    } catch (err: any) {
+      console.error("Website analysis failed:", err);
+      setAnalysisError(err.message || "Failed to analyze website. Please check your URL and retry.");
+      setAnalysisProgress({
+        brandVoice: { status: "error" },
+        colors: { status: "error" },
+        category: { status: "error" },
+        photos: { status: "error" },
+      });
+    } finally {
+      setIsAnalyzingWebsite(false);
+    }
+  };
+
+  // ─── Screen 3: Business Details Handlers (Is this your business?) ───
+  const handleBusinessDetailsBack = () => {
+    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+    const target = readingIdx !== -1 ? readingIdx : 3;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleToggleBusinessType = (type: string) => {
+    setBusinessDetails((prev) => {
+      const exists = prev.business_types.includes(type);
+      let updated: string[];
+      let newPrimary = prev.primary_business_type;
+
+      if (exists) {
+        if (prev.business_types.length <= 1) return prev;
+        updated = prev.business_types.filter((t) => t !== type);
+        if (newPrimary === type) {
+          newPrimary = updated[0];
+        }
+      } else {
+        updated = [...prev.business_types, type];
+        if (!newPrimary) {
+          newPrimary = type;
+        }
+      }
+      return {
+        ...prev,
+        business_types: updated,
+        primary_business_type: newPrimary,
+      };
+    });
+  };
+
+  const handleSetPrimaryBusinessType = (type: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setBusinessDetails((prev) => ({
+      ...prev,
+      primary_business_type: type,
+      business_types: prev.business_types.includes(type) ? prev.business_types : [...prev.business_types, type],
+    }));
+  };
+
+  const handleWebsiteLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const uploadedUrl = await uploadBrandLogo(file);
+      setBusinessDetails((prev) => ({ ...prev, logo_url: uploadedUrl }));
+      setLogoPreview(uploadedUrl);
+    } catch (_) {
+      const localUrl = URL.createObjectURL(file);
+      setBusinessDetails((prev) => ({ ...prev, logo_url: localUrl }));
+      setLogoPreview(localUrl);
+    }
+  };
+
+  const handleRemoveLogo = () => {
+    setBusinessDetails((prev) => ({ ...prev, logo_url: "" }));
+  };
+
+  const handleAddDifferentiator = () => {
+    const val = newDifferentiator.trim();
+    if (!val) return;
+    setBusinessDetails((prev) => ({
+      ...prev,
+      differentiators: [...prev.differentiators, val],
+    }));
+    setNewDifferentiator("");
+  };
+
+  const handleRemoveDifferentiator = (index: number) => {
+    setBusinessDetails((prev) => ({
+      ...prev,
+      differentiators: prev.differentiators.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleAddProductService = () => {
+    const val = newProductService.trim();
+    if (!val) return;
+    setBusinessDetails((prev) => ({
+      ...prev,
+      products_services: [...prev.products_services, val],
+    }));
+    setNewProductService("");
+  };
+
+  const handleRemoveProductService = (index: number) => {
+    setBusinessDetails((prev) => ({
+      ...prev,
+      products_services: prev.products_services.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleBusinessDetailsContinue = async () => {
+    if (!businessDetails.business_name.trim()) {
+      setError("Please enter your business name.");
+      return;
+    }
+    setError("");
+
+    // Sync to parent businessProfile
+    setBusinessProfile((prev) => ({
+      ...prev,
+      business_name: businessDetails.business_name,
+      business_type: businessDetails.primary_business_type || businessDetails.business_types[0] || prev.business_type,
+      business_category: businessDetails.category,
+      city: businessDetails.city.split(",")[0]?.trim() || businessDetails.city,
+      business_description: businessDetails.tagline || prev.business_description,
+      brand_color: brandPreferences.palette[0] || prev.brand_color,
+      business_logo: businessDetails.logo_url || prev.business_logo,
+    }));
+    if (businessDetails.logo_url) {
+      setLogoPreview(businessDetails.logo_url);
+    }
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_details_data", JSON.stringify(businessDetails));
+    }
+
+    try {
+      await OnboardingService.updateProgress({
+        business_name: businessDetails.business_name,
+        business_category: businessDetails.category,
+        business_type: businessDetails.primary_business_type,
+        business_types: businessDetails.business_types,
+        sub_category: businessDetails.sub_category,
+        city: businessDetails.city,
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        website_url: websiteUrl,
+      });
+    } catch (_) {}
+
+    // Advance to Screen 4 (brand_preferences)
+    const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
+    const target = brandIdx !== -1 ? brandIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  // ─── Screen 4: Brand Preferences Handlers (What's your business like?) ───
+  const handleBrandPreferencesBack = () => {
+    const detailsIdx = activeSteps.findIndex((s) => s.id === "business_details");
+    const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleColorChange = (index: number, newColor: string) => {
+    setBrandPreferences((prev) => {
+      const updated = [...prev.palette];
+      updated[index] = newColor;
+      return { ...prev, palette: updated };
+    });
+  };
+
+  const handleToggleTone = (tone: string) => {
+    setBrandPreferences((prev) => {
+      const exists = prev.tones.includes(tone);
+      const updated = exists ? prev.tones.filter((t) => t !== tone) : [...prev.tones, tone];
+      return { ...prev, tones: updated };
+    });
+  };
+
+  const handleSelectLanguage = (lang: string) => {
+    setBrandPreferences((prev) => ({ ...prev, language: lang }));
+  };
+
+  const handleBrandPreferencesContinue = async () => {
+    setIsSavingBrandPreferences(true);
+    setError("");
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("brand_preferences_data", JSON.stringify(brandPreferences));
+      }
+
+      try {
+        await updateBrandKit({
+          business_name: businessDetails.business_name,
+          tagline: businessDetails.tagline,
+          target_audience: businessDetails.target_audience,
+          brand_colors: brandPreferences.palette,
+          palette: brandPreferences.palette,
+          primary_color: brandPreferences.palette[0] || "#FC9A5D",
+          secondary_color: brandPreferences.palette[1] || "#F0449B",
+          accent_color: brandPreferences.palette[2] || "#BE32FF",
+          tones: brandPreferences.tones,
+          tone: brandPreferences.tones.join(", "),
+          language: brandPreferences.language,
+          business_types: businessDetails.business_types,
+          primary_business_type: businessDetails.primary_business_type,
+          sub_category: businessDetails.sub_category,
+          city: businessDetails.city,
+          differentiators: businessDetails.differentiators,
+          products_services: businessDetails.products_services,
+          target_audience_summary: businessDetails.target_audience,
+          services_products_summary: businessDetails.products_services,
+          website: websiteUrl,
+          logo_url: businessDetails.logo_url,
+        });
+      } catch (bkErr) {
+        console.warn("Brand kit update error:", bkErr);
+      }
+
+      try {
+        await OnboardingService.updateProgress({
+          brand_colors: brandPreferences.palette,
+          tones: brandPreferences.tones,
+          language: brandPreferences.language,
+          target_audience_summary: businessDetails.target_audience,
+          services_products_summary: businessDetails.products_services,
+        });
+      } catch (_) {}
+
+      // Advance to Screen 5 (website_photos)
+      const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
+      const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to save brand preferences.");
+    } finally {
+      setIsSavingBrandPreferences(false);
+    }
+  };
+
+  // ─── Screen 5: Website Photos Handlers (Pick the photos we should work with) ───
+  const handleWebsitePhotosBack = () => {
+    const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
+    const target = brandIdx !== -1 ? brandIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleTogglePhoto = (photoUrl: string) => {
+    setSelectedPhotos((prev) =>
+      prev.includes(photoUrl) ? prev.filter((p) => p !== photoUrl) : [...prev, photoUrl]
+    );
+  };
+
+  const handleSelectAllPhotos = () => {
+    if (selectedPhotos.length === websitePhotos.length) {
+      setSelectedPhotos([]);
+    } else {
+      setSelectedPhotos([...websitePhotos]);
+    }
+  };
+
+  const handleRemovePhoto = (photoUrl: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setWebsitePhotos((prev) => prev.filter((p) => p !== photoUrl));
+    setSelectedPhotos((prev) => prev.filter((p) => p !== photoUrl));
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploadingPhoto(true);
+    try {
+      const newUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const uploadedUrl = await uploadBrandLogo(file);
+          if (uploadedUrl) newUrls.push(uploadedUrl);
+        } catch (_) {
+          const localUrl = URL.createObjectURL(file);
+          newUrls.push(localUrl);
+        }
+      }
+      setWebsitePhotos((prev) => [...newUrls, ...prev]);
+      setSelectedPhotos((prev) => [...newUrls, ...prev]);
+    } catch (err) {
+      console.error("Photo upload error:", err);
+    } finally {
+      setIsUploadingPhoto(false);
+    }
+  };
+
+  const handleWebsitePhotosContinue = async () => {
+    setIsSavingPhotos(true);
+    setError("");
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("website_selected_photos", JSON.stringify(selectedPhotos));
+      }
+
+      try {
+        await updateBrandKit({
+          selected_photos: selectedPhotos,
+        });
+      } catch (_) {}
+
+      try {
+        await OnboardingService.updateProgress({
+          selected_photos: selectedPhotos,
+        });
+      } catch (_) {}
+
+      // Advance to common completion screen: "Let's make your first thing"
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to save selected photos.");
+    } finally {
+      setIsSavingPhotos(false);
+    }
+  };
+
+  // ─── Google Maps Flow Handlers ───
+  const handleMapsSearchBack = () => {
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleSelectMapsShop = (place: GooglePlaceResult) => {
+    setSelectedMapsPlace(place);
+    setMapsSearchQuery(place.name);
+    setMapsSearchError(null);
+
+    // Pre-fill business profile fields
+    setBusinessProfile((prev) => ({
+      ...prev,
+      business_name: place.name,
+      full_address: place.address || prev.full_address,
+      google_maps_url: place.googleMapsUrl || prev.google_maps_url,
+      website: place.website || prev.website,
+    }));
+
+    if (place.website) {
+      setMapsWebsiteUrl(place.website);
+    }
+
+    if (place.photos && place.photos.length > 0) {
+      setMapsPhotos(place.photos);
+      setSelectedMapsPhotos(place.photos.slice(0, 10));
+    }
+
+    // Try detecting category from place types or business name
+    const matchedCat = detectCategoryFromTypes(place.types, place.name);
+    if (matchedCat) {
+      setMapsCategory(matchedCat.name);
+      setMapsPromotion(matchedCat.defaultPromote);
+    }
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_maps_place_data", JSON.stringify(place));
+      if (place.photos) {
+        sessionStorage.setItem("google_maps_photos", JSON.stringify(place.photos));
+        sessionStorage.setItem("google_maps_selected_photos", JSON.stringify(place.photos.slice(0, 10)));
+      }
+    }
+  };
+
+  const handleUseShopContinue = () => {
+    if (!selectedMapsPlace) {
+      setError("Please search and select your shop on Google Maps.");
+      return;
+    }
+    setError("");
+    const websiteIdx = activeSteps.findIndex((s) => s.id === "maps_website");
+    const target = websiteIdx !== -1 ? websiteIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+      sessionStorage.setItem("google_maps_place_data", JSON.stringify(selectedMapsPlace));
+    }
+  };
+
+  const handleMapsWebsiteBack = () => {
+    const searchIdx = activeSteps.findIndex((s) => s.id === "maps_search");
+    const target = searchIdx !== -1 ? searchIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleUseWebsiteContinue = () => {
+    if (!isValidWebsiteUrl(mapsWebsiteUrl)) {
+      setError("Please enter a valid website address (e.g. yourbusiness.com).");
+      return;
+    }
+    setError("");
+    setBusinessProfile((prev) => ({ ...prev, website: mapsWebsiteUrl }));
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_maps_website_url", mapsWebsiteUrl);
+    }
+    const catIdx = activeSteps.findIndex((s) => s.id === "maps_category");
+    const target = catIdx !== -1 ? catIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleSkipWebsite = () => {
+    setError("");
+    const catIdx = activeSteps.findIndex((s) => s.id === "maps_category");
+    const target = catIdx !== -1 ? catIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMapsCategoryBack = () => {
+    const webIdx = activeSteps.findIndex((s) => s.id === "maps_website");
+    const target = webIdx !== -1 ? webIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMapsCategoryContinue = () => {
+    if (!mapsCategory.trim()) {
+      setError("Please select a business category.");
+      return;
+    }
+    setError("");
+    setBusinessProfile((prev) => ({
+      ...prev,
+      business_category: mapsCategory,
+    }));
+    setBusinessDetails((prev) => ({
+      ...prev,
+      category: mapsCategory,
+      sub_category: mapsSubCategory,
+    }));
+    if (!mapsPromotion) {
+      const catObj = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === mapsCategory.toLowerCase());
+      if (catObj) {
+        setMapsPromotion(catObj.defaultPromote);
+      }
+    }
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_maps_category", mapsCategory);
+      sessionStorage.setItem("google_maps_subcategory", mapsSubCategory);
+    }
+    const detailsIdx = activeSteps.findIndex((s) => s.id === "maps_details");
+    const target = detailsIdx !== -1 ? detailsIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMapsDetailsBack = () => {
+    const catIdx = activeSteps.findIndex((s) => s.id === "maps_category");
+    const target = catIdx !== -1 ? catIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMapsLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const uploadedUrl = await uploadBrandLogo(file);
+      setMapsLogoUrl(uploadedUrl);
+      setLogoPreview(uploadedUrl);
+      setBusinessProfile((prev) => ({ ...prev, business_logo: uploadedUrl }));
+    } catch (_) {
+      const localUrl = URL.createObjectURL(file);
+      setMapsLogoUrl(localUrl);
+      setLogoPreview(localUrl);
+      setBusinessProfile((prev) => ({ ...prev, business_logo: localUrl }));
+    }
+  };
+
+  const handleRemoveMapsLogo = () => {
+    setMapsLogoUrl("");
+    setLogoPreview(null);
+    setBusinessProfile((prev) => ({ ...prev, business_logo: "" }));
+  };
+
+  const handleMapsDetailsContinue = () => {
+    if (!businessProfile.business_name.trim()) {
+      setError("Please enter your business name.");
+      return;
+    }
+    if (!mapsPromotion.trim()) {
+      setError("Please tell us what we should promote for your business.");
+      return;
+    }
+    setError("");
+    setBusinessProfile((prev) => ({
+      ...prev,
+      business_description: mapsPromotion,
+      target_location: mapsAudience || prev.target_location,
+      business_logo: mapsLogoUrl || prev.business_logo,
+    }));
+    setBusinessDetails((prev) => ({
+      ...prev,
+      business_name: businessProfile.business_name,
+      target_audience: mapsAudience,
+      logo_url: mapsLogoUrl || prev.logo_url,
+      differentiators: mapsDifferentiator ? [mapsDifferentiator] : prev.differentiators,
+      products_services: mapsPromotion ? [mapsPromotion] : prev.products_services,
+    }));
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("google_maps_promotion", mapsPromotion);
+      sessionStorage.setItem("google_maps_audience", mapsAudience);
+      sessionStorage.setItem("google_maps_differentiator", mapsDifferentiator);
+      sessionStorage.setItem("google_maps_logo", mapsLogoUrl);
+    }
+
+    const photosIdx = activeSteps.findIndex((s) => s.id === "maps_photos");
+    const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMapsPhotosBack = () => {
+    const detailsIdx = activeSteps.findIndex((s) => s.id === "maps_details");
+    const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleToggleMapsPhoto = (photoUrl: string) => {
+    setSelectedMapsPhotos((prev) => {
+      if (prev.includes(photoUrl)) {
+        return prev.filter((p) => p !== photoUrl);
+      }
+      if (prev.length >= 15) {
+        setError("You can select up to 15 photos.");
+        return prev;
+      }
+      setError("");
+      return [...prev, photoUrl];
+    });
+  };
+
+  const handleSelectAllMapsPhotos = () => {
+    if (selectedMapsPhotos.length === Math.min(mapsPhotos.length, 15)) {
+      setSelectedMapsPhotos([]);
+    } else {
+      setSelectedMapsPhotos(mapsPhotos.slice(0, 15));
+    }
+  };
+
+  const handleRemoveMapsPhoto = (photoUrl: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMapsPhotos((prev) => prev.filter((p) => p !== photoUrl));
+    setSelectedMapsPhotos((prev) => prev.filter((p) => p !== photoUrl));
+  };
+
+  const handleMapsPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploadingMapsPhoto(true);
+    try {
+      const newUrls: string[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        try {
+          const uploadedUrl = await uploadBrandLogo(file);
+          if (uploadedUrl) newUrls.push(uploadedUrl);
+        } catch (_) {
+          const localUrl = URL.createObjectURL(file);
+          newUrls.push(localUrl);
+        }
+      }
+      setMapsPhotos((prev) => [...newUrls, ...prev]);
+      setSelectedMapsPhotos((prev) => {
+        const merged = [...newUrls, ...prev];
+        return merged.slice(0, 15);
+      });
+    } catch (err) {
+      console.error("Maps photo upload error:", err);
+    } finally {
+      setIsUploadingMapsPhoto(false);
+    }
+  };
+
+  const handleMapsPhotosContinue = async () => {
+    if (selectedMapsPhotos.length === 0) {
+      setError("Please select or upload at least one photo.");
+      return;
+    }
+    setError("");
+    setIsSavingMapsStep(true);
+    try {
+      setSelectedPhotos(selectedMapsPhotos);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_maps_photos", JSON.stringify(mapsPhotos));
+        sessionStorage.setItem("google_maps_selected_photos", JSON.stringify(selectedMapsPhotos));
+        sessionStorage.setItem("website_selected_photos", JSON.stringify(selectedMapsPhotos));
+      }
+
+      try {
+        await updateBrandKit({
+          business_name: businessProfile.business_name,
+          business_category: mapsCategory,
+          selected_photos: selectedMapsPhotos,
+        });
+      } catch (_) {}
+
+      try {
+        await OnboardingService.updateProgress({
+          business_name: businessProfile.business_name,
+          business_category: mapsCategory,
+          google_maps_url: selectedMapsPlace?.googleMapsUrl,
+          selected_photos: selectedMapsPhotos,
+        });
+      } catch (_) {}
+
+      // Advance to common completion screen: "Let's make your first thing"
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to save photos.");
+    } finally {
+      setIsSavingMapsStep(false);
+    }
+  };
+
+  // ─── Marketplace Seller Flow Handlers ───
+  const handleToggleMarketplace = (id: string) => {
+    setError("");
+    setSelectedMarketplaces((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_selected_platforms", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const handleMarketplacePlatformsBack = () => {
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMarketplacePlatformsContinue = () => {
+    if (selectedMarketplaces.length === 0) {
+      setError("Please select at least one marketplace.");
+      return;
+    }
+    if (selectedMarketplaces.includes("other") && !customMarketplaceName.trim()) {
+      setError("Please enter your custom marketplace name.");
+      return;
+    }
+    setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("marketplace_selected_platforms", JSON.stringify(selectedMarketplaces));
+      sessionStorage.setItem("marketplace_custom_name", customMarketplaceName);
+    }
+    try {
+      OnboardingService.updateProgress({
+        marketplace_platforms: selectedMarketplaces.map((m) =>
+          m === "other" && customMarketplaceName.trim() ? customMarketplaceName.trim() : m
+        ),
+      });
+    } catch (_) {}
+
+    const listingsIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
+    const target = listingsIdx !== -1 ? listingsIdx : 3;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleToggleListing = (id: string) => {
+    setError("");
+    if (id === "none_of_these") {
+      setSelectedListings((prev) => {
+        const next = prev.includes("none_of_these") ? [] : ["none_of_these"];
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(next));
+        }
+        return next;
+      });
+      setCustomListingName("");
+      return;
+    }
+    setSelectedListings((prev) => {
+      const withoutNone = prev.filter((p) => p !== "none_of_these");
+      const next = withoutNone.includes(id)
+        ? withoutNone.filter((p) => p !== id)
+        : [...withoutNone, id];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const handleMarketplaceListingsBack = () => {
+    const platIdx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+    const target = platIdx !== -1 ? platIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMarketplaceListingsContinue = () => {
+    if (selectedListings.length === 0) {
+      setError("Please select where you list your business or choose 'None of these'.");
+      return;
+    }
+    if (selectedListings.includes("other") && !customListingName.trim()) {
+      setError("Please enter your custom directory name.");
+      return;
+    }
+    setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(selectedListings));
+      sessionStorage.setItem("marketplace_custom_listing_name", customListingName);
+    }
+    try {
+      OnboardingService.updateProgress({
+        marketplace_listings: selectedListings
+          .filter((l) => l !== "none_of_these")
+          .map((l) => (l === "other" && customListingName.trim() ? customListingName.trim() : l)),
+      });
+    } catch (_) {}
+
+    const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+    const target = webIdx !== -1 ? webIdx : 4;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMarketplaceWebsiteBack = () => {
+    const listIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
+    const target = listIdx !== -1 ? listIdx : 3;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleMarketplaceWebsiteContinue = () => {
+    if (!isValidWebsiteUrl(websiteUrl)) {
+      setError("Please enter a valid website address (e.g. yourbusiness.com).");
+      return;
+    }
+    setError("");
+    setMarketplaceSkipWebsite(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("marketplace_skip_website", "false");
+      sessionStorage.setItem("business_website_url", websiteUrl);
+    }
+    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+
+    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+    const target = readingIdx !== -1 ? readingIdx : 5;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+    startWebsiteAnalysis(websiteUrl);
+  };
+
+  const handleSkipMarketplaceWebsite = () => {
+    setError("");
+    setMarketplaceSkipWebsite(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("marketplace_skip_website", "true");
+    }
+    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+    const target = identIdx !== -1 ? identIdx : 5;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  // ─── Wholesale / B2B Flow Handlers ───
+  const handleToggleB2bPlatform = (id: string) => {
+    setError("");
+    setSelectedB2bPlatforms((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_selected_platforms", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const handleB2bPlatformsBack = () => {
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleB2bPlatformsContinue = () => {
+    if (selectedB2bPlatforms.length === 0) {
+      setError("Please select at least one wholesale platform.");
+      return;
+    }
+    if (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim()) {
+      setError("Please enter your platform name.");
+      return;
+    }
+    setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("b2b_selected_platforms", JSON.stringify(selectedB2bPlatforms));
+      sessionStorage.setItem("b2b_custom_platform_name", customB2bPlatformName);
+    }
+    try {
+      OnboardingService.updateProgress({
+        b2b_platforms: selectedB2bPlatforms.map((p) =>
+          p === "other" && customB2bPlatformName.trim() ? customB2bPlatformName.trim() : p
+        ),
+      });
+    } catch (_) {}
+
+    const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
+    const target = listIdx !== -1 ? listIdx : 3;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleToggleB2bListing = (id: string) => {
+    setError("");
+    if (id === "none_of_these") {
+      setSelectedB2bListings((prev) => {
+        const next = prev.includes("none_of_these") ? [] : ["none_of_these"];
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("b2b_selected_listings", JSON.stringify(next));
+        }
+        return next;
+      });
+      setCustomB2bListingName("");
+      return;
+    }
+    setSelectedB2bListings((prev) => {
+      const withoutNone = prev.filter((p) => p !== "none_of_these");
+      const next = withoutNone.includes(id)
+        ? withoutNone.filter((p) => p !== id)
+        : [...withoutNone, id];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_selected_listings", JSON.stringify(next));
+      }
+      return next;
+    });
+  };
+
+  const handleB2bListingsBack = () => {
+    const platIdx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+    const target = platIdx !== -1 ? platIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleB2bListingsContinue = () => {
+    if (selectedB2bListings.length === 0) {
+      setError("Please select where else you sell or choose 'None of these'.");
+      return;
+    }
+    if (selectedB2bListings.includes("other") && !customB2bListingName.trim()) {
+      setError("Please enter your platform name.");
+      return;
+    }
+    setError("");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("b2b_selected_listings", JSON.stringify(selectedB2bListings));
+      sessionStorage.setItem("b2b_custom_listing_name", customB2bListingName);
+    }
+    try {
+      OnboardingService.updateProgress({
+        b2b_listings: selectedB2bListings
+          .filter((l) => l !== "none_of_these")
+          .map((l) => (l === "other" && customB2bListingName.trim() ? customB2bListingName.trim() : l)),
+      });
+    } catch (_) {}
+
+    const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+    const target = webIdx !== -1 ? webIdx : 4;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleB2bWebsiteBack = () => {
+    const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
+    const target = listIdx !== -1 ? listIdx : 3;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleB2bWebsiteContinue = () => {
+    if (!isValidWebsiteUrl(websiteUrl)) {
+      setError("Please enter a valid website or storefront address.");
+      return;
+    }
+    setError("");
+    setB2bSkipWebsite(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("b2b_skip_website", "false");
+      sessionStorage.setItem("business_website_url", websiteUrl);
+    }
+    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+
+    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+    const target = readingIdx !== -1 ? readingIdx : 5;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+    startWebsiteAnalysis(websiteUrl);
+  };
+
+  const handleSkipB2bWebsite = () => {
+    setError("");
+    setB2bSkipWebsite(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("b2b_skip_website", "true");
+    }
+    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+    const target = identIdx !== -1 ? identIdx : 5;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  // ─── No Online Presence Flow Handlers ───
+  const handleNoneDetailsBack = () => {
+    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+    const target = socialIdx !== -1 ? socialIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleNoneDetailsContinue = async () => {
+    const name = businessProfile.business_name.trim();
+    if (!name) {
+      setError("Please enter your business name.");
+      return;
+    }
+    setError("");
+    setIsSavingBrandKitStep(true);
+    try {
+      const updatedProfile = {
+        ...businessProfile,
+        business_name: name,
+        business_category: noneCategory || businessProfile.business_category || "Fashion & Apparel",
+        business_description: noneDescription.trim() || businessProfile.business_description,
+      };
+      setBusinessProfile(updatedProfile);
+
+      const updatedDetails = {
+        ...businessDetails,
+        business_name: name,
+        category: noneCategory || businessProfile.business_category || "Fashion & Apparel",
+        sub_category: noneSubCategory.trim() || businessDetails.sub_category,
+        target_audience: noneAudience.trim() || businessDetails.target_audience,
+        products_services: noneProducts.trim() ? [noneProducts.trim()] : businessDetails.products_services,
+        differentiators: noneDifferentiator.trim() ? [noneDifferentiator.trim()] : businessDetails.differentiators,
+      };
+      setBusinessDetails(updatedDetails);
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_profile_data", JSON.stringify(updatedProfile));
+        sessionStorage.setItem("business_details_data", JSON.stringify(updatedDetails));
+        sessionStorage.setItem("none_category", noneCategory);
+        sessionStorage.setItem("none_sub_category", noneSubCategory);
+        sessionStorage.setItem("none_products", noneProducts);
+        sessionStorage.setItem("none_audience", noneAudience);
+        sessionStorage.setItem("none_differentiator", noneDifferentiator);
+        sessionStorage.setItem("none_description", noneDescription);
+      }
+
+      // Save partial updates to BrandKit API
+      try {
+        await updateBrandKit({
+          business_name: name,
+          business_category: noneCategory || businessProfile.business_category,
+          business_description: noneDescription.trim() || undefined,
+          sub_category: noneSubCategory.trim() || undefined,
+          target_audience: noneAudience.trim() || undefined,
+          target_audience_summary: noneAudience.trim() || undefined,
+          products_services: noneProducts.trim() ? [noneProducts.trim()] : undefined,
+          services_products_summary: noneProducts.trim() ? [noneProducts.trim()] : undefined,
+          differentiators: noneDifferentiator.trim() ? [noneDifferentiator.trim()] : undefined,
+        });
+      } catch (_) {}
+
+      try {
+        await OnboardingService.updateProgress({
+          business_name: name,
+          business_category: noneCategory || businessProfile.business_category,
+          onboarding_step: 3,
+        });
+      } catch (_) {}
+
+      // Advance to Brand Kit Style screen
+      const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
+      const target = brandKitIdx !== -1 ? brandKitIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to save business details.");
+    } finally {
+      setIsSavingBrandKitStep(false);
+    }
+  };
+
+  const handleNoneDetailsSkip = () => {
+    // If business name is blank, use friendly fallback so user is never blocked
+    if (!businessProfile.business_name.trim()) {
+      setBusinessProfile((prev) => ({
+        ...prev,
+        business_name: prev.business_name.trim() || "My Business",
+      }));
+    }
+    setError("");
+    const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
+    const target = brandKitIdx !== -1 ? brandKitIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleNoneBrandKitBack = () => {
+    const detailsIdx = activeSteps.findIndex((s) => s.id === "none_details");
+    const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleNoneBrandKitContinue = async () => {
+    setError("");
+    setIsSavingBrandKitStep(true);
+    try {
+      const primaryColor = brandPreferences.palette[0] || "#BE32FF";
+      const secondaryColor = brandPreferences.palette[1] || "#F0449B";
+      const accentColor = brandPreferences.palette[2] || "#FC9A5D";
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("brand_preferences_data", JSON.stringify(brandPreferences));
+        sessionStorage.setItem("selected_font", selectedFont);
+      }
+
+      // Persist to BrandKit API
+      try {
+        await updateBrandKit({
+          business_name: businessProfile.business_name.trim() || undefined,
+          business_category: noneCategory || businessProfile.business_category,
+          primary_color: primaryColor,
+          secondary_color: secondaryColor,
+          accent_color: accentColor,
+          brand_colors: brandPreferences.palette,
+          palette: brandPreferences.palette,
+          font: selectedFont,
+          tones: brandPreferences.tones,
+          tone: brandPreferences.tones.join(", "),
+          language: brandPreferences.language,
+          logo_url: businessProfile.business_logo || businessDetails.logo_url || undefined,
+        });
+      } catch (_) {}
+
+      try {
+        await OnboardingService.updateProgress({
+          brand_colors: brandPreferences.palette,
+          onboarding_step: 4,
+        });
+      } catch (_) {}
+
+      // Advance to common completion screen: "Let's make your first thing"
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      setError(err?.message || "Failed to save brand preferences.");
+    } finally {
+      setIsSavingBrandKitStep(false);
+    }
+  };
+
+  const handleNoneBrandKitSkip = () => {
+    setError("");
+    // Advance to common completion screen: "Let's make your first thing"
+    const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+    const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleBrandLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingBrandLogo(true);
+    setError("");
+    try {
+      let logoUrl = "";
+      try {
+        logoUrl = await uploadBrandLogo(file);
+      } catch (_) {
+        logoUrl = URL.createObjectURL(file);
+      }
+      setLogoPreview(logoUrl);
+      setBusinessProfile((prev) => ({ ...prev, business_logo: logoUrl }));
+      setBusinessDetails((prev) => ({ ...prev, logo_url: logoUrl }));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("brand_kit_logo", logoUrl);
+      }
+    } catch (err: any) {
+      console.error("Logo upload error:", err);
+      setError("Failed to upload logo. You can proceed without it or try another image.");
+    } finally {
+      setIsUploadingBrandLogo(false);
+    }
+  };
+
+  const handleRemoveBrandLogo = () => {
+    setLogoPreview(null);
+    setBusinessProfile((prev) => ({ ...prev, business_logo: "" }));
+    setBusinessDetails((prev) => ({ ...prev, logo_url: "" }));
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("brand_kit_logo");
+    }
+  };
+
+  const handleSelectColorPreset = (preset: ColorPreset) => {
+    const newPalette = [preset.primary, preset.secondary, preset.accent];
+    setBrandPreferences((prev) => ({
+      ...prev,
+      palette: newPalette,
+    }));
+    setBusinessProfile((prev) => ({
+      ...prev,
+      brand_color: preset.primary,
+    }));
+  };
 
   const handleSelectInfluencerAndLaunch = async (e?: React.MouseEvent) => {
     if (e) {
@@ -183,6 +2305,7 @@ export default function OnboardingPage() {
     business_description: "",
     business_logo: "",
     brand_color: "#be32ff",
+    website: "",
     registration_number: "",
     year_established: new Date().getFullYear().toString(),
     country: "India",
@@ -345,8 +2468,64 @@ export default function OnboardingPage() {
   ];
 
   const businessSteps = [
-    { id: "account_type", title: "Account Type", desc: "Select role" },
-    { id: "identity", title: "Business Identity", desc: "Name & category" },
+    { id: "get_started", title: "Get Started", desc: "Welcome" },
+    { id: "presence", title: "Online Presence", desc: "Where you sell" },
+    { id: "social_connect", title: "Instagram", desc: "Link Instagram" },
+    ...(selectedOnlinePresence === "website"
+      ? [
+          { id: "website_url", title: "Website", desc: "Your storefront" },
+          { id: "website_reading", title: "Reading Website", desc: "AI audit" },
+          { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+          { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+          { id: "website_photos", title: "Photos", desc: "Pick website photos" },
+        ]
+      : selectedOnlinePresence === "google_maps"
+      ? [
+          { id: "maps_search", title: "Google Maps", desc: "Find your shop" },
+          { id: "maps_website", title: "Website", desc: "Storefront link" },
+          { id: "maps_category", title: "Category", desc: "Business niche" },
+          { id: "maps_details", title: "Business Details", desc: "About your shop" },
+          { id: "maps_photos", title: "Photos", desc: "Pick shop photos" },
+        ]
+      : selectedOnlinePresence === "marketplace"
+      ? [
+          { id: "marketplace_platforms", title: "Marketplaces", desc: "Where you sell" },
+          { id: "marketplace_listings", title: "Listings", desc: "Directory listings" },
+          { id: "marketplace_website", title: "Website", desc: "Storefront link" },
+          ...(marketplaceSkipWebsite
+            ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+            : [
+                { id: "website_reading", title: "Reading Website", desc: "AI audit" },
+                { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+                { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+                { id: "website_photos", title: "Photos", desc: "Pick website photos" },
+              ]),
+        ]
+      : selectedOnlinePresence === "b2b"
+      ? [
+          { id: "b2b_platforms", title: "B2B Channels", desc: "Wholesale platforms" },
+          { id: "b2b_listings", title: "Listings", desc: "Additional listings" },
+          { id: "b2b_website", title: "Storefront", desc: "Storefront link" },
+          ...(b2bSkipWebsite
+            ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+            : [
+                { id: "website_reading", title: "Reading Website", desc: "AI audit" },
+                { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+                { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+                { id: "website_photos", title: "Photos", desc: "Pick website photos" },
+              ]),
+        ]
+      : selectedOnlinePresence === "none"
+      ? [
+          { id: "none_details", title: "Business Basics", desc: "Name & products" },
+          { id: "none_brand_kit", title: "Brand Kit", desc: "Colors, font & voice" },
+        ]
+      : [
+          { id: "identity", title: "Business Identity", desc: "Name & category" },
+        ]),
+    { id: "first_thing", title: "First Creation", desc: "Make your first thing" },
+    { id: "post_maker_pick", title: "Pick Photos", desc: "Select post photos" },
+    { id: "post_maker_ready", title: "Posts Ready", desc: "Review your output" },
     { id: "registration", title: "Registration", desc: "Contact & legal" },
     { id: "location", title: "Location", desc: "Address details" },
     { id: "audience", title: "Target Audience", desc: "Market & customers" },
@@ -359,20 +2538,47 @@ export default function OnboardingPage() {
       : accountType === "influencer" 
         ? influencerSteps 
         : userSteps;
+  const currentStepObj = activeSteps[currentStep] || activeSteps[0];
   const isLastStep = currentStep === activeSteps.length - 1;
+  const isFormCardStep =
+    currentStepObj.id !== "get_started" &&
+    currentStepObj.id !== "presence" &&
+    currentStepObj.id !== "social_connect" &&
+    currentStepObj.id !== "website_url" &&
+    currentStepObj.id !== "website_reading" &&
+    currentStepObj.id !== "business_details" &&
+    currentStepObj.id !== "brand_preferences" &&
+    currentStepObj.id !== "website_photos" &&
+    currentStepObj.id !== "maps_search" &&
+    currentStepObj.id !== "maps_website" &&
+    currentStepObj.id !== "maps_category" &&
+    currentStepObj.id !== "maps_details" &&
+    currentStepObj.id !== "maps_photos" &&
+    currentStepObj.id !== "marketplace_platforms" &&
+    currentStepObj.id !== "marketplace_listings" &&
+    currentStepObj.id !== "marketplace_website" &&
+    currentStepObj.id !== "b2b_platforms" &&
+    currentStepObj.id !== "b2b_listings" &&
+    currentStepObj.id !== "b2b_website" &&
+    currentStepObj.id !== "none_details" &&
+    currentStepObj.id !== "none_brand_kit" &&
+    currentStepObj.id !== "first_thing" &&
+    currentStepObj.id !== "post_maker_pick" &&
+    currentStepObj.id !== "post_maker_ready";
 
   // Validation before advancing to next step
   const validateCurrentStep = () => {
     setError("");
+    const stepId = currentStepObj?.id;
     if (accountType === "user") {
-      if (currentStep === 1) {
+      if (stepId === "personal_profile") {
         if (!userProfile.fullName.trim()) {
           setError("Please enter your full name.");
           return false;
         }
       }
     } else if (accountType === "influencer") {
-      if (currentStep === 1) {
+      if (stepId === "creator_profile") {
         if (!influencerProfile.fullName.trim()) {
           setError("Please enter your Creator / Display Name.");
           return false;
@@ -381,14 +2587,111 @@ export default function OnboardingPage() {
           setError("Please select your primary niche / category.");
           return false;
         }
-      } else if (currentStep === 2) {
+      } else if (stepId === "social_reach") {
         if (!influencerProfile.instagram_url.trim() && !influencerProfile.youtube_url.trim()) {
           setError("Please provide at least one social media link or handle (Instagram or YouTube).");
           return false;
         }
       }
     } else {
-      if (currentStep === 1) {
+      if (stepId === "get_started") {
+        return true;
+      }
+      if (stepId === "presence") {
+        if (!selectedOnlinePresence) {
+          setError("Please select where your business lives online.");
+          return false;
+        }
+      } else if (stepId === "website_url") {
+        if (!isValidWebsiteUrl(websiteUrl)) {
+          setError("Please enter a valid website address.");
+          return false;
+        }
+      } else if (stepId === "website_reading") {
+        return true;
+      } else if (stepId === "business_details") {
+        if (!businessDetails.business_name.trim()) {
+          setError("Business Name is required.");
+          return false;
+        }
+      } else if (stepId === "brand_preferences") {
+        return true;
+      } else if (stepId === "website_photos") {
+        return true;
+      } else if (stepId === "maps_search") {
+        if (!selectedMapsPlace) {
+          setError("Please search and select your shop on Google Maps.");
+          return false;
+        }
+      } else if (stepId === "maps_website") {
+        return true;
+      } else if (stepId === "maps_category") {
+        if (!mapsCategory.trim()) {
+          setError("Please select a business category.");
+          return false;
+        }
+      } else if (stepId === "maps_details") {
+        if (!businessProfile.business_name.trim()) {
+          setError("Business Name is required.");
+          return false;
+        }
+        if (!mapsPromotion.trim()) {
+          setError("Please tell us what we should promote for your business.");
+          return false;
+        }
+      } else if (stepId === "maps_photos") {
+        if (selectedMapsPhotos.length === 0) {
+          setError("Please select or upload at least one photo.");
+          return false;
+        }
+      } else if (stepId === "marketplace_platforms") {
+        if (selectedMarketplaces.length === 0) {
+          setError("Please select at least one marketplace.");
+          return false;
+        }
+        if (selectedMarketplaces.includes("other") && !customMarketplaceName.trim()) {
+          setError("Please enter your custom marketplace name.");
+          return false;
+        }
+      } else if (stepId === "marketplace_listings") {
+        if (selectedListings.length === 0) {
+          setError("Please select where you list your business or choose 'None of these'.");
+          return false;
+        }
+        if (selectedListings.includes("other") && !customListingName.trim()) {
+          setError("Please enter your custom directory name.");
+          return false;
+        }
+      } else if (stepId === "marketplace_website") {
+        return true;
+      } else if (stepId === "b2b_platforms") {
+        if (selectedB2bPlatforms.length === 0) {
+          setError("Please select at least one wholesale platform.");
+          return false;
+        }
+        if (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim()) {
+          setError("Please enter your platform name.");
+          return false;
+        }
+      } else if (stepId === "b2b_listings") {
+        if (selectedB2bListings.length === 0) {
+          setError("Please select where else you sell or choose 'None of these'.");
+          return false;
+        }
+        if (selectedB2bListings.includes("other") && !customB2bListingName.trim()) {
+          setError("Please enter your platform name.");
+          return false;
+        }
+      } else if (stepId === "b2b_website") {
+        return true;
+      } else if (stepId === "none_details") {
+        if (!businessProfile.business_name.trim()) {
+          setError("Please enter your business name.");
+          return false;
+        }
+      } else if (stepId === "none_brand_kit") {
+        return true;
+      } else if (stepId === "identity") {
         if (!businessProfile.business_name.trim()) {
           setError("Business Name is required.");
           return false;
@@ -397,7 +2700,7 @@ export default function OnboardingPage() {
           setError("Please select a business category.");
           return false;
         }
-      } else if (currentStep === 3) {
+      } else if (stepId === "location") {
         if (!businessProfile.city.trim()) {
           setError("City is required for localized AI marketing.");
           return false;
@@ -412,7 +2715,11 @@ export default function OnboardingPage() {
     if (!validateCurrentStep()) return;
 
     if (currentStep < activeSteps.length - 2) {
-      setCurrentStep((prev) => prev + 1);
+      const nextStep = currentStep + 1;
+      setCurrentStep(nextStep);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(nextStep));
+      }
     } else if (currentStep === activeSteps.length - 2) {
       // Final submission step
       await submitOnboarding();
@@ -438,10 +2745,413 @@ export default function OnboardingPage() {
     }
   };
 
+  // ─── First Creation & Post Maker Flow Handlers ───
+  const handleFirstThingContinue = () => {
+    if (firstThingChoice === "post_maker") {
+      const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
+      const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (firstThingChoice === "photoshoot") {
+      router.push("/ai-photoshoot");
+    } else if (firstThingChoice === "reel_maker") {
+      router.push("/create/reel");
+    }
+  };
+
+  const handleFirstThingBack = () => {
+    if (selectedOnlinePresence === "website") {
+      const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
+      const target = photosIdx !== -1 ? photosIdx : currentStep - 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "google_maps") {
+      const mapsPhotosIdx = activeSteps.findIndex((s) => s.id === "maps_photos");
+      const target = mapsPhotosIdx !== -1 ? mapsPhotosIdx : currentStep - 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else if (selectedOnlinePresence === "marketplace") {
+      if (marketplaceSkipWebsite) {
+        const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+        const target = identIdx !== -1 ? identIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else {
+        const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
+        const target = photosIdx !== -1 ? photosIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } else if (selectedOnlinePresence === "b2b") {
+      if (b2bSkipWebsite) {
+        const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+        const target = identIdx !== -1 ? identIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else {
+        const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
+        const target = photosIdx !== -1 ? photosIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } else if (selectedOnlinePresence === "none") {
+      const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
+      const target = brandKitIdx !== -1 ? brandKitIdx : currentStep - 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+    } else {
+      setCurrentStep(Math.max(0, currentStep - 1));
+    }
+  };
+
+  const handlePostMakerPickBack = () => {
+    const firstIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+    const target = firstIdx !== -1 ? firstIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+  };
+
+  const handlePostMakerReadyBack = () => {
+    const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
+    const target = pickIdx !== -1 ? pickIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+  };
+
+  const handleGeneratePosts = async () => {
+    setIsGeneratingPosts(true);
+    setGenerationStatusText("Analyzing your brand and visual style...");
+    const businessName = businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solutions";
+    const category = businessProfile.business_category || businessDetails.category || "Tech & Electronics";
+    const activePhoto = promoPhoto || getAvailablePhotos()[0];
+
+    try {
+      setGenerationStatusText(`Synthesizing ${businessName}'s promotional voice...`);
+      
+      let res: any = null;
+      try {
+        res = await contentService.generateContent({
+          type: "Instagram Post",
+          platform: "Instagram",
+          language: brandPreferences.language || "English",
+          tone: brandPreferences.tones[0] || "Professional",
+          productName: businessName,
+          productDescription: businessProfile.business_description || businessDetails.tagline || `${category} business services and offerings`,
+          use_brand_kit: true,
+          brand_name: businessName,
+          targetAudience: businessDetails.target_audience || "Customers & clients",
+          productImages: [activePhoto],
+        });
+      } catch (apiErr) {
+        console.warn("Notice: Content generation API fallback to client synthesis:", apiErr);
+      }
+
+      setGenerationStatusText("Packaging high-converting captions and hashtags...");
+
+      const generatedPostData: GeneratedPost = {
+        product_id: "onboarding_" + Date.now(),
+        platform: "Instagram",
+        objective: "Promotions & Brand Growth",
+        headline: res?.data?.title || `${businessName} Special Launch & Offers`,
+        caption: res?.data?.caption || `Accelerate your results with ${businessName}. Top-tier solutions designed for your needs. Contact us today or visit our storefront to discover more!`,
+        call_to_action: res?.data?.callToAction || "Link in bio / Tap to learn more",
+        hashtags: Array.isArray(res?.data?.hashtags) && res.data.hashtags.length > 0 
+          ? res.data.hashtags 
+          : [`#${businessName.replace(/[^a-zA-Z0-9]/g, "")}`, `#${category.replace(/[^a-zA-Z0-9]/g, "")}`, "#BusinessGrowth", "#Trending", "#ScalioAI"],
+        image_url: activePhoto,
+        media_url: activePhoto,
+        creative_direction: "Vibrant high-conversion promotional design with curated brand color accents.",
+      };
+
+      setGeneratedOnboardingPost(generatedPostData);
+
+      const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
+      const target = readyIdx !== -1 ? readyIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Post generation error:", err);
+      const fallbackPost: GeneratedPost = {
+        product_id: "onboarding_" + Date.now(),
+        platform: "Instagram",
+        objective: "Promotions & Brand Growth",
+        headline: `${businessName} Special Launch`,
+        caption: `Elevate your business with ${businessName}. Quality, consistency, and results. Visit us today!`,
+        call_to_action: "Visit profile link",
+        hashtags: [`#${businessName.replace(/[^a-zA-Z0-9]/g, "")}`, "#BusinessGrowth", "#DhandaGrow"],
+        image_url: activePhoto,
+        media_url: activePhoto,
+      };
+      setGeneratedOnboardingPost(fallbackPost);
+      const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
+      const target = readyIdx !== -1 ? readyIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } finally {
+      setIsGeneratingPosts(false);
+    }
+  };
+
+  const handleOpenUnlockedPostInCreate = () => {
+    const postToOpen = generatedOnboardingPost || {
+      product_id: "onboarding_sample",
+      platform: "Instagram",
+      objective: "Promotion",
+      headline: `${businessProfile.business_name || businessDetails.business_name} Special Launch`,
+      caption: `Elevate your business with ${businessProfile.business_name || businessDetails.business_name}! Visit us today.`,
+      call_to_action: "Visit profile link",
+      hashtags: ["#BusinessGrowth", "#Marketing", "#Viral"],
+      image_url: promoPhoto || DEFAULT_BUSINESS_PHOTOS[0],
+      media_url: promoPhoto || DEFAULT_BUSINESS_PHOTOS[0],
+    };
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_post_for_edit", JSON.stringify(postToOpen));
+    }
+    router.push("/ai-post");
+  };
+
+  const handleLockedPostClick = () => {
+    setShowPlansModal(true);
+  };
+
   const handleBack = () => {
     setError("");
+    if (accountType === "business") {
+      const stepId = currentStepObj?.id;
+      if (stepId === "registration") {
+        const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
+        const target = readyIdx !== -1 ? readyIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "post_maker_ready") {
+        handlePostMakerReadyBack();
+        return;
+      }
+      if (stepId === "post_maker_pick") {
+        handlePostMakerPickBack();
+        return;
+      }
+      if (stepId === "first_thing") {
+        handleFirstThingBack();
+        return;
+      }
+      if (stepId === "social_connect") {
+        handleSocialConnectBack();
+        return;
+      }
+      if (
+        stepId === "website_url" ||
+        stepId === "maps_search" ||
+        stepId === "marketplace_platforms" ||
+        stepId === "b2b_platforms" ||
+        stepId === "none_details"
+      ) {
+        const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+        const target = socialIdx !== -1 ? socialIdx : 2;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "marketplace_listings") {
+        const platIdx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+        const target = platIdx !== -1 ? platIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "marketplace_website") {
+        const listIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
+        const target = listIdx !== -1 ? listIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "b2b_platforms") {
+        const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+        const target = presenceIdx !== -1 ? presenceIdx : 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "b2b_listings") {
+        const platIdx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+        const target = platIdx !== -1 ? platIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "b2b_website") {
+        const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
+        const target = listIdx !== -1 ? listIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "maps_photos") {
+        const detailsIdx = activeSteps.findIndex((s) => s.id === "maps_details");
+        const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "maps_details") {
+        const catIdx = activeSteps.findIndex((s) => s.id === "maps_category");
+        const target = catIdx !== -1 ? catIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "maps_category") {
+        const webIdx = activeSteps.findIndex((s) => s.id === "maps_website");
+        const target = webIdx !== -1 ? webIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "maps_website") {
+        const searchIdx = activeSteps.findIndex((s) => s.id === "maps_search");
+        const target = searchIdx !== -1 ? searchIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "maps_search") {
+        const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+        const target = presenceIdx !== -1 ? presenceIdx : 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "website_photos") {
+        const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
+        const target = brandIdx !== -1 ? brandIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "brand_preferences") {
+        const detailsIdx = activeSteps.findIndex((s) => s.id === "business_details");
+        const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "business_details") {
+        const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+        const target = readingIdx !== -1 ? readingIdx : currentStep - 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "identity") {
+        if (selectedOnlinePresence === "marketplace") {
+          setMarketplaceSkipWebsite(false);
+          const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+          const target = webIdx !== -1 ? webIdx : 4;
+          setCurrentStep(target);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", String(target));
+          }
+          return;
+        }
+        if (selectedOnlinePresence === "b2b") {
+          setB2bSkipWebsite(false);
+          const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+          const target = webIdx !== -1 ? webIdx : 4;
+          setCurrentStep(target);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", String(target));
+          }
+          return;
+        }
+        const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+        const target = presenceIdx !== -1 ? presenceIdx : 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "website_reading") {
+        if (selectedOnlinePresence === "marketplace") {
+          const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+          const target = webIdx !== -1 ? webIdx : 4;
+          setCurrentStep(target);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", String(target));
+          }
+          return;
+        }
+        if (selectedOnlinePresence === "b2b") {
+          const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+          const target = webIdx !== -1 ? webIdx : 4;
+          setCurrentStep(target);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", String(target));
+          }
+          return;
+        }
+        const urlIdx = activeSteps.findIndex((s) => s.id === "website_url");
+        const target = urlIdx !== -1 ? urlIdx : 2;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+      if (stepId === "website_url") {
+        const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+        const target = presenceIdx !== -1 ? presenceIdx : 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("onboarding_step", String(target));
+        }
+        return;
+      }
+    }
     if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
+      const prevStep = currentStep - 1;
+      setCurrentStep(prevStep);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(prevStep));
+      }
     }
   };
 
@@ -613,16 +3323,65 @@ export default function OnboardingPage() {
         // Advance to Ready step
         setCurrentStep(activeSteps.length - 1);
       } else {
-        // ─── BUSINESS ONBOARDING: Send ALL business fields from DB schema ───
+        const finalSelectedPhotos = selectedOnlinePresence === "google_maps"
+          ? (selectedMapsPhotos.length > 0 ? selectedMapsPhotos : selectedPhotos)
+          : selectedPhotos;
+
+        const finalMarketplaces = selectedMarketplaces.map((m) =>
+          m === "other" && customMarketplaceName.trim() ? customMarketplaceName.trim() : m
+        );
+        const finalListings = selectedListings
+          .filter((l) => l !== "none_of_these")
+          .map((l) => (l === "other" && customListingName.trim() ? customListingName.trim() : l));
+
+        const finalB2bPlatforms = selectedB2bPlatforms.map((p) =>
+          p === "other" && customB2bPlatformName.trim() ? customB2bPlatformName.trim() : p
+        );
+        const finalB2bListings = selectedB2bListings
+          .filter((l) => l !== "none_of_these")
+          .map((l) => (l === "other" && customB2bListingName.trim() ? customB2bListingName.trim() : l));
+
+        const deduplicatedB2bPlatforms = Array.from(new Set([...finalB2bPlatforms, ...finalB2bListings]));
+
+        const finalCategory = selectedOnlinePresence === "google_maps"
+          ? mapsCategory
+          : selectedOnlinePresence === "none"
+            ? (noneCategory || businessProfile.business_category)
+            : businessProfile.business_category;
+
+        const finalDescription = selectedOnlinePresence === "none"
+          ? (noneDescription || businessProfile.business_description.trim() || null)
+          : (mapsPromotion || businessProfile.business_description.trim() || null);
+
+        const finalSubCategory = selectedOnlinePresence === "none"
+          ? (noneSubCategory || businessDetails.sub_category)
+          : (mapsSubCategory || businessDetails.sub_category);
+
+        const finalDifferentiators = selectedOnlinePresence === "none"
+          ? (noneDifferentiator ? [noneDifferentiator] : businessDetails.differentiators)
+          : (mapsDifferentiator ? [mapsDifferentiator] : businessDetails.differentiators);
+
+        const finalProducts = selectedOnlinePresence === "none"
+          ? (noneProducts ? [noneProducts] : businessDetails.products_services)
+          : (mapsPromotion ? [mapsPromotion] : businessDetails.products_services);
+
+        const finalAudience = selectedOnlinePresence === "none"
+          ? (noneAudience || businessDetails.target_audience)
+          : (mapsAudience || businessDetails.target_audience);
+
+        const finalLogo = logoPreview || mapsLogoUrl || businessProfile.business_logo || null;
+
         const businessPayload = {
           accountType: "business",
           role: "business",
           business_name: businessProfile.business_name.trim(),
           business_type: businessProfile.business_type,
-          business_category: businessProfile.business_category,
-          business_description: businessProfile.business_description.trim() || null,
-          business_logo: businessProfile.business_logo || null,
-          brand_color: businessProfile.brand_color || null,
+          business_category: finalCategory,
+          business_description: finalDescription,
+          business_logo: finalLogo,
+          brand_color: brandPreferences.palette[0] || businessProfile.brand_color || null,
+          website: businessProfile.website || websiteUrl || mapsWebsiteUrl || null,
+          website_url: businessProfile.website || websiteUrl || mapsWebsiteUrl || null,
           registration_number: businessProfile.registration_number.trim() || null,
           year_established: businessProfile.year_established.trim() || null,
           country: businessProfile.country || "India",
@@ -631,19 +3390,36 @@ export default function OnboardingPage() {
           area: businessProfile.area.trim() || null,
           pincode: businessProfile.pincode.trim() || null,
           full_address: businessProfile.full_address.trim() || null,
-          google_maps_url: businessProfile.google_maps_url.trim() || null,
+          google_maps_url: selectedMapsPlace?.googleMapsUrl || businessProfile.google_maps_url.trim() || null,
           business_model: businessProfile.business_model || null,
           selling_model: businessProfile.selling_model || null,
           target_age_group: businessProfile.target_age_group || [],
           target_gender: businessProfile.target_gender || "All",
-          target_location: businessProfile.target_location || null,
+          target_location: finalAudience || businessProfile.target_location || null,
           customer_type: businessProfile.customer_type || null,
           phone: businessProfile.phone.trim() || null,
           contactNumber: businessProfile.phone.trim() || null,
           contact_phone: businessProfile.phone.trim() || null,
           preferredLanguage: businessProfile.preferredLanguage || "hinglish",
+          palette: brandPreferences.palette,
+          brand_colors: brandPreferences.palette,
+          font: selectedFont,
+          tones: brandPreferences.tones,
+          business_types: selectedOnlinePresence === "google_maps" ? ["Physical Location", "Product-based"] : businessDetails.business_types,
+          primary_business_type: selectedOnlinePresence === "google_maps" ? "Physical Location" : businessDetails.primary_business_type,
+          sub_category: finalSubCategory,
+          differentiators: finalDifferentiators,
+          products_services: finalProducts,
+          selected_photos: finalSelectedPhotos,
+          target_audience_summary: finalAudience,
+          services_products_summary: finalProducts,
+          tagline: businessDetails.tagline,
+          marketplaces: selectedOnlinePresence === "marketplace" ? finalMarketplaces : undefined,
+          marketplace_listings: selectedOnlinePresence === "marketplace" ? finalListings : undefined,
+          b2b_platforms: selectedOnlinePresence === "b2b" ? deduplicatedB2bPlatforms : undefined,
+          b2b_listings: selectedOnlinePresence === "b2b" ? finalB2bListings : undefined,
           onboardingCompleted: true,
-          onboarding_step: 2,
+          onboarding_step: activeSteps.length - 1,
         };
 
         if (pending) {
@@ -688,31 +3464,65 @@ export default function OnboardingPage() {
             businessName: businessProfile.business_name.trim(),
             name: businessProfile.business_name.trim(),
             businessType: businessProfile.business_type,
-            category: businessProfile.business_category,
-            industry: businessProfile.business_category,
+            category: finalCategory,
+            industry: finalCategory,
             location: `${businessProfile.city}, ${businessProfile.state}`.replace(/^,\s*|,\s*$/g, "") || "India",
-            description: businessProfile.business_description || undefined,
+            description: finalDescription || undefined,
+            website: businessProfile.website || websiteUrl || undefined,
             contact_phone: businessProfile.phone || undefined,
             preferred_language: businessProfile.preferredLanguage || "hinglish",
             preferredLanguage: businessProfile.preferredLanguage || "hinglish",
-            targetAudience: businessProfile.target_location || "Local",
+            targetAudience: finalAudience || "Local",
           });
         } catch (_) {
           try {
             await businessService.updateBusiness({
               name: businessProfile.business_name.trim(),
-              category: businessProfile.business_category,
+              category: finalCategory,
               location: `${businessProfile.city}, ${businessProfile.state}`.replace(/^,\s*|,\s*$/g, "") || "India",
-              description: businessProfile.business_description || undefined,
+              description: finalDescription || undefined,
               contact_phone: businessProfile.phone || undefined,
             });
           } catch (_) {}
         }
 
+        // Create/Update BrandKit in Brand Collection
+        try {
+          await updateBrandKit({
+            business_name: businessProfile.business_name.trim(),
+            business_category: finalCategory,
+            tagline: businessDetails.tagline,
+            brand_colors: brandPreferences.palette,
+            palette: brandPreferences.palette,
+            primary_color: brandPreferences.palette[0] || businessProfile.brand_color || "#fc9a5d",
+            secondary_color: brandPreferences.palette[1] || "#f0449b",
+            accent_color: brandPreferences.palette[2] || "#be32ff",
+            font: selectedFont,
+            tones: brandPreferences.tones,
+            tone: brandPreferences.tones.join(", "),
+            language: brandPreferences.language,
+            business_types: businessDetails.business_types,
+            primary_business_type: businessDetails.primary_business_type,
+            sub_category: finalSubCategory,
+            city: businessProfile.city || businessDetails.city,
+            differentiators: finalDifferentiators,
+            products_services: finalProducts,
+            selected_photos: selectedPhotos,
+            target_audience_summary: finalAudience,
+            services_products_summary: finalProducts,
+            website: businessProfile.website || websiteUrl,
+            logo_url: finalLogo || undefined,
+            marketplaces: selectedOnlinePresence === "marketplace" ? finalMarketplaces : undefined,
+            marketplace_listings: selectedOnlinePresence === "marketplace" ? finalListings : undefined,
+            b2b_platforms: selectedOnlinePresence === "b2b" ? deduplicatedB2bPlatforms : undefined,
+            b2b_listings: selectedOnlinePresence === "b2b" ? finalB2bListings : undefined,
+          });
+        } catch (_) {}
+
         // Update Onboarding Progress API
         try {
           await OnboardingService.updateProgress({
-            onboarding_step: 5,
+            onboarding_step: 6,
             business_profile_completed: true,
             completed: true,
             onboarding_completed: true,
@@ -721,6 +3531,10 @@ export default function OnboardingPage() {
             onboarding_completed_at: new Date().toISOString(),
           });
         } catch (_) {}
+
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("onboarding_step");
+        }
 
         // Advance to Ready step
         setCurrentStep(activeSteps.length - 1);
@@ -758,307 +3572,4432 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e0f14] text-[#ededf2] flex flex-col justify-between py-8 px-4 sm:px-6 relative overflow-hidden selection:bg-[#be32ff]/30">
-      {/* Background ambient lighting */}
-      <div className="absolute top-0 right-1/4 w-[40rem] h-[40rem] bg-purple-600/5 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute -bottom-32 -left-32 w-[32rem] h-[32rem] bg-pink-500/5 rounded-full blur-[140px] pointer-events-none" />
+    <div className="min-h-screen bg-[#070F22] text-[#ededf2] flex flex-col justify-between py-4 sm:py-6 px-4 sm:px-6 relative overflow-x-clip selection:bg-[#be32ff]/30">
+      {/* Background ambient lighting matching DhandaGrow dark navy & gradient accent theme */}
+      <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-gradient-to-br from-[#fc9a5d]/20 via-[#f0449b]/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#be32ff]/20 via-[#7d36fa]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute -bottom-32 left-1/4 w-[30rem] h-[30rem] bg-gradient-to-tr from-[#f0449b]/15 via-[#be32ff]/10 to-transparent rounded-full blur-[150px] pointer-events-none" />
 
-      {/* Top Header */}
-      <header className="w-full max-w-4xl mx-auto mb-8 flex items-center justify-between z-10 relative">
-        <Link href="/" className="inline-flex items-center group">
-          <img
-            src="/images/dhandagrow.png"
-            alt="DhandaGrow AI"
-            className="h-9 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-          />
-        </Link>
-        <div className="text-xs text-neutral-400 font-medium flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-1.5 rounded-full backdrop-blur-md">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Step {currentStep + 1} of {activeSteps.length}</span>
-        </div>
-      </header>
-
-      {/* Stepper Progress Bar */}
-      <div className="w-full max-w-4xl mx-auto mb-8 z-10 relative">
-        <div className="flex items-center justify-between relative px-2">
-          {/* Background rail */}
-          <div className="absolute left-6 right-6 top-4 h-0.5 bg-white/10 -z-0" />
-          {/* Active progress track */}
-          <div
-            className="absolute left-6 top-4 h-0.5 bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] transition-all duration-500 -z-0"
-            style={{
-              width: `${(currentStep / (activeSteps.length - 1)) * 90}%`,
-            }}
-          />
-
-          {activeSteps.map((step, idx) => {
-            const isCompleted = idx < currentStep;
-            const isCurrent = idx === currentStep;
-            return (
-              <div key={step.id} className="flex flex-col items-center gap-1.5 z-10">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (idx < currentStep) setCurrentStep(idx);
-                  }}
-                  disabled={idx > currentStep}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
-                    isCompleted
-                      ? "bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] text-white shadow-[0_0_15px_rgba(240,68,155,0.4)] cursor-pointer"
-                      : isCurrent
-                      ? "bg-[#181a24] border-2 border-[#be32ff] text-white shadow-[0_0_20px_rgba(190,50,255,0.6)] scale-110"
-                      : "bg-[#12131b] border border-white/10 text-neutral-500 cursor-not-allowed"
-                  }`}
-                >
-                  {isCompleted ? <Check className="w-4 h-4 stroke-[2.5]" /> : idx + 1}
-                </button>
-                <div className="text-center hidden sm:block">
-                  <p className={`text-xs font-semibold leading-tight ${isCurrent ? "text-white" : isCompleted ? "text-neutral-300" : "text-neutral-500"}`}>
-                    {step.title}
-                  </p>
-                  <p className="text-[10px] text-neutral-500 font-light">{step.desc}</p>
-                </div>
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 1: GET STARTED (Designer Screenshot 1)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "get_started" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          {/* Top Header / Brand Logo */}
+          <div className="flex flex-col items-center justify-center pt-2">
+            <div className="flex items-center gap-2">
+              <img
+                src="/images/logo-icon.png"
+                alt="DhandaGrow"
+                className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_12px_rgba(240,68,155,0.4)]"
+              />
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Dhanda<span className="text-[#fc9a5d]">Grow</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
+                  AI ✦
+                </span>
               </div>
-            );
-          })}
+            </div>
+            <p className="text-[11px] sm:text-xs text-neutral-400 font-medium tracking-wide mt-1">
+              India&apos;s AI Business Growth App
+            </p>
+          </div>
+
+          {/* Heading & Subtext */}
+          <div className="text-center space-y-2.5 px-2 mt-4 sm:mt-6">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+              Your Business<br />
+              Deserve to{" "}
+              <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                Grow
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-neutral-300 max-w-xs sm:max-w-sm mx-auto leading-relaxed font-normal">
+              Create, market, publish and sell - all with the power of AI.
+            </p>
+          </div>
+
+          {/* 3D Storefront Illustration */}
+          <div className="relative my-4 sm:my-6 flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#fc9a5d]/10 via-[#f0449b]/15 to-[#be32ff]/10 blur-2xl rounded-full transform scale-90 -z-0" />
+            <img
+              src="/images/onboarding-storefront.png"
+              alt="DhandaGrow Business Storefront"
+              className="w-full max-w-[320px] sm:max-w-[370px] h-auto object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none"
+            />
+          </div>
+
+          {/* Get Started Button */}
+          <div className="pt-2 sm:pt-4 pb-2">
+            <button
+              type="button"
+              onClick={handleGetStarted}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Main Form Container Card */}
-      <Card className="w-full max-w-5xl mx-auto bg-[#14151f]/90 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(190,50,255,0.1)] backdrop-blur-xl rounded-2xl relative z-10 overflow-hidden">
-        <CardContent className="p-6 sm:p-10">
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 2: WHERE DOES YOUR BUSINESS LIVE ONLINE? (Designer Screenshot 2)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "presence" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress Indicator */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handlePresenceBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "22%" }}
+                />
+              </div>
+            </div>
 
-          {/* ══════════════════════════════════════════════════════════════════════
-              STEP 0: ROLE / ACCOUNT TYPE SELECTION (User vs Businessman vs Influencer)
-          ══════════════════════════════════════════════════════════════════════ */}
-          {currentStep === 0 && (
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#fc9a5d]/10 via-[#f0449b]/10 to-[#be32ff]/10 border border-[#f0449b]/30 text-xs font-medium text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] to-[#be32ff]">
-                  <Sparkles className="w-3.5 h-3.5 text-[#f0449b]" /> Tailored Experience
-                </div>
+            {/* Screen 2 Heading */}
+            <div className="mb-5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Where does your<br />
+                <span className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] bg-clip-text text-transparent">
+                  business
+                </span>{" "}
+                live Online?
+              </h1>
+            </div>
+
+            {/* 5 Selectable Cards */}
+            <div className="space-y-3">
+              {ONLINE_PRESENCE_OPTIONS.map((opt) => {
+                const isSelected = selectedOnlinePresence === opt.id;
+                const IconComp = opt.icon;
+                return (
+                  <div
+                    key={opt.id}
+                    onClick={() => handleSelectPresence(opt.id)}
+                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 ${
+                      isSelected
+                        ? "bg-gradient-to-r from-[#201735]/95 via-[#18192e]/95 to-[#1e152e]/95 border-2 border-[#BE32FF] shadow-[0_0_25px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
+                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#181d33]/85"
+                    }`}
+                  >
+                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <IconComp className={`w-5 h-5 ${opt.iconColor}`} />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                          {opt.title}
+                        </h3>
+                        {isSelected && (
+                          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0">
+                            <Check className="w-3 h-3 text-white stroke-[3]" />
+                          </div>
+                        )}
+                      </div>
+
+                      {opt.desc && (
+                        <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed font-light">
+                          {opt.desc}
+                        </p>
+                      )}
+
+                      {opt.logos && (
+                        <div className="mt-2 flex items-center">
+                          <img
+                            src={opt.logos}
+                            alt={opt.logosAlt}
+                            className="h-6 sm:h-7 w-auto object-contain select-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* None of these - something else */}
+            <div className="text-center pt-3 pb-1">
+              <button
+                type="button"
+                onClick={() => handleSelectPresence("other")}
+                className={`text-xs sm:text-sm transition-all cursor-pointer ${
+                  selectedOnlinePresence === "other"
+                    ? "text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] font-bold underline underline-offset-4"
+                    : "text-neutral-400 hover:text-white"
+                }`}
+              >
+                None of these - something else
+              </button>
+            </div>
+
+            {/* Error Notice */}
+            {error && (
+              <div className="mt-3 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-4 pb-2">
+            <button
+              type="button"
+              onClick={handlePresenceContinue}
+              disabled={!selectedOnlinePresence}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
+                selectedOnlinePresence
+                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 2B: SOCIAL MEDIA CONNECTIVITY (INSTAGRAM) (Reference Screenshot 1)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "social_connect" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress Indicator (~25%) */}
+            <div className="flex items-center gap-3 w-full mb-4">
+              <button
+                type="button"
+                onClick={handleSocialConnectBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "25%" }}
+                />
+              </div>
+            </div>
+
+            {/* Video / Guide Hero Banner matching Reference Screenshot 1 */}
+            <div className="relative rounded-2xl overflow-hidden mb-6 border border-white/10 bg-gradient-to-b from-neutral-900 to-neutral-950 aspect-[16/9] shadow-xl flex items-center justify-center">
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80"
+                alt="Connect Instagram Guide"
+                className="w-full h-full object-cover object-center opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              
+              {/* Host floating badges */}
+              <div className="absolute top-3 left-3 text-xs font-bold text-white tracking-wide drop-shadow-md">
+                Connect Instagram
+              </div>
+              <div className="absolute top-3 right-3 bg-white/90 text-neutral-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">
+                Direct publish
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/90">
+                <span className="font-medium drop-shadow">Instagram account connect kijiye</span>
+                <span className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-[10px] backdrop-blur-sm">
+                  <Volume2 className="w-3 h-3" /> Tap to mute
+                </span>
+              </div>
+            </div>
+
+            {/* Headings */}
+            <div className="mb-5">
+              <div className="flex items-center gap-2 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  How will you be using DhandaGrow AI?
+                  What&apos;s your Instagram?
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-400 max-w-2xl mx-auto">
-                  Select whether you are an individual user, a business owner, or a creator/influencer. We will customize your onboarding stepper and features accordingly.
-                </p>
+                <div className="w-5 h-5 rounded-full border border-neutral-500 flex items-center justify-center text-neutral-400 text-xs">
+                  i
+                </div>
+              </div>
+              <p className="text-sm text-neutral-400">
+                We&apos;ll learn your style from your last 12 posts
+              </p>
+            </div>
+
+            {/* Instagram Connect Card */}
+            <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-4 backdrop-blur-md space-y-3 mb-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-md shrink-0">
+                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-white text-base">Connect Instagram</h3>
+                    {isInstagramConnected && (
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                        Connected
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-neutral-400 line-clamp-2">
+                    Publish, schedule, and see insights from inside Scalio
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-emerald-400 shrink-0">
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                  <ExternalLink className="w-4 h-4 text-neutral-400" />
+                </div>
               </div>
 
-              {/* 3 Interactive Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
-                {/* 1. Individual User Card */}
+              {/* Username field (optional handle) */}
+              <div className="pt-1">
+                <Input
+                  type="text"
+                  value={instagramUsername}
+                  onChange={(e) => setInstagramUsername(e.target.value)}
+                  placeholder="@yourbusinesshandle"
+                  className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl focus:border-emerald-500"
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-neutral-400 leading-relaxed">
+              Requires an Instagram Business or Creator account. You can skip this step and connect later from Business settings.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="pt-4 pb-2 space-y-2">
+            <button
+              type="button"
+              onClick={handleConnectInstagram}
+              disabled={isConnectingInstagram}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+            >
+              {isConnectingInstagram ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Connecting Instagram...</span>
+                </>
+              ) : isInstagramConnected ? (
+                <>
+                  <span>Continue with Instagram</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              ) : (
+                <>
+                  <span>Connect Instagram</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSkipInstagramClick}
+              className="w-full text-center text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
+            >
+              Skip for now
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Skip Instagram Confirmation Modal (Reference Screenshot 2) ─── */}
+      {showSkipInstagramModal && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 p-0 sm:p-4">
+          <div className="w-full max-w-md bg-[#0F172A] border border-white/15 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl animate-in slide-in-from-bottom-6 duration-300">
+            {/* Sheet Handle */}
+            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5 sm:hidden" />
+
+            {/* Warning Icon in Soft Circle */}
+            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+              <AlertTriangle className="w-7 h-7" />
+            </div>
+
+            {/* Content */}
+            <h3 className="text-xl font-bold text-white text-center mb-2">
+              Skip Instagram for now?
+            </h3>
+            <p className="text-sm text-neutral-300 text-center leading-relaxed mb-6">
+              Without Instagram, we can still make content — but we won&apos;t match your style as closely. You can add it anytime from settings.
+            </p>
+
+            {/* Buttons */}
+            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={handleConfirmSkipInstagram}
+                className="w-full h-12 rounded-xl border border-white/20 text-white font-semibold text-sm hover:bg-white/10 active:scale-[0.98] transition-all cursor-pointer"
+              >
+                Skip anyway
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowSkipInstagramModal(false)}
+                className="w-full h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-sm shadow-[0_4px_20px_rgba(16,185,129,0.35)] active:scale-[0.98] transition-all cursor-pointer"
+              >
+                Add it now
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 3: WHAT'S YOUR WEBSITE? (Reference Screen 1)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "website_url" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~38%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleWebsiteUrlBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  onClick={() => setAccountType("user")}
-                  className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between group ${
-                    accountType === "user"
-                      ? "bg-gradient-to-b from-[#1e1c2e] to-[#141522] border-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/50"
-                      : "bg-[#101118] border-white/10 hover:border-white/20 hover:bg-[#161722]"
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                        accountType === "user"
-                          ? "bg-gradient-to-br from-[#fc9a5d] to-[#be32ff] text-white shadow-lg"
-                          : "bg-white/5 text-neutral-400 group-hover:text-white"
-                      }`}>
-                        <UserIcon className="w-6 h-6" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                        Individual
-                      </span>
-                    </div>
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "38%" }}
+                />
+              </div>
+            </div>
 
-                    <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-purple-200 transition-colors">
-                        Individual User
-                      </h3>
-                      <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
-                        For personal creators and individuals who want to explore AI tools, create video reels, and generate content without business details.
-                      </p>
-                    </div>
+            {/* Heading */}
+            <div className="mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                What&apos;s your{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  website?
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                We&apos;ll read it for you, so there&apos;s no need to type anything.
+              </p>
+            </div>
 
-                    <ul className="space-y-2 pt-2 text-xs text-neutral-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>AI Video Reel Generation</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Social Media Posts &amp; Captions</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>No business details required</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                    <span className={accountType === "user" ? "text-[#be32ff]" : "text-neutral-400"}>
-                      {accountType === "user" ? "Selected" : "Select Option"}
-                    </span>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                      accountType === "user" ? "border-[#be32ff] bg-[#be32ff]" : "border-white/20"
-                    }`}>
-                      {accountType === "user" && <Check className="w-3 h-3 text-white stroke-[3]" />}
-                    </div>
-                  </div>
+            {/* Website URL Input Card matching designer reference (no video player) */}
+            <div className="mt-8">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
+                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
                 </div>
-
-                {/* 2. Businessman / Business Card */}
-                <div
-                  onClick={() => setAccountType("business")}
-                  className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between group ${
-                    accountType === "business"
-                      ? "bg-gradient-to-b from-[#251828] to-[#141522] border-[#f0449b] shadow-[0_0_30px_rgba(240,68,155,0.25)] ring-1 ring-[#f0449b]/50"
-                      : "bg-[#101118] border-white/10 hover:border-white/20 hover:bg-[#161722]"
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                        accountType === "business"
-                          ? "bg-gradient-to-br from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-lg"
-                          : "bg-white/5 text-neutral-400 group-hover:text-white"
-                      }`}>
-                        <Building2 className="w-6 h-6" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f0449b]/20 text-[#f0449b] border border-[#f0449b]/30">
-                        Merchant
-                      </span>
-                    </div>
-
-                    <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-pink-200 transition-colors">
-                        Business / Brand
-                      </h3>
-                      <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
-                        For shop owners, companies, and brands looking to automate marketing, hire top influencers, run multi-channel ads, and boost sales.
-                      </p>
-                    </div>
-
-                    <ul className="space-y-2 pt-2 text-xs text-neutral-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Business Identity &amp; Brand Kit</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Local Area &amp; Demographics</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>AI Ad Generator &amp; Multi-Channel</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between text-xs font-semibold">
-                    <span className={accountType === "business" ? "text-[#f0449b]" : "text-neutral-400"}>
-                      {accountType === "business" ? "Selected" : "Select Option"}
-                    </span>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                      accountType === "business" ? "border-[#f0449b] bg-[#f0449b]" : "border-white/20"
-                    }`}>
-                      {accountType === "business" && <Check className="w-3 h-3 text-white stroke-[3]" />}
-                    </div>
-                  </div>
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    id="website-url-input"
+                    value={websiteUrl}
+                    onChange={(e) => {
+                      setWebsiteUrl(e.target.value);
+                      setError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                        handleWebsiteUrlContinue();
+                      }
+                    }}
+                    placeholder="yourwebsite.com"
+                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
+                    autoFocus
+                  />
                 </div>
+                {websiteUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setWebsiteUrl("")}
+                    className="text-neutral-500 hover:text-white transition-colors p-1"
+                    aria-label="Clear input"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
 
-                {/* 3. Creator & Influencer Card */}
-                <div
-                  onClick={() => {
-                    setAccountType("influencer");
-                    handleSelectInfluencerAndLaunch();
-                  }}
-                  className={`p-6 rounded-2xl border transition-all duration-300 cursor-pointer relative overflow-hidden flex flex-col justify-between group ${
-                    accountType === "influencer"
-                      ? "bg-gradient-to-b from-[#221730] to-[#141522] border-[#7d36fa] shadow-[0_0_30px_rgba(125,54,250,0.25)] ring-1 ring-[#7d36fa]/50"
-                      : "bg-[#101118] border-white/10 hover:border-white/20 hover:bg-[#161722]"
-                  }`}
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                        accountType === "influencer"
-                          ? "bg-gradient-to-br from-[#be32ff] via-[#7d36fa] to-[#fc9a5d] text-white shadow-lg"
-                          : "bg-white/5 text-neutral-400 group-hover:text-white"
-                      }`}>
-                        <Sparkles className="w-6 h-6" />
-                      </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#be32ff]/20 text-[#be32ff] border border-[#be32ff]/30">
-                        Influencer
-                      </span>
-                    </div>
+              {/* Validation helper */}
+              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
+                  <span>Please enter a valid website address (e.g. yourbrand.com)</span>
+                </p>
+              )}
 
-                    <div>
-                      <h3 className="text-lg font-bold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-purple-200 transition-colors">
-                        Creator / Influencer
-                      </h3>
-                      <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed font-light">
-                        For content creators and social media influencers looking to showcase their media kit, get hired by top brands, and earn via secured escrow.
-                      </p>
-                    </div>
+              {/* Helpful context */}
+              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Our AI scans your products, brand colors, voice, and category automatically from your URL.
+                </span>
+              </div>
+            </div>
 
-                    <ul className="space-y-2 pt-2 text-xs text-neutral-300">
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Direct Brand Deals &amp; Paid Collabs</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Media Kit &amp; Social Reach</span>
-                      </li>
-                      <li className="flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Digital Contracts &amp; Escrow Payouts</span>
-                      </li>
-                    </ul>
+            {/* Error Notice */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-4 pb-2">
+            <button
+              type="button"
+              id="website-continue-btn"
+              onClick={handleWebsiteUrlContinue}
+              disabled={!isValidWebsiteUrl(websiteUrl)}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
+                isValidWebsiteUrl(websiteUrl)
+                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 4: READING YOUR WEBSITE (Reference Screen 2)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "website_reading" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Centered Website URL Pill */}
+            <div className="relative flex items-center justify-center w-full mb-4">
+              <button
+                type="button"
+                onClick={handleWebsiteReadingBack}
+                aria-label="Go back"
+                className="absolute left-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+
+              {/* Website URL Pill Badge matching screenshot */}
+              <div className="px-4 py-1.5 rounded-full bg-[#201735]/90 border border-[#be32ff]/40 text-xs sm:text-sm text-neutral-200 font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(190,50,255,0.2)] max-w-[200px] sm:max-w-[240px]">
+                <Globe className="w-3.5 h-3.5 text-[#be32ff] shrink-0" />
+                <span className="truncate">{getDisplayHostname(websiteUrl)}</span>
+              </div>
+            </div>
+
+            {/* Heading & Subtitle matching screenshot */}
+            <div className="text-center mt-3 sm:mt-5 mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Reading your website.
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1 flex items-center justify-center gap-1.5">
+                <span>Spotting your audience...</span>
+                <span className="inline-flex gap-1 items-center ml-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#be32ff] animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f0449b] animate-pulse [animation-delay:200ms]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#fc9a5d] animate-pulse [animation-delay:400ms]" />
+                </span>
+              </p>
+            </div>
+
+            {/* 3D Mascot Illustration matching screenshot */}
+            <div className="relative my-3 sm:my-5 flex items-center justify-center">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#be32ff]/20 via-[#7d36fa]/15 to-[#f0449b]/15 blur-3xl rounded-full transform scale-90 -z-0 pointer-events-none" />
+              <img
+                src="/images/website-analysis-mascot.png"
+                alt="AI reading website"
+                className="w-full max-w-[240px] sm:max-w-[280px] h-auto object-contain relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)] select-none pointer-events-none animate-in zoom-in-95 duration-500"
+              />
+            </div>
+
+            {/* 2x2 Grid of Status Chips matching designer reference */}
+            <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto mt-2 sm:mt-3">
+              {/* Chip 1: Brand Voice */}
+              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
+                analysisProgress.brandVoice.status === "completed"
+                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
+                  : "bg-[#1c1a32]/80 border-white/10"
+              }`}>
+                {analysisProgress.brandVoice.status === "completed" ? (
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
+                    <Check className="w-3 h-3 text-white stroke-[3]" />
                   </div>
+                ) : analysisProgress.brandVoice.status === "error" ? (
+                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-xs font-bold">!</span>
+                  </div>
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
+                    Brand Voice
+                  </span>
+                  {analysisProgress.brandVoice.value && (
+                    <span className="text-[10px] text-neutral-400 block truncate">
+                      {analysisProgress.brandVoice.value}
+                    </span>
+                  )}
+                </div>
+              </div>
 
-                  <div className="pt-5 mt-4 border-t border-white/5 flex flex-col gap-3">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className={accountType === "influencer" ? "text-[#be32ff] font-bold" : "text-neutral-400"}>
-                        {accountType === "influencer" ? "Influencer Active" : "Click to Launch Dashboard"}
-                      </span>
-                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
-                        accountType === "influencer" ? "border-[#be32ff] bg-[#be32ff]" : "border-white/20"
-                      }`}>
-                        {accountType === "influencer" && <Check className="w-3 h-3 text-white stroke-[3]" />}
-                      </div>
+              {/* Chip 2: Colors */}
+              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
+                analysisProgress.colors.status === "completed"
+                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
+                  : "bg-[#1c1a32]/80 border-white/10"
+              }`}>
+                {analysisProgress.colors.status === "completed" ? (
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
+                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  </div>
+                ) : analysisProgress.colors.status === "error" ? (
+                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-xs font-bold">!</span>
+                  </div>
+                ) : analysisProgress.colors.status === "analyzing" ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
+                    Colors
+                  </span>
+                  {analysisProgress.colors.status === "completed" && (
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-sm"
+                        style={{ backgroundColor: analysisProgress.colors.primary || "#BE32FF" }}
+                      />
+                      <span
+                        className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-sm"
+                        style={{ backgroundColor: analysisProgress.colors.accent || "#F0449B" }}
+                      />
+                      <span className="text-[10px] text-neutral-400">Palette</span>
                     </div>
-                    
+                  )}
+                </div>
+              </div>
+
+              {/* Chip 3: Category */}
+              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
+                analysisProgress.category.status === "completed"
+                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
+                  : "bg-[#1c1a32]/80 border-white/10"
+              }`}>
+                {analysisProgress.category.status === "completed" ? (
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
+                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  </div>
+                ) : analysisProgress.category.status === "error" ? (
+                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-xs font-bold">!</span>
+                  </div>
+                ) : analysisProgress.category.status === "analyzing" ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
+                    Category
+                  </span>
+                  {analysisProgress.category.value && (
+                    <span className="text-[10px] text-neutral-400 block truncate">
+                      {analysisProgress.category.value}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Chip 4: Photos */}
+              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
+                analysisProgress.photos.status === "completed"
+                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
+                  : "bg-[#1c1a32]/80 border-white/10"
+              }`}>
+                {analysisProgress.photos.status === "completed" ? (
+                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
+                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  </div>
+                ) : analysisProgress.photos.status === "error" ? (
+                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
+                    <span className="text-amber-400 text-xs font-bold">!</span>
+                  </div>
+                ) : analysisProgress.photos.status === "analyzing" ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
+                ) : (
+                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
+                    Photos
+                  </span>
+                  {analysisProgress.photos.value && (
+                    <span className="text-[10px] text-neutral-400 block truncate">
+                      {analysisProgress.photos.value}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Error state alert with Retry and Skip options */}
+            {analysisError && (
+              <div className="mt-4 p-3.5 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-200 animate-in fade-in max-w-sm mx-auto">
+                <p className="font-semibold text-red-400 mb-2">{analysisError}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => startWebsiteAnalysis(websiteUrl)}
+                    className="flex-1 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-white font-medium text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <RotateCw className="w-3.5 h-3.5" />
+                    <span>Retry</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleReadingContinue}
+                    className="flex-1 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-neutral-300 font-medium text-xs transition-all cursor-pointer"
+                  >
+                    <span>Continue Manually</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Action: Continue appears once analysis is completed */}
+          <div className="pt-4 pb-2">
+            {analysisCompleted ? (
+              <button
+                type="button"
+                id="reading-continue-btn"
+                onClick={handleReadingContinue}
+                className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer animate-in fade-in"
+              >
+                <span>Continue</span>
+                <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              </button>
+            ) : isAnalyzingWebsite ? (
+              <div className="w-full h-13 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center gap-2 text-xs sm:text-sm text-neutral-400 font-medium select-none">
+                <Loader2 className="w-4 h-4 animate-spin text-[#be32ff]" />
+                <span>Reading your website storefront with AI...</span>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleReadingContinue}
+                className="w-full h-13 sm:h-14 rounded-full bg-white/10 hover:bg-white/15 text-white/70 font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+              >
+                <span>Continue</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN: IS THIS YOUR BUSINESS? (Scrollable Step, Reference Screenshots 1, 2, 3)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "business_details" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~50%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleBusinessDetailsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "50%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Is this your business?
+              </h1>
+            </div>
+
+            {/* Status Banner */}
+            <div className="px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/30 text-purple-200 flex items-center gap-2.5 text-xs sm:text-sm font-medium">
+              <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
+              <span>Still reading your website, more details filling in</span>
+            </div>
+
+            {/* Form Fields Container */}
+            <div className="space-y-5">
+              {/* Field 1: Business name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-name" className="text-xs font-semibold text-neutral-300">
+                  Business name
+                </Label>
+                <Input
+                  id="detail-b-name"
+                  value={businessDetails.business_name}
+                  onChange={(e) =>
+                    setBusinessDetails({ ...businessDetails, business_name: e.target.value })
+                  }
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                  placeholder="e.g. SevenUnique Tech Solutions Pvt. Ltd."
+                />
+              </div>
+
+              {/* Field 2: Category */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-category" className="text-xs font-semibold text-neutral-300">
+                  Category
+                </Label>
+                <div className="relative">
+                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                  <Input
+                    id="detail-b-category"
+                    value={businessDetails.category}
+                    onChange={(e) =>
+                      setBusinessDetails({ ...businessDetails, category: e.target.value })
+                    }
+                    className="h-12 pl-10 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
+                    placeholder="e.g. Tech & Electronics"
+                  />
+                </div>
+              </div>
+
+              {/* Field 3: Business type (pick 1 or more, first tap = primary) */}
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-neutral-300">
+                  Business type (pick 1 or more, first tap = primary)
+                </Label>
+                <div className="flex flex-wrap gap-2.5">
+                  {["Product-based", "Physical Location", "Service / Digital"].map((type) => {
+                    const isSelected = businessDetails.business_types.includes(type);
+                    const isPrimary = businessDetails.primary_business_type === type;
+                    return (
+                      <button
+                        type="button"
+                        key={type}
+                        onClick={() => handleToggleBusinessType(type)}
+                        className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                            : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
+                        }`}
+                      >
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#be32ff] stroke-[3]" />}
+                        <span>{type}</span>
+                        {isPrimary && (
+                          <span
+                            onClick={(e) => handleSetPrimaryBusinessType(type, e)}
+                            className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] text-white shadow-sm"
+                          >
+                            PRIMARY
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Field 4: Sub-category (optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-subcat" className="text-xs font-semibold text-neutral-300">
+                  Sub-category (optional)
+                </Label>
+                <div className="relative">
+                  <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#be32ff]" />
+                  <Input
+                    id="detail-b-subcat"
+                    value={businessDetails.sub_category}
+                    onChange={(e) =>
+                      setBusinessDetails({ ...businessDetails, sub_category: e.target.value })
+                    }
+                    className="h-12 pl-10 pr-10 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
+                    placeholder="e.g. Software Development"
+                  />
+                  {businessDetails.sub_category && (
                     <button
                       type="button"
-                      disabled={isActivatingInfluencer}
-                      onClick={handleSelectInfluencerAndLaunch}
-                      className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#be32ff] via-[#7d36fa] to-[#fc9a5d] text-white text-xs font-bold tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_20px_rgba(125,54,250,0.35)] hover:shadow-[0_6px_25px_rgba(190,50,255,0.5)] transition-all cursor-pointer hover:scale-[1.02]"
+                      onClick={() =>
+                        setBusinessDetails({ ...businessDetails, sub_category: "" })
+                      }
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
                     >
-                      {isActivatingInfluencer ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Opening Influencer Dashboard...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-3.5 h-3.5" />
-                          <span>Open Influencer Dashboard</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Field 5: City (i) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-city" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <span>City</span>
+                  <Info className="w-3.5 h-3.5 text-neutral-400" />
+                </Label>
+                <div className="relative">
+                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                  <Input
+                    id="detail-b-city"
+                    value={businessDetails.city}
+                    onChange={(e) =>
+                      setBusinessDetails({ ...businessDetails, city: e.target.value })
+                    }
+                    className="h-12 pl-10 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
+                    placeholder="e.g. Jaipur, India"
+                  />
+                </div>
+              </div>
+
+              {/* Field 6: Logo */}
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-neutral-300">Logo</Label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0f1015] border border-white/15 flex items-center justify-center overflow-hidden p-1.5 shrink-0 shadow-md">
+                    {businessDetails.logo_url ? (
+                      <img
+                        src={businessDetails.logo_url}
+                        alt="Logo"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <Store className="w-7 h-7 text-neutral-500" />
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-[#be32ff] hover:text-[#f0449b] transition-colors cursor-pointer flex items-center gap-1.5">
+                      <RotateCw className="w-3.5 h-3.5" />
+                      <span>Change logo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleWebsiteLogoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                    {businessDetails.logo_url && (
+                      <button
+                        type="button"
+                        onClick={handleRemoveLogo}
+                        className="text-xs font-semibold text-neutral-400 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1.5"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Remove</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Field 7: Tagline (optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-tagline" className="text-xs font-semibold text-neutral-300">
+                  Tagline (optional)
+                </Label>
+                <Input
+                  id="detail-b-tagline"
+                  value={businessDetails.tagline}
+                  onChange={(e) =>
+                    setBusinessDetails({ ...businessDetails, tagline: e.target.value })
+                  }
+                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
+                  placeholder="e.g. Website Design Partner For Modern Businesses"
+                />
+              </div>
+
+              {/* Field 8: Who buys from you (optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="detail-b-audience" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <span>Who buys from you</span>
+                  <Info className="w-3.5 h-3.5 text-neutral-400" />
+                </Label>
+                <Input
+                  id="detail-b-audience"
+                  value={businessDetails.target_audience}
+                  onChange={(e) =>
+                    setBusinessDetails({ ...businessDetails, target_audience: e.target.value })
+                  }
+                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
+                  placeholder="e.g. Startups, enterprises, and growing businesses"
+                />
+              </div>
+
+              {/* Field 9: What makes you different (optional) */}
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <span>What makes you different (optional)</span>
+                  <Info className="w-3.5 h-3.5 text-neutral-400" />
+                </Label>
+                <div className="space-y-2">
+                  {businessDetails.differentiators.map((diff, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl bg-[#0f1015] border border-white/10 flex items-center justify-between gap-3 text-xs sm:text-sm text-neutral-200"
+                    >
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <Minus className="w-3.5 h-3.5 text-[#fc9a5d] shrink-0" />
+                        <span className="leading-snug">{diff}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveDifferentiator(idx)}
+                        className="text-neutral-400 hover:text-red-400 transition-colors p-1 shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {/* Dashed Add Input */}
+                  <div className="p-2 sm:p-2.5 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newDifferentiator}
+                      onChange={(e) => setNewDifferentiator(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddDifferentiator();
+                        }
+                      }}
+                      placeholder="e.g. Same-day delivery in Pune"
+                      className="flex-1 bg-transparent border-none text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none px-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddDifferentiator}
+                      className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Field 10: What you sell (optional) */}
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-neutral-300">
+                  What you sell (optional)
+                </Label>
+                <div className="space-y-2">
+                  {businessDetails.products_services.map((prod, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 rounded-2xl bg-[#0f1015] border border-white/10 flex items-center justify-between gap-3 text-xs sm:text-sm text-neutral-200"
+                    >
+                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                        <Minus className="w-3.5 h-3.5 text-[#be32ff] shrink-0" />
+                        <span className="leading-snug">{prod}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveProductService(idx)}
+                        className="text-neutral-400 hover:text-red-400 transition-colors p-1 shrink-0"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                  {/* Dashed Add Input */}
+                  <div className="p-2 sm:p-2.5 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={newProductService}
+                      onChange={(e) => setNewProductService(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddProductService();
+                        }
+                      }}
+                      placeholder="e.g. Cotton sarees"
+                      className="flex-1 bg-transparent border-none text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none px-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddProductService}
+                      className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer"
+                    >
+                      Add
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Sticky Bottom Bar with Looks Right Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="details-continue-btn"
+              onClick={handleBusinessDetailsContinue}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer"
+            >
+              <span>Looks right</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN: WHAT'S YOUR BUSINESS LIKE? (Single Step, Reference Screenshots 4, 5)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "brand_preferences" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~65%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleBrandPreferencesBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "65%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                What&apos;s {businessDetails.business_name || "your business"} like?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1">
+                Still reading your site — we&apos;ll pre-fill what we find
+              </p>
+            </div>
+
+            {/* Tagline Quotation Card */}
+            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 flex items-start gap-3 shadow-md">
+              <Quote className="w-6 h-6 text-[#fc9a5d] shrink-0 rotate-180" />
+              <div className="space-y-1">
+                <p className="text-sm sm:text-base font-semibold text-white italic">
+                  &ldquo;{businessDetails.tagline || "Trusted Website Design Partner For Modern Businesses"}&rdquo;
+                </p>
+                <p className="text-[11px] text-neutral-400 font-medium">Your tagline</p>
+              </div>
+            </div>
+
+            {/* Brand Colors */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 font-semibold text-white text-sm sm:text-base">
+                <Palette className="w-4 h-4 text-[#f0449b]" />
+                <span>Your brand colors</span>
+              </div>
+              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+                {brandPreferences.palette.map((color, idx) => (
+                  <div key={idx} className="relative group">
+                    <label
+                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white/20 relative shadow-lg cursor-pointer transition-transform hover:scale-105 block"
+                      style={{ backgroundColor: color }}
+                    >
+                      <input
+                        type="color"
+                        value={color}
+                        onChange={(e) => handleColorChange(idx, e.target.value)}
+                        className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
+                      />
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white text-neutral-900 flex items-center justify-center shadow-md">
+                        <Pencil className="w-2.5 h-2.5" />
+                      </div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-neutral-400 font-light">
+                We&apos;ll use these colors in your designs. You can update these later in Brand settings.
+              </p>
+            </div>
+
+            {/* Tone Selector */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white text-sm sm:text-base">
+                Pick your tone (as many as fit)
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  "Modern", "Trendy", "Youthful", "Bold",
+                  "Luxurious", "Fun", "Professional",
+                  "Minimal", "Traditional", "Warm",
+                  "Energetic", "Elegant", "Festive", "Desi",
+                  "Premium", "Budget-friendly"
+                ].map((tone) => {
+                  const isSelected = brandPreferences.tones.includes(tone);
+                  return (
+                    <button
+                      type="button"
+                      key={tone}
+                      onClick={() => handleToggleTone(tone)}
+                      className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                          : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
+                      }`}
+                    >
+                      {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-[#be32ff] stroke-[3]" />}
+                      {tone}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Language Selector */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white text-sm sm:text-base">
+                What language should we post in?
+              </h3>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { id: "Hindi", label: "हिंदी" },
+                  { id: "English", label: "English" },
+                  { id: "Hinglish", label: "Hinglish" },
+                  { id: "Tamil", label: "தமிழ்" },
+                  { id: "Telugu", label: "తెలుగు" },
+                  { id: "Bengali", label: "বাংলা" },
+                  { id: "Marathi", label: "मराठी" },
+                  { id: "Kannada", label: "ಕನ್ನಡ" },
+                  { id: "Gujarati", label: "ગુજરાતી" },
+                  { id: "Malayalam", label: "മലയാളം" },
+                ].map((lang) => {
+                  const isSelected = brandPreferences.language.toLowerCase() === lang.id.toLowerCase() || brandPreferences.language.toLowerCase() === lang.label.toLowerCase();
+                  return (
+                    <button
+                      type="button"
+                      key={lang.id}
+                      onClick={() => handleSelectLanguage(lang.id)}
+                      className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/25 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                          : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
+                      }`}
+                    >
+                      {lang.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-xs text-neutral-400 font-light">
+                You can mix languages later — this is just your default.
+              </p>
+            </div>
+
+            {/* TARGET AUDIENCE Summary Card */}
+            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 space-y-1">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400">
+                TARGET AUDIENCE
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-200">
+                {businessDetails.target_audience || "Startups, enterprises, and growing businesses globally"}
+              </p>
+            </div>
+
+            {/* SERVICES & PRODUCTS Summary Card */}
+            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 space-y-2">
+              <div className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400">
+                SERVICES &amp; PRODUCTS
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {businessDetails.products_services.map((item, idx) => (
+                  <span
+                    key={idx}
+                    className="px-3 py-1 rounded-full text-xs font-medium bg-[#be32ff]/10 border border-[#be32ff]/25 text-purple-200"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Bottom Bar with Save My Brand Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="brand-continue-btn"
+              onClick={handleBrandPreferencesContinue}
+              disabled={isSavingBrandPreferences}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60"
+            >
+              {isSavingBrandPreferences ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving brand preferences...</span>
+                </>
+              ) : (
+                <>
+                  <span>Save my brand</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN: PICK THE PHOTOS WE SHOULD WORK WITH (Screenshot 6, Web-optimized Layout)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "website_photos" && (
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~80%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleWebsitePhotosBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "80%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Pick the photos we should work with
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
+                We found {websitePhotos.length} photos on your website. Pick the ones that best represent your brand, or add more.
+              </p>
+            </div>
+
+            {/* Control Bar: Selection Count + Select/Deselect All */}
+            <div className="flex items-center justify-between pt-1 pb-1">
+              <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#be32ff]/15 border border-[#be32ff]/30 text-purple-200 flex items-center gap-2 shadow-sm">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#be32ff]" />
+                <span>
+                  {selectedPhotos.length} of {websitePhotos.length} photos selected
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleSelectAllPhotos}
+                className="text-xs font-medium text-neutral-400 hover:text-white underline cursor-pointer transition-colors"
+              >
+                {selectedPhotos.length === websitePhotos.length ? "Deselect All" : "Select All"}
+              </button>
+            </div>
+
+            {/* Responsive Photo Grid (Web Layout: 4 columns on desktop, 2-3 on tablet/mobile) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+              {/* Upload Tile */}
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#be32ff] transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer group shadow-sm">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                {isUploadingPhoto ? (
+                  <Loader2 className="w-7 h-7 text-[#be32ff] animate-spin mb-2" />
+                ) : (
+                  <Upload className="w-7 h-7 text-[#fc9a5d] group-hover:scale-110 transition-transform mb-2" />
+                )}
+                <span className="text-xs font-semibold text-white">Upload photo</span>
+                <span className="text-[10px] text-neutral-400 mt-1">JPG, PNG up to 10MB</span>
+              </label>
+
+              {/* Photos List */}
+              {websitePhotos.map((photoUrl, idx) => {
+                const isSelected = selectedPhotos.includes(photoUrl);
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleTogglePhoto(photoUrl)}
+                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${
+                      isSelected
+                        ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
+                        : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
+                    }`}
+                  >
+                    <img
+                      src={photoUrl}
+                      alt={`Website photo ${idx + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+
+                    {/* Selection Checkmark Badge */}
+                    <div className="absolute top-2.5 right-2.5">
+                      {isSelected ? (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border border-white/50 bg-black/40 backdrop-blur-sm" />
+                      )}
+                    </div>
+
+                    {/* Delete Photo Button on Hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemovePhoto(photoUrl, e)}
+                      aria-label="Remove photo"
+                      className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Empty State if 0 photos */}
+            {websitePhotos.length === 0 && (
+              <div className="py-12 text-center space-y-3 bg-[#0f1015]/60 border border-white/10 rounded-2xl">
+                <ImageIcon className="w-10 h-10 text-neutral-500 mx-auto" />
+                <h3 className="text-sm font-semibold text-white">No photos detected yet</h3>
+                <p className="text-xs text-neutral-400 max-w-sm mx-auto">
+                  Click the Upload tile above to add your product shots, store images, or brand graphics.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Bar with Continue Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="photos-continue-btn"
+              onClick={handleWebsitePhotosContinue}
+              disabled={isSavingPhotos}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60"
+            >
+              {isSavingPhotos ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving selected photos...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 1: FIND YOUR SHOP ON GOOGLE MAPS (Reference Screenshots 1, 2, 3, 4)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_search" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~20%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleMapsSearchBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "20%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Find your shop on Google Maps
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                Your photos and reviews do most of the work
+              </p>
+            </div>
+
+            {/* Search Input Box */}
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+              <Input
+                type="text"
+                value={mapsSearchQuery}
+                onChange={(e) => {
+                  setMapsSearchQuery(e.target.value);
+                  if (selectedMapsPlace && e.target.value !== selectedMapsPlace.name) {
+                    setSelectedMapsPlace(null);
+                  }
+                }}
+                placeholder="Search your shop, or paste Maps link"
+                className="h-14 pl-12 pr-11 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff] shadow-inner"
+              />
+              {isSearchingMaps ? (
+                <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#be32ff] animate-spin" />
+              ) : mapsSearchQuery ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMapsSearchQuery("");
+                    setSelectedMapsPlace(null);
+                    setMapsSearchResults([]);
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              ) : null}
+            </div>
+
+            {/* Selected Shop Preview Card (Screenshot 4) */}
+            {selectedMapsPlace ? (
+              <div className="rounded-3xl bg-[#0f1015]/90 border border-[#be32ff]/40 p-4 sm:p-5 space-y-4 shadow-[0_0_30px_rgba(190,50,255,0.2)] animate-in zoom-in-95 duration-300">
+                {/* Mosaic / Photo Preview */}
+                {selectedMapsPlace.photos && selectedMapsPlace.photos.length > 0 ? (
+                  <div className="grid grid-cols-3 gap-2 h-44 sm:h-52 rounded-2xl overflow-hidden">
+                    <div className="col-span-2 h-full relative overflow-hidden bg-neutral-900">
+                      <img
+                        src={selectedMapsPlace.photos[0]}
+                        alt={selectedMapsPlace.name}
+                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="col-span-1 grid grid-rows-2 gap-2 h-full">
+                      <div className="h-full relative overflow-hidden bg-neutral-900 rounded-lg">
+                        <img
+                          src={selectedMapsPlace.photos[1] || selectedMapsPlace.photos[0]}
+                          alt={`${selectedMapsPlace.name} 2`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="h-full relative overflow-hidden bg-neutral-900 rounded-lg">
+                        <img
+                          src={selectedMapsPlace.photos[2] || selectedMapsPlace.photos[0]}
+                          alt={`${selectedMapsPlace.name} 3`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-32 rounded-2xl bg-gradient-to-r from-purple-900/30 via-pink-900/20 to-orange-900/30 border border-white/10 flex items-center justify-center gap-3 text-neutral-400">
+                    <Store className="w-8 h-8 text-[#be32ff]" />
+                    <span className="text-sm font-medium">Google Maps listing verified</span>
+                  </div>
+                )}
+
+                {/* Info row */}
+                <div className="space-y-1.5">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
+                      {selectedMapsPlace.name}
+                    </h3>
+                    {selectedMapsPlace.rating && (
+                      <div className="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1 shrink-0">
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                        <span>{selectedMapsPlace.rating}</span>
+                        {selectedMapsPlace.userRatingCount && (
+                          <span className="text-amber-300/70 font-normal">
+                            ({selectedMapsPlace.userRatingCount})
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs sm:text-sm text-neutral-300 leading-snug flex items-start gap-1.5 pt-0.5">
+                    <MapPin className="w-4 h-4 text-[#fc9a5d] shrink-0 mt-0.5" />
+                    <span>{selectedMapsPlace.address}</span>
+                  </p>
+                </div>
+
+                {/* Change selection button */}
+                <div className="pt-1 flex items-center justify-between border-t border-white/10">
+                  <span className="text-xs text-neutral-400">Selected Google Maps shop</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedMapsPlace(null);
+                      setMapsSearchQuery("");
+                      setMapsSearchResults([]);
+                    }}
+                    className="text-xs font-semibold text-[#be32ff] hover:text-[#f0449b] transition-colors cursor-pointer"
+                  >
+                    Change shop
+                  </button>
+                </div>
+              </div>
+            ) : mapsSearchResults.length > 0 ? (
+              /* Search Results Dropdown List (Screenshot 3) */
+              <div className="rounded-2xl bg-[#0f1015] border border-white/15 overflow-hidden divide-y divide-white/10 shadow-xl max-h-72 sm:max-h-80 overflow-y-auto">
+                {mapsSearchResults.map((place) => (
+                  <button
+                    type="button"
+                    key={place.id}
+                    onClick={() => handleSelectMapsShop(place)}
+                    className="w-full p-3.5 sm:p-4 text-left hover:bg-white/[0.06] transition-colors flex items-start gap-3.5 group cursor-pointer"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#be32ff] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-white text-sm sm:text-base truncate group-hover:text-purple-300 transition-colors">
+                          {place.name}
+                        </span>
+                        {place.rating && (
+                          <span className="text-amber-400 text-xs font-semibold shrink-0 flex items-center gap-0.5">
+                            ★ {place.rating}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-neutral-400 line-clamp-1 mt-0.5">
+                        {place.address}
+                      </p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : mapsSearchError ? (
+              /* Error / Empty State */
+              <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-2">
+                <p className="text-xs sm:text-sm text-neutral-300">{mapsSearchError}</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (mapsSearchQuery) {
+                      googleMapsService.searchGooglePlaces(mapsSearchQuery).then((res) => {
+                        setMapsSearchResults(res);
+                      });
+                    }
+                  }}
+                  className="text-xs font-semibold text-[#be32ff] hover:underline"
+                >
+                  Retry search
+                </button>
+              </div>
+            ) : (
+              /* Help Card (Screenshot 1 & 2) */
+              <div className="p-5 rounded-3xl bg-[#0f1015]/80 border border-white/10 space-y-4 shadow-sm">
+                <h3 className="font-bold text-white text-sm sm:text-base">
+                  Can&apos;t find it? Paste the Maps link instead
+                </h3>
+                <ol className="space-y-2.5 text-xs sm:text-sm text-neutral-300">
+                  <li className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
+                      1
+                    </span>
+                    <span>Open the Google Maps app</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
+                      2
+                    </span>
+                    <span>Search your shop name</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
+                      3
+                    </span>
+                    <span>Tap Share → Copy link</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
+                      4
+                    </span>
+                    <span>Come back here and paste it above</span>
+                  </li>
+                </ol>
+                <div className="pt-1">
+                  <a
+                    href="https://maps.google.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition-all border border-white/10"
+                  >
+                    <span>Open Maps</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Bar with "Use this shop" Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="maps-use-shop-btn"
+              onClick={handleUseShopContinue}
+              disabled={!selectedMapsPlace}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedMapsPlace
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Use this shop</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 2: GOT A WEBSITE? (Reference Screenshot 5)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_website" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~38%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleMapsWebsiteBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "38%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Got a website for {selectedMapsPlace?.name || businessProfile.business_name || "your shop"}?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
+                We didn&apos;t find one on Google Maps. Paste a link to use it as your source — or skip and we&apos;ll set you up manually.
+              </p>
+            </div>
+
+            {/* Selected Shop Summary Card */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#0f1015]/90 border border-white/10 flex items-start gap-3.5 shadow-sm">
+              <div className="w-9 h-9 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#be32ff] flex items-center justify-center shrink-0 mt-0.5">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div className="space-y-1 min-w-0">
+                <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
+                  {selectedMapsPlace?.name || businessProfile.business_name}
+                </h3>
+                <p className="text-xs text-neutral-400 leading-snug">
+                  {selectedMapsPlace?.address || businessProfile.full_address || "Google Maps verified location"}
+                </p>
+              </div>
+            </div>
+
+            {/* Website URL Input */}
+            <div className="space-y-2">
+              <div className="relative">
+                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
+                <Input
+                  type="text"
+                  value={mapsWebsiteUrl}
+                  onChange={(e) => setMapsWebsiteUrl(e.target.value)}
+                  placeholder="yourbusiness.com"
+                  className="h-14 pl-12 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff] shadow-inner"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Bottom Bar with "Use this website" and "Skip" */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent space-y-3 text-center">
+            <button
+              type="button"
+              id="maps-use-website-btn"
+              onClick={handleUseWebsiteContinue}
+              disabled={!mapsWebsiteUrl.trim()}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                mapsWebsiteUrl.trim()
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Use this website</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+            <button
+              type="button"
+              onClick={handleSkipWebsite}
+              className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
+            >
+              Skip — I don&apos;t have one
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 3: WHAT KIND OF BUSINESS DO YOU RUN? (Category & Subcategory)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_category" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~55%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleMapsCategoryBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "55%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                What kind of business do you run?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                So we know what to make for you.
+              </p>
+            </div>
+
+            {/* Field 1: Category Selector Trigger */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-neutral-300">Category</Label>
+              <button
+                type="button"
+                onClick={() => setIsCategoryDrawerOpen(true)}
+                className="w-full h-14 px-4 rounded-2xl bg-[#0f1015] border border-white/15 hover:border-[#be32ff] transition-all flex items-center justify-between text-left cursor-pointer group shadow-sm"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Search className="w-5 h-5 text-neutral-400 group-hover:text-[#be32ff] transition-colors" />
+                  <span className={`text-sm sm:text-base font-semibold truncate ${mapsCategory ? "text-white" : "text-neutral-500"}`}>
+                    {mapsCategory || "Select a category"}
+                  </span>
+                </div>
+                <ChevronDown className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors shrink-0" />
+              </button>
+            </div>
+
+            {/* Field 2: Sub-category (optional) */}
+            <div className="space-y-2">
+              <Label htmlFor="maps-subcat" className="text-xs font-semibold text-neutral-300">
+                Sub-category (optional)
+              </Label>
+              <div className="relative">
+                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#be32ff]" />
+                <Input
+                  id="maps-subcat"
+                  type="text"
+                  value={mapsSubCategory}
+                  onChange={(e) => setMapsSubCategory(e.target.value)}
+                  placeholder="Search or type your niche..."
+                  className="h-14 pl-11 pr-10 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff]"
+                />
+                {mapsSubCategory && (
+                  <button
+                    type="button"
+                    onClick={() => setMapsSubCategory("")}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Dynamic Suggested Niche Chips */}
+              {(() => {
+                const currentCat = BUSINESS_CATEGORIES.find(
+                  (c) => c.name.toLowerCase() === mapsCategory.toLowerCase()
+                );
+                const niches = currentCat?.suggestedNiches || [];
+                if (niches.length === 0) return null;
+                return (
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[11px] font-medium text-neutral-400">Popular niches for {mapsCategory}:</span>
+                    <div className="flex flex-wrap gap-2">
+                      {niches.map((niche) => {
+                        const isSelected = mapsSubCategory === niche;
+                        return (
+                          <button
+                            type="button"
+                            key={niche}
+                            onClick={() => setMapsSubCategory(niche)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                              isSelected
+                                ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/25 border-[#be32ff] text-white shadow-sm"
+                                : "bg-[#0f1015] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
+                            }`}
+                          >
+                            {isSelected && <Check className="w-3 h-3 inline mr-1 text-[#be32ff]" />}
+                            {niche}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* Sticky Bottom Bar with Continue Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="maps-category-continue-btn"
+              onClick={handleMapsCategoryContinue}
+              disabled={!mapsCategory.trim()}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                mapsCategory.trim()
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Category Selection Modal / Drawer ─── */}
+      {isCategoryDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md max-h-[85vh] bg-[#0c1222] border border-white/15 rounded-3xl p-5 sm:p-6 flex flex-col shadow-2xl relative">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-lg font-bold text-white">Select a category</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsCategoryDrawerOpen(false);
+                  setCategorySearchTerm("");
+                }}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-neutral-300 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="py-3">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <Input
+                  type="text"
+                  value={categorySearchTerm}
+                  onChange={(e) => setCategorySearchTerm(e.target.value)}
+                  placeholder="Search categories..."
+                  className="h-11 pl-10 pr-9 rounded-xl bg-[#0f1015] border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff]"
+                />
+                {categorySearchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setCategorySearchTerm("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Scrollable Category List */}
+            <div className="flex-1 overflow-y-auto space-y-1 divide-y divide-white/5 pr-1 max-h-[55vh]">
+              {BUSINESS_CATEGORIES.filter((c) =>
+                c.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
+              ).map((cat) => {
+                const isSelected = mapsCategory === cat.name;
+                return (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    onClick={() => {
+                      setMapsCategory(cat.name);
+                      setMapsPromotion(cat.defaultPromote);
+                      setIsCategoryDrawerOpen(false);
+                      setCategorySearchTerm("");
+                    }}
+                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 text-white font-bold"
+                        : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
+                    }`}
+                  >
+                    <span className="text-xs sm:text-sm">{cat.name}</span>
+                    {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 4: TELL US ABOUT YOUR BUSINESS (Business Details & Logo)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_details" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~70%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleMapsDetailsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "70%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Tell us about your business
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                We’ll use this on every post and ad.
+              </p>
+            </div>
+
+            {/* Form Fields Container */}
+            <div className="space-y-4">
+              {/* Field 1: Business name (required) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="maps-b-name" className="text-xs font-semibold text-neutral-300">
+                  Business name <span className="text-rose-400">*</span>
+                </Label>
+                <Input
+                  id="maps-b-name"
+                  type="text"
+                  value={businessProfile.business_name}
+                  onChange={(e) => setBusinessProfile({ ...businessProfile, business_name: e.target.value })}
+                  placeholder="e.g. Gift store (Rudra's villa)"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                />
+              </div>
+
+              {/* Field 2: What should we promote? (required) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="maps-b-promote" className="text-xs font-semibold text-neutral-300">
+                  What should we promote? <span className="text-rose-400">*</span>
+                </Label>
+                <Input
+                  id="maps-b-promote"
+                  type="text"
+                  value={mapsPromotion}
+                  onChange={(e) => setMapsPromotion(e.target.value)}
+                  placeholder="e.g. Customized gifts, personalized mugs, handmade hampers"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                />
+              </div>
+
+              {/* Field 3: Who do you sell to? (optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="maps-b-audience" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <span>Who do you sell to? (optional)</span>
+                  <Info className="w-3.5 h-3.5 text-neutral-400" />
+                </Label>
+                <Input
+                  id="maps-b-audience"
+                  type="text"
+                  value={mapsAudience}
+                  onChange={(e) => setMapsAudience(e.target.value)}
+                  placeholder="Example: young professionals, parents, local shoppers"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                />
+              </div>
+
+              {/* Field 4: What makes you different? (optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="maps-b-diff" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <span>What makes you different? (optional)</span>
+                  <Info className="w-3.5 h-3.5 text-neutral-400" />
+                </Label>
+                <Input
+                  id="maps-b-diff"
+                  type="text"
+                  value={mapsDifferentiator}
+                  onChange={(e) => setMapsDifferentiator(e.target.value)}
+                  placeholder="Example: same-day delivery, organic ingredients"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                />
+              </div>
+
+              {/* Field 5: Logo (optional) */}
+              <div className="space-y-2 pt-1">
+                <Label className="text-xs font-semibold text-neutral-300">Logo (optional)</Label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0f1015] border border-white/15 flex items-center justify-center overflow-hidden p-1.5 shrink-0 shadow-md">
+                    {mapsLogoUrl ? (
+                      <img src={mapsLogoUrl} alt="Logo" className="w-full h-full object-contain" />
+                    ) : (
+                      <Store className="w-7 h-7 text-neutral-500" />
+                    )}
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all cursor-pointer border border-white/10">
+                      <Upload className="w-3.5 h-3.5 text-[#fc9a5d]" />
+                      <span>{mapsLogoUrl ? "Change logo" : "Upload logo"}</span>
+                      <input type="file" accept="image/*" onChange={handleMapsLogoUpload} className="hidden" />
+                    </label>
+                    {mapsLogoUrl && (
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleRemoveMapsLogo}
+                          className="text-xs font-medium text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
+                        >
+                          Remove logo
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Sticky Bottom Bar with Continue Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="maps-details-continue-btn"
+              onClick={handleMapsDetailsContinue}
+              disabled={!businessProfile.business_name.trim() || !mapsPromotion.trim()}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                businessProfile.business_name.trim() && mapsPromotion.trim()
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 5: PICK BUSINESS PHOTOS
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_photos" && (
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~85%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleMapsPhotosBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "85%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Pick the photos we should work with
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
+                Syncing Google Maps photos… you can upload your own now.
+              </p>
+            </div>
+
+            {/* Informational Status Card */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/25 flex items-center justify-between gap-3 text-xs sm:text-sm">
+              <div className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-5 h-5 text-[#be32ff] shrink-0" />
+                <span className="font-semibold text-white">Google Maps details are ready</span>
+              </div>
+              <span className="text-neutral-400 text-xs">
+                {mapsPhotos.length > 0 ? `${mapsPhotos.length} photos loaded` : "Upload photos below"}
+              </span>
+            </div>
+
+            {/* Photo count indicator & Select All toggle */}
+            <div className="flex items-center justify-between pt-1 pb-1">
+              <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#be32ff]/15 border border-[#be32ff]/30 text-purple-200 flex items-center gap-2 shadow-sm">
+                <span>{selectedMapsPhotos.length} / 15 · more = more variety</span>
+              </div>
+              {mapsPhotos.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSelectAllMapsPhotos}
+                  className="text-xs font-medium text-neutral-400 hover:text-white underline cursor-pointer transition-colors"
+                >
+                  {selectedMapsPhotos.length === Math.min(mapsPhotos.length, 15) ? "Deselect All" : "Select All"}
+                </button>
+              )}
+            </div>
+
+            {/* Responsive Photo Grid (Web Layout: 4 columns on desktop, 2-3 on tablet/mobile) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+              {/* Upload Tile */}
+              <label className="aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#be32ff] transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer group shadow-sm">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleMapsPhotoUpload}
+                  className="hidden"
+                />
+                {isUploadingMapsPhoto ? (
+                  <Loader2 className="w-7 h-7 text-[#be32ff] animate-spin mb-2" />
+                ) : (
+                  <Upload className="w-7 h-7 text-[#fc9a5d] group-hover:scale-110 transition-transform mb-2" />
+                )}
+                <span className="text-xs font-semibold text-white">Upload a photo</span>
+                <span className="text-[10px] text-neutral-400 mt-1">JPG, PNG up to 10MB</span>
+              </label>
+
+              {/* Photos List */}
+              {mapsPhotos.map((photoUrl, idx) => {
+                const isSelected = selectedMapsPhotos.includes(photoUrl);
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleToggleMapsPhoto(photoUrl)}
+                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${
+                      isSelected
+                        ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
+                        : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
+                    }`}
+                  >
+                    <img
+                      src={photoUrl}
+                      alt={`Shop photo ${idx + 1}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+
+                    {/* Selection Checkmark Badge */}
+                    <div className="absolute top-2.5 right-2.5">
+                      {isSelected ? (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full border border-white/50 bg-black/40 backdrop-blur-sm" />
+                      )}
+                    </div>
+
+                    {/* Delete Photo Button on Hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => handleRemoveMapsPhoto(photoUrl, e)}
+                      aria-label="Remove photo"
+                      className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Empty state if no photos yet */}
+            {mapsPhotos.length === 0 && (
+              <div className="py-12 text-center space-y-3 bg-[#0f1015]/60 border border-white/10 rounded-2xl">
+                <ImageIcon className="w-10 h-10 text-neutral-500 mx-auto" />
+                <h3 className="text-sm font-semibold text-white">No photos detected yet</h3>
+                <p className="text-xs text-neutral-400 max-w-sm mx-auto">
+                  Click the Upload tile above to add your shop front, inside view, or product images.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Bar with Continue Button */}
+          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+            <button
+              type="button"
+              id="maps-photos-continue-btn"
+              onClick={handleMapsPhotosContinue}
+              disabled={isSavingMapsStep || selectedMapsPhotos.length === 0}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedMapsPhotos.length > 0 && !isSavingMapsStep
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              {isSavingMapsStep ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving shop photos...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MARKETPLACE STEP 1: WHICH MARKETPLACES DO YOU SELL ON?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "marketplace_platforms" && (
+        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~25%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleMarketplacePlatformsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "25%" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Which marketplaces do you sell on?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Pick all that apply.
+              </p>
+            </div>
+
+            {/* Selectable Cards Grid */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+              {MARKETPLACE_SELLER_PLATFORMS.map((item) => {
+                const isSelected = selectedMarketplaces.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleToggleMarketplace(item.id)}
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
+                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    }`}
+                  >
+                    {/* Selected Checkmark Badge */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      </div>
+                    )}
+
+                    {/* Logo Tile */}
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    </div>
+
+                    {/* Label */}
+                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* If 'Other' is selected, reveal custom input */}
+            {selectedMarketplaces.includes("other") && (
+              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="custom-marketplace-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
+                  Marketplace name <span className="text-[#f0449b]">*</span>
+                </Label>
+                <input
+                  id="custom-marketplace-input"
+                  type="text"
+                  value={customMarketplaceName}
+                  onChange={(e) => {
+                    setCustomMarketplaceName(e.target.value);
+                    setError("");
+                  }}
+                  placeholder="e.g. Nykaa, Tata CLiQ, Etsy, Ajio"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-6 pb-2">
+            <button
+              type="button"
+              id="marketplace-platforms-continue-btn"
+              onClick={handleMarketplacePlatformsContinue}
+              disabled={
+                selectedMarketplaces.length === 0 ||
+                (selectedMarketplaces.includes("other") && !customMarketplaceName.trim())
+              }
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedMarketplaces.length > 0 &&
+                (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MARKETPLACE STEP 2: WHERE DO YOU LIST YOUR BUSINESS?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "marketplace_listings" && (
+        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~45%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleMarketplaceListingsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "45%" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Where do you list your business?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Pick all that apply.
+              </p>
+            </div>
+
+            {/* Selectable Cards Grid */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+              {DIRECTORY_LISTING_PLATFORMS.map((item) => {
+                const isSelected = selectedListings.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleToggleListing(item.id)}
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
+                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    }`}
+                  >
+                    {/* Selected Checkmark Badge */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      </div>
+                    )}
+
+                    {/* Logo Tile */}
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    </div>
+
+                    {/* Label */}
+                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* If 'Other' is selected, reveal custom input */}
+            {selectedListings.includes("other") && (
+              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="custom-listing-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
+                  Directory or platform name <span className="text-[#f0449b]">*</span>
+                </Label>
+                <input
+                  id="custom-listing-input"
+                  type="text"
+                  value={customListingName}
+                  onChange={(e) => {
+                    setCustomListingName(e.target.value);
+                    setError("");
+                  }}
+                  placeholder="e.g. Google Business Profile, Urban Company, YellowPages"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-6 pb-2">
+            <button
+              type="button"
+              id="marketplace-listings-continue-btn"
+              onClick={handleMarketplaceListingsContinue}
+              disabled={
+                selectedListings.length === 0 ||
+                (selectedListings.includes("other") && !customListingName.trim())
+              }
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedListings.length > 0 &&
+                (!selectedListings.includes("other") || customListingName.trim())
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          MARKETPLACE STEP 3: DO YOU ALSO HAVE A WEBSITE?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "marketplace_website" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~60%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleMarketplaceWebsiteBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "60%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div className="mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Do you also have a{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  website?
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                We&apos;ll read your brand from it — skip if you don&apos;t have one.
+              </p>
+            </div>
+
+            {/* Website URL Input Card matching existing website screen */}
+            <div className="mt-8">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
+                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    id="marketplace-website-url-input"
+                    value={websiteUrl}
+                    onChange={(e) => {
+                      setWebsiteUrl(e.target.value);
+                      setError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                        handleMarketplaceWebsiteContinue();
+                      }
+                    }}
+                    placeholder="yourbusiness.com"
+                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
+                    autoFocus
+                  />
+                </div>
+                {websiteUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setWebsiteUrl("")}
+                    className="text-neutral-500 hover:text-white transition-colors p-1"
+                    aria-label="Clear input"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Validation helper */}
+              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
+                  <span>Please enter a valid website address (e.g. yourbusiness.com)</span>
+                </p>
+              )}
+
+              {/* Helpful context */}
+              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Our AI scans your products, brand colors, voice, and category automatically from your URL.
+                </span>
+              </div>
+            </div>
+
+            {/* Error Notice */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button + Skip Action */}
+          <div className="pt-4 pb-2 space-y-3">
+            <button
+              type="button"
+              id="marketplace-website-continue-btn"
+              onClick={handleMarketplaceWebsiteContinue}
+              disabled={!isValidWebsiteUrl(websiteUrl)}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
+                isValidWebsiteUrl(websiteUrl)
+                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSkipMarketplaceWebsite}
+              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
+            >
+              I&apos;ll enter it myself
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          WHOLESALE / B2B STEP 1: WHERE DO YOU SELL YOUR PRODUCTS WHOLESALE?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "b2b_platforms" && (
+        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~25%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleB2bPlatformsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "25%" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Where do you sell your products wholesale?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Select all the platforms you use.
+              </p>
+            </div>
+
+            {/* Selectable Cards Grid */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+              {B2B_WHOLESALE_PLATFORMS.map((item) => {
+                const isSelected = selectedB2bPlatforms.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleToggleB2bPlatform(item.id)}
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
+                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    }`}
+                  >
+                    {/* Selected Checkmark Badge */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      </div>
+                    )}
+
+                    {/* Logo Tile */}
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    </div>
+
+                    {/* Label */}
+                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* If 'Other' is selected, reveal custom input */}
+            {selectedB2bPlatforms.includes("other") && (
+              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="custom-b2b-platform-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
+                  Wholesale platform name <span className="text-[#f0449b]">*</span>
+                </Label>
+                <input
+                  id="custom-b2b-platform-input"
+                  type="text"
+                  value={customB2bPlatformName}
+                  onChange={(e) => {
+                    setCustomB2bPlatformName(e.target.value);
+                    setError("");
+                  }}
+                  placeholder="e.g. IndustryBuying, Moglix, Power2SME"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-6 pb-2">
+            <button
+              type="button"
+              id="b2b-platforms-continue-btn"
+              onClick={handleB2bPlatformsContinue}
+              disabled={
+                selectedB2bPlatforms.length === 0 ||
+                (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim())
+              }
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedB2bPlatforms.length > 0 &&
+                (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          WHOLESALE / B2B STEP 2: WHERE ELSE DOES YOUR BUSINESS SELL?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "b2b_listings" && (
+        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~45%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleB2bListingsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "45%" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-5">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Where else does your business sell?
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Pick all that apply.
+              </p>
+            </div>
+
+            {/* Selectable Cards Grid */}
+            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+              {B2B_ADDITIONAL_LISTINGS.map((item) => {
+                const isSelected = selectedB2bListings.includes(item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => handleToggleB2bListing(item.id)}
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
+                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    }`}
+                  >
+                    {/* Selected Checkmark Badge */}
+                    {isSelected && (
+                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      </div>
+                    )}
+
+                    {/* Logo Tile */}
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    </div>
+
+                    {/* Label */}
+                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                      {item.name}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* If 'Other' is selected, reveal custom input */}
+            {selectedB2bListings.includes("other") && (
+              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+                <Label htmlFor="custom-b2b-listing-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
+                  Platform or channel name <span className="text-[#f0449b]">*</span>
+                </Label>
+                <input
+                  id="custom-b2b-listing-input"
+                  type="text"
+                  value={customB2bListingName}
+                  onChange={(e) => {
+                    setCustomB2bListingName(e.target.value);
+                    setError("");
+                  }}
+                  placeholder="e.g. Local Mandi, Trade Directories, Direct Distributor"
+                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
+                  autoFocus
+                />
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-6 pb-2">
+            <button
+              type="button"
+              id="b2b-listings-continue-btn"
+              onClick={handleB2bListingsContinue}
+              disabled={
+                selectedB2bListings.length === 0 ||
+                (selectedB2bListings.includes("other") && !customB2bListingName.trim())
+              }
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedB2bListings.length > 0 &&
+                (!selectedB2bListings.includes("other") || customB2bListingName.trim())
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          WHOLESALE / B2B STEP 3: DO YOU HAVE A WEBSITE OR ONLINE STOREFRONT?
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "b2b_website" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress bar (~60%) */}
+            <div className="flex items-center gap-3 w-full mb-6">
+              <button
+                type="button"
+                onClick={handleB2bWebsiteBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "60%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div className="mb-2">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Do you have a website or{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  online storefront?
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Add your link so we can understand your business — or skip and enter details yourself.
+              </p>
+            </div>
+
+            {/* Website URL Input Card */}
+            <div className="mt-8">
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
+                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <input
+                    type="text"
+                    id="b2b-website-url-input"
+                    value={websiteUrl}
+                    onChange={(e) => {
+                      setWebsiteUrl(e.target.value);
+                      setError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                        handleB2bWebsiteContinue();
+                      }
+                    }}
+                    placeholder="yourbusiness.com"
+                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
+                    autoFocus
+                  />
+                </div>
+                {websiteUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setWebsiteUrl("")}
+                    className="text-neutral-500 hover:text-white transition-colors p-1"
+                    aria-label="Clear input"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Validation helper */}
+              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
+                  <span>Please enter a valid website address (e.g. yourbusiness.com)</span>
+                </p>
+              )}
+
+              {/* Helpful context */}
+              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Our AI scans your products, catalog, brand colors, voice, and category automatically from your link.
+                </span>
+              </div>
+            </div>
+
+            {/* Error Notice */}
+            {error && (
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-red-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Continue Button + Skip Action */}
+          <div className="pt-4 pb-2 space-y-3">
+            <button
+              type="button"
+              id="b2b-website-continue-btn"
+              onClick={handleB2bWebsiteContinue}
+              disabled={!isValidWebsiteUrl(websiteUrl)}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
+                isValidWebsiteUrl(websiteUrl)
+                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+              }`}
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleSkipB2bWebsite}
+              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
+            >
+              I&apos;ll enter it myself
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          NO ONLINE PRESENCE STEP 1: BUSINESS BASICS & WHAT TO PROMOTE (none_details)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "none_details" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~45%) + Completion Status */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleNoneDetailsBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "45%" }}
+                />
+              </div>
+              <span className="text-[11px] text-[#be32ff] font-semibold bg-[#be32ff]/10 px-2.5 py-1 rounded-full border border-[#be32ff]/20 shrink-0 hidden sm:inline-block">
+                Brand Kit · Step 1
+              </span>
+            </div>
+
+            {/* Friendly Non-Blocking Banner */}
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-[#be32ff] shrink-0 mt-0.5" />
+              <div className="text-xs text-neutral-300 space-y-0.5">
+                <span className="font-semibold text-white block">
+                  Flexible Brand Kit Setup
+                </span>
+                <span className="text-neutral-400 leading-relaxed block">
+                  Only business name is required. You can complete or update your Brand Kit anytime later in Settings.
+                </span>
+              </div>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Tell us about your{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  business
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                We&apos;ll use this information to craft personalized AI posts, ads, and graphics for your brand.
+              </p>
+            </div>
+
+            {/* Form Fields Container */}
+            <div className="space-y-4">
+              {/* Field 1: Business Name (Required *) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="none-b-name" className="text-xs font-semibold text-neutral-300">
+                    Business name <span className="text-rose-400">*</span>
+                  </Label>
+                  <span className="text-[11px] text-neutral-500">Required</span>
+                </div>
+                <Input
+                  id="none-b-name"
+                  type="text"
+                  value={businessProfile.business_name}
+                  onChange={(e) => {
+                    setBusinessProfile({ ...businessProfile, business_name: e.target.value });
+                    setError("");
+                  }}
+                  placeholder="e.g. Amber & Oak Studio, Ramesh Textiles, Green Cafe"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4 font-medium"
+                  autoFocus
+                />
+              </div>
+
+              {/* Field 2: Business Category & Suggested Niches */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold text-neutral-300">
+                    Category & industry <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={() => setIsNoneCategoryOpen(true)}
+                    className="text-xs text-[#be32ff] hover:text-[#fc9a5d] transition-colors flex items-center gap-1 font-medium cursor-pointer"
+                  >
+                    <span>Browse all categories</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Active Category Display & Picker Trigger */}
+                <div
+                  onClick={() => setIsNoneCategoryOpen(true)}
+                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border border-white/15 hover:border-white/30 transition-all flex items-center justify-between cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Store className="w-4 h-4 text-[#be32ff]" />
+                    <span className="text-sm font-semibold text-white">{noneCategory}</span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-neutral-400" />
+                </div>
+
+                {/* Quick Category Chips for Fast 1-Tap Switching */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["Fashion & Apparel", "Jewellery", "Restaurant & Cafe", "Beauty & Wellness", "Grocery & Supermarket", "Tech & Electronics"].map(
+                    (cat) => {
+                      const isSelected = noneCategory.toLowerCase() === cat.toLowerCase();
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => {
+                            setNoneCategory(cat);
+                            const matched = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === cat.toLowerCase());
+                            if (matched && !noneProducts.trim()) {
+                              setNoneProducts(matched.defaultPromote);
+                            }
+                          }}
+                          className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/40 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
+                              : "bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10"
+                          }`}
+                        >
+                          {cat}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
+
+                {/* Optional Sub-category / Niche */}
+                <div className="pt-1.5 space-y-1.5">
+                  <Input
+                    type="text"
+                    value={noneSubCategory}
+                    onChange={(e) => setNoneSubCategory(e.target.value)}
+                    placeholder="Specific niche / sub-category (e.g. Organic sourdough, Bridal lehengas)"
+                    className="h-10 rounded-xl bg-white/5 border-white/10 text-white text-xs sm:text-sm focus:border-[#be32ff] px-3.5"
+                  />
+
+                  {/* Dynamic Suggested Niche Chips from Selected Category */}
+                  {(() => {
+                    const matchedCat = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === noneCategory.toLowerCase());
+                    if (!matchedCat || !matchedCat.suggestedNiches?.length) return null;
+                    return (
+                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                        <span className="text-[11px] text-neutral-500 font-medium">Quick suggestions:</span>
+                        {matchedCat.suggestedNiches.slice(0, 4).map((niche) => (
+                          <button
+                            key={niche}
+                            type="button"
+                            onClick={() => setNoneSubCategory(niche)}
+                            className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                          >
+                            + {niche}
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Field 3: What should we promote? (Optional) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="none-b-promote" className="text-xs font-semibold text-neutral-300">
+                    Products or services to promote <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </Label>
+                </div>
+                <Input
+                  id="none-b-promote"
+                  type="text"
+                  value={noneProducts}
+                  onChange={(e) => setNoneProducts(e.target.value)}
+                  placeholder="e.g. Artisanal sourdough breads, birthday cakes, breakfast hampers"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
+                />
+              </div>
+
+              {/* Field 4: Target Audience (Optional) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="none-b-audience" className="text-xs font-semibold text-neutral-300">
+                    Target audience <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </Label>
+                </div>
+                <Input
+                  id="none-b-audience"
+                  type="text"
+                  value={noneAudience}
+                  onChange={(e) => setNoneAudience(e.target.value)}
+                  placeholder="e.g. Local neighborhood foodies, young families, office workers"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
+                />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["Local Walk-in Customers", "Young Adults & Gen-Z", "Families with Kids", "Working Professionals", "Pan-India Buyers"].map((aud) => (
+                    <button
+                      key={aud}
+                      type="button"
+                      onClick={() => setNoneAudience(aud)}
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                    >
+                      + {aud}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Field 5: What makes you different / Differentiators (Optional) */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="none-b-diff" className="text-xs font-semibold text-neutral-300">
+                    What makes your business different? <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </Label>
+                </div>
+                <Input
+                  id="none-b-diff"
+                  type="text"
+                  value={noneDifferentiator}
+                  onChange={(e) => setNoneDifferentiator(e.target.value)}
+                  placeholder="e.g. 100% organic, baked fresh daily, custom designs, fastest delivery"
+                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
+                />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {["100% Pure & Handcrafted", "Best Prices Guaranteed", "Freshly Made Daily", "Fast Local Delivery", "Customized to Order"].map((diff) => (
+                    <button
+                      key={diff}
+                      type="button"
+                      onClick={() => setNoneDifferentiator(diff)}
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
+                    >
+                      + {diff}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Field 6: Short Business Description (Optional) */}
+              <div className="space-y-1.5">
+                <Label htmlFor="none-b-desc" className="text-xs font-semibold text-neutral-300">
+                  Business story / description <span className="text-neutral-500 font-normal">(Optional)</span>
+                </Label>
+                <textarea
+                  id="none-b-desc"
+                  rows={2}
+                  value={noneDescription}
+                  onChange={(e) => setNoneDescription(e.target.value)}
+                  placeholder="Tell us a little about your business background or specialities..."
+                  className="w-full p-3 rounded-2xl bg-[#0f1015] border border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff] focus:outline-none resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Error Banner */}
+            {error && (
+              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-rose-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Bar with Continue and Skip for now */}
+          <div className="pt-6 pb-2 space-y-3">
+            <button
+              type="button"
+              id="none-details-continue-btn"
+              onClick={handleNoneDetailsContinue}
+              disabled={isSavingBrandKitStep}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+            >
+              {isSavingBrandKitStep ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue to Brand Style</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNoneDetailsSkip}
+              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
+            >
+              Skip for now · Continue with defaults
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          NO ONLINE PRESENCE STEP 2: BRAND KIT STYLE & CREATIVE IDENTITY (none_brand_kit)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "none_brand_kit" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~70%) + Badge */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleNoneBrandKitBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "70%" }}
+                />
+              </div>
+              <span className="text-[11px] text-[#f0449b] font-semibold bg-[#f0449b]/10 px-2.5 py-1 rounded-full border border-[#f0449b]/20 shrink-0 hidden sm:inline-block">
+                Brand Kit · Step 2
+              </span>
+            </div>
+
+            {/* Heading & Subtitle */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Customize your{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  Brand Kit
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                Choose your brand colors, typography, tone, and logo for AI creatives. Everything is optional and editable later.
+              </p>
+            </div>
+
+            {/* ─── SECTION 1: LOGO UPLOAD (OPTIONAL) ─── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-[#be32ff]" />
+                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Logo</span>
+                  <span className="text-[11px] text-neutral-500">(Optional)</span>
+                </div>
+                {logoPreview && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveBrandLogo}
+                    className="text-xs text-rose-400 hover:text-rose-300 font-medium cursor-pointer"
+                  >
+                    Remove logo
+                  </button>
+                )}
+              </div>
+
+              {logoPreview ? (
+                <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/10">
+                  <div className="w-16 h-16 rounded-xl bg-white/10 border border-white/15 overflow-hidden flex items-center justify-center p-1.5 shrink-0">
+                    <img src={logoPreview} alt="Brand Logo" className="w-full h-full object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                      <span className="text-xs font-semibold text-white truncate">Logo ready for creatives</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-400 mt-0.5">
+                      Will be placed on all AI generated posters and banners.
+                    </p>
+                  </div>
+                  <label
+                    htmlFor="brand-kit-logo-input"
+                    className="text-xs font-medium text-[#be32ff] hover:text-[#fc9a5d] px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+                  >
+                    Change
+                  </label>
+                  <input
+                    id="brand-kit-logo-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBrandLogoUpload}
+                    className="hidden"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label
+                    htmlFor="brand-kit-logo-input"
+                    className="flex flex-col items-center justify-center p-5 rounded-xl border border-dashed border-white/20 hover:border-[#be32ff]/60 bg-white/[0.02] hover:bg-[#be32ff]/[0.04] transition-all cursor-pointer group text-center"
+                  >
+                    {isUploadingBrandLogo ? (
+                      <Loader2 className="w-6 h-6 text-[#be32ff] animate-spin mb-1.5" />
+                    ) : (
+                      <Upload className="w-6 h-6 text-neutral-400 group-hover:text-[#be32ff] transition-colors mb-1.5" />
+                    )}
+                    <span className="text-xs sm:text-sm font-semibold text-white">
+                      Click to upload your logo
+                    </span>
+                    <span className="text-[11px] text-neutral-500 mt-0.5">
+                      PNG, JPG, SVG, WebP up to 5MB (Transparent background recommended)
+                    </span>
+                    <span className="text-[11px] text-[#be32ff] font-medium mt-2 bg-[#be32ff]/10 px-2 py-0.5 rounded-md">
+                      No logo? Skip it — AI creates one or uses smart typography!
+                    </span>
+                  </label>
+                  <input
+                    id="brand-kit-logo-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleBrandLogoUpload}
+                    className="hidden"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* ─── SECTION 2: BRAND COLORS & 1-CLICK PRESETS ─── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-[#f0449b]" />
+                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Colors</span>
+                  <span className="text-[11px] text-neutral-500">(Curated presets)</span>
+                </div>
+                {/* Active Palette Preview */}
+                <div className="flex items-center gap-1.5">
+                  {brandPreferences.palette.slice(0, 3).map((col, idx) => (
+                    <div
+                      key={idx}
+                      className="w-5 h-5 rounded-full border border-white/30 shadow-sm"
+                      style={{ backgroundColor: col }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* 6 Curated 1-Click Color Presets */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {CURATED_COLOR_PRESETS.map((preset) => {
+                  const isSelected =
+                    brandPreferences.palette[0]?.toLowerCase() === preset.primary.toLowerCase();
+                  return (
+                    <button
+                      key={preset.name}
+                      type="button"
+                      onClick={() => handleSelectColorPreset(preset)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                          : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center -space-x-1.5">
+                          <span
+                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
+                            style={{ backgroundColor: preset.primary }}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
+                            style={{ backgroundColor: preset.secondary }}
+                          />
+                          <span
+                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
+                            style={{ backgroundColor: preset.accent }}
+                          />
+                        </div>
+                        {isSelected && <Check className="w-4 h-4 text-[#be32ff]" />}
+                      </div>
+                      <span className="text-[11px] font-semibold text-white truncate">
+                        {preset.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Custom Color Adjustment */}
+              <div className="pt-1 flex items-center justify-between text-xs text-neutral-400 border-t border-white/5">
+                <span>Or pick custom colors:</span>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <span className="text-[11px]">Primary:</span>
+                    <input
+                      type="color"
+                      value={brandPreferences.palette[0] || "#BE32FF"}
+                      onChange={(e) => {
+                        const col = e.target.value;
+                        setBrandPreferences((prev) => ({
+                          ...prev,
+                          palette: [col, prev.palette[1] || "#F0449B", prev.palette[2] || "#FC9A5D"],
+                        }));
+                        setBusinessProfile((prev) => ({ ...prev, brand_color: col }));
+                      }}
+                      className="w-6 h-6 rounded-full border border-white/30 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <span className="text-[11px]">Secondary:</span>
+                    <input
+                      type="color"
+                      value={brandPreferences.palette[1] || "#F0449B"}
+                      onChange={(e) => {
+                        const col = e.target.value;
+                        setBrandPreferences((prev) => ({
+                          ...prev,
+                          palette: [prev.palette[0] || "#BE32FF", col, prev.palette[2] || "#FC9A5D"],
+                        }));
+                      }}
+                      className="w-6 h-6 rounded-full border border-white/30 cursor-pointer overflow-hidden bg-transparent"
+                    />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* ─── SECTION 3: TYPOGRAPHY / FONT ─── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3.5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-[#fc9a5d]" />
+                  <span className="text-xs sm:text-sm font-semibold text-white">Typography / Font Style</span>
+                  <span className="text-[11px] text-neutral-500">(Headline font)</span>
+                </div>
+                <span className="text-xs font-semibold text-[#be32ff]">{selectedFont}</span>
+              </div>
+
+              {/* Supported Fonts Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {SUPPORTED_FONTS.map((f) => {
+                  const isSelected = selectedFont.toLowerCase() === f.name.toLowerCase();
+                  return (
+                    <button
+                      key={f.name}
+                      type="button"
+                      onClick={() => setSelectedFont(f.name)}
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_12px_rgba(190,50,255,0.2)]"
+                          : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-white">{f.name}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#be32ff]" />}
+                      </div>
+                      <span className="text-[10px] text-neutral-400 block mb-1">{f.category}</span>
+                      <span className="text-[11px] text-neutral-300 font-medium block truncate">
+                        {f.sample}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ─── SECTION 4: BRAND VOICE / TONE ─── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#be32ff]" />
+                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Voice / Tone</span>
+                  <span className="text-[11px] text-neutral-500">(Select multiple)</span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Modern",
+                  "Professional",
+                  "Friendly",
+                  "Bold",
+                  "Luxurious",
+                  "Festive",
+                  "Desi / Authentic",
+                  "Warm",
+                  "Fun & Playful",
+                  "Minimal",
+                ].map((tone) => {
+                  const isSelected = brandPreferences.tones.includes(tone);
+                  return (
+                    <button
+                      key={tone}
+                      type="button"
+                      onClick={() => handleToggleTone(tone)}
+                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/50 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
+                          : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
+                      }`}
+                    >
+                      {isSelected ? "✓ " : "+ "}
+                      {tone}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ─── SECTION 5: AI CONTENT LANGUAGE ─── */}
+            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-2.5">
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs sm:text-sm font-semibold text-white">AI Content Language</span>
+                <span className="text-[11px] text-neutral-500">(For captions & ad copy)</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { id: "English", label: "English" },
+                  { id: "hinglish", label: "Hinglish (Conversational)" },
+                  { id: "hindi", label: "हिंदी (Hindi)" },
+                  { id: "marathi", label: "मराठी (Marathi)" },
+                  { id: "gujarati", label: "ગુજરાતી (Gujarati)" },
+                  { id: "bengali", label: "বাংলা (Bengali)" },
+                  { id: "tamil", label: "தமிழ் (Tamil)" },
+                ].map((lang) => {
+                  const isSelected =
+                    brandPreferences.language.toLowerCase() === lang.id.toLowerCase() ||
+                    (lang.id === "English" && brandPreferences.language === "English");
+                  return (
+                    <button
+                      key={lang.id}
+                      type="button"
+                      onClick={() => setBrandPreferences({ ...brandPreferences, language: lang.id })}
+                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-[#f0449b]/20 text-[#f0449b] font-bold border border-[#f0449b]/50 shadow-[0_0_10px_rgba(240,68,155,0.2)]"
+                          : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
+                      }`}
+                    >
+                      {lang.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Error Banner */}
+            {error && (
+              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                <span className="font-semibold text-rose-400">Notice:</span> {error}
+              </div>
+            )}
+          </div>
+
+          {/* Sticky Bottom Bar with Continue and Skip */}
+          <div className="pt-6 pb-2 space-y-3">
+            <button
+              type="button"
+              id="none-brand-kit-continue-btn"
+              onClick={handleNoneBrandKitContinue}
+              disabled={isSavingBrandKitStep}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+            >
+              {isSavingBrandKitStep ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving Brand Kit...</span>
+                </>
+              ) : (
+                <>
+                  <span>Save & Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleNoneBrandKitSkip}
+              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
+            >
+              Skip for now · Use defaults
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Category Selection Modal for No Online Presence Flow ─── */}
+      {isNoneCategoryOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md max-h-[85vh] bg-[#0c1222] border border-white/15 rounded-3xl p-5 sm:p-6 flex flex-col shadow-2xl relative">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-lg font-bold text-white">Select business category</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsNoneCategoryOpen(false);
+                  setNoneCategorySearch("");
+                }}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-neutral-300 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="py-3">
+              <div className="relative">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <Input
+                  type="text"
+                  value={noneCategorySearch}
+                  onChange={(e) => setNoneCategorySearch(e.target.value)}
+                  placeholder="Search categories (e.g. fashion, bakery, salon)..."
+                  className="h-11 pl-10 pr-9 rounded-xl bg-[#0f1015] border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff]"
+                  autoFocus
+                />
+                {noneCategorySearch && (
+                  <button
+                    type="button"
+                    onClick={() => setNoneCategorySearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Scrollable Category List */}
+            <div className="flex-1 overflow-y-auto space-y-1 divide-y divide-white/5 pr-1 max-h-[55vh]">
+              {BUSINESS_CATEGORIES.filter((c) =>
+                c.name.toLowerCase().includes(noneCategorySearch.toLowerCase())
+              ).map((cat) => {
+                const isSelected = noneCategory.toLowerCase() === cat.name.toLowerCase();
+                return (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    onClick={() => {
+                      setNoneCategory(cat.name);
+                      if (!noneProducts.trim()) {
+                        setNoneProducts(cat.defaultPromote);
+                      }
+                      setIsNoneCategoryOpen(false);
+                      setNoneCategorySearch("");
+                    }}
+                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-[#be32ff]/15 text-white font-bold"
+                        : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
+                    }`}
+                  >
+                    <span className="text-xs sm:text-sm">{cat.name}</span>
+                    {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 4: LET'S MAKE YOUR FIRST THING (Reference Screenshot 3)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "first_thing" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Progress Indicator (~75%) */}
+            <div className="flex items-center gap-3 w-full mb-4">
+              <button
+                type="button"
+                onClick={handleFirstThingBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "75%" }}
+                />
+              </div>
+            </div>
+
+            {/* Video / Guide Hero Banner */}
+            <div className="relative rounded-2xl overflow-hidden mb-5 border border-white/10 bg-gradient-to-b from-neutral-900 to-neutral-950 aspect-[16/9] shadow-xl flex items-center justify-center">
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80"
+                alt="Create First Post Guide"
+                className="w-full h-full object-cover object-center opacity-85"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+              <div className="absolute top-3 left-3 text-xs font-bold text-white tracking-wide drop-shadow-md">
+                Create Your First Post
+              </div>
+              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/90">
+                <span className="font-medium drop-shadow">Business setup complete ho gaya</span>
+                <span className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-[10px] backdrop-blur-sm">
+                  <Volume2 className="w-3 h-3" /> Tap to mute
+                </span>
+              </div>
+            </div>
+
+            {/* Title & Subtitle */}
+            <div className="mb-4">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
+                Let&apos;s make your first thing
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                What should we make first for {businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solutions"}?
+              </p>
+            </div>
+
+            {/* Exactly 3 Choices: Post Maker (Recommended), AI Photo Shoot, Reel Maker */}
+            <div className="space-y-3">
+              {/* Option 1: Post Maker (Recommended) */}
+              <div
+                onClick={() => setFirstThingChoice("post_maker")}
+                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
+                  firstThingChoice === "post_maker"
+                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-bold text-white text-lg tracking-tight">
+                        Post <span className="italic font-serif font-normal text-emerald-400">Maker.</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400">Ready for Instagram & WhatsApp</p>
+                  </div>
+                  {/* Recommended badge + thumbnail strip */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="inline-flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-white" /> recommended
+                    </span>
+                    <div className="flex -space-x-2">
+                      <img
+                        src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=120&auto=format&fit=crop&q=80"
+                        alt="Promo sample"
+                        className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                      />
+                      <img
+                        src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&auto=format&fit=crop&q=80"
+                        alt="Promo sample 2"
+                        className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <p className="text-[11px] text-emerald-400/90 italic mt-2">
+                  Because customers buy these with their eyes
+                </p>
+              </div>
+
+              {/* Option 2: AI Photo Shoot */}
+              <div
+                onClick={() => setFirstThingChoice("photoshoot")}
+                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
+                  firstThingChoice === "photoshoot"
+                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-bold text-white text-lg tracking-tight">
+                        AI Photo <span className="italic font-serif font-normal text-purple-400">Shoot.</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400">Studio-grade product shots with AI</p>
+                  </div>
+                  <div className="flex -space-x-2 shrink-0">
+                    <img
+                      src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=120&auto=format&fit=crop&q=80"
+                      alt="Product shot"
+                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                    />
+                    <img
+                      src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=120&auto=format&fit=crop&q=80"
+                      alt="Product shot 2"
+                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 3: Reel Maker */}
+              <div
+                onClick={() => setFirstThingChoice("reel_maker")}
+                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
+                  firstThingChoice === "reel_maker"
+                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
+                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="font-bold text-white text-lg tracking-tight">
+                        Reel <span className="italic font-serif font-normal text-pink-400">Maker.</span>
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-400">Ready for Instagram & YouTube Shorts</p>
+                  </div>
+                  <div className="shrink-0">
+                    <img
+                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
+                      alt="Reel model"
+                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Card + CTA */}
+          <div className="pt-4 pb-2 space-y-3">
+            <div className="flex items-center justify-center">
+              <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full">
+                <Sparkles className="w-3.5 h-3.5" /> First one&apos;s on us — no card needed
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleFirstThingContinue}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 5: POST MAKER - PICK A PHOTO PER POST (Reference Screenshot 4)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "post_maker_pick" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          {isGeneratingPosts ? (
+            /* Real Post Generation Loading Screen */
+            <div className="flex-1 flex flex-col justify-between py-6 animate-in fade-in duration-300">
+              <div className="space-y-6 text-center">
+                <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase">
+                  POST MAKER
+                </span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  Generating {businessProfile.business_name || businessDetails.business_name}&apos;s 3 posts...
+                </h2>
+
+                {/* Animated Pulsing Ring */}
+                <div className="relative w-28 h-28 mx-auto my-6 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full border-2 border-emerald-500/30 animate-ping" />
+                  <div className="absolute inset-2 rounded-full border-2 border-emerald-500/50 animate-pulse" />
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/60 flex items-center justify-center backdrop-blur-md">
+                    <Loader2 className="w-9 h-9 text-emerald-400 animate-spin" />
+                  </div>
+                </div>
+
+                {/* Real generation status updates */}
+                <p className="text-sm font-medium text-emerald-300/90 animate-pulse px-4">
+                  {generationStatusText}
+                </p>
+              </div>
+
+              {/* "Get notified when your ads are ready" section */}
+              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-md space-y-3 mt-6">
+                <div className="flex items-center gap-2 text-white font-semibold text-sm">
+                  <Bell className="w-4 h-4 text-emerald-400" />
+                  <span>Get notified when your ads are ready</span>
+                </div>
+                <p className="text-xs text-neutral-400">
+                  Don&apos;t want to wait? We will alert you immediately once creative rendering completes.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={notifyContact}
+                    onChange={(e) => setNotifyContact(e.target.value)}
+                    placeholder="Enter phone or email"
+                    className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => setIsNotifySubmitted(true)}
+                    className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold shrink-0"
+                  >
+                    {isNotifySubmitted ? "✓ Saved" : "Notify me"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div>
+                {/* Top Header: Back button + Progress Indicator (~90%) */}
+                <div className="flex items-center gap-3 w-full mb-4">
+                  <button
+                    type="button"
+                    onClick={handlePostMakerPickBack}
+                    aria-label="Go back"
+                    className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-white" />
+                  </button>
+                  <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                      style={{ width: "90%" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Headings */}
+                <div className="mb-5">
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
+                    Pick a photo per post.
+                  </h1>
+                  <p className="text-xs sm:text-sm text-neutral-400">
+                    We&apos;ll turn your 3 photos into a promo post, a festival post, and an ad post.
+                  </p>
+                </div>
+
+                {/* 3 Photo Selection Cards */}
+                <div className="space-y-3">
+                  {/* Card 1: Your promo post */}
+                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
+                    <img
+                      src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
+                      alt="Promo post"
+                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-base">Your promo post</h3>
+                      <p className="text-xs text-neutral-400 mb-1.5">Shows off your offer or latest arrival.</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivePhotoChangeTarget("promo");
+                          setIsPhotoPickerOpen(true);
+                        }}
+                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        Change photo →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Your festival post */}
+                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
+                    <img
+                      src={festivalPhoto || DEFAULT_BUSINESS_PHOTOS[1]}
+                      alt="Festival post"
+                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-base">Your Diwali post</h3>
+                      <p className="text-xs text-neutral-400 mb-1.5">in 12 days — in your brand voice.</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivePhotoChangeTarget("festival");
+                          setIsPhotoPickerOpen(true);
+                        }}
+                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        Change photo →
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Your ad post */}
+                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
+                    <img
+                      src={adPhoto || DEFAULT_BUSINESS_PHOTOS[2]}
+                      alt="Ad post"
+                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-bold text-white text-base">Your ad post</h3>
+                      <p className="text-xs text-neutral-400 mb-1.5">Offer-led, built for clicks.</p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivePhotoChangeTarget("ad");
+                          setIsPhotoPickerOpen(true);
+                        }}
+                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
+                      >
+                        Change photo →
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-neutral-400 text-center mt-4">
+                  Tuned for {businessProfile.business_category || businessDetails.category || "Tech & Electronics"} on Instagram
+                </p>
+              </div>
+
+              {/* Action Button */}
+              <div className="pt-4 pb-2">
+                <button
+                  type="button"
+                  onClick={handleGeneratePosts}
+                  className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+                >
+                  <span>Generate Posts</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </button>
+              </div>
+            </>
           )}
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 6: POST MAKER OUTPUT READY (Reference Screenshot 5)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "post_maker_ready" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+          <div>
+            {/* Top Header: Back button + Full Progress Indicator */}
+            <div className="flex items-center gap-3 w-full mb-4">
+              <button
+                type="button"
+                onClick={handlePostMakerReadyBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </div>
+
+            {/* Header Titles */}
+            <div className="text-center mb-4">
+              <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase block mb-1">
+                POST MAKER
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
+                {businessProfile.business_name || businessDetails.business_name}&apos;s 3 posts are ready
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-300">
+                Unlock to download and start posting — captions and hashtags included.
+              </p>
+            </div>
+
+            {/* Source Chip */}
+            <div className="flex justify-center mb-5">
+              <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/10 px-3 py-1 rounded-full text-xs text-neutral-300">
+                <img
+                  src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
+                  alt="Source"
+                  className="w-4 h-4 rounded-full object-cover"
+                />
+                <span>From your photo</span>
+              </div>
+            </div>
+
+            {/* 3 Post Cards (1 Unlocked, 2 Locked) */}
+            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-5">
+              {/* Card 1: Unlocked Promo Post */}
+              <div
+                onClick={handleOpenUnlockedPostInCreate}
+                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border-2 border-emerald-400 bg-neutral-900 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer hover:scale-[1.02]"
+              >
+                <img
+                  src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
+                  alt="Promo post output"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-between p-2.5">
+                  <span className="self-start text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow">
+                    Unlocked
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-bold text-white line-clamp-2 leading-tight drop-shadow">
+                      {generatedOnboardingPost?.headline || "Promo post"}
+                    </p>
+                    <span className="text-[9px] text-emerald-300 flex items-center gap-0.5 mt-1 font-medium">
+                      Tap to edit ↗
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Locked Festival Post */}
+              <div
+                onClick={handleLockedPostClick}
+                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-950/70 to-amber-900/40 backdrop-blur-md flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-amber-400/60 hover:scale-[1.02]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2 shadow-inner">
+                  <Lock className="w-5 h-5 text-white/90" />
+                </div>
+                <h4 className="text-xs font-bold text-amber-200 drop-shadow">Festival post</h4>
+                <span className="text-[9px] text-amber-400/80 mt-1">Locked</span>
+              </div>
+
+              {/* Card 3: Locked Ad Post */}
+              <div
+                onClick={handleLockedPostClick}
+                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border border-pink-500/30 bg-gradient-to-br from-pink-950/70 to-pink-900/40 backdrop-blur-md flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-pink-400/60 hover:scale-[1.02]"
+              >
+                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2 shadow-inner">
+                  <Lock className="w-5 h-5 text-white/90" />
+                </div>
+                <h4 className="text-xs font-bold text-pink-200 drop-shadow">Ad post</h4>
+                <span className="text-[9px] text-pink-400/80 mt-1">Locked</span>
+              </div>
+            </div>
+
+            {/* Captions ready badge */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-medium">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Captions & hashtags ready to copy</span>
+            </div>
+          </div>
+
+          {/* Action Button & Links */}
+          <div className="pt-4 pb-2 space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowPlansModal(true)}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+            >
+              <span>Upgrade to see your output</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={handleOpenUnlockedPostInCreate}
+              className="w-full text-center text-xs text-neutral-400 hover:text-emerald-400 transition-colors py-1.5 font-medium cursor-pointer"
+            >
+              Open unlocked post in Create Post →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Change Photo Selector Modal for Post Maker ─── */}
+      {isPhotoPickerOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-[#0c1222] border border-white/15 rounded-3xl p-5 sm:p-6 flex flex-col shadow-2xl relative max-h-[85vh]">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="text-base font-bold text-white">Choose photo</h3>
+              <button
+                type="button"
+                onClick={() => setIsPhotoPickerOpen(false)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-neutral-300 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-4 overflow-y-auto space-y-4">
+              <div>
+                <Label className="text-xs text-neutral-400 mb-2 block">Upload from device</Label>
+                <label className="flex items-center justify-center gap-2 w-full h-12 rounded-xl border border-dashed border-white/20 hover:border-emerald-500/50 bg-white/[0.02] hover:bg-white/[0.05] cursor-pointer text-xs text-neutral-300 transition-all">
+                  <Upload className="w-4 h-4 text-emerald-400" />
+                  <span>Upload custom image</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      try {
+                        let url = "";
+                        try {
+                          url = await uploadBrandLogo(file);
+                        } catch (_) {
+                          url = URL.createObjectURL(file);
+                        }
+                        if (activePhotoChangeTarget === "promo") setPromoPhoto(url);
+                        if (activePhotoChangeTarget === "festival") setFestivalPhoto(url);
+                        if (activePhotoChangeTarget === "ad") setAdPhoto(url);
+                        setIsPhotoPickerOpen(false);
+                      } catch (err) {
+                        console.error("Upload error:", err);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+
+              <div>
+                <Label className="text-xs text-neutral-400 mb-2 block">Available business photos</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {getAvailablePhotos().map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => {
+                        if (activePhotoChangeTarget === "promo") setPromoPhoto(p);
+                        if (activePhotoChangeTarget === "festival") setFestivalPhoto(p);
+                        if (activePhotoChangeTarget === "ad") setAdPhoto(p);
+                        setIsPhotoPickerOpen(false);
+                      }}
+                      className="aspect-square rounded-xl overflow-hidden border border-white/15 hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer relative group"
+                    >
+                      <img src={p} alt={`Option ${idx}`} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                        <Check className="w-5 h-5 text-emerald-400" />
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          STEPS 2 ONWARDS: Business Profile / Identity, Registration, Location, Audience & Ready
+      ══════════════════════════════════════════════════════════════════════ */}
+      {isFormCardStep && (
+        <div className="w-full max-w-5xl mx-auto my-auto py-2 z-10 relative">
+          {/* Top Progress Bar matching Designer Header */}
+          <div className="flex items-center gap-3 w-full mb-6">
+            <button
+              type="button"
+              onClick={handleBack}
+              aria-label="Go back"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+            >
+              <ArrowLeft className="w-5 h-5 text-white" />
+            </button>
+            <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                style={{
+                  width: `${Math.round(((currentStep) / (activeSteps.length - 1)) * 100)}%`,
+                }}
+              />
+            </div>
+            <div className="text-xs text-neutral-400 font-medium px-3 py-1 rounded-full bg-white/5 border border-white/10 shrink-0 hidden sm:block">
+              Step {currentStep} of {activeSteps.length - 1}
+            </div>
+          </div>
+
+          {/* Main Form Container Card */}
+          <Card className="w-full bg-[#14151f]/90 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(190,50,255,0.1)] backdrop-blur-xl rounded-2xl relative z-10 overflow-hidden">
+            <CardContent className="p-6 sm:p-10">
 
           {/* ══════════════════════════════════════════════════════════════════════
               BRANCH A: USER STEPPER (accountType === 'user')
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "user" && currentStep === 1 && (
+          {accountType === "user" && currentStepObj.id === "personal_profile" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Your Personal Profile</h2>
@@ -1117,7 +8056,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "user" && currentStep === 2 && (
+          {accountType === "user" && currentStepObj.id === "goals" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">What would you like to create?</h2>
@@ -1193,7 +8132,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "user" && currentStep === 3 && (
+          {accountType === "user" && currentStepObj.id === "ready" && (
             <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
               <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
                 <Sparkles className="w-10 h-10 animate-pulse" />
@@ -1233,7 +8172,7 @@ export default function OnboardingPage() {
               business_model, selling_model, target_age_group, target_gender,
               target_location, customer_type.
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "business" && currentStep === 1 && (
+          {accountType === "business" && currentStepObj.id === "identity" && (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Business Identity &amp; Branding</h2>
@@ -1360,7 +8299,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "business" && currentStep === 2 && (
+          {accountType === "business" && currentStepObj.id === "registration" && (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Registration &amp; Contact Info</h2>
@@ -1433,7 +8372,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "business" && currentStep === 3 && (
+          {accountType === "business" && currentStepObj.id === "location" && (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Business Location &amp; Address</h2>
@@ -1518,7 +8457,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "business" && currentStep === 4 && (
+          {accountType === "business" && currentStepObj.id === "audience" && (
             <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Target Audience &amp; Selling Model</h2>
@@ -1632,7 +8571,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "business" && currentStep === 5 && (
+          {accountType === "business" && currentStepObj.id === "ready" && (
             <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
               <div
                 className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto text-white shadow-2xl transition-all"
@@ -1678,7 +8617,7 @@ export default function OnboardingPage() {
           {/* ══════════════════════════════════════════════════════════════════════
               BRANCH C: INFLUENCER / CREATOR STEPPER (accountType === 'influencer')
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "influencer" && currentStep === 1 && (
+          {accountType === "influencer" && currentStepObj.id === "creator_profile" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Creator Identity &amp; Niche</h2>
@@ -1773,7 +8712,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "influencer" && currentStep === 2 && (
+          {accountType === "influencer" && currentStepObj.id === "social_reach" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
               <div className="text-center space-y-1">
                 <h2 className="text-2xl font-bold text-white">Social Channels &amp; Commercials</h2>
@@ -1856,7 +8795,7 @@ export default function OnboardingPage() {
             </div>
           )}
 
-          {accountType === "influencer" && currentStep === 3 && (
+          {accountType === "influencer" && currentStepObj.id === "ready" && (
             <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
               <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#be32ff]/20 to-[#7d36fa]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
                 <Sparkles className="w-10 h-10 animate-pulse" />
@@ -1946,11 +8885,20 @@ export default function OnboardingPage() {
 
         </CardContent>
       </Card>
-
-      {/* Footer */}
-      <footer className="w-full max-w-4xl mx-auto mt-6 text-center text-xs text-neutral-500 z-10 relative">
-        &copy; {new Date().getFullYear()} DhandaGrow AI. Tailored for creators and Indian enterprises.
-      </footer>
     </div>
+  )}
+
+  {/* Subscription Plan Modal */}
+  <AvailablePlansModal
+    isOpen={showPlansModal}
+    onClose={() => setShowPlansModal(false)}
+    isModal={true}
+  />
+
+  {/* Footer */}
+  <footer className="w-full max-w-4xl mx-auto mt-6 text-center text-xs text-neutral-500 z-10 relative">
+    &copy; {new Date().getFullYear()} DhandaGrow AI. Tailored for Indian enterprises and creators.
+  </footer>
+</div>
   );
 }

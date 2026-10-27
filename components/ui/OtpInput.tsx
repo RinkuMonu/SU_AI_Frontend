@@ -12,6 +12,7 @@ interface OtpInputProps {
   autoFocus?: boolean;
   hasError?: boolean;
   className?: string;
+  boxClassName?: string;
 }
 
 export function OtpInput({
@@ -23,6 +24,7 @@ export function OtpInput({
   autoFocus = true,
   hasError = false,
   className,
+  boxClassName,
 }: OtpInputProps) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -136,13 +138,14 @@ export function OtpInput({
             onFocus={(e) => e.target.select()}
             className={cn(
               "w-11 h-14 sm:w-13 sm:h-16 text-center text-xl sm:text-2xl font-bold rounded-xl transition-all outline-none",
-              "bg-surface border text-white shadow-sm",
+              "bg-white dark:bg-[#15161b] text-neutral-900 dark:text-white border shadow-sm",
               hasError
-                ? "border-red-500 bg-red-500/10 text-red-400 focus:border-red-400 focus:ring-2 focus:ring-red-400/20"
+                ? "border-red-500 bg-red-50/50 dark:bg-red-500/10 text-red-500 dark:text-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                 : digit
-                ? "border-brand-purple bg-surface-elevated text-white shadow-[0_0_12px_rgba(190,50,255,0.25)]"
-                : "border-border hover:border-border-hover focus:border-brand-purple focus:ring-2 focus:ring-brand-purple/20",
-              disabled && "opacity-50 cursor-not-allowed"
+                ? "border-emerald-500 dark:border-emerald-500 text-neutral-900 dark:text-white ring-2 ring-emerald-500/20 shadow-[0_0_12px_rgba(16,185,129,0.15)]"
+                : "border-neutral-200 dark:border-white/10 hover:border-neutral-300 dark:hover:border-white/20 focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20",
+              disabled && "opacity-50 cursor-not-allowed",
+              boxClassName
             )}
           />
         );
