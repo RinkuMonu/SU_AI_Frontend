@@ -291,6 +291,16 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  // Granular persistence loading states for steps
+  const [isSavingGetStarted, setIsSavingGetStarted] = useState(false);
+  const [isSavingServices, setIsSavingServices] = useState(false);
+  const [isSavingPresence, setIsSavingPresence] = useState(false);
+  const [isSavingWebsite, setIsSavingWebsite] = useState(false);
+  const [isSavingBusinessDetails, setIsSavingBusinessDetails] = useState(false);
+  const [isSavingMarketplace, setIsSavingMarketplace] = useState(false);
+  const [isSavingB2b, setIsSavingB2b] = useState(false);
+  const [isSavingFirstThing, setIsSavingFirstThing] = useState(false);
+
   const [isActivatingInfluencer, setIsActivatingInfluencer] = useState(false);
 
   // ─── Website Onboarding Detailed Stages State ───
@@ -532,8 +542,11 @@ export default function OnboardingPage() {
     return () => clearTimeout(timer);
   }, [mapsSearchQuery, selectedOnlinePresence, selectedMapsPlace]);
 
-  // Restore step and presence from session
+  // Restore step, profile, and onboarding data from persistent backend APIs & session
   useEffect(() => {
+    let isMounted = true;
+
+    // 1. Initial fast local cache restoration to avoid layout shifts
     if (typeof window !== "undefined") {
       const showPlan = sessionStorage.getItem("show_onboarding_plan");
       if (showPlan === "true") {
@@ -551,15 +564,11 @@ export default function OnboardingPage() {
       if (savedServices) {
         try {
           const parsed = JSON.parse(savedServices);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSelectedServices(parsed);
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) setSelectedServices(parsed);
         } catch (_) {}
       }
       const savedPresence = sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence");
-      if (savedPresence) {
-        setSelectedOnlinePresence(savedPresence);
-      }
+      if (savedPresence) setSelectedOnlinePresence(savedPresence);
       const savedUrl = sessionStorage.getItem("business_website_url") || localStorage.getItem("business_website_url");
       if (savedUrl) {
         setWebsiteUrl(savedUrl);
@@ -583,194 +592,316 @@ export default function OnboardingPage() {
       if (savedPhotos) {
         try {
           const parsed = JSON.parse(savedPhotos);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSelectedPhotos(parsed);
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) setSelectedPhotos(parsed);
         } catch (_) {}
       }
-
-      // Restore Google Maps Flow State
-      const savedMapsPlace = sessionStorage.getItem("google_maps_place_data");
-      if (savedMapsPlace) {
-        try {
-          const parsed = JSON.parse(savedMapsPlace);
-          if (parsed && parsed.name) {
-            setSelectedMapsPlace(parsed);
-            setMapsSearchQuery(parsed.name);
-          }
-        } catch (_) {}
-      }
-      const savedMapsWeb = sessionStorage.getItem("google_maps_website_url");
-      if (savedMapsWeb) {
-        setMapsWebsiteUrl(savedMapsWeb);
-      }
-      const savedMapsCat = sessionStorage.getItem("google_maps_category");
-      if (savedMapsCat) {
-        setMapsCategory(savedMapsCat);
-      }
-      const savedMapsSub = sessionStorage.getItem("google_maps_subcategory");
-      if (savedMapsSub) {
-        setMapsSubCategory(savedMapsSub);
-      }
-      const savedMapsPromo = sessionStorage.getItem("google_maps_promotion");
-      if (savedMapsPromo) {
-        setMapsPromotion(savedMapsPromo);
-      }
-      const savedMapsAudience = sessionStorage.getItem("google_maps_audience");
-      if (savedMapsAudience) {
-        setMapsAudience(savedMapsAudience);
-      }
-      const savedMapsDiff = sessionStorage.getItem("google_maps_differentiator");
-      if (savedMapsDiff) {
-        setMapsDifferentiator(savedMapsDiff);
-      }
-      const savedMapsLogo = sessionStorage.getItem("google_maps_logo");
-      if (savedMapsLogo) {
-        setMapsLogoUrl(savedMapsLogo);
-      }
-      const savedMapsPhotos = sessionStorage.getItem("google_maps_photos");
-      if (savedMapsPhotos) {
-        try {
-          const parsed = JSON.parse(savedMapsPhotos);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setMapsPhotos(parsed);
-          }
-        } catch (_) {}
-      }
-      const savedMapsSelPhotos = sessionStorage.getItem("google_maps_selected_photos");
-      if (savedMapsSelPhotos) {
-        try {
-          const parsed = JSON.parse(savedMapsSelPhotos);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setSelectedMapsPhotos(parsed);
-          }
-        } catch (_) {}
-      }
-
-      // Restore Marketplace Flow State
-      const savedMarketplaces = sessionStorage.getItem("marketplace_selected_platforms");
-      if (savedMarketplaces) {
-        try {
-          const parsed = JSON.parse(savedMarketplaces);
-          if (Array.isArray(parsed)) setSelectedMarketplaces(parsed);
-        } catch (_) {}
-      }
-      const savedCustomMarketplace = sessionStorage.getItem("marketplace_custom_name");
-      if (savedCustomMarketplace) setCustomMarketplaceName(savedCustomMarketplace);
-
-      const savedListings = sessionStorage.getItem("marketplace_selected_listings");
-      if (savedListings) {
-        try {
-          const parsed = JSON.parse(savedListings);
-          if (Array.isArray(parsed)) setSelectedListings(parsed);
-        } catch (_) {}
-      }
-      const savedCustomListing = sessionStorage.getItem("marketplace_custom_listing_name");
-      if (savedCustomListing) setCustomListingName(savedCustomListing);
-
-      const savedMktSkip = sessionStorage.getItem("marketplace_skip_website");
-      if (savedMktSkip === "true") setMarketplaceSkipWebsite(true);
-
-      // Restore Wholesale / B2B Flow State
-      const savedB2bPlatforms = sessionStorage.getItem("b2b_selected_platforms");
-      if (savedB2bPlatforms) {
-        try {
-          const parsed = JSON.parse(savedB2bPlatforms);
-          if (Array.isArray(parsed)) setSelectedB2bPlatforms(parsed);
-        } catch (_) {}
-      }
-      const savedCustomB2b = sessionStorage.getItem("b2b_custom_platform_name");
-      if (savedCustomB2b) setCustomB2bPlatformName(savedCustomB2b);
-
-      const savedB2bListings = sessionStorage.getItem("b2b_selected_listings");
-      if (savedB2bListings) {
-        try {
-          const parsed = JSON.parse(savedB2bListings);
-          if (Array.isArray(parsed)) setSelectedB2bListings(parsed);
-        } catch (_) {}
-      }
-      const savedCustomB2bListing = sessionStorage.getItem("b2b_custom_listing_name");
-      if (savedCustomB2bListing) setCustomB2bListingName(savedCustomB2bListing);
-
-      const savedB2bSkip = sessionStorage.getItem("b2b_skip_website");
-      if (savedB2bSkip === "true") setB2bSkipWebsite(true);
-
-      // Restore No Online Presence Flow State
-      const savedNoneCat = sessionStorage.getItem("none_category");
-      if (savedNoneCat) setNoneCategory(savedNoneCat);
-      const savedNoneSub = sessionStorage.getItem("none_sub_category");
-      if (savedNoneSub) setNoneSubCategory(savedNoneSub);
-      const savedNoneProd = sessionStorage.getItem("none_products");
-      if (savedNoneProd) setNoneProducts(savedNoneProd);
-      const savedNoneAud = sessionStorage.getItem("none_audience");
-      if (savedNoneAud) setNoneAudience(savedNoneAud);
-      const savedNoneDiff = sessionStorage.getItem("none_differentiator");
-      if (savedNoneDiff) setNoneDifferentiator(savedNoneDiff);
-      const savedNoneDesc = sessionStorage.getItem("none_description");
-      if (savedNoneDesc) setNoneDescription(savedNoneDesc);
-      const savedFont = sessionStorage.getItem("selected_font");
-      if (savedFont) setSelectedFont(savedFont);
-      const savedLogo = sessionStorage.getItem("brand_kit_logo");
-      if (savedLogo) {
-        setLogoPreview(savedLogo);
-        setBusinessProfile((prev) => ({ ...prev, business_logo: savedLogo }));
-      }
-
-      // Load existing Brand Kit data if available
-      getBrandKit()
-        .then((existingKit) => {
-          if (existingKit) {
-            if (existingKit.business_name) {
-              setBusinessProfile((prev) => ({
-                ...prev,
-                business_name: prev.business_name || existingKit.business_name || "",
-              }));
-            }
-            if (existingKit.business_category) {
-              setNoneCategory(existingKit.business_category);
-            }
-            if (existingKit.font) {
-              setSelectedFont(existingKit.font);
-            }
-            if (existingKit.brand_colors && existingKit.brand_colors.length > 0) {
-              setBrandPreferences((prev) => ({
-                ...prev,
-                palette: existingKit.brand_colors || prev.palette,
-              }));
-            } else if (existingKit.palette && existingKit.palette.length > 0) {
-              setBrandPreferences((prev) => ({
-                ...prev,
-                palette: existingKit.palette || prev.palette,
-              }));
-            }
-            if (existingKit.tones && existingKit.tones.length > 0) {
-              setBrandPreferences((prev) => ({
-                ...prev,
-                tones: existingKit.tones || prev.tones,
-              }));
-            }
-            if (existingKit.logo_url) {
-              setLogoPreview(existingKit.logo_url);
-              setBusinessProfile((prev) => ({
-                ...prev,
-                business_logo: existingKit.logo_url || prev.business_logo,
-              }));
-            }
-            if (existingKit.target_audience || existingKit.target_audience_summary) {
-              setNoneAudience(existingKit.target_audience || existingKit.target_audience_summary || "");
-            }
-            if (existingKit.products_services && existingKit.products_services.length > 0) {
-              setNoneProducts(existingKit.products_services.join(", "));
-            }
-            if (existingKit.differentiators && existingKit.differentiators.length > 0) {
-              setNoneDifferentiator(existingKit.differentiators[0]);
-            }
-          }
-        })
-        .catch(() => {
-          // Silent fallback if unauthenticated or new brand kit
-        });
     }
+
+    // 2. Authoritative backend restoration from persistent storage
+    const restoreFromBackend = async () => {
+      if (typeof window === "undefined") return;
+      const token = localStorage.getItem("access_token");
+      if (!token) return;
+
+      try {
+        // Query status, services, presence, business profile, brand kit in parallel
+        const [statusRes, servicesRes, presenceRes, bizRes, brandRes, socialRes] = await Promise.allSettled([
+          OnboardingService.getStatus(),
+          OnboardingService.getSelectedServices(),
+          OnboardingService.getOnlinePresence(),
+          businessService.getMyBusiness(),
+          getBrandKit(),
+          OnboardingService.getSocialOnboardingStatus(),
+        ]);
+
+        if (!isMounted) return;
+
+        // Status check
+        if (statusRes.status === "fulfilled" && statusRes.value) {
+          const s = statusRes.value;
+          if (s.is_completed || s.completed) {
+            const cached = localStorage.getItem("user");
+            const uObj = cached ? JSON.parse(cached) : null;
+            if (uObj?.role === "influencer" || uObj?.accountType === "influencer") {
+              router.replace("/influencer");
+            } else {
+              router.replace("/dashboard");
+            }
+            return;
+          }
+        }
+
+        // Services restoration
+        let restoredServices: string[] = [];
+        if (servicesRes.status === "fulfilled" && servicesRes.value) {
+          const sVal = servicesRes.value;
+          if (Array.isArray(sVal.selected_services) && sVal.selected_services.length > 0) {
+            restoredServices = sVal.selected_services;
+            setSelectedServices(restoredServices);
+            sessionStorage.setItem("business_selected_services", JSON.stringify(restoredServices));
+            localStorage.setItem("business_selected_services", JSON.stringify(restoredServices));
+          }
+        }
+
+        // Online presence restoration
+        let restoredPresence: string | null = null;
+        if (presenceRes.status === "fulfilled" && presenceRes.value) {
+          const pVal = presenceRes.value;
+          const presenceKey = pVal.online_presence || pVal.presence;
+          if (presenceKey) {
+            restoredPresence = presenceKey;
+            setSelectedOnlinePresence(presenceKey);
+            sessionStorage.setItem("business_online_presence", presenceKey);
+            localStorage.setItem("business_online_presence", presenceKey);
+
+            if (pVal.business_type || pVal.selling_model) {
+              setBusinessProfile((prev) => ({
+                ...prev,
+                business_type: pVal.business_type || prev.business_type,
+                selling_model: pVal.selling_model || prev.selling_model,
+              }));
+            }
+          }
+        }
+
+        // Business Profile restoration
+        if (bizRes.status === "fulfilled" && bizRes.value) {
+          const biz: any = bizRes.value;
+          if (biz && (biz.name || biz.businessName || biz.business_name)) {
+            const bName = biz.name || biz.businessName || biz.business_name;
+            const bCategory = biz.category || biz.industry || biz.business_category;
+            const bLocation = biz.location || biz.city;
+            const bDesc = biz.description || biz.business_description;
+            const bWeb = biz.website || biz.website_url;
+            const bLogo = biz.logo_url || biz.logoUrl || biz.business_logo;
+
+            setBusinessProfile((prev) => ({
+              ...prev,
+              business_name: bName || prev.business_name,
+              business_category: bCategory || prev.business_category,
+              city: bLocation ? bLocation.split(",")[0].trim() : prev.city,
+              full_address: bLocation || prev.full_address,
+              business_description: bDesc || prev.business_description,
+              website: bWeb || prev.website,
+              business_logo: bLogo || prev.business_logo,
+            }));
+
+            setBusinessDetails((prev) => ({
+              ...prev,
+              business_name: bName || prev.business_name,
+              category: bCategory || prev.category,
+              city: bLocation || prev.city,
+              tagline: bDesc || prev.tagline,
+              logo_url: bLogo || prev.logo_url,
+            }));
+
+            if (bWeb) {
+              setWebsiteUrl(bWeb);
+              sessionStorage.setItem("business_website_url", bWeb);
+              localStorage.setItem("business_website_url", bWeb);
+            }
+            if (bLogo) {
+              setLogoPreview(bLogo);
+            }
+          }
+        }
+
+        // Brand Kit restoration
+        if (brandRes.status === "fulfilled" && brandRes.value) {
+          const kit = brandRes.value;
+          if (kit) {
+            if (kit.business_name) {
+              setBusinessProfile((prev) => ({ ...prev, business_name: kit.business_name }));
+              setBusinessDetails((prev) => ({ ...prev, business_name: kit.business_name }));
+            }
+            if (kit.business_category) {
+              setNoneCategory(kit.business_category);
+            }
+            if (kit.font) {
+              setSelectedFont(kit.font);
+              sessionStorage.setItem("selected_font", kit.font);
+            }
+            const colors = kit.brand_colors || kit.palette;
+            if (colors && colors.length > 0) {
+              setBrandPreferences((prev) => ({ ...prev, palette: colors }));
+              sessionStorage.setItem("brand_preferences_data", JSON.stringify({ palette: colors }));
+            }
+            if (kit.tones && kit.tones.length > 0) {
+              setBrandPreferences((prev) => ({ ...prev, tones: kit.tones }));
+            }
+            if (kit.language) {
+              setBrandPreferences((prev) => ({ ...prev, language: kit.language }));
+            }
+            if (kit.logo_url) {
+              setLogoPreview(kit.logo_url);
+              setBusinessProfile((prev) => ({ ...prev, business_logo: kit.logo_url }));
+              sessionStorage.setItem("brand_kit_logo", kit.logo_url);
+            }
+            if (kit.target_audience || kit.target_audience_summary) {
+              const aud = kit.target_audience || kit.target_audience_summary || "";
+              setNoneAudience(aud);
+              setBusinessDetails((prev) => ({ ...prev, target_audience: aud }));
+            }
+            if (kit.products_services && kit.products_services.length > 0) {
+              setNoneProducts(kit.products_services.join(", "));
+              setBusinessDetails((prev) => ({ ...prev, products_services: kit.products_services }));
+            }
+            if (kit.differentiators && kit.differentiators.length > 0) {
+              setNoneDifferentiator(kit.differentiators[0]);
+              setBusinessDetails((prev) => ({ ...prev, differentiators: kit.differentiators }));
+            }
+            if (kit.selected_photos && kit.selected_photos.length > 0) {
+              setSelectedPhotos(kit.selected_photos);
+              setWebsitePhotos(kit.selected_photos);
+            }
+          }
+        }
+
+        // Social connection restoration
+        if (socialRes.status === "fulfilled" && socialRes.value) {
+          const s = socialRes.value;
+          if (s.is_connected) {
+            setIsInstagramConnected(true);
+          }
+        }
+
+        // Presence-specific state restoration (Maps, Marketplace, Wholesale)
+        const activePresence = restoredPresence || selectedOnlinePresence;
+        if (activePresence === "google_maps") {
+          const mapsState = await OnboardingService.getGoogleMapsState().catch(() => null);
+          if (isMounted && mapsState) {
+            if (mapsState.place_id && mapsState.name) {
+              const placeObj: GooglePlaceResult = {
+                placeId: mapsState.place_id,
+                name: mapsState.name,
+                address: mapsState.formatted_address,
+                googleMapsUrl: mapsState.google_maps_url,
+                website: mapsState.website,
+                photos: mapsState.photos || [],
+              };
+              setSelectedMapsPlace(placeObj);
+              setMapsSearchQuery(mapsState.name);
+              sessionStorage.setItem("google_maps_place_data", JSON.stringify(placeObj));
+            }
+            if (mapsState.website) {
+              setMapsWebsiteUrl(mapsState.website);
+              sessionStorage.setItem("google_maps_website_url", mapsState.website);
+            }
+            if (mapsState.category) {
+              setMapsCategory(mapsState.category);
+              sessionStorage.setItem("google_maps_category", mapsState.category);
+            }
+            if (mapsState.sub_category) {
+              setMapsSubCategory(mapsState.sub_category);
+              sessionStorage.setItem("google_maps_subcategory", mapsState.sub_category);
+            }
+            if (mapsState.promotion_text) {
+              setMapsPromotion(mapsState.promotion_text);
+              sessionStorage.setItem("google_maps_promotion", mapsState.promotion_text);
+            }
+            if (mapsState.target_audience) {
+              setMapsAudience(mapsState.target_audience);
+              sessionStorage.setItem("google_maps_audience", mapsState.target_audience);
+            }
+            if (mapsState.differentiator) {
+              setMapsDifferentiator(mapsState.differentiator);
+              sessionStorage.setItem("google_maps_differentiator", mapsState.differentiator);
+            }
+            if (mapsState.logo_url) {
+              setMapsLogoUrl(mapsState.logo_url);
+              setLogoPreview(mapsState.logo_url);
+              sessionStorage.setItem("google_maps_logo", mapsState.logo_url);
+            }
+            if (mapsState.photos && mapsState.photos.length > 0) {
+              setMapsPhotos(mapsState.photos);
+              sessionStorage.setItem("google_maps_photos", JSON.stringify(mapsState.photos));
+            }
+            if (mapsState.selected_photos && mapsState.selected_photos.length > 0) {
+              setSelectedMapsPhotos(mapsState.selected_photos);
+              sessionStorage.setItem("google_maps_selected_photos", JSON.stringify(mapsState.selected_photos));
+            }
+          }
+        } else if (activePresence === "marketplace") {
+          const mktState = await OnboardingService.getMarketplaceState().catch(() => null);
+          if (isMounted && mktState) {
+            if (mktState.selected_platforms && mktState.selected_platforms.length > 0) {
+              setSelectedMarketplaces(mktState.selected_platforms);
+              sessionStorage.setItem("marketplace_selected_platforms", JSON.stringify(mktState.selected_platforms));
+            }
+            if (mktState.custom_platform_name) {
+              setCustomMarketplaceName(mktState.custom_platform_name);
+              sessionStorage.setItem("marketplace_custom_name", mktState.custom_platform_name);
+            }
+            if (mktState.directory_listings && mktState.directory_listings.length > 0) {
+              setSelectedListings(mktState.directory_listings);
+              sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(mktState.directory_listings));
+            }
+            if (mktState.custom_listing_name) {
+              setCustomListingName(mktState.custom_listing_name);
+              sessionStorage.setItem("marketplace_custom_listing_name", mktState.custom_listing_name);
+            }
+            if (mktState.website_url) {
+              setWebsiteUrl(mktState.website_url);
+              sessionStorage.setItem("business_website_url", mktState.website_url);
+            }
+            if (mktState.skip_website) {
+              setMarketplaceSkipWebsite(true);
+              sessionStorage.setItem("marketplace_skip_website", "true");
+            }
+          }
+        } else if (activePresence === "b2b") {
+          const b2bState = await OnboardingService.getWholesaleState().catch(() => null);
+          if (isMounted && b2bState) {
+            if (b2bState.selected_platforms && b2bState.selected_platforms.length > 0) {
+              setSelectedB2bPlatforms(b2bState.selected_platforms);
+              sessionStorage.setItem("b2b_selected_platforms", JSON.stringify(b2bState.selected_platforms));
+            }
+            if (b2bState.custom_platform_name) {
+              setCustomB2bPlatformName(b2bState.custom_platform_name);
+              sessionStorage.setItem("b2b_custom_platform_name", b2bState.custom_platform_name);
+            }
+            if (b2bState.additional_listings && b2bState.additional_listings.length > 0) {
+              setSelectedB2bListings(b2bState.additional_listings);
+              sessionStorage.setItem("b2b_selected_listings", JSON.stringify(b2bState.additional_listings));
+            }
+            if (b2bState.custom_listing_name) {
+              setCustomB2bListingName(b2bState.custom_listing_name);
+              sessionStorage.setItem("b2b_custom_listing_name", b2bState.custom_listing_name);
+            }
+            if (b2bState.website_url) {
+              setWebsiteUrl(b2bState.website_url);
+              sessionStorage.setItem("business_website_url", b2bState.website_url);
+            }
+            if (b2bState.skip_website) {
+              setB2bSkipWebsite(true);
+              sessionStorage.setItem("b2b_skip_website", "true");
+            }
+          }
+        }
+
+        // 3. Navigate to next incomplete step if no explicit step in sessionStorage
+        const savedSessionStep = sessionStorage.getItem("onboarding_step");
+        if (!savedSessionStep) {
+          const hasServices = (restoredServices && restoredServices.length > 0) || (selectedServices && selectedServices.length > 0);
+          const hasPresence = Boolean(activePresence);
+          if (!hasServices) {
+            const sIdx = activeSteps.findIndex((s) => s.id === "business_services");
+            if (sIdx !== -1) setCurrentStep(sIdx);
+          } else if (!hasPresence) {
+            const pIdx = activeSteps.findIndex((s) => s.id === "presence");
+            if (pIdx !== -1) setCurrentStep(pIdx);
+          }
+        }
+      } catch (e) {
+        console.warn("Backend data restoration fallback:", e);
+      }
+    };
+
+    restoreFromBackend();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const handleSelectPresence = (presenceId: string) => {
@@ -796,16 +927,24 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleGetStarted = () => {
-    const servicesIdx = activeSteps.findIndex((s) => s.id === "business_services");
-    const target = servicesIdx !== -1 ? servicesIdx : 1;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
-    }
+  const handleGetStarted = async () => {
+    setIsSavingGetStarted(true);
     try {
-      OnboardingService.updateProgress({ onboarding_step: 2 });
-    } catch (_) {}
+      await OnboardingService.updateProgress({ onboarding_step: 1 });
+      const servicesIdx = activeSteps.findIndex((s) => s.id === "business_services");
+      const target = servicesIdx !== -1 ? servicesIdx : 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.warn("Get started progress notice:", err);
+      const servicesIdx = activeSteps.findIndex((s) => s.id === "business_services");
+      const target = servicesIdx !== -1 ? servicesIdx : 1;
+      setCurrentStep(target);
+    } finally {
+      setIsSavingGetStarted(false);
+    }
   };
 
   const handleServicesBack = () => {
@@ -833,32 +972,35 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleServicesContinue = () => {
+  const handleServicesContinue = async () => {
     if (!selectedServices || selectedServices.length === 0) {
       setServicesError("Please select at least one service for your business to continue.");
       return;
     }
     setServicesError("");
-
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
-      localStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
-      localStorage.setItem("selected_services", JSON.stringify(selectedServices));
-    }
-
-    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
-    const target = presenceIdx !== -1 ? presenceIdx : 2;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
-    }
+    setIsSavingServices(true);
 
     try {
-      OnboardingService.updateProgress({
-        onboarding_step: 3,
-        selected_services: selectedServices,
-      });
-    } catch (_) {}
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
+        localStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
+        localStorage.setItem("selected_services", JSON.stringify(selectedServices));
+      }
+
+      await OnboardingService.saveSelectedServices(selectedServices);
+
+      const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+      const target = presenceIdx !== -1 ? presenceIdx : 2;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save selected services:", err);
+      setServicesError(err?.message || "Failed to save selected services. Please try again.");
+    } finally {
+      setIsSavingServices(false);
+    }
   };
 
   const handlePresenceBack = () => {
@@ -870,35 +1012,39 @@ export default function OnboardingPage() {
     }
   };
 
-  const handlePresenceContinue = () => {
+  const handlePresenceContinue = async () => {
     if (!selectedOnlinePresence) {
       setError("Please select where your business lives online.");
       return;
     }
     setError("");
-
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("business_online_presence", selectedOnlinePresence);
-      localStorage.setItem("business_online_presence", selectedOnlinePresence);
-    }
-
-    // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 3;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
-    }
+    setIsSavingPresence(true);
 
     try {
-      OnboardingService.updateProgress({
-        onboarding_step: 4,
-        business_type: businessProfile.business_type,
-        selling_model: businessProfile.selling_model,
-        online_presence: selectedOnlinePresence,
-        selected_services: selectedServices,
-      });
-    } catch (_) {}
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_online_presence", selectedOnlinePresence);
+        localStorage.setItem("business_online_presence", selectedOnlinePresence);
+      }
+
+      await OnboardingService.saveOnlinePresence(
+        selectedOnlinePresence,
+        businessProfile.business_type,
+        businessProfile.selling_model
+      );
+
+      // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
+      const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
+      const target = socialIdx !== -1 ? socialIdx : 3;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save online presence:", err);
+      setError(err?.message || "Failed to save online presence. Please try again.");
+    } finally {
+      setIsSavingPresence(false);
+    }
   };
 
   // ─── Social Media Connectivity (Instagram) Handlers ───
@@ -974,7 +1120,10 @@ export default function OnboardingPage() {
     setShowSkipInstagramModal(true);
   };
 
-  const handleConfirmSkipInstagram = () => {
+  const handleConfirmSkipInstagram = async () => {
+    try {
+      await OnboardingService.skipSocialOnboarding();
+    } catch (_) {}
     setShowSkipInstagramModal(false);
     navigateFromSocialConnect();
   };
@@ -989,22 +1138,43 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleWebsiteUrlContinue = () => {
+  const handleWebsiteUrlContinue = async () => {
     if (!isValidWebsiteUrl(websiteUrl)) {
       setError("Please enter a valid website address.");
       return;
     }
     setError("");
-    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
-    const target = readingIdx !== -1 ? readingIdx : currentStep + 1;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
-      sessionStorage.setItem("business_website_url", websiteUrl);
-      localStorage.setItem("business_website_url", websiteUrl);
+    setIsSavingWebsite(true);
+    const formattedUrl = websiteUrl.startsWith("http") ? websiteUrl : `https://${websiteUrl}`;
+
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_website_url", formattedUrl);
+        localStorage.setItem("business_website_url", formattedUrl);
+      }
+      setBusinessProfile((prev) => ({ ...prev, website: formattedUrl }));
+
+      await OnboardingService.saveOnlinePresence(
+        "website",
+        businessProfile.business_type,
+        businessProfile.selling_model,
+        formattedUrl
+      );
+
+      const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+      const target = readingIdx !== -1 ? readingIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+
+      startWebsiteAnalysis(formattedUrl);
+    } catch (err: any) {
+      console.error("Failed to save website url:", err);
+      setError(err?.message || "Failed to save website address. Please try again.");
+    } finally {
+      setIsSavingWebsite(false);
     }
-    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
-    startWebsiteAnalysis(websiteUrl);
   };
 
   // Screen 2: Website Reading Handlers
@@ -1266,27 +1436,58 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-
-    // Sync to parent businessProfile
-    setBusinessProfile((prev) => ({
-      ...prev,
-      business_name: businessDetails.business_name,
-      business_type: businessDetails.primary_business_type || businessDetails.business_types[0] || prev.business_type,
-      business_category: businessDetails.category,
-      city: businessDetails.city.split(",")[0]?.trim() || businessDetails.city,
-      business_description: businessDetails.tagline || prev.business_description,
-      brand_color: brandPreferences.palette[0] || prev.brand_color,
-      business_logo: businessDetails.logo_url || prev.business_logo,
-    }));
-    if (businessDetails.logo_url) {
-      setLogoPreview(businessDetails.logo_url);
-    }
-
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("business_details_data", JSON.stringify(businessDetails));
-    }
+    setIsSavingBusinessDetails(true);
 
     try {
+      // Sync to parent businessProfile
+      setBusinessProfile((prev) => ({
+        ...prev,
+        business_name: businessDetails.business_name,
+        business_type: businessDetails.primary_business_type || businessDetails.business_types[0] || prev.business_type,
+        business_category: businessDetails.category,
+        city: businessDetails.city.split(",")[0]?.trim() || businessDetails.city,
+        business_description: businessDetails.tagline || prev.business_description,
+        brand_color: brandPreferences.palette[0] || prev.brand_color,
+        business_logo: businessDetails.logo_url || prev.business_logo,
+      }));
+      if (businessDetails.logo_url) {
+        setLogoPreview(businessDetails.logo_url);
+      }
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_details_data", JSON.stringify(businessDetails));
+      }
+
+      // Persist to Business API
+      await businessService.updateBusiness({
+        name: businessDetails.business_name.trim(),
+        category: businessDetails.category,
+        industry: businessDetails.category,
+        businessType: businessDetails.primary_business_type || businessDetails.business_types[0],
+        location: businessDetails.city,
+        description: businessDetails.tagline,
+        website: websiteUrl || undefined,
+        logoUrl: businessDetails.logo_url || undefined,
+      });
+
+      // Persist to Brand Kit API
+      await updateBrandKit({
+        business_name: businessDetails.business_name,
+        business_category: businessDetails.category,
+        sub_category: businessDetails.sub_category,
+        business_types: businessDetails.business_types,
+        primary_business_type: businessDetails.primary_business_type,
+        city: businessDetails.city,
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        target_audience_summary: businessDetails.target_audience,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        services_products_summary: businessDetails.products_services,
+        website: websiteUrl,
+        logo_url: businessDetails.logo_url,
+      });
+
       await OnboardingService.updateProgress({
         business_name: businessDetails.business_name,
         business_category: businessDetails.category,
@@ -1300,14 +1501,19 @@ export default function OnboardingPage() {
         products_services: businessDetails.products_services,
         website_url: websiteUrl,
       });
-    } catch (_) {}
 
-    // Advance to Screen 4 (brand_preferences)
-    const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
-    const target = brandIdx !== -1 ? brandIdx : currentStep + 1;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+      // Advance to Screen 4 (brand_preferences)
+      const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
+      const target = brandIdx !== -1 ? brandIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save business details:", err);
+      setError(err?.message || "Failed to save business details. Please retry.");
+    } finally {
+      setIsSavingBusinessDetails(false);
     }
   };
 
@@ -1349,43 +1555,37 @@ export default function OnboardingPage() {
         sessionStorage.setItem("brand_preferences_data", JSON.stringify(brandPreferences));
       }
 
-      try {
-        await updateBrandKit({
-          business_name: businessDetails.business_name,
-          tagline: businessDetails.tagline,
-          target_audience: businessDetails.target_audience,
-          brand_colors: brandPreferences.palette,
-          palette: brandPreferences.palette,
-          primary_color: brandPreferences.palette[0] || "#FC9A5D",
-          secondary_color: brandPreferences.palette[1] || "#F0449B",
-          accent_color: brandPreferences.palette[2] || "#BE32FF",
-          tones: brandPreferences.tones,
-          tone: brandPreferences.tones.join(", "),
-          language: brandPreferences.language,
-          business_types: businessDetails.business_types,
-          primary_business_type: businessDetails.primary_business_type,
-          sub_category: businessDetails.sub_category,
-          city: businessDetails.city,
-          differentiators: businessDetails.differentiators,
-          products_services: businessDetails.products_services,
-          target_audience_summary: businessDetails.target_audience,
-          services_products_summary: businessDetails.products_services,
-          website: websiteUrl,
-          logo_url: businessDetails.logo_url,
-        });
-      } catch (bkErr) {
-        console.warn("Brand kit update error:", bkErr);
-      }
+      await updateBrandKit({
+        business_name: businessDetails.business_name,
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        brand_colors: brandPreferences.palette,
+        palette: brandPreferences.palette,
+        primary_color: brandPreferences.palette[0] || "#FC9A5D",
+        secondary_color: brandPreferences.palette[1] || "#F0449B",
+        accent_color: brandPreferences.palette[2] || "#BE32FF",
+        tones: brandPreferences.tones,
+        tone: brandPreferences.tones.join(", "),
+        language: brandPreferences.language,
+        business_types: businessDetails.business_types,
+        primary_business_type: businessDetails.primary_business_type,
+        sub_category: businessDetails.sub_category,
+        city: businessDetails.city,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        target_audience_summary: businessDetails.target_audience,
+        services_products_summary: businessDetails.products_services,
+        website: websiteUrl,
+        logo_url: businessDetails.logo_url,
+      });
 
-      try {
-        await OnboardingService.updateProgress({
-          brand_colors: brandPreferences.palette,
-          tones: brandPreferences.tones,
-          language: brandPreferences.language,
-          target_audience_summary: businessDetails.target_audience,
-          services_products_summary: businessDetails.products_services,
-        });
-      } catch (_) {}
+      await OnboardingService.updateProgress({
+        brand_colors: brandPreferences.palette,
+        tones: brandPreferences.tones,
+        language: brandPreferences.language,
+        target_audience_summary: businessDetails.target_audience,
+        services_products_summary: businessDetails.products_services,
+      });
 
       // Advance to Screen 5 (website_photos)
       const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
@@ -1395,7 +1595,8 @@ export default function OnboardingPage() {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save brand preferences.");
+      console.error("Failed to save brand preferences:", err);
+      setError(err?.message || "Failed to save brand preferences. Please retry.");
     } finally {
       setIsSavingBrandPreferences(false);
     }
@@ -1464,17 +1665,13 @@ export default function OnboardingPage() {
         sessionStorage.setItem("website_selected_photos", JSON.stringify(selectedPhotos));
       }
 
-      try {
-        await updateBrandKit({
-          selected_photos: selectedPhotos,
-        });
-      } catch (_) {}
+      await updateBrandKit({
+        selected_photos: selectedPhotos,
+      });
 
-      try {
-        await OnboardingService.updateProgress({
-          selected_photos: selectedPhotos,
-        });
-      } catch (_) {}
+      await OnboardingService.updateProgress({
+        selected_photos: selectedPhotos,
+      });
 
       // Advance to common completion screen: "Let's make your first thing"
       const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
@@ -1484,7 +1681,8 @@ export default function OnboardingPage() {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save selected photos.");
+      console.error("Failed to save photos:", err);
+      setError(err?.message || "Failed to save selected photos. Please retry.");
     } finally {
       setIsSavingPhotos(false);
     }
@@ -1539,18 +1737,47 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleUseShopContinue = () => {
+  const handleUseShopContinue = async () => {
     if (!selectedMapsPlace) {
       setError("Please search and select your shop on Google Maps.");
       return;
     }
     setError("");
-    const websiteIdx = activeSteps.findIndex((s) => s.id === "maps_website");
-    const target = websiteIdx !== -1 ? websiteIdx : currentStep + 1;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
-      sessionStorage.setItem("google_maps_place_data", JSON.stringify(selectedMapsPlace));
+    setIsSavingMapsStep(true);
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_maps_place_data", JSON.stringify(selectedMapsPlace));
+      }
+
+      await OnboardingService.selectGoogleMapsShop({
+        place_id: selectedMapsPlace.placeId || "maps_" + Date.now(),
+        name: selectedMapsPlace.name,
+        formatted_address: selectedMapsPlace.address,
+        google_maps_url: selectedMapsPlace.googleMapsUrl,
+        website: selectedMapsPlace.website,
+        rating: selectedMapsPlace.rating,
+        user_ratings_total: selectedMapsPlace.userRatingsTotal,
+        types: selectedMapsPlace.types,
+        photos: selectedMapsPlace.photos,
+      });
+
+      await businessService.updateBusiness({
+        name: selectedMapsPlace.name,
+        location: selectedMapsPlace.address,
+        website: selectedMapsPlace.website,
+      });
+
+      const websiteIdx = activeSteps.findIndex((s) => s.id === "maps_website");
+      const target = websiteIdx !== -1 ? websiteIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save selected shop:", err);
+      setError(err?.message || "Failed to select shop. Please try again.");
+    } finally {
+      setIsSavingMapsStep(false);
     }
   };
 
@@ -1664,7 +1891,7 @@ export default function OnboardingPage() {
     setBusinessProfile((prev) => ({ ...prev, business_logo: "" }));
   };
 
-  const handleMapsDetailsContinue = () => {
+  const handleMapsDetailsContinue = async () => {
     if (!businessProfile.business_name.trim()) {
       setError("Please enter your business name.");
       return;
@@ -1674,33 +1901,71 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-    setBusinessProfile((prev) => ({
-      ...prev,
-      business_description: mapsPromotion,
-      target_location: mapsAudience || prev.target_location,
-      business_logo: mapsLogoUrl || prev.business_logo,
-    }));
-    setBusinessDetails((prev) => ({
-      ...prev,
-      business_name: businessProfile.business_name,
-      target_audience: mapsAudience,
-      logo_url: mapsLogoUrl || prev.logo_url,
-      differentiators: mapsDifferentiator ? [mapsDifferentiator] : prev.differentiators,
-      products_services: mapsPromotion ? [mapsPromotion] : prev.products_services,
-    }));
+    setIsSavingMapsStep(true);
 
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("google_maps_promotion", mapsPromotion);
-      sessionStorage.setItem("google_maps_audience", mapsAudience);
-      sessionStorage.setItem("google_maps_differentiator", mapsDifferentiator);
-      sessionStorage.setItem("google_maps_logo", mapsLogoUrl);
-    }
+    try {
+      setBusinessProfile((prev) => ({
+        ...prev,
+        business_description: mapsPromotion,
+        target_location: mapsAudience || prev.target_location,
+        business_logo: mapsLogoUrl || prev.business_logo,
+      }));
+      setBusinessDetails((prev) => ({
+        ...prev,
+        business_name: businessProfile.business_name,
+        target_audience: mapsAudience,
+        logo_url: mapsLogoUrl || prev.logo_url,
+        differentiators: mapsDifferentiator ? [mapsDifferentiator] : prev.differentiators,
+        products_services: mapsPromotion ? [mapsPromotion] : prev.products_services,
+      }));
 
-    const photosIdx = activeSteps.findIndex((s) => s.id === "maps_photos");
-    const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_maps_promotion", mapsPromotion);
+        sessionStorage.setItem("google_maps_audience", mapsAudience);
+        sessionStorage.setItem("google_maps_differentiator", mapsDifferentiator);
+        sessionStorage.setItem("google_maps_logo", mapsLogoUrl);
+      }
+
+      await OnboardingService.updateGoogleMapsProfile({
+        category: mapsCategory,
+        sub_category: mapsSubCategory,
+        website: mapsWebsiteUrl || undefined,
+        promotion_text: mapsPromotion,
+        target_audience: mapsAudience,
+        differentiator: mapsDifferentiator,
+        logo_url: mapsLogoUrl,
+      });
+
+      await businessService.updateBusiness({
+        name: businessProfile.business_name,
+        category: mapsCategory,
+        description: mapsPromotion,
+        logoUrl: mapsLogoUrl || undefined,
+      });
+
+      await updateBrandKit({
+        business_name: businessProfile.business_name,
+        business_category: mapsCategory,
+        sub_category: mapsSubCategory,
+        target_audience: mapsAudience,
+        target_audience_summary: mapsAudience,
+        differentiators: mapsDifferentiator ? [mapsDifferentiator] : undefined,
+        products_services: mapsPromotion ? [mapsPromotion] : undefined,
+        services_products_summary: mapsPromotion ? [mapsPromotion] : undefined,
+        logo_url: mapsLogoUrl || undefined,
+      });
+
+      const photosIdx = activeSteps.findIndex((s) => s.id === "maps_photos");
+      const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save Maps details:", err);
+      setError(err?.message || "Failed to save details. Please retry.");
+    } finally {
+      setIsSavingMapsStep(false);
     }
   };
 
@@ -1784,22 +2049,29 @@ export default function OnboardingPage() {
         sessionStorage.setItem("website_selected_photos", JSON.stringify(selectedMapsPhotos));
       }
 
-      try {
-        await updateBrandKit({
-          business_name: businessProfile.business_name,
-          business_category: mapsCategory,
-          selected_photos: selectedMapsPhotos,
-        });
-      } catch (_) {}
+      await OnboardingService.completeGoogleMaps({
+        selected_photos: selectedMapsPhotos,
+        category: mapsCategory,
+        sub_category: mapsSubCategory,
+        promotion_text: mapsPromotion,
+        target_audience: mapsAudience,
+        differentiator: mapsDifferentiator,
+        logo_url: mapsLogoUrl,
+        website: mapsWebsiteUrl,
+      });
 
-      try {
-        await OnboardingService.updateProgress({
-          business_name: businessProfile.business_name,
-          business_category: mapsCategory,
-          google_maps_url: selectedMapsPlace?.googleMapsUrl,
-          selected_photos: selectedMapsPhotos,
-        });
-      } catch (_) {}
+      await updateBrandKit({
+        business_name: businessProfile.business_name,
+        business_category: mapsCategory,
+        selected_photos: selectedMapsPhotos,
+      });
+
+      await OnboardingService.updateProgress({
+        business_name: businessProfile.business_name,
+        business_category: mapsCategory,
+        google_maps_url: selectedMapsPlace?.googleMapsUrl,
+        selected_photos: selectedMapsPhotos,
+      });
 
       // Advance to common completion screen: "Let's make your first thing"
       const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
@@ -1809,7 +2081,8 @@ export default function OnboardingPage() {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      setError(err.message || "Failed to save photos.");
+      console.error("Failed to save maps photos:", err);
+      setError(err?.message || "Failed to save photos. Please retry.");
     } finally {
       setIsSavingMapsStep(false);
     }
@@ -1836,7 +2109,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleMarketplacePlatformsContinue = () => {
+  const handleMarketplacePlatformsContinue = async () => {
     if (selectedMarketplaces.length === 0) {
       setError("Please select at least one marketplace.");
       return;
@@ -1846,23 +2119,30 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("marketplace_selected_platforms", JSON.stringify(selectedMarketplaces));
-      sessionStorage.setItem("marketplace_custom_name", customMarketplaceName);
-    }
-    try {
-      OnboardingService.updateProgress({
-        marketplace_platforms: selectedMarketplaces.map((m) =>
-          m === "other" && customMarketplaceName.trim() ? customMarketplaceName.trim() : m
-        ),
-      });
-    } catch (_) {}
+    setIsSavingMarketplace(true);
 
-    const listingsIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
-    const target = listingsIdx !== -1 ? listingsIdx : 3;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_selected_platforms", JSON.stringify(selectedMarketplaces));
+        sessionStorage.setItem("marketplace_custom_name", customMarketplaceName);
+      }
+
+      await OnboardingService.saveMarketplacePlatforms({
+        selected_platforms: selectedMarketplaces,
+        custom_platform_name: customMarketplaceName.trim() || undefined,
+      });
+
+      const listingsIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
+      const target = listingsIdx !== -1 ? listingsIdx : 3;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save marketplace platforms:", err);
+      setError(err?.message || "Failed to save marketplace platforms. Please retry.");
+    } finally {
+      setIsSavingMarketplace(false);
     }
   };
 
@@ -1900,7 +2180,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleMarketplaceListingsContinue = () => {
+  const handleMarketplaceListingsContinue = async () => {
     if (selectedListings.length === 0) {
       setError("Please select where you list your business or choose 'None of these'.");
       return;
@@ -1910,23 +2190,32 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(selectedListings));
-      sessionStorage.setItem("marketplace_custom_listing_name", customListingName);
-    }
-    try {
-      OnboardingService.updateProgress({
-        marketplace_listings: selectedListings
-          .filter((l) => l !== "none_of_these")
-          .map((l) => (l === "other" && customListingName.trim() ? customListingName.trim() : l)),
-      });
-    } catch (_) {}
+    setIsSavingMarketplace(true);
 
-    const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
-    const target = webIdx !== -1 ? webIdx : 4;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_selected_listings", JSON.stringify(selectedListings));
+        sessionStorage.setItem("marketplace_custom_listing_name", customListingName);
+      }
+
+      await OnboardingService.saveMarketplacePlatforms({
+        selected_platforms: selectedMarketplaces,
+        custom_platform_name: customMarketplaceName.trim() || undefined,
+        directory_listings: selectedListings.filter((l) => l !== "none_of_these"),
+        custom_listing_name: customListingName.trim() || undefined,
+      });
+
+      const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+      const target = webIdx !== -1 ? webIdx : 4;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save marketplace listings:", err);
+      setError(err?.message || "Failed to save listings. Please retry.");
+    } finally {
+      setIsSavingMarketplace(false);
     }
   };
 
@@ -1939,39 +2228,67 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleMarketplaceWebsiteContinue = () => {
+  const handleMarketplaceWebsiteContinue = async () => {
     if (!isValidWebsiteUrl(websiteUrl)) {
       setError("Please enter a valid website address (e.g. yourbusiness.com).");
       return;
     }
     setError("");
-    setMarketplaceSkipWebsite(false);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("marketplace_skip_website", "false");
-      sessionStorage.setItem("business_website_url", websiteUrl);
-    }
-    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+    setIsSavingMarketplace(true);
 
-    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
-    const target = readingIdx !== -1 ? readingIdx : 5;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      setMarketplaceSkipWebsite(false);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_skip_website", "false");
+        sessionStorage.setItem("business_website_url", websiteUrl);
+      }
+      setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+
+      await OnboardingService.saveMarketplaceWebsite({
+        website_url: websiteUrl,
+        skip_website: false,
+      });
+
+      const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+      const target = readingIdx !== -1 ? readingIdx : 5;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+      startWebsiteAnalysis(websiteUrl);
+    } catch (err: any) {
+      console.error("Failed to save marketplace website:", err);
+      setError(err?.message || "Failed to save website. Please retry.");
+    } finally {
+      setIsSavingMarketplace(false);
     }
-    startWebsiteAnalysis(websiteUrl);
   };
 
-  const handleSkipMarketplaceWebsite = () => {
+  const handleSkipMarketplaceWebsite = async () => {
     setError("");
-    setMarketplaceSkipWebsite(true);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("marketplace_skip_website", "true");
-    }
-    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-    const target = identIdx !== -1 ? identIdx : 5;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    setIsSavingMarketplace(true);
+    try {
+      setMarketplaceSkipWebsite(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("marketplace_skip_website", "true");
+      }
+
+      await OnboardingService.saveMarketplaceWebsite({
+        skip_website: true,
+      });
+
+      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+      const target = identIdx !== -1 ? identIdx : 5;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to skip website:", err);
+      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+      setCurrentStep(identIdx !== -1 ? identIdx : 5);
+    } finally {
+      setIsSavingMarketplace(false);
     }
   };
 
@@ -1996,7 +2313,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleB2bPlatformsContinue = () => {
+  const handleB2bPlatformsContinue = async () => {
     if (selectedB2bPlatforms.length === 0) {
       setError("Please select at least one wholesale platform.");
       return;
@@ -2006,23 +2323,30 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("b2b_selected_platforms", JSON.stringify(selectedB2bPlatforms));
-      sessionStorage.setItem("b2b_custom_platform_name", customB2bPlatformName);
-    }
-    try {
-      OnboardingService.updateProgress({
-        b2b_platforms: selectedB2bPlatforms.map((p) =>
-          p === "other" && customB2bPlatformName.trim() ? customB2bPlatformName.trim() : p
-        ),
-      });
-    } catch (_) {}
+    setIsSavingB2b(true);
 
-    const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
-    const target = listIdx !== -1 ? listIdx : 3;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_selected_platforms", JSON.stringify(selectedB2bPlatforms));
+        sessionStorage.setItem("b2b_custom_platform_name", customB2bPlatformName);
+      }
+
+      await OnboardingService.saveWholesalePlatforms({
+        selected_platforms: selectedB2bPlatforms,
+        custom_platform_name: customB2bPlatformName.trim() || undefined,
+      });
+
+      const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
+      const target = listIdx !== -1 ? listIdx : 3;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save wholesale platforms:", err);
+      setError(err?.message || "Failed to save wholesale platforms. Please retry.");
+    } finally {
+      setIsSavingB2b(false);
     }
   };
 
@@ -2060,7 +2384,7 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleB2bListingsContinue = () => {
+  const handleB2bListingsContinue = async () => {
     if (selectedB2bListings.length === 0) {
       setError("Please select where else you sell or choose 'None of these'.");
       return;
@@ -2070,23 +2394,32 @@ export default function OnboardingPage() {
       return;
     }
     setError("");
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("b2b_selected_listings", JSON.stringify(selectedB2bListings));
-      sessionStorage.setItem("b2b_custom_listing_name", customB2bListingName);
-    }
-    try {
-      OnboardingService.updateProgress({
-        b2b_listings: selectedB2bListings
-          .filter((l) => l !== "none_of_these")
-          .map((l) => (l === "other" && customB2bListingName.trim() ? customB2bListingName.trim() : l)),
-      });
-    } catch (_) {}
+    setIsSavingB2b(true);
 
-    const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
-    const target = webIdx !== -1 ? webIdx : 4;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_selected_listings", JSON.stringify(selectedB2bListings));
+        sessionStorage.setItem("b2b_custom_listing_name", customB2bListingName);
+      }
+
+      await OnboardingService.saveWholesalePlatforms({
+        selected_platforms: selectedB2bPlatforms,
+        custom_platform_name: customB2bPlatformName.trim() || undefined,
+        additional_listings: selectedB2bListings.filter((l) => l !== "none_of_these"),
+        custom_listing_name: customB2bListingName.trim() || undefined,
+      });
+
+      const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+      const target = webIdx !== -1 ? webIdx : 4;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save wholesale listings:", err);
+      setError(err?.message || "Failed to save listings. Please retry.");
+    } finally {
+      setIsSavingB2b(false);
     }
   };
 
@@ -2099,39 +2432,67 @@ export default function OnboardingPage() {
     }
   };
 
-  const handleB2bWebsiteContinue = () => {
+  const handleB2bWebsiteContinue = async () => {
     if (!isValidWebsiteUrl(websiteUrl)) {
       setError("Please enter a valid website or storefront address.");
       return;
     }
     setError("");
-    setB2bSkipWebsite(false);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("b2b_skip_website", "false");
-      sessionStorage.setItem("business_website_url", websiteUrl);
-    }
-    setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+    setIsSavingB2b(true);
 
-    const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
-    const target = readingIdx !== -1 ? readingIdx : 5;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    try {
+      setB2bSkipWebsite(false);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_skip_website", "false");
+        sessionStorage.setItem("business_website_url", websiteUrl);
+      }
+      setBusinessProfile((prev) => ({ ...prev, website: websiteUrl }));
+
+      await OnboardingService.saveWholesaleWebsite({
+        website_url: websiteUrl,
+        skip_website: false,
+      });
+
+      const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
+      const target = readingIdx !== -1 ? readingIdx : 5;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+      startWebsiteAnalysis(websiteUrl);
+    } catch (err: any) {
+      console.error("Failed to save wholesale website:", err);
+      setError(err?.message || "Failed to save website. Please retry.");
+    } finally {
+      setIsSavingB2b(false);
     }
-    startWebsiteAnalysis(websiteUrl);
   };
 
-  const handleSkipB2bWebsite = () => {
+  const handleSkipB2bWebsite = async () => {
     setError("");
-    setB2bSkipWebsite(true);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("b2b_skip_website", "true");
-    }
-    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-    const target = identIdx !== -1 ? identIdx : 5;
-    setCurrentStep(target);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", String(target));
+    setIsSavingB2b(true);
+    try {
+      setB2bSkipWebsite(true);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("b2b_skip_website", "true");
+      }
+
+      await OnboardingService.saveWholesaleWebsite({
+        skip_website: true,
+      });
+
+      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+      const target = identIdx !== -1 ? identIdx : 5;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to skip wholesale website:", err);
+      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+      setCurrentStep(identIdx !== -1 ? identIdx : 5);
+    } finally {
+      setIsSavingB2b(false);
     }
   };
 
@@ -2184,28 +2545,33 @@ export default function OnboardingPage() {
         sessionStorage.setItem("none_description", noneDescription);
       }
 
-      // Save partial updates to BrandKit API
-      try {
-        await updateBrandKit({
-          business_name: name,
-          business_category: noneCategory || businessProfile.business_category,
-          business_description: noneDescription.trim() || undefined,
-          sub_category: noneSubCategory.trim() || undefined,
-          target_audience: noneAudience.trim() || undefined,
-          target_audience_summary: noneAudience.trim() || undefined,
-          products_services: noneProducts.trim() ? [noneProducts.trim()] : undefined,
-          services_products_summary: noneProducts.trim() ? [noneProducts.trim()] : undefined,
-          differentiators: noneDifferentiator.trim() ? [noneDifferentiator.trim()] : undefined,
-        });
-      } catch (_) {}
+      // Persist to Business API
+      await businessService.updateBusiness({
+        name: name,
+        category: noneCategory || businessProfile.business_category,
+        description: noneDescription.trim() || undefined,
+      });
 
-      try {
-        await OnboardingService.updateProgress({
-          business_name: name,
-          business_category: noneCategory || businessProfile.business_category,
-          onboarding_step: 3,
-        });
-      } catch (_) {}
+      // Save to BrandKit API
+      await updateBrandKit({
+        business_name: name,
+        business_category: noneCategory || businessProfile.business_category,
+        business_description: noneDescription.trim() || undefined,
+        sub_category: noneSubCategory.trim() || undefined,
+        target_audience: noneAudience.trim() || undefined,
+        target_audience_summary: noneAudience.trim() || undefined,
+        products_services: noneProducts.trim() ? [noneProducts.trim()] : undefined,
+        services_products_summary: noneProducts.trim() ? [noneProducts.trim()] : undefined,
+        differentiators: noneDifferentiator.trim() ? [noneDifferentiator.trim()] : undefined,
+      });
+
+      await OnboardingService.saveOnlinePresence("none", "Retail Store", "Physical Retail Store / Walk-ins");
+
+      await OnboardingService.updateProgress({
+        business_name: name,
+        business_category: noneCategory || businessProfile.business_category,
+        onboarding_step: 3,
+      });
 
       // Advance to Brand Kit Style screen
       const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
@@ -2215,7 +2581,8 @@ export default function OnboardingPage() {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to save business details.");
+      console.error("Failed to save business details:", err);
+      setError(err?.message || "Failed to save business details. Please retry.");
     } finally {
       setIsSavingBrandKitStep(false);
     }
@@ -2264,30 +2631,26 @@ export default function OnboardingPage() {
       }
 
       // Persist to BrandKit API
-      try {
-        await updateBrandKit({
-          business_name: businessProfile.business_name.trim() || undefined,
-          business_category: noneCategory || businessProfile.business_category,
-          primary_color: primaryColor,
-          secondary_color: secondaryColor,
-          accent_color: accentColor,
-          brand_colors: brandPreferences.palette,
-          palette: brandPreferences.palette,
-          font: selectedFont,
-          tones: brandPreferences.tones,
-          tone: brandPreferences.tones.join(", "),
-          language: brandPreferences.language,
-          logo_url: businessProfile.business_logo || businessDetails.logo_url || undefined,
-        });
-      } catch (_) {}
+      await updateBrandKit({
+        business_name: businessProfile.business_name.trim() || undefined,
+        business_category: noneCategory || businessProfile.business_category,
+        primary_color: primaryColor,
+        secondary_color: secondaryColor,
+        accent_color: accentColor,
+        brand_colors: brandPreferences.palette,
+        palette: brandPreferences.palette,
+        font: selectedFont,
+        tones: brandPreferences.tones,
+        tone: brandPreferences.tones.join(", "),
+        language: brandPreferences.language,
+        logo_url: businessProfile.business_logo || businessDetails.logo_url || undefined,
+      });
 
-      try {
-        await OnboardingService.updateProgress({
-          brand_colors: brandPreferences.palette,
-          onboarding_step: 4,
-          online_presence: "none",
-        });
-      } catch (_) {}
+      await OnboardingService.updateProgress({
+        brand_colors: brandPreferences.palette,
+        onboarding_step: 4,
+        online_presence: "none",
+      });
 
       // Advance to common completion screen: "Let's make your first thing"
       const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
@@ -2297,7 +2660,8 @@ export default function OnboardingPage() {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      setError(err?.message || "Failed to save brand preferences.");
+      console.error("Failed to save brand preferences:", err);
+      setError(err?.message || "Failed to save brand preferences. Please retry.");
     } finally {
       setIsSavingBrandKitStep(false);
     }

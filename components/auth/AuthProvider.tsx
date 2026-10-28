@@ -249,6 +249,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const wasAdmin = user?.role === 'admin';
     localStorage.removeItem('access_token');
     localStorage.removeItem('user');
+    const keysToClear = [
+      'business_selected_services',
+      'selected_services',
+      'business_online_presence',
+      'business_website_url',
+      'business_details_data',
+      'brand_preferences_data',
+      'website_selected_photos',
+      'google_maps_place_data',
+      'google_maps_website_url',
+      'google_maps_category',
+      'google_maps_logo',
+      'google_maps_selected_photos',
+      'marketplace_platforms_data',
+      'wholesale_b2b_platforms_data',
+      'selected_role',
+      'onboarding_step',
+      'show_onboarding_plan',
+      'onboarding_initial_restored',
+      'user_active_modal',
+    ];
+    keysToClear.forEach((k) => {
+      try {
+        localStorage.removeItem(k);
+        sessionStorage.removeItem(k);
+      } catch (_) {}
+    });
     if (typeof document !== 'undefined') {
       document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
     }

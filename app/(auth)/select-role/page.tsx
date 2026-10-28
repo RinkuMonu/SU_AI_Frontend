@@ -208,34 +208,24 @@ export default function SelectRolePage() {
       if (updatedUser) {
         updateUser(updatedUser);
       }
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("selected_role", selectedRole);
+        localStorage.setItem("selected_role", selectedRole);
+      }
       const authoritativeRole = updatedUser?.role || selectedRole;
       if (authoritativeRole === "businessman") {
         if (isCompleted) {
           router.replace(getDashboardRouteForRole(authoritativeRole));
         } else {
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("onboarding_step", "0");
-          }
           router.replace("/onboarding");
         }
       } else {
         router.replace(getDashboardRouteForRole(authoritativeRole));
       }
-    } catch (_) {
-      // Direct navigation fallback
-      updateUser({ role: selectedRole });
-      if (selectedRole === "businessman") {
-        if (isCompleted) {
-          router.replace(targetDashboard);
-        } else {
-          if (typeof window !== "undefined") {
-            sessionStorage.setItem("onboarding_step", "0");
-          }
-          router.replace("/onboarding");
-        }
-      } else {
-        router.replace(targetDashboard);
-      }
+    } catch (err: any) {
+      setIsSubmitting(false);
+      const msg = err?.message || err?.response?.data?.detail || "Failed to save your selected role to the server. Please try again.";
+      setErrorMessage(typeof msg === "string" ? msg : JSON.stringify(msg));
     }
   };
 
