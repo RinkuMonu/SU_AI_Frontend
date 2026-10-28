@@ -213,6 +213,9 @@ export default function SelectRolePage() {
         if (isCompleted) {
           router.replace(getDashboardRouteForRole(authoritativeRole));
         } else {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", "0");
+          }
           router.replace("/onboarding");
         }
       } else {
@@ -225,6 +228,9 @@ export default function SelectRolePage() {
         if (isCompleted) {
           router.replace(targetDashboard);
         } else {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", "0");
+          }
           router.replace("/onboarding");
         }
       } else {

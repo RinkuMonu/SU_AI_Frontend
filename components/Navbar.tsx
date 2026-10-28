@@ -12,11 +12,9 @@ import {
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { featuresMenu } from '@/data/features';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
 
 export function Navbar() {
-  const { user } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -41,15 +39,7 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const isCompleted = Boolean(
-    user?.onboardingCompleted === true ||
-    (user as any)?.onboarding_completed === true ||
-    (user as any)?.is_completed === true
-  );
-
-  const webHref = user
-    ? (isCompleted ? (user.role === 'influencer' ? '/influencer' : '/dashboard') : '/select-role')
-    : '/login/user';
+  const webHref = '/login/user';
 
   const isLightNav = isLightPage || isScrolled;
 
