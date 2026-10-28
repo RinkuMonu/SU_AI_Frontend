@@ -28,10 +28,13 @@ export interface LocationSearchResult {
 
 export interface GooglePlaceResult {
   id: string;
+  placeId?: string;
+  place_id?: string;
   name: string;
   address: string;
   rating?: number;
   userRatingCount?: number;
+  userRatingsTotal?: number;
   website?: string;
   phone?: string;
   photos: string[];
@@ -39,6 +42,7 @@ export interface GooglePlaceResult {
   googleMapsUrl: string;
   lat?: number;
   lng?: number;
+  [key: string]: any;
 }
 
 export const googleMapsService = {

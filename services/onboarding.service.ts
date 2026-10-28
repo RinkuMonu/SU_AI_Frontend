@@ -31,12 +31,14 @@ export interface OnboardingStatus {
 
 export interface GoogleMapsSelectPayload {
   place_id: string;
-  name: string;
+  name?: string;
+  business_name?: string;
   formatted_address?: string;
   latitude?: number;
   longitude?: number;
   rating?: number;
   review_count?: number;
+  user_ratings_total?: number;
   website?: string;
   phone_number?: string;
   city?: string;
@@ -46,16 +48,19 @@ export interface GoogleMapsSelectPayload {
   types?: string[];
   photos?: string[];
   google_maps_url?: string;
+  [key: string]: any;
 }
 
 export interface GoogleMapsProfilePayload {
   business_name: string;
   promotion_goal: string;
+  category?: string;
   target_audience?: string;
   differentiators?: string[];
   logo_url?: string;
   tagline?: string;
   products_services?: string[];
+  [key: string]: any;
 }
 
 export interface SavePlatformsPayload {
@@ -63,9 +68,13 @@ export interface SavePlatformsPayload {
   platform_urls?: Record<string, string>;
   custom_platform_name?: string;
   other_platform_name?: string;
+  directory_listings?: string[];
+  additional_listings?: string[];
+  custom_listing_name?: string;
   website_url?: string;
   skip_website?: boolean;
   onboarding_source?: 'marketplace_seller' | 'wholesale_b2b';
+  [key: string]: any;
 }
 
 export const OnboardingService = {
@@ -140,11 +149,14 @@ export const OnboardingService = {
   },
 
   // ─── Online Presence (Business Source) Endpoints ───
-  saveOnlinePresence: async (presence: string, extraDetails: Record<string, any> = {}): Promise<any> => {
-    const payload = {
-      online_presence: presence,
-      ...extraDetails,
-    };
+  saveOnlinePresence: async (presence: string, extraDetails: Record<string, any> = {}, ...rest: any[]): Promise<any> => {
+    let payload: Record<string, any> = { online_presence: presence };
+    if (typeof extraDetails === 'object' && extraDetails !== null) {
+      payload = { ...payload, ...extraDetails };
+    }
+    if (rest.length > 0 && typeof rest[0] === 'object' && rest[0] !== null) {
+      payload = { ...payload, ...rest[0] };
+    }
     const response = await api.post('/api/v1/onboarding/online-presence', payload);
     return response.data?.data || response.data;
   },
@@ -217,9 +229,10 @@ export const OnboardingService = {
     return response.data?.data || response.data;
   },
 
-  completeGoogleMaps: async (): Promise<any> => {
+  completeGoogleMaps: async (...args: any[]): Promise<any> => {
     try {
-      const response = await api.post('/api/v1/onboarding/google-maps/complete', {});
+      const payload = args.length > 0 && typeof args[0] === 'object' ? args[0] : {};
+      const response = await api.post('/api/v1/onboarding/google-maps/complete', payload);
       return response.data?.data || response.data;
     } catch (_) {
       return null;
@@ -235,10 +248,16 @@ export const OnboardingService = {
     return response.data?.data || response.data;
   },
 
-  saveMarketplaceWebsite: async (website_url: string, skip: boolean = false): Promise<any> => {
+  saveMarketplaceWebsite: async (
+    payloadOrUrl: string | { website_url?: string; skip_website?: boolean; skip?: boolean },
+    skip: boolean = false
+  ): Promise<any> => {
+    const website_url = typeof payloadOrUrl === 'string' ? payloadOrUrl : (payloadOrUrl?.website_url || '');
+    const isSkip = typeof payloadOrUrl === 'string' ? skip : Boolean(payloadOrUrl?.skip_website ?? payloadOrUrl?.skip);
     const response = await api.post('/api/v1/onboarding/marketplace-seller/website', {
       website_url,
-      skip,
+      skip: isSkip,
+      skip_website: isSkip,
     });
     return response.data?.data || response.data;
   },
@@ -261,10 +280,16 @@ export const OnboardingService = {
     return response.data?.data || response.data;
   },
 
-  saveWholesaleWebsite: async (website_url: string, skip: boolean = false): Promise<any> => {
+  saveWholesaleWebsite: async (
+    payloadOrUrl: string | { website_url?: string; skip_website?: boolean; skip?: boolean },
+    skip: boolean = false
+  ): Promise<any> => {
+    const website_url = typeof payloadOrUrl === 'string' ? payloadOrUrl : (payloadOrUrl?.website_url || '');
+    const isSkip = typeof payloadOrUrl === 'string' ? skip : Boolean(payloadOrUrl?.skip_website ?? payloadOrUrl?.skip);
     const response = await api.post('/api/v1/onboarding/wholesale-b2b/website', {
       website_url,
-      skip,
+      skip: isSkip,
+      skip_website: isSkip,
     });
     return response.data?.data || response.data;
   },

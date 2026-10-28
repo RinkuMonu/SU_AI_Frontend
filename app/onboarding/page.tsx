@@ -619,7 +619,7 @@ export default function OnboardingPage() {
         // Status check
         if (statusRes.status === "fulfilled" && statusRes.value) {
           const s = statusRes.value;
-          if (s.is_completed || s.completed) {
+          if (s.is_completed || (s as any).completed) {
             const cached = localStorage.getItem("user");
             const uObj = cached ? JSON.parse(cached) : null;
             if (uObj?.role === "influencer" || uObj?.accountType === "influencer") {
@@ -635,8 +635,9 @@ export default function OnboardingPage() {
         let restoredServices: string[] = [];
         if (servicesRes.status === "fulfilled" && servicesRes.value) {
           const sVal = servicesRes.value;
-          if (Array.isArray(sVal.selected_services) && sVal.selected_services.length > 0) {
-            restoredServices = sVal.selected_services;
+          const list = Array.isArray(sVal) ? sVal : (sVal as any).selected_services;
+          if (Array.isArray(list) && list.length > 0) {
+            restoredServices = list;
             setSelectedServices(restoredServices);
             sessionStorage.setItem("business_selected_services", JSON.stringify(restoredServices));
             localStorage.setItem("business_selected_services", JSON.stringify(restoredServices));
@@ -711,8 +712,8 @@ export default function OnboardingPage() {
           const kit = brandRes.value;
           if (kit) {
             if (kit.business_name) {
-              setBusinessProfile((prev) => ({ ...prev, business_name: kit.business_name }));
-              setBusinessDetails((prev) => ({ ...prev, business_name: kit.business_name }));
+              setBusinessProfile((prev) => ({ ...prev, business_name: kit.business_name || "" }));
+              setBusinessDetails((prev) => ({ ...prev, business_name: kit.business_name || "" }));
             }
             if (kit.business_category) {
               setNoneCategory(kit.business_category);
@@ -727,14 +728,14 @@ export default function OnboardingPage() {
               sessionStorage.setItem("brand_preferences_data", JSON.stringify({ palette: colors }));
             }
             if (kit.tones && kit.tones.length > 0) {
-              setBrandPreferences((prev) => ({ ...prev, tones: kit.tones }));
+              setBrandPreferences((prev) => ({ ...prev, tones: kit.tones || [] }));
             }
             if (kit.language) {
-              setBrandPreferences((prev) => ({ ...prev, language: kit.language }));
+              setBrandPreferences((prev) => ({ ...prev, language: kit.language || "English" }));
             }
             if (kit.logo_url) {
               setLogoPreview(kit.logo_url);
-              setBusinessProfile((prev) => ({ ...prev, business_logo: kit.logo_url }));
+              setBusinessProfile((prev) => ({ ...prev, business_logo: kit.logo_url || "" }));
               sessionStorage.setItem("brand_kit_logo", kit.logo_url);
             }
             if (kit.target_audience || kit.target_audience_summary) {
@@ -744,11 +745,11 @@ export default function OnboardingPage() {
             }
             if (kit.products_services && kit.products_services.length > 0) {
               setNoneProducts(kit.products_services.join(", "));
-              setBusinessDetails((prev) => ({ ...prev, products_services: kit.products_services }));
+              setBusinessDetails((prev) => ({ ...prev, products_services: kit.products_services || [] }));
             }
             if (kit.differentiators && kit.differentiators.length > 0) {
               setNoneDifferentiator(kit.differentiators[0]);
-              setBusinessDetails((prev) => ({ ...prev, differentiators: kit.differentiators }));
+              setBusinessDetails((prev) => ({ ...prev, differentiators: kit.differentiators || [] }));
             }
             if (kit.selected_photos && kit.selected_photos.length > 0) {
               setSelectedPhotos(kit.selected_photos);
@@ -772,10 +773,12 @@ export default function OnboardingPage() {
           if (isMounted && mapsState) {
             if (mapsState.place_id && mapsState.name) {
               const placeObj: GooglePlaceResult = {
+                id: mapsState.place_id,
                 placeId: mapsState.place_id,
+                place_id: mapsState.place_id,
                 name: mapsState.name,
-                address: mapsState.formatted_address,
-                googleMapsUrl: mapsState.google_maps_url,
+                address: mapsState.formatted_address || "",
+                googleMapsUrl: mapsState.google_maps_url || "",
                 website: mapsState.website,
                 photos: mapsState.photos || [],
               };
@@ -1028,8 +1031,10 @@ export default function OnboardingPage() {
 
       await OnboardingService.saveOnlinePresence(
         selectedOnlinePresence,
-        businessProfile.business_type,
-        businessProfile.selling_model
+        {
+          business_type: businessProfile.business_type,
+          selling_model: businessProfile.selling_model
+        }
       );
 
       // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
@@ -1154,12 +1159,11 @@ export default function OnboardingPage() {
       }
       setBusinessProfile((prev) => ({ ...prev, website: formattedUrl }));
 
-      await OnboardingService.saveOnlinePresence(
-        "website",
-        businessProfile.business_type,
-        businessProfile.selling_model,
-        formattedUrl
-      );
+      await OnboardingService.saveOnlinePresence("website", {
+        business_type: businessProfile.business_type,
+        selling_model: businessProfile.selling_model,
+        website_url: formattedUrl,
+      });
 
       const readingIdx = activeSteps.findIndex((s) => s.id === "website_reading");
       const target = readingIdx !== -1 ? readingIdx : currentStep + 1;
@@ -1750,13 +1754,14 @@ export default function OnboardingPage() {
       }
 
       await OnboardingService.selectGoogleMapsShop({
-        place_id: selectedMapsPlace.placeId || "maps_" + Date.now(),
+        place_id: selectedMapsPlace.placeId || selectedMapsPlace.id || "maps_" + Date.now(),
         name: selectedMapsPlace.name,
+        business_name: selectedMapsPlace.name,
         formatted_address: selectedMapsPlace.address,
         google_maps_url: selectedMapsPlace.googleMapsUrl,
         website: selectedMapsPlace.website,
         rating: selectedMapsPlace.rating,
-        user_ratings_total: selectedMapsPlace.userRatingsTotal,
+        user_ratings_total: selectedMapsPlace.userRatingsTotal ?? selectedMapsPlace.userRatingCount,
         types: selectedMapsPlace.types,
         photos: selectedMapsPlace.photos,
       });
@@ -1927,6 +1932,8 @@ export default function OnboardingPage() {
       }
 
       await OnboardingService.updateGoogleMapsProfile({
+        business_name: businessProfile.business_name || "My Business",
+        promotion_goal: mapsPromotion || "Promote business",
         category: mapsCategory,
         sub_category: mapsSubCategory,
         website: mapsWebsiteUrl || undefined,
@@ -2565,7 +2572,10 @@ export default function OnboardingPage() {
         differentiators: noneDifferentiator.trim() ? [noneDifferentiator.trim()] : undefined,
       });
 
-      await OnboardingService.saveOnlinePresence("none", "Retail Store", "Physical Retail Store / Walk-ins");
+      await OnboardingService.saveOnlinePresence("none", {
+        business_type: "Retail Store",
+        selling_model: "Physical Retail Store / Walk-ins",
+      });
 
       await OnboardingService.updateProgress({
         business_name: name,
@@ -3288,6 +3298,9 @@ export default function OnboardingPage() {
     } else {
       // Already on ready screen -> Go to Dashboard or Creator Hub
       try {
+        await OnboardingService.completeOnboarding();
+      } catch (_) {}
+      try {
         const stored = localStorage.getItem("user");
         if (stored) {
           const u = JSON.parse(stored);
@@ -3308,16 +3321,34 @@ export default function OnboardingPage() {
   };
 
   // ─── First Creation & Post Maker Flow Handlers ───
-  const handleFirstThingContinue = () => {
-    if (firstThingChoice === "post_maker") {
-      const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
-      const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (firstThingChoice === "photoshoot") {
-      router.push("/ai-photoshoot");
-    } else if (firstThingChoice === "reel_maker") {
-      router.push("/create/reel");
+  const handleFirstThingContinue = async () => {
+    setError("");
+    setIsSavingFirstThing(true);
+    try {
+      const backendChoice: "post_maker" | "ai_photoshoot" | "reel_maker" =
+        firstThingChoice === "photoshoot"
+          ? "ai_photoshoot"
+          : firstThingChoice === "reel_maker"
+          ? "reel_maker"
+          : "post_maker";
+
+      await OnboardingService.saveFirstContentChoice(backendChoice);
+
+      if (firstThingChoice === "post_maker") {
+        const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
+        const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (firstThingChoice === "photoshoot") {
+        router.push("/ai-photoshoot");
+      } else if (firstThingChoice === "reel_maker") {
+        router.push("/create/reel");
+      }
+    } catch (err: any) {
+      console.error("Failed to save first content choice:", err);
+      setError(err?.message || "Failed to save your selection. Please try again.");
+    } finally {
+      setIsSavingFirstThing(false);
     }
   };
 
@@ -4115,6 +4146,7 @@ export default function OnboardingPage() {
             is_completed: true,
             onboarding_completed_at: new Date().toISOString(),
           });
+          await OnboardingService.completeOnboarding();
         } catch (_) {}
 
         if (typeof window !== "undefined") {
@@ -4219,10 +4251,20 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={handleGetStarted}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer"
+              disabled={isSavingGetStarted}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>Get Started</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingGetStarted ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Loading...</span>
+                </>
+              ) : (
+                <>
+                  <span>Get Started</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -4343,10 +4385,24 @@ export default function OnboardingPage() {
               type="button"
               id="services-continue-btn"
               onClick={handleServicesContinue}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer"
+              disabled={isSavingServices || selectedServices.length === 0}
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                selectedServices.length > 0 && !isSavingServices
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
+              }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingServices ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -4486,15 +4542,24 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={handlePresenceContinue}
-              disabled={!selectedOnlinePresence}
+              disabled={!selectedOnlinePresence || isSavingPresence}
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                selectedOnlinePresence
+                selectedOnlinePresence && !isSavingPresence
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingPresence ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -4789,15 +4854,24 @@ export default function OnboardingPage() {
               type="button"
               id="website-continue-btn"
               onClick={handleWebsiteUrlContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl)}
+              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl)
+                isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingWebsite ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Scanning & Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -5383,10 +5457,20 @@ export default function OnboardingPage() {
               type="button"
               id="details-continue-btn"
               onClick={handleBusinessDetailsContinue}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer"
+              disabled={isSavingBusinessDetails}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>Looks right</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingBusinessDetails ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Looks right</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -6728,18 +6812,29 @@ export default function OnboardingPage() {
               id="marketplace-platforms-continue-btn"
               onClick={handleMarketplacePlatformsContinue}
               disabled={
+                isSavingMarketplace ||
                 selectedMarketplaces.length === 0 ||
                 (selectedMarketplaces.includes("other") && !customMarketplaceName.trim())
               }
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 selectedMarketplaces.length > 0 &&
+                !isSavingMarketplace &&
                 (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingMarketplace ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -6851,18 +6946,29 @@ export default function OnboardingPage() {
               id="marketplace-listings-continue-btn"
               onClick={handleMarketplaceListingsContinue}
               disabled={
+                isSavingMarketplace ||
                 selectedListings.length === 0 ||
                 (selectedListings.includes("other") && !customListingName.trim())
               }
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 selectedListings.length > 0 &&
+                !isSavingMarketplace &&
                 (!selectedListings.includes("other") || customListingName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingMarketplace ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -6972,15 +7078,24 @@ export default function OnboardingPage() {
               type="button"
               id="marketplace-website-continue-btn"
               onClick={handleMarketplaceWebsiteContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl)}
+              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl)
+                isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingMarketplace ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
 
             <button
@@ -7100,18 +7215,29 @@ export default function OnboardingPage() {
               id="b2b-platforms-continue-btn"
               onClick={handleB2bPlatformsContinue}
               disabled={
+                isSavingB2b ||
                 selectedB2bPlatforms.length === 0 ||
                 (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim())
               }
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 selectedB2bPlatforms.length > 0 &&
+                !isSavingB2b &&
                 (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingB2b ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -7223,18 +7349,29 @@ export default function OnboardingPage() {
               id="b2b-listings-continue-btn"
               onClick={handleB2bListingsContinue}
               disabled={
+                isSavingB2b ||
                 selectedB2bListings.length === 0 ||
                 (selectedB2bListings.includes("other") && !customB2bListingName.trim())
               }
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 selectedB2bListings.length > 0 &&
+                !isSavingB2b &&
                 (!selectedB2bListings.includes("other") || customB2bListingName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingB2b ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -7344,15 +7481,24 @@ export default function OnboardingPage() {
               type="button"
               id="b2b-website-continue-btn"
               onClick={handleB2bWebsiteContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl)}
+              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl)
+                isValidWebsiteUrl(websiteUrl) && !isSavingB2b
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
               }`}
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingB2b ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
 
             <button
@@ -8294,10 +8440,20 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={handleFirstThingContinue}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+              disabled={isSavingFirstThing}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {isSavingFirstThing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Continue</span>
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                </>
+              )}
             </button>
           </div>
         </div>
