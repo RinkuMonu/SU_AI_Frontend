@@ -13,8 +13,12 @@ export const FashionService = {
   // Config
   // ──────────────────────────────────────────────
   async getConfig(): Promise<FashionConfig> {
-    const response = await api.get('/api/v1/fashion/config');
-    return response.data.data;
+    try {
+      const response = await api.get('/api/v1/fashion/config');
+      return response.data?.data || response.data;
+    } catch {
+      return {} as FashionConfig;
+    }
   },
 
   // ──────────────────────────────────────────────
@@ -44,8 +48,12 @@ export const FashionService = {
   },
 
   async getProducts(): Promise<FashionProduct[]> {
-    const response = await api.get('/api/v1/fashion/products');
-    return response.data.data;
+    try {
+      const response = await api.get('/api/v1/fashion/products');
+      return response.data?.data || (Array.isArray(response.data) ? response.data : []);
+    } catch {
+      return [];
+    }
   },
 
   async deleteProduct(id: string): Promise<void> {
@@ -82,12 +90,16 @@ export const FashionService = {
   // History & Actions
   // ──────────────────────────────────────────────
   async getHistory(type?: 'photoshoot' | 'tryon', skip: number = 0, limit: number = 20): Promise<{ data: GenerationHistoryItem[], total: number }> {
-    const params = new URLSearchParams();
-    if (type) params.append('type', type);
-    params.append('skip', skip.toString());
-    params.append('limit', limit.toString());
-    const response = await api.get(`/api/v1/fashion/history?${params.toString()}`);
-    return response.data;
+    try {
+      const params = new URLSearchParams();
+      if (type) params.append('type', type);
+      params.append('skip', skip.toString());
+      params.append('limit', limit.toString());
+      const response = await api.get(`/api/v1/fashion/history?${params.toString()}`);
+      return response.data || { data: [], total: 0 };
+    } catch {
+      return { data: [], total: 0 };
+    }
   },
 
   async deleteGeneration(id: string, type: 'photoshoot' | 'tryon'): Promise<void> {

@@ -139,7 +139,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // CASE 1: Unauthenticated visitor
       if (!user) {
-        if (isAuthRoute || isSelectRoleRoute) {
+        if (isAuthRoute) {
+          return;
+        }
+        if (isSelectRoleRoute) {
+          router.replace('/login/user');
           return;
         }
         if (isAdminRoute) {
@@ -184,10 +188,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         (user as any).is_completed === true
       );
 
-      // If authenticated user is on login or signup route, direct them to onboarding or dashboard
+      // If authenticated user is on login or signup route, direct them to select-role or dashboard
       if (isAuthRoute) {
         if (!isOnboardingComplete && role !== 'admin') {
-          router.replace('/onboarding');
+          router.replace('/select-role');
         } else {
           router.replace(getDashboardRouteForRole(role));
         }
@@ -197,7 +201,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // If authenticated user is on verify-phone page, direct them forward
       if (isVerifyRoute) {
         if (!isOnboardingComplete && role !== 'admin') {
-          router.replace('/onboarding');
+          router.replace('/select-role');
         } else {
           router.replace(getDashboardRouteForRole(role));
         }
@@ -225,7 +229,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Do not allow returning users with saved role to revisit auth screens
       if (isAuthRoute) {
         if (!isOnboardingComplete && role !== 'admin') {
-          router.replace('/onboarding');
+          router.replace('/select-role');
         } else {
           router.replace(targetDashboard);
         }

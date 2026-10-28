@@ -54,8 +54,22 @@ export const socialService = {
    * Fetches the authoritative social onboarding status from backend.
    */
   async getOnboardingStatus(): Promise<SocialOnboardingStatusResponse> {
-    const res = await api.get('/api/v1/social/onboarding-status');
-    return res.data;
+    try {
+      const res = await api.get('/api/v1/social/onboarding-status');
+      return res.data;
+    } catch {
+      return {
+        social_connectivity_completed: false,
+        connected_platforms: [],
+        connected_count: 0,
+        required_minimum: 1,
+        platforms: {
+          facebook: { connected: false },
+          instagram: { connected: false },
+          linkedin: { connected: false },
+        },
+      } as any;
+    }
   },
 
   /**
@@ -66,8 +80,20 @@ export const socialService = {
     platforms: Record<'instagram' | 'facebook' | 'linkedin', SocialPlatformStatusItem>;
     create_account_urls: Record<string, string>;
   }> {
-    const res = await api.get('/api/v1/social/platforms');
-    return res.data;
+    try {
+      const res = await api.get('/api/v1/social/platforms');
+      return res.data;
+    } catch {
+      return {
+        success: false,
+        platforms: {
+          facebook: { connected: false, platform: 'facebook', account_name: '' },
+          instagram: { connected: false, platform: 'instagram', account_name: '' },
+          linkedin: { connected: false, platform: 'linkedin', account_name: '' },
+        },
+        create_account_urls: {},
+      };
+    }
   },
 
   /**

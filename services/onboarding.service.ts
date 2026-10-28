@@ -12,6 +12,9 @@ export interface OnboardingStatus {
   subscription_status: string;
   selected_plan_id: string;
   onboarding_completed_at: string | null;
+  selected_services?: string[];
+  selectedServices?: string[];
+  business_services?: string[];
 }
 
 export const OnboardingService = {

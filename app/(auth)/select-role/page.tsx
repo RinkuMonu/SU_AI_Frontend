@@ -140,6 +140,13 @@ export default function SelectRolePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Protection: direct unauthenticated visitors to login first
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace("/login/user");
+    }
+  }, [user, isLoading, router]);
+
   // Pre-select current role if already set, or check stored preference, without forcing redirect away
   useEffect(() => {
     if (user && user.role) {
@@ -175,26 +182,22 @@ export default function SelectRolePage() {
   const handleContinue = async () => {
     if (!selectedRole || isSubmitting) return;
 
-    const targetDashboard = getDashboardRouteForRole(selectedRole);
-
-    // Direct entry for visitors: allow any user to enter directly without auth blocker
+    // Protection: Unauthenticated visitors must login first
     if (!user) {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("selected_role", selectedRole);
         localStorage.setItem("selected_role", selectedRole);
       }
-      const directUser: any = {
-        id: "user_" + Math.random().toString(36).substring(2, 9),
-        name: selectedRole === "businessman" ? "Business User" : "Creator",
-        role: selectedRole,
-        accountType: selectedRole === "businessman" ? "business" : "influencer",
-        phone_verified: true,
-        onboardingCompleted: true,
-      };
-      login("direct_web_token", directUser);
-      router.replace(targetDashboard);
+      router.replace("/login/user");
       return;
     }
+
+    const targetDashboard = getDashboardRouteForRole(selectedRole);
+    const isCompleted = Boolean(
+      user?.onboardingCompleted === true ||
+      (user as any)?.onboarding_completed === true ||
+      (user as any)?.is_completed === true
+    );
 
     // Authenticated user selecting/updating their role
     setIsSubmitting(true);
@@ -206,11 +209,27 @@ export default function SelectRolePage() {
         updateUser(updatedUser);
       }
       const authoritativeRole = updatedUser?.role || selectedRole;
-      router.replace(getDashboardRouteForRole(authoritativeRole));
+      if (authoritativeRole === "businessman") {
+        if (isCompleted) {
+          router.replace(getDashboardRouteForRole(authoritativeRole));
+        } else {
+          router.replace("/onboarding");
+        }
+      } else {
+        router.replace(getDashboardRouteForRole(authoritativeRole));
+      }
     } catch (_) {
       // Direct navigation fallback
       updateUser({ role: selectedRole });
-      router.replace(targetDashboard);
+      if (selectedRole === "businessman") {
+        if (isCompleted) {
+          router.replace(targetDashboard);
+        } else {
+          router.replace("/onboarding");
+        }
+      } else {
+        router.replace(targetDashboard);
+      }
     }
   };
 

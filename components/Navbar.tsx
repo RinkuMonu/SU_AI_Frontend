@@ -41,7 +41,15 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const webHref = '/select-role';
+  const isCompleted = Boolean(
+    user?.onboardingCompleted === true ||
+    (user as any)?.onboarding_completed === true ||
+    (user as any)?.is_completed === true
+  );
+
+  const webHref = user
+    ? (isCompleted ? (user.role === 'influencer' ? '/influencer' : '/dashboard') : '/select-role')
+    : '/login/user';
 
   const isLightNav = isLightPage || isScrolled;
 

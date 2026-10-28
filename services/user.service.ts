@@ -43,17 +43,21 @@ export const userService = {
       };
     } catch (err: any) {
       // Fallback to auth/me if users/me is not supported
-      const response = await api.get('/api/v1/auth/me');
-      const data = response.data?.data || response.data;
-      return {
-        ...data,
-        id: data.id || data._id || '',
-        name: data.name || data.fullName || '',
-        email: data.email || '',
-        role: data.role || 'user',
-        accountType: data.accountType || 'user',
-        onboardingCompleted: data.onboardingCompleted ?? false,
-      };
+      try {
+        const response = await api.get('/api/v1/auth/me');
+        const data = response.data?.data || response.data;
+        return {
+          ...data,
+          id: data.id || data._id || '',
+          name: data.name || data.fullName || '',
+          email: data.email || '',
+          role: data.role || 'user',
+          accountType: data.accountType || 'user',
+          onboardingCompleted: data.onboardingCompleted ?? false,
+        };
+      } catch {
+        return null as any;
+      }
     }
   },
 

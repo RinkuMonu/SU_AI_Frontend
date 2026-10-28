@@ -15,11 +15,14 @@ interface ApiResponse<T> {
 }
 
 export const getBrandKit = async (): Promise<BrandKit> => {
-    const response = await api.get<ApiResponse<BrandKit>>(
-        "/api/v1/brands"
-    );
-
-    return response.data.data;
+    try {
+        const response = await api.get<ApiResponse<BrandKit>>(
+            "/api/v1/brands"
+        );
+        return response.data?.data;
+    } catch {
+        return null as any;
+    }
 };
 
 export const createBrandKit = async (

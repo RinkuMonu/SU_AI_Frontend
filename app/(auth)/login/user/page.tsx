@@ -98,11 +98,11 @@ async function navigateAfterAuth(user: any, router: any) {
   if (isCompleted) {
     router.push(getDashboardRouteForRole(user?.role));
   } else {
-    // New users and users with incomplete onboarding route to Get Started (/onboarding)
+    // New users and users with incomplete onboarding route to Role Selection (/select-role)
     if (typeof window !== "undefined") {
       sessionStorage.setItem("show_onboarding_plan", "true");
     }
-    router.push("/onboarding");
+    router.push("/select-role");
   }
 }
 

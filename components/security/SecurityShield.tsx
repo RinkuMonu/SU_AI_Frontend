@@ -96,12 +96,26 @@ export function SecurityShield() {
 
     console.debug = () => {};
 
+    // 4. Silently handle 401 Unauthorized unhandled promise rejections
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      if (
+        reason &&
+        (reason.isAxiosError || reason.name === "AxiosError") &&
+        (reason.response?.status === 401 || reason.status === 401 || reason.__isHandled401)
+      ) {
+        event.preventDefault();
+      }
+    };
+
     window.addEventListener("contextmenu", handleContextMenu);
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
       window.removeEventListener("contextmenu", handleContextMenu);
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
       console.log = originalLog;
       console.info = originalInfo;
       console.debug = originalDebug;

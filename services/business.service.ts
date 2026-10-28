@@ -51,12 +51,15 @@ export const businessService = {
   getMyBusiness: async (): Promise<Business> => {
     try {
       const response = await api.get('/api/v1/businesses/me');
-      return response.data;
+      return response.data?.data || response.data;
     } catch (error: any) {
+      if (error?.response?.status === 401 || error?.response?.status === 404) {
+        return null as any;
+      }
       if (error.response?.data?.detail) {
         throw new Error(error.response.data.detail);
       }
-      throw new Error('Unable to fetch your business.');
+      return null as any;
     }
   },
 

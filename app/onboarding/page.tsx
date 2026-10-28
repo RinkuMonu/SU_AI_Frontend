@@ -48,7 +48,10 @@ import {
   AlertTriangle,
   Shield,
   Volume2,
-  LayoutDashboard
+  LayoutDashboard,
+  Megaphone,
+  Camera,
+  Bot
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,6 +88,98 @@ import { contentService } from "@/services/content.service";
 import { GeneratedPost } from "@/types/content";
 
 type AccountType = "user" | "business" | "influencer";
+
+// Coat Hanger Icon matching reference screenshot for Fashion Photoshoot
+const HangerIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M12 4a2 2 0 0 0-2 2c0 .8.5 1.5 1.2 1.8L3 14a1 1 0 0 0 0 1.2c.2.5.7.8 1.2.8h15.6c.5 0 1-.3 1.2-.8a1 1 0 0 0 0-1.2L12.8 7.8c.7-.3 1.2-1 1.2-1.8a2 2 0 0 0-2-2z" />
+  </svg>
+);
+
+// Video Camera / Play Icon matching reference screenshot for Marketing Video
+const VideoMarketingIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <rect x="2" y="4" width="14" height="16" rx="2" />
+    <path d="m16 9 6-3v12l-6-3" />
+    <polygon points="7 10 11 12 7 14 7 10" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+// 7 Selectable Business Services matching Designer Screenshots (Multi-selection enabled)
+export const BUSINESS_SERVICES_OPTIONS = [
+  {
+    id: "automate_social_media",
+    title: "Automate Social Media",
+    desc: "Auto post, schedule and grow your brand",
+    icon: Megaphone,
+    iconBg: "bg-[#EDE9FE] dark:bg-[#3B2D54]",
+    iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
+  },
+  {
+    id: "marketing_video",
+    title: "Marketing Video",
+    desc: "Create engaging videos with AI",
+    icon: VideoMarketingIcon,
+    iconBg: "bg-[#FCE7F3] dark:bg-[#4E243B]",
+    iconColor: "text-[#EC4899] dark:text-[#F472B6]",
+  },
+  {
+    id: "fashion_photoshoot",
+    title: "Fashion Photoshoot",
+    desc: "AI model photos for your clothing brand",
+    icon: HangerIcon,
+    iconBg: "bg-[#F5D0FE] dark:bg-[#4A244E]",
+    iconColor: "text-[#C026D3] dark:text-[#E879F9]",
+  },
+  {
+    id: "product_photoshoot",
+    title: "Product Photoshoot",
+    desc: "Stunning product photos with AI",
+    icon: Camera,
+    iconBg: "bg-[#FFEDD5] dark:bg-[#523321]",
+    iconColor: "text-[#F97316] dark:text-[#FB923C]",
+  },
+  {
+    id: "ai_website_builder",
+    title: "AI Website Builder",
+    desc: "Create your business website in minutes",
+    icon: Globe,
+    iconBg: "bg-[#D1FAE5] dark:bg-[#1A3D33]",
+    iconColor: "text-[#10B981] dark:text-[#34D399]",
+  },
+  {
+    id: "leads_crm",
+    title: "Leads CRM",
+    desc: "Manage leads and grow your sales",
+    icon: Users,
+    iconBg: "bg-[#E0E7FF] dark:bg-[#2A2F5E]",
+    iconColor: "text-[#6366F1] dark:text-[#818CF8]",
+  },
+  {
+    id: "ai_marketing_agent",
+    title: "AI Marketing Agent",
+    desc: "Get an AI agent to grow your business",
+    icon: Bot,
+    iconBg: "bg-[#EDE9FE] dark:bg-[#3B2D54]",
+    iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
+  },
+];
 
 // 5 Selectable Presence Cards matching Designer Screenshot 2
 export const ONLINE_PRESENCE_OPTIONS = [
@@ -146,6 +241,22 @@ export default function OnboardingPage() {
   // Selection: "business" (default for DhandaGrow AI) | "influencer" | "user"
   const [accountType, setAccountType] = useState<AccountType>("business");
   const [currentStep, setCurrentStep] = useState(0);
+
+  // Business Services Multi-select State
+  const [selectedServices, setSelectedServices] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = sessionStorage.getItem("business_selected_services") || localStorage.getItem("business_selected_services") || localStorage.getItem("selected_services");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        } catch (_) {}
+      }
+    }
+    return [];
+  });
+  const [servicesError, setServicesError] = useState("");
+
   const [selectedOnlinePresence, setSelectedOnlinePresence] = useState<string | null>(() => {
     if (typeof window !== "undefined") {
       return sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence") || null;
@@ -436,6 +547,15 @@ export default function OnboardingPage() {
           setCurrentStep(stepNum);
         }
       }
+      const savedServices = sessionStorage.getItem("business_selected_services") || localStorage.getItem("business_selected_services") || localStorage.getItem("selected_services");
+      if (savedServices) {
+        try {
+          const parsed = JSON.parse(savedServices);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSelectedServices(parsed);
+          }
+        } catch (_) {}
+      }
       const savedPresence = sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence");
       if (savedPresence) {
         setSelectedOnlinePresence(savedPresence);
@@ -677,19 +797,76 @@ export default function OnboardingPage() {
   };
 
   const handleGetStarted = () => {
-    setCurrentStep(1);
+    const servicesIdx = activeSteps.findIndex((s) => s.id === "business_services");
+    const target = servicesIdx !== -1 ? servicesIdx : 1;
+    setCurrentStep(target);
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", "1");
+      sessionStorage.setItem("onboarding_step", String(target));
     }
     try {
-      OnboardingService.updateProgress({ onboarding_step: 1 });
+      OnboardingService.updateProgress({ onboarding_step: 2 });
+    } catch (_) {}
+  };
+
+  const handleServicesBack = () => {
+    const getStartedIdx = activeSteps.findIndex((s) => s.id === "get_started");
+    const target = getStartedIdx !== -1 ? getStartedIdx : 0;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleToggleService = (serviceId: string) => {
+    setSelectedServices((prev) => {
+      const exists = prev.includes(serviceId);
+      const updated = exists ? prev.filter((id) => id !== serviceId) : [...prev, serviceId];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_selected_services", JSON.stringify(updated));
+        localStorage.setItem("business_selected_services", JSON.stringify(updated));
+        localStorage.setItem("selected_services", JSON.stringify(updated));
+      }
+      return updated;
+    });
+    if (servicesError) {
+      setServicesError("");
+    }
+  };
+
+  const handleServicesContinue = () => {
+    if (!selectedServices || selectedServices.length === 0) {
+      setServicesError("Please select at least one service for your business to continue.");
+      return;
+    }
+    setServicesError("");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
+      localStorage.setItem("business_selected_services", JSON.stringify(selectedServices));
+      localStorage.setItem("selected_services", JSON.stringify(selectedServices));
+    }
+
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+
+    try {
+      OnboardingService.updateProgress({
+        onboarding_step: 3,
+        selected_services: selectedServices,
+      });
     } catch (_) {}
   };
 
   const handlePresenceBack = () => {
-    setCurrentStep(0);
+    const servicesIdx = activeSteps.findIndex((s) => s.id === "business_services");
+    const target = servicesIdx !== -1 ? servicesIdx : 1;
+    setCurrentStep(target);
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("onboarding_step", "0");
+      sessionStorage.setItem("onboarding_step", String(target));
     }
   };
 
@@ -707,7 +884,7 @@ export default function OnboardingPage() {
 
     // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
     const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const target = socialIdx !== -1 ? socialIdx : 3;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -715,10 +892,11 @@ export default function OnboardingPage() {
 
     try {
       OnboardingService.updateProgress({
-        onboarding_step: 2,
+        onboarding_step: 4,
         business_type: businessProfile.business_type,
         selling_model: businessProfile.selling_model,
         online_presence: selectedOnlinePresence,
+        selected_services: selectedServices,
       });
     } catch (_) {}
   };
@@ -2333,6 +2511,7 @@ export default function OnboardingPage() {
     customer_type: "Mass Market",
     phone: "",
     preferredLanguage: "hinglish",
+    selected_services: [] as string[],
   });
 
   // Initialize fields with pending signup or logged-in user's details
@@ -2479,6 +2658,7 @@ export default function OnboardingPage() {
 
   const businessSteps = [
     { id: "get_started", title: "Get Started", desc: "Welcome" },
+    { id: "business_services", title: "Business Services", desc: "Choose services" },
     { id: "presence", title: "Online Presence", desc: "Where you sell" },
     { id: "social_connect", title: "Instagram", desc: "Link Instagram" },
     ...(selectedOnlinePresence === "website"
@@ -2552,6 +2732,7 @@ export default function OnboardingPage() {
   const isLastStep = currentStep === activeSteps.length - 1;
   const isFormCardStep =
     currentStepObj.id !== "get_started" &&
+    currentStepObj.id !== "business_services" &&
     currentStepObj.id !== "presence" &&
     currentStepObj.id !== "social_connect" &&
     currentStepObj.id !== "website_url" &&
@@ -2605,6 +2786,13 @@ export default function OnboardingPage() {
       }
     } else {
       if (stepId === "get_started") {
+        return true;
+      }
+      if (stepId === "business_services") {
+        if (!selectedServices || selectedServices.length === 0) {
+          setError("Please select at least one service for your business to continue.");
+          return false;
+        }
         return true;
       }
       if (stepId === "presence") {
@@ -3448,6 +3636,8 @@ export default function OnboardingPage() {
           marketplace_listings: selectedOnlinePresence === "marketplace" ? finalListings : undefined,
           b2b_platforms: selectedOnlinePresence === "b2b" ? deduplicatedB2bPlatforms : undefined,
           b2b_listings: selectedOnlinePresence === "b2b" ? finalB2bListings : undefined,
+          selected_services: selectedServices,
+          business_services: selectedServices,
           onboardingCompleted: true,
           onboarding_step: activeSteps.length - 1,
         };
@@ -3503,6 +3693,7 @@ export default function OnboardingPage() {
             preferred_language: businessProfile.preferredLanguage || "hinglish",
             preferredLanguage: businessProfile.preferredLanguage || "hinglish",
             targetAudience: finalAudience || "Local",
+            selectedServices: selectedServices,
           });
         } catch (_) {
           try {
@@ -3674,13 +3865,137 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 2: WHERE DOES YOUR BUSINESS LIVE ONLINE? (Designer Screenshot 2)
+          SCREEN 2: CHOOSE YOUR BUSINESS SERVICES (New Screen)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "business_services" && (
+        <div className="w-full max-w-md sm:max-w-lg mx-auto py-2 flex flex-col justify-between min-h-[520px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+          <div>
+            {/* Top Bar: Back button, Brand Logo, and spacer */}
+            <div className="flex items-center justify-between w-full mb-2">
+              <button
+                type="button"
+                onClick={handleServicesBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
+                  Dhanda<span className="text-[#fc9a5d]">Grow</span>
+                </span>
+                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
+                  AI ✦
+                </span>
+              </div>
+              <div className="w-10" />
+            </div>
+
+            {/* Step 3 of 5 Progress Bar */}
+            <div className="w-full mt-3 mb-2">
+              <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
+                <span className="text-neutral-400 font-medium">Step 3 of 5</span>
+                <span className="text-[#be32ff] font-bold">60%</span>
+              </div>
+              <div className="w-full h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "60%" }}
+                />
+              </div>
+            </div>
+
+            {/* Title & Subtitle Area */}
+            <div className="mt-4 mb-3">
+              <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 tracking-wider uppercase block">
+                LET&apos;S SET UP YOUR BUSINESS
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mt-1">
+                Choose Your<br />
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  Business Services
+                </span>
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-300 mt-1 font-normal">
+                Select the tool you want to use for your business
+              </p>
+            </div>
+
+            {/* 7 Selectable Services Cards (2-Column Grid) */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-3.5 my-3">
+              {BUSINESS_SERVICES_OPTIONS.map((srv) => {
+                const isSelected = selectedServices.includes(srv.id);
+                const IconComp = srv.icon;
+                return (
+                  <div
+                    key={srv.id}
+                    id={`service-card-${srv.id}`}
+                    onClick={() => handleToggleService(srv.id)}
+                    className={`p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[148px] sm:min-h-[160px] relative select-none ${
+                      isSelected
+                        ? "bg-[#F5F3FF] dark:bg-gradient-to-br dark:from-[#201735]/95 dark:to-[#281b3d]/95 border-2 border-[#BE32FF] shadow-[0_0_25px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
+                        : "bg-white/95 dark:bg-[#131728]/85 border-slate-200/90 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 shadow-sm"
+                    }`}
+                  >
+                    {/* Top row: Icon at left, Selection indicator circle at right */}
+                    <div className="flex items-start justify-between w-full mb-2.5">
+                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
+                        <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+                      </div>
+
+                      <div
+                        className={`w-5 h-5 rounded-full transition-all flex items-center justify-center shrink-0 mt-0.5 ${
+                          isSelected
+                            ? "border-[3.5px] border-[#BE32FF] bg-white dark:bg-[#201735]"
+                            : "border-2 border-slate-300 dark:border-white/30 bg-transparent"
+                        }`}
+                      />
+                    </div>
+
+                    {/* Bottom text: Title & Description */}
+                    <div className="flex-1 flex flex-col justify-end">
+                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
+                        {srv.title}
+                      </h3>
+                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-neutral-400 mt-1 leading-snug font-normal line-clamp-2">
+                        {srv.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Validation Message & Bottom Sticky Continue Button */}
+          <div className="sticky bottom-0 pt-3 pb-2 bg-gradient-to-t from-[#070F22] via-[#070F22]/95 to-transparent mt-2 z-20">
+            {servicesError && (
+              <div className="mb-2.5 p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+                <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                <span>{servicesError}</span>
+              </div>
+            )}
+            <button
+              type="button"
+              id="services-continue-btn"
+              onClick={handleServicesContinue}
+              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer"
+            >
+              <span>Continue</span>
+              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN 3: WHERE DOES YOUR BUSINESS LIVE ONLINE? (Designer Screenshot 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "presence" && (
         <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
           <div>
-            {/* Top Header: Back button + Progress Indicator */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Header: Back button + Brand + Progress Indicator */}
+            <div className="flex items-center gap-3 w-full mb-3">
               <button
                 type="button"
                 onClick={handlePresenceBack}
@@ -3689,10 +4004,29 @@ export default function OnboardingPage() {
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 flex items-center justify-center">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-black text-white tracking-tight">
+                    Dhanda<span className="text-[#fc9a5d]">Grow</span>
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
+                    AI ✦
+                  </span>
+                </div>
+              </div>
+              <div className="w-10" />
+            </div>
+
+            {/* Step 4 of 5 Progress */}
+            <div className="w-full mb-5">
+              <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
+                <span className="text-neutral-400 font-medium">Step 4 of 5</span>
+                <span className="text-[#be32ff] font-bold">80%</span>
+              </div>
+              <div className="w-full h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "22%" }}
+                  style={{ width: "80%" }}
                 />
               </div>
             </div>

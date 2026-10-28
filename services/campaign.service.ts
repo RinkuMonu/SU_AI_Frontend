@@ -29,9 +29,13 @@ export const campaignService = {
     }
   },
   
-  async getCampaign(id: string): Promise<{ data: Campaign }> {
-    const response = await api.get(`/api/v1/campaigns/${id}`);
-    return { data: response.data.data };
+  async getCampaign(id: string): Promise<{ data: Campaign | null }> {
+    try {
+      const response = await api.get(`/api/v1/campaigns/${id}`);
+      return { data: response.data.data };
+    } catch {
+      return { data: null };
+    }
   },
 
   async updateCampaign(id: string, request: Partial<Campaign>): Promise<{ data: Campaign }> {
