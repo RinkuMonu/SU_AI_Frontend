@@ -16,6 +16,8 @@ export interface WebsiteAnalysisData {
   city?: string;
   logo_url?: string;
   tagline?: string;
+  description?: string;
+  business_description?: string;
   target_audience?: string;
   differentiators?: string[];
   products_services?: string[];
@@ -92,81 +94,51 @@ export const aiService = {
 
       // Colors
       const rawColors = resData.palette || resData.brand_colors || [];
-      const palette = Array.isArray(rawColors) && rawColors.length >= 3
-        ? rawColors
-        : ["#FFFFFF", "#1E1E2F", "#FC9A5D", "#F0449B", "#BE32FF"];
+      const palette = Array.isArray(rawColors) && rawColors.length > 0 ? rawColors : undefined;
+
+      // Do not invent fake business details if website does not provide them
+      const businessName = resData.business_name || (payload.website_url ? formatDomainToBusinessName(payload.website_url) : undefined);
+      const category = resData.category || resData.business_category || undefined;
+      const subCategory = resData.sub_category || undefined;
+      const city = resData.city || resData.location || undefined;
+      const logoUrl = resData.logo_url || resData.logo || (payload.website_url ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(payload.website_url)}&sz=128` : undefined);
+      const tagline = resData.tagline || resData.brand_messaging_clarity || undefined;
+      const targetAudience = resData.target_audience || undefined;
+      const businessDescription = resData.business_description || resData.description || undefined;
 
       return {
         ...resData,
         website_url: resData.website_url || payload.website_url,
-        business_name: resData.business_name || formatDomainToBusinessName(payload.website_url),
-        category: resData.category || resData.business_category || "Tech & Electronics",
-        sub_category: resData.sub_category || "Software Development",
-        business_types: resData.business_types || ["Service / Digital", "Product-based"],
-        primary_business_type: resData.primary_business_type || "Service / Digital",
-        city: resData.city || resData.location || "Jaipur, India",
-        logo_url: resData.logo_url || resData.logo || `https://www.google.com/s2/favicons?domain=${payload.website_url}&sz=128`,
-        tagline: resData.tagline || resData.brand_messaging_clarity || "Trusted Partner For Modern Businesses",
-        target_audience: resData.target_audience || "Startups, enterprises, and growing businesses globally",
-        differentiators: Array.isArray(diffs) && diffs.length > 0 ? diffs : [
-          "3500+ successfully delivered projects across various global industries",
-          "Government recognized and ISO certified technology solutions provider",
-          "Specialized in scalable fintech, ecommerce, and AI solutions",
-          "Experienced team of 375+ expert members and developers",
-        ],
-        products_services: Array.isArray(prods) && prods.length > 0 ? prods : [
-          "Web Development",
-          "Mobile App Development",
-          "Custom Software Development",
-          "AI Development Services",
-          "UI/UX Design",
-          "QA Testing Automation",
-          "Fintech & Payment Solutions",
-        ],
-        palette,
+        business_name: businessName,
+        category: category,
+        sub_category: subCategory,
+        business_types: resData.business_types,
+        primary_business_type: resData.primary_business_type,
+        city: city,
+        logo_url: logoUrl,
+        tagline: tagline,
+        business_description: businessDescription,
+        target_audience: targetAudience,
+        differentiators: Array.isArray(diffs) && diffs.length > 0 ? diffs : undefined,
+        products_services: Array.isArray(prods) && prods.length > 0 ? prods : undefined,
+        palette: palette,
         brand_colors: palette,
-        tones: resData.tones || ["Modern", "Professional", "Trendy"],
-        language: resData.language || "English",
+        tones: Array.isArray(resData.tones) && resData.tones.length > 0 ? resData.tones : undefined,
+        language: resData.language,
         photos: photos,
       };
-    } catch (error: unknown) {
-      console.warn("Website analysis API call returned error or is processing, using domain inference:", error);
-      // Fallback domain extraction so user is never blocked
-      const fallbackName = formatDomainToBusinessName(payload.website_url);
-      return {
-        website_url: payload.website_url,
-        business_name: fallbackName,
-        category: "Tech & Electronics",
-        sub_category: "Software Development",
-        business_types: ["Service / Digital", "Product-based"],
-        primary_business_type: "Service / Digital",
-        city: "Jaipur, India",
-        logo_url: `https://www.google.com/s2/favicons?domain=${payload.website_url}&sz=128`,
-        tagline: "Trusted Partner For Modern Businesses",
-        target_audience: "Startups, enterprises, and growing businesses globally",
-        differentiators: [
-          "3500+ successfully delivered projects across various global industries",
-          "Government recognized and ISO certified technology solutions provider",
-          "Specialized in scalable fintech, ecommerce, and AI solutions",
-          "Experienced team of 375+ expert members and developers",
-        ],
-        products_services: [
-          "Web Development",
-          "Mobile App Development",
-          "Custom Software Development",
-          "AI Development Services",
-          "UI/UX Design",
-          "QA Testing Automation",
-          "Fintech & Payment Solutions",
-        ],
-        palette: ["#FFFFFF", "#1E1E2F", "#FC9A5D", "#F0449B", "#BE32FF"],
-        brand_colors: ["#FFFFFF", "#1E1E2F", "#FC9A5D", "#F0449B", "#BE32FF"],
-        tones: ["Modern", "Professional", "Trendy"],
-        language: "English",
-        photos: [],
-      };
+    } catch (error: any) {
+      console.warn("Website analysis API call error:", error?.message || error);
+      // Re-throw so caller can display a useful retry option and avoid silently populating fake details
+      throw new Error(
+        error?.response?.data?.detail ||
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to analyze website. Please check the URL and retry."
+      );
     }
   },
 };
 
 export default aiService;
+

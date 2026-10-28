@@ -44,6 +44,8 @@ import { businessService } from "@/services/business.service";
 import { BrandKit, BrandCreate, AILogoVariationItem } from "@/types/brand";
 import { Business } from "@/types";
 import { LiveColorPicker, ColorScheme } from "./LiveColorPicker";
+import { aiService, WebsiteAnalysisData } from "@/services/ai.service";
+import { setFormInteractionBusy } from "@/lib/popup-coordinator";
 import {
   SUPPORTED_FONTS,
   BUSINESS_TYPES,
@@ -113,6 +115,16 @@ export function BrandKitRegistrationModal({
   const [businessDescription, setBusinessDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [tagline, setTagline] = useState("");
+
+  // Website Auto-Fill & Analysis States
+  const [websiteAnalysisLoading, setWebsiteAnalysisLoading] = useState(false);
+  const [websiteAnalysisError, setWebsiteAnalysisError] = useState<string | null>(null);
+  const [websiteAnalysisNotice, setWebsiteAnalysisNotice] = useState<string | null>(null);
+  const [hasPreservedManualFields, setHasPreservedManualFields] = useState(false);
+  const lastAnalyzedUrlRef = useRef<string>("");
+  const manuallyEditedFieldsRef = useRef<Set<string>>(new Set());
+  const cachedWebsiteDataRef = useRef<WebsiteAnalysisData | null>(null);
+
 
   // SECTION B: Logo Studio
   const [logoUrl, setLogoUrl] = useState<string>("");
@@ -256,6 +268,69 @@ export function BrandKitRegistrationModal({
           if (bk.customer_type) setSelectedCustomerType(bk.customer_type);
           if (bk.location_focus) setSelectedLocationFocus(bk.location_focus);
         }
+
+        // SECTION B: Prefill from cached Google Maps onboarding flow if real data exists
+        // Reuses already-fetched business data; does NOT trigger another Google Maps request.
+        if (typeof window !== "undefined") {
+          try {
+            const mapsPlaceStr = sessionStorage.getItem("google_maps_place_data");
+            const mapsPlace = mapsPlaceStr ? JSON.parse(mapsPlaceStr) : null;
+            const mapsWeb = sessionStorage.getItem("google_maps_website_url");
+            const mapsCat = sessionStorage.getItem("google_maps_category");
+            const mapsLogo = sessionStorage.getItem("google_maps_logo");
+
+            const bk = brand.status === "fulfilled" ? brand.value : null;
+            const b = biz.status === "fulfilled" ? biz.value : null;
+
+            if (mapsPlace || mapsWeb || mapsCat || mapsLogo) {
+              // Business name
+              if (!bk?.business_name && !b?.name && mapsPlace?.name) {
+                setBusinessName(mapsPlace.name);
+              }
+
+              // Industry / Category
+              if (!bk?.business_category && (!b?.category || b.category === "clothing")) {
+                const catRaw = mapsCat || mapsPlace?.types?.[0];
+                if (catRaw) {
+                  const matched = BUSINESS_CATEGORIES.find(
+                    (c) => c.value.toLowerCase() === catRaw.toLowerCase() || c.label.toLowerCase().includes(catRaw.toLowerCase())
+                  );
+                  if (matched) setBusinessCategory(matched.value);
+                }
+              }
+
+              // Website URL
+              if (!bk?.website && !b?.website) {
+                const mapsUrl = mapsWeb || mapsPlace?.website;
+                if (mapsUrl) setWebsite(mapsUrl);
+              }
+
+              // Business Description from existing business
+              if (!bk?.business_description && !bk?.brand_description && b?.description) {
+                setBusinessDescription(b.description);
+              }
+
+              // Address / Location
+              if (!bk?.location_focus && !b?.location && mapsPlace?.address) {
+                setSelectedLocationFocus(mapsPlace.address);
+              }
+
+              // Logo / Image: only if valid source is available; do not fabricate
+              if (!bk?.logo_url && !b?.logo_url) {
+                const candidateLogo = mapsLogo || (mapsPlace?.photos && mapsPlace.photos[0]);
+                if (
+                  typeof candidateLogo === "string" &&
+                  (candidateLogo.startsWith("http://") || candidateLogo.startsWith("https://") || candidateLogo.startsWith("/"))
+                ) {
+                  setLogoUrl(candidateLogo);
+                  setLogoLoadFailed(false);
+                }
+              }
+            }
+          } catch (mapsErr) {
+            console.warn("Could not read cached Google Maps details", mapsErr);
+          }
+        }
       } catch (err) {
         console.warn("Brand kit loading non-blocking error", err);
       } finally {
@@ -271,6 +346,157 @@ export function BrandKitRegistrationModal({
       isMounted = false;
     };
   }, [isOpen]);
+
+  /**
+   * Automatically fetches available business details from website URL and auto-fills fields.
+   * Preserves manually entered values unless user explicitly chooses to overwrite them.
+   * Avoids duplicate API calls.
+   */
+  const handleAnalyzeWebsite = async (urlInput?: string, forceOverwrite = false) => {
+    let target = (urlInput || website || "").trim();
+    if (!target) {
+      setWebsiteAnalysisError("Please enter a website URL first.");
+      return;
+    }
+
+    if (!target.startsWith("http://") && !target.startsWith("https://")) {
+      target = `https://${target}`;
+      setWebsite(target);
+    }
+
+    // Basic URL format validation
+    try {
+      const parsed = new URL(target);
+      if (!parsed.hostname || !parsed.hostname.includes(".")) {
+        throw new Error("Invalid domain structure");
+      }
+    } catch {
+      setWebsiteAnalysisError("Please enter a valid website address (e.g. https://yourbrand.com).");
+      return;
+    }
+
+    // Avoid duplicate requests for identical URL unless forceOverwrite or retry
+    if (target === lastAnalyzedUrlRef.current && !forceOverwrite && !websiteAnalysisError) {
+      return;
+    }
+
+    setWebsiteAnalysisLoading(true);
+    setWebsiteAnalysisError(null);
+    setWebsiteAnalysisNotice(null);
+    setHasPreservedManualFields(false);
+    setFormInteractionBusy(true);
+    lastAnalyzedUrlRef.current = target;
+
+    try {
+      const data = await aiService.analyzeWebsite({ website_url: target });
+      cachedWebsiteDataRef.current = data;
+
+      let preservedCount = 0;
+      let filledCount = 0;
+
+      // 1. Business Name
+      if (data.business_name) {
+        if (forceOverwrite || !businessName.trim() || !manuallyEditedFieldsRef.current.has("businessName")) {
+          setBusinessName(data.business_name);
+          filledCount++;
+        } else {
+          preservedCount++;
+        }
+      }
+
+      // 2. Industry / Category
+      if (data.category) {
+        const catLower = data.category.toLowerCase();
+        const matched = BUSINESS_CATEGORIES.find(
+          (c) => c.value.toLowerCase() === catLower || c.label.toLowerCase().includes(catLower)
+        );
+        if (matched) {
+          if (forceOverwrite || !manuallyEditedFieldsRef.current.has("businessCategory")) {
+            setBusinessCategory(matched.value);
+            filledCount++;
+          } else {
+            preservedCount++;
+          }
+        }
+      }
+
+      // 3. Tagline
+      if (data.tagline) {
+        if (forceOverwrite || !tagline.trim() || !manuallyEditedFieldsRef.current.has("tagline")) {
+          setTagline(data.tagline);
+          filledCount++;
+        } else {
+          preservedCount++;
+        }
+      }
+
+      // 4. Business Description
+      const descCandidate = data.business_description || data.brand_messaging_clarity;
+      if (descCandidate) {
+        const cleanDesc = descCandidate.slice(0, 500);
+        if (forceOverwrite || !businessDescription.trim() || !manuallyEditedFieldsRef.current.has("businessDescription")) {
+          setBusinessDescription(cleanDesc);
+          filledCount++;
+        } else {
+          preservedCount++;
+        }
+      }
+
+      // 5. Logo URL
+      if (data.logo_url) {
+        if (forceOverwrite || !logoUrl || !manuallyEditedFieldsRef.current.has("logoUrl")) {
+          setLogoUrl(data.logo_url);
+          setLogoLoadFailed(false);
+          filledCount++;
+        } else {
+          preservedCount++;
+        }
+      }
+
+      // 6. Brand Colors / Palette
+      const candidateColors = data.brand_colors || data.palette;
+      if (Array.isArray(candidateColors) && candidateColors.length >= 2) {
+        if (forceOverwrite || !manuallyEditedFieldsRef.current.has("colors")) {
+          setColors({
+            primary: candidateColors[0],
+            secondary: candidateColors[1],
+            accent: candidateColors[2] || candidateColors[0],
+          });
+          filledCount++;
+        } else {
+          preservedCount++;
+        }
+      }
+
+      // 7. Tone
+      if (Array.isArray(data.tones) && data.tones.length > 0) {
+        const toneLower = data.tones[0].toLowerCase();
+        const matchedTone = BRAND_TONES.find((t) => t.toLowerCase().includes(toneLower));
+        if (matchedTone && (forceOverwrite || !manuallyEditedFieldsRef.current.has("selectedTone"))) {
+          setSelectedTone(matchedTone);
+          filledCount++;
+        }
+      }
+
+      if (preservedCount > 0 && !forceOverwrite) {
+        setHasPreservedManualFields(true);
+        setWebsiteAnalysisNotice(
+          `Auto-filled ${filledCount} field(s) from website. Preserved ${preservedCount} manual field(s).`
+        );
+      } else {
+        setWebsiteAnalysisNotice("Website analyzed successfully! Business information populated.");
+      }
+    } catch (err: any) {
+      console.error("Website auto-fill error:", err);
+      setWebsiteAnalysisError(
+        err?.message || "Could not analyze website. Please check the URL or continue entering details manually."
+      );
+    } finally {
+      setWebsiteAnalysisLoading(false);
+      setFormInteractionBusy(false);
+    }
+  };
+
 
   // URL resolution for logo image: handles local port, proxying, and broken domains
   const getDisplayLogoUrl = (url?: string | null): string => {
@@ -769,7 +995,10 @@ export function BrandKitRegistrationModal({
                     id="modal-business-name"
                     type="text"
                     value={businessName}
-                    onChange={(e) => setBusinessName(e.target.value)}
+                    onChange={(e) => {
+                      setBusinessName(e.target.value);
+                      manuallyEditedFieldsRef.current.add("businessName");
+                    }}
                     placeholder="e.g. Aura Luxe Jewels, Sharma Textiles"
                     required
                     className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
@@ -785,7 +1014,10 @@ export function BrandKitRegistrationModal({
                     <select
                       id="modal-category"
                       value={businessCategory}
-                      onChange={(e) => setBusinessCategory(e.target.value)}
+                      onChange={(e) => {
+                        setBusinessCategory(e.target.value);
+                        manuallyEditedFieldsRef.current.add("businessCategory");
+                      }}
                       className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
                       {BUSINESS_CATEGORIES.map((cat) => (
@@ -804,29 +1036,113 @@ export function BrandKitRegistrationModal({
                       id="modal-tagline"
                       type="text"
                       value={tagline}
-                      onChange={(e) => setTagline(e.target.value)}
+                      onChange={(e) => {
+                        setTagline(e.target.value);
+                        manuallyEditedFieldsRef.current.add("tagline");
+                      }}
                       placeholder="e.g. Elegance in every diamond"
                       className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     />
                   </div>
                 </div>
 
-                {/* Website URL */}
-                <div className="space-y-1.5">
-                  <label htmlFor="modal-website" className="text-xs font-semibold text-slate-200">
-                    Website URL <span className="text-[10px] text-text-muted">(Optional)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="modal-website"
-                      type="url"
-                      value={website}
-                      onChange={(e) => setWebsite(e.target.value)}
-                      placeholder="https://www.yourbrand.com"
-                      className="w-full h-11 pl-9 pr-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                    />
-                    <ExternalLink className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 pointer-events-none" />
+                {/* Website URL with Auto-Fill Feature */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label htmlFor="modal-website" className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                      <span>Website URL</span>
+                      <span className="text-[10px] font-normal text-text-muted">(Enter URL to auto-fill Brand Kit)</span>
+                    </label>
+                    {websiteAnalysisLoading && (
+                      <span className="text-[11px] text-brand-pink flex items-center gap-1.5 font-medium animate-pulse">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        Fetching business info...
+                      </span>
+                    )}
                   </div>
+
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        id="modal-website"
+                        type="url"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        onBlur={() => {
+                          const clean = website.trim();
+                          if (clean && clean.length > 3 && clean !== lastAnalyzedUrlRef.current && !websiteAnalysisLoading) {
+                            handleAnalyzeWebsite(clean);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleAnalyzeWebsite(website);
+                          }
+                        }}
+                        placeholder="https://www.yourbrand.com"
+                        className="w-full h-11 pl-9 pr-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      />
+                      <ExternalLink className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 pointer-events-none" />
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleAnalyzeWebsite(website, true)}
+                      disabled={websiteAnalysisLoading || !website.trim()}
+                      className="h-11 px-4 rounded-xl bg-gradient-to-r from-brand-purple/25 to-brand-pink/25 hover:from-brand-purple/40 hover:to-brand-pink/40 border border-brand-pink/30 text-xs font-bold text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-40 shadow-sm"
+                      title="Fetch business details from website"
+                    >
+                      {websiteAnalysisLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-pink" />
+                          <span>Fetching...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
+                          <span>Auto-Fill</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Feedback / Error / Retry Banner */}
+                  {websiteAnalysisNotice && (
+                    <div className="p-2.5 rounded-xl bg-purple-950/50 border border-purple-500/30 text-xs text-purple-200 flex items-center justify-between gap-2 animate-in fade-in">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span className="truncate">{websiteAnalysisNotice}</span>
+                      </div>
+                      {hasPreservedManualFields && (
+                        <button
+                          type="button"
+                          onClick={() => handleAnalyzeWebsite(website, true)}
+                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] font-semibold text-white underline-offset-2 hover:underline shrink-0 cursor-pointer"
+                        >
+                          Overwrite all
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {websiteAnalysisError && (
+                    <div className="p-2.5 rounded-xl bg-rose-950/60 border border-rose-500/30 text-xs text-rose-200 flex items-center justify-between gap-2 animate-in fade-in">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <AlertCircle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                        <span className="truncate">{websiteAnalysisError}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleAnalyzeWebsite(website, true)}
+                        className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-[11px] font-bold text-white flex items-center gap-1 shrink-0 cursor-pointer"
+                        title="Retry analyzing website"
+                      >
+                        <RefreshCw className="w-3 h-3" />
+                        <span>Retry</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Business Description */}
@@ -844,12 +1160,16 @@ export function BrandKitRegistrationModal({
                     rows={3}
                     maxLength={500}
                     value={businessDescription}
-                    onChange={(e) => setBusinessDescription(e.target.value)}
+                    onChange={(e) => {
+                      setBusinessDescription(e.target.value);
+                      manuallyEditedFieldsRef.current.add("businessDescription");
+                    }}
                     placeholder="Describe what you sell, your target customers, signature products, and brand values..."
                     className="w-full p-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
                   />
                 </div>
               </div>
+
 
               {/* Navigation button */}
               <div className="flex justify-end">
@@ -1305,7 +1625,10 @@ export function BrandKitRegistrationModal({
 
                     <select
                       value={selectedFont}
-                      onChange={(e) => setSelectedFont(e.target.value)}
+                      onChange={(e) => {
+                        setSelectedFont(e.target.value);
+                        manuallyEditedFieldsRef.current.add("font");
+                      }}
                       className="h-8 px-2.5 rounded-lg border border-white/15 bg-[#0B1020] text-xs text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
                       {SUPPORTED_FONTS.map((font) => (
@@ -1357,7 +1680,10 @@ export function BrandKitRegistrationModal({
                         <button
                           key={tone}
                           type="button"
-                          onClick={() => setSelectedTone(tone)}
+                          onClick={() => {
+                            setSelectedTone(tone);
+                            manuallyEditedFieldsRef.current.add("selectedTone");
+                          }}
                           className={`p-2.5 rounded-xl text-xs font-semibold text-left transition-all ${
                             isSel
                               ? "bg-gradient-to-r from-[#BE32FF]/20 to-[#F0449B]/20 border border-[#F0449B] text-white shadow-xs"
@@ -1401,6 +1727,7 @@ export function BrandKitRegistrationModal({
                             secondary: preset.secondary,
                             accent: preset.accent,
                           });
+                          manuallyEditedFieldsRef.current.add("colors");
                         }}
                         className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] text-slate-300 flex items-center gap-1 transition-colors"
                         title={preset.name}
@@ -1415,10 +1742,14 @@ export function BrandKitRegistrationModal({
                 {/* Live Color Picker Component */}
                 <LiveColorPicker
                   colors={colors}
-                  onChange={setColors}
+                  onChange={(c) => {
+                    setColors(c);
+                    manuallyEditedFieldsRef.current.add("colors");
+                  }}
                   selectedFont={selectedFont}
                 />
               </div>
+
 
               {/* Navigation buttons */}
               <div className="flex items-center justify-between">

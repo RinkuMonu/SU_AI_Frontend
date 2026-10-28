@@ -55,6 +55,7 @@ export function SocialConnectivityModal({
   // Loading & status flags
   const [isLoadingStatus, setIsLoadingStatus] = useState<boolean>(true);
   const [activeConnectingPlatform, setActiveConnectingPlatform] = useState<SocialPlatformKey | null>(null);
+  const [activeDisconnectingPlatform, setActiveDisconnectingPlatform] = useState<SocialPlatformKey | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const [infoNotice, setInfoNotice] = useState<string | null>(null);
@@ -165,11 +166,50 @@ export function SocialConnectivityModal({
       const detail =
         err?.response?.data?.detail ||
         err?.message ||
-        "Failed to reach authorization provider. Please verify your connection and try again.";
-      setErrorMessage(`Unable to connect to ${platform.charAt(0).toUpperCase() + platform.slice(1)}: ${detail}`);
+        "";
+
+      const platformName = PLATFORM_CONFIGS[platform]?.name || platform;
+      if (
+        detail.includes("Could not validate credentials") ||
+        detail.includes("404") ||
+        detail.includes("Not Found") ||
+        detail.includes("not configured")
+      ) {
+        setErrorMessage(
+          `${platformName} OAuth integration is currently unavailable or pending server configuration. Please connect Instagram or try again once server credentials are configured.`
+        );
+      } else {
+        setErrorMessage(
+          `Unable to connect to ${platformName}: ${detail || "Provider service temporarily unavailable"}`
+        );
+      }
       setActiveConnectingPlatform(null);
     }
   };
+
+  /**
+   * Disconnects a previously linked account and refreshes authoritative backend status.
+   */
+  const handleDisconnect = async (platform: SocialPlatformKey) => {
+    if (activeDisconnectingPlatform) return;
+    setActiveDisconnectingPlatform(platform);
+    setErrorMessage(null);
+    setSuccessNotice(null);
+    const platformName = PLATFORM_CONFIGS[platform]?.name || platform;
+
+    try {
+      await socialService.disconnect(platform);
+      setSuccessNotice(`${platformName} disconnected successfully.`);
+      await loadStatus();
+    } catch (err: any) {
+      console.error(`Failed to disconnect ${platform}`, err);
+      const detail = err?.response?.data?.detail || err?.message || "Failed to disconnect account.";
+      setErrorMessage(`Unable to disconnect ${platformName}: ${detail}`);
+    } finally {
+      setActiveDisconnectingPlatform(null);
+    }
+  };
+
 
   /**
    * Handles selection of a platform from the Create Account options.
@@ -531,12 +571,26 @@ export function SocialConnectivityModal({
                   </div>
                 </div>
 
-                <div className="shrink-0 flex items-center justify-end">
+                <div className="shrink-0 flex items-center gap-2 justify-end">
                   {connectionState.instagram ? (
-                    <span className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5" />
-                      Connected
-                    </span>
+                    <>
+                      <span className="px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        Connected
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDisconnect("instagram")}
+                        disabled={activeDisconnectingPlatform === "instagram"}
+                        className="px-3.5 py-2 rounded-full text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        title="Disconnect Instagram account"
+                      >
+                        {activeDisconnectingPlatform === "instagram" && (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        )}
+                        <span>Disconnect</span>
+                      </button>
+                    </>
                   ) : (
                     <button
                       type="button"
@@ -588,12 +642,26 @@ export function SocialConnectivityModal({
                   </div>
                 </div>
 
-                <div className="shrink-0 flex items-center justify-end">
+                <div className="shrink-0 flex items-center gap-2 justify-end">
                   {connectionState.facebook ? (
-                    <span className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5" />
-                      Connected
-                    </span>
+                    <>
+                      <span className="px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        Connected
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDisconnect("facebook")}
+                        disabled={activeDisconnectingPlatform === "facebook"}
+                        className="px-3.5 py-2 rounded-full text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        title="Disconnect Facebook account"
+                      >
+                        {activeDisconnectingPlatform === "facebook" && (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        )}
+                        <span>Disconnect</span>
+                      </button>
+                    </>
                   ) : (
                     <button
                       type="button"
@@ -645,12 +713,26 @@ export function SocialConnectivityModal({
                   </div>
                 </div>
 
-                <div className="shrink-0 flex items-center justify-end">
+                <div className="shrink-0 flex items-center gap-2 justify-end">
                   {connectionState.linkedin ? (
-                    <span className="px-5 py-2.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
-                      <Check className="w-3.5 h-3.5" />
-                      Connected
-                    </span>
+                    <>
+                      <span className="px-4 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        Connected
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleDisconnect("linkedin")}
+                        disabled={activeDisconnectingPlatform === "linkedin"}
+                        className="px-3.5 py-2 rounded-full text-xs font-semibold text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                        title="Disconnect LinkedIn account"
+                      >
+                        {activeDisconnectingPlatform === "linkedin" && (
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                        )}
+                        <span>Disconnect</span>
+                      </button>
+                    </>
                   ) : (
                     <button
                       type="button"

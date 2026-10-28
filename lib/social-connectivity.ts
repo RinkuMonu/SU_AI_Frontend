@@ -121,14 +121,16 @@ export function evaluatePlatformConnections(
   };
 }
 
+import { isSocialPopupEligible } from "./popup-coordinator";
+
 /**
- * Pure evaluator for whether the automatic onboarding popup should open.
- * Strictly adheres to backend rules:
+ * Pure evaluator for whether the automatic social connectivity popup should open.
+ * Strictly adheres to requirement:
  * - Role must be Businessman.
- * - Brand Kit must be completely filled.
- * - Social connection count must be 0.
- * - Must not be dismissed in current session.
- * - Must not be on dedicated management screens.
+ * - Eligible AFTER user reaches and selects at least one service in Choose Your Business Services.
+ * - Social connection count must be 0 (if >= 1 connected, does not auto-open).
+ * - Must not be in cooldown or dismissed in current session.
+ * - Must not be on dedicated management screens or interrupt other popups/active forms.
  */
 export function shouldDisplaySocialModal(params: {
   userRole?: string | null;
@@ -138,7 +140,7 @@ export function shouldDisplaySocialModal(params: {
   sessionDismissed: boolean;
   pathname?: string;
 }): boolean {
-  const { userRole, brandKit, business, connectionState, sessionDismissed, pathname } = params;
+  const { userRole, business, connectionState, sessionDismissed, pathname } = params;
 
   // 1. Role must be Businessman
   const normalized = normalizeRole(userRole);
@@ -151,26 +153,12 @@ export function shouldDisplaySocialModal(params: {
     return false;
   }
 
-  // 3. Do not auto-popup over the dedicated /social-platforms or /brand or /subscription pages
-  if (
-    pathname?.startsWith("/social-platforms") ||
-    pathname === "/brand" ||
-    pathname === "/subscription"
-  ) {
-    return false;
-  }
-
-  // 4. Brand Kit must be completed first (prerequisite)
-  const isBrandKitDone = isBrandKitComplete(brandKit ?? null, business ?? null);
-  if (!isBrandKitDone) {
-    return false;
-  }
-
-  // 5. If at least 1 account is connected, DO NOT display
-  if (connectionState.hasAtLeastOne) {
-    return false;
-  }
-
-  // All criteria met: Businessman, Brand Kit complete, 0 social connections
-  return true;
+  // 3. Delegate to coordinator for business services checkpoint, cooldown, active popup mutex, and route exclusions
+  return isSocialPopupEligible({
+    user: { role: userRole },
+    business,
+    pathname,
+    hasAtLeastOneConnected: connectionState.hasAtLeastOne,
+  });
 }
+

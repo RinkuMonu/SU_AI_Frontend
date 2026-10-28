@@ -240,30 +240,30 @@ export function isQualifyingPlanActive(
   return false;
 }
 
+import { isPlanPopupEligible } from "./popup-coordinator";
+
 /**
- * Pure rule engine deciding whether to display the Step 3 Available Plans modal.
+ * Pure rule engine deciding whether to display the Available Plans modal.
  * Rules:
  * 1. User must be a Businessman (Influencers are excluded).
- * 2. Brand Kit must be COMPLETE (Step 1 prerequisite).
- * 3. Social Media Connectivity must be COMPLETE (&ge;1 connected account) (Step 2 prerequisite).
- * 4. User must NOT already have a purchased/activated qualifying plan.
- * 5. Modal must not be dismissed in the current session.
- * 6. Must not auto-open on dedicated billing or management pages.
+ * 2. Eligible after successful login.
+ * 3. Does not auto-open on dedicated billing or management pages.
+ * 4. Respects temporary session dismissal & reasonable cooldown.
+ * 5. Does not overlap with other active popups.
  */
 export function shouldDisplayPlansModal(params: {
   userRole?: string | null;
   brandKit?: BrandKit | null;
   business?: Business | null;
-  socialConnections: PlatformConnectionState;
-  subscription: Subscription | null | undefined;
+  socialConnections?: PlatformConnectionState;
+  subscription?: Subscription | null | undefined;
   sessionDismissed: boolean;
   pathname?: string;
+  hasSeenThisSession?: boolean;
 }): boolean {
   const {
     userRole,
-    brandKit,
     business,
-    socialConnections,
     subscription,
     sessionDismissed,
     pathname,
@@ -279,30 +279,13 @@ export function shouldDisplayPlansModal(params: {
     return false;
   }
 
-  // 3. Do not auto-popup over dedicated routes
-  if (
-    pathname === "/subscription" ||
-    pathname === "/brand" ||
-    pathname?.startsWith("/social-platforms")
-  ) {
-    return false;
-  }
+  // 3. Delegate to coordinator for route exclusions, active mutex, and cooldown checks
+  const isEligible = isPlanPopupEligible({
+    user: { role: userRole },
+    pathname,
+    hasActiveQualifyingPlan: isQualifyingPlanActive(subscription, business),
+  });
 
-  // 4. Prerequisite 1: Brand Kit must be complete
-  if (!isBrandKitComplete(brandKit ?? null, business ?? null)) {
-    return false;
-  }
-
-  // 5. Prerequisite 2: Social Media Connectivity must be complete (at least 1 connected)
-  if (!socialConnections.hasAtLeastOne) {
-    return false;
-  }
-
-  // 6. Qualifying plan requirement: if user already has an active qualifying plan, DO NOT display
-  if (isQualifyingPlanActive(subscription, business)) {
-    return false;
-  }
-
-  // All conditions met: Businessman + Brand Kit complete + Social Media complete + No plan yet
-  return true;
+  return isEligible;
 }
+

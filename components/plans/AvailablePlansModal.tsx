@@ -273,7 +273,18 @@ export function AvailablePlansModal({
         )}
       </div>
 
-      {/* Alerts / Error / Success Banners */}
+      {/* Alerts / Error / Success / Active Plan Banners */}
+      {currentSubscription && isQualifyingPlanActive(currentSubscription) && (
+        <div className="mt-3 p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/60 to-pink-950/60 border border-purple-500/30 flex items-center justify-between gap-3 text-xs text-purple-200 shrink-0 animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <Crown className="w-4 h-4 text-amber-400 shrink-0 fill-amber-400/20" />
+            <span>
+              Your business currently has an active <strong>{mergedPlans.find((p) => p.id.toUpperCase() === currentActivePlanId)?.name || currentActivePlanId}</strong> subscription. Review your inclusions or switch plans below.
+            </span>
+          </div>
+        </div>
+      )}
+
       {successMessage && (
         <div className="mt-3 p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/40 flex items-center gap-2.5 text-xs text-emerald-200 shrink-0 animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />

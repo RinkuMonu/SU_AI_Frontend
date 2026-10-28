@@ -60,6 +60,7 @@ export interface Business {
   contact_email?: string;
   contact_phone?: string;
   description?: string;
+  logo_url?: string;
 }
 
 export interface BrandKit {
