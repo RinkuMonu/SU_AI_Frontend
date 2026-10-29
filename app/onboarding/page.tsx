@@ -190,8 +190,8 @@ export const BUSINESS_SERVICES_OPTIONS = [
 export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "website",
-    title: "Business Website",
-    desc: "Shopify, WooCommerce, or your own",
+    title: "My Website",
+    desc: "I have a business website.",
     icon: Globe,
     iconColor: "text-[#f0449b]",
     businessType: "E-Commerce",
@@ -200,7 +200,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "google_maps",
     title: "Google Maps",
-    desc: "Business listing, address and available public information",
+    desc: "Customers can find my shop on Google Maps.",
     icon: MapPin,
     iconColor: "text-neutral-300",
     businessType: "Retail Store",
@@ -208,8 +208,8 @@ export const ONLINE_PRESENCE_OPTIONS = [
   },
   {
     id: "marketplace",
-    title: "Marketplace seller",
-    desc: null,
+    title: "Sell Online",
+    desc: "I sell products on Amazon, Flipkart, Meesho, Blinkit, or other marketplaces.",
     logos: "/images/marketplace-logos.png",
     logosAlt: "Amazon, Myntra, Meesho, Blinkit, Flipkart",
     icon: ShoppingBag,
@@ -220,7 +220,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "b2b",
     title: "Wholesale / B2B",
-    desc: null,
+    desc: "I sell products to other businesses.",
     logos: "/images/b2b-logos.png",
     logosAlt: "IndiaMART, TradeIndia, Justdial",
     icon: Building2,
@@ -231,7 +231,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "social_media",
     title: "Social Media Only",
-    desc: "Social profile links, if website does't exist",
+    desc: "My business is on Instagram, Facebook, or other social media.",
     icon: Video,
     iconColor: "text-neutral-300",
     businessType: "Social Commerce",
@@ -239,8 +239,8 @@ export const ONLINE_PRESENCE_OPTIONS = [
   },
   {
     id: "none",
-    title: "No Online Presence",
-    desc: "If the business does not have an online presence, continue with the manual setup.",
+    title: "No online presence",
+    desc: "I do not have a website or online business page.",
     icon: X,
     iconColor: "text-neutral-300",
     businessType: "Retail Store",
@@ -1108,6 +1108,40 @@ export default function OnboardingPage() {
     }
   };
 
+  // ─── Centralized Create Website / Brand Kit Navigation Handler ───
+  const handleCreateWebsite = (sourceFlow?: string) => {
+    setError("");
+    setSelectedOnlinePresence("none");
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("business_online_presence", "none");
+      localStorage.setItem("business_online_presence", "none");
+      sessionStorage.setItem("onboarding_step", "3");
+
+      if (businessProfile.business_name) {
+        sessionStorage.setItem("business_name", businessProfile.business_name);
+      }
+      if (selectedMapsPlace?.name) {
+        setBusinessProfile((prev) => ({
+          ...prev,
+          business_name: prev.business_name || selectedMapsPlace.name,
+        }));
+      }
+    }
+
+    // Step 3 is none_details ("Tell us about your business" / Brand Kit Step 1)
+    const idx = activeSteps.findIndex((s) => s.id === "none_details");
+    const target = idx !== -1 ? idx : 3;
+    setCurrentStep(target);
+
+    // Save choice in background without blocking screen
+    OnboardingService.saveOnlinePresence("none", {
+      business_type: businessProfile.business_type,
+      selling_model: businessProfile.selling_model,
+      intent: "create_website",
+    }).catch(() => {});
+  };
+
   const handlePresenceContinue = async () => {
     if (!selectedOnlinePresence) {
       setError("Please select where your business lives online.");
@@ -1156,7 +1190,11 @@ export default function OnboardingPage() {
         const target = idx !== -1 ? idx : 3;
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence") {
+      } else if (
+        selectedOnlinePresence === "none" ||
+        selectedOnlinePresence === "no_online_presence" ||
+        selectedOnlinePresence === "no_website_yet"
+      ) {
         const idx = activeSteps.findIndex((s) => s.id === "none_details");
         const target = idx !== -1 ? idx : 3;
         setCurrentStep(target);
@@ -1174,6 +1212,7 @@ export default function OnboardingPage() {
       setIsSavingPresence(false);
     }
   };
+
 
   // ─── Social Media Only Flow Handlers ───
   const handleToggleSocialPlatform = (platformId: string) => {
@@ -3251,6 +3290,8 @@ export default function OnboardingPage() {
         ? influencerSteps 
         : userSteps;
   const currentStepObj = activeSteps[currentStep] || activeSteps[0];
+
+
   const isLastStep = currentStep === activeSteps.length - 1;
   const isFormCardStep =
     currentStepObj.id !== "get_started" &&
@@ -4725,6 +4766,8 @@ export default function OnboardingPage() {
                 </>
               )}
             </button>
+
+
           </div>
         </div>
       )}
@@ -4917,13 +4960,30 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={handleSkipSocialPlatforms}
-              className="w-full text-center text-xs text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
-            >
-              Skip handles for now
-            </button>
+            <div className="pt-3 text-center flex flex-col items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("social_media")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+              >
+                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-neutral-300">
+                  Don&apos;t have a website yet?{" "}
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
+                    Create Website
+                  </span>
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSkipSocialPlatforms}
+                className="text-center text-xs text-neutral-400 hover:text-white transition-colors py-1 px-3 font-medium cursor-pointer"
+              >
+                Skip handles for now
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -5051,6 +5111,23 @@ export default function OnboardingPage() {
                 </>
               )}
             </button>
+
+            <div className="pt-3 text-center">
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("website")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+              >
+                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-neutral-300">
+                  Don&apos;t have a website yet?{" "}
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
+                    Create Website
+                  </span>
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -6263,6 +6340,23 @@ export default function OnboardingPage() {
               <span>Use this shop</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </button>
+
+            <div className="pt-3 text-center">
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("google_maps")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+              >
+                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-neutral-300">
+                  Don&apos;t have a website yet?{" "}
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
+                    Create Website
+                  </span>
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -6347,13 +6441,26 @@ export default function OnboardingPage() {
               <span>Use this website</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </button>
-            <button
-              type="button"
-              onClick={handleSkipWebsite}
-              className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer"
-            >
-              Skip — I don&apos;t have one
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+              <button
+                type="button"
+                onClick={handleSkipWebsite}
+                className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3"
+              >
+                Skip — I don&apos;t have one
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("google_maps")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
+                  Create Website
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -7014,6 +7121,23 @@ export default function OnboardingPage() {
                 </>
               )}
             </button>
+
+            <div className="pt-3 text-center">
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("marketplace")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+              >
+                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-neutral-300">
+                  Don&apos;t have a website yet?{" "}
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
+                    Create Website
+                  </span>
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -7276,13 +7400,26 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={handleSkipMarketplaceWebsite}
-              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
-            >
-              I&apos;ll enter it myself
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+              <button
+                type="button"
+                onClick={handleSkipMarketplaceWebsite}
+                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
+              >
+                I&apos;ll enter it myself
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("marketplace")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
+                  Create Website
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -7417,6 +7554,23 @@ export default function OnboardingPage() {
                 </>
               )}
             </button>
+
+            <div className="pt-3 text-center">
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("b2b")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+              >
+                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm text-neutral-300">
+                  Don&apos;t have a website yet?{" "}
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
+                    Create Website
+                  </span>
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -7679,13 +7833,26 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <button
-              type="button"
-              onClick={handleSkipB2bWebsite}
-              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
-            >
-              I&apos;ll enter it myself
-            </button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+              <button
+                type="button"
+                onClick={handleSkipB2bWebsite}
+                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
+              >
+                I&apos;ll enter it myself
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("b2b")}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
+                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
+                  Create Website
+                </span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
           </div>
         </div>
       )}

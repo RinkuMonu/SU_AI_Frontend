@@ -157,6 +157,15 @@ export function calculatePlanPrice(
   intervalLabel: string;
   savingsPercent: number;
 } {
+  if (baseMonthlyPrice === 1) {
+    return {
+      displayPrice: 1,
+      perMonthPrice: 1,
+      intervalLabel: "/ test",
+      savingsPercent: 0,
+    };
+  }
+
   if (baseMonthlyPrice === 0) {
     return {
       displayPrice: 0,

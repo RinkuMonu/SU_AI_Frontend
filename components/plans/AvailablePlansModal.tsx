@@ -14,7 +14,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { subscriptionService } from "@/services/subscription.service";
-import { paymentService } from "@/services/payment.service";
+import { paymentService, CreatePaymentResponse } from "@/services/payment.service";
+import { PaymentModal } from "@/components/payment/PaymentModal";
 import { Subscription, PlanConfig } from "@/types/subscription";
 import {
   AVAILABLE_PLANS,
@@ -53,6 +54,8 @@ export function AvailablePlansModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [pendingPaymentOrder, setPendingPaymentOrder] = useState<string | null>(null);
+  const [activePaymentOrder, setActivePaymentOrder] = useState<CreatePaymentResponse | null>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
 
   /**
    * Loads plans and current subscription from authoritative backend.
@@ -202,8 +205,10 @@ export function AvailablePlansModal({
         // Paid plan selection: initiate secure payment flow with chosen billing cycle
         const response = await paymentService.createPayment(plan.id, selectedCycle);
 
-        if (response.payment_url) {
-          // Open secure payment checkout
+        if (response.order_id) {
+          setActivePaymentOrder(response);
+          setShowPaymentModal(true);
+        } else if (response.payment_url) {
           window.location.href = response.payment_url;
         } else {
           throw new Error("No checkout URL received from payment service.");
@@ -512,8 +517,26 @@ export function AvailablePlansModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-      {modalContent}
-    </div>
+    <>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+        {modalContent}
+      </div>
+      <PaymentModal
+        isOpen={showPaymentModal}
+        orderData={activePaymentOrder}
+        onClose={() => {
+          setShowPaymentModal(false);
+          setActivePaymentOrder(null);
+          setProcessingPlanId(null);
+        }}
+        onSuccess={async (confirmedOrderId) => {
+          setShowPaymentModal(false);
+          const latestSub = await subscriptionService.getMySubscription();
+          setCurrentSubscription(latestSub);
+          setSuccessMessage("Plan verified and activated successfully!");
+          if (onPlanActivated) onPlanActivated(latestSub.plan_id);
+        }}
+      />
+    </>
   );
 }

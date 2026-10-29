@@ -269,66 +269,78 @@ export function BrandKitRegistrationModal({
           if (bk.location_focus) setSelectedLocationFocus(bk.location_focus);
         }
 
-        // SECTION B: Prefill from cached Google Maps onboarding flow if real data exists
-        // Reuses already-fetched business data; does NOT trigger another Google Maps request.
+        // SECTION B: Prefill from cached onboarding session data across all 6 business flows
         if (typeof window !== "undefined") {
           try {
+            const cachedBizProfileStr = sessionStorage.getItem("business_profile");
+            const cachedBizProfile = cachedBizProfileStr ? JSON.parse(cachedBizProfileStr) : null;
+            const cachedName = sessionStorage.getItem("business_name");
+            const cachedWeb = sessionStorage.getItem("business_website_url");
+            const cachedCat = sessionStorage.getItem("business_category") || sessionStorage.getItem("google_maps_category");
+            const cachedSocialHandlesStr = sessionStorage.getItem("business_social_handles");
+            const cachedSocialHandles = cachedSocialHandlesStr ? JSON.parse(cachedSocialHandlesStr) : null;
             const mapsPlaceStr = sessionStorage.getItem("google_maps_place_data");
             const mapsPlace = mapsPlaceStr ? JSON.parse(mapsPlaceStr) : null;
             const mapsWeb = sessionStorage.getItem("google_maps_website_url");
-            const mapsCat = sessionStorage.getItem("google_maps_category");
             const mapsLogo = sessionStorage.getItem("google_maps_logo");
 
             const bk = brand.status === "fulfilled" ? brand.value : null;
             const b = biz.status === "fulfilled" ? biz.value : null;
 
-            if (mapsPlace || mapsWeb || mapsCat || mapsLogo) {
-              // Business name
-              if (!bk?.business_name && !b?.name && mapsPlace?.name) {
-                setBusinessName(mapsPlace.name);
-              }
-
-              // Industry / Category
-              if (!bk?.business_category && (!b?.category || b.category === "clothing")) {
-                const catRaw = mapsCat || mapsPlace?.types?.[0];
-                if (catRaw) {
-                  const matched = BUSINESS_CATEGORIES.find(
-                    (c) => c.value.toLowerCase() === catRaw.toLowerCase() || c.label.toLowerCase().includes(catRaw.toLowerCase())
-                  );
-                  if (matched) setBusinessCategory(matched.value);
-                }
-              }
-
-              // Website URL
-              if (!bk?.website && !b?.website) {
-                const mapsUrl = mapsWeb || mapsPlace?.website;
-                if (mapsUrl) setWebsite(mapsUrl);
-              }
-
-              // Business Description from existing business
-              if (!bk?.business_description && !bk?.brand_description && b?.description) {
-                setBusinessDescription(b.description);
-              }
-
-              // Address / Location
-              if (!bk?.location_focus && !b?.location && mapsPlace?.address) {
-                setSelectedLocationFocus(mapsPlace.address);
-              }
-
-              // Logo / Image: only if valid source is available; do not fabricate
-              if (!bk?.logo_url && !b?.logo_url) {
-                const candidateLogo = mapsLogo || (mapsPlace?.photos && mapsPlace.photos[0]);
-                if (
-                  typeof candidateLogo === "string" &&
-                  (candidateLogo.startsWith("http://") || candidateLogo.startsWith("https://") || candidateLogo.startsWith("/"))
-                ) {
-                  setLogoUrl(candidateLogo);
-                  setLogoLoadFailed(false);
-                }
+            // 1. Business Name
+            if (!bk?.business_name && !b?.name) {
+              const candidateName =
+                cachedName ||
+                cachedBizProfile?.business_name ||
+                mapsPlace?.name ||
+                (cachedSocialHandles?.instagram ? String(cachedSocialHandles.instagram).replace(/^@/, "") : null);
+              if (candidateName) {
+                setBusinessName(candidateName);
               }
             }
-          } catch (mapsErr) {
-            console.warn("Could not read cached Google Maps details", mapsErr);
+
+            // 2. Industry / Category
+            if (!bk?.business_category && (!b?.category || b.category === "clothing")) {
+              const catRaw = cachedCat || cachedBizProfile?.business_category || cachedBizProfile?.category || mapsPlace?.types?.[0];
+              if (catRaw) {
+                const matched = BUSINESS_CATEGORIES.find(
+                  (c) => c.value.toLowerCase() === catRaw.toLowerCase() || c.label.toLowerCase().includes(catRaw.toLowerCase())
+                );
+                if (matched) setBusinessCategory(matched.value);
+              }
+            }
+
+            // 3. Website URL
+            if (!bk?.website && !b?.website) {
+              const candidateUrl = cachedWeb || cachedBizProfile?.website || mapsWeb || mapsPlace?.website;
+              if (candidateUrl) setWebsite(candidateUrl);
+            }
+
+            // 4. Description
+            if (!bk?.business_description && !bk?.brand_description) {
+              const candidateDesc = b?.description || cachedBizProfile?.description;
+              if (candidateDesc) setBusinessDescription(candidateDesc);
+            }
+
+            // 5. Address / Location
+            if (!bk?.location_focus && !b?.location) {
+              const candidateLoc = cachedBizProfile?.city || cachedBizProfile?.full_address || mapsPlace?.address;
+              if (candidateLoc) setSelectedLocationFocus(candidateLoc);
+            }
+
+            // 6. Logo / Image
+            if (!bk?.logo_url && !b?.logo_url) {
+              const candidateLogo = mapsLogo || cachedBizProfile?.logo_url || (mapsPlace?.photos && mapsPlace.photos[0]);
+              if (
+                typeof candidateLogo === "string" &&
+                (candidateLogo.startsWith("http://") || candidateLogo.startsWith("https://") || candidateLogo.startsWith("/") || candidateLogo.startsWith("data:"))
+              ) {
+                setLogoUrl(candidateLogo);
+                setLogoLoadFailed(false);
+              }
+            }
+          } catch (cacheErr) {
+            console.warn("Could not read cached business details", cacheErr);
           }
         }
       } catch (err) {
@@ -688,6 +700,86 @@ export function BrandKitRegistrationModal({
     }
   };
 
+  // Skip incomplete details and continue directly to Dashboard (saving whatever was typed)
+  const handleSkipToDashboard = async () => {
+    setIsDraftSaving(true);
+    setFormError(null);
+
+    const effectiveName =
+      businessName.trim() ||
+      existingBusiness?.name ||
+      existingBrand?.business_name ||
+      "My Business";
+
+    try {
+      // 1. Cache entered details to sessionStorage
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_name", effectiveName);
+        if (website.trim()) sessionStorage.setItem("business_website_url", website.trim());
+        if (businessCategory) sessionStorage.setItem("business_category", businessCategory);
+      }
+
+      // 2. Persist entered details to backend in the background so user doesn't lose what they entered
+      const audienceSummary = `Age: ${selectedAgeGroup} | Gender: ${selectedGender} | Type: ${selectedCustomerType} | Focus: ${selectedLocationFocus}`;
+      const brandPayload: BrandCreate = {
+        logo_url: logoUrl || undefined,
+        primary_color: colors.primary,
+        secondary_color: colors.secondary,
+        accent_color: colors.accent,
+        font: selectedFont,
+        tone: selectedTone,
+        business_description: businessDescription.trim() || undefined,
+        brand_description: businessDescription.trim() || undefined,
+        target_audience: audienceSummary,
+        website: website.trim() || undefined,
+        social_style: `Theme: ${colors.primary}-${colors.secondary} | Model: ${businessModel}`,
+        business_name: effectiveName,
+        business_type: businessType,
+        registration_number: registrationNumber.trim() || undefined,
+        business_model: businessModel,
+        selling_model: sellingModel,
+        business_category: businessCategory,
+        age_group: selectedAgeGroup,
+        gender: selectedGender,
+        customer_type: selectedCustomerType,
+        location_focus: selectedLocationFocus,
+        contact: {
+          email: user?.email || "",
+          phone: user?.phone || user?.phone_number || "",
+        },
+      };
+
+      if (existingBrand) {
+        await updateBrandKit(brandPayload);
+      } else {
+        await createBrandKit(brandPayload);
+      }
+
+      if (effectiveName && effectiveName !== "My Business") {
+        const businessPayload = {
+          name: effectiveName,
+          category: businessCategory,
+          location: selectedLocationFocus,
+          description: businessDescription.trim() || undefined,
+        };
+        if (existingBusiness) {
+          await businessService.updateBusiness(businessPayload);
+        } else {
+          await businessService.createBusiness(businessPayload);
+        }
+      }
+    } catch (saveErr) {
+      console.warn("Non-blocking draft save before skip:", saveErr);
+    } finally {
+      setIsDraftSaving(false);
+      if (typeof window !== "undefined") {
+        window.location.href = "/dashboard";
+      } else {
+        onClose();
+      }
+    }
+  };
+
   // Complete & Save Brand Kit (Flexible partial submission allowed)
   const handleCompleteSubmission = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -840,6 +932,17 @@ export function BrandKitRegistrationModal({
           >
             {isDraftSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-pink" /> : <Save className="w-3.5 h-3.5" />}
             <span>Save Draft</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSkipToDashboard}
+            disabled={isDraftSaving}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/20 text-xs font-semibold text-white hover:border-white/30 transition-all cursor-pointer"
+            title="Skip for now and continue to dashboard"
+          >
+            <span>Skip for Now</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
           {isModal && (
@@ -1172,7 +1275,15 @@ export function BrandKitRegistrationModal({
 
 
               {/* Navigation button */}
-              <div className="flex justify-end">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={handleSkipToDashboard}
+                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>Skip for Now &amp; Go to Dashboard</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -1184,7 +1295,7 @@ export function BrandKitRegistrationModal({
                     setFormError(null);
                     setCurrentStep("logo");
                   }}
-                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
                 >
                   <span>Continue to Logo Studio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1579,27 +1690,37 @@ export function BrandKitRegistrationModal({
               </div>
 
               {/* Navigation buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setCurrentStep("basics")}
-                  className="px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Basics</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormError(null);
-                    setCurrentStep("identity");
-                  }}
-                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all"
-                >
-                  <span>Continue to Brand Identity</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSkipToDashboard}
+                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    Skip for Now
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormError(null);
+                      setCurrentStep("identity");
+                    }}
+                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  >
+                    <span>Continue</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -1752,27 +1873,37 @@ export function BrandKitRegistrationModal({
 
 
               {/* Navigation buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setCurrentStep("logo")}
-                  className="px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Logo</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormError(null);
-                    setCurrentStep("audience");
-                  }}
-                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all"
-                >
-                  <span>Continue to Audience</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSkipToDashboard}
+                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    Skip for Now
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormError(null);
+                      setCurrentStep("audience");
+                    }}
+                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  >
+                    <span>Continue</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -1983,27 +2114,37 @@ export function BrandKitRegistrationModal({
               </div>
 
               {/* Navigation buttons */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setCurrentStep("identity")}
-                  className="px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Identity</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormError(null);
-                    setCurrentStep("review");
-                  }}
-                  className="px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center gap-2 hover:opacity-95 shadow-md transition-all"
-                >
-                  <span>Continue to Review</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSkipToDashboard}
+                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                  >
+                    Skip for Now
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormError(null);
+                      setCurrentStep("review");
+                    }}
+                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  >
+                    <span>Continue</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -2173,6 +2314,15 @@ export function BrandKitRegistrationModal({
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Edit</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSkipToDashboard}
+                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                >
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
 
                 <button

@@ -18,12 +18,16 @@ import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
+import { BillingReportModal } from "@/components/dashboard/BillingReportModal";
+import { FileText, CheckCircle2 } from "lucide-react";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
   const [creditBalance, setCreditBalance] = useState<CreditBalance | null>(null);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [paymentSuccessMsg, setPaymentSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     analyticsService.getAnalyticsOverview(7)
@@ -34,6 +38,18 @@ export default function DashboardPage() {
     creditService.getCredits()
       .then(setCreditBalance)
       .catch(() => null);
+
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("payment") === "success" || params.get("order_id")) {
+        const orderId = params.get("order_id");
+        setPaymentSuccessMsg(
+          orderId
+            ? `Your payment for order ${orderId} has been verified and plan activated!`
+            : "Your payment has been verified successfully! Your active plan and AI credits have been updated."
+        );
+      }
+    }
   }, []);
 
   const insights: Insight[] = analytics?.recommendation
@@ -65,6 +81,35 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+            {paymentSuccessMsg && (
+        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-2xl flex items-center justify-between shadow-lg animate-in slide-in-from-top-2 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-white">Payment Successful!</p>
+              <p className="text-xs text-emerald-300/90">{paymentSuccessMsg}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/subscription?tab=transactions"
+              className="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-md transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>View Transaction Report</span>
+            </Link>
+            <button
+              onClick={() => setPaymentSuccessMsg(null)}
+              className="text-gray-400 hover:text-white text-xs px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-white">
@@ -73,26 +118,38 @@ export default function DashboardPage() {
           <p className="text-text-muted mt-1 text-sm">Here is your AI marketing summary for the last 7 days.</p>
         </div>
 
-        {creditBalance && (
-          <Link
-            href="/subscription"
-            className="self-start sm:self-auto inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 shadow-lg backdrop-blur-xl transition-all group cursor-pointer"
-            title="View Plan Details & Upgrade"
+        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
+          <Button
+            onClick={() => setShowReportModal(true)}
+            variant="outline"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white text-xs font-semibold shadow-lg backdrop-blur-xl transition-all cursor-pointer"
+            title="View & Download Billing & Payment Report"
           >
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400">Plan:</span>
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 uppercase">
-                {creditBalance.plan === "PRO" ? "GROWTH" : creditBalance.plan === "BASIC" ? "STARTER" : (creditBalance.plan || "FREE")}
-              </span>
-            </div>
-            <div className="h-3.5 w-px bg-white/20" />
-            <div className="flex items-center gap-1 text-xs text-brand-purple font-bold">
-              <Zap className="w-3.5 h-3.5 fill-brand-purple" />
-              <span>{creditBalance.credits_remaining} Credits</span>
-            </div>
-          </Link>
-        )}
+            <FileText className="w-3.5 h-3.5 text-purple-400" />
+            <span>Billing Report</span>
+          </Button>
+
+          {creditBalance && (
+            <Link
+              href="/subscription"
+              className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 shadow-lg backdrop-blur-xl transition-all group cursor-pointer"
+              title="View Plan Details & Upgrade"
+            >
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-slate-400">Plan:</span>
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 uppercase">
+                  {creditBalance.plan === "PRO" ? "GROWTH" : creditBalance.plan === "BASIC" ? "STARTER" : (creditBalance.plan || "FREE")}
+                </span>
+              </div>
+              <div className="h-3.5 w-px bg-white/20" />
+              <div className="flex items-center gap-1 text-xs text-brand-purple font-bold">
+                <Zap className="w-3.5 h-3.5 fill-brand-purple" />
+                <span>{creditBalance.credits_remaining} Credits</span>
+              </div>
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Live Stats */}

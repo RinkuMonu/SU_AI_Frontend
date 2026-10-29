@@ -379,7 +379,7 @@ export default function LoginPage() {
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-      const redirectUri = `${origin}/login/user`;
+      const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
       const clientId =
         (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
         "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
@@ -476,7 +476,7 @@ export default function LoginPage() {
         });
 
         try {
-          const redirectUri = `${window.location.origin}/login/user`;
+          const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
           const res = await authService.googleLogin({
             code,
             redirect_uri: redirectUri,

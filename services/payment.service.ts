@@ -3,7 +3,10 @@ import api from "@/lib/api";
 export interface CreatePaymentResponse {
   success?: boolean;
   payment_url: string;
+  upi_url?: string;
   order_id: string;
+  amount?: number;
+  plan_name?: string;
   status?: string;
   billing_cycle?: string;
 }
@@ -15,6 +18,23 @@ export interface PaymentStatusResponse {
   base_amount?: number;
   gst_amount?: number;
   message?: string;
+}
+
+export interface PaymentVerifyResponse {
+  success: boolean;
+  status: string;
+  order_id: string;
+  verified: boolean;
+  message: string;
+  plan_id?: string;
+  amount?: number;
+}
+
+export interface PaymentCancelResponse {
+  success: boolean;
+  status: string;
+  order_id: string;
+  message: string;
 }
 
 export const paymentService = {
@@ -45,7 +65,10 @@ export const paymentService = {
     return {
       success: data.success ?? true,
       payment_url: data.payment_url,
+      upi_url: data.upi_url,
       order_id: data.order_id,
+      amount: data.amount,
+      plan_name: data.plan_name,
       status: data.status || "pending",
       billing_cycle: data.billing_cycle || billingCycle
     };
@@ -94,6 +117,30 @@ export const paymentService = {
         message: detail
       };
     }
+  },
+
+  async verifyPayment(orderId: string): Promise<PaymentVerifyResponse> {
+    const response = await api.post("/api/v1/payments/payin/verify", { order_id: orderId });
+    const data = response.data?.data || response.data;
+    return {
+      success: Boolean(data.success),
+      status: (data.status || "pending").toLowerCase(),
+      order_id: data.order_id || orderId,
+      verified: Boolean(data.verified),
+      message: data.message || "",
+      plan_id: data.plan_id,
+      amount: data.amount
+    };
+  },
+
+  async cancelPayment(orderId: string): Promise<PaymentCancelResponse> {
+    const response = await api.post("/api/v1/payments/payin/cancel", { order_id: orderId });
+    const data = response.data?.data || response.data;
+    return {
+      success: Boolean(data.success),
+      status: data.status || "cancelled",
+      order_id: data.order_id || orderId,
+      message: data.message || "Payment cancelled"
+    };
   }
 };
-

@@ -3,7 +3,29 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { LayoutDashboard, Store, Palette, Package, Settings, LogOut, Sparkles, MessageSquare, Library, Share2, ChevronDown, ChevronRight, Globe, TrendingUp, Bot, PartyPopper, Users, Headphones, X } from "lucide-react";
+import {
+  LayoutDashboard,
+  Store,
+  Palette,
+  Package,
+  Settings,
+  LogOut,
+  Sparkles,
+  MessageSquare,
+  Library,
+  Share2,
+  ChevronDown,
+  ChevronRight,
+  Globe,
+  TrendingUp,
+  Bot,
+  PartyPopper,
+  Users,
+  Headphones,
+  X,
+  FileText,
+  Zap,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
@@ -75,7 +97,15 @@ const navigation = [
     ]
   },
   { name: "Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Billing & Plans", href: "/subscription", icon: Store },
+  {
+    name: "Billing & Plans",
+    href: "/subscription",
+    icon: Store,
+    children: [
+      { name: "AI Token/Credit Usage Report", href: "/subscription?tab=credits", icon: Zap },
+      { name: "Transaction Report", href: "/subscription/transactions", icon: FileText },
+    ],
+  },
   { name: "Support", href: "/support", icon: Headphones },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
@@ -88,7 +118,8 @@ export function Sidebar() {
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     "Image and Reel Generation": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
     "AI Avatar": ["/fashion-ai"].some(p => pathname.startsWith(p)),
-    "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p))
+    "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p)),
+    "Billing & Plans": pathname.startsWith("/subscription"),
   });
 
   const toggleDropdown = (name: string) => {
@@ -100,63 +131,96 @@ export function Sidebar() {
       {navigation.map((item: any) => {
         if (item.children) {
           const isOpen = openDropdowns[item.name];
-          const isChildActive = item.children.some((child: any) => pathname === child.href || pathname.startsWith(child.href + "/"));
+          const isChildActive = item.children.some((child: any) => {
+            const childBasePath = child.href.split("?")[0];
+            return pathname === childBasePath || pathname.startsWith(childBasePath + "/");
+          });
+          const isParentActive = item.href ? pathname === item.href : false;
           
           return (
             <div key={item.name} className="space-y-1">
-              <button
-                type="button"
-                onClick={() => toggleDropdown(item.name)}
+              <div
                 className={cn(
-                  "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors cursor-pointer",
-                  isChildActive && !isOpen
+                  "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                  (isChildActive || isParentActive) && !isOpen
                     ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
                     : "text-text-muted hover:bg-surface-elevated hover:text-white"
                 )}
               >
-                <div className="flex items-center flex-1 min-w-0">
-                  <item.icon
-                    className={cn(
-                      "mr-3 h-5 w-5 flex-shrink-0",
-                      isChildActive && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span className="truncate">{item.name}</span>
-                </div>
-                {isOpen ? (
-                  <ChevronDown className="h-4 w-4 text-text-muted" />
+                {item.href ? (
+                  <Link
+                    href={item.href}
+                    onClick={() => onItemClick && onItemClick()}
+                    className="flex items-center flex-1 min-w-0"
+                  >
+                    <item.icon
+                      className={cn(
+                        "mr-3 h-5 w-5 flex-shrink-0",
+                        (isChildActive || isParentActive) && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="truncate">{item.name}</span>
+                  </Link>
                 ) : (
-                  <ChevronRight className="h-4 w-4 text-text-muted" />
+                  <button
+                    type="button"
+                    onClick={() => toggleDropdown(item.name)}
+                    className="flex items-center flex-1 min-w-0 text-left cursor-pointer"
+                  >
+                    <item.icon
+                      className={cn(
+                        "mr-3 h-5 w-5 flex-shrink-0",
+                        isChildActive && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                      )}
+                      aria-hidden="true"
+                    />
+                    <span className="truncate">{item.name}</span>
+                  </button>
                 )}
-              </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleDropdown(item.name);
+                  }}
+                  className="p-1 rounded hover:bg-white/10 text-text-muted hover:text-white transition-colors cursor-pointer"
+                  title={`Toggle ${item.name}`}
+                >
+                  {isOpen ? (
+                    <ChevronDown className="h-4 w-4 text-text-muted" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-text-muted" />
+                  )}
+                </button>
+              </div>
               
               {isOpen && (
                 <div className="pl-11 pr-3 space-y-1">
                   {item.children.map((child: any) => {
-                    const isActive = pathname === child.href || pathname.startsWith(child.href + "/");
+                    const isExactActive = pathname === child.href;
                     return (
                       <Link
                         key={child.name}
                         href={child.href}
                         onClick={() => onItemClick && onItemClick()}
                         className={cn(
-                          "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                          isActive
-                            ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
+                          "group flex items-center px-3 py-2 text-xs font-medium rounded-md transition-colors",
+                          isExactActive
+                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white"
                             : "text-text-muted hover:bg-surface-elevated hover:text-white"
                         )}
                       >
                         {child.icon && (
                           <child.icon
                             className={cn(
-                              "mr-3 h-4 w-4 flex-shrink-0",
-                              isActive ? "" : "opacity-80 group-hover:opacity-100"
+                              "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
+                              isExactActive ? "text-brand-purple" : "opacity-80 group-hover:opacity-100"
                             )}
                             aria-hidden="true"
                           />
                         )}
-                        {child.name}
+                        <span className="truncate">{child.name}</span>
                       </Link>
                     );
                   })}
