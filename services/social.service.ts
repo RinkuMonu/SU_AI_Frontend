@@ -100,13 +100,31 @@ export const socialService = {
    * Requests official OAuth initiation authorization URL from backend.
    */
   async getConnectUrl(platform: 'instagram' | 'facebook' | 'linkedin'): Promise<string> {
-    const endpoint = `/api/${platform}/connect`;
-    const res = await api.get(endpoint);
-    const authUrl = res.data?.authorization_url || res.data?.url;
-    if (!authUrl) {
-      throw new Error(`No authorization URL returned from ${endpoint}`);
+    let endpoint = `/api/v1/social/connect/${platform}`;
+    if (platform === 'instagram') {
+      endpoint = '/api/instagram/connect';
+    } else if (platform === 'facebook') {
+      endpoint = '/api/v1/facebook/connect';
+    } else if (platform === 'linkedin') {
+      endpoint = '/api/v1/linkedin/connect';
     }
-    return authUrl;
+
+    try {
+      const res = await api.get(endpoint);
+      const authUrl = res.data?.authorization_url || res.data?.url || res.data?.auth_url;
+      if (authUrl) {
+        return authUrl;
+      }
+    } catch (e) {
+      // Fallback to social connect endpoint
+      const fallbackRes = await api.get(`/api/v1/social/connect/${platform}`);
+      const authUrl = fallbackRes.data?.authorization_url || fallbackRes.data?.url || fallbackRes.data?.auth_url;
+      if (authUrl) {
+        return authUrl;
+      }
+    }
+
+    throw new Error(`No authorization URL returned from backend for ${platform}`);
   },
 
   /**

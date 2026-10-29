@@ -11,6 +11,8 @@ import {
   Check,
   ChevronDown,
   Crown,
+  Download,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,46 @@ export default function SubscriptionPage() {
   const [upgradingPlan, setUpgradingPlan] = useState<string | null>(null);
   const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
+  const [generatingReport, setGeneratingReport] = useState<boolean>(false);
+
+  const handleGenerateReport = async () => {
+    const isPaid = Boolean(
+      subscription?.is_paid_plan ||
+      (subscription?.plan_id && subscription.plan_id.toUpperCase() !== "FREE" && subscription.status === "active")
+    );
+
+    if (!isPaid) {
+      setUpgradeError(
+        "Generating paid billing and tax audit reports requires an active paid subscription. Please select a plan below and complete payment first."
+      );
+      const el = document.getElementById("available-plans-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+      return;
+    }
+
+    try {
+      setGeneratingReport(true);
+      setUpgradeError(null);
+      const reportData = await subscriptionService.getBillingReport();
+      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `billing-report-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setUpgradeSuccess("Billing report generated and downloaded successfully!");
+    } catch (err: any) {
+      console.error("Failed to generate billing report", err);
+      setUpgradeError(err?.response?.data?.detail || "Failed to generate billing report from server.");
+    } finally {
+      setGeneratingReport(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -143,7 +185,7 @@ export default function SubscriptionPage() {
         setSubscription(updatedSub);
         setUpgradeSuccess("Free Plan activated successfully!");
       } else {
-        const response = await paymentService.createPayment(plan.id);
+        const response = await paymentService.createPayment(plan.id, selectedCycle);
         if (response.payment_url) {
           window.location.href = response.payment_url;
         } else {
@@ -196,13 +238,28 @@ export default function SubscriptionPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
-          Subscription &amp; Billing
-        </h1>
-        <p className="text-text-muted">
-          Manage your AI usage and upgrade your plan to unlock more limits.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-white mb-2">
+            Subscription &amp; Billing
+          </h1>
+          <p className="text-text-muted">
+            Manage your AI usage and upgrade your plan to unlock more limits.
+          </p>
+        </div>
+        <Button
+          onClick={handleGenerateReport}
+          disabled={generatingReport}
+          variant="outline"
+          className="border-border hover:bg-surface-elevated text-white shrink-0 flex items-center gap-2 cursor-pointer"
+        >
+          {generatingReport ? (
+            <Loader2 className="w-4 h-4 animate-spin text-purple-400" />
+          ) : (
+            <Download className="w-4 h-4 text-purple-400" />
+          )}
+          <span>Download Billing Report</span>
+        </Button>
       </div>
 
       {upgradeSuccess && (
@@ -287,7 +344,7 @@ export default function SubscriptionPage() {
       </div>
 
       {/* Available Plans Section */}
-      <div className="space-y-6">
+      <div id="available-plans-section" className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">

@@ -39,7 +39,7 @@ function PaymentSuccessContent() {
             console.error("Error refreshing subscription data:", e);
           }
           setStatus("success");
-        } else if (response.status === "pending" || response.status === "processing") {
+        } else if (response.status === "pending" || response.status === "processing" || response.status === "initiated") {
           if (retryCount < 5) {
             setStatus("pending");
             setTimeout(() => {

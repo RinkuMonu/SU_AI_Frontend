@@ -51,7 +51,8 @@ import {
   LayoutDashboard,
   Megaphone,
   Camera,
-  Bot
+  Bot,
+  Video
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +62,12 @@ import { Logo } from "@/components/ui/Logo";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
-import { OnboardingService } from "@/services/onboarding.service";
+import {
+  OnboardingService,
+  extractErrorMessage,
+  ONLINE_PRESENCE_BACKEND_MAP,
+  BACKEND_TO_PRESENCE_MAP,
+} from "@/services/onboarding.service";
 import { authService } from "@/services/auth.service";
 import influencerService from "@/services/influencer.service";
 import { aiService, WebsiteAnalysisData } from "@/services/ai.service";
@@ -83,7 +89,6 @@ import {
 } from "@/lib/marketplace-platforms";
 import { PlatformIcon } from "@/components/onboarding/PlatformIcon";
 import { AvailablePlansModal } from "@/components/plans/AvailablePlansModal";
-import { InstagramService } from "@/services/instagram.service";
 import { contentService } from "@/services/content.service";
 import { GeneratedPost } from "@/types/content";
 
@@ -181,11 +186,11 @@ export const BUSINESS_SERVICES_OPTIONS = [
   },
 ];
 
-// 5 Selectable Presence Cards matching Designer Screenshot 2
+// 6 Selectable Presence Cards matching Designer Mockup
 export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "website",
-    title: "Website",
+    title: "Business Website",
     desc: "Shopify, WooCommerce, or your own",
     icon: Globe,
     iconColor: "text-[#f0449b]",
@@ -195,7 +200,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "google_maps",
     title: "Google Maps",
-    desc: "Customers visit my location (shops, restaurants, gyms, salons etc.)",
+    desc: "Business listing, address and available public information",
     icon: MapPin,
     iconColor: "text-neutral-300",
     businessType: "Retail Store",
@@ -213,24 +218,114 @@ export const ONLINE_PRESENCE_OPTIONS = [
     sellingModel: "Online E-Commerce Store",
   },
   {
-    id: "none",
-    title: "No online presence",
-    desc: "Just getting started - I'll describe by business",
-    icon: Clapperboard,
-    iconColor: "text-neutral-300",
-    businessType: "Retail Store",
-    sellingModel: "Physical Retail Store / Walk-ins",
-  },
-  {
     id: "b2b",
-    title: "Wholesale or B2B",
+    title: "Wholesale / B2B",
     desc: null,
     logos: "/images/b2b-logos.png",
-    logosAlt: "IndiaMART, Sulekha, TradeIndia, Justdial",
+    logosAlt: "IndiaMART, TradeIndia, Justdial",
     icon: Building2,
     iconColor: "text-neutral-300",
     businessType: "Wholesale",
     sellingModel: "Wholesale & Bulk Orders",
+  },
+  {
+    id: "social_media",
+    title: "Social Media Only",
+    desc: "Social profile links, if website does't exist",
+    icon: Video,
+    iconColor: "text-neutral-300",
+    businessType: "Social Commerce",
+    sellingModel: "Social Media / Direct Selling",
+  },
+  {
+    id: "none",
+    title: "No Online Presence",
+    desc: "If the business does not have an online presence, continue with the manual setup.",
+    icon: X,
+    iconColor: "text-neutral-300",
+    businessType: "Retail Store",
+    sellingModel: "Physical Retail Store / Walk-ins",
+  },
+];
+
+export const SOCIAL_PLATFORM_OPTIONS = [
+  {
+    id: "instagram",
+    name: "Instagram",
+    handlePrefix: "@",
+    placeholder: "yourbusinesshandle",
+    helperText: "e.g. @sharma_fashion",
+    color: "#E1306C",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path fill="url(#ig-grad-social)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+      </svg>
+    ),
+  },
+  {
+    id: "facebook",
+    name: "Facebook",
+    handlePrefix: "fb.com/",
+    placeholder: "yourbusinesspage",
+    helperText: "e.g. fb.com/sharmafashion",
+    color: "#1877F2",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="#1877F2">
+        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+      </svg>
+    ),
+  },
+  {
+    id: "youtube",
+    name: "YouTube",
+    handlePrefix: "@",
+    placeholder: "yourchannel",
+    helperText: "e.g. @SharmaFashionVlogs",
+    color: "#FF0000",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="#FF0000">
+        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+      </svg>
+    ),
+  },
+  {
+    id: "whatsapp",
+    name: "WhatsApp Business",
+    handlePrefix: "+",
+    placeholder: "91 98765 43210",
+    helperText: "Business phone or catalog link",
+    color: "#25D366",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="#25D366">
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
+      </svg>
+    ),
+  },
+  {
+    id: "linkedin",
+    name: "LinkedIn",
+    handlePrefix: "in/",
+    placeholder: "company/yourbusiness",
+    helperText: "e.g. linkedin.com/in/...",
+    color: "#0A66C2",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="#0A66C2">
+        <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+      </svg>
+    ),
+  },
+  {
+    id: "twitter",
+    name: "X (Twitter)",
+    handlePrefix: "@",
+    placeholder: "yourhandle",
+    helperText: "e.g. @sharmafashion",
+    color: "#FFFFFF",
+    renderIcon: (className = "w-4 h-4") => (
+      <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+      </svg>
+    ),
   },
 ];
 
@@ -399,22 +494,28 @@ export default function OnboardingPage() {
   // ─── Plan & Subscription Onboarding State ───
   const [showPlansModal, setShowPlansModal] = useState(false);
 
-  // ─── Social Media Connectivity (Instagram) State ───
-  const [isInstagramConnected, setIsInstagramConnected] = useState(() => {
+  // ─── Social Media Only Flow State ───
+  const [selectedSocialPlatforms, setSelectedSocialPlatforms] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
-      const creds = InstagramService.getStoredCredentials();
-      return Boolean(creds.accountId || creds.accessToken || localStorage.getItem("instagram_username"));
+      try {
+        const saved = sessionStorage.getItem("business_social_platforms");
+        if (saved) return JSON.parse(saved);
+      } catch (_) {}
     }
-    return false;
+    return ["instagram"];
   });
-  const [instagramUsername, setInstagramUsername] = useState(() => {
+  const [socialHandles, setSocialHandles] = useState<Record<string, string>>(() => {
     if (typeof window !== "undefined") {
-      return localStorage.getItem("instagram_username") || "";
+      try {
+        const saved = sessionStorage.getItem("business_social_handles");
+        if (saved) return JSON.parse(saved);
+      } catch (_) {}
+      const savedIg = localStorage.getItem("instagram_username");
+      if (savedIg) return { instagram: savedIg };
     }
-    return "";
+    return { instagram: "", facebook: "", youtube: "", whatsapp: "", linkedin: "", twitter: "" };
   });
-  const [isConnectingInstagram, setIsConnectingInstagram] = useState(false);
-  const [showSkipInstagramModal, setShowSkipInstagramModal] = useState(false);
+  const [isSavingSocialPlatforms, setIsSavingSocialPlatforms] = useState(false);
 
   // ─── First Content Creation & Post Maker Flow State ───
   const [firstThingChoice, setFirstThingChoice] = useState<"post_maker" | "photoshoot" | "reel_maker">("post_maker");
@@ -605,13 +706,12 @@ export default function OnboardingPage() {
 
       try {
         // Query status, services, presence, business profile, brand kit in parallel
-        const [statusRes, servicesRes, presenceRes, bizRes, brandRes, socialRes] = await Promise.allSettled([
+        const [statusRes, servicesRes, presenceRes, bizRes, brandRes] = await Promise.allSettled([
           OnboardingService.getStatus(),
           OnboardingService.getSelectedServices(),
           OnboardingService.getOnlinePresence(),
           businessService.getMyBusiness(),
           getBrandKit(),
-          OnboardingService.getSocialOnboardingStatus(),
         ]);
 
         if (!isMounted) return;
@@ -648,8 +748,9 @@ export default function OnboardingPage() {
         let restoredPresence: string | null = null;
         if (presenceRes.status === "fulfilled" && presenceRes.value) {
           const pVal = presenceRes.value;
-          const presenceKey = pVal.online_presence || pVal.presence;
-          if (presenceKey) {
+          const rawKey = pVal.online_presence || pVal.presence;
+          if (rawKey) {
+            const presenceKey = BACKEND_TO_PRESENCE_MAP[rawKey] || rawKey;
             restoredPresence = presenceKey;
             setSelectedOnlinePresence(presenceKey);
             sessionStorage.setItem("business_online_presence", presenceKey);
@@ -755,14 +856,6 @@ export default function OnboardingPage() {
               setSelectedPhotos(kit.selected_photos);
               setWebsitePhotos(kit.selected_photos);
             }
-          }
-        }
-
-        // Social connection restoration
-        if (socialRes.status === "fulfilled" && socialRes.value) {
-          const s = socialRes.value;
-          if (s.is_connected) {
-            setIsInstagramConnected(true);
           }
         }
 
@@ -1037,106 +1130,150 @@ export default function OnboardingPage() {
         }
       );
 
-      // Route to Social-Media Connectivity (Instagram) before continuing to relevant business details
-      const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-      const target = socialIdx !== -1 ? socialIdx : 3;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("onboarding_step", String(target));
+      // Route directly to the presence-specific step
+      if (selectedOnlinePresence === "website") {
+        const idx = activeSteps.findIndex((s) => s.id === "website_url");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (selectedOnlinePresence === "google_maps") {
+        const idx = activeSteps.findIndex((s) => s.id === "maps_search");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
+        const idx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
+        const idx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (selectedOnlinePresence === "social_media") {
+        const idx = activeSteps.findIndex((s) => s.id === "social_platforms");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else if (selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence") {
+        const idx = activeSteps.findIndex((s) => s.id === "none_details");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      } else {
+        const idx = activeSteps.findIndex((s) => s.id === "identity");
+        const target = idx !== -1 ? idx : 3;
+        setCurrentStep(target);
+        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
       console.error("Failed to save online presence:", err);
-      setError(err?.message || "Failed to save online presence. Please try again.");
+      setError(extractErrorMessage(err, "Failed to save online presence. Please try again."));
     } finally {
       setIsSavingPresence(false);
     }
   };
 
-  // ─── Social Media Connectivity (Instagram) Handlers ───
-  const navigateFromSocialConnect = () => {
-    if (selectedOnlinePresence === "website") {
-      const idx = activeSteps.findIndex((s) => s.id === "website_url");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (selectedOnlinePresence === "google_maps") {
-      const idx = activeSteps.findIndex((s) => s.id === "maps_search");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (selectedOnlinePresence === "marketplace") {
-      const idx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (selectedOnlinePresence === "b2b") {
-      const idx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (selectedOnlinePresence === "none") {
-      const idx = activeSteps.findIndex((s) => s.id === "none_details");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else {
-      const idx = activeSteps.findIndex((s) => s.id === "identity");
-      const target = idx !== -1 ? idx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    }
+  // ─── Social Media Only Flow Handlers ───
+  const handleToggleSocialPlatform = (platformId: string) => {
+    setSelectedSocialPlatforms((prev) => {
+      const exists = prev.includes(platformId);
+      const next = exists ? prev.filter((p) => p !== platformId) : [...prev, platformId];
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_social_platforms", JSON.stringify(next));
+      }
+      return next;
+    });
   };
 
-  const handleSocialConnectBack = () => {
+  const handleSocialHandleChange = (platformId: string, value: string) => {
+    setSocialHandles((prev) => {
+      const next = { ...prev, [platformId]: value };
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_social_handles", JSON.stringify(next));
+        if (platformId === "instagram") {
+          localStorage.setItem("instagram_username", value.replace(/^@/, "").trim());
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleSocialPlatformsBack = () => {
     const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
-    const target = presenceIdx !== -1 ? presenceIdx : 1;
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
     }
   };
 
-  const handleConnectInstagram = async () => {
-    setIsConnectingInstagram(true);
+  const handleSocialPlatformsContinue = async () => {
+    if (selectedSocialPlatforms.length === 0) {
+      setError("Please select at least one social media platform.");
+      return;
+    }
+    const hasAtLeastOneHandle = selectedSocialPlatforms.some(
+      (p) => socialHandles[p] && socialHandles[p].trim().length > 0
+    );
+    if (!hasAtLeastOneHandle) {
+      setError("Please enter your username or page handle for at least one selected platform.");
+      return;
+    }
+    setError("");
+    setIsSavingSocialPlatforms(true);
     try {
-      const username = instagramUsername.trim() || businessProfile.business_name.toLowerCase().replace(/[^a-z0-9]/g, "") || "business_account";
-      await InstagramService.saveInstagramCredentials({
-        accountId: "ig_" + Date.now(),
-        accessToken: "EAAB_" + Math.random().toString(36).substring(2),
-        syncBackend: true,
-      });
       if (typeof window !== "undefined") {
-        localStorage.setItem("instagram_username", username);
+        sessionStorage.setItem("business_social_platforms", JSON.stringify(selectedSocialPlatforms));
+        sessionStorage.setItem("business_social_handles", JSON.stringify(socialHandles));
       }
-      setIsInstagramConnected(true);
-      setInstagramUsername(username);
-      setTimeout(() => {
-        setIsConnectingInstagram(false);
-        navigateFromSocialConnect();
-      }, 500);
-    } catch (e) {
-      console.warn("Instagram connect notice:", e);
-      setIsConnectingInstagram(false);
-      navigateFromSocialConnect();
+      if (!businessProfile.business_name.trim()) {
+        const firstHandle = (socialHandles.instagram || Object.values(socialHandles).find((v) => v && v.trim())) || "";
+        const cleanName = firstHandle.replace(/^@/, "").replace(/[^a-zA-Z0-9 ]/g, " ").trim();
+        if (cleanName) {
+          const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+          setBusinessProfile((prev) => ({ ...prev, business_name: capitalized }));
+          setBusinessDetails((prev) => ({ ...prev, business_name: capitalized }));
+        }
+      }
+      await OnboardingService.saveOnlinePresence("social_media", {
+        business_type: businessProfile.business_type || "Social Commerce",
+        selling_model: businessProfile.selling_model || "Social Media / Direct Selling",
+        selected_platforms: selectedSocialPlatforms,
+        social_handles: socialHandles,
+        instagram_handle: socialHandles.instagram,
+        facebook_handle: socialHandles.facebook,
+        youtube_handle: socialHandles.youtube,
+      });
+      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+      const target = identIdx !== -1 ? identIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save social platforms:", err);
+      setError(err?.message || "Failed to save social platforms. Please try again.");
+    } finally {
+      setIsSavingSocialPlatforms(false);
     }
   };
 
-  const handleSkipInstagramClick = () => {
-    setShowSkipInstagramModal(true);
-  };
-
-  const handleConfirmSkipInstagram = async () => {
-    try {
-      await OnboardingService.skipSocialOnboarding();
-    } catch (_) {}
-    setShowSkipInstagramModal(false);
-    navigateFromSocialConnect();
+  const handleSkipSocialPlatforms = () => {
+    setError("");
+    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
+    const target = identIdx !== -1 ? identIdx : currentStep + 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
   };
 
   // Screen 1: Website URL Handlers
   const handleWebsiteUrlBack = () => {
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -1201,7 +1338,7 @@ export default function OnboardingPage() {
   };
 
   // Real Backend Website Analysis Trigger
-  const startWebsiteAnalysis = async (targetUrl?: string) => {
+  const startWebsiteAnalysis = async (targetUrl?: string, overridePresence?: string) => {
     const rawUrl = targetUrl || websiteUrl;
     if (!rawUrl || !isValidWebsiteUrl(rawUrl)) return;
 
@@ -1219,13 +1356,18 @@ export default function OnboardingPage() {
     const formattedUrl = rawUrl.startsWith("http") ? rawUrl : `https://${rawUrl}`;
 
     try {
-      // 1. Immediately persist entered website to backend
+      // 1. Immediately persist entered website to backend preserving source
       try {
+        const presenceToSave =
+          overridePresence ||
+          (selectedOnlinePresence ? ONLINE_PRESENCE_BACKEND_MAP[selectedOnlinePresence] : undefined) ||
+          selectedOnlinePresence ||
+          "website";
         await OnboardingService.updateProgress({
           website: formattedUrl,
           website_url: formattedUrl,
-          online_presence: "website",
-          business_type: "E-Commerce",
+          online_presence: presenceToSave,
+          business_type: businessProfile.business_type || (presenceToSave === "wholesale_b2b" ? "Wholesale" : "E-Commerce"),
         });
       } catch (_) {}
 
@@ -1694,8 +1836,8 @@ export default function OnboardingPage() {
 
   // ─── Google Maps Flow Handlers ───
   const handleMapsSearchBack = () => {
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2108,8 +2250,8 @@ export default function OnboardingPage() {
   };
 
   const handleMarketplacePlatformsBack = () => {
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2139,15 +2281,16 @@ export default function OnboardingPage() {
         custom_platform_name: customMarketplaceName.trim() || undefined,
       });
 
-      const listingsIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
-      const target = listingsIdx !== -1 ? listingsIdx : 3;
+      // Navigate to the existing URL-entry screen
+      const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+      const target = webIdx !== -1 ? webIdx : 4;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
       console.error("Failed to save marketplace platforms:", err);
-      setError(err?.message || "Failed to save marketplace platforms. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save marketplace platforms. Please retry."));
     } finally {
       setIsSavingMarketplace(false);
     }
@@ -2220,15 +2363,15 @@ export default function OnboardingPage() {
       }
     } catch (err: any) {
       console.error("Failed to save marketplace listings:", err);
-      setError(err?.message || "Failed to save listings. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save listings. Please retry."));
     } finally {
       setIsSavingMarketplace(false);
     }
   };
 
   const handleMarketplaceWebsiteBack = () => {
-    const listIdx = activeSteps.findIndex((s) => s.id === "marketplace_listings");
-    const target = listIdx !== -1 ? listIdx : 3;
+    const platIdx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+    const target = platIdx !== -1 ? platIdx : 3;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2262,10 +2405,10 @@ export default function OnboardingPage() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
       }
-      startWebsiteAnalysis(websiteUrl);
+      startWebsiteAnalysis(websiteUrl, "marketplace_seller");
     } catch (err: any) {
       console.error("Failed to save marketplace website:", err);
-      setError(err?.message || "Failed to save website. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save website. Please retry."));
     } finally {
       setIsSavingMarketplace(false);
     }
@@ -2292,6 +2435,7 @@ export default function OnboardingPage() {
       }
     } catch (err: any) {
       console.error("Failed to skip website:", err);
+      setError(extractErrorMessage(err, "Failed to skip website. Please retry."));
       const identIdx = activeSteps.findIndex((s) => s.id === "identity");
       setCurrentStep(identIdx !== -1 ? identIdx : 5);
     } finally {
@@ -2312,8 +2456,8 @@ export default function OnboardingPage() {
   };
 
   const handleB2bPlatformsBack = () => {
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2343,15 +2487,16 @@ export default function OnboardingPage() {
         custom_platform_name: customB2bPlatformName.trim() || undefined,
       });
 
-      const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
-      const target = listIdx !== -1 ? listIdx : 3;
+      // Navigate to the existing URL-entry screen
+      const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+      const target = webIdx !== -1 ? webIdx : 4;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
       console.error("Failed to save wholesale platforms:", err);
-      setError(err?.message || "Failed to save wholesale platforms. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save wholesale platforms. Please retry."));
     } finally {
       setIsSavingB2b(false);
     }
@@ -2424,15 +2569,15 @@ export default function OnboardingPage() {
       }
     } catch (err: any) {
       console.error("Failed to save wholesale listings:", err);
-      setError(err?.message || "Failed to save listings. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save listings. Please retry."));
     } finally {
       setIsSavingB2b(false);
     }
   };
 
   const handleB2bWebsiteBack = () => {
-    const listIdx = activeSteps.findIndex((s) => s.id === "b2b_listings");
-    const target = listIdx !== -1 ? listIdx : 3;
+    const platIdx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+    const target = platIdx !== -1 ? platIdx : 3;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2466,10 +2611,10 @@ export default function OnboardingPage() {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
       }
-      startWebsiteAnalysis(websiteUrl);
+      startWebsiteAnalysis(websiteUrl, "wholesale_b2b");
     } catch (err: any) {
       console.error("Failed to save wholesale website:", err);
-      setError(err?.message || "Failed to save website. Please retry.");
+      setError(extractErrorMessage(err, "Failed to save website. Please retry."));
     } finally {
       setIsSavingB2b(false);
     }
@@ -2496,6 +2641,7 @@ export default function OnboardingPage() {
       }
     } catch (err: any) {
       console.error("Failed to skip wholesale website:", err);
+      setError(extractErrorMessage(err, "Failed to skip website. Please retry."));
       const identIdx = activeSteps.findIndex((s) => s.id === "identity");
       setCurrentStep(identIdx !== -1 ? identIdx : 5);
     } finally {
@@ -2505,8 +2651,8 @@ export default function OnboardingPage() {
 
   // ─── No Online Presence Flow Handlers ───
   const handleNoneDetailsBack = () => {
-    const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-    const target = socialIdx !== -1 ? socialIdx : 2;
+    const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+    const target = presenceIdx !== -1 ? presenceIdx : 2;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -3034,7 +3180,6 @@ export default function OnboardingPage() {
     { id: "get_started", title: "Get Started", desc: "Welcome" },
     { id: "business_services", title: "Business Services", desc: "Choose services" },
     { id: "presence", title: "Online Presence", desc: "Where you sell" },
-    { id: "social_connect", title: "Instagram", desc: "Link Instagram" },
     ...(selectedOnlinePresence === "website"
       ? [
           { id: "website_url", title: "Website", desc: "Your storefront" },
@@ -3051,10 +3196,9 @@ export default function OnboardingPage() {
           { id: "maps_details", title: "Business Details", desc: "About your shop" },
           { id: "maps_photos", title: "Photos", desc: "Pick shop photos" },
         ]
-      : selectedOnlinePresence === "marketplace"
+      : selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller"
       ? [
           { id: "marketplace_platforms", title: "Marketplaces", desc: "Where you sell" },
-          { id: "marketplace_listings", title: "Listings", desc: "Directory listings" },
           { id: "marketplace_website", title: "Website", desc: "Storefront link" },
           ...(marketplaceSkipWebsite
             ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
@@ -3065,10 +3209,9 @@ export default function OnboardingPage() {
                 { id: "website_photos", title: "Photos", desc: "Pick website photos" },
               ]),
         ]
-      : selectedOnlinePresence === "b2b"
+      : selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b"
       ? [
           { id: "b2b_platforms", title: "B2B Channels", desc: "Wholesale platforms" },
-          { id: "b2b_listings", title: "Listings", desc: "Additional listings" },
           { id: "b2b_website", title: "Storefront", desc: "Storefront link" },
           ...(b2bSkipWebsite
             ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
@@ -3079,7 +3222,12 @@ export default function OnboardingPage() {
                 { id: "website_photos", title: "Photos", desc: "Pick website photos" },
               ]),
         ]
-      : selectedOnlinePresence === "none"
+      : selectedOnlinePresence === "social_media"
+      ? [
+          { id: "social_platforms", title: "Social Profiles", desc: "Select platforms & handles" },
+          { id: "identity", title: "Business Identity", desc: "Name & category" },
+        ]
+      : selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence"
       ? [
           { id: "none_details", title: "Business Basics", desc: "Name & products" },
           { id: "none_brand_kit", title: "Brand Kit", desc: "Colors, font & voice" },
@@ -3108,7 +3256,7 @@ export default function OnboardingPage() {
     currentStepObj.id !== "get_started" &&
     currentStepObj.id !== "business_services" &&
     currentStepObj.id !== "presence" &&
-    currentStepObj.id !== "social_connect" &&
+    currentStepObj.id !== "social_platforms" &&
     currentStepObj.id !== "website_url" &&
     currentStepObj.id !== "website_reading" &&
     currentStepObj.id !== "business_details" &&
@@ -3174,6 +3322,12 @@ export default function OnboardingPage() {
           setError("Please select where your business lives online.");
           return false;
         }
+      } else if (stepId === "social_platforms") {
+        if (selectedSocialPlatforms.length === 0) {
+          setError("Please select at least one social media platform.");
+          return false;
+        }
+        return true;
       } else if (stepId === "website_url") {
         if (!isValidWebsiteUrl(websiteUrl)) {
           setError("Please enter a valid website address.");
@@ -3363,7 +3517,7 @@ export default function OnboardingPage() {
       const target = mapsPhotosIdx !== -1 ? mapsPhotosIdx : currentStep - 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-    } else if (selectedOnlinePresence === "marketplace") {
+    } else if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
       if (marketplaceSkipWebsite) {
         const identIdx = activeSteps.findIndex((s) => s.id === "identity");
         const target = identIdx !== -1 ? identIdx : currentStep - 1;
@@ -3375,7 +3529,7 @@ export default function OnboardingPage() {
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       }
-    } else if (selectedOnlinePresence === "b2b") {
+    } else if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
       if (b2bSkipWebsite) {
         const identIdx = activeSteps.findIndex((s) => s.id === "identity");
         const target = identIdx !== -1 ? identIdx : currentStep - 1;
@@ -3387,7 +3541,7 @@ export default function OnboardingPage() {
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       }
-    } else if (selectedOnlinePresence === "none") {
+    } else if (selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence") {
       const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
       const target = brandKitIdx !== -1 ? brandKitIdx : currentStep - 1;
       setCurrentStep(target);
@@ -3557,19 +3711,16 @@ export default function OnboardingPage() {
         handleFirstThingBack();
         return;
       }
-      if (stepId === "social_connect") {
-        handleSocialConnectBack();
-        return;
-      }
       if (
         stepId === "website_url" ||
         stepId === "maps_search" ||
         stepId === "marketplace_platforms" ||
         stepId === "b2b_platforms" ||
+        stepId === "social_platforms" ||
         stepId === "none_details"
       ) {
-        const socialIdx = activeSteps.findIndex((s) => s.id === "social_connect");
-        const target = socialIdx !== -1 ? socialIdx : 2;
+        const presenceIdx = activeSteps.findIndex((s) => s.id === "presence");
+        const target = presenceIdx !== -1 ? presenceIdx : 2;
         setCurrentStep(target);
         if (typeof window !== "undefined") {
           sessionStorage.setItem("onboarding_step", String(target));
@@ -3694,7 +3845,16 @@ export default function OnboardingPage() {
         return;
       }
       if (stepId === "identity") {
-        if (selectedOnlinePresence === "marketplace") {
+        if (selectedOnlinePresence === "social_media") {
+          const sIdx = activeSteps.findIndex((s) => s.id === "social_platforms");
+          const target = sIdx !== -1 ? sIdx : 3;
+          setCurrentStep(target);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("onboarding_step", String(target));
+          }
+          return;
+        }
+        if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
           setMarketplaceSkipWebsite(false);
           const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
           const target = webIdx !== -1 ? webIdx : 4;
@@ -3704,7 +3864,7 @@ export default function OnboardingPage() {
           }
           return;
         }
-        if (selectedOnlinePresence === "b2b") {
+        if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
           setB2bSkipWebsite(false);
           const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
           const target = webIdx !== -1 ? webIdx : 4;
@@ -3723,7 +3883,7 @@ export default function OnboardingPage() {
         return;
       }
       if (stepId === "website_reading") {
-        if (selectedOnlinePresence === "marketplace") {
+        if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
           const webIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
           const target = webIdx !== -1 ? webIdx : 4;
           setCurrentStep(target);
@@ -3732,7 +3892,7 @@ export default function OnboardingPage() {
           }
           return;
         }
-        if (selectedOnlinePresence === "b2b") {
+        if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
           const webIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
           const target = webIdx !== -1 ? webIdx : 4;
           setCurrentStep(target);
@@ -4027,10 +4187,10 @@ export default function OnboardingPage() {
           target_audience_summary: finalAudience,
           services_products_summary: finalProducts,
           tagline: businessDetails.tagline,
-          marketplaces: selectedOnlinePresence === "marketplace" ? finalMarketplaces : undefined,
-          marketplace_listings: selectedOnlinePresence === "marketplace" ? finalListings : undefined,
-          b2b_platforms: selectedOnlinePresence === "b2b" ? deduplicatedB2bPlatforms : undefined,
-          b2b_listings: selectedOnlinePresence === "b2b" ? finalB2bListings : undefined,
+          marketplaces: (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") ? finalMarketplaces : undefined,
+          marketplace_listings: (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") ? finalListings : undefined,
+          b2b_platforms: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? deduplicatedB2bPlatforms : undefined,
+          b2b_listings: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? finalB2bListings : undefined,
           selected_services: selectedServices,
           business_services: selectedServices,
           onboardingCompleted: true,
@@ -4128,10 +4288,10 @@ export default function OnboardingPage() {
             services_products_summary: finalProducts,
             website: businessProfile.website || websiteUrl,
             logo_url: finalLogo || undefined,
-            marketplaces: selectedOnlinePresence === "marketplace" ? finalMarketplaces : undefined,
-            marketplace_listings: selectedOnlinePresence === "marketplace" ? finalListings : undefined,
-            b2b_platforms: selectedOnlinePresence === "b2b" ? deduplicatedB2bPlatforms : undefined,
-            b2b_listings: selectedOnlinePresence === "b2b" ? finalB2bListings : undefined,
+            marketplaces: (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") ? finalMarketplaces : undefined,
+            marketplace_listings: (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") ? finalListings : undefined,
+            b2b_platforms: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? deduplicatedB2bPlatforms : undefined,
+            b2b_listings: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? finalB2bListings : undefined,
           });
         } catch (_) {}
 
@@ -4465,7 +4625,11 @@ export default function OnboardingPage() {
             {/* 5 Selectable Cards */}
             <div className="space-y-3">
               {ONLINE_PRESENCE_OPTIONS.map((opt) => {
-                const isSelected = selectedOnlinePresence === opt.id;
+                const isSelected =
+                  selectedOnlinePresence === opt.id ||
+                  (opt.id === "marketplace" && selectedOnlinePresence === "marketplace_seller") ||
+                  (opt.id === "b2b" && selectedOnlinePresence === "wholesale_b2b") ||
+                  (opt.id === "none" && selectedOnlinePresence === "no_online_presence");
                 const IconComp = opt.icon;
                 return (
                   <div
@@ -4477,7 +4641,7 @@ export default function OnboardingPage() {
                         : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#181d33]/85"
                     }`}
                   >
-                    <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
                       <IconComp className={`w-5 h-5 ${opt.iconColor}`} />
                     </div>
 
@@ -4520,7 +4684,7 @@ export default function OnboardingPage() {
                 type="button"
                 onClick={() => handleSelectPresence("other")}
                 className={`text-xs sm:text-sm transition-all cursor-pointer ${
-                  selectedOnlinePresence === "other"
+                  selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
                     ? "text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] font-bold underline underline-offset-4"
                     : "text-neutral-400 hover:text-white"
                 }`}
@@ -4565,17 +4729,30 @@ export default function OnboardingPage() {
         </div>
       )}
 
+      {/* Hidden global SVG defs for social gradients */}
+      <svg className="absolute w-0 h-0 overflow-hidden" aria-hidden="true">
+        <defs>
+          <radialGradient id="ig-grad-social" cx="30%" cy="107%" r="150%">
+            <stop offset="0%" stopColor="#fdf497" />
+            <stop offset="5%" stopColor="#fdf497" />
+            <stop offset="45%" stopColor="#fd5949" />
+            <stop offset="60%" stopColor="#d6249f" />
+            <stop offset="90%" stopColor="#285AEB" />
+          </radialGradient>
+        </defs>
+      </svg>
+
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 2B: SOCIAL MEDIA CONNECTIVITY (INSTAGRAM) (Reference Screenshot 1)
+          SCREEN: SOCIAL MEDIA ONLY (social_platforms)
       ══════════════════════════════════════════════════════════════════════ */}
-      {currentStepObj.id === "social_connect" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+      {currentStepObj.id === "social_platforms" && (
+        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[500px] sm:min-h-[560px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
           <div>
-            {/* Top Header: Back button + Progress Indicator (~25%) */}
+            {/* Top Header: Back button + Progress bar (~35%) */}
             <div className="flex items-center gap-3 w-full mb-4">
               <button
                 type="button"
-                onClick={handleSocialConnectBack}
+                onClick={handleSocialPlatformsBack}
                 aria-label="Go back"
                 className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
@@ -4584,115 +4761,157 @@ export default function OnboardingPage() {
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "25%" }}
+                  style={{ width: "35%" }}
                 />
               </div>
             </div>
 
-            {/* Video / Guide Hero Banner matching Reference Screenshot 1 */}
-            <div className="relative rounded-2xl overflow-hidden mb-6 border border-white/10 bg-gradient-to-b from-neutral-900 to-neutral-950 aspect-[16/9] shadow-xl flex items-center justify-center">
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80"
-                alt="Connect Instagram Guide"
-                className="w-full h-full object-cover object-center opacity-80"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              
-              {/* Host floating badges */}
-              <div className="absolute top-3 left-3 text-xs font-bold text-white tracking-wide drop-shadow-md">
-                Connect Instagram
-              </div>
-              <div className="absolute top-3 right-3 bg-white/90 text-neutral-900 text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                Direct publish
-              </div>
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/90">
-                <span className="font-medium drop-shadow">Instagram account connect kijiye</span>
-                <span className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-[10px] backdrop-blur-sm">
-                  <Volume2 className="w-3 h-3" /> Tap to mute
+            {/* Heading */}
+            <div className="mb-4">
+              <span className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase block mb-1">
+                SOCIAL MEDIA PRESENCE
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
+                Where is your business active on{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  Social Media?
                 </span>
-              </div>
-            </div>
-
-            {/* Headings */}
-            <div className="mb-5">
-              <div className="flex items-center gap-2 mb-1">
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  What&apos;s your Instagram?
-                </h1>
-                <div className="w-5 h-5 rounded-full border border-neutral-500 flex items-center justify-center text-neutral-400 text-xs">
-                  i
-                </div>
-              </div>
-              <p className="text-sm text-neutral-400">
-                We&apos;ll learn your style from your last 12 posts
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+                Select your active channels and enter your handle so AI can tailor content to your brand.
               </p>
             </div>
 
-            {/* Instagram Connect Card */}
-            <div className="rounded-2xl border border-white/15 bg-white/[0.04] p-4 backdrop-blur-md space-y-3 mb-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] flex items-center justify-center text-white shadow-md shrink-0">
-                  <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-bold text-white text-base">Connect Instagram</h3>
-                    {isInstagramConnected && (
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
-                        Connected
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-neutral-400 line-clamp-2">
-                    Publish, schedule, and see insights from inside Scalio
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-emerald-400 shrink-0">
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  <ExternalLink className="w-4 h-4 text-neutral-400" />
-                </div>
-              </div>
-
-              {/* Username field (optional handle) */}
-              <div className="pt-1">
-                <Input
-                  type="text"
-                  value={instagramUsername}
-                  onChange={(e) => setInstagramUsername(e.target.value)}
-                  placeholder="@yourbusinesshandle"
-                  className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl focus:border-emerald-500"
-                />
+            {/* Platform Selection Chips / Grid */}
+            <div className="mb-4">
+              <label className="text-xs font-semibold text-neutral-300 block mb-2">
+                1. Select your active platforms:
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                {SOCIAL_PLATFORM_OPTIONS.map((plat) => {
+                  const isSelected = selectedSocialPlatforms.includes(plat.id);
+                  return (
+                    <button
+                      key={plat.id}
+                      type="button"
+                      onClick={() => handleToggleSocialPlatform(plat.id)}
+                      className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer flex items-center gap-2.5 relative select-none ${
+                        isSelected
+                          ? "bg-gradient-to-r from-[#201735]/95 to-[#281b3d]/95 border-[#BE32FF] shadow-[0_0_15px_rgba(190,50,255,0.25)] ring-1 ring-[#BE32FF]/50"
+                          : "bg-white/[0.04] border-white/10 hover:border-white/20 hover:bg-white/[0.08]"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm bg-black/40">
+                        {plat.renderIcon("w-4 h-4")}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">
+                          {plat.name}
+                        </p>
+                        <span className="text-[10px] text-neutral-400 truncate block">
+                          {isSelected ? "Selected" : "Tap to add"}
+                        </span>
+                      </div>
+                      {isSelected && (
+                        <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0">
+                          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <p className="text-xs text-neutral-400 leading-relaxed">
-              Requires an Instagram Business or Creator account. You can skip this step and connect later from Business settings.
-            </p>
+            {/* Usernames / Handles Input Section */}
+            {selectedSocialPlatforms.length > 0 && (
+              <div className="space-y-3 mb-4 rounded-2xl border border-white/15 bg-white/[0.03] p-3.5 backdrop-blur-md animate-in fade-in duration-300">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-neutral-200">
+                    2. Enter your usernames / links:
+                  </label>
+                  <span className="text-[10px] text-neutral-400 font-mono">
+                    {selectedSocialPlatforms.length} platform{selectedSocialPlatforms.length > 1 ? "s" : ""}
+                  </span>
+                </div>
+
+                <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
+                  {selectedSocialPlatforms.map((platId) => {
+                    const plat = SOCIAL_PLATFORM_OPTIONS.find((p) => p.id === platId);
+                    if (!plat) return null;
+                    return (
+                      <div key={platId} className="space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-neutral-300 font-medium flex items-center gap-1.5">
+                            {plat.renderIcon("w-3.5 h-3.5")} {plat.name}
+                          </span>
+                          <span className="text-[10px] text-neutral-500 font-mono">
+                            {plat.helperText}
+                          </span>
+                        </div>
+                        <div className="relative flex items-center">
+                          <div className="absolute left-3 text-xs font-bold text-neutral-500 select-none">
+                            {plat.handlePrefix}
+                          </div>
+                          <Input
+                            type="text"
+                            value={socialHandles[platId] || ""}
+                            onChange={(e) => handleSocialHandleChange(platId, e.target.value)}
+                            placeholder={plat.placeholder}
+                            className={`h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-600 text-xs rounded-xl focus:border-[#be32ff] ${
+                              plat.handlePrefix.length > 2 ? "pl-16" : "pl-8"
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Optional Business Name confirmation */}
+            <div className="mb-3">
+              <label className="text-xs font-medium text-neutral-400 block mb-1">
+                Business / Brand Name (Optional)
+              </label>
+              <Input
+                type="text"
+                value={businessProfile.business_name}
+                onChange={(e) => {
+                  setBusinessProfile({ ...businessProfile, business_name: e.target.value });
+                  setBusinessDetails({ ...businessDetails, business_name: e.target.value });
+                }}
+                placeholder="e.g. My Brand / Store Name"
+                className="h-10 bg-black/30 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl focus:border-[#be32ff]"
+              />
+            </div>
+
+            {/* Validation notice */}
+            {error && (
+              <div className="mb-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
-          <div className="pt-4 pb-2 space-y-2">
+          <div className="pt-2 pb-2 space-y-2">
             <button
               type="button"
-              onClick={handleConnectInstagram}
-              disabled={isConnectingInstagram}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+              onClick={handleSocialPlatformsContinue}
+              disabled={isSavingSocialPlatforms}
+              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
             >
-              {isConnectingInstagram ? (
+              {isSavingSocialPlatforms ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Connecting Instagram...</span>
-                </>
-              ) : isInstagramConnected ? (
-                <>
-                  <span>Continue with Instagram</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <span>Saving profiles...</span>
                 </>
               ) : (
                 <>
-                  <span>Connect Instagram</span>
+                  <span>Continue</span>
                   <ArrowRight className="w-5 h-5 stroke-[2.5]" />
                 </>
               )}
@@ -4700,52 +4919,11 @@ export default function OnboardingPage() {
 
             <button
               type="button"
-              onClick={handleSkipInstagramClick}
-              className="w-full text-center text-sm text-neutral-400 hover:text-white transition-colors py-2 font-medium cursor-pointer"
+              onClick={handleSkipSocialPlatforms}
+              className="w-full text-center text-xs text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
             >
-              Skip for now
+              Skip handles for now
             </button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Skip Instagram Confirmation Modal (Reference Screenshot 2) ─── */}
-      {showSkipInstagramModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm animate-in fade-in duration-200 p-0 sm:p-4">
-          <div className="w-full max-w-md bg-[#0F172A] border border-white/15 rounded-t-3xl sm:rounded-2xl p-6 shadow-2xl animate-in slide-in-from-bottom-6 duration-300">
-            {/* Sheet Handle */}
-            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-5 sm:hidden" />
-
-            {/* Warning Icon in Soft Circle */}
-            <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
-              <AlertTriangle className="w-7 h-7" />
-            </div>
-
-            {/* Content */}
-            <h3 className="text-xl font-bold text-white text-center mb-2">
-              Skip Instagram for now?
-            </h3>
-            <p className="text-sm text-neutral-300 text-center leading-relaxed mb-6">
-              Without Instagram, we can still make content — but we won&apos;t match your style as closely. You can add it anytime from settings.
-            </p>
-
-            {/* Buttons */}
-            <div className="space-y-3">
-              <button
-                type="button"
-                onClick={handleConfirmSkipInstagram}
-                className="w-full h-12 rounded-xl border border-white/20 text-white font-semibold text-sm hover:bg-white/10 active:scale-[0.98] transition-all cursor-pointer"
-              >
-                Skip anyway
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowSkipInstagramModal(false)}
-                className="w-full h-12 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-sm shadow-[0_4px_20px_rgba(16,185,129,0.35)] active:scale-[0.98] transition-all cursor-pointer"
-              >
-                Add it now
-              </button>
-            </div>
           </div>
         </div>
       )}

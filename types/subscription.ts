@@ -41,6 +41,8 @@ export type Subscription = {
   usage: SubscriptionUsage;
   plan_details?: PlanConfig;
   current_period_end?: string;
+  is_paid_plan?: boolean;
+  plan_activation_completed?: boolean;
 };
 
 export type CreditTransaction = {

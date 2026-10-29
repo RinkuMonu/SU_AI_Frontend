@@ -5,14 +5,18 @@ export const subscriptionService = {
   async getMySubscription(): Promise<Subscription> {
     try {
       const response = await api.get("/api/v1/subscription/me");
-      return response.data.data;
+      const data = response.data?.data || response.data;
+      if (data && typeof data === "object") {
+        return data as Subscription;
+      }
+      throw new Error("Invalid subscription response format");
     } catch (e: any) {
       if (e?.response?.status !== 401 && e?.response?.status !== 404) {
-        console.warn("Using mock subscription data");
+        console.warn("Could not retrieve active subscription, using baseline FREE tier", e);
       }
       return {
-        id: "sub_1",
-        user_id: "user_1",
+        id: "sub_free",
+        user_id: "user_current",
         plan_id: "FREE",
         status: "active",
         credits_remaining: 5,
@@ -26,7 +30,11 @@ export const subscriptionService = {
   async getPlans(): Promise<Record<string, PlanConfig>> {
     try {
       const response = await api.get("/api/v1/subscription/plans");
-      return response.data.data;
+      const data = response.data?.data || response.data?.plans || response.data;
+      if (data && typeof data === "object" && !Array.isArray(data)) {
+        return data as Record<string, PlanConfig>;
+      }
+      throw new Error("Invalid plans response format");
     } catch (e) {
       return {
         FREE: { name: "FREE", price: 0, credits: 5, post_limit: 5, reel_limit: 1, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
@@ -38,14 +46,28 @@ export const subscriptionService = {
     }
   },
 
-  async upgradePlan(planId: string): Promise<Subscription> {
-    try {
-      const normalizedPlan = (planId || "FREE").trim().toUpperCase();
-      const response = await api.post("/api/v1/subscription/upgrade", { plan_id: normalizedPlan });
-      return response.data.data;
-    } catch (e) {
-      return this.getMySubscription();
+  async upgradePlan(planId: string, orderId?: string, billingCycle: string = "monthly"): Promise<Subscription> {
+    const normalizedPlan = (planId || "FREE").trim().toUpperCase();
+    if (normalizedPlan === "FREE") {
+      try {
+        const response = await api.post("/api/v1/subscription/activate-free");
+        return response.data?.data || response.data;
+      } catch {
+        const fallbackRes = await api.post("/api/v1/subscription/upgrade", { plan_id: "FREE" });
+        return fallbackRes.data?.data || fallbackRes.data;
+      }
     }
+
+    const payload: Record<string, any> = {
+      plan_id: normalizedPlan,
+      billing_cycle: billingCycle.toLowerCase()
+    };
+    if (orderId) {
+      payload.order_id = orderId;
+    }
+
+    const response = await api.post("/api/v1/subscription/upgrade", payload);
+    return response.data?.data || response.data;
   },
 
   async getCreditTransactions(): Promise<CreditTransaction[]> {
@@ -121,5 +143,10 @@ export const subscriptionService = {
         description: "Plan Activation / Monthly Free Tier Allotted • Credits added" 
       }
     ];
+  },
+
+  async getBillingReport(): Promise<any> {
+    const response = await api.get("/api/v1/subscription/billing/report");
+    return response.data?.data || response.data;
   }
 };

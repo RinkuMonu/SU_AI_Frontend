@@ -77,6 +77,83 @@ export interface SavePlatformsPayload {
   [key: string]: any;
 }
 
+export const ONLINE_PRESENCE_BACKEND_MAP: Record<string, string> = {
+  website: 'website',
+  google_maps: 'google_maps',
+  marketplace: 'marketplace_seller',
+  marketplace_seller: 'marketplace_seller',
+  b2b: 'wholesale_b2b',
+  wholesale_b2b: 'wholesale_b2b',
+  none: 'no_online_presence',
+  no_online_presence: 'no_online_presence',
+  social_media: 'other',
+  other: 'other',
+  something_else: 'something_else',
+};
+
+export const BACKEND_TO_PRESENCE_MAP: Record<string, string> = {
+  website: 'website',
+  google_maps: 'google_maps',
+  marketplace_seller: 'marketplace',
+  marketplace: 'marketplace',
+  wholesale_b2b: 'b2b',
+  b2b: 'b2b',
+  no_online_presence: 'none',
+  none: 'none',
+  other: 'other',
+  something_else: 'other',
+};
+
+/**
+ * Extracts descriptive error messages from Axios / FastAPI / Pydantic responses.
+ * Avoids displaying generic "Request failed with status code 400" messages.
+ */
+export function extractErrorMessage(
+  err: any,
+  fallbackMessage: string = 'Something went wrong. Please try again.'
+): string {
+  if (!err) return fallbackMessage;
+
+  // 1. FastAPI / Pydantic detail field
+  const detail = err.response?.data?.detail;
+  if (detail) {
+    if (typeof detail === 'string') return detail;
+    if (Array.isArray(detail)) {
+      const messages = detail
+        .map((d: any) => {
+          if (typeof d === 'string') return d;
+          if (d?.msg) {
+            const field = Array.isArray(d?.loc) ? d.loc.filter((l: any) => l !== 'body').join('.') : '';
+            return field ? `${field}: ${d.msg}` : d.msg;
+          }
+          return JSON.stringify(d);
+        })
+        .filter(Boolean);
+      if (messages.length > 0) return messages.join('; ');
+    }
+    if (typeof detail === 'object' && detail.msg) return detail.msg;
+    if (typeof detail === 'object') {
+      try {
+        return JSON.stringify(detail);
+      } catch (_) {}
+    }
+  }
+
+  // 2. Custom backend message or error fields
+  const message = err.response?.data?.message;
+  if (typeof message === 'string' && message.trim()) return message;
+
+  const error = err.response?.data?.error;
+  if (typeof error === 'string' && error.trim()) return error;
+
+  // 3. Fallback to err.message if descriptive and not just standard Axios status text
+  if (typeof err.message === 'string' && err.message.trim() && !err.message.includes('status code')) {
+    return err.message;
+  }
+
+  return fallbackMessage;
+}
+
 export const OnboardingService = {
   /**
    * Get full onboarding status from backend
@@ -150,12 +227,16 @@ export const OnboardingService = {
 
   // ─── Online Presence (Business Source) Endpoints ───
   saveOnlinePresence: async (presence: string, extraDetails: Record<string, any> = {}, ...rest: any[]): Promise<any> => {
-    let payload: Record<string, any> = { online_presence: presence };
+    const canonicalPresence = ONLINE_PRESENCE_BACKEND_MAP[presence] || presence;
+    let payload: Record<string, any> = { online_presence: canonicalPresence };
     if (typeof extraDetails === 'object' && extraDetails !== null) {
       payload = { ...payload, ...extraDetails };
     }
     if (rest.length > 0 && typeof rest[0] === 'object' && rest[0] !== null) {
       payload = { ...payload, ...rest[0] };
+    }
+    if (payload.online_presence) {
+      payload.online_presence = ONLINE_PRESENCE_BACKEND_MAP[payload.online_presence] || payload.online_presence;
     }
     const response = await api.post('/api/v1/onboarding/online-presence', payload);
     return response.data?.data || response.data;
@@ -171,11 +252,11 @@ export const OnboardingService = {
   },
 
   // ─── Website Analysis Onboarding Endpoints ───
-  startWebsiteAnalysis: async (website_url: string, business_name?: string): Promise<any> => {
+  startWebsiteAnalysis: async (website_url: string, business_name?: string, onboarding_type?: string): Promise<any> => {
     const response = await api.post('/api/v1/onboarding/website-analysis', {
       website_url,
       url: website_url,
-      onboarding_type: 'website',
+      onboarding_type: onboarding_type || 'website',
       business_name,
     });
     return response.data?.data || response.data;

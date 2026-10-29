@@ -199,8 +199,8 @@ export function AvailablePlansModal({
           onPlanActivated("FREE");
         }
       } else {
-        // Paid plan selection: initiate secure payment flow
-        const response = await paymentService.createPayment(plan.id);
+        // Paid plan selection: initiate secure payment flow with chosen billing cycle
+        const response = await paymentService.createPayment(plan.id, selectedCycle);
 
         if (response.payment_url) {
           // Open secure payment checkout
