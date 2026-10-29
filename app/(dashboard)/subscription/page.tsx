@@ -202,6 +202,9 @@ export default function SubscriptionPage() {
             err?.message ||
             "Failed to initiate secure payment. Please try again."
         );
+        if (typeof window !== "undefined") {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
       }
       setUpgradingPlan(null);
     }
