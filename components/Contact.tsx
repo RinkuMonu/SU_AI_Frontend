@@ -1,9 +1,92 @@
 'use client';
 
-import React from 'react';
-import { MapPin, Mail, Phone, Clock } from 'lucide-react';
+import React, { useState } from 'react';
+import { MapPin, Mail, Phone, Clock, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import api from '@/lib/api';
 
 export function Contact() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('idle');
+    setFeedbackMessage('');
+
+    // Client-side validations
+    const cleanName = name.trim();
+    const cleanEmail = email.trim();
+    const cleanSubject = subject.trim();
+    const cleanMessage = message.trim();
+
+    if (!cleanName) {
+      setStatus('error');
+      setFeedbackMessage('Please enter your name.');
+      return;
+    }
+
+    if (!cleanEmail || !/^\S+@\S+\.\S+$/.test(cleanEmail)) {
+      setStatus('error');
+      setFeedbackMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (!cleanSubject) {
+      setStatus('error');
+      setFeedbackMessage('Please enter a subject.');
+      return;
+    }
+
+    if (!cleanMessage || cleanMessage.length < 5) {
+      setStatus('error');
+      setFeedbackMessage('Please enter a message (at least 5 characters).');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const res = await api.post('/api/v1/leads', {
+        name: cleanName,
+        email: cleanEmail,
+        subject: cleanSubject,
+        message: cleanMessage,
+        source: 'website_contact_form'
+      });
+
+      if (res.data?.success || res.status === 200 || res.status === 201) {
+        setStatus('success');
+        setFeedbackMessage(
+          res.data?.message || 'Thank you! Your message has been sent successfully. We will get back to you soon.'
+        );
+        setName('');
+        setEmail('');
+        setSubject('');
+        setMessage('');
+      } else {
+        setStatus('error');
+        setFeedbackMessage(res.data?.message || 'Unable to submit your message. Please try again.');
+      }
+    } catch (err: any) {
+      console.error('Contact form submission error:', err);
+      const serverError =
+        err?.response?.data?.detail ||
+        (Array.isArray(err?.response?.data?.detail)
+          ? err.response.data.detail[0]?.msg
+          : null) ||
+        err?.response?.data?.message ||
+        'Failed to send message. Please try again or email us directly at support@dhandagrow.com.';
+      setStatus('error');
+      setFeedbackMessage(serverError);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <section id="contact" className="pt-6 sm:pt-8 pb-14 sm:pb-18 relative bg-white overflow-hidden border-t border-slate-100">
       {/* Soft brand gradient glows */}
@@ -110,42 +193,89 @@ export function Contact() {
             </div>
           </div>
 
-          {/* Right Column - Contact Form */}
+          {/* Right Column - Dynamic Contact Form */}
           <div className="lg:col-span-3 bg-white border border-slate-200/90 rounded-[28px] p-7 sm:p-8 relative overflow-hidden shadow-[0_4px_30px_rgba(0,0,0,0.04)]">
-            <form className="space-y-4 relative z-10 flex flex-col h-full" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-4 relative z-10 flex flex-col h-full" onSubmit={handleSubmit}>
+              
+              {/* Feedback Alert Banner */}
+              {status === 'success' && (
+                <div className="p-4 rounded-[14px] bg-emerald-50 border border-emerald-200/80 text-emerald-800 flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="text-[13px] leading-relaxed">
+                    <p className="font-semibold text-emerald-900">Message Sent Successfully!</p>
+                    <p className="text-emerald-700 mt-0.5">{feedbackMessage}</p>
+                  </div>
+                </div>
+              )}
+
+              {status === 'error' && (
+                <div className="p-4 rounded-[14px] bg-rose-50 border border-rose-200/80 text-rose-800 flex items-start gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertCircle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+                  <div className="text-[13px] leading-relaxed">
+                    <p className="font-semibold text-rose-900">Unable to Send Message</p>
+                    <p className="text-rose-700 mt-0.5">{feedbackMessage}</p>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <input 
                   type="text" 
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isSubmitting}
                   placeholder="Your Name" 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px]"
+                  required
+                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px] disabled:opacity-60"
                 />
               </div>
               <div>
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
                   placeholder="Your Email" 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px]"
+                  required
+                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px] disabled:opacity-60"
                 />
               </div>
               <div>
                 <input 
                   type="text" 
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  disabled={isSubmitting}
                   placeholder="Subject" 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px]"
+                  required
+                  className="w-full bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px] disabled:opacity-60"
                 />
               </div>
               <div className="flex-1">
                 <textarea 
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  disabled={isSubmitting}
                   placeholder="Your Message" 
-                  className="w-full h-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px] resize-none"
+                  required
+                  rows={5}
+                  className="w-full h-full min-h-[140px] bg-slate-50 border border-slate-200 rounded-[14px] px-5 py-3.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#7c3aed] focus:bg-white focus:ring-2 focus:ring-[#7c3aed]/15 transition-all text-[14px] resize-none disabled:opacity-60"
                 ></textarea>
               </div>
               
               <button 
                 type="submit" 
-                className="w-full mt-2 py-4 rounded-[14px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white font-bold hover:opacity-95 hover:shadow-lg hover:shadow-pink-500/25 active:scale-[0.99] transition-all shadow-md text-[14px] cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full mt-2 py-4 rounded-[14px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white font-bold hover:opacity-95 hover:shadow-lg hover:shadow-pink-500/25 active:scale-[0.99] transition-all shadow-md text-[14px] cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Send Message
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Sending Message...</span>
+                  </>
+                ) : (
+                  <span>Send Message</span>
+                )}
               </button>
             </form>
           </div>
