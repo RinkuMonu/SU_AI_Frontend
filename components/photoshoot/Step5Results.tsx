@@ -37,6 +37,7 @@ interface Step5ResultsProps {
   onSaveToGallery: () => void;
   onDownloadSelected: () => void;
   onDownloadSingle: (item: PhotoshootFinalResult) => void;
+  onDownloadZip?: () => void;
   onStartNewPhotoshoot: () => void;
   onBackToEdit: () => void;
 }
@@ -56,6 +57,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
   onSaveToGallery,
   onDownloadSelected,
   onDownloadSingle,
+  onDownloadZip,
   onStartNewPhotoshoot,
   onBackToEdit,
 }) => {
@@ -175,11 +177,24 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
               type="button"
               disabled={selectedResultIds.length === 0}
               onClick={onDownloadSelected}
-              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed border border-white/10"
+              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed border border-white/10"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download Selected ({selectedResultIds.length})</span>
             </button>
+
+            {/* Download ZIP Archive */}
+            {onDownloadZip && (
+              <button
+                type="button"
+                onClick={onDownloadZip}
+                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-white/10"
+                title="Download all high-res photos in this photoshoot session as a ZIP archive"
+              >
+                <Download className="w-3.5 h-3.5 text-brand-pink" />
+                <span>Download All (ZIP)</span>
+              </button>
+            )}
 
             {/* Save to My Gallery */}
             <button
@@ -424,3 +439,4 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
     </div>
   );
 };
+

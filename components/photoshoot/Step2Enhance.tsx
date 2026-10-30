@@ -20,9 +20,10 @@ import {
 import { 
   EnhancedVariation, 
   EnhancementStyle, 
-  PhotoshootUploadedImage 
+  PhotoshootUploadedImage,
+  ProductCategory 
 } from "./types";
-import { ENHANCEMENT_STYLES } from "./data";
+import { ENHANCEMENT_STYLES, PRODUCT_CATEGORIES } from "./data";
 
 interface Step2EnhanceProps {
   uploadedImages: PhotoshootUploadedImage[];
@@ -30,6 +31,9 @@ interface Step2EnhanceProps {
   selectedEnhancedIds: string[];
   enhancementStyle: EnhancementStyle;
   isEnhancing: boolean;
+  detectedAnalysis?: any;
+  productCategory?: ProductCategory;
+  onCategoryChange?: (category: ProductCategory) => void;
   onStyleSelect: (style: EnhancementStyle) => void;
   onVariationToggle: (id: string) => void;
   onRegenerateVariation: (id: string) => void;
@@ -44,6 +48,9 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
   selectedEnhancedIds,
   enhancementStyle,
   isEnhancing,
+  detectedAnalysis,
+  productCategory,
+  onCategoryChange,
   onStyleSelect,
   onVariationToggle,
   onRegenerateVariation,
@@ -75,9 +82,82 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
           Enhance Your Product Images
         </h1>
         <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-          Select an AI enhancement lighting grade and choose your preferred enhanced variations.
+          Review detected product attributes, select an AI enhancement grade, and choose your preferred variations.
         </p>
       </div>
+
+      {/* AI Visual Multimodal Inspection Card */}
+      {detectedAnalysis && (
+        <div className="bg-[#0b0e1b] border border-brand-purple/30 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xl relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-purple/30 to-brand-pink/30 flex items-center justify-center text-brand-pink border border-brand-purple/40">
+                <Sparkles className="w-4 h-4" />
+              </div>
+              <div>
+                <h2 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                  <span>AI Product Visual Analysis</span>
+                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Inspected
+                  </span>
+                </h2>
+                <p className="text-[11px] text-neutral-400">
+                  Multimodal computer vision inspection detected key product attributes
+                </p>
+              </div>
+            </div>
+
+            {/* Category confirmation & override */}
+            {productCategory && onCategoryChange && (
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-neutral-400">Category:</span>
+                <select
+                  value={productCategory}
+                  onChange={(e) => onCategoryChange(e.target.value as ProductCategory)}
+                  className="bg-black/40 border border-white/20 rounded-lg px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand-purple cursor-pointer"
+                >
+                  {PRODUCT_CATEGORIES.map((c) => (
+                    <option key={c.id} value={c.id} className="bg-[#121424] text-white">
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2.5 space-y-1">
+              <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">Product Type</span>
+              <p className="font-bold text-white truncate">{detectedAnalysis.product_type || "Detected Product"}</p>
+            </div>
+            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2.5 space-y-1">
+              <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">Colors</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {Array.isArray(detectedAnalysis.main_colors) && detectedAnalysis.main_colors.length > 0 ? (
+                  detectedAnalysis.main_colors.map((c: string, idx: number) => (
+                    <span key={idx} className="text-[11px] font-medium text-neutral-200 bg-white/10 px-1.5 py-0.5 rounded">
+                      {c}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-[11px] text-neutral-400">Natural</span>
+                )}
+              </div>
+            </div>
+            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2.5 space-y-1">
+              <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">Material & Texture</span>
+              <p className="font-medium text-neutral-200 truncate">{detectedAnalysis.material_and_texture || "Commercial Grade"}</p>
+            </div>
+            <div className="bg-white/[0.03] border border-white/5 rounded-xl p-2.5 space-y-1">
+              <span className="text-[10px] uppercase font-semibold text-neutral-400 tracking-wider">Model Compatibility</span>
+              <p className="font-semibold text-brand-purple truncate">
+                {detectedAnalysis.suitable_for_model ? `Suitable (${detectedAnalysis.recommended_model_type || "Model"})` : "Product-Only Recommended"}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 3 Enhancement Style Selector Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -436,3 +516,4 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
     </div>
   );
 };
+

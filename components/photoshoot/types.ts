@@ -21,12 +21,14 @@ export interface PhotoshootUploadedImage {
   angle: ImageAngle;
   file?: File;
   uploadedAt: string;
+  backendImageId?: string;
 }
 
 export type EnhancementStyle = "studio_premium" | "luxury_cinematic" | "marketplace_white";
 
 export interface EnhancedVariation {
   id: string;
+  sourceImageId?: string;
   style: EnhancementStyle;
   styleName: string;
   originalUrl: string;
@@ -68,11 +70,13 @@ export interface PhotoshootFinalResult {
   resolution: string;
   selected: boolean;
   createdAt: string;
+  isSaved?: boolean;
   isRegenerating?: boolean;
 }
 
 export interface PhotoshootWorkflowState {
   step: 1 | 2 | 3 | 4 | 5;
+  sessionId: string | null;
   uploadedImages: PhotoshootUploadedImage[];
   productCategory: ProductCategory;
   productName: string;
@@ -90,4 +94,6 @@ export interface PhotoshootWorkflowState {
   generationStage: string;
   finalResults: PhotoshootFinalResult[];
   selectedResultIds: string[];
+  detectedAnalysis?: any;
 }
+

@@ -41,6 +41,9 @@ interface Step4PromptAndVoiceProps {
   selectedStyles: string[];
   uploadedImages: PhotoshootUploadedImage[];
   isGenerating: boolean;
+  preparedPrompt?: string;
+  isPreparingPrompt?: boolean;
+  onPreparePrompt?: () => void;
   onPromptChange: (prompt: string) => void;
   onBack: () => void;
   onGenerate: () => void;
@@ -59,6 +62,9 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
   selectedStyles,
   uploadedImages,
   isGenerating,
+  preparedPrompt,
+  isPreparingPrompt,
+  onPreparePrompt,
   onPromptChange,
   onBack,
   onGenerate,
@@ -155,6 +161,36 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Synthesized Prompt Preview & Trigger */}
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
+                  <Wand2 className="w-3.5 h-3.5 text-brand-pink" />
+                  <span>Synthesized Studio Photographic Prompt:</span>
+                </span>
+                {onPreparePrompt && (
+                  <button
+                    type="button"
+                    onClick={onPreparePrompt}
+                    disabled={isPreparingPrompt}
+                    className="text-[11px] font-bold text-brand-purple hover:text-brand-pink transition-colors cursor-pointer flex items-center gap-1 disabled:opacity-50"
+                  >
+                    {isPreparingPrompt ? "Synthesizing..." : "Preview Backend Prompt ↻"}
+                  </button>
+                )}
+              </div>
+
+              {preparedPrompt ? (
+                <div className="p-3 rounded-xl bg-black/60 border border-brand-purple/20 text-[11px] text-neutral-300 font-mono leading-relaxed max-h-32 overflow-y-auto">
+                  {preparedPrompt}
+                </div>
+              ) : (
+                <p className="text-[11px] text-neutral-500 italic">
+                  Click &quot;Preview Backend Prompt&quot; to inspect how your custom instructions, category, and styles are synthesized into photographic directives.
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -275,3 +311,4 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
     </div>
   );
 };
+

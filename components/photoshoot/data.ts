@@ -359,3 +359,45 @@ export const PRESET_PROMPTS = [
   "Modern Scandinavian oak wood table with soft overcast daylight and artisanal ceramic accents",
   "High-energy urban neon street background with shallow depth of field and premium cinematic blur",
 ];
+
+export function categoryIdToBackendName(cat: ProductCategory): string {
+  switch (cat) {
+    case "mens_clothing":
+      return "Men's Clothing";
+    case "womens_clothing":
+      return "Women's Clothing";
+    case "unisex_clothing":
+      return "Unisex Clothing";
+    case "beauty_cosmetics":
+      return "Beauty & Cosmetics";
+    case "jewellery_accessories":
+      return "Jewellery & Accessories";
+    case "food_beverage":
+      return "Food & Beverage";
+    case "electronics":
+      return "Electronics";
+    case "home_decor":
+      return "Home Decor";
+    case "candles":
+      return "Candles";
+    default:
+      return "Other Products";
+  }
+}
+
+export function backendNameToCategoryId(name?: string): ProductCategory {
+  if (!name) return "womens_clothing";
+  const lower = name.toLowerCase();
+  if (lower.includes("men") && !lower.includes("women")) return "mens_clothing";
+  if (lower.includes("women")) return "womens_clothing";
+  if (lower.includes("unisex")) return "unisex_clothing";
+  if (lower.includes("jewel") || lower.includes("accessory")) return "jewellery_accessories";
+  if (lower.includes("beauty") || lower.includes("cosmetic")) return "beauty_cosmetics";
+  if (lower.includes("food") || lower.includes("beverage")) return "food_beverage";
+  if (lower.includes("electronic") || lower.includes("gadget")) return "electronics";
+  if (lower.includes("decor") || lower.includes("home")) return "home_decor";
+  if (lower.includes("candle")) return "candles";
+  return "other";
+}
+
+

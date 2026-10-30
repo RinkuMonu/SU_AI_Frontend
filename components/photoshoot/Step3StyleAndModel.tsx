@@ -33,6 +33,8 @@ interface Step3StyleAndModelProps {
   withModel: boolean;
   selectedModelId: string | null;
   selectedStyles: string[];
+  customModels?: AIModelProfile[];
+  customStyles?: PhotographyStyleOption[];
   onToggleWithModel: (withModel: boolean) => void;
   onModelSelect: (modelId: string | null) => void;
   onStyleToggle: (styleId: string) => void;
@@ -45,26 +47,33 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
   withModel,
   selectedModelId,
   selectedStyles,
+  customModels,
+  customStyles,
   onToggleWithModel,
   onModelSelect,
   onStyleToggle,
   onBack,
   onNext,
 }) => {
+  const modelsPool = customModels && customModels.length > 0 ? customModels : AI_MODELS;
+
   // Filter models based on product category
   const filteredModels = useMemo(() => {
     if (productCategory === "mens_clothing") {
-      return AI_MODELS.filter((m) => m.gender === "male");
+      return modelsPool.filter((m) => m.gender === "male");
     }
     if (productCategory === "womens_clothing") {
-      return AI_MODELS.filter((m) => m.gender === "female");
+      return modelsPool.filter((m) => m.gender === "female");
     }
     // For unisex, jewellery, cosmetics, other: show both male & female models
-    return AI_MODELS;
-  }, [productCategory]);
+    return modelsPool;
+  }, [productCategory, modelsPool]);
 
   // Determine available poses/styles
   const availableStyles: PhotographyStyleOption[] = useMemo(() => {
+    if (customStyles && customStyles.length > 0) {
+      return customStyles;
+    }
     if (withModel) {
       if (productCategory === "jewellery_accessories" || productCategory === "beauty_cosmetics") {
         return MODEL_POSES_JEWELLERY;
@@ -74,9 +83,9 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
       // Product-only styles
       return PRODUCT_ONLY_STYLES;
     }
-  }, [withModel, productCategory]);
+  }, [withModel, productCategory, customStyles]);
 
-  const selectedModel = AI_MODELS.find((m) => m.id === selectedModelId);
+  const selectedModel = modelsPool.find((m) => m.id === selectedModelId);
   const currentCategoryInfo = PRODUCT_CATEGORIES.find((c) => c.id === productCategory);
 
   return (
@@ -406,3 +415,4 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
     </div>
   );
 };
+

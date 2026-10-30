@@ -92,3 +92,4 @@ export const PhotoshootStepper: React.FC<PhotoshootStepperProps> = ({
     </div>
   );
 };
+
