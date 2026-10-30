@@ -44,6 +44,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 import Link from "next/link";
 
 // ─── Platform Icons ─────────────────────────────────────────────────────────────
@@ -1430,14 +1431,31 @@ export default function AICalendarPage() {
 
               {/* Caption */}
               <div>
-                <Label className="text-xs text-white font-medium mb-1.5 block">Caption Draft</Label>
-                <textarea
-                  rows={3}
-                  placeholder="Write caption or hook story here..."
-                  value={scheduleCaption}
-                  onChange={e => setScheduleCaption(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl p-3 text-white text-xs focus:ring-2 focus:ring-brand-purple outline-none"
-                />
+                <div className="flex items-center justify-between mb-1.5">
+                  <Label className="text-xs text-white font-medium block">Caption Draft</Label>
+                  <VoiceInputButton
+                    onTranscript={(text) => setScheduleCaption(text)}
+                    currentValue={scheduleCaption}
+                    size="sm"
+                    tooltip="Speak caption (English/Hindi)"
+                  />
+                </div>
+                <div className="relative">
+                  <textarea
+                    rows={3}
+                    placeholder="Write caption or hook story here..."
+                    value={scheduleCaption}
+                    onChange={e => setScheduleCaption(e.target.value)}
+                    className="w-full bg-surface-elevated border border-border rounded-xl p-3 pb-8 text-white text-xs focus:ring-2 focus:ring-brand-purple outline-none"
+                  />
+                  <div className="absolute right-2 bottom-2">
+                    <VoiceInputButton
+                      onTranscript={(text) => setScheduleCaption(text)}
+                      currentValue={scheduleCaption}
+                      size="sm"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Hashtags */}

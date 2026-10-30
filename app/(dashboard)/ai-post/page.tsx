@@ -42,6 +42,7 @@ import ObjectiveSelector from "@/components/ai/ObjectiveSelector";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
 import { CornerDialog } from "@/components/ui/CornerDialog";
 import { BrandKitToggleCard } from "@/components/brand/BrandKitToggleCard";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 
 import { generatePost } from "@/services/content.service";
 import { FashionService } from "@/services/fashion.service";
@@ -727,18 +728,35 @@ export default function AIPostPage() {
                 <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">2</span>
                 Describe Your Post
               </h3>
-              <span className="text-[11px] text-text-muted font-mono">
-                {creativeInstruction.length} / 500 chars
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-text-muted font-mono">
+                  {creativeInstruction.length} / 500 chars
+                </span>
+                <VoiceInputButton
+                  onTranscript={(text) => setCreativeInstruction(text)}
+                  currentValue={creativeInstruction}
+                  size="sm"
+                  tooltip="Speak to describe post (English/Hindi)"
+                />
+              </div>
             </div>
 
-            <textarea
-              value={creativeInstruction}
-              maxLength={500}
-              onChange={(e) => setCreativeInstruction(e.target.value)}
-              placeholder={`E.g. Create a ${activeContentTypeObj.title.toLowerCase()} highlighting luxury textures, royal festive aesthetic, and rich lighting...`}
-              className="w-full bg-[#0a142c] border border-border rounded-xl p-3.5 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[110px] resize-y text-sm leading-relaxed"
-            />
+            <div className="relative">
+              <textarea
+                value={creativeInstruction}
+                maxLength={500}
+                onChange={(e) => setCreativeInstruction(e.target.value)}
+                placeholder={`E.g. Create a ${activeContentTypeObj.title.toLowerCase()} highlighting luxury textures, royal festive aesthetic, and rich lighting...`}
+                className="w-full bg-[#0a142c] border border-border rounded-xl p-3.5 pb-9 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[110px] resize-y text-sm leading-relaxed"
+              />
+              <div className="absolute right-3 bottom-3">
+                <VoiceInputButton
+                  onTranscript={(text) => setCreativeInstruction(text)}
+                  currentValue={creativeInstruction}
+                  size="sm"
+                />
+              </div>
+            </div>
 
             {/* Example prompt suggestion chips */}
             <div className="space-y-1.5">
@@ -1216,12 +1234,22 @@ export default function AIPostPage() {
                           />
                         </div>
                         <div>
-                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Caption</label>
-                          <textarea 
-                            value={editedCaption}
-                            onChange={(e) => setEditedCaption(e.target.value)}
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white text-xs focus:outline-none focus:border-brand-purple min-h-[100px] whitespace-pre-line leading-relaxed"
-                          />
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="text-[10px] text-text-muted font-bold block uppercase">Caption</label>
+                            <VoiceInputButton
+                              onTranscript={(text) => setEditedCaption(text)}
+                              currentValue={editedCaption}
+                              size="sm"
+                              tooltip="Dictate caption"
+                            />
+                          </div>
+                          <div className="relative">
+                            <textarea 
+                              value={editedCaption}
+                              onChange={(e) => setEditedCaption(e.target.value)}
+                              className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 pb-8 text-white text-xs focus:outline-none focus:border-brand-purple min-h-[100px] whitespace-pre-line leading-relaxed"
+                            />
+                          </div>
                         </div>
                         <div>
                           <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Call to Action (CTA)</label>

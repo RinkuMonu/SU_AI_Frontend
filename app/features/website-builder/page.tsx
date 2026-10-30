@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { FeatureExpansionSections } from '@/components/FeatureExpansionSections';
 import { FeatureShowcaseSection } from '@/components/FeatureShowcaseSection';
+import { VoiceInputButton } from '@/components/ui/VoiceInput';
 import { 
   Globe, 
   Wand2, 
@@ -384,13 +385,12 @@ export default function WebsiteBuilderPage() {
               {/* Chat Input Bar */}
               <div className="p-3 border-t border-slate-800 bg-slate-900/90">
                 <div className="flex items-center gap-2">
-                  <button 
-                    type="button" 
-                    title="Voice Input" 
-                    className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors"
-                  >
-                    <Mic className="w-4 h-4 text-blue-400" />
-                  </button>
+                  <VoiceInputButton
+                    onTranscript={(text) => setChatInput(text)}
+                    currentValue={chatInput}
+                    size="sm"
+                    tooltip="Speak site changes (English/Hindi)"
+                  />
                   <input
                     type="text"
                     value={chatInput}

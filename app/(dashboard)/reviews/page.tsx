@@ -6,6 +6,7 @@ import { Review } from '@/types/reviews';
 import { Star, Sparkles, Send, Loader2, RefreshCw } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { VoiceInputButton } from '@/components/ui/VoiceInput';
 
 export default function ReviewsPage() {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -165,11 +166,29 @@ export default function ReviewsPage() {
                     <div className="mt-6 pt-4 border-t border-border space-y-4">
                       {aiReplies[reviewId] ? (
                         <div className="space-y-3 animate-in fade-in zoom-in-95">
-                          <textarea 
-                            className="w-full min-h-[90px] p-3 border border-border rounded-md text-sm bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none resize-none"
-                            value={aiReplies[reviewId]}
-                            onChange={(e) => setAiReplies({...aiReplies, [reviewId]: e.target.value})}
-                          />
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium text-text-muted">Edit reply or speak your answer:</span>
+                            <VoiceInputButton
+                              onTranscript={(text) => setAiReplies(prev => ({ ...prev, [reviewId]: text }))}
+                              currentValue={aiReplies[reviewId] || ''}
+                              size="sm"
+                              tooltip="Speak reply (English/Hindi)"
+                            />
+                          </div>
+                          <div className="relative">
+                            <textarea 
+                              className="w-full min-h-[90px] p-3 pb-8 border border-border rounded-md text-sm bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none resize-none"
+                              value={aiReplies[reviewId]}
+                              onChange={(e) => setAiReplies({...aiReplies, [reviewId]: e.target.value})}
+                            />
+                            <div className="absolute right-2 bottom-2">
+                              <VoiceInputButton
+                                onTranscript={(text) => setAiReplies(prev => ({ ...prev, [reviewId]: text }))}
+                                currentValue={aiReplies[reviewId] || ''}
+                                size="sm"
+                              />
+                            </div>
+                          </div>
                           <div className="flex gap-2 justify-end">
                             <Button 
                               variant="outline" 

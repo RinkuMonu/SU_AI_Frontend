@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, CheckCircle2, Share2 } from "lucide-react";
 import { CornerDialog } from "@/components/ui/CornerDialog";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 
 import { useCreateAd } from "@/hooks/useCreateAd";
 
@@ -80,15 +81,32 @@ export default function CreateAdPage() {
         <div className="space-y-6 rounded-2xl border border-border bg-surface p-6 lg:col-span-2 shadow-lg">
 
           <div>
-            <label className="mb-2 block font-semibold text-white">
-              Ad Prompt
-            </label>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="Describe the ad you want to generate in detail..."
-              className="min-h-[200px] w-full rounded-lg border border-border bg-surface-elevated text-white p-4 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
-            />
+            <div className="flex items-center justify-between mb-2">
+              <label className="font-semibold text-white">
+                Ad Prompt
+              </label>
+              <VoiceInputButton
+                onTranscript={(text) => setPrompt(text)}
+                currentValue={prompt}
+                size="sm"
+                tooltip="Speak ad prompt (English/Hindi)"
+              />
+            </div>
+            <div className="relative">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe the ad you want to generate in detail..."
+                className="min-h-[200px] w-full rounded-lg border border-border bg-surface-elevated text-white p-4 pb-10 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
+              />
+              <div className="absolute right-3 bottom-3">
+                <VoiceInputButton
+                  onTranscript={(text) => setPrompt(text)}
+                  currentValue={prompt}
+                  size="sm"
+                />
+              </div>
+            </div>
           </div>
 
           {error && (

@@ -59,6 +59,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Logo } from "@/components/ui/Logo";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
@@ -8072,17 +8073,34 @@ export default function OnboardingPage() {
 
               {/* Field 6: Short Business Description (Optional) */}
               <div className="space-y-1.5">
-                <Label htmlFor="none-b-desc" className="text-xs font-semibold text-neutral-300">
-                  Business story / description <span className="text-neutral-500 font-normal">(Optional)</span>
-                </Label>
-                <textarea
-                  id="none-b-desc"
-                  rows={2}
-                  value={noneDescription}
-                  onChange={(e) => setNoneDescription(e.target.value)}
-                  placeholder="Tell us a little about your business background or specialities..."
-                  className="w-full p-3 rounded-2xl bg-[#0f1015] border border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff] focus:outline-none resize-none"
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="none-b-desc" className="text-xs font-semibold text-neutral-300">
+                    Business story / description <span className="text-neutral-500 font-normal">(Optional)</span>
+                  </Label>
+                  <VoiceInputButton
+                    onTranscript={(text) => setNoneDescription(text)}
+                    currentValue={noneDescription}
+                    size="sm"
+                    tooltip="Speak your business story (English/Hindi)"
+                  />
+                </div>
+                <div className="relative">
+                  <textarea
+                    id="none-b-desc"
+                    rows={2}
+                    value={noneDescription}
+                    onChange={(e) => setNoneDescription(e.target.value)}
+                    placeholder="Tell us a little about your business background or specialities..."
+                    className="w-full p-3 pb-8 rounded-2xl bg-[#0f1015] border border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff] focus:outline-none resize-none"
+                  />
+                  <div className="absolute right-2.5 bottom-2.5">
+                    <VoiceInputButton
+                      onTranscript={(text) => setNoneDescription(text)}
+                      currentValue={noneDescription}
+                      size="sm"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -9496,15 +9514,32 @@ export default function OnboardingPage() {
 
                 {/* Description */}
                 <div className="space-y-1.5">
-                  <Label htmlFor="b_desc" className="text-xs font-medium text-neutral-300">Business Description</Label>
-                  <textarea
-                    id="b_desc"
-                    rows={2}
-                    placeholder="Short description of your products or services (e.g. Trendy ethnic wear for modern women)..."
-                    value={businessProfile.business_description}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, business_description: e.target.value })}
-                    className="flex w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="b_desc" className="text-xs font-medium text-neutral-300">Business Description</Label>
+                    <VoiceInputButton
+                      onTranscript={(text) => setBusinessProfile({ ...businessProfile, business_description: text })}
+                      currentValue={businessProfile.business_description}
+                      size="sm"
+                      tooltip="Speak business description (English/Hindi)"
+                    />
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      id="b_desc"
+                      rows={2}
+                      placeholder="Short description of your products or services (e.g. Trendy ethnic wear for modern women)..."
+                      value={businessProfile.business_description}
+                      onChange={(e) => setBusinessProfile({ ...businessProfile, business_description: e.target.value })}
+                      className="flex w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 pb-8 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                    />
+                    <div className="absolute right-2.5 bottom-2.5">
+                      <VoiceInputButton
+                        onTranscript={(text) => setBusinessProfile({ ...businessProfile, business_description: text })}
+                        currentValue={businessProfile.business_description}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Logo & Brand Color */}
@@ -9921,15 +9956,32 @@ export default function OnboardingPage() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infBio" className="text-xs font-medium text-neutral-300">Creator Bio / Profile Summary</Label>
-                  <textarea
-                    id="infBio"
-                    rows={3}
-                    placeholder="Briefly describe your content niche, audience vibe, and brand collaboration style..."
-                    value={influencerProfile.bio}
-                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, bio: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-[#0f1015] p-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff]"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="infBio" className="text-xs font-medium text-neutral-300">Creator Bio / Profile Summary</Label>
+                    <VoiceInputButton
+                      onTranscript={(text) => setInfluencerProfile({ ...influencerProfile, bio: text })}
+                      currentValue={influencerProfile.bio}
+                      size="sm"
+                      tooltip="Speak creator bio (English/Hindi)"
+                    />
+                  </div>
+                  <div className="relative">
+                    <textarea
+                      id="infBio"
+                      rows={3}
+                      placeholder="Briefly describe your content niche, audience vibe, and brand collaboration style..."
+                      value={influencerProfile.bio}
+                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, bio: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-[#0f1015] p-3 pb-8 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff]"
+                    />
+                    <div className="absolute right-2.5 bottom-2.5">
+                      <VoiceInputButton
+                        onTranscript={(text) => setInfluencerProfile({ ...influencerProfile, bio: text })}
+                        currentValue={influencerProfile.bio}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="space-y-1.5">

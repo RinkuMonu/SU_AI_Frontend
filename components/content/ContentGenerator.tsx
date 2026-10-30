@@ -42,6 +42,7 @@ import { getProducts } from '@/services/product.service';
 import { BrandKitToggleCard } from '@/components/brand/BrandKitToggleCard';
 import { BrandKit } from '@/types/brand';
 import api from '@/lib/api';
+import { VoiceInputButton } from '@/components/ui/VoiceInput';
 
 interface ContentGeneratorProps {
   initialType?: string;
@@ -627,17 +628,34 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
                 <Label htmlFor="prodDesc" className="text-xs font-semibold text-slate-200">
                   Product Description
                 </Label>
-                <span className="text-[10px] text-text-muted font-mono">{productDescription.length}/400 chars</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-text-muted font-mono">{productDescription.length}/400 chars</span>
+                  <VoiceInputButton
+                    onTranscript={(text) => setProductDescription(text)}
+                    currentValue={productDescription}
+                    size="sm"
+                    tooltip="Speak product description"
+                  />
+                </div>
               </div>
-              <textarea
-                id="prodDesc"
-                rows={3}
-                maxLength={400}
-                value={productDescription}
-                onChange={(e) => setProductDescription(e.target.value)}
-                placeholder="e.g. Traditional pure silk saree woven with intricate golden zari motifs and regal contrast pallu, perfect for grand weddings and festivals."
-                className="w-full rounded-xl border border-border bg-surface p-3 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
-              />
+              <div className="relative">
+                <textarea
+                  id="prodDesc"
+                  rows={3}
+                  maxLength={400}
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  placeholder="e.g. Traditional pure silk saree woven with intricate golden zari motifs and regal contrast pallu, perfect for grand weddings and festivals."
+                  className="w-full rounded-xl border border-border bg-surface p-3 pb-8 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
+                />
+                <div className="absolute right-2.5 bottom-2.5">
+                  <VoiceInputButton
+                    onTranscript={(text) => setProductDescription(text)}
+                    currentValue={productDescription}
+                    size="sm"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Features / Key Selling Points */}
@@ -877,17 +895,34 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
 
             {/* Additional Custom Instructions */}
             <div className="space-y-1.5 pt-1">
-              <Label htmlFor="addInst" className="text-xs font-semibold text-slate-200">
-                Additional Custom Instructions <span className="text-text-muted font-normal">(Optional)</span>
-              </Label>
-              <textarea
-                id="addInst"
-                rows={2}
-                value={additionalInstructions}
-                onChange={(e) => setAdditionalInstructions(e.target.value)}
-                placeholder="Any special offers, hashtags, emojis, or styling nuances you want AI to include?"
-                className="w-full rounded-xl border border-border bg-surface p-2.5 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="addInst" className="text-xs font-semibold text-slate-200">
+                  Additional Custom Instructions <span className="text-text-muted font-normal">(Optional)</span>
+                </Label>
+                <VoiceInputButton
+                  onTranscript={(text) => setAdditionalInstructions(text)}
+                  currentValue={additionalInstructions}
+                  size="sm"
+                  tooltip="Speak instructions (English/Hindi)"
+                />
+              </div>
+              <div className="relative">
+                <textarea
+                  id="addInst"
+                  rows={2}
+                  value={additionalInstructions}
+                  onChange={(e) => setAdditionalInstructions(e.target.value)}
+                  placeholder="Any special offers, hashtags, emojis, or styling nuances you want AI to include?"
+                  className="w-full rounded-xl border border-border bg-surface p-2.5 pb-8 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
+                />
+                <div className="absolute right-2 bottom-2">
+                  <VoiceInputButton
+                    onTranscript={(text) => setAdditionalInstructions(text)}
+                    currentValue={additionalInstructions}
+                    size="sm"
+                  />
+                </div>
+              </div>
             </div>
           </div>
 

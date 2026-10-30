@@ -33,6 +33,7 @@ import {
   Circle,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 import {
   getBrandKit,
   createBrandKit,
@@ -1254,22 +1255,45 @@ export function BrandKitRegistrationModal({
                     <label htmlFor="modal-desc" className="text-xs font-semibold text-slate-200">
                       Business Description <span className="text-brand-pink">*</span>
                     </label>
-                    <span className="text-[10px] text-text-muted">
-                      {businessDescription.length}/500 chars (min 5)
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <VoiceInputButton
+                        onTranscript={(text) => {
+                          setBusinessDescription(text);
+                          manuallyEditedFieldsRef.current.add("businessDescription");
+                        }}
+                        currentValue={businessDescription}
+                        size="sm"
+                        tooltip="Speak business description (English/Hindi)"
+                      />
+                      <span className="text-[10px] text-text-muted">
+                        {businessDescription.length}/500 chars (min 5)
+                      </span>
+                    </div>
                   </div>
-                  <textarea
-                    id="modal-desc"
-                    rows={3}
-                    maxLength={500}
-                    value={businessDescription}
-                    onChange={(e) => {
-                      setBusinessDescription(e.target.value);
-                      manuallyEditedFieldsRef.current.add("businessDescription");
-                    }}
-                    placeholder="Describe what you sell, your target customers, signature products, and brand values..."
-                    className="w-full p-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
-                  />
+                  <div className="relative">
+                    <textarea
+                      id="modal-desc"
+                      rows={3}
+                      maxLength={500}
+                      value={businessDescription}
+                      onChange={(e) => {
+                        setBusinessDescription(e.target.value);
+                        manuallyEditedFieldsRef.current.add("businessDescription");
+                      }}
+                      placeholder="Describe what you sell, your target customers, signature products, and brand values..."
+                      className="w-full p-3 pb-8 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
+                    />
+                    <div className="absolute right-2 bottom-2">
+                      <VoiceInputButton
+                        onTranscript={(text) => {
+                          setBusinessDescription(text);
+                          manuallyEditedFieldsRef.current.add("businessDescription");
+                        }}
+                        currentValue={businessDescription}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

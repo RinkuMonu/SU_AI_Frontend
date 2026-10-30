@@ -30,6 +30,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 import { useAuth } from "@/components/auth/AuthProvider";
 
 interface ChatMessage {
@@ -745,16 +746,26 @@ export default function SupportPage() {
                   </button>
 
                   {/* Message Input */}
-                  <Input
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    placeholder={
-                      activeConversation?.status === "Resolved"
-                        ? "Query is resolved. Type to reply and reopen..."
-                        : "Type your message to support..."
-                    }
-                    className="h-11 rounded-xl bg-surface border-border text-white text-xs sm:text-sm flex-1 focus:border-brand-purple"
-                  />
+                  <div className="relative flex-1">
+                    <Input
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      placeholder={
+                        activeConversation?.status === "Resolved"
+                          ? "Query is resolved. Type to reply and reopen..."
+                          : "Type or speak your message to support..."
+                      }
+                      className="h-11 rounded-xl bg-surface border-border text-white text-xs sm:text-sm w-full pr-10 focus:border-brand-purple"
+                    />
+                    <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                      <VoiceInputButton
+                        onTranscript={(text) => setMessageInput(text)}
+                        currentValue={messageInput}
+                        size="sm"
+                        tooltip="Speak support message (English/Hindi)"
+                      />
+                    </div>
+                  </div>
 
                   {/* Send Button */}
                   <Button
@@ -844,18 +855,35 @@ export default function SupportPage() {
 
               {/* Problem Description */}
               <div className="space-y-2">
-                <Label htmlFor="contactDescription" className="text-xs font-semibold text-slate-200">
-                  Problem Description <span className="text-rose-400">*</span>
-                </Label>
-                <textarea
-                  id="contactDescription"
-                  rows={5}
-                  value={contactDescription}
-                  onChange={(e) => setContactDescription(e.target.value)}
-                  placeholder="Describe your question or issue in detail. If there was an error message, please include it..."
-                  required
-                  className="w-full rounded-xl border border-border bg-surface-elevated/80 p-3.5 text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all"
-                />
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="contactDescription" className="text-xs font-semibold text-slate-200">
+                    Problem Description <span className="text-rose-400">*</span>
+                  </Label>
+                  <VoiceInputButton
+                    onTranscript={(text) => setContactDescription(text)}
+                    currentValue={contactDescription}
+                    size="sm"
+                    tooltip="Speak your issue (English/Hindi)"
+                  />
+                </div>
+                <div className="relative">
+                  <textarea
+                    id="contactDescription"
+                    rows={5}
+                    value={contactDescription}
+                    onChange={(e) => setContactDescription(e.target.value)}
+                    placeholder="Describe your question or issue in detail. If there was an error message, please include it..."
+                    required
+                    className="w-full rounded-xl border border-border bg-surface-elevated/80 p-3.5 pb-10 text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all"
+                  />
+                  <div className="absolute right-3 bottom-3">
+                    <VoiceInputButton
+                      onTranscript={(text) => setContactDescription(text)}
+                      currentValue={contactDescription}
+                      size="sm"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Screenshot / File Attachment */}

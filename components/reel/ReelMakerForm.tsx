@@ -43,6 +43,7 @@ import {
   Layers,
   ArrowRight
 } from "lucide-react";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 
 interface ReelMakerFormProps {
   onGenerate: (request: GenerateReelRequest) => void;
@@ -1116,19 +1117,36 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                       <Wand2 className="w-4 h-4 text-[#8b5cf6]" />
                       Or describe your product with a prompt
                     </span>
-                    <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                      {textPrompt.length}/500
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                        {textPrompt.length}/500
+                      </span>
+                      <VoiceInputButton
+                        onTranscript={(text) => setTextPrompt(text)}
+                        currentValue={textPrompt}
+                        size="sm"
+                        tooltip="Speak product description"
+                      />
+                    </div>
                   </div>
 
-                  <textarea
-                    rows={4}
-                    maxLength={500}
-                    value={textPrompt}
-                    onChange={(e) => setTextPrompt(e.target.value)}
-                    placeholder="Example: A premium cotton men's T-shirt, round neck, available in multiple colours, stylish and comfortable..."
-                    className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071023] p-3 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-[#8b5cf6] focus:outline-none resize-none leading-relaxed"
-                  />
+                  <div className="relative">
+                    <textarea
+                      rows={4}
+                      maxLength={500}
+                      value={textPrompt}
+                      onChange={(e) => setTextPrompt(e.target.value)}
+                      placeholder="Example: A premium cotton men's T-shirt, round neck, available in multiple colours, stylish and comfortable..."
+                      className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071023] p-3 pb-8 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-[#8b5cf6] focus:outline-none resize-none leading-relaxed"
+                    />
+                    <div className="absolute right-2 bottom-2">
+                      <VoiceInputButton
+                        onTranscript={(text) => setTextPrompt(text)}
+                        currentValue={textPrompt}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
 
                   {visualError && (
                     <p className="mt-1.5 text-[11px] text-red-500 font-medium">
@@ -1586,19 +1604,36 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                   Prompt (Optional)
                 </h2>
               </div>
-              <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
-                {customPrompt.length}/800
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+                  {customPrompt.length}/800
+                </span>
+                <VoiceInputButton
+                  onTranscript={(text) => setCustomPrompt(text)}
+                  currentValue={customPrompt}
+                  size="sm"
+                  tooltip="Speak reel instructions (English/Hindi)"
+                />
+              </div>
             </div>
 
-            <textarea
-              rows={3}
-              maxLength={800}
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="Give specific instructions for the reel, e.g. 'Show product features, highlight discount, use modern and dramatic style, end with a Instagram CTA...'"
-              className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#071023] p-3.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/30 focus:outline-none resize-none leading-relaxed transition-all"
-            />
+            <div className="relative">
+              <textarea
+                rows={3}
+                maxLength={800}
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder="Give specific instructions for the reel, e.g. 'Show product features, highlight discount, use modern and dramatic style, end with a Instagram CTA...'"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#071023] p-3.5 pb-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/30 focus:outline-none resize-none leading-relaxed transition-all"
+              />
+              <div className="absolute right-2.5 bottom-2.5">
+                <VoiceInputButton
+                  onTranscript={(text) => setCustomPrompt(text)}
+                  currentValue={customPrompt}
+                  size="sm"
+                />
+              </div>
+            </div>
           </div>
 
         </div>

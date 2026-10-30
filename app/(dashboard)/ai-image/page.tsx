@@ -6,6 +6,7 @@ import { Download, Sparkles, Image as ImageIcon, Loader2, Share2, CheckCircle2 }
 
 import MultiImageUploader from "@/components/ai/MultiImageUploader";
 import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAlert";
+import { VoiceInputButton } from "@/components/ui/VoiceInput";
 
 import { imageService } from "@/services/image.service";
 import api from "@/lib/api";
@@ -179,15 +180,32 @@ export default function AIImagePage() {
 
         <div className="space-y-6">
           <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
-            <h2 className="text-xl font-semibold mb-4 text-white">
-              Prompt
-            </h2>
-            <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder="E.g., A minimalist workspace with a coffee cup and a laptop, soft lighting..."
-              className="w-full bg-[#0a142c] border border-border rounded-xl p-4 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y"
-            />
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-white">
+                Prompt
+              </h2>
+              <VoiceInputButton
+                onTranscript={(text) => setPrompt(text)}
+                currentValue={prompt}
+                tooltip="Speak to type image prompt (English/Hindi)"
+              />
+            </div>
+            <div className="relative">
+              <textarea
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="E.g., A minimalist workspace with a coffee cup and a laptop, soft lighting..."
+                className="w-full bg-[#0a142c] border border-border rounded-xl p-4 pb-11 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y"
+              />
+              <div className="absolute right-3 bottom-3">
+                <VoiceInputButton
+                  onTranscript={(text) => setPrompt(text)}
+                  currentValue={prompt}
+                  size="sm"
+                  tooltip="Dictate prompt"
+                />
+              </div>
+            </div>
           </section>
 
           <section className="rounded-2xl bg-surface border border-border p-6 shadow-lg">
