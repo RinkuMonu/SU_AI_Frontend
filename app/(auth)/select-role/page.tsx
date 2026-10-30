@@ -143,7 +143,10 @@ export default function SelectRolePage() {
   // Protection: direct unauthenticated visitors to login first
   useEffect(() => {
     if (!isLoading && !user) {
-      router.replace("/login/user");
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      if (!token) {
+        router.replace("/login/user");
+      }
     }
   }, [user, isLoading, router]);
 
@@ -212,16 +215,14 @@ export default function SelectRolePage() {
         sessionStorage.setItem("selected_role", selectedRole);
         localStorage.setItem("selected_role", selectedRole);
       }
-      const authoritativeRole = updatedUser?.role || selectedRole;
-      if (authoritativeRole === "businessman") {
-        if (isCompleted) {
-          router.replace(getDashboardRouteForRole(authoritativeRole));
-        } else {
-          router.replace("/onboarding");
-        }
-      } else {
-        router.replace(getDashboardRouteForRole(authoritativeRole));
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("selected_role", selectedRole);
+        localStorage.setItem("selected_role", selectedRole);
+        sessionStorage.setItem("signup_role", selectedRole);
+        sessionStorage.removeItem("onboarding_step");
+        sessionStorage.removeItem("show_onboarding_plan");
       }
+      router.push("/onboarding");
     } catch (err: any) {
       setIsSubmitting(false);
       const msg = err?.message || err?.response?.data?.detail || "Failed to save your selected role to the server. Please try again.";
@@ -239,7 +240,8 @@ export default function SelectRolePage() {
     }
   };
 
-  if (isLoading) {
+  const hasToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  if (isLoading && !hasToken && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#090A15] text-white">
         <div className="flex flex-col items-center gap-3">

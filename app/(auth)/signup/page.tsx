@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { 
-  Loader2, 
+import {
+  Loader2,
   X,
   ChevronDown,
   Moon,
@@ -16,13 +16,14 @@ import {
   ArrowRight,
   ShieldCheck,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Phone
 } from "lucide-react";
-import { 
-  COUNTRY_CODES, 
-  validatePhoneNumber, 
+import {
+  COUNTRY_CODES,
+  validatePhoneNumber,
   sanitizeNationalNumber,
-  maskPhoneNumber 
+  maskPhoneNumber
 } from "@/lib/phone";
 import { authService, OtpDeliveryChannel } from "@/services/auth.service";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -50,6 +51,95 @@ const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
     <path
       fill="#EA4335"
       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+    />
+  </svg>
+);
+
+// Phone with Face ID & Glowing Blue Shield Illustration (Images 2 & 3)
+const OtpPhoneShieldIllustration = () => (
+  <svg
+    className="w-16 h-16 sm:w-20 sm:h-20 mx-auto select-none"
+    viewBox="0 0 96 96"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="phoneScreenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#0B1E48" />
+        <stop offset="100%" stopColor="#051028" />
+      </linearGradient>
+      <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#38BDF8" />
+        <stop offset="50%" stopColor="#2563EB" />
+        <stop offset="100%" stopColor="#1D4ED8" />
+      </linearGradient>
+      <filter id="shieldGlow" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="3" result="blur" />
+        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+      </filter>
+    </defs>
+
+    {/* Phone Body */}
+    <rect
+      x="24"
+      y="8"
+      width="44"
+      height="68"
+      rx="9"
+      fill="url(#phoneScreenGrad)"
+      stroke="#2563EB"
+      strokeWidth="2.2"
+    />
+
+    {/* Speaker notch */}
+    <rect x="40" y="13" width="12" height="2" rx="1" fill="#3B82F6" />
+
+    {/* Face ID Viewfinder Corner Brackets */}
+    <path
+      d="M34 26 h -3 v 3 M58 26 h 3 v 3 M34 43 h -3 v -3 M58 43 h 3 v -3"
+      stroke="#38BDF8"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+
+    {/* Face Avatar */}
+    <circle cx="46" cy="32" r="4.2" fill="#38BDF8" />
+    <path
+      d="M39 42 c 0 -3.6 3.1 -6.8 7 -6.8 s 7 3.2 7 6.8"
+      stroke="#38BDF8"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+    />
+
+    {/* Text / Message placeholder lines */}
+    <rect x="33" y="49" width="26" height="2.5" rx="1.25" fill="#1E40AF" />
+    <rect x="33" y="54" width="18" height="2" rx="1" fill="#1E3A8A" />
+
+    {/* Home indicator dot */}
+    <circle cx="46" cy="69" r="1.3" fill="#3B82F6" />
+
+    {/* Sparkle Accent Rays above Shield */}
+    <path d="M74 38 L 78 34" stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M80 43 L 85 42" stroke="#38BDF8" strokeWidth="1.8" strokeLinecap="round" />
+    <path d="M72 47 L 76 49" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round" />
+
+    {/* Blue Glowing Shield */}
+    <path
+      d="M58 46 C 68 46, 76 40, 76 40 C 76 40, 76 56, 76 60 C 76 70, 67 76, 58 80 C 49 76, 40 70, 40 60 C 40 56, 40 40, 40 40 C 40 40, 48 46, 58 46 Z"
+      fill="url(#shieldGrad)"
+      stroke="#60A5FA"
+      strokeWidth="1.5"
+      filter="url(#shieldGlow)"
+    />
+
+    {/* Checkmark inside Shield */}
+    <path
+      d="M51 59 L 56 64 L 66 53"
+      stroke="white"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   </svg>
 );
@@ -388,489 +478,382 @@ export default function SignupPage() {
     }
   };
 
-  const formattedDisplayPhone = `${countryCode}-${phone || "7857889083"}`;
+  const formattedDisplayPhone = `${countryCode} ${phone || ""}`;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0d0e12] text-neutral-900 dark:text-[#f1f1f5] flex flex-col justify-between selection:bg-brand-purple/20 transition-colors duration-200">
-      
-      {/* ─────────────────────────────────────────────────────────────────────────────
-          TOP NAVBAR: DhandaGrow Brand Logo + Language Selector + Theme Toggle
-         ───────────────────────────────────────────────────────────────────────────── */}
-      <header className="w-full px-6 py-4 md:px-12 flex items-center justify-between z-20">
-        <Link href="/" className="flex items-center gap-2 group">
-          <img
-            src="/images/dhandagrow.png"
-            alt="DhandaGrow AI"
-            className="h-8 md:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
-          />
-        </Link>
-
-        <div className="flex items-center gap-3">
-          {/* Theme Toggle Button (Light/Dark Mode) */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label="Toggle Light/Dark Theme"
-            className="w-9 h-9 rounded-full border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#15161b] text-neutral-700 dark:text-neutral-300 hover:border-neutral-300 dark:hover:border-white/25 flex items-center justify-center transition-all cursor-pointer shadow-xs"
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
-          >
-            {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-600" />}
-          </button>
-
-          {/* Scaleo-style Multi-Language Selector */}
-          <LanguageSelector align="right" />
-        </div>
-      </header>
+    <div className="h-screen w-screen overflow-hidden bg-[#071226] text-[#f1f1f5] flex items-center justify-center relative select-none font-sans px-4 sm:px-6 pt-2 pb-2 sm:pt-3 sm:pb-3">
 
       {/* ─────────────────────────────────────────────────────────────────────────────
-          MAIN SECTION: Scaleo Desktop Split View & Mobile Centered Card
+          BOTTOM WAVES: Flowing organic curves matching Image 1
          ───────────────────────────────────────────────────────────────────────────── */}
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-        
-        {/* Scaleo Promotional Left Banner (Desktop only - Screenshots 2 & 3) */}
-        <div className="hidden lg:flex lg:col-span-6 xl:col-span-6 flex-col justify-between rounded-3xl overflow-hidden relative min-h-[580px] shadow-2xl border border-neutral-200 dark:border-white/10 p-8 select-none bg-neutral-900">
-          <img
-            src="/images/ai-marketing-workspace.png"
-            alt="DhandaGrow AI Studio"
-            className="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity scale-105"
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Bottom Left Sunset Gradient Wave */}
+        <svg
+          className="absolute bottom-0 left-0 w-[55vw] max-w-[650px] h-[34vh] max-h-[320px]"
+          viewBox="0 0 650 260"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="waveSunsetSignup" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FA8366" />
+              <stop offset="25%" stopColor="#F2548E" />
+              <stop offset="60%" stopColor="#7E32A0" />
+              <stop offset="100%" stopColor="#2A125E" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0 90 C 160 120, 320 190, 650 260 L 650 260 L 0 260 Z"
+            fill="url(#waveSunsetSignup)"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          
-          <div className="relative z-10">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/20">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              {t("banner_badge_new", "New Account • DhandaGrow AI")}
-            </span>
-          </div>
+        </svg>
 
-          <div className="relative z-10 space-y-3 max-w-md">
-            <h2 className="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              {t("banner_title", "Turn viewers into buyers")}
-            </h2>
-            <p className="text-neutral-300 text-sm leading-relaxed">
-              {t("banner_desc", "Put your business in front of thousands. Create viral reels, studio photoshoots, and ads that get noticed across every feed, and turn them into paying customers.")}
-            </p>
-          </div>
-        </div>
+        {/* Bottom Right Deep Violet Wave Layer */}
+        <svg
+          className="absolute bottom-0 right-0 w-[45vw] max-w-[550px] h-[22vh] max-h-[220px]"
+          viewBox="0 0 550 220"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id="waveVioletRightSignup" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#1B124C" stopOpacity="0.3" />
+              <stop offset="60%" stopColor="#2E176E" stopOpacity="0.75" />
+              <stop offset="100%" stopColor="#4A1E9E" stopOpacity="0.85" />
+            </linearGradient>
+          </defs>
+          <path
+            d="M0 220 C 180 200, 340 140, 550 120 L 550 220 Z"
+            fill="url(#waveVioletRightSignup)"
+          />
+        </svg>
+      </div>
 
-        {/* ─────────────────────────────────────────────────────────────────────────────
-            RIGHT COLUMN: The Scaleo-style Centered Auth Card
-           ───────────────────────────────────────────────────────────────────────────── */}
-        <div className="col-span-1 lg:col-span-6 xl:col-span-6 flex flex-col justify-center items-center w-full">
-          <div className="w-full max-w-[440px] bg-white dark:bg-[#15161b] rounded-3xl border border-neutral-200/80 dark:border-white/10 shadow-xl shadow-neutral-200/40 dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 sm:p-8 space-y-6 transition-all relative">
-            
-            {/* Global Error Banner */}
-            {error && (
-              <div className="p-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl flex items-start justify-between gap-2 animate-in fade-in">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-                  <span className="leading-relaxed">{error}</span>
-                </div>
-                {existingUserPrompt ? (
-                  <Link
-                    href={`/login/user?phone=${encodeURIComponent(existingUserPrompt)}`}
-                    className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
-                  >
-                    Log In &rarr;
-                  </Link>
-                ) : (error.toLowerCase().includes("sms") || error.toLowerCase().includes("whatsapp") || error.toLowerCase().includes("temporarily unavailable")) ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const nextChannel = selectedChannel === "sms" ? "whatsapp" : "sms";
-                      handleSendOtp(nextChannel);
-                    }}
-                    disabled={isSendingOtp}
-                    className="shrink-0 font-bold text-xs text-emerald-600 dark:text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    Try {selectedChannel === "sms" ? "WhatsApp" : "SMS"} &rarr;
-                  </button>
-                ) : null}
+      {/* ─────────────────────────────────────────────────────────────────────────────
+          MAIN CONTENT: Centered Auth Card
+         ───────────────────────────────────────────────────────────────────────────── */}
+      <main className="relative z-10 w-full max-w-md h-full flex items-center justify-center px-4">
+
+        {/* Centered Auth Card (#10131c) - Exact Figma Styling */}
+        <div className="w-full max-w-[375px] xl:max-w-[390px] self-center bg-[#10131c] rounded-2xl border border-slate-700/60 shadow-2xl shadow-black/50 p-6 sm:p-7 space-y-4 sm:space-y-4.5 relative z-10 shrink-0">
+
+          {/* Global Error Banner */}
+          {error && (
+            <div className="p-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start justify-between gap-1.5 animate-in fade-in">
+              <div className="flex items-start gap-1.5">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-400" />
+                <span className="leading-snug">{error}</span>
               </div>
-            )}
-
-            {/* Global Success Banner */}
-            {successMsg && !error && (
-              <div className="p-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
-                <span>{successMsg}</span>
-              </div>
-            )}
-
-            {/* ═══════════════════════════════════════════════════════════════════════════
-                STEP 1: Scaleo Phone Input Screen (Screenshot 1)
-               ═══════════════════════════════════════════════════════════════════════════ */}
-            {step === "phone" && (
-              <div className="space-y-6 animate-in fade-in duration-300">
-                <div className="text-center space-y-1">
-                  <h1 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                    {t("signup_welcome_title", "Welcome to DhandaGrow")}
-                  </h1>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {t("signup_welcome_desc", "Create your account to start growing your business")}
-                  </p>
-                </div>
-
-                {/* Phone Field Group */}
-                <div className="space-y-2">
-                  <label
-                    htmlFor="scaleo-signup-phone"
-                    className="block text-[11px] font-bold tracking-wider text-neutral-500 dark:text-neutral-400 uppercase"
-                  >
-                    {t("phone_label", "ENTER YOUR PHONE NUMBER")}
-                  </label>
-
-                  <div className="flex gap-2">
-                    {/* Country Code Pill */}
-                    <div className="w-28 sm:w-32 shrink-0">
-                      <select
-                        id="scaleo-signup-country-code"
-                        aria-label="Country Code"
-                        value={countryCode}
-                        onChange={(e) => {
-                          const newCode = e.target.value;
-                          setCountryCode(newCode);
-                          setPhone(sanitizeNationalNumber(newCode, phone));
-                          if (phoneError) setPhoneError("");
-                        }}
-                        className="flex h-12 w-full rounded-xl border border-neutral-300 dark:border-white/10 bg-white dark:bg-[#0f1014] px-3 py-2 text-sm font-semibold text-neutral-900 dark:text-white focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all cursor-pointer shadow-xs"
-                      >
-                        {COUNTRY_CODES.map((c, idx) => (
-                          <option key={`${c.code}-${c.country}-${idx}`} value={c.code} className="bg-white dark:bg-[#15161b] text-neutral-900 dark:text-white">
-                            {c.flag} {c.code}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Mobile Number Input */}
-                    <div className="flex-1">
-                      <input
-                        id="scaleo-signup-phone"
-                        type="tel"
-                        inputMode="tel"
-                        autoComplete="tel"
-                        placeholder={t("phone_placeholder", "7857889083")}
-                        value={phone}
-                        onChange={(e) => {
-                          const sanitized = sanitizeNationalNumber(countryCode, e.target.value);
-                          setPhone(sanitized);
-                          if (phoneError) setPhoneError("");
-                          if (error) setError("");
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleSendOtp("sms");
-                          }
-                        }}
-                        className={`w-full h-12 px-4 rounded-xl bg-white dark:bg-[#0f1014] text-neutral-900 dark:text-white placeholder:text-neutral-400 text-base font-medium border ${
-                          phoneError ? "border-red-500" : "border-neutral-300 dark:border-white/10 hover:border-neutral-400 dark:hover:border-white/20"
-                        } focus:outline-none focus:border-emerald-500 dark:focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all shadow-xs`}
-                      />
-                    </div>
-                  </div>
-
-                  {phoneError && (
-                    <p className="text-xs text-red-500 pl-1">{phoneError}</p>
-                  )}
-                </div>
-
-                {/* Scaleo Soft Mint Green "Send OTP" Button */}
+              {existingUserPrompt ? (
+                <Link
+                  href={`/login/user?phone=${encodeURIComponent(existingUserPrompt)}`}
+                  className="shrink-0 font-bold text-xs text-purple-400 hover:underline"
+                >
+                  Log In &rarr;
+                </Link>
+              ) : (error.toLowerCase().includes("sms") || error.toLowerCase().includes("whatsapp") || error.toLowerCase().includes("temporarily unavailable")) ? (
                 <button
                   type="button"
-                  onClick={() => handleSendOtp("sms")}
+                  onClick={() => {
+                    const nextChannel = selectedChannel === "sms" ? "whatsapp" : "sms";
+                    handleSendOtp(nextChannel);
+                  }}
                   disabled={isSendingOtp}
-                  className="w-full h-12 rounded-xl bg-[#6ee7b7] hover:bg-[#34d399] active:bg-[#10b981] text-emerald-950 font-bold text-sm tracking-wide transition-all shadow-sm active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                  className="shrink-0 font-bold text-xs text-emerald-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
                 >
-                  {isSendingOtp ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-emerald-950" />
-                      <span>{t("sending_otp", "Sending OTP...")}</span>
-                    </>
-                  ) : (
-                    <span>{t("send_otp", "Send OTP")}</span>
-                  )}
+                  Try {selectedChannel === "sms" ? "WhatsApp" : "SMS"} &rarr;
                 </button>
+              ) : null}
+            </div>
+          )}
 
-                {/* Scaleo OR Divider */}
-                <div className="relative flex items-center justify-center py-1">
-                  <div className="w-full border-t border-neutral-200 dark:border-white/10" />
-                  <span className="absolute bg-white dark:bg-[#15161b] px-3 text-[11px] font-bold tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">
-                    {t("or_divider", "OR")}
+          {/* Global Success Banner */}
+          {successMsg && !error && (
+            <div className="p-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-center gap-1.5 animate-in fade-in">
+              <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════════════════════════
+              STEP 1: Phone Input Screen (Exact Image 1 Design)
+             ═══════════════════════════════════════════════════════════════════════════ */}
+          {step === "phone" && (
+            <div className="space-y-4 animate-in fade-in duration-300">
+              {/* Logo & Subtitle inside Card */}
+              <div className="flex items-center gap-3">
+                <img
+                  src="/images/logo-icon.png"
+                  alt="DhandaGrow"
+                  className="w-10 h-10 object-contain shrink-0"
+                />
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xl font-bold tracking-tight text-[#4F75FF]">
+                      Dhanda<span className="text-[#FA5D42]">Grow</span>
+                    </span>
+                    <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded-md bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white tracking-wider">
+                      AI+
+                    </span>
+                  </div>
+                  <span className="text-xs text-slate-300 font-normal tracking-wide mt-1">
+                    India&apos;s AI Business Growth App
                   </span>
                 </div>
-
-                {/* Alternative Authentication: Google (G Logo Only) + WhatsApp (Logo Only) */}
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Google Button: ONLY Google "G" Logo */}
-                  <button
-                    type="button"
-                    onClick={() => handleGoogleSignup()}
-                    disabled={socialLoading !== null}
-                    aria-label="Sign up with Google"
-                    title="Sign up with Google"
-                    className="h-12 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1c1d24] hover:bg-neutral-50 dark:hover:bg-[#242630] hover:border-neutral-300 dark:hover:border-white/25 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-[0.98] group"
-                  >
-                    {socialLoading === "Google" ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-neutral-500" />
-                    ) : (
-                      <GoogleIcon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    )}
-                  </button>
-
-                  {/* WhatsApp Button: ONLY WhatsApp Logo - Clean & Clutter-Free */}
-                  <button
-                    type="button"
-                    onClick={handleContinueWithWhatsApp}
-                    disabled={isSendingOtp}
-                    aria-label={t("whatsapp_login_title", "Continue with WhatsApp")}
-                    title={t("whatsapp_login_title", "Continue with WhatsApp")}
-                    className="h-12 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1c1d24] hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 hover:border-emerald-300 dark:hover:border-emerald-500/30 transition-all flex items-center justify-center cursor-pointer shadow-xs active:scale-[0.98] group"
-                  >
-                    {isSendingOtp && selectedChannel === "whatsapp" ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
-                    ) : (
-                      <WhatsAppIcon className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
-                    )}
-                  </button>
-                </div>
-
-                {/* Already have an account? Link */}
-                <div className="text-center text-xs text-neutral-500 dark:text-neutral-400 pt-1">
-                  {t("already_account", "Already have an account?")}{" "}
-                  <Link href="/login/user" className="font-bold text-brand-purple hover:underline">
-                    {t("login_link", "Log in")}
-                  </Link>
-                </div>
               </div>
-            )}
 
-            {/* ═══════════════════════════════════════════════════════════════════════════
-                STEP 2: Scaleo Clean 6-Digit OTP Screen (Screenshot 2)
-               ═══════════════════════════════════════════════════════════════════════════ */}
-            {step === "otp" && (
-              <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                <div className="relative text-center pt-1">
-                  <button
-                    type="button"
-                    onClick={handleChangeNumber}
-                    aria-label="Close and return to phone screen"
-                    className="absolute right-0 top-0 w-8 h-8 rounded-full text-neutral-400 hover:text-neutral-700 dark:hover:text-white flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-
-                  <h2 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
-                    {t("enter_otp_title", "Enter your OTP")}
-                  </h2>
-
-                  <div className="mt-2 space-y-0.5 text-xs text-neutral-500 dark:text-neutral-400">
-                    <p>
-                      {t("otp_sent_to", "OTP sent to")}{" "}
-                      <strong className="text-neutral-800 dark:text-neutral-200">
-                        {formattedDisplayPhone}
-                      </strong>
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleChangeNumber}
-                      className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline cursor-pointer block mx-auto"
-                    >
-                      {t("change_mobile_number", "change mobile number")}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Six-digit OTP Box Grid */}
-                <div className="py-2 space-y-2">
-                  <OtpInput
-                    value={otp}
-                    length={6}
-                    onChange={(val) => {
-                      setOtp(val);
-                      if (otpError) setOtpError("");
-                    }}
-                    onComplete={(val) => {
-                      handleVerifyOtp(val);
-                    }}
-                    disabled={isVerifyingOtp}
-                    hasError={!!otpError}
-                    autoFocus
-                  />
-
-                  {otpError && (
-                    <div className="p-2.5 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-center animate-in fade-in space-y-1.5">
-                      <p>{otpError}</p>
-                      {(otpError.toLowerCase().includes("already exist") || existingUserPrompt) && (
-                        <div className="pt-1">
-                          <Link
-                            href={`/login/user?phone=${encodeURIComponent(phone)}`}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-pink-500/20 text-pink-600 dark:text-pink-300 border border-pink-500/30 text-xs font-semibold hover:bg-pink-500/30 transition-all"
-                          >
-                            <span>{t("go_to_login", "Go to Login")}</span>
-                            &rarr;
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {/* Scaleo Alert Banner (Screenshot 2) */}
-                {showRightNumberAlert && (
-                  <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 leading-snug">
-                      <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
-                      <span>
-                        {t("right_number_alert_part1", "Sent the OTP to")} <strong>{formattedDisplayPhone}</strong>{t("right_number_alert_part2", ". Is that the right number?")}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setShowRightNumberAlert(false)}
-                        className="text-neutral-500 hover:text-neutral-800 dark:hover:text-white transition-colors cursor-pointer text-[11px] font-medium"
-                      >
-                        {t("keep_waiting", "Keep waiting")}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleChangeNumber}
-                        className="px-2.5 py-1 rounded-full border border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 text-[11px] font-semibold transition-all cursor-pointer"
-                      >
-                        {t("change_number", "Change number")}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Scaleo "Verify OTP" Button */}
-                <button
-                  type="button"
-                  onClick={() => handleVerifyOtp()}
-                  disabled={otp.length !== 6 || isVerifyingOtp}
-                  className="w-full h-12 rounded-xl bg-neutral-200 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 font-bold text-sm tracking-wide transition-all shadow-sm flex items-center justify-center gap-2 disabled:cursor-not-allowed enabled:bg-emerald-500 enabled:hover:bg-emerald-600 enabled:text-white enabled:cursor-pointer"
+              {/* Phone Field Group with Exact Image 1 Box Size */}
+              <div className="space-y-1.5 pt-0.5">
+                <label
+                  htmlFor="signup-phone-input"
+                  className="block text-xs font-normal text-slate-400"
                 >
-                  {isVerifyingOtp ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
-                      <span>{t("verifying_otp", "Verifying OTP...")}</span>
-                    </>
-                  ) : (
-                    <span>{t("verify_otp", "Verify OTP")}</span>
-                  )}
-                </button>
+                  Enter your phone number
+                </label>
 
-                {/* Resend Actions & Channel Toggle */}
-                <div className="pt-1 text-center space-y-2 text-xs text-neutral-500 dark:text-neutral-400">
-                  <div>
-                    {t("didnt_receive_otp", "Didn't receive the OTP?")}{" "}
-                    {countdown > 0 ? (
-                      <span className="font-semibold text-neutral-800 dark:text-neutral-200">
-                        {t("resend_in", "Resend in")} <span className="text-emerald-600 dark:text-emerald-400">{countdown}s</span>
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleResend()}
-                        disabled={isSendingOtp}
-                        className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer inline-flex items-center gap-1"
-                      >
-                        {isSendingOtp ? (
-                          <>
-                            <RefreshCw className="w-3 h-3 animate-spin" />
-                            {t("sending", "Sending...")}
-                          </>
-                        ) : (
-                          t("resend_code", "Resend Code")
-                        )}
-                      </button>
-                    )}
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Phone className="w-4 h-4 text-slate-400" />
                   </div>
-
-                  <div className="pt-1 flex items-center justify-center gap-3 text-[11px]">
-                    <span className="text-neutral-400">{t("try_other_method", "Try other method:")}</span>
-                    {selectedChannel === "whatsapp" ? (
-                      <button
-                        type="button"
-                        onClick={() => handleResend("sms")}
-                        disabled={isSendingOtp}
-                        className="text-brand-purple font-semibold hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        <MessageSquare className="w-3 h-3" />
-                        {t("send_via_sms", "Send via SMS")}
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => handleResend("whatsapp")}
-                        disabled={isSendingOtp}
-                        className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
-                      >
-                        <WhatsAppIcon className="w-3 h-3 text-emerald-500" />
-                        {t("send_via_whatsapp", "Send via WhatsApp")}
-                      </button>
-                    )}
-                  </div>
+                  <input
+                    id="signup-phone-input"
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    placeholder="Phone number"
+                    value={phone}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.startsWith("+")) {
+                        const matched = COUNTRY_CODES.find((c) => val.startsWith(c.code));
+                        if (matched) {
+                          setCountryCode(matched.code);
+                          setPhone(sanitizeNationalNumber(matched.code, val.slice(matched.code.length)));
+                          return;
+                        }
+                      }
+                      setPhone(sanitizeNationalNumber(countryCode, val));
+                      if (phoneError) setPhoneError("");
+                      if (error) setError("");
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSendOtp("sms");
+                      }
+                    }}
+                    className={`w-full h-[46px] pl-10 pr-4 rounded-xl bg-[#242832] text-white placeholder:text-slate-400 text-sm font-normal border ${phoneError ? "border-red-500" : "border-slate-700/60 hover:border-slate-600"
+                      } focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition-all`}
+                  />
                 </div>
+
+                {phoneError && (
+                  <p className="text-xs text-red-400 pl-1">{phoneError}</p>
+                )}
               </div>
-            )}
 
-            {/* ═══════════════════════════════════════════════════════════════════════════
-                STEP 3: Google Identity Link Handshake State
-               ═══════════════════════════════════════════════════════════════════════════ */}
-            {step === "google_handshake" && (
-              <div className="space-y-6 text-center animate-in fade-in duration-300 py-4">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto border border-emerald-500/20">
-                  <ShieldCheck className="w-8 h-8" />
-                </div>
+              {/* Vibrant Gradient "Send OTP" Button */}
+              <button
+                type="button"
+                onClick={() => handleSendOtp("sms")}
+                disabled={isSendingOtp}
+                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#F59B67] via-[#F2548E] to-[#9035FC] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#F2548E]/20 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {isSendingOtp ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Sending OTP...</span>
+                  </>
+                ) : (
+                  <span>Send OTP</span>
+                )}
+              </button>
 
-                <div className="space-y-1">
-                  <h3 className="text-xl font-bold text-neutral-900 dark:text-white">
-                    {t("phone_verified_title", "Phone Verified!")}
-                  </h3>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 max-w-xs mx-auto">
-                    {t("phone_verified_desc", "Complete your registration with Google to secure your account.")}
-                  </p>
-                </div>
+              {/* OR Divider with comfortable spacing */}
+              <div className="relative flex items-center justify-center py-3.5 sm:py-4">
+                <div className="w-full border-t border-slate-700/50" />
+                <span className="absolute bg-[#10131c] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                  OR
+                </span>
+              </div>
 
+              {/* Full-width Stacked Social Buttons */}
+              <div className="space-y-2.5">
+                {/* Continue with Gmail */}
                 <button
                   type="button"
                   onClick={() => handleGoogleSignup()}
                   disabled={socialLoading !== null}
-                  className="w-full h-12 rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#1c1d24] hover:bg-neutral-50 dark:hover:bg-[#242630] font-semibold text-sm text-neutral-900 dark:text-white flex items-center justify-center gap-3 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+                  className="w-full h-[46px] rounded-xl bg-[#242832] hover:bg-[#2c313d] border border-slate-700/50 transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-slate-200 cursor-pointer active:scale-[0.99] disabled:opacity-60"
                 >
                   {socialLoading === "Google" ? (
-                    <Loader2 className="w-5 h-5 animate-spin text-neutral-500" />
+                    <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
                   ) : (
-                    <GoogleIcon className="w-5 h-5" />
+                    <GoogleIcon className="w-4 h-4 shrink-0" />
                   )}
-                  <span>{t("continue_google_signup", "Continue with Google")}</span>
+                  <span>Continue with Gmail</span>
+                </button>
+
+                {/* Login with Whatsapp */}
+                <button
+                  type="button"
+                  onClick={handleContinueWithWhatsApp}
+                  disabled={isSendingOtp}
+                  className="w-full h-[46px] rounded-xl bg-[#242832] hover:bg-[#2c313d] border border-slate-700/50 transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-slate-200 cursor-pointer active:scale-[0.99] disabled:opacity-60"
+                >
+                  {isSendingOtp && selectedChannel === "whatsapp" ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                  ) : (
+                    <span className="w-4 h-4 rounded-full bg-[#25D366] flex items-center justify-center shrink-0">
+                      <WhatsAppIcon className="w-2.5 h-2.5 text-white" />
+                    </span>
+                  )}
+                  <span>Login with Whatsapp</span>
                 </button>
               </div>
-            )}
+            </div>
+          )}
 
-            {/* Scaleo Footer Links */}
-            <div className="pt-2 border-t border-neutral-100 dark:border-white/5 text-center space-y-1">
-              <div className="flex items-center justify-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
-                <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
-                  {t("terms", "Terms")}
-                </Link>
-                <span>•</span>
-                <Link href="/privacy" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
-                  {t("privacy", "Privacy")}
-                </Link>
-                <span>•</span>
-                <Link href="/support" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
-                  {t("need_help", "Need help?")}
-                </Link>
+          {/* ═══════════════════════════════════════════════════════════════════════════
+              STEP 2: 6-Digit OTP Verification Screen (Exact Images 2 & 3 Design)
+             ═══════════════════════════════════════════════════════════════════════════ */}
+          {step === "otp" && (
+            <div className="space-y-4.5 sm:space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+
+              {/* Phone + Shield Illustration (Images 2 & 3) */}
+              <div className="pt-1">
+                <OtpPhoneShieldIllustration />
+              </div>
+
+              {/* Title: "Enter Your OTP" (Images 2 & 3) */}
+              <div className="text-center space-y-1">
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  Enter Your <span className="text-[#EC4899]">OTP</span>
+                </h2>
+                <div className="text-xs text-slate-400 space-y-0.5">
+                  <p>
+                    OTP sent to <span className="text-slate-200 font-semibold">{formattedDisplayPhone}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleChangeNumber}
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer text-xs block mx-auto underline decoration-slate-600 underline-offset-2"
+                  >
+                    Change mobile number
+                  </button>
+                </div>
+              </div>
+
+              {/* Six-digit OTP Box Grid (Images 2 & 3) */}
+              <div className="py-1 space-y-2">
+                <OtpInput
+                  value={otp}
+                  length={6}
+                  onChange={(val) => {
+                    setOtp(val);
+                    if (otpError) setOtpError("");
+                  }}
+                  onComplete={(val) => {
+                    handleVerifyOtp(val);
+                  }}
+                  disabled={isVerifyingOtp}
+                  hasError={!!otpError}
+                  boxClassName="w-11 h-12 sm:w-12 sm:h-13 text-center text-lg font-bold rounded-xl bg-[#10131c] text-white border border-slate-600/70 hover:border-slate-500 focus:border-[#8241fd] focus:ring-1 focus:ring-[#8241fd]/30"
+                  autoFocus
+                />
+
+                {otpError && (
+                  <div className="p-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl text-center animate-in fade-in space-y-1">
+                    <p>{otpError}</p>
+                    {(otpError.toLowerCase().includes("already exist") || existingUserPrompt) && (
+                      <div className="pt-1">
+                        <Link
+                          href={`/login/user?phone=${encodeURIComponent(phone)}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-semibold hover:bg-pink-500/30 transition-all"
+                        >
+                          <span>Go to Login</span>
+                          &rarr;
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Verify OTP Button (Vibrant Purple-to-Pink-to-Coral Gradient from Images 2 & 3) */}
+              <button
+                type="button"
+                onClick={() => handleVerifyOtp()}
+                disabled={otp.length !== 6 || isVerifyingOtp}
+                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#d334d7]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isVerifyingOtp ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Verifying OTP...</span>
+                  </>
+                ) : (
+                  <span>Verify OTP &rarr;</span>
+                )}
+              </button>
+
+              {/* Resend Actions & Channel Toggle */}
+              <div className="pt-0.5 text-center space-y-1.5 text-xs text-slate-400">
+                <div>
+                  Didn&apos;t receive code?{" "}
+                  {countdown > 0 ? (
+                    <span className="font-semibold text-slate-300">
+                      Resend in <span className="text-purple-400">{countdown}s</span>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleResend()}
+                      disabled={isSendingOtp}
+                      className="font-bold text-purple-400 hover:underline cursor-pointer inline-flex items-center gap-1"
+                    >
+                      {isSendingOtp ? (
+                        <>
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        "Resend Code"
+                      )}
+                    </button>
+                  )}
+                </div>
+
+                {/* Switch between SMS and WhatsApp */}
+                <div className="flex items-center justify-center gap-2 text-[11px]">
+                  <span className="text-slate-500">Try other method:</span>
+                  {selectedChannel === "whatsapp" ? (
+                    <button
+                      type="button"
+                      onClick={() => handleResend("sms")}
+                      disabled={isSendingOtp}
+                      className="text-purple-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <MessageSquare className="w-3 h-3" />
+                      Send via SMS
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleResend("whatsapp")}
+                      disabled={isSendingOtp}
+                      className="text-emerald-400 font-semibold hover:underline flex items-center gap-1 cursor-pointer"
+                    >
+                      <WhatsAppIcon className="w-3.5 h-3.5 text-emerald-400" />
+                      Send via WhatsApp
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-
-          </div>
+          )}
 
         </div>
       </main>

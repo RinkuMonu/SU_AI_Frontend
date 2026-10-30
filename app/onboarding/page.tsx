@@ -190,59 +190,65 @@ export const BUSINESS_SERVICES_OPTIONS = [
 export const ONLINE_PRESENCE_OPTIONS = [
   {
     id: "website",
-    title: "My Website",
-    desc: "I have a business website.",
+    title: "Business Website",
+    desc: "Shopify, WooCommerce, or your own",
     icon: Globe,
-    iconColor: "text-[#f0449b]",
+    iconBg: "bg-[#7C3AED]/20",
+    iconColor: "text-[#A78BFA]",
     businessType: "E-Commerce",
     sellingModel: "Online E-Commerce Store",
   },
   {
     id: "google_maps",
     title: "Google Maps",
-    desc: "Customers can find my shop on Google Maps.",
+    desc: "Business listing, address and available public information",
     icon: MapPin,
-    iconColor: "text-neutral-300",
+    iconBg: "bg-[#F97316]/20",
+    iconColor: "text-[#FB923C]",
     businessType: "Retail Store",
     sellingModel: "Physical Retail Store / Walk-ins",
   },
   {
     id: "marketplace",
-    title: "Sell Online",
-    desc: "I sell products on Amazon, Flipkart, Meesho, Blinkit, or other marketplaces.",
+    title: "Marketplace seller",
+    desc: "",
     logos: "/images/marketplace-logos.png",
     logosAlt: "Amazon, Myntra, Meesho, Blinkit, Flipkart",
     icon: ShoppingBag,
-    iconColor: "text-neutral-300",
+    iconBg: "bg-[#EC4899]/20",
+    iconColor: "text-[#F472B6]",
     businessType: "E-Commerce",
     sellingModel: "Online E-Commerce Store",
   },
   {
     id: "b2b",
     title: "Wholesale / B2B",
-    desc: "I sell products to other businesses.",
+    desc: "",
     logos: "/images/b2b-logos.png",
-    logosAlt: "IndiaMART, TradeIndia, Justdial",
+    logosAlt: "Moglix, Udaan, TradeIndia, Justdial",
     icon: Building2,
-    iconColor: "text-neutral-300",
+    iconBg: "bg-[#8B5CF6]/20",
+    iconColor: "text-[#A78BFA]",
     businessType: "Wholesale",
     sellingModel: "Wholesale & Bulk Orders",
   },
   {
     id: "social_media",
     title: "Social Media Only",
-    desc: "My business is on Instagram, Facebook, or other social media.",
+    desc: "Social profile links, if website doesn't exist",
     icon: Video,
-    iconColor: "text-neutral-300",
+    iconBg: "bg-[#F59E0B]/20",
+    iconColor: "text-[#FBBF24]",
     businessType: "Social Commerce",
     sellingModel: "Social Media / Direct Selling",
   },
   {
     id: "none",
-    title: "No online presence",
-    desc: "I do not have a website or online business page.",
+    title: "No Online Presence",
+    desc: "If the business does not have an online presence, continue with the manual setup",
     icon: X,
-    iconColor: "text-neutral-300",
+    iconBg: "bg-[#E11D48]/20",
+    iconColor: "text-[#FB7185]",
     businessType: "Retail Store",
     sellingModel: "Physical Retail Store / Walk-ins",
   },
@@ -716,19 +722,10 @@ export default function OnboardingPage() {
 
         if (!isMounted) return;
 
-        // Status check
+        // Status check - do not auto-redirect away from onboarding on page load so screen holds
         if (statusRes.status === "fulfilled" && statusRes.value) {
           const s = statusRes.value;
-          if (s.is_completed || (s as any).completed) {
-            const cached = localStorage.getItem("user");
-            const uObj = cached ? JSON.parse(cached) : null;
-            if (uObj?.role === "influencer" || uObj?.accountType === "influencer") {
-              router.replace("/influencer");
-            } else {
-              router.replace("/dashboard");
-            }
-            return;
-          }
+          // Keep user on onboarding flow without buffering/flickering
         }
 
         // Services restoration
@@ -975,18 +972,22 @@ export default function OnboardingPage() {
           }
         }
 
-        // 3. Navigate to next incomplete step if no explicit step in sessionStorage
+        // 3. Navigate to next incomplete step only if user has already passed get_started
+        //    (i.e., they have selected services or presence from a previous session).
+        //    If no explicit step in sessionStorage AND no prior progress, stay at step 0 (get_started).
         const savedSessionStep = sessionStorage.getItem("onboarding_step");
         if (!savedSessionStep) {
           const hasServices = (restoredServices && restoredServices.length > 0) || (selectedServices && selectedServices.length > 0);
           const hasPresence = Boolean(activePresence);
-          if (!hasServices) {
-            const sIdx = activeSteps.findIndex((s) => s.id === "business_services");
-            if (sIdx !== -1) setCurrentStep(sIdx);
-          } else if (!hasPresence) {
+          // Only skip get_started if user already has prior progress (services selected)
+          if (hasServices && !hasPresence) {
             const pIdx = activeSteps.findIndex((s) => s.id === "presence");
             if (pIdx !== -1) setCurrentStep(pIdx);
+          } else if (hasServices && hasPresence) {
+            // Presence already selected too — stay where they were (step 0 is safe fallback)
+            // Don't force-jump anywhere; let the backend step restoration handle it
           }
+          // If !hasServices: stay at step 0 = get_started (do NOT jump to business_services)
         }
       } catch (e) {
         console.warn("Backend data restoration fallback:", e);
@@ -3109,33 +3110,11 @@ export default function OnboardingPage() {
           }
         }
 
-        // Check if user has already completed onboarding via /api/v1/onboarding/status
-        const token = localStorage.getItem("access_token");
-        if (token) {
-          OnboardingService.isCompleted(token).then((done) => {
-            if (done) {
-              const cached = localStorage.getItem("user");
-              const uObj = cached ? JSON.parse(cached) : null;
-              if (uObj?.role === "influencer" || uObj?.accountType === "influencer") {
-                router.replace("/influencer");
-              } else {
-                router.replace("/dashboard");
-              }
-            }
-          }).catch(() => {});
-        }
+        // User is actively on onboarding flow - do not auto-redirect away
 
         const stored = localStorage.getItem("user");
         const u = stored ? JSON.parse(stored) : user;
         if (u) {
-          if (u.onboardingCompleted === true || u.onboarding_completed === true) {
-            if (u.role === "influencer" || u.accountType === "influencer") {
-              router.replace("/influencer");
-            } else {
-              router.replace("/dashboard");
-            }
-            return;
-          }
           const first = u.firstName || (u.name ? u.name.split(" ")[0] : "");
           const last = u.lastName || (u.name && u.name.split(" ").length > 1 ? u.name.split(" ").slice(1).join(" ") : "");
           const full = u.fullName || u.name || `${first} ${last}`.trim();
@@ -4396,6 +4375,54 @@ export default function OnboardingPage() {
       <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#be32ff]/20 via-[#7d36fa]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute -bottom-32 left-1/4 w-[30rem] h-[30rem] bg-gradient-to-tr from-[#f0449b]/15 via-[#be32ff]/10 to-transparent rounded-full blur-[150px] pointer-events-none" />
 
+      {/* Bottom Waves matching Designer Screen 1 */}
+      {currentStepObj.id === "get_started" && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+          {/* Bottom Left Sunset Gradient Wave */}
+          <svg
+            className="absolute bottom-0 left-0 w-[55vw] max-w-[650px] h-[34vh] max-h-[320px]"
+            viewBox="0 0 650 260"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FA8366" />
+                <stop offset="25%" stopColor="#F2548E" />
+                <stop offset="60%" stopColor="#7E32A0" />
+                <stop offset="100%" stopColor="#2A125E" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0 90 C 160 120, 320 190, 650 260 L 650 260 L 0 260 Z"
+              fill="url(#waveSunsetOnboarding)"
+            />
+          </svg>
+
+          {/* Bottom Right Deep Violet Wave Layer */}
+          <svg
+            className="absolute bottom-0 right-0 w-[45vw] max-w-[550px] h-[22vh] max-h-[220px]"
+            viewBox="0 0 550 220"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="none"
+          >
+            <defs>
+              <linearGradient id="waveVioletRightOnboarding" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#1B124C" stopOpacity="0.3" />
+                <stop offset="60%" stopColor="#2E176E" stopOpacity="0.75" />
+                <stop offset="100%" stopColor="#4A1E9E" stopOpacity="0.85" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M0 220 C 180 200, 340 140, 550 120 L 550 220 Z"
+              fill="url(#waveVioletRightOnboarding)"
+            />
+          </svg>
+        </div>
+      )}
+
       {/* ══════════════════════════════════════════════════════════════════════
           SCREEN 1: GET STARTED (Designer Screenshot 1)
       ══════════════════════════════════════════════════════════════════════ */}
@@ -4403,57 +4430,57 @@ export default function OnboardingPage() {
         <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
           {/* Top Header / Brand Logo */}
           <div className="flex flex-col items-center justify-center pt-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <img
                 src="/images/logo-icon.png"
                 alt="DhandaGrow"
-                className="w-9 h-9 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_12px_rgba(240,68,155,0.4)]"
+                className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(240,68,155,0.4)]"
               />
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  Dhanda<span className="text-[#fc9a5d]">Grow</span>
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="text-2xl font-bold tracking-tight text-white">
+                  Dhanda<span className="text-[#FA5D42]">Grow</span>
                 </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
-                  AI ✦
+                <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded-md bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white tracking-wider">
+                  AI+
                 </span>
               </div>
             </div>
-            <p className="text-[11px] sm:text-xs text-neutral-400 font-medium tracking-wide mt-1">
+            <p className="text-xs text-slate-400 font-normal tracking-wide mt-1.5">
               India&apos;s AI Business Growth App
             </p>
           </div>
 
           {/* Heading & Subtext */}
-          <div className="text-center space-y-2.5 px-2 mt-4 sm:mt-6">
+          <div className="text-center space-y-2 px-2 mt-4 sm:mt-5">
             <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
               Your Business<br />
               Deserve to{" "}
-              <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
                 Grow
               </span>
             </h1>
-            <p className="text-xs sm:text-sm text-neutral-300 max-w-xs sm:max-w-sm mx-auto leading-relaxed font-normal">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-xs sm:max-w-sm mx-auto leading-relaxed font-normal">
               Create, market, publish and sell - all with the power of AI.
             </p>
           </div>
 
           {/* 3D Storefront Illustration */}
-          <div className="relative my-4 sm:my-6 flex items-center justify-center">
-            <div className="absolute inset-0 bg-gradient-to-r from-[#fc9a5d]/10 via-[#f0449b]/15 to-[#be32ff]/10 blur-2xl rounded-full transform scale-90 -z-0" />
+          <div className="relative my-4 sm:my-5 flex items-center justify-center">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FA5D42]/10 via-[#E84E8F]/15 to-[#9936F1]/10 blur-2xl rounded-full transform scale-90 -z-0" />
             <img
               src="/images/onboarding-storefront.png"
               alt="DhandaGrow Business Storefront"
-              className="w-full max-w-[320px] sm:max-w-[370px] h-auto object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none"
+              className="w-full max-w-[300px] sm:max-w-[340px] h-auto object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none"
             />
           </div>
 
           {/* Get Started Button */}
-          <div className="pt-2 sm:pt-4 pb-2">
+          <div className="pt-2 pb-2">
             <button
               type="button"
               onClick={handleGetStarted}
               disabled={isSavingGetStarted}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#d334d7]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSavingGetStarted ? (
                 <>
@@ -4463,7 +4490,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Get Started</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -4475,109 +4502,115 @@ export default function OnboardingPage() {
           SCREEN 2: CHOOSE YOUR BUSINESS SERVICES (New Screen)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "business_services" && (
-        <div className="w-full max-w-md sm:max-w-lg mx-auto py-2 flex flex-col justify-between min-h-[520px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-5xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Bar: Back button, Brand Logo, and spacer */}
-            <div className="flex items-center justify-between w-full mb-2">
+            {/* Top Bar: Back button + Long Gradient Progress Bar (Image 4) */}
+            <div className="flex items-center w-full mb-6">
               <button
                 type="button"
                 onClick={handleServicesBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-slate-700/60"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-black text-white tracking-tight">
-                  Dhanda<span className="text-[#fc9a5d]">Grow</span>
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
-                  AI ✦
-                </span>
-              </div>
-              <div className="w-10" />
-            </div>
-
-            {/* Step 3 of 5 Progress Bar */}
-            <div className="w-full mt-3 mb-2">
-              <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-                <span className="text-neutral-400 font-medium">Step 3 of 5</span>
-                <span className="text-[#be32ff] font-bold">60%</span>
-              </div>
-              <div className="w-full h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "60%" }}
+                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(232,78,143,0.5)]"
+                  style={{ width: "25%" }}
                 />
               </div>
             </div>
 
-            {/* Title & Subtitle Area */}
-            <div className="mt-4 mb-3">
-              <span className="text-[10px] sm:text-[11px] font-bold text-neutral-400 tracking-wider uppercase block">
-                LET&apos;S SET UP YOUR BUSINESS
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight mt-1">
-                Choose Your<br />
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  Business Services
+            {/* Heading & Subtitle Area (Image 4) */}
+            <div className="mb-6 text-left">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Choose your{" "}
+                <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+                  business services
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-300 mt-1 font-normal">
+              <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-normal">
                 Select the tool you want to use for your business
               </p>
             </div>
 
-            {/* 7 Selectable Services Cards (2-Column Grid) */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-3.5 my-3">
-              {BUSINESS_SERVICES_OPTIONS.map((srv) => {
-                const isSelected = selectedServices.includes(srv.id);
-                const IconComp = srv.icon;
-                return (
-                  <div
-                    key={srv.id}
-                    id={`service-card-${srv.id}`}
-                    onClick={() => handleToggleService(srv.id)}
-                    className={`p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[148px] sm:min-h-[160px] relative select-none ${
-                      isSelected
-                        ? "bg-[#F5F3FF] dark:bg-gradient-to-br dark:from-[#201735]/95 dark:to-[#281b3d]/95 border-2 border-[#BE32FF] shadow-[0_0_25px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
-                        : "bg-white/95 dark:bg-[#131728]/85 border-slate-200/90 dark:border-white/10 hover:border-slate-300 dark:hover:border-white/20 shadow-sm"
-                    }`}
-                  >
-                    {/* Top row: Icon at left, Selection indicator circle at right */}
-                    <div className="flex items-start justify-between w-full mb-2.5">
-                      <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
-                        <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+            {/* 7 Services Cards: 4 Top Row + 3 Bottom Row (Exact Image 4 Grid) */}
+            <div className="space-y-3 sm:space-y-4 my-2">
+              {/* Row 1: Top 4 Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                {BUSINESS_SERVICES_OPTIONS.slice(0, 4).map((srv) => {
+                  const isSelected = selectedServices.includes(srv.id);
+                  const IconComp = srv.icon;
+                  return (
+                    <div
+                      key={srv.id}
+                      id={`service-card-${srv.id}`}
+                      onClick={() => handleToggleService(srv.id)}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px] relative select-none ${
+                        isSelected
+                          ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
+                          : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between w-full mb-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
+                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+                        </div>
                       </div>
-
-                      <div
-                        className={`w-5 h-5 rounded-full transition-all flex items-center justify-center shrink-0 mt-0.5 ${
-                          isSelected
-                            ? "border-[3.5px] border-[#BE32FF] bg-white dark:bg-[#201735]"
-                            : "border-2 border-slate-300 dark:border-white/30 bg-transparent"
-                        }`}
-                      />
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                          {srv.title}
+                        </h3>
+                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug font-normal line-clamp-2">
+                          {srv.desc}
+                        </p>
+                      </div>
                     </div>
+                  );
+                })}
+              </div>
 
-                    {/* Bottom text: Title & Description */}
-                    <div className="flex-1 flex flex-col justify-end">
-                      <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white tracking-tight leading-snug">
-                        {srv.title}
-                      </h3>
-                      <p className="text-[11px] sm:text-xs text-slate-500 dark:text-neutral-400 mt-1 leading-snug font-normal line-clamp-2">
-                        {srv.desc}
-                      </p>
+              {/* Row 2: Bottom 3 Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto">
+                {BUSINESS_SERVICES_OPTIONS.slice(4).map((srv) => {
+                  const isSelected = selectedServices.includes(srv.id);
+                  const IconComp = srv.icon;
+                  return (
+                    <div
+                      key={srv.id}
+                      id={`service-card-${srv.id}`}
+                      onClick={() => handleToggleService(srv.id)}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px] relative select-none ${
+                        isSelected
+                          ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
+                          : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between w-full mb-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
+                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                          {srv.title}
+                        </h3>
+                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug font-normal line-clamp-2">
+                          {srv.desc}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Validation Message & Bottom Sticky Continue Button */}
-          <div className="sticky bottom-0 pt-3 pb-2 bg-gradient-to-t from-[#070F22] via-[#070F22]/95 to-transparent mt-2 z-20">
+          {/* Validation & Centered Continue Button (Image 4) */}
+          <div className="pt-6 pb-4 flex flex-col items-center">
             {servicesError && (
-              <div className="mb-2.5 p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs text-center flex items-center justify-center gap-1.5 animate-in fade-in">
+              <div className="mb-3 p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs text-center flex items-center justify-center gap-1.5 animate-in fade-in max-w-sm w-full">
                 <AlertTriangle className="w-3.5 h-3.5 text-rose-400 shrink-0" />
                 <span>{servicesError}</span>
               </div>
@@ -4587,9 +4620,9 @@ export default function OnboardingPage() {
               id="services-continue-btn"
               onClick={handleServicesContinue}
               disabled={isSavingServices || selectedServices.length === 0}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#d334d7]/25 ${
                 selectedServices.length > 0 && !isSavingServices
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:brightness-110 active:scale-[0.98] text-white"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
               }`}
             >
@@ -4601,7 +4634,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -4613,58 +4646,42 @@ export default function OnboardingPage() {
           SCREEN 3: WHERE DOES YOUR BUSINESS LIVE ONLINE? (Designer Screenshot 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "presence" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-4xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Brand + Progress Indicator */}
-            <div className="flex items-center gap-3 w-full mb-3">
+            {/* Top Bar: Back button + Long Gradient Progress Bar (Image 5) */}
+            <div className="flex items-center w-full mb-6">
               <button
                 type="button"
                 onClick={handlePresenceBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-slate-700/60"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 flex items-center justify-center">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xl font-black text-white tracking-tight">
-                    Dhanda<span className="text-[#fc9a5d]">Grow</span>
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#be32ff]/25 text-[#be32ff] border border-[#be32ff]/40">
-                    AI ✦
-                  </span>
-                </div>
-              </div>
-              <div className="w-10" />
-            </div>
-
-            {/* Step 4 of 5 Progress */}
-            <div className="w-full mb-5">
-              <div className="flex items-center justify-between text-xs font-semibold mb-1.5">
-                <span className="text-neutral-400 font-medium">Step 4 of 5</span>
-                <span className="text-[#be32ff] font-bold">80%</span>
-              </div>
-              <div className="w-full h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "80%" }}
+                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(232,78,143,0.5)]"
+                  style={{ width: "50%" }}
                 />
               </div>
             </div>
 
-            {/* Screen 2 Heading */}
-            <div className="mb-5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Where does your<br />
-                <span className="bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] bg-clip-text text-transparent">
+            {/* Heading & Subtitle Area (Image 5) */}
+            <div className="mb-6 text-left">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                What does your{" "}
+                <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
                   business
                 </span>{" "}
-                live Online?
+                live online?
               </h1>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-normal">
+                Choose how you want your business to establish and grow its online presence
+              </p>
             </div>
 
-            {/* 5 Selectable Cards */}
-            <div className="space-y-3">
+            {/* 6 Presence Cards (2 Columns x 3 Rows Grid - Exact Image 5) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 my-3">
               {ONLINE_PRESENCE_OPTIONS.map((opt) => {
                 const isSelected =
                   selectedOnlinePresence === opt.id ||
@@ -4676,14 +4693,14 @@ export default function OnboardingPage() {
                   <div
                     key={opt.id}
                     onClick={() => handleSelectPresence(opt.id)}
-                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 ${
+                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 min-h-[96px] sm:min-h-[105px] ${
                       isSelected
-                        ? "bg-gradient-to-r from-[#201735]/95 via-[#18192e]/95 to-[#1e152e]/95 border-2 border-[#BE32FF] shadow-[0_0_25px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
-                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#181d33]/85"
+                        ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
+                        : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                     }`}
                   >
-                    <div className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <IconComp className={`w-5 h-5 ${opt.iconColor}`} />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${opt.iconBg || "bg-white/10"}`}>
+                      <IconComp className={`w-5 h-5 ${opt.iconColor || "text-white"}`} />
                     </div>
 
                     <div className="flex-1 min-w-0">
@@ -4692,14 +4709,14 @@ export default function OnboardingPage() {
                           {opt.title}
                         </h3>
                         {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0">
+                          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] flex items-center justify-center shrink-0">
                             <Check className="w-3 h-3 text-white stroke-[3]" />
                           </div>
                         )}
                       </div>
 
                       {opt.desc && (
-                        <p className="text-xs text-neutral-400 mt-0.5 leading-relaxed font-light">
+                        <p className="text-xs text-slate-400 mt-0.5 leading-relaxed font-normal">
                           {opt.desc}
                         </p>
                       )}
@@ -4719,15 +4736,15 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            {/* None of these - something else */}
+            {/* None of these - something else (Image 5) */}
             <div className="text-center pt-3 pb-1">
               <button
                 type="button"
                 onClick={() => handleSelectPresence("other")}
                 className={`text-xs sm:text-sm transition-all cursor-pointer ${
                   selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
-                    ? "text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] font-bold underline underline-offset-4"
-                    : "text-neutral-400 hover:text-white"
+                    ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] font-bold underline underline-offset-4"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 None of these - something else
@@ -4742,15 +4759,15 @@ export default function OnboardingPage() {
             )}
           </div>
 
-          {/* Continue Button */}
-          <div className="pt-4 pb-2">
+          {/* Centered Continue Button (Image 5) */}
+          <div className="pt-6 pb-4 flex justify-center">
             <button
               type="button"
               onClick={handlePresenceContinue}
               disabled={!selectedOnlinePresence || isSavingPresence}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
+              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#d334d7]/25 ${
                 selectedOnlinePresence && !isSavingPresence
-                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
               }`}
             >
@@ -4762,12 +4779,10 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
-
-
           </div>
         </div>
       )}
@@ -4989,154 +5004,177 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 3: WHAT'S YOUR WEBSITE? (Reference Screen 1)
+          SCREEN 3: WHAT YOUR WEBSITE? (Exact Image 2 Design)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_url" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Progress bar (~38%) */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~30%) */}
+            <div className="flex items-center gap-3 w-full mb-8">
               <button
                 type="button"
                 onClick={handleWebsiteUrlBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "38%" }}
+                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
+                  style={{ width: "30%" }}
                 />
               </div>
             </div>
 
-            {/* Heading */}
-            <div className="mb-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                What&apos;s your{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  website?
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
-                We&apos;ll read it for you, so there&apos;s no need to type anything.
-              </p>
-            </div>
+            {/* 2-Column Layout matching Image 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+              
+              {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
+              <div className="space-y-6 max-w-lg">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                    What your{" "}
+                    <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+                      website
+                    </span>
+                    <span className="text-[#9936F1]">?</span>
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                    We&apos;ll read it for you, so there&apos;s no need to type anything.
+                  </p>
+                </div>
 
-            {/* Website URL Input Card matching designer reference (no video player) */}
-            <div className="mt-8">
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
-                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
+                {/* Website URL Input (Pill container matching Image 2) */}
+                <div className="space-y-2">
+                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                    <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      id="website-url-input"
+                      value={websiteUrl}
+                      onChange={(e) => {
+                        setWebsiteUrl(e.target.value);
+                        setError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                          handleWebsiteUrlContinue();
+                        }
+                      }}
+                      placeholder="yourwebsite.com"
+                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      autoFocus
+                    />
+                    {websiteUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setWebsiteUrl("")}
+                        className="text-slate-400 hover:text-white transition-colors p-1"
+                        aria-label="Clear input"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                    <p className="text-[11px] text-[#E84E8F] pl-3 font-medium">
+                      Please enter a valid website address (e.g. yourbrand.com)
+                    </p>
+                  )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
-                    id="website-url-input"
-                    value={websiteUrl}
-                    onChange={(e) => {
-                      setWebsiteUrl(e.target.value);
-                      setError("");
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
-                        handleWebsiteUrlContinue();
-                      }
-                    }}
-                    placeholder="yourwebsite.com"
-                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
-                    autoFocus
-                  />
+
+                {/* OR Divider with subtle line */}
+                <div className="relative flex items-center justify-center py-2">
+                  <div className="w-full border-t border-slate-700/50" />
+                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                    OR
+                  </span>
                 </div>
-                {websiteUrl && (
+
+                {/* Create Website Button with Sparkles Icon on Right (Image 2) */}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("website")}
+                  className="w-full h-[46px] rounded-full bg-[#131728] hover:bg-[#1c223a] border border-slate-700/60 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm font-medium text-slate-200 cursor-pointer shadow-sm hover:border-slate-500"
+                >
+                  <span>Create Website</span>
+                  <Sparkles className="w-4 h-4 text-[#FA5D42]" />
+                </button>
+
+                {/* 3 Value Pillars (AI-Powered | Secure | Grow Faster) */}
+                <div className="grid grid-cols-3 divide-x divide-slate-800/80 pt-4 pb-2 text-left">
+                  <div className="pr-3 space-y-0.5">
+                    <p className="text-xs font-semibold text-slate-300">AI-Powered</p>
+                    <p className="text-[11px] text-slate-500">Fast &amp; Smart</p>
+                  </div>
+                  <div className="px-3 space-y-0.5">
+                    <p className="text-xs font-semibold text-slate-300">Secure</p>
+                    <p className="text-[11px] text-slate-500">Your data is safe</p>
+                  </div>
+                  <div className="pl-3 space-y-0.5">
+                    <p className="text-xs font-semibold text-slate-300">Grow Faster</p>
+                    <p className="text-[11px] text-slate-500">With AI insights</p>
+                  </div>
+                </div>
+
+                {/* Error Notice */}
+                {error && (
+                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                    <span className="font-semibold text-red-400">Notice:</span> {error}
+                  </div>
+                )}
+
+                {/* Continue Button (Gradient Pill matching Image 2) */}
+                <div className="pt-2">
                   <button
                     type="button"
-                    onClick={() => setWebsiteUrl("")}
-                    className="text-neutral-500 hover:text-white transition-colors p-1"
-                    aria-label="Clear input"
+                    id="website-continue-btn"
+                    onClick={handleWebsiteUrlContinue}
+                    disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
+                    className={`w-full max-w-[340px] h-[48px] rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer ${
+                      isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
+                        ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] text-white shadow-lg shadow-[#d334d7]/25 hover:opacity-95 active:scale-[0.99]"
+                        : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
+                    }`}
                   >
-                    <X className="w-4 h-4" />
+                    {isSavingWebsite ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Scanning &amp; Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue</span>
+                        <ArrowRight className="w-4 h-4 text-white" />
+                      </>
+                    )}
                   </button>
-                )}
+                </div>
               </div>
 
-              {/* Validation helper */}
-              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
-                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
-                  <span>Please enter a valid website address (e.g. yourbrand.com)</span>
-                </p>
-              )}
-
-              {/* Helpful context */}
-              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
-                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Our AI scans your products, brand colors, voice, and category automatically from your URL.
-                </span>
+              {/* Right Column: 3D Website Artwork (Exact Image 2 Artwork) */}
+              <div className="hidden lg:flex items-center justify-center relative select-none">
+                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                  <img
+                    src="/images/website-reading-artwork.png"
+                    alt="What your website?"
+                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_0_40px_rgba(153,54,241,0.25)] animate-in fade-in duration-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Error Notice */}
-            {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <span className="font-semibold text-red-400">Notice:</span> {error}
-              </div>
-            )}
-          </div>
-
-          {/* Continue Button */}
-          <div className="pt-4 pb-2">
-            <button
-              type="button"
-              id="website-continue-btn"
-              onClick={handleWebsiteUrlContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
-                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-              }`}
-            >
-              {isSavingWebsite ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Scanning & Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </>
-              )}
-            </button>
-
-            <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("website")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
             </div>
           </div>
         </div>
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 4: READING YOUR WEBSITE (Reference Screen 2)
+          SCREEN 4: READING YOUR WEBSITE (Exact Image 2 Design)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_reading" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4">
           <div>
             {/* Top Header: Back button + Centered Website URL Pill */}
             <div className="relative flex items-center justify-center w-full mb-4">
@@ -5144,173 +5182,110 @@ export default function OnboardingPage() {
                 type="button"
                 onClick={handleWebsiteReadingBack}
                 aria-label="Go back"
-                className="absolute left-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="absolute left-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
 
-              {/* Website URL Pill Badge matching screenshot */}
-              <div className="px-4 py-1.5 rounded-full bg-[#201735]/90 border border-[#be32ff]/40 text-xs sm:text-sm text-neutral-200 font-medium flex items-center gap-2 shadow-[0_0_15px_rgba(190,50,255,0.2)] max-w-[200px] sm:max-w-[240px]">
-                <Globe className="w-3.5 h-3.5 text-[#be32ff] shrink-0" />
+              {/* Website URL Pill Badge matching Image 2 */}
+              <div className="px-5 py-1.5 rounded-full bg-[#1b1738]/90 border border-purple-500/40 text-xs sm:text-sm text-purple-200 font-medium inline-flex items-center gap-2 shadow-[0_0_15px_rgba(190,50,255,0.2)]">
+                <Globe className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                 <span className="truncate">{getDisplayHostname(websiteUrl)}</span>
               </div>
             </div>
 
-            {/* Heading & Subtitle matching screenshot */}
-            <div className="text-center mt-3 sm:mt-5 mb-2">
+            {/* Heading & Subtitle matching Image 2 */}
+            <div className="text-center mt-5 mb-2">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Reading your website.
+                Reading your website
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1 flex items-center justify-center gap-1.5">
-                <span>Spotting your audience...</span>
-                <span className="inline-flex gap-1 items-center ml-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#be32ff] animate-pulse" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#f0449b] animate-pulse [animation-delay:200ms]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#fc9a5d] animate-pulse [animation-delay:400ms]" />
-                </span>
+              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5">
+                Spotting your audience...
               </p>
             </div>
 
-            {/* 3D Mascot Illustration matching screenshot */}
-            <div className="relative my-3 sm:my-5 flex items-center justify-center">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#be32ff]/20 via-[#7d36fa]/15 to-[#f0449b]/15 blur-3xl rounded-full transform scale-90 -z-0 pointer-events-none" />
+            {/* 3D Robot Mascot Graphic matching Image 2 (clean floating illustration) */}
+            <div className="relative my-4 flex items-center justify-center select-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#9936F1]/20 via-[#7d36fa]/15 to-[#E84E8F]/15 blur-3xl rounded-full transform scale-90 -z-0 pointer-events-none" />
               <img
-                src="/images/website-analysis-mascot.png"
-                alt="AI reading website"
-                className="w-full max-w-[240px] sm:max-w-[280px] h-auto object-contain relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.6)] select-none pointer-events-none animate-in zoom-in-95 duration-500"
+                src="/images/reading-robot-graphic.png"
+                alt="Reading your website"
+                className="w-full max-w-[280px] sm:max-w-[320px] h-auto object-contain relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)] select-none pointer-events-none animate-in zoom-in-95 duration-500"
               />
             </div>
 
-            {/* 2x2 Grid of Status Chips matching designer reference */}
-            <div className="grid grid-cols-2 gap-3 w-full max-w-sm mx-auto mt-2 sm:mt-3">
+            {/* 2x2 Grid of Status Chips matching Image 2 */}
+            <div className="grid grid-cols-2 gap-3.5 w-full max-w-md mx-auto my-3">
               {/* Chip 1: Brand Voice */}
-              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
-                analysisProgress.brandVoice.status === "completed"
-                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
-                  : "bg-[#1c1a32]/80 border-white/10"
-              }`}>
+              <div
+                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
+                  analysisProgress.brandVoice.status === "completed"
+                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
+                    : "bg-[#14192b]/80 border-slate-700/50"
+                }`}
+              >
                 {analysisProgress.brandVoice.status === "completed" ? (
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" />
-                  </div>
-                ) : analysisProgress.brandVoice.status === "error" ? (
-                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
-                    <span className="text-amber-400 text-xs font-bold">!</span>
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
                   </div>
                 ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
+                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
                 )}
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
-                    Brand Voice
-                  </span>
-                  {analysisProgress.brandVoice.value && (
-                    <span className="text-[10px] text-neutral-400 block truncate">
-                      {analysisProgress.brandVoice.value}
-                    </span>
-                  )}
-                </div>
+                <span className="text-xs font-medium text-slate-200 truncate">Brand Voice</span>
               </div>
 
               {/* Chip 2: Colors */}
-              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
-                analysisProgress.colors.status === "completed"
-                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
-                  : "bg-[#1c1a32]/80 border-white/10"
-              }`}>
+              <div
+                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
+                  analysisProgress.colors.status === "completed"
+                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
+                    : "bg-[#14192b]/80 border-slate-700/50"
+                }`}
+              >
                 {analysisProgress.colors.status === "completed" ? (
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
                   </div>
-                ) : analysisProgress.colors.status === "error" ? (
-                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
-                    <span className="text-amber-400 text-xs font-bold">!</span>
-                  </div>
-                ) : analysisProgress.colors.status === "analyzing" ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
                 )}
-                <div className="min-w-0 flex-1">
-                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
-                    Colors
-                  </span>
-                  {analysisProgress.colors.status === "completed" && (
-                    <div className="flex items-center gap-1.5 mt-0.5">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-sm"
-                        style={{ backgroundColor: analysisProgress.colors.primary || "#BE32FF" }}
-                      />
-                      <span
-                        className="w-2.5 h-2.5 rounded-full border border-white/20 shadow-sm"
-                        style={{ backgroundColor: analysisProgress.colors.accent || "#F0449B" }}
-                      />
-                      <span className="text-[10px] text-neutral-400">Palette</span>
-                    </div>
-                  )}
-                </div>
+                <span className="text-xs font-medium text-slate-200 truncate">Colors</span>
               </div>
 
               {/* Chip 3: Category */}
-              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
-                analysisProgress.category.status === "completed"
-                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
-                  : "bg-[#1c1a32]/80 border-white/10"
-              }`}>
+              <div
+                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
+                  analysisProgress.category.status === "completed"
+                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
+                    : "bg-[#14192b]/80 border-slate-700/50"
+                }`}
+              >
                 {analysisProgress.category.status === "completed" ? (
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
                   </div>
-                ) : analysisProgress.category.status === "error" ? (
-                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
-                    <span className="text-amber-400 text-xs font-bold">!</span>
-                  </div>
-                ) : analysisProgress.category.status === "analyzing" ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
                 )}
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
-                    Category
-                  </span>
-                  {analysisProgress.category.value && (
-                    <span className="text-[10px] text-neutral-400 block truncate">
-                      {analysisProgress.category.value}
-                    </span>
-                  )}
-                </div>
+                <span className="text-xs font-medium text-slate-200 truncate">Category</span>
               </div>
 
               {/* Chip 4: Photos */}
-              <div className={`p-3 rounded-2xl border transition-all duration-300 flex items-center gap-2.5 ${
-                analysisProgress.photos.status === "completed"
-                  ? "bg-[#201735]/90 border-[#BE32FF]/50 shadow-[0_0_15px_rgba(190,50,255,0.2)]"
-                  : "bg-[#1c1a32]/80 border-white/10"
-              }`}>
+              <div
+                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
+                  analysisProgress.photos.status === "completed"
+                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
+                    : "bg-[#14192b]/80 border-slate-700/50"
+                }`}
+              >
                 {analysisProgress.photos.status === "completed" ? (
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(190,50,255,0.4)]">
-                    <Check className="w-3 h-3 text-white stroke-[3]" />
+                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
+                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
                   </div>
-                ) : analysisProgress.photos.status === "error" ? (
-                  <div className="w-5 h-5 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0">
-                    <span className="text-amber-400 text-xs font-bold">!</span>
-                  </div>
-                ) : analysisProgress.photos.status === "analyzing" ? (
-                  <div className="w-5 h-5 rounded-full border-2 border-[#f0449b]/30 border-t-[#f0449b] border-r-[#fc9a5d] animate-spin shrink-0" />
                 ) : (
-                  <div className="w-5 h-5 rounded-full border-2 border-white/20 shrink-0" />
+                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
                 )}
-                <div className="min-w-0">
-                  <span className="text-xs sm:text-sm font-semibold text-white block truncate">
-                    Photos
-                  </span>
-                  {analysisProgress.photos.value && (
-                    <span className="text-[10px] text-neutral-400 block truncate">
-                      {analysisProgress.photos.value}
-                    </span>
-                  )}
-                </div>
+                <span className="text-xs font-medium text-slate-200 truncate">Photos</span>
               </div>
             </div>
 
@@ -5346,26 +5321,12 @@ export default function OnboardingPage() {
                 type="button"
                 id="reading-continue-btn"
                 onClick={handleReadingContinue}
-                className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(236,72,153,0.4)] transition-all cursor-pointer animate-in fade-in"
+                className="w-full max-w-sm mx-auto h-[48px] rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#d334d7]/20 transition-all cursor-pointer animate-in fade-in"
               >
                 <span>Continue</span>
-                <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </button>
-            ) : isAnalyzingWebsite ? (
-              <div className="w-full h-13 sm:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center gap-2 text-xs sm:text-sm text-neutral-400 font-medium select-none">
-                <Loader2 className="w-4 h-4 animate-spin text-[#be32ff]" />
-                <span>Reading your website storefront with AI...</span>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={handleReadingContinue}
-                className="w-full h-13 sm:h-14 rounded-full bg-white/10 hover:bg-white/15 text-white/70 font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-              >
-                <span>Continue</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            )}
+            ) : null}
           </div>
         </div>
       )}
