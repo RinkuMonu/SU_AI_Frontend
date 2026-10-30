@@ -43,6 +43,10 @@ export function useVoiceToText({
     }
   }, []);
 
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
   const stopListening = useCallback(() => {
     isStoppingIntentionallyRef.current = true;
     if (recognitionRef.current) {
@@ -63,11 +67,18 @@ export function useVoiceToText({
   }, []);
 
   const startListening = useCallback(
-    (overrideLang?: VoiceLanguage) => {
+    async (overrideLang?: VoiceLanguage) => {
       setError(null);
       isStoppingIntentionallyRef.current = false;
 
       if (typeof window === "undefined") return;
+
+      if (!window.isSecureContext) {
+        setError(
+          "Microphone requires a secure connection (HTTPS or http://localhost:3000). Please open via localhost."
+        );
+        return;
+      }
 
       const SpeechRecognition =
         (window as any).SpeechRecognition ||
@@ -77,6 +88,33 @@ export function useVoiceToText({
         setIsSupported(false);
         setError("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
         return;
+      }
+
+      // Explicitly trigger the browser's native microphone permission prompt via getUserMedia
+      if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          // Stop audio tracks immediately so hardware is released for SpeechRecognition
+          stream.getTracks().forEach((track) => track.stop());
+        } catch (mediaErr: any) {
+          console.warn("Microphone getUserMedia error:", mediaErr);
+          if (
+            mediaErr.name === "NotAllowedError" ||
+            mediaErr.name === "PermissionDeniedError" ||
+            mediaErr.message?.includes("Permission denied")
+          ) {
+            setError(
+              "Microphone permission blocked. Please click the site settings / lock icon (🔒) in your browser address bar next to the URL, set Microphone to 'Allow', then click again."
+            );
+            setIsListening(false);
+            return;
+          }
+          if (mediaErr.name === "NotFoundError" || mediaErr.name === "DevicesNotFoundError") {
+            setError("No microphone detected. Please plug in or connect an audio input device.");
+            setIsListening(false);
+            return;
+          }
+        }
       }
 
       // Stop any other active voice recognition session first
@@ -137,7 +175,7 @@ export function useVoiceToText({
           switch (event.error) {
             case "not-allowed":
             case "permission-denied":
-              setError("Microphone permission denied. Please allow microphone access in your browser.");
+              setError("Microphone permission denied. Please allow microphone access in your browser address bar (🔒 icon).");
               break;
             case "no-speech":
               // Quiet timeout - do not show scary red error for brief silence
@@ -194,6 +232,7 @@ export function useVoiceToText({
     lang,
     setLang,
     error,
+    clearError,
     interimTranscript,
     startListening,
     stopListening,

@@ -41,9 +41,11 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
     lang,
     setLang,
     error,
+    clearError,
     interimTranscript,
     toggleListening,
     stopListening,
+    startListening,
   } = useVoiceToText({
     onTranscript: (text) => onTranscript(text),
     currentValue,
@@ -175,18 +177,37 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         </div>
       )}
 
-      {/* Error Tooltip Banner */}
+      {/* Error Tooltip Banner with Prompt & Instructions */}
       {error && (
-        <div className="absolute right-0 bottom-full mb-2 z-50 max-w-xs p-2 rounded-xl bg-red-950/90 border border-red-500/40 text-red-200 text-[11px] shadow-lg flex items-start gap-1.5 animate-in fade-in">
-          <AlertCircle className="w-3.5 h-3.5 text-red-400 shrink-0 mt-0.5" />
-          <span className="flex-1 leading-tight">{error}</span>
-          <button
-            type="button"
-            onClick={() => {}}
-            className="text-red-400 hover:text-white"
-          >
-            <X className="w-3 h-3" />
-          </button>
+        <div className="absolute right-0 bottom-full mb-2 z-50 w-72 max-w-[90vw] p-3 rounded-2xl bg-[#1c0f17] border border-rose-500/40 text-rose-200 text-xs shadow-2xl flex flex-col gap-2 animate-in fade-in zoom-in-95">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+            <span className="flex-1 text-[11px] leading-snug font-medium">{error}</span>
+            <button
+              type="button"
+              onClick={clearError}
+              className="text-rose-400 hover:text-white p-0.5 rounded cursor-pointer"
+              aria-label="Close error notice"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between gap-2">
+            <span className="text-[10px] text-neutral-400">
+              Address bar 🔒 → Mic → Allow
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                clearError();
+                startListening();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold shadow-md transition-colors cursor-pointer shrink-0"
+            >
+              Ask Permission
+            </button>
+          </div>
         </div>
       )}
     </div>
