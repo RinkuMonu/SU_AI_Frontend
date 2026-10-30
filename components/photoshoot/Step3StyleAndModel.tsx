@@ -305,15 +305,22 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
                   }`}
                 >
                   {/* Model Photo Preview */}
-                  <div className="relative aspect-[3/4] w-full bg-black/40 overflow-hidden">
-                    <img
-                      src={model.avatarUrl}
-                      alt={model.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
+                  <div className="relative aspect-[3/4] w-full bg-black/40 overflow-hidden flex items-center justify-center">
+                    {model.avatarUrl && model.avatarUrl.trim() ? (
+                      <img
+                        src={model.avatarUrl}
+                        alt={model.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-brand-pink/20 via-black/40 to-black/80 flex flex-col items-center justify-center text-neutral-400 p-3">
+                        <UserCheck className="w-8 h-8 text-brand-pink/70 mb-1" />
+                        <span className="text-xs text-center text-white font-semibold">{model.name}</span>
+                      </div>
+                    )}
 
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent pointer-events-none" />
 
                     {/* Gender & Tag Badge */}
                     <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
@@ -397,13 +404,20 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
                 }`}
               >
                 {/* Visual Preview */}
-                <div className="relative aspect-[4/3] w-full bg-black/40 overflow-hidden">
-                  <img
-                    src={style.previewUrl}
-                    alt={style.name}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="relative aspect-[4/3] w-full bg-black/40 overflow-hidden flex items-center justify-center">
+                  {style.previewUrl && style.previewUrl.trim() ? (
+                    <img
+                      src={style.previewUrl}
+                      alt={style.name}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-brand-purple/20 via-black/40 to-black/80 flex flex-col items-center justify-center text-neutral-400 p-2">
+                      <Camera className="w-6 h-6 text-brand-purple/60 mb-1" />
+                      <span className="text-[10px] text-center text-neutral-300 font-medium line-clamp-1">{style.name}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                   {/* Badge */}
                   <div className="absolute top-1.5 left-1.5">

@@ -41,6 +41,8 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [modeFilter, setModeFilter] = useState<"all" | "model" | "product_only">("all");
+  const [sortBy, setSortBy] = useState<"desc" | "asc">("desc");
 
   // Selected session detailed inspector
   const [activeSessionDoc, setActiveSessionDoc] = useState<any | null>(null);
@@ -53,6 +55,8 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
     try {
       const res = await productPhotoshootService.getGallery({
         category: selectedCategory === "all" ? undefined : selectedCategory,
+        useModel: modeFilter === "all" ? undefined : modeFilter === "model",
+        sortBy,
         limit: 24,
       });
       if (res?.success) {
@@ -68,7 +72,7 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
 
   useEffect(() => {
     fetchGallery();
-  }, [selectedCategory]);
+  }, [selectedCategory, modeFilter, sortBy]);
 
   const handleOpenDetailedInspector = async (sessionId: string) => {
     setIsLoadingSessionDoc(true);
@@ -157,6 +161,81 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
         </div>
       </div>
 
+      {/* Interactive Gallery Filters & Sort Bar */}
+      <div className="bg-[#0b0e1b] border border-white/10 rounded-2xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-lg">
+        {/* Category Filter Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+          {[
+            { id: "all", label: "All" },
+            { id: "Clothing", label: "Clothing" },
+            { id: "Jewellery", label: "Jewellery" },
+            { id: "Cosmetics", label: "Cosmetics" },
+            { id: "Footwear", label: "Footwear" },
+            { id: "Bags & Luggage", label: "Bags" },
+            { id: "Home & Living", label: "Home" },
+            { id: "Electronics", label: "Electronics" },
+          ].map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => setSelectedCategory(cat.id)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                selectedCategory === cat.id
+                  ? "bg-brand-purple text-white shadow-md shadow-brand-purple/30"
+                  : "bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/5"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Mode & Sort Controls */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end shrink-0">
+          {/* Mode Selector */}
+          <div className="inline-flex rounded-xl bg-white/5 p-0.5 border border-white/10 text-xs">
+            <button
+              type="button"
+              onClick={() => setModeFilter("all")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                modeFilter === "all" ? "bg-white/15 text-white" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              All
+            </button>
+            <button
+              type="button"
+              onClick={() => setModeFilter("model")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                modeFilter === "model" ? "bg-brand-purple/40 text-brand-pink" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Model
+            </button>
+            <button
+              type="button"
+              onClick={() => setModeFilter("product_only")}
+              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
+                modeFilter === "product_only" ? "bg-blue-500/30 text-blue-300" : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              Product
+            </button>
+          </div>
+
+          {/* Sort By Date */}
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "desc" | "asc")}
+            aria-label="Sort by date"
+            className="bg-[#121528] border border-white/10 text-neutral-300 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-purple cursor-pointer"
+          >
+            <option value="desc">Newest First</option>
+            <option value="asc">Oldest First</option>
+          </select>
+        </div>
+      </div>
+
       {/* Error Notice */}
       {error && (
         <div className="p-3.5 rounded-2xl bg-rose-950/70 border border-rose-500/40 text-rose-200 text-xs flex items-center justify-between">
@@ -218,7 +297,7 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
                 className="relative aspect-[16/10] w-full bg-black/60 overflow-hidden cursor-pointer"
                 onClick={() => onOpenSession(sess.session_id)}
               >
-                {sess.thumbnail_url ? (
+                {sess.thumbnail_url && sess.thumbnail_url.trim() ? (
                   <img
                     src={sess.thumbnail_url}
                     alt={sess.title}
@@ -340,11 +419,13 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
               </button>
             </div>
             <div className="py-4 flex items-center justify-center max-h-[75vh] overflow-hidden">
-              <img
-                src={previewImageUrl}
-                alt="Preview"
-                className="max-h-[70vh] w-auto object-contain rounded-xl"
-              />
+              {previewImageUrl && previewImageUrl.trim() ? (
+                <img
+                  src={previewImageUrl}
+                  alt="Preview"
+                  className="max-h-[70vh] w-auto object-contain rounded-xl"
+                />
+              ) : null}
             </div>
           </div>
         </div>

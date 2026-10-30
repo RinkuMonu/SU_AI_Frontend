@@ -206,12 +206,16 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
             {/* Product Snapshot */}
             <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
               <div className="w-12 h-12 rounded-lg bg-black/60 overflow-hidden shrink-0 border border-white/10">
-                {uploadedImages[0] && (
+                {uploadedImages[0]?.previewUrl && uploadedImages[0].previewUrl.trim() ? (
                   <img
                     src={uploadedImages[0].previewUrl}
                     alt="Product"
                     className="w-full h-full object-cover"
                   />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                    <Box className="w-5 h-5" />
+                  </div>
                 )}
               </div>
               <div className="min-w-0 flex-1">
@@ -267,10 +271,23 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
               </div>
 
               {/* Production Resolution */}
-              <div className="flex items-center justify-between py-1.5">
+              <div className="flex items-center justify-between py-1.5 border-b border-white/5">
                 <span className="text-neutral-400">Output Quality:</span>
                 <span className="font-bold text-amber-300">
                   4K Ultra-HD • Commercial Print Ready
+                </span>
+              </div>
+
+              {/* Credit Cost Display */}
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-neutral-400">Generation Cost:</span>
+                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px]">
+                    5 Credits
+                  </span>
+                  <span className="text-[10px] text-neutral-400 font-normal">
+                    (Auto-refunded if job fails)
+                  </span>
                 </span>
               </div>
             </div>

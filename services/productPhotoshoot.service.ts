@@ -110,12 +110,13 @@ export interface BackendJobStatusResponse {
   success: boolean;
   job_id: string;
   session_id: string;
-  status: "pending" | "processing" | "completed" | "failed";
+  status: "pending" | "processing" | "completed" | "failed" | "partial";
   progress_percent: number;
   completed_images: number;
   total_images: number;
   result_images: BackendGeneratedImageItem[];
   error?: string;
+  can_retry?: boolean;
 }
 
 export interface BackendPhotoshootResultsResponse {
@@ -423,12 +424,31 @@ export class ProductPhotoshootService {
   }
 
   /**
+   * Retry failed images from a partial or failed photoshoot generation job
+   */
+  async retryFailedJob(jobId: string): Promise<{
+    success: boolean;
+    job_id: string;
+    session_id: string;
+    status: string;
+    retrying_count: number;
+    message: string;
+  }> {
+    const response = await api.post(
+      `${this.baseRoute}/jobs/${jobId}/retry`
+    );
+    return response.data;
+  }
+
+  /**
    * Fetch user's previous photoshoot sessions from gallery
    */
   async getGallery(params?: {
     page?: number;
     limit?: number;
     category?: string;
+    useModel?: boolean;
+    sortBy?: "asc" | "desc";
   }): Promise<BackendGalleryResponse> {
     const response = await api.get<BackendGalleryResponse>(
       `${this.baseRoute}/gallery`,
@@ -437,6 +457,8 @@ export class ProductPhotoshootService {
           page: params?.page ?? 1,
           limit: params?.limit ?? 12,
           category: params?.category,
+          use_model: params?.useModel,
+          sort_by: params?.sortBy,
         },
       }
     );

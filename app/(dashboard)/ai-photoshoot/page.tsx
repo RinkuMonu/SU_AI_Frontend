@@ -82,6 +82,10 @@ export default function AIPhotoshootPage() {
   const [finalResults, setFinalResults] = useState<PhotoshootFinalResult[]>([]);
   const [selectedResultIds, setSelectedResultIds] = useState<string[]>([]);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [canRetryJob, setCanRetryJob] = useState<boolean>(false);
+  const [isRetryingJob, setIsRetryingJob] = useState<boolean>(false);
+  const [partialNotice, setPartialNotice] = useState<string | null>(null);
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const isSubmittingGenRef = useRef(false);
@@ -221,17 +225,22 @@ export default function AIPhotoshootPage() {
       .getModels({ category: categoryName })
       .then((models) => {
         if (!isMounted || !models || models.length === 0) return;
-        const mapped: AIModelProfile[] = models.map((m) => ({
-          id: m.model_id,
-          name: m.name,
-          gender: m.gender.toLowerCase() as any,
-          ethnicity: m.ethnicity,
-          specialty: m.description || "Commercial Fashion",
-          avatarUrl: m.thumbnail_url,
-          description: m.description,
-          tags: m.supported_categories,
-          recommendedCategories: [productCategory],
-        }));
+        const mapped: AIModelProfile[] = models.map((m) => {
+          const matchedStatic = AI_MODELS.find(
+            (sm) => sm.id === m.model_id || sm.name.toLowerCase() === m.name.toLowerCase()
+          );
+          return {
+            id: m.model_id,
+            name: m.name,
+            gender: m.gender.toLowerCase() as any,
+            ethnicity: m.ethnicity,
+            specialty: m.description || "Commercial Fashion",
+            avatarUrl: m.thumbnail_url || matchedStatic?.avatarUrl || "",
+            description: m.description,
+            tags: m.supported_categories,
+            recommendedCategories: [productCategory],
+          };
+        });
         setBackendModels(mapped);
       })
       .catch(() => {});
@@ -245,15 +254,25 @@ export default function AIPhotoshootPage() {
       })
       .then((styles) => {
         if (!isMounted || !styles || styles.length === 0) return;
-        const mapped: PhotographyStyleOption[] = styles.map((s) => ({
-          id: s.id,
-          name: s.name,
-          category: s.requires_model ? "model" : "product_only",
-          description: s.description,
-          badge: s.lighting || "Studio",
-          previewUrl: s.preview_url || "",
-          recommendedFor: [productCategory],
-        }));
+        const allStaticStyles = [
+          ...MODEL_POSES_CLOTHING,
+          ...MODEL_POSES_JEWELLERY,
+          ...PRODUCT_ONLY_STYLES,
+        ];
+        const mapped: PhotographyStyleOption[] = styles.map((s) => {
+          const matchedStatic = allStaticStyles.find(
+            (staticS) => staticS.id === s.id || staticS.name.toLowerCase() === s.name.toLowerCase()
+          );
+          return {
+            id: s.id,
+            name: s.name,
+            category: s.requires_model ? "model" : "product_only",
+            description: s.description,
+            badge: s.lighting || "Studio",
+            previewUrl: s.preview_url || matchedStatic?.previewUrl || "",
+            recommendedFor: [productCategory],
+          };
+        });
         setBackendStyles(mapped);
       })
       .catch(() => {});
@@ -557,14 +576,17 @@ export default function AIPhotoshootPage() {
       }
 
       const jobId = genResponse.job_id;
+      setActiveJobId(jobId);
       setGenerationStage("Rendering commercial lighting and camera perspectives...");
 
-      // 2. Poll job status until complete
+      // 2. Poll job status until complete (with timeout safeguard)
       if (pollIntervalRef.current) {
         clearInterval(pollIntervalRef.current);
       }
 
+      let pollAttempts = 0;
       pollIntervalRef.current = setInterval(async () => {
+        pollAttempts++;
         try {
           const statusRes = await productPhotoshootService.getJobStatus(jobId);
 
@@ -578,14 +600,18 @@ export default function AIPhotoshootPage() {
             );
           }
 
-          if (statusRes.status === "completed") {
+          if (statusRes.status === "completed" || statusRes.status === "partial") {
             if (pollIntervalRef.current) {
               clearInterval(pollIntervalRef.current);
               pollIntervalRef.current = null;
             }
 
             setGenerationProgress(100);
-            setGenerationStage("Finalizing ultra-HD catalog imagery...");
+            setGenerationStage(
+              statusRes.status === "completed"
+                ? "Finalizing ultra-HD catalog imagery..."
+                : `Completed ${statusRes.completed_images || 0} of ${statusRes.total_images || 5} variations.`
+            );
 
             // Fetch session results
             const resultsRes = await productPhotoshootService.getSessionResults(activeSessionId!);
@@ -606,6 +632,17 @@ export default function AIPhotoshootPage() {
               setFinalResults(mappedResults);
               setSelectedResultIds(mappedResults.map((r) => r.id));
             }
+
+            if (statusRes.status === "partial") {
+              setPartialNotice(
+                `${statusRes.completed_images || 0} of ${statusRes.total_images || 5} variations generated. You can retry the remaining variations without additional credit deduction.`
+              );
+              setCanRetryJob(Boolean(statusRes.can_retry));
+            } else {
+              setPartialNotice(null);
+              setCanRetryJob(false);
+            }
+
             setIsGenerating(false);
             isSubmittingGenRef.current = false;
           } else if (statusRes.status === "failed") {
@@ -615,7 +652,36 @@ export default function AIPhotoshootPage() {
             }
             setIsGenerating(false);
             isSubmittingGenRef.current = false;
+            setCanRetryJob(Boolean(statusRes.can_retry));
             setErrorMessage(statusRes.error || "Photoshoot generation failed. Please try again.");
+          } else if (pollAttempts > 60) {
+            // ~84s polling timeout safeguard
+            if (pollIntervalRef.current) {
+              clearInterval(pollIntervalRef.current);
+              pollIntervalRef.current = null;
+            }
+            setIsGenerating(false);
+            isSubmittingGenRef.current = false;
+            const resultsRes = await productPhotoshootService.getSessionResults(activeSessionId!);
+            if (resultsRes.success && resultsRes.results?.length) {
+              const mappedResults: PhotoshootFinalResult[] = resultsRes.results.map((r) => ({
+                id: r.image_id,
+                imageUrl: r.url,
+                title: `${productName || "Product"} — ${r.style_applied}`,
+                prompt: customPrompt || `High-fashion commercial photography in ${r.style_applied}`,
+                styleName: r.style_applied,
+                modelUsed: withModel && selectedModelId ? selectedModelId : undefined,
+                resolution: "4K Ultra-HD",
+                selected: true,
+                isSaved: r.is_saved,
+                createdAt: r.created_at,
+              }));
+              setFinalResults(mappedResults);
+              setSelectedResultIds(mappedResults.map((r) => r.id));
+              setPartialNotice("Rendering took longer than usual; available variations are loaded.");
+            } else {
+              setErrorMessage("Photoshoot rendering timed out. Please check your gallery in a moment.");
+            }
           }
         } catch (pollErr: any) {
           console.warn("Poll job error:", pollErr);
@@ -628,6 +694,71 @@ export default function AIPhotoshootPage() {
       setErrorMessage(
         err?.response?.data?.detail || err.message || "Could not complete photoshoot generation."
       );
+    }
+  };
+
+  // Retry failed images from partial or failed photoshoot job
+  const handleRetryFailedJob = async () => {
+    if (!activeJobId || isRetryingJob) return;
+    setIsRetryingJob(true);
+    setErrorMessage(null);
+    try {
+      const res = await productPhotoshootService.retryFailedJob(activeJobId);
+      if (res.success && res.retrying_count > 0) {
+        setPartialNotice(`Retrying ${res.retrying_count} failed variation(s) in background...`);
+        setIsGenerating(true);
+
+        let retryPollAttempts = 0;
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = setInterval(async () => {
+          retryPollAttempts++;
+          try {
+            const statusRes = await productPhotoshootService.getJobStatus(activeJobId);
+            if (statusRes.status === "completed" || statusRes.status === "partial" || retryPollAttempts > 45) {
+              if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+              }
+              setIsGenerating(false);
+              setIsRetryingJob(false);
+
+              if (sessionId) {
+                const resultsRes = await productPhotoshootService.getSessionResults(sessionId);
+                if (resultsRes.success && resultsRes.results) {
+                  const mappedResults: PhotoshootFinalResult[] = resultsRes.results.map((r) => ({
+                    id: r.image_id,
+                    imageUrl: r.url,
+                    title: `${productName || "Product"} — ${r.style_applied}`,
+                    prompt: customPrompt || `High-fashion commercial photography in ${r.style_applied}`,
+                    styleName: r.style_applied,
+                    modelUsed: withModel && selectedModelId ? selectedModelId : undefined,
+                    resolution: "4K Ultra-HD",
+                    selected: true,
+                    isSaved: r.is_saved,
+                    createdAt: r.created_at,
+                  }));
+                  setFinalResults(mappedResults);
+                  setSelectedResultIds(mappedResults.map((r) => r.id));
+                }
+              }
+
+              if (statusRes.status === "completed") {
+                setPartialNotice(null);
+                setCanRetryJob(false);
+              } else {
+                setPartialNotice(`Retry completed. Available variations updated.`);
+                setCanRetryJob(Boolean(statusRes.can_retry));
+              }
+            }
+          } catch (_) {}
+        }, 1500);
+      } else {
+        setIsRetryingJob(false);
+        setPartialNotice(res.message || "No variations available to retry.");
+      }
+    } catch (e: any) {
+      setIsRetryingJob(false);
+      setErrorMessage(e?.response?.data?.detail || "Could not retry failed variations.");
     }
   };
 
@@ -645,6 +776,7 @@ export default function AIPhotoshootPage() {
             r.id === id
               ? {
                   ...r,
+                  id: res.regenerated_image.image_id,
                   imageUrl: res.regenerated_image.url,
                   isRegenerating: false,
                   isFailed: false,
@@ -872,8 +1004,9 @@ export default function AIPhotoshootPage() {
               const res = await productPhotoshootService.getSession(sessId);
               if (res?.success && res.session) {
                 const sess = res.session;
-                if (sess.uploaded_images && sess.uploaded_images.length > 0) {
-                  const restoredImages: PhotoshootUploadedImage[] = sess.uploaded_images.map(
+                const sessImages = sess.original_images || sess.uploaded_images || [];
+                if (sessImages.length > 0) {
+                  const restoredImages: PhotoshootUploadedImage[] = sessImages.map(
                     (img: any, i: number) => ({
                       id: img.image_id || `img_${i}`,
                       name: img.filename || `product_${i + 1}.jpg`,
@@ -1006,6 +1139,10 @@ export default function AIPhotoshootPage() {
               generationProgress={generationProgress}
               generationStage={generationStage}
               productName={productName}
+              onRetryFailedJob={handleRetryFailedJob}
+              canRetryJob={canRetryJob}
+              isRetryingJob={isRetryingJob}
+              partialNotice={partialNotice}
               onToggleSelect={(id) =>
                 setSelectedResultIds((prev) =>
                   prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]

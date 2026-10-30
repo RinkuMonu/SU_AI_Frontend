@@ -1,21 +1,21 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Sparkles, 
-  Download, 
-  Check, 
-  RotateCcw, 
-  Trash2, 
-  Eye, 
-  Maximize2, 
-  CheckCircle2, 
-  X, 
-  Loader2, 
-  Share2, 
-  Bookmark, 
-  ArrowLeft, 
-  Layers, 
+import {
+  Sparkles,
+  Download,
+  Check,
+  RotateCcw,
+  Trash2,
+  Eye,
+  Maximize2,
+  CheckCircle2,
+  X,
+  Loader2,
+  Share2,
+  Bookmark,
+  ArrowLeft,
+  Layers,
   Camera,
   CheckSquare,
   Square
@@ -40,6 +40,10 @@ interface Step5ResultsProps {
   onDownloadZip?: () => void;
   onStartNewPhotoshoot: () => void;
   onBackToEdit: () => void;
+  onRetryFailedJob?: () => void;
+  canRetryJob?: boolean;
+  isRetryingJob?: boolean;
+  partialNotice?: string | null;
 }
 
 export const Step5Results: React.FC<Step5ResultsProps> = ({
@@ -60,6 +64,10 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
   onDownloadZip,
   onStartNewPhotoshoot,
   onBackToEdit,
+  onRetryFailedJob,
+  canRetryJob,
+  isRetryingJob,
+  partialNotice,
 }) => {
   const [lightboxItem, setLightboxItem] = useState<PhotoshootFinalResult | null>(null);
   const [gallerySavedNotice, setGallerySavedNotice] = useState(false);
@@ -139,6 +147,39 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* Partial Generation / Retry Banner */}
+      {partialNotice && (
+        <div className="p-4 rounded-2xl bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl animate-in fade-in">
+          <div className="flex items-center gap-2.5">
+            <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
+            <div>
+              <span className="font-bold text-white block">Partial Generation Completed</span>
+              <span className="text-amber-300/90 text-[11px]">{partialNotice}</span>
+            </div>
+          </div>
+          {canRetryJob && onRetryFailedJob && (
+            <button
+              type="button"
+              onClick={onRetryFailedJob}
+              disabled={isRetryingJob}
+              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0 shadow-md"
+            >
+              {isRetryingJob ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Retrying...</span>
+                </>
+              ) : (
+                <>
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Retry Failed Variations</span>
+                </>
+              )}
+            </button>
+          )}
         </div>
       )}
 
@@ -288,19 +329,25 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
           return (
             <div
               key={item.id}
-              className={`rounded-2xl border transition-all overflow-hidden flex flex-col justify-between group shadow-xl ${
-                isSelected
+              className={`rounded-2xl border transition-all overflow-hidden flex flex-col justify-between group shadow-xl ${isSelected
                   ? "bg-[#141122] border-brand-purple shadow-brand-purple/20 ring-2 ring-brand-purple"
                   : "bg-[#0c0e1a] border-white/10 hover:border-white/20"
-              }`}
+                }`}
             >
               {/* Image Preview Container */}
-              <div className="relative aspect-square w-full bg-black/60 overflow-hidden select-none">
-                <img
-                  src={item.imageUrl}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
+              <div className="relative aspect-square w-full bg-black/60 overflow-hidden select-none flex items-center justify-center">
+                {item.imageUrl && item.imageUrl.trim() ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-neutral-600">
+                    <Camera className="w-10 h-10 mb-1" />
+                    <span className="text-xs text-neutral-400">Rendering visual...</span>
+                  </div>
+                )}
 
                 {/* Top Overlay Badges */}
                 <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
@@ -309,11 +356,10 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     <button
                       type="button"
                       onClick={() => onToggleSelect(item.id)}
-                      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
-                        isSelected
+                      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${isSelected
                           ? "bg-brand-purple border-brand-purple text-white shadow-md"
                           : "bg-black/60 backdrop-blur-md border-white/30 text-transparent hover:border-white"
-                      }`}
+                        }`}
                       title={isSelected ? "Deselect image" : "Select image"}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -444,11 +490,13 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
 
             {/* Lightbox Image View */}
             <div className="py-4 flex items-center justify-center max-h-[75vh] overflow-hidden">
-              <img
-                src={lightboxItem.imageUrl}
-                alt={lightboxItem.title}
-                className="max-h-[72vh] w-auto object-contain rounded-xl shadow-2xl"
-              />
+              {lightboxItem.imageUrl && lightboxItem.imageUrl.trim() ? (
+                <img
+                  src={lightboxItem.imageUrl}
+                  alt={lightboxItem.title}
+                  className="max-h-[72vh] w-auto object-contain rounded-xl shadow-2xl"
+                />
+              ) : null}
             </div>
 
             {/* Prompt details at bottom */}

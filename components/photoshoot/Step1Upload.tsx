@@ -307,12 +307,18 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
                     className="relative rounded-xl border border-white/10 bg-[#0a0d1a] overflow-hidden group hover:border-brand-purple/50 transition-all shadow-md"
                   >
                     {/* Image Preview */}
-                    <div className="relative aspect-square w-full bg-black/40 overflow-hidden">
-                      <img
-                        src={img.previewUrl}
-                        alt={img.name}
-                        className="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
-                      />
+                    <div className="relative aspect-square w-full bg-black/40 overflow-hidden flex items-center justify-center">
+                      {img.previewUrl && img.previewUrl.trim() ? (
+                        <img
+                          src={img.previewUrl}
+                          alt={img.name}
+                          className="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-neutral-600">
+                          <ImageIcon className="w-8 h-8" />
+                        </div>
+                      )}
 
                       {/* Primary Badge */}
                       {idx === 0 && (
