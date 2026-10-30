@@ -177,37 +177,50 @@ export const VoiceInputButton: React.FC<VoiceInputButtonProps> = ({
         </div>
       )}
 
-      {/* Error Tooltip Banner with Prompt & Instructions */}
+      {/* Error Tooltip Banner with Step-by-Step Unblock Guide */}
       {error && (
-        <div className="absolute right-0 bottom-full mb-2 z-50 w-72 max-w-[90vw] p-3 rounded-2xl bg-[#1c0f17] border border-rose-500/40 text-rose-200 text-xs shadow-2xl flex flex-col gap-2 animate-in fade-in zoom-in-95">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-            <span className="flex-1 text-[11px] leading-snug font-medium">{error}</span>
+        <div className="absolute right-0 bottom-full mb-2 z-50 w-80 max-w-[92vw] p-3.5 rounded-2xl bg-[#1a0e16] border border-rose-500/50 text-white text-xs shadow-2xl flex flex-col gap-2.5 animate-in fade-in zoom-in-95">
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex items-center gap-1.5 text-rose-400 font-bold text-xs">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>Allow Microphone in Browser</span>
+            </div>
             <button
               type="button"
               onClick={clearError}
-              className="text-rose-400 hover:text-white p-0.5 rounded cursor-pointer"
-              aria-label="Close error notice"
+              className="text-neutral-400 hover:text-white p-0.5 rounded cursor-pointer"
+              aria-label="Close notice"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="pt-2 border-t border-rose-500/20 flex items-center justify-between gap-2">
-            <span className="text-[10px] text-neutral-400">
-              Address bar 🔒 → Mic → Allow
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                clearError();
-                startListening();
-              }}
-              className="px-2.5 py-1 rounded-lg bg-rose-500 hover:bg-rose-600 text-white text-[10px] font-bold shadow-md transition-colors cursor-pointer shrink-0"
-            >
-              Ask Permission
-            </button>
+          <div className="bg-black/40 rounded-xl p-2.5 border border-white/5 space-y-1.5 text-[11px] text-neutral-300">
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">1</span>
+              <span>Click the <b>Tune 🎚️ or Lock 🔒 icon</b> in your browser address bar (left of <code>localhost:3000</code>).</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">2</span>
+              <span>Switch <b>Microphone</b> to <b>&quot;Allow&quot; (ON)</b>.</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="w-4 h-4 rounded-full bg-rose-500/20 text-rose-300 flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5">3</span>
+              <span>Click the button below:</span>
+            </div>
           </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              clearError();
+              startListening();
+            }}
+            className="w-full py-2 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white text-xs font-bold shadow-lg shadow-rose-950/50 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+          >
+            <Mic className="w-3.5 h-3.5" />
+            <span>Try Microphone Again</span>
+          </button>
         </div>
       )}
     </div>
