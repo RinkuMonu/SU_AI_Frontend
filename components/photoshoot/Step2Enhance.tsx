@@ -63,6 +63,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
   );
   const [sliderPosition, setSliderPosition] = useState<number>(50);
   const [lightboxImageUrl, setLightboxImageUrl] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"slider" | "side_by_side">("slider");
 
   const activeVariation =
     enhancedVariations.find((v) => v.id === activeComparisonId) ||
@@ -242,28 +243,56 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
         </div>
       </div>
 
-      {/* Interactive Before & After Comparison Slider */}
+      {/* Interactive Before & After Comparison */}
       {activeVariation && (
-        <div className="bg-[#0c0e1a] border border-white/10 rounded-2xl p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="bg-[#0c0e1a] border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <Sliders className="w-4 h-4 text-brand-purple" />
                 <span>Original vs. Enhanced Comparison</span>
+                <span className="text-[10px] text-neutral-400 font-normal">
+                  ({activeVariation.styleName})
+                </span>
               </h2>
               <p className="text-xs text-neutral-400">
-                Drag the slider or toggle to see lighting and background enhancement.
+                Inspect how lighting, color vibrancy, and reflections were enhanced.
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setSliderPosition(sliderPosition === 50 ? 0 : 50)}
-                className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-neutral-300 cursor-pointer"
-              >
-                {sliderPosition === 0 ? "Show Split (50/50)" : "Show Enhanced Only"}
-              </button>
+            {/* View Mode Controls */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center bg-black/40 border border-white/10 rounded-xl p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("slider")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                    viewMode === "slider" ? "bg-brand-purple text-white shadow" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Split Slider
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("side_by_side")}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                    viewMode === "side_by_side" ? "bg-brand-purple text-white shadow" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Side by Side
+                </button>
+              </div>
+
+              {viewMode === "slider" && (
+                <button
+                  type="button"
+                  onClick={() => setSliderPosition(sliderPosition === 50 ? 0 : 50)}
+                  className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-neutral-300 cursor-pointer"
+                >
+                  {sliderPosition === 0 ? "50/50" : "Enhanced Only"}
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setLightboxImageUrl(activeVariation.enhancedUrl)}
@@ -275,55 +304,102 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
             </div>
           </div>
 
-          {/* Slider Container */}
-          <div className="relative aspect-[16/9] sm:aspect-[21/9] max-h-[380px] w-full rounded-xl overflow-hidden select-none bg-black/60 border border-white/10">
-            {/* Base (Enhanced Image) */}
-            <img
-              src={activeVariation.enhancedUrl}
-              alt="Enhanced variation"
-              className="absolute inset-0 w-full h-full object-contain"
-            />
-            <div className="absolute top-3 right-3 px-2 py-1 rounded bg-brand-purple/90 backdrop-blur-md text-white text-[10px] font-bold shadow-md">
-              AI Enhanced ({activeVariation.styleName})
-            </div>
-
-            {/* Clipped Overlay (Original Image) */}
-            <div
-              className="absolute inset-y-0 left-0 overflow-hidden"
-              style={{ width: `${sliderPosition}%` }}
-            >
+          {/* View Mode 1: Split Slider */}
+          {viewMode === "slider" ? (
+            <div className="relative aspect-[16/9] sm:aspect-[21/9] max-h-[380px] w-full rounded-xl overflow-hidden select-none bg-black/60 border border-white/10">
+              {/* Base (Enhanced Image) */}
               <img
-                src={activeVariation.originalUrl || primaryOriginal}
-                alt="Original uploaded product"
-                className="absolute inset-0 w-full h-full object-contain max-w-none"
-                style={{ width: "100%", height: "100%" }}
+                src={activeVariation.enhancedUrl}
+                alt="Enhanced variation"
+                className="absolute inset-0 w-full h-full object-contain"
               />
-              <div className="absolute top-3 left-3 px-2 py-1 rounded bg-black/80 backdrop-blur-md text-neutral-300 text-[10px] font-bold shadow-md border border-white/10">
-                Original Photo
+              <div className="absolute top-3 right-3 px-2 py-1 rounded bg-brand-purple/90 backdrop-blur-md text-white text-[10px] font-bold shadow-md">
+                AI Enhanced ({activeVariation.styleName})
+              </div>
+
+              {/* Clipped Overlay (Original Image) */}
+              <div
+                className="absolute inset-y-0 left-0 overflow-hidden"
+                style={{ width: `${sliderPosition}%` }}
+              >
+                <img
+                  src={activeVariation.originalUrl || primaryOriginal}
+                  alt="Original uploaded product"
+                  className="absolute inset-0 w-full h-full object-contain max-w-none"
+                  style={{ width: "100%", height: "100%" }}
+                />
+                <div className="absolute top-3 left-3 px-2 py-1 rounded bg-black/80 backdrop-blur-md text-neutral-300 text-[10px] font-bold shadow-md border border-white/10">
+                  Original Photo
+                </div>
+              </div>
+
+              {/* Split Line & Drag Handle */}
+              <div
+                className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] cursor-ew-resize pointer-events-none"
+                style={{ left: `${sliderPosition}%` }}
+              >
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-black shadow-xl flex items-center justify-center font-bold text-xs pointer-events-auto cursor-ew-resize">
+                  ⇄
+                </div>
+              </div>
+
+              {/* Transparent Range Input Overlay for Dragging */}
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={sliderPosition}
+                onChange={(e) => setSliderPosition(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+                aria-label="Comparison slider"
+              />
+            </div>
+          ) : (
+            /* View Mode 2: Side-by-Side Dual Card View */
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Original Card */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-3 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-neutral-300">
+                  <span>Original Photo</span>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImageUrl(activeVariation.originalUrl || primaryOriginal)}
+                    className="text-neutral-400 hover:text-white"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-black/60">
+                  <img
+                    src={activeVariation.originalUrl || primaryOriginal}
+                    alt="Original"
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
+              </div>
+
+              {/* Enhanced Card */}
+              <div className="rounded-xl border border-brand-purple/40 bg-brand-purple/5 p-3 space-y-2">
+                <div className="flex items-center justify-between text-xs font-semibold text-white">
+                  <span className="text-brand-pink font-bold">AI Enhanced ({activeVariation.styleName})</span>
+                  <button
+                    type="button"
+                    onClick={() => setLightboxImageUrl(activeVariation.enhancedUrl)}
+                    className="text-neutral-400 hover:text-white"
+                  >
+                    <Maximize2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-black/60">
+                  <img
+                    src={activeVariation.enhancedUrl}
+                    alt="Enhanced"
+                    className="w-full h-full object-contain p-2"
+                  />
+                </div>
               </div>
             </div>
-
-            {/* Split Line & Drag Handle */}
-            <div
-              className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)] cursor-ew-resize pointer-events-none"
-              style={{ left: `${sliderPosition}%` }}
-            >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-black shadow-xl flex items-center justify-center font-bold text-xs pointer-events-auto cursor-ew-resize">
-                ⇄
-              </div>
-            </div>
-
-            {/* Transparent Range Input Overlay for Dragging */}
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={sliderPosition}
-              onChange={(e) => setSliderPosition(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
-              aria-label="Comparison slider"
-            />
-          </div>
+          )}
         </div>
       )}
 
@@ -428,22 +504,32 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/10">
                     <button
                       type="button"
+                      disabled={variation.isRegenerating || isEnhancing}
                       onClick={() => onVariationToggle(variation.id)}
-                      className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                      className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                         isSelected
                           ? "bg-brand-purple text-white shadow-md shadow-brand-purple/30"
                           : "bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10"
                       }`}
                     >
-                      <Check className="w-3.5 h-3.5" />
-                      <span>{isSelected ? "Selected" : "Select"}</span>
+                      {variation.isRegenerating ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          <span>Rendering...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>{isSelected ? "Selected" : "Select"}</span>
+                        </>
+                      )}
                     </button>
 
                     <button
                       type="button"
                       onClick={() => onRegenerateVariation(variation.id)}
-                      disabled={variation.isRegenerating}
-                      className="py-1.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-50"
+                      disabled={variation.isRegenerating || isEnhancing}
+                      className="py-1.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                       title="Re-roll this variation"
                     >
                       {variation.isRegenerating ? (

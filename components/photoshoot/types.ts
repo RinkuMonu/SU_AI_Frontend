@@ -72,6 +72,8 @@ export interface PhotoshootFinalResult {
   createdAt: string;
   isSaved?: boolean;
   isRegenerating?: boolean;
+  isFailed?: boolean;
+  errorMessage?: string;
 }
 
 export interface PhotoshootWorkflowState {

@@ -127,6 +127,26 @@ export interface BackendPhotoshootResultsResponse {
   results: BackendGeneratedImageItem[];
 }
 
+export interface BackendGallerySessionItem {
+  session_id: string;
+  title: string;
+  product_category?: string;
+  product_type?: string;
+  use_model: boolean;
+  thumbnail_url?: string;
+  total_generated: number;
+  saved_count: number;
+  created_at: string;
+}
+
+export interface BackendGalleryResponse {
+  success: boolean;
+  total: number;
+  page: number;
+  limit: number;
+  sessions: BackendGallerySessionItem[];
+}
+
 export interface BackendSaveImagesResponse {
   success: boolean;
   session_id: string;
@@ -400,6 +420,37 @@ export class ProductPhotoshootService {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+  }
+
+  /**
+   * Fetch user's previous photoshoot sessions from gallery
+   */
+  async getGallery(params?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }): Promise<BackendGalleryResponse> {
+    const response = await api.get<BackendGalleryResponse>(
+      `${this.baseRoute}/gallery`,
+      {
+        params: {
+          page: params?.page ?? 1,
+          limit: params?.limit ?? 12,
+          category: params?.category,
+        },
+      }
+    );
+    return response.data;
+  }
+
+  /**
+   * Fetch detailed metadata for a single photoshoot session
+   */
+  async getSession(sessionId: string): Promise<any> {
+    const response = await api.get(
+      `${this.baseRoute}/${sessionId}`
+    );
+    return response.data;
   }
 
   /**

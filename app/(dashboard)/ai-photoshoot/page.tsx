@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Camera, Sparkles, RefreshCw, AlertCircle } from "lucide-react";
+import { Camera, Sparkles, RefreshCw, AlertCircle, FolderOpen, Layers, CheckCircle2 } from "lucide-react";
 import { PhotoshootStepper } from "@/components/photoshoot/PhotoshootStepper";
 import { Step1Upload } from "@/components/photoshoot/Step1Upload";
 import { Step2Enhance } from "@/components/photoshoot/Step2Enhance";
 import { Step3StyleAndModel } from "@/components/photoshoot/Step3StyleAndModel";
 import { Step4PromptAndVoice } from "@/components/photoshoot/Step4PromptAndVoice";
 import { Step5Results } from "@/components/photoshoot/Step5Results";
+import { PhotoshootGalleryView } from "@/components/photoshoot/PhotoshootGalleryView";
 import { 
   AIModelProfile,
   EnhancedVariation, 
@@ -35,8 +36,12 @@ import {
 } from "@/services/productPhotoshoot.service";
 
 const SESSION_STORAGE_KEY = "dhandagrow_photoshoot_session_id";
+const FORM_CACHE_KEY = "dhandagrow_photoshoot_form_cache";
 
 export default function AIPhotoshootPage() {
+  // Top Level View Mode: Studio (5-Step Generator) vs. My Gallery (History)
+  const [activeView, setActiveView] = useState<"studio" | "gallery">("studio");
+
   // Shared Studio Workflow State
   const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1);
   const [highestStepReached, setHighestStepReached] = useState<number>(1);
@@ -79,6 +84,7 @@ export default function AIPhotoshootPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isSubmittingGenRef = useRef(false);
 
   // Clear polling interval on unmount
   useEffect(() => {
@@ -96,19 +102,44 @@ export default function AIPhotoshootPage() {
     }
   }, [step, highestStepReached]);
 
-  // Session restore on mount from sessionStorage
+  // Restore session & form cache on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // 1. Restore form inputs cache if available
+    try {
+      const cached = sessionStorage.getItem(FORM_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.productCategory) setProductCategory(parsed.productCategory);
+        if (parsed.productName) setProductName(parsed.productName);
+        if (parsed.productColor) setProductColor(parsed.productColor);
+        if (parsed.enhancementStyle) setEnhancementStyle(parsed.enhancementStyle);
+        if (typeof parsed.withModel === "boolean") setWithModel(parsed.withModel);
+        if (parsed.selectedModelId !== undefined) setSelectedModelId(parsed.selectedModelId);
+        if (parsed.selectedStyles?.length) setSelectedStyles(parsed.selectedStyles);
+        if (parsed.customPrompt) setCustomPrompt(parsed.customPrompt);
+        if (parsed.uploadedImages?.length) setUploadedImages(parsed.uploadedImages);
+        if (parsed.enhancedVariations?.length) setEnhancedVariations(parsed.enhancedVariations);
+        if (parsed.selectedEnhancedIds?.length) setSelectedEnhancedIds(parsed.selectedEnhancedIds);
+        if (parsed.detectedAnalysis) setDetectedAnalysis(parsed.detectedAnalysis);
+        if (parsed.step && parsed.step > 1) {
+          setStep(parsed.step);
+          setHighestStepReached(parsed.step);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Restore active session results if available
     const savedSessionId = sessionStorage.getItem(SESSION_STORAGE_KEY);
     if (!savedSessionId) return;
 
     setSessionId(savedSessionId);
-    // Attempt to retrieve existing results for this session
     productPhotoshootService
       .getSessionResults(savedSessionId)
       .then((res) => {
         if (res?.success && res.results && res.results.length > 0) {
-          const mapped: PhotoshootFinalResult[] = res.results.map((r, i) => ({
+          const mapped: PhotoshootFinalResult[] = res.results.map((r) => ({
             id: r.image_id,
             imageUrl: r.url,
             title: `Product Photoshoot — ${r.style_applied}`,
@@ -125,10 +156,60 @@ export default function AIPhotoshootPage() {
           setStep(5);
         }
       })
-      .catch((_) => {
-        // Silently ignore if session expired on backend
-      });
+      .catch((_) => {});
   }, []);
+
+  // Save form state to cache whenever relevant states change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      // Omit heavy binary File objects for clean JSON serialization
+      const serializableImages = uploadedImages.map((img) => ({
+        id: img.id,
+        name: img.name,
+        size: img.size,
+        url: img.url,
+        previewUrl: img.previewUrl,
+        angle: img.angle,
+        uploadedAt: img.uploadedAt,
+        backendImageId: img.backendImageId,
+      }));
+
+      const stateToCache = {
+        sessionId,
+        step,
+        productCategory,
+        productName,
+        productColor,
+        enhancementStyle,
+        withModel,
+        selectedModelId,
+        selectedStyles,
+        customPrompt,
+        uploadedImages: serializableImages,
+        enhancedVariations,
+        selectedEnhancedIds,
+        detectedAnalysis,
+      };
+
+      sessionStorage.setItem(FORM_CACHE_KEY, JSON.stringify(stateToCache));
+    } catch (_) {}
+  }, [
+    sessionId,
+    step,
+    productCategory,
+    productName,
+    productColor,
+    enhancementStyle,
+    withModel,
+    selectedModelId,
+    selectedStyles,
+    customPrompt,
+    uploadedImages,
+    enhancedVariations,
+    selectedEnhancedIds,
+    detectedAnalysis,
+  ]);
 
   // Fetch dynamic models and styles from backend when category or model mode changes
   useEffect(() => {
@@ -443,6 +524,10 @@ export default function AIPhotoshootPage() {
 
   // Step 5: Start Batch Photoshoot Generation via Backend
   const handleGenerateFinalPhotoshoot = async () => {
+    // Prevent accidental duplicate requests caused by repeated button clicks
+    if (isSubmittingGenRef.current || isGenerating) return;
+    isSubmittingGenRef.current = true;
+
     setErrorMessage(null);
     setStep(5);
     setIsGenerating(true);
@@ -522,12 +607,14 @@ export default function AIPhotoshootPage() {
               setSelectedResultIds(mappedResults.map((r) => r.id));
             }
             setIsGenerating(false);
+            isSubmittingGenRef.current = false;
           } else if (statusRes.status === "failed") {
             if (pollIntervalRef.current) {
               clearInterval(pollIntervalRef.current);
               pollIntervalRef.current = null;
             }
             setIsGenerating(false);
+            isSubmittingGenRef.current = false;
             setErrorMessage(statusRes.error || "Photoshoot generation failed. Please try again.");
           }
         } catch (pollErr: any) {
@@ -537,6 +624,7 @@ export default function AIPhotoshootPage() {
     } catch (err: any) {
       console.error("Photoshoot generation error:", err);
       setIsGenerating(false);
+      isSubmittingGenRef.current = false;
       setErrorMessage(
         err?.response?.data?.detail || err.message || "Could not complete photoshoot generation."
       );
@@ -546,7 +634,7 @@ export default function AIPhotoshootPage() {
   // Re-roll single final image variation via backend
   const handleRegenerateFinalResult = async (id: string) => {
     setFinalResults((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, isRegenerating: true } : r))
+      prev.map((r) => (r.id === id ? { ...r, isRegenerating: true, isFailed: false } : r))
     );
 
     try {
@@ -559,19 +647,20 @@ export default function AIPhotoshootPage() {
                   ...r,
                   imageUrl: res.regenerated_image.url,
                   isRegenerating: false,
+                  isFailed: false,
                 }
               : r
           )
         );
       } else {
         setFinalResults((prev) =>
-          prev.map((r) => (r.id === id ? { ...r, isRegenerating: false } : r))
+          prev.map((r) => (r.id === id ? { ...r, isRegenerating: false, isFailed: true } : r))
         );
       }
     } catch (e) {
       console.warn("Regenerate result error:", e);
       setFinalResults((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, isRegenerating: false } : r))
+        prev.map((r) => (r.id === id ? { ...r, isRegenerating: false, isFailed: true } : r))
       );
     }
   };
@@ -638,6 +727,7 @@ export default function AIPhotoshootPage() {
   const handleStartNewPhotoshoot = () => {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem(SESSION_STORAGE_KEY);
+      sessionStorage.removeItem(FORM_CACHE_KEY);
     }
     setSessionId(null);
     setStep(1);
@@ -663,7 +753,7 @@ export default function AIPhotoshootPage() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-4 pb-16">
-      {/* Page Title & Badges */}
+      {/* Page Title & View Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/10">
         <div>
           <div className="flex items-center gap-2.5">
@@ -684,9 +774,37 @@ export default function AIPhotoshootPage() {
           </div>
         </div>
 
-        {/* Global Reset / Restart Action */}
-        <div className="flex items-center gap-2">
-          {step > 1 && (
+        {/* Top Actions: Studio vs. My Gallery Tabs & Reset Button */}
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Studio vs Gallery Tab Switcher */}
+          <div className="flex items-center bg-[#0d0f1e] border border-white/10 rounded-xl p-1 shadow-inner">
+            <button
+              type="button"
+              onClick={() => setActiveView("studio")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeView === "studio"
+                  ? "bg-brand-gradient text-white shadow-md shadow-brand-purple/20"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Studio</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveView("gallery")}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeView === "gallery"
+                  ? "bg-brand-gradient text-white shadow-md shadow-brand-purple/20"
+                  : "text-neutral-400 hover:text-white"
+              }`}
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              <span>My Gallery</span>
+            </button>
+          </div>
+
+          {activeView === "studio" && step > 1 && (
             <button
               type="button"
               onClick={() => {
@@ -713,115 +831,199 @@ export default function AIPhotoshootPage() {
           <button
             type="button"
             onClick={() => setErrorMessage(null)}
-            className="text-rose-400 hover:text-white font-bold ml-2"
+            className="text-rose-400 hover:text-white font-bold ml-2 cursor-pointer"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* 5-Step Progress Stepper */}
-      <PhotoshootStepper
-        currentStep={step}
-        onStepClick={(s) => setStep(s)}
-        canNavigateToStep={canNavigateToStep}
-      />
-
-      {/* 5-Step Workflow View */}
-      {step === 1 && (
-        <Step1Upload
-          uploadedImages={uploadedImages}
-          productCategory={productCategory}
-          productName={productName}
-          productColor={productColor}
-          onImagesChange={(imgs) => setUploadedImages(imgs)}
-          onCategoryChange={(cat) => setProductCategory(cat)}
-          onNameChange={(name) => setProductName(name)}
-          onColorChange={(col) => setProductColor(col)}
-          onNext={handleProceedToEnhancement}
+      {/* VIEW A: Photoshoot Gallery View */}
+      {activeView === "gallery" && (
+        <PhotoshootGalleryView
+          onOpenSession={async (sessId) => {
+            try {
+              const res = await productPhotoshootService.getSessionResults(sessId);
+              if (res?.success && res.results?.length > 0) {
+                const mapped: PhotoshootFinalResult[] = res.results.map((r) => ({
+                  id: r.image_id,
+                  imageUrl: r.url,
+                  title: `Photoshoot — ${r.style_applied}`,
+                  prompt: `Commercial photoshoot in ${r.style_applied}`,
+                  styleName: r.style_applied,
+                  resolution: "4K Ultra-HD",
+                  selected: true,
+                  isSaved: r.is_saved,
+                  createdAt: r.created_at,
+                }));
+                setFinalResults(mapped);
+                setSelectedResultIds(mapped.map((m) => m.id));
+                setSessionId(sessId);
+                sessionStorage.setItem(SESSION_STORAGE_KEY, sessId);
+                setStep(5);
+                setActiveView("studio");
+              }
+            } catch (e) {
+              console.warn("Could not load session results:", e);
+            }
+          }}
+          onReuseProduct={async (sessId) => {
+            try {
+              const res = await productPhotoshootService.getSession(sessId);
+              if (res?.success && res.session) {
+                const sess = res.session;
+                if (sess.uploaded_images && sess.uploaded_images.length > 0) {
+                  const restoredImages: PhotoshootUploadedImage[] = sess.uploaded_images.map(
+                    (img: any, i: number) => ({
+                      id: img.image_id || `img_${i}`,
+                      name: img.filename || `product_${i + 1}.jpg`,
+                      size: img.file_size || 0,
+                      url: img.url,
+                      previewUrl: img.url,
+                      angle: (img.angle?.toLowerCase() as any) || "front",
+                      uploadedAt: new Date().toISOString(),
+                      backendImageId: img.image_id,
+                    })
+                  );
+                  setUploadedImages(restoredImages);
+                }
+                if (sess.product_category) {
+                  setProductCategory(backendNameToCategoryId(sess.product_category));
+                }
+                if (sess.product_type) {
+                  setProductName(sess.product_type);
+                }
+                // Initialize fresh photoshoot with these product images
+                sessionStorage.removeItem(SESSION_STORAGE_KEY);
+                setSessionId(null);
+                setFinalResults([]);
+                setEnhancedVariations([]);
+                setSelectedEnhancedIds([]);
+                setStep(1);
+                setActiveView("studio");
+              }
+            } catch (e) {
+              console.warn("Reuse product error:", e);
+            }
+          }}
+          onStartNew={() => {
+            handleStartNewPhotoshoot();
+            setActiveView("studio");
+          }}
         />
       )}
 
-      {step === 2 && (
-        <Step2Enhance
-          uploadedImages={uploadedImages}
-          enhancedVariations={enhancedVariations}
-          selectedEnhancedIds={selectedEnhancedIds}
-          enhancementStyle={enhancementStyle}
-          isEnhancing={isEnhancing}
-          detectedAnalysis={detectedAnalysis}
-          productCategory={productCategory}
-          onCategoryChange={(cat) => setProductCategory(cat)}
-          onStyleSelect={handleEnhancementStyleSelect}
-          onVariationToggle={handleVariationToggle}
-          onRegenerateVariation={handleRegenerateVariation}
-          onRegenerateAll={() => handleProceedToEnhancement()}
-          onBack={() => setStep(1)}
-          onNext={() => setStep(3)}
-        />
-      )}
+      {/* VIEW B: 5-Step Unified Studio Workflow */}
+      {activeView === "studio" && (
+        <>
+          {/* 5-Step Progress Stepper */}
+          <PhotoshootStepper
+            currentStep={step}
+            onStepClick={(s) => setStep(s)}
+            canNavigateToStep={canNavigateToStep}
+          />
 
-      {step === 3 && (
-        <Step3StyleAndModel
-          productCategory={productCategory}
-          withModel={withModel}
-          selectedModelId={selectedModelId}
-          selectedStyles={selectedStyles}
-          customModels={backendModels.length > 0 ? backendModels : undefined}
-          customStyles={backendStyles.length > 0 ? backendStyles : undefined}
-          onToggleWithModel={handleToggleWithModel}
-          onModelSelect={(mId) => setSelectedModelId(mId)}
-          onStyleToggle={handleStyleToggle}
-          onBack={() => setStep(2)}
-          onNext={() => setStep(4)}
-        />
-      )}
+          {/* Step 1: Upload Product */}
+          {step === 1 && (
+            <Step1Upload
+              uploadedImages={uploadedImages}
+              productCategory={productCategory}
+              productName={productName}
+              productColor={productColor}
+              onImagesChange={(imgs) => setUploadedImages(imgs)}
+              onCategoryChange={(cat) => setProductCategory(cat)}
+              onNameChange={(name) => setProductName(name)}
+              onColorChange={(col) => setProductColor(col)}
+              onNext={handleProceedToEnhancement}
+            />
+          )}
 
-      {step === 4 && (
-        <Step4PromptAndVoice
-          customPrompt={customPrompt}
-          productCategory={productCategory}
-          productName={productName}
-          productColor={productColor}
-          enhancementStyle={enhancementStyle}
-          withModel={withModel}
-          selectedModelId={selectedModelId}
-          selectedStyles={selectedStyles}
-          uploadedImages={uploadedImages}
-          isGenerating={isGenerating}
-          preparedPrompt={preparedPrompt}
-          isPreparingPrompt={isPreparingPrompt}
-          onPreparePrompt={handlePreparePrompt}
-          onPromptChange={(p) => setCustomPrompt(p)}
-          onBack={() => setStep(3)}
-          onGenerate={handleGenerateFinalPhotoshoot}
-        />
-      )}
+          {/* Step 2: AI Enhancement & Inspection */}
+          {step === 2 && (
+            <Step2Enhance
+              uploadedImages={uploadedImages}
+              enhancedVariations={enhancedVariations}
+              selectedEnhancedIds={selectedEnhancedIds}
+              enhancementStyle={enhancementStyle}
+              isEnhancing={isEnhancing}
+              detectedAnalysis={detectedAnalysis}
+              productCategory={productCategory}
+              onCategoryChange={(cat) => setProductCategory(cat)}
+              onStyleSelect={handleEnhancementStyleSelect}
+              onVariationToggle={handleVariationToggle}
+              onRegenerateVariation={handleRegenerateVariation}
+              onRegenerateAll={() => handleProceedToEnhancement()}
+              onBack={() => setStep(1)}
+              onNext={() => setStep(3)}
+            />
+          )}
 
-      {step === 5 && (
-        <Step5Results
-          results={finalResults}
-          selectedResultIds={selectedResultIds}
-          isGenerating={isGenerating}
-          generationProgress={generationProgress}
-          generationStage={generationStage}
-          productName={productName}
-          onToggleSelect={(id) =>
-            setSelectedResultIds((prev) =>
-              prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
-            )
-          }
-          onSelectAll={() => setSelectedResultIds(finalResults.map((r) => r.id))}
-          onDeselectAll={() => setSelectedResultIds([])}
-          onDeleteResult={handleDeleteResult}
-          onRegenerateResult={handleRegenerateFinalResult}
-          onSaveToGallery={handleSaveToGallery}
-          onDownloadSelected={handleDownloadSelected}
-          onDownloadSingle={handleDownloadSingle}
-          onDownloadZip={handleDownloadZip}
-          onStartNewPhotoshoot={handleStartNewPhotoshoot}
-          onBackToEdit={() => setStep(4)}
-        />
+          {/* Step 3: Model & Photography Styles */}
+          {step === 3 && (
+            <Step3StyleAndModel
+              productCategory={productCategory}
+              withModel={withModel}
+              selectedModelId={selectedModelId}
+              selectedStyles={selectedStyles}
+              customModels={backendModels.length > 0 ? backendModels : undefined}
+              customStyles={backendStyles.length > 0 ? backendStyles : undefined}
+              onToggleWithModel={handleToggleWithModel}
+              onModelSelect={(mId) => setSelectedModelId(mId)}
+              onStyleToggle={handleStyleToggle}
+              onBack={() => setStep(2)}
+              onNext={() => setStep(4)}
+            />
+          )}
+
+          {/* Step 4: Prompt & Voice Instructions */}
+          {step === 4 && (
+            <Step4PromptAndVoice
+              customPrompt={customPrompt}
+              productCategory={productCategory}
+              productName={productName}
+              productColor={productColor}
+              enhancementStyle={enhancementStyle}
+              withModel={withModel}
+              selectedModelId={selectedModelId}
+              selectedStyles={selectedStyles}
+              uploadedImages={uploadedImages}
+              isGenerating={isGenerating}
+              preparedPrompt={preparedPrompt}
+              isPreparingPrompt={isPreparingPrompt}
+              onPreparePrompt={handlePreparePrompt}
+              onPromptChange={(p) => setCustomPrompt(p)}
+              onBack={() => setStep(3)}
+              onGenerate={handleGenerateFinalPhotoshoot}
+            />
+          )}
+
+          {/* Step 5: Final Commercial Results */}
+          {step === 5 && (
+            <Step5Results
+              results={finalResults}
+              selectedResultIds={selectedResultIds}
+              isGenerating={isGenerating}
+              generationProgress={generationProgress}
+              generationStage={generationStage}
+              productName={productName}
+              onToggleSelect={(id) =>
+                setSelectedResultIds((prev) =>
+                  prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+                )
+              }
+              onSelectAll={() => setSelectedResultIds(finalResults.map((r) => r.id))}
+              onDeselectAll={() => setSelectedResultIds([])}
+              onDeleteResult={handleDeleteResult}
+              onRegenerateResult={handleRegenerateFinalResult}
+              onSaveToGallery={handleSaveToGallery}
+              onDownloadSelected={handleDownloadSelected}
+              onDownloadSingle={handleDownloadSingle}
+              onDownloadZip={handleDownloadZip}
+              onStartNewPhotoshoot={handleStartNewPhotoshoot}
+              onBackToEdit={() => setStep(4)}
+            />
+          )}
+        </>
       )}
     </div>
   );

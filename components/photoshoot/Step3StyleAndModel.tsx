@@ -56,18 +56,22 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
   onNext,
 }) => {
   const modelsPool = customModels && customModels.length > 0 ? customModels : AI_MODELS;
+  const [genderFilter, setGenderFilter] = React.useState<"all" | "female" | "male">("all");
 
-  // Filter models based on product category
+  // Filter models based on product category & gender tab
   const filteredModels = useMemo(() => {
+    let pool = modelsPool;
     if (productCategory === "mens_clothing") {
-      return modelsPool.filter((m) => m.gender === "male");
+      pool = pool.filter((m) => m.gender === "male");
+    } else if (productCategory === "womens_clothing") {
+      pool = pool.filter((m) => m.gender === "female");
     }
-    if (productCategory === "womens_clothing") {
-      return modelsPool.filter((m) => m.gender === "female");
+
+    if (genderFilter !== "all") {
+      pool = pool.filter((m) => m.gender === genderFilter);
     }
-    // For unisex, jewellery, cosmetics, other: show both male & female models
-    return modelsPool;
-  }, [productCategory, modelsPool]);
+    return pool;
+  }, [productCategory, modelsPool, genderFilter]);
 
   // Determine available poses/styles
   const availableStyles: PhotographyStyleOption[] = useMemo(() => {
@@ -225,14 +229,14 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
       {/* Conditional Section 1: AI Model Selection Gallery (When Option A is active) */}
       {withModel && (
         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 <Users className="w-4 h-4 text-brand-purple" />
                 <span>Select Your AI Commercial Model</span>
                 {selectedModel && (
                   <span className="text-xs px-2.5 py-0.5 rounded-full bg-brand-purple/20 border border-brand-purple/40 text-brand-pink font-semibold">
-                    Selected: {selectedModel.name}
+                    Selected: {selectedModel.name} ({selectedModel.id})
                   </span>
                 )}
               </h2>
@@ -241,8 +245,47 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
               </p>
             </div>
 
-            <div className="text-xs text-neutral-400">
-              Showing {filteredModels.length} compatible models
+            {/* Gender Filters and Quick Skip button */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center bg-black/40 border border-white/10 rounded-xl p-0.5 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setGenderFilter("all")}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    genderFilter === "all" ? "bg-brand-purple text-white shadow" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  All ({modelsPool.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGenderFilter("female")}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    genderFilter === "female" ? "bg-brand-purple text-white shadow" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Female
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGenderFilter("male")}
+                  className={`px-2.5 py-1 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    genderFilter === "male" ? "bg-brand-purple text-white shadow" : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  Male
+                </button>
+              </div>
+
+              {/* Skip Model Option */}
+              <button
+                type="button"
+                onClick={() => onToggleWithModel(false)}
+                className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white text-xs font-semibold cursor-pointer"
+                title="Switch to product-only composition"
+              >
+                No Model (Product Only)
+              </button>
             </div>
           </div>
 
@@ -270,11 +313,11 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
                     />
 
                     {/* Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
 
                     {/* Gender & Tag Badge */}
-                    <div className="absolute top-1.5 left-1.5">
-                      <span className="px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-md text-white text-[9px] font-semibold border border-white/10">
+                    <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
+                      <span className="px-1.5 py-0.5 rounded bg-black/70 backdrop-blur-md text-white text-[9px] font-semibold border border-white/10">
                         {model.gender === "male" ? "Male" : "Female"}
                       </span>
                     </div>
@@ -293,6 +336,9 @@ export const Step3StyleAndModel: React.FC<Step3StyleAndModelProps> = ({
                       </span>
                       <span className="text-[10px] text-brand-pink block truncate font-medium">
                         {model.specialty.split("&")[0]}
+                      </span>
+                      <span className="text-[8px] text-neutral-400 block font-mono">
+                        {model.id} • {model.ethnicity}
                       </span>
                     </div>
                   </div>

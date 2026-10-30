@@ -242,6 +242,49 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
         {results.map((item, index) => {
           const isSelected = selectedResultIds.includes(item.id);
 
+          // Handle individual failed variation
+          if (item.isFailed) {
+            return (
+              <div
+                key={item.id}
+                className="rounded-2xl border border-rose-500/30 bg-[#160d15] p-5 flex flex-col justify-between shadow-xl min-h-[300px]"
+              >
+                <div className="space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                    <X className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-white">Variation #{index + 1} Failed</h3>
+                    <p className="text-xs text-rose-300/80 mt-1">
+                      {item.errorMessage || "This variation timed out during neural generation."}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-rose-500/20">
+                  <button
+                    type="button"
+                    onClick={() => onRegenerateResult(item.id)}
+                    disabled={item.isRegenerating}
+                    className="w-full py-2 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs font-bold border border-rose-500/40 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  >
+                    {item.isRegenerating ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Retrying...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        <span>Retry This Image</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            );
+          }
+
           return (
             <div
               key={item.id}
