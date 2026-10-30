@@ -4961,20 +4961,16 @@ export default function OnboardingPage() {
             </button>
 
             <div className="pt-3 text-center flex flex-col items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("social_media")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a website yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("social_media")}
+                  className="font-bold text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline"
+                >
+                  Create Website
+                </button>
+              </p>
 
               <button
                 type="button"
@@ -5113,20 +5109,16 @@ export default function OnboardingPage() {
             </button>
 
             <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("website")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a website yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("website")}
+                  className="font-bold text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline"
+                >
+                  Create Website
+                </button>
+              </p>
             </div>
           </div>
         </div>
@@ -6342,20 +6334,16 @@ export default function OnboardingPage() {
             </button>
 
             <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("google_maps")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a website yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("google_maps")}
+                  className="font-bold text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline"
+                >
+                  Create Website
+                </button>
+              </p>
             </div>
           </div>
         </div>
@@ -6441,24 +6429,21 @@ export default function OnboardingPage() {
               <span>Use this website</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </button>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+            <div className="flex items-center justify-center gap-3 pt-3">
               <button
                 type="button"
                 onClick={handleSkipWebsite}
-                className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3"
+                className="text-xs sm:text-sm font-medium text-neutral-400 hover:text-white transition-colors cursor-pointer py-1 px-2"
               >
                 Skip — I don&apos;t have one
               </button>
+              <span className="text-neutral-600 text-xs">•</span>
               <button
                 type="button"
                 onClick={() => handleCreateWebsite("google_maps")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+                className="font-bold text-xs sm:text-sm text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline py-1 px-2"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+                Create Website
               </button>
             </div>
           </div>
@@ -7123,20 +7108,16 @@ export default function OnboardingPage() {
             </button>
 
             <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("marketplace")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a website yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("marketplace")}
+                  className="font-bold text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline"
+                >
+                  Create Website
+                </button>
+              </p>
             </div>
           </div>
         </div>
@@ -7400,24 +7381,21 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+            <div className="flex items-center justify-center gap-3 pt-3">
               <button
                 type="button"
                 onClick={handleSkipMarketplaceWebsite}
-                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
+                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1 px-2 font-medium cursor-pointer"
               >
                 I&apos;ll enter it myself
               </button>
+              <span className="text-neutral-600 text-xs">•</span>
               <button
                 type="button"
                 onClick={() => handleCreateWebsite("marketplace")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+                className="font-bold text-xs sm:text-sm text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline py-1 px-2"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+                Create Website
               </button>
             </div>
           </div>
@@ -7556,20 +7534,16 @@ export default function OnboardingPage() {
             </button>
 
             <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("b2b")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              <p className="text-xs sm:text-sm text-neutral-400">
+                Don&apos;t have a website yet?{" "}
+                <button
+                  type="button"
+                  onClick={() => handleCreateWebsite("b2b")}
+                  className="font-bold text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline"
+                >
+                  Create Website
+                </button>
+              </p>
             </div>
           </div>
         </div>
@@ -7833,24 +7807,21 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
+            <div className="flex items-center justify-center gap-3 pt-3">
               <button
                 type="button"
                 onClick={handleSkipB2bWebsite}
-                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
+                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1 px-2 font-medium cursor-pointer"
               >
                 I&apos;ll enter it myself
               </button>
+              <span className="text-neutral-600 text-xs">•</span>
               <button
                 type="button"
                 onClick={() => handleCreateWebsite("b2b")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
+                className="font-bold text-xs sm:text-sm text-[#f0449b] hover:text-[#ff65b3] transition-colors cursor-pointer hover:underline py-1 px-2"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
+                Create Website
               </button>
             </div>
           </div>

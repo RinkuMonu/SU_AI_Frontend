@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Store,
@@ -25,6 +25,7 @@ import {
   X,
   FileText,
   Zap,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -99,11 +100,11 @@ const navigation = [
   { name: "Analytics", href: "/analytics", icon: TrendingUp },
   {
     name: "Billing & Plans",
-    href: "/subscription",
     icon: Store,
     children: [
-      { name: "AI Token/Credit Usage Report", href: "/subscription?tab=credits", icon: Zap },
+      { name: "All Subscription Plans", href: "/subscription", icon: Crown },
       { name: "Transaction Report", href: "/subscription/transactions", icon: FileText },
+      { name: "AI Token/Credit Usage", href: "/subscription/credits", icon: Zap },
     ],
   },
   { name: "Support", href: "/support", icon: Headphones },
@@ -121,6 +122,12 @@ export function Sidebar() {
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p)),
     "Billing & Plans": pathname.startsWith("/subscription"),
   });
+
+  useEffect(() => {
+    if (pathname.startsWith("/subscription")) {
+      setOpenDropdowns((prev) => ({ ...prev, "Billing & Plans": true }));
+    }
+  }, [pathname]);
 
   const toggleDropdown = (name: string) => {
     setOpenDropdowns(prev => ({ ...prev, [name]: !prev[name] }));
