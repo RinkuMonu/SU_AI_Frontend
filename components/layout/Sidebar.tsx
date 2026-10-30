@@ -26,6 +26,7 @@ import {
   FileText,
   Zap,
   Crown,
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -73,15 +74,7 @@ const navigation = [
       { name: "AI Calendar", href: "/ai-calendar" },
     ]
   },
-  {
-    name: "AI Avatar",
-    icon: Sparkles,
-    children: [
-      { name: "AI Photoshoot", href: "/fashion-ai/photoshoot" },
-      { name: "Virtual Try-On", href: "/fashion-ai/virtual-try-on" },
-      { name: "History", href: "/fashion-ai/history" },
-    ]
-  },
+  { name: "AI Product Photoshoot", href: "/ai-photoshoot", icon: Camera },
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
   { name: "Influencers", href: "/influencers", icon: Users },
@@ -118,7 +111,6 @@ export function Sidebar() {
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     "Image and Reel Generation": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
-    "AI Avatar": ["/fashion-ai"].some(p => pathname.startsWith(p)),
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p)),
     "Billing & Plans": pathname.startsWith("/subscription"),
   });
