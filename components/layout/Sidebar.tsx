@@ -95,9 +95,9 @@ const navigation = [
     name: "Billing & Plans",
     icon: Store,
     children: [
-      { name: "All Subscription Plans", href: "/subscription", icon: Crown },
-      { name: "Transaction Report", href: "/subscription/transactions", icon: FileText },
-      { name: "AI Token/Credit Usage", href: "/subscription/credits", icon: Zap },
+      { name: "Plans", href: "/subscription", icon: Crown },
+      { name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
+      { name: "AI Token/Credit Usage Report", href: "/subscription/credits", icon: Zap },
     ],
   },
   { name: "Support", href: "/support", icon: Headphones },

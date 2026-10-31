@@ -10,6 +10,9 @@ export interface CreatePaymentResponse {
   amount?: number;
   auth_amount?: number;
   recurring_amount?: number;
+  base_amount?: number;
+  gst_amount?: number;
+  gst_rate?: number;
   plan_name?: string;
   status?: string;
   billing_cycle?: string;
@@ -76,6 +79,11 @@ export const paymentService = {
       payload.customer_phone = customerPhone;
     }
 
+    // Pass dynamic return URL matching current origin so Cashfree redirects back accurately
+    if (typeof window !== "undefined" && window.location.origin) {
+      payload.return_url = `${window.location.origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
+    }
+
     // Call official Cashfree Subscriptions & AutoPay endpoint
     const response = await api.post("/api/v1/payments/subscription/create", payload);
     const data = response.data?.data || response.data;
@@ -95,6 +103,9 @@ export const paymentService = {
       amount: data.recurring_amount ?? data.auth_amount ?? data.amount,
       auth_amount: data.auth_amount,
       recurring_amount: data.recurring_amount,
+      base_amount: data.base_amount,
+      gst_amount: data.gst_amount,
+      gst_rate: data.gst_rate,
       plan_name: data.plan_name || `${normalizedPlan} Plan`,
       status: data.status || "INITIALIZED",
       billing_cycle: data.billing_cycle || billingCycle,
@@ -127,9 +138,12 @@ export const paymentService = {
       const data = response.data?.data || response.data;
       const rawStatus = (data.status || "pending").toLowerCase();
       const isSuccess =
+        Boolean(data.verified) ||
+        Boolean(data.success) ||
         rawStatus === "active" ||
         rawStatus === "success" ||
-        rawStatus === "completed";
+        rawStatus === "completed" ||
+        rawStatus === "authenticated";
 
       return {
         order_id: data.subscription_id || data.order_id || orderId,
@@ -182,9 +196,12 @@ export const paymentService = {
       const data = response.data?.data || response.data;
       const rawStatus = (data.status || "").toLowerCase();
       const isSuccess =
+        Boolean(data.verified) ||
+        Boolean(data.success) ||
         rawStatus === "active" ||
         rawStatus === "success" ||
-        rawStatus === "completed";
+        rawStatus === "completed" ||
+        rawStatus === "authenticated";
 
       return {
         success: isSuccess,

@@ -19,6 +19,8 @@ import {
   AlertCircle,
   Loader2,
   Calendar,
+  Crown,
+  FileText,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -165,12 +167,37 @@ export default function CreditUsagePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* Navigation Tabs (1st: Plan, 2nd: Transaction & AutoPay, 3rd: Credit) */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Link
+            href="/subscription"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
+          >
+            <Crown className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Plan</span>
+          </Link>
+
+          <Link
+            href="/subscription/transactions"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
+          >
+            <FileText className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Transaction &amp; AutoPay</span>
+          </Link>
+
+          <Link
+            href="/subscription/credits"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-brand-purple/20 border border-brand-purple/50 shadow-sm transition-all"
+          >
+            <Zap className="w-3.5 h-3.5 text-brand-purple fill-brand-purple" />
+            <span>Credit</span>
+          </Link>
+
           <Button
             variant="outline"
             onClick={fetchCreditData}
             disabled={loading}
-            className="border-border hover:bg-surface-elevated text-white text-xs cursor-pointer"
+            className="border-border hover:bg-surface-elevated text-white text-xs cursor-pointer ml-1"
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>

@@ -209,6 +209,42 @@ export function calculatePlanPrice(
 /**
  * Formats an INR price into human-readable currency format (e.g. ₹2,999)
  */
+/**
+ * Calculates base price, 18% GST amount, and total payable dynamically.
+ * Formula:
+ * GST Amount = Base Price × 18 / 100
+ * Total Payable = Base Price + GST Amount
+ */
+export function calculatePlanPriceWithGST(
+  baseMonthlyPrice: number,
+  cycle: BillingCycle
+): {
+  basePrice: number;
+  gstAmount: number;
+  totalPayable: number;
+  gstRate: number;
+  perMonthBase: number;
+  savingsPercent: number;
+  intervalLabel: string;
+} {
+  const priceInfo = calculatePlanPrice(baseMonthlyPrice, cycle);
+  const isFree = baseMonthlyPrice === 0;
+  const basePrice = priceInfo.displayPrice;
+  const gstRate = isFree ? 0 : 0.18;
+  const gstAmount = isFree ? 0 : Math.round(basePrice * gstRate * 100) / 100;
+  const totalPayable = isFree ? 0 : Math.round((basePrice + gstAmount) * 100) / 100;
+
+  return {
+    basePrice,
+    gstAmount,
+    totalPayable,
+    gstRate,
+    perMonthBase: priceInfo.perMonthPrice,
+    savingsPercent: priceInfo.savingsPercent,
+    intervalLabel: priceInfo.intervalLabel,
+  };
+}
+
 export function formatCurrencyINR(amount: number): string {
   return "₹" + amount.toLocaleString("en-IN");
 }

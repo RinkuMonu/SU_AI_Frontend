@@ -27,7 +27,32 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed" | "cancelled">("loading");
   const [retryCount, setRetryCount] = useState(0);
   const [transactionData, setTransactionData] = useState<any>(null);
-  const [redirectCountdown, setRedirectCountdown] = useState(3);
+  const [redirectCountdown, setRedirectCountdown] = useState(2);
+  const [isVerifyingNow, setIsVerifyingNow] = useState(false);
+
+  const isSuccessStatus = (s?: string) => {
+    const lower = (s || "").toLowerCase().trim();
+    return (
+      lower === "success" ||
+      lower === "active" ||
+      lower === "completed" ||
+      lower === "authenticated" ||
+      lower === "paid"
+    );
+  };
+
+  const isPendingStatus = (s?: string) => {
+    const lower = (s || "").toLowerCase().trim();
+    return (
+      lower === "pending" ||
+      lower === "initiated" ||
+      lower === "processing" ||
+      lower === "initialized" ||
+      lower === "approval_pending" ||
+      lower === "bank_approval_pending" ||
+      lower === "authenticating"
+    );
+  };
 
   useEffect(() => {
     if (!orderId) {
@@ -39,58 +64,69 @@ function PaymentSuccessContent() {
 
     const verifyTransaction = async () => {
       try {
-        // Official backend verification with payment provider
+        setIsVerifyingNow(true);
+
+        // 1. Instant check with server-side provider sync
         const verifyRes = await paymentService.verifyPayment(orderId);
         if (!isMounted) return;
 
-        const st = (verifyRes.status || "").toLowerCase();
-        if (verifyRes.verified || st === "success" || st === "completed") {
-          try {
-            await Promise.all([
-              subscriptionService.getMySubscription(),
-              subscriptionService.getCreditTransactions(),
-            ]);
-          } catch (e) {
-            console.error("Error refreshing subscription data:", e);
-          }
+        if (verifyRes.verified || isSuccessStatus(verifyRes.status)) {
+          subscriptionService.getMySubscription().catch(() => {});
+          subscriptionService.getCreditTransactions().catch(() => {});
           setTransactionData(verifyRes);
           setStatus("success");
           return;
         }
 
-        // If not immediately verified, fallback to status poll
+        // 2. Fallback check with live subscription status
         const statusRes = await paymentService.getPaymentStatus(orderId);
         if (!isMounted) return;
 
-        const statusLower = (statusRes.status || "").toLowerCase();
-        if (statusLower === "success" || statusLower === "completed") {
-          try {
-            await Promise.all([
-              subscriptionService.getMySubscription(),
-              subscriptionService.getCreditTransactions(),
-            ]);
-          } catch (e) {
-            console.error("Error refreshing subscription data:", e);
-          }
+        if (isSuccessStatus(statusRes.status)) {
+          subscriptionService.getMySubscription().catch(() => {});
+          subscriptionService.getCreditTransactions().catch(() => {});
           setTransactionData(statusRes);
           setStatus("success");
-        } else if (statusLower === "pending" || statusLower === "initiated" || statusLower === "processing") {
+          return;
+        }
+
+        // 3. Fast 1-second polling if pending confirmation
+        if (isPendingStatus(statusRes.status) || isPendingStatus(verifyRes.status)) {
+          if (retryCount < 30) {
+            setStatus("pending");
+            setTimeout(() => {
+              if (isMounted) setRetryCount((r) => r + 1);
+            }, 1000);
+          } else {
+            setStatus("pending");
+          }
+        } else if (
+          (statusRes.status || "").toLowerCase() === "cancelled" ||
+          (verifyRes.status || "").toLowerCase() === "cancelled"
+        ) {
+          setStatus("cancelled");
+        } else {
+          // If neither recognized as cancelled, retry one more round
           if (retryCount < 5) {
             setStatus("pending");
             setTimeout(() => {
               if (isMounted) setRetryCount((r) => r + 1);
-            }, 3000);
+            }, 1000);
           } else {
-            setStatus("pending");
+            setStatus("failed");
           }
-        } else if (statusLower === "cancelled" || statusLower === "canceled") {
-          setStatus("cancelled");
-        } else {
-          setStatus("failed");
         }
       } catch (error) {
-        console.error("Failed to verify payment status", error);
-        if (isMounted) setStatus("failed");
+        console.error("Fast verify error:", error);
+        if (retryCount < 10) {
+          setTimeout(() => {
+            if (isMounted) setRetryCount((r) => r + 1);
+          }, 1000);
+        } else if (isMounted) {
+          setStatus("failed");
+        }
+      } finally {
+        if (isMounted) setIsVerifyingNow(false);
       }
     };
 
@@ -141,13 +177,18 @@ function PaymentSuccessContent() {
         <p className="text-sm text-text-muted max-w-md">
           Your transaction is currently awaiting confirmation from your bank or UPI provider.
         </p>
+        <div className="text-xs text-purple-300 font-mono flex items-center gap-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
+          <span>Syncing mandate with Cashfree &amp; Bank ({retryCount}/30s)...</span>
+        </div>
         <div className="flex gap-3 pt-2">
           <Button
             onClick={() => setRetryCount(0)}
+            disabled={isVerifyingNow}
             variant="outline"
             className="border-border text-white hover:bg-surface-elevated cursor-pointer"
           >
-            Check Status Again
+            {isVerifyingNow ? "Checking Live..." : "Check Status Now"}
           </Button>
           <Button
             onClick={() => router.push("/dashboard")}

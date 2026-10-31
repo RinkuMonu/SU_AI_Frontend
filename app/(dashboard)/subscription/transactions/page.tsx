@@ -28,6 +28,7 @@ import {
   X,
   ExternalLink,
   Calendar,
+  Crown,
   Lock,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -64,22 +65,29 @@ export interface PaymentTransaction {
 function getPaymentMode(tx: PaymentTransaction): string {
   if (tx.payment_mode) return tx.payment_mode;
   const raw = ((tx.order_id || "") + " " + (tx.provider_reference || "") + " " + (tx.payment_url || "")).toLowerCase();
-  if (raw.includes("upi") || raw.includes("qr") || raw.includes("vpa") || raw.includes("gpay") || raw.includes("paytm")) {
-    return "UPI / QR Code";
+  if (raw.includes("cashfree") || raw.includes("sub_") || raw.includes("mandate") || raw.includes("autopay")) {
+    return "AutoPay Mandate";
   }
-  if (raw.includes("netbanking") || raw.includes("nb") || raw.includes("bank")) {
-    return "Net Banking";
+  if (raw.includes("upi") || raw.includes("qr") || raw.includes("vpa") || raw.includes("gpay") || raw.includes("paytm")) {
+    return "UPI AutoPay / QR";
+  }
+  if (raw.includes("netbanking") || raw.includes("nb") || raw.includes("bank") || raw.includes("enach")) {
+    return "eNACH Net Banking";
   }
   if (raw.includes("card") || raw.includes("debit") || raw.includes("credit")) {
-    return "Credit / Debit Card";
+    return "Card AutoPay Mandate";
   }
-  return "UPI / Net Banking";
+  return "AutoPay / UPI Mandate";
 }
 
 // Helper to determine payment gateway provider
 function getPaymentGateway(tx: PaymentTransaction): string {
   if (tx.payment_gateway) return tx.payment_gateway;
-  return "Finunique PayIn Gateway";
+  const raw = ((tx.order_id || "") + " " + (tx.payment_url || "")).toLowerCase();
+  if (raw.includes("cashfree") || raw.includes("sub_")) {
+    return "Cashfree AutoPay";
+  }
+  return "Cashfree Subscriptions";
 }
 
 export default function TransactionReportPage() {
@@ -285,7 +293,7 @@ export default function TransactionReportPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `DhandaGrow_Transactions_Report_${format(new Date(), "yyyyMMdd_HHmm")}.csv`);
+    link.setAttribute("download", `DhandaGrow_AutoPay_Transactions_Report_${format(new Date(), "yyyyMMdd_HHmm")}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -315,7 +323,7 @@ export default function TransactionReportPage() {
       doc.setFontSize(10);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(180, 180, 190);
-      doc.text("Official Subscription & Payment Transactions Audit Report", 40, 60);
+      doc.text("Official Subscription & AutoPay Transactions Audit Report", 40, 60);
 
       doc.setFontSize(9);
       doc.setTextColor(160, 160, 170);
@@ -441,7 +449,7 @@ export default function TransactionReportPage() {
         );
       }
 
-      doc.save(`DhandaGrow_Transaction_Report_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
+      doc.save(`DhandaGrow_AutoPay_Transaction_Report_${format(new Date(), "yyyyMMdd_HHmm")}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
     } finally {
@@ -631,24 +639,48 @@ export default function TransactionReportPage() {
               <span>Billing &amp; Plans</span>
             </Link>
             <span>/</span>
-            <span className="text-white font-medium">Transaction Report</span>
+            <span className="text-white font-medium">Transaction &amp; AutoPay Report</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
             <CreditCard className="w-7 h-7 text-[#f0449b]" />
-            <span>Subscription Transaction Report</span>
+            <span>Transaction &amp; AutoPay Report</span>
           </h1>
           <p className="text-xs text-text-muted mt-1">
-            Real-time payment audit log across all plans, gateway settlements, and purchased credits.
+            Real-time payment audit log and recurring AutoPay mandate settlement ledger across all plans.
           </p>
         </div>
 
-        {/* Global Export & Refresh Buttons */}
+        {/* Navigation Tabs (1st: Plan, 2nd: Transaction & AutoPay, 3rd: Credit) */}
         <div className="flex flex-wrap items-center gap-2">
+          <Link
+            href="/subscription"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
+          >
+            <Crown className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Plan</span>
+          </Link>
+
+          <Link
+            href="/subscription/transactions"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-brand-purple/20 border border-brand-purple/50 shadow-sm transition-all"
+          >
+            <FileText className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Transaction &amp; AutoPay</span>
+          </Link>
+
+          <Link
+            href="/subscription/credits"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
+          >
+            <Zap className="w-3.5 h-3.5 text-brand-purple fill-brand-purple" />
+            <span>Credit</span>
+          </Link>
+
           <Button
             variant="outline"
             onClick={fetchTransactions}
             disabled={loading}
-            className="border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs cursor-pointer h-9 px-3"
+            className="border-white/10 bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs cursor-pointer h-9 px-3 ml-1"
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             <span>Refresh</span>

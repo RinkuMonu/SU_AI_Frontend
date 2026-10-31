@@ -28,6 +28,7 @@ import {
   BillingCycle,
   PlanDefinition,
   calculatePlanPrice,
+  calculatePlanPriceWithGST,
   formatCurrencyINR,
 } from "@/lib/plan-onboarding";
 import { PaymentModal } from "@/components/payment/PaymentModal";
@@ -125,7 +126,8 @@ export default function SubscriptionPage() {
 
     try {
       const verifyRes = await paymentService.verifyPayment(orderId);
-      if (verifyRes.verified || verifyRes.status === "success") {
+      const st = (verifyRes.status || "").toLowerCase();
+      if (verifyRes.verified || st === "success" || st === "active" || st === "completed") {
         await loadData();
         setUpgradeSuccess(`Payment for order ${orderId} verified! Your plan is active.`);
       } else if (verifyRes.status === "pending") {
@@ -272,14 +274,22 @@ export default function SubscriptionPage() {
           </p>
         </div>
 
-        {/* Quick Report Navigation Buttons */}
+        {/* Navigation Tabs (1st: Plan, 2nd: Transaction & AutoPay, 3rd: Credit) */}
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <Link
+            href="/subscription"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white bg-brand-purple/20 border border-brand-purple/50 shadow-sm transition-all"
+          >
+            <Crown className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Plan</span>
+          </Link>
+
           <Link
             href="/subscription/transactions"
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
           >
-            <CreditCard className="w-3.5 h-3.5 text-brand-purple" />
-            <span>Transaction Report</span>
+            <FileText className="w-3.5 h-3.5 text-brand-purple" />
+            <span>Transaction &amp; AutoPay</span>
           </Link>
 
           <Link
@@ -287,7 +297,7 @@ export default function SubscriptionPage() {
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-text-muted hover:text-white bg-surface border border-border hover:border-brand-purple/40 transition-all cursor-pointer shadow-sm"
           >
             <Zap className="w-3.5 h-3.5 text-brand-purple fill-brand-purple" />
-            <span>Credit Usage</span>
+            <span>Credit</span>
           </Link>
 
           <Button
@@ -474,7 +484,7 @@ export default function SubscriptionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mergedPlans.map((plan) => {
             const isCurrent = currentPlanId === plan.id.toUpperCase();
-            const priceInfo = calculatePlanPrice(plan.monthlyPrice, selectedCycle);
+            const gstPricing = calculatePlanPriceWithGST(plan.monthlyPrice, selectedCycle);
             const isExpanded = expandedFeatures[plan.id];
             const isProcessing = upgradingPlan === plan.id;
 
@@ -518,31 +528,57 @@ export default function SubscriptionPage() {
                     {plan.tagline}
                   </p>
 
-                  {/* Pricing */}
+                  {/* Pricing with 18% GST Breakdown */}
                   <div className="mb-6 pb-4 border-b border-white/10">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-white">
-                        {formatCurrencyINR(priceInfo.displayPrice)}
-                      </span>
-                      <span className="text-xs text-gray-400">
-                        {plan.monthlyPrice === 0
-                          ? "free forever"
-                          : selectedCycle === "monthly"
-                          ? "/month"
-                          : selectedCycle === "quarterly"
-                          ? "/mo (billed quarterly)"
-                          : "/mo (billed annually)"}
-                      </span>
-                    </div>
+                    {plan.monthlyPrice === 0 ? (
+                      <div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-extrabold text-white">₹0</span>
+                          <span className="text-xs text-gray-400">free forever</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400 mt-1">No payment or credit card required.</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-baseline gap-1">
+                          <span className="text-3xl font-extrabold text-white">
+                            ₹{gstPricing.totalPayable.toFixed(2)}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {selectedCycle === "monthly"
+                              ? "/month"
+                              : selectedCycle === "quarterly"
+                              ? "/quarter"
+                              : "/year"}
+                          </span>
+                        </div>
 
-                    {selectedCycle !== "monthly" && plan.monthlyPrice > 0 && (
-                      <div className="flex items-center gap-1.5 mt-1">
-                        <span className="text-[11px] text-gray-500 line-through">
-                          {formatCurrencyINR(plan.monthlyPrice)}/mo
-                        </span>
-                        <span className="text-[11px] font-semibold text-emerald-400">
-                          {selectedCycle === "quarterly" ? "Save 10%" : "Save 20%"}
-                        </span>
+                        {selectedCycle !== "monthly" && (
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <span className="text-[11px] text-gray-500 line-through">
+                              {formatCurrencyINR(plan.monthlyPrice)}/mo base
+                            </span>
+                            <span className="text-[11px] font-semibold text-emerald-400">
+                              {selectedCycle === "quarterly" ? "Save 10%" : "Save 20%"}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Itemized GST Breakdown */}
+                        <div className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-1 text-[11px]">
+                          <div className="flex justify-between items-center text-gray-300">
+                            <span>Plan Price:</span>
+                            <span className="font-semibold text-white">₹{gstPricing.basePrice.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-gray-300">
+                            <span>GST (18%):</span>
+                            <span className="font-semibold text-purple-300">₹{gstPricing.gstAmount.toFixed(2)}</span>
+                          </div>
+                          <div className="pt-1 border-t border-white/10 flex justify-between items-center font-bold text-white">
+                            <span>Total Payable:</span>
+                            <span className="text-emerald-400">₹{gstPricing.totalPayable.toFixed(2)}</span>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>

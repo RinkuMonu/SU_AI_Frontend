@@ -51,7 +51,9 @@ export function PaymentModal({
   const orderId = orderData?.order_id || "";
   const paymentUrl = orderData?.payment_url || "";
   const upiUrl = orderData?.upi_url || "";
-  const amount = orderData?.amount ?? 1;
+  const totalAmount = Number(orderData?.amount ?? 0);
+  const basePrice = Number(orderData?.base_amount ?? (totalAmount > 0 ? Math.round((totalAmount / 1.18) * 100) / 100 : 0));
+  const gstAmount = Number(orderData?.gst_amount ?? (totalAmount > 0 ? Math.round((totalAmount - basePrice) * 100) / 100 : 0));
   const planName = orderData?.plan_name || "Plan Subscription";
 
   // Stable reference to onSuccess callback to avoid re-triggering polling timers on re-render
@@ -189,7 +191,7 @@ export function PaymentModal({
       const verifyRes = await paymentService.verifyPayment(orderId);
       const verifySt = (verifyRes.status || "").toLowerCase();
 
-      if (verifyRes.verified || verifySt === "success" || verifySt === "completed") {
+      if (verifyRes.verified || verifySt === "success" || verifySt === "completed" || verifySt === "active") {
         setPaymentStatus("success");
         setStatusMessage("Payment confirmed and active!");
         setVerifiedDetails(verifyRes);
@@ -205,7 +207,7 @@ export function PaymentModal({
       // 2. Fallback to status check
       const statusRes = await paymentService.getPaymentStatus(orderId);
       const st = (statusRes.status || "").toLowerCase();
-      if (st === "success" || st === "completed") {
+      if (st === "success" || st === "completed" || st === "active") {
         setPaymentStatus("success");
         setStatusMessage("Payment confirmed and active!");
         setVerifiedDetails(statusRes);
@@ -227,7 +229,7 @@ export function PaymentModal({
       // In case of error, still check status in DB
       try {
         const fallbackRes = await paymentService.getPaymentStatus(orderId);
-        if (fallbackRes.status === "success") {
+        if (fallbackRes.status === "success" || fallbackRes.status === "active") {
           setPaymentStatus("success");
           setStatusMessage("Payment confirmed and active!");
           setVerifiedDetails(fallbackRes);
@@ -348,8 +350,16 @@ export function PaymentModal({
                   <span className="text-purple-300 font-bold">{planName}</span>
                 </div>
                 <div className="flex justify-between items-center text-text-muted">
-                  <span>Amount Paid</span>
-                  <span className="text-white font-bold text-sm">₹{Number(amount).toFixed(2)}</span>
+                  <span>Plan Price (Base)</span>
+                  <span className="text-white font-semibold">₹{basePrice.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-text-muted">
+                  <span>GST (18%)</span>
+                  <span className="text-purple-300 font-semibold">+₹{gstAmount.toFixed(2)}</span>
+                </div>
+                <div className="pt-2 border-t border-white/10 flex justify-between items-center">
+                  <span className="font-bold text-white">Total Amount Paid</span>
+                  <span className="text-white font-bold text-sm">₹{totalAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between items-center text-text-muted">
                   <span>Status</span>
@@ -386,28 +396,44 @@ export function PaymentModal({
           ) : (
             /* Pending / In-progress Payment View */
             <>
-              {/* Plan & Amount Summary Bar */}
-              <div className="flex items-center justify-between p-3.5 rounded-2xl bg-white/[0.03] border border-white/10">
-                <div>
-                  <div className="text-xs text-text-muted">Selected Plan</div>
-                  <div className="text-sm font-bold text-white mt-0.5">{planName}</div>
-                  <div className="text-[11px] font-mono text-purple-300/80 mt-0.5 flex items-center gap-1">
-                    <span>{orderId}</span>
-                    <button
-                      onClick={copyOrderId}
-                      className="hover:text-white transition-colors cursor-pointer"
-                      title="Copy Order ID"
-                    >
-                      {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                    </button>
+              {/* Plan & Amount Summary Bar with 18% GST breakdown */}
+              <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/10 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="text-xs text-text-muted">Selected Plan</div>
+                    <div className="text-base font-bold text-white mt-0.5">{planName}</div>
+                    <div className="text-[11px] font-mono text-purple-300/80 mt-0.5 flex items-center gap-1">
+                      <span>{orderId}</span>
+                      <button
+                        onClick={copyOrderId}
+                        className="hover:text-white transition-colors cursor-pointer"
+                        title="Copy Order ID"
+                      >
+                        {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs text-text-muted">Total Payable</div>
+                    <div className="text-2xl font-extrabold text-white">
+                      ₹{totalAmount.toFixed(2)}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-xs text-text-muted">Amount Due</div>
-                  <div className="text-xl font-extrabold text-white">
-                    ₹{Number(amount).toFixed(2)}
+
+                <div className="pt-2.5 border-t border-white/10 space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center text-text-muted">
+                    <span>Plan Price (Base)</span>
+                    <span className="font-semibold text-white">₹{basePrice.toFixed(2)}</span>
                   </div>
-                  <span className="text-[10px] text-emerald-400 font-medium">All taxes incl.</span>
+                  <div className="flex justify-between items-center text-text-muted">
+                    <span>GST (18%)</span>
+                    <span className="font-semibold text-purple-300">+₹{gstAmount.toFixed(2)}</span>
+                  </div>
+                  <div className="pt-1.5 border-t border-white/5 flex justify-between items-center font-bold">
+                    <span className="text-white">Total Payable</span>
+                    <span className="text-emerald-400">₹{totalAmount.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
 
@@ -519,7 +545,7 @@ export function PaymentModal({
                 Leave Payment Screen?
               </h3>
               <p className="text-xs text-text-muted leading-relaxed">
-                Your payment for <span className="text-white font-semibold">{planName}</span> (₹{amount}) is currently pending. Please choose an option below:
+                Your payment for <span className="text-white font-semibold">{planName}</span> (₹{totalAmount.toFixed(2)}) is currently pending. Please choose an option below:
               </p>
             </div>
 
