@@ -23,11 +23,13 @@ import {
 import { 
   PhotoshootUploadedImage, 
   ProductCategory, 
-  ImageAngle 
+  ImageAngle,
+  PhotoshootTabMode
 } from "./types";
 import { PRODUCT_CATEGORIES } from "./data";
 
 interface Step1UploadProps {
+  mode?: PhotoshootTabMode;
   uploadedImages: PhotoshootUploadedImage[];
   productCategory: ProductCategory;
   productName: string;
@@ -51,6 +53,7 @@ const ANGLE_LABELS: Record<ImageAngle, string> = {
 };
 
 export const Step1Upload: React.FC<Step1UploadProps> = ({
+  mode = "avatar",
   uploadedImages,
   productCategory,
   productName,
@@ -64,6 +67,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const isAvatarMode = mode === "avatar";
 
   const getCategoryIcon = (iconName: string) => {
     switch (iconName) {
@@ -196,13 +200,19 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
       <div className="text-center max-w-2xl mx-auto space-y-2">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/30 text-brand-purple text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Step 1 of 5 • Product Ingestion</span>
+          <span>
+            {isAvatarMode 
+              ? "Step 1 of 5 • Fashion & Apparel Upload" 
+              : "Step 1 of 5 • Commercial Product Upload"}
+          </span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Let&apos;s Create Your Product Photoshoot
+          {isAvatarMode ? "Upload Your Product" : "Upload Your Product Images"}
         </h1>
         <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-          Upload your product images and transform them into professional marketing visuals.
+          {isAvatarMode
+            ? "Upload multiple product angles to showcase on your chosen AI model."
+            : "Upload your product images to create studio, lifestyle, and marketplace commercial shots."}
         </p>
       </div>
 

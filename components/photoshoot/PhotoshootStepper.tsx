@@ -5,23 +5,30 @@ import { Check, Upload, Wand2, Sparkles, MessageSquareText, Image as ImageIcon }
 
 interface PhotoshootStepperProps {
   currentStep: 1 | 2 | 3 | 4 | 5;
+  mode?: "avatar" | "product";
   onStepClick: (step: 1 | 2 | 3 | 4 | 5) => void;
   canNavigateToStep: (step: 1 | 2 | 3 | 4 | 5) => boolean;
 }
 
-const STEPS = [
-  { step: 1 as const, title: "Upload Product", shortTitle: "Upload", icon: Upload },
-  { step: 2 as const, title: "AI Enhancement", shortTitle: "Enhance", icon: Wand2 },
-  { step: 3 as const, title: "Style & Model", shortTitle: "Style", icon: Sparkles },
-  { step: 4 as const, title: "Custom Prompt", shortTitle: "Prompt", icon: MessageSquareText },
-  { step: 5 as const, title: "Final Results", shortTitle: "Results", icon: ImageIcon },
-];
-
 export const PhotoshootStepper: React.FC<PhotoshootStepperProps> = ({
   currentStep,
+  mode = "avatar",
   onStepClick,
   canNavigateToStep,
 }) => {
+  const steps = [
+    { step: 1 as const, title: "Upload Product", shortTitle: "Upload", icon: Upload },
+    { step: 2 as const, title: "AI Enhancement", shortTitle: "Enhance", icon: Wand2 },
+    { 
+      step: 3 as const, 
+      title: mode === "avatar" ? "Model & Style" : "Choose Style", 
+      shortTitle: mode === "avatar" ? "Model" : "Style", 
+      icon: Sparkles 
+    },
+    { step: 4 as const, title: "Instructions", shortTitle: "Prompt", icon: MessageSquareText },
+    { step: 5 as const, title: "Final Photos", shortTitle: "Photos", icon: ImageIcon },
+  ];
+
   return (
     <div className="w-full bg-[#0a0d1a]/80 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 shadow-xl">
       <div className="flex items-center justify-between max-w-4xl mx-auto relative">
@@ -31,10 +38,10 @@ export const PhotoshootStepper: React.FC<PhotoshootStepperProps> = ({
         {/* Active progress track */}
         <div 
           className="absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-gradient-to-r from-brand-purple to-brand-pink transition-all duration-500 -z-0"
-          style={{ width: `${((currentStep - 1) / (STEPS.length - 1)) * 90}%` }}
+          style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 90}%` }}
         />
 
-        {STEPS.map((s) => {
+        {steps.map((s) => {
           const isCompleted = s.step < currentStep;
           const isCurrent = s.step === currentStep;
           const isClickable = canNavigateToStep(s.step);

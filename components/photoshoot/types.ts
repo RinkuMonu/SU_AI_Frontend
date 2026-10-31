@@ -1,3 +1,5 @@
+export type PhotoshootTabMode = "avatar" | "product";
+
 export type ProductCategory =
   | "mens_clothing"
   | "womens_clothing"
