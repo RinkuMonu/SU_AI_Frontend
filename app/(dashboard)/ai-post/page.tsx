@@ -194,7 +194,19 @@ export default function AIPostPage() {
   const [isPublishingFacebook, setIsPublishingFacebook] = useState(false);
   const [isPublishingLinkedIn, setIsPublishingLinkedIn] = useState(false);
   const [publishSuccessMessage, setPublishSuccessMessage] = useState<string | null>(null);
-  const [publishErrorMessage, setPublishErrorMessage] = useState<string | null>(null);
+  const [errorDialog, setErrorDialog] = useState<{ open: boolean; title: string; message: string }>({
+    open: false,
+    title: "Action Failed",
+    message: "",
+  });
+
+  const setPublishErrorMessage = (msg: string | null, title: string = "Publish Failed") => {
+    if (msg) {
+      setErrorDialog({ open: true, title, message: msg });
+    } else {
+      setErrorDialog((prev) => ({ ...prev, open: false }));
+    }
+  };
 
   // Save toggle preference locally
   const handleToggleBrandKit = (enabled: boolean) => {
@@ -364,7 +376,7 @@ export default function AIPostPage() {
       if (error?.response?.status === 402 || error?.message?.toLowerCase().includes("credit")) {
         setHasInsufficientCredits(true);
       } else {
-        setPublishErrorMessage(error?.response?.data?.detail || error?.message || "Unable to generate post. Please try again.");
+        setPublishErrorMessage(error?.response?.data?.detail || error?.message || "Unable to generate post. Please try again.", "Generation Failed");
       }
     } finally {
       setLoading(false);
@@ -487,7 +499,7 @@ export default function AIPostPage() {
       });
       setPublishSuccessMessage("Post scheduled successfully for " + scheduledDate.toLocaleString());
     } catch (e: any) {
-      setPublishErrorMessage(e?.response?.data?.detail || e?.message || "Error scheduling post. Please try again.");
+      setPublishErrorMessage(e?.response?.data?.detail || e?.message || "Error scheduling post. Please try again.", "Schedule Failed");
     } finally {
       setLoading(false);
     }
@@ -1406,11 +1418,11 @@ export default function AIPostPage() {
 
       {/* Floating Notifications */}
       <CornerDialog
-        open={!!publishErrorMessage}
-        onClose={() => setPublishErrorMessage(null)}
+        open={errorDialog.open}
+        onClose={() => setErrorDialog(prev => ({ ...prev, open: false }))}
         type="error"
-        title="Publish Failed"
-        message={publishErrorMessage || ""}
+        title={errorDialog.title}
+        message={errorDialog.message}
       />
 
       <CornerDialog
