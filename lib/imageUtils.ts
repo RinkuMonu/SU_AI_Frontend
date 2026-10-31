@@ -50,7 +50,12 @@ export function resolveImageUrl(
     return trimmed;
   }
 
-  // Handle relative uploads
+  // Handle relative uploads or backend full URLs with /uploads/
+  if (trimmed.includes("/uploads/")) {
+    const uploadIndex = trimmed.indexOf("/uploads/");
+    return trimmed.substring(uploadIndex);
+  }
+
   if (trimmed.startsWith("uploads/")) {
     return `/${trimmed}`;
   }

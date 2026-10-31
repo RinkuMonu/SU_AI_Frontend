@@ -295,6 +295,7 @@ export class ProductPhotoshootService {
     useModel?: boolean;
     modelId?: string;
     selectedStyles?: string[];
+    workflowMode?: string;
   }): Promise<BackendPreparePromptResponse> {
     const response = await api.post<BackendPreparePromptResponse>(
       `${this.baseRoute}/prepare-prompt`,
@@ -305,6 +306,7 @@ export class ProductPhotoshootService {
         use_model: params.useModel ?? false,
         model_id: params.modelId,
         selected_styles: params.selectedStyles || [],
+        workflow_mode: params.workflowMode,
       }
     );
     return response.data;
@@ -322,6 +324,7 @@ export class ProductPhotoshootService {
     selectedStyles: string[];
     customPrompt?: string;
     imageCount?: number;
+    workflowMode?: string;
   }): Promise<BackendPhotoshootGenerateResponse> {
     const response = await api.post<BackendPhotoshootGenerateResponse>(
       `${this.baseRoute}/generate`,
@@ -334,6 +337,7 @@ export class ProductPhotoshootService {
         selected_styles: params.selectedStyles,
         custom_prompt: params.customPrompt,
         image_count: params.imageCount ?? 5,
+        workflow_mode: params.workflowMode,
       }
     );
     return response.data;

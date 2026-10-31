@@ -90,7 +90,7 @@ export const aiAnalyticsService = {
   }
 };
 
-export const groqAnalyticsService = geminiAnalyticsService;
+export const groqAnalyticsService = aiAnalyticsService;
 
 export type GeminiVisualPillar = VisualPillar;
 export type GeminiVisualForecast = VisualForecast;

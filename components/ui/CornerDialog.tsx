@@ -37,7 +37,7 @@ export function CornerDialog({
   let effectiveActionText = actionText;
   let effectiveActionHref = actionHref;
 
-  if (!effectiveActionText && !effectiveActionHref && message) {
+  if (!effectiveActionText && !effectiveActionHref && typeof message === "string") {
     const lower = message.toLowerCase();
     if (lower.includes("instagram")) {
       effectiveActionText = "Connect Instagram";

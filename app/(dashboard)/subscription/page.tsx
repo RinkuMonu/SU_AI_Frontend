@@ -484,7 +484,7 @@ export default function SubscriptionPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {mergedPlans.map((plan) => {
             const isCurrent = currentPlanId === plan.id.toUpperCase();
-            const gstPricing = calculatePlanPriceWithGST(plan.monthlyPrice, selectedCycle);
+            const priceInfo = calculatePlanPrice(plan.monthlyPrice, selectedCycle);
             const isExpanded = expandedFeatures[plan.id];
             const isProcessing = upgradingPlan === plan.id;
 
@@ -528,7 +528,7 @@ export default function SubscriptionPage() {
                     {plan.tagline}
                   </p>
 
-                  {/* Pricing with 18% GST Breakdown */}
+                  {/* Pricing (Base Price) */}
                   <div className="mb-6 pb-4 border-b border-white/10">
                     {plan.monthlyPrice === 0 ? (
                       <div>
@@ -542,7 +542,7 @@ export default function SubscriptionPage() {
                       <div>
                         <div className="flex items-baseline gap-1">
                           <span className="text-3xl font-extrabold text-white">
-                            ₹{gstPricing.totalPayable.toFixed(2)}
+                            {formatCurrencyINR(priceInfo.displayPrice)}
                           </span>
                           <span className="text-xs text-gray-400">
                             {selectedCycle === "monthly"
@@ -556,7 +556,7 @@ export default function SubscriptionPage() {
                         {selectedCycle !== "monthly" && (
                           <div className="flex items-center gap-1.5 mt-1">
                             <span className="text-[11px] text-gray-500 line-through">
-                              {formatCurrencyINR(plan.monthlyPrice)}/mo base
+                              {formatCurrencyINR(plan.monthlyPrice)}/mo
                             </span>
                             <span className="text-[11px] font-semibold text-emerald-400">
                               {selectedCycle === "quarterly" ? "Save 10%" : "Save 20%"}
@@ -564,21 +564,7 @@ export default function SubscriptionPage() {
                           </div>
                         )}
 
-                        {/* Itemized GST Breakdown */}
-                        <div className="mt-3 p-2.5 rounded-xl bg-white/[0.04] border border-white/10 space-y-1 text-[11px]">
-                          <div className="flex justify-between items-center text-gray-300">
-                            <span>Plan Price:</span>
-                            <span className="font-semibold text-white">₹{gstPricing.basePrice.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between items-center text-gray-300">
-                            <span>GST (18%):</span>
-                            <span className="font-semibold text-purple-300">₹{gstPricing.gstAmount.toFixed(2)}</span>
-                          </div>
-                          <div className="pt-1 border-t border-white/10 flex justify-between items-center font-bold text-white">
-                            <span>Total Payable:</span>
-                            <span className="text-emerald-400">₹{gstPricing.totalPayable.toFixed(2)}</span>
-                          </div>
-                        </div>
+                        <p className="text-[11px] text-text-muted mt-1.5">+ 18% GST at checkout</p>
                       </div>
                     )}
                   </div>

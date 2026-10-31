@@ -704,6 +704,7 @@ export default function AIPhotoshootPage() {
         customPrompt: tabState.customPrompt,
         useModel: isAvatarMode,
         modelId: isAvatarMode ? (tabState.selectedModelId || undefined) : undefined,
+        workflowMode: isAvatarMode ? "avatar_photoshoot" : "product_photography",
         selectedStyles: tabState.selectedStyles,
       });
       if (res.success && res.prepared_prompt) {
@@ -761,6 +762,7 @@ export default function AIPhotoshootPage() {
         productCategory: categoryIdToBackendName(tabState.productCategory),
         useModel: isAvatarMode,
         modelId: isAvatarMode ? (tabState.selectedModelId || undefined) : undefined,
+        workflowMode: isAvatarMode ? "avatar_photoshoot" : "product_photography",
         selectedStyles: tabState.selectedStyles,
         customPrompt: tabState.customPrompt,
         imageCount: 5,

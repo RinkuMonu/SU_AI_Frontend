@@ -264,11 +264,34 @@ export const contentService = {
 export async function generatePost(
   payload: GeneratePostRequest
 ): Promise<GeneratedPost> {
+  const normalizedPayload: any = { ...payload };
+
+  // Normalize brand_colors: if object, convert to array for backend schema compatibility
+  if (payload.brand_colors && typeof payload.brand_colors === "object") {
+    if (Array.isArray(payload.brand_colors)) {
+      normalizedPayload.brand_colors = payload.brand_colors;
+    } else {
+      const { primary, secondary, accent } = payload.brand_colors as any;
+      const listColors = [primary, secondary, accent].filter(Boolean);
+      normalizedPayload.brand_colors = listColors.length > 0 ? listColors : payload.brand_colors;
+    }
+  }
+
+  // Map tone / brand_voice
+  if (payload.brand_tone && !normalizedPayload.tone) {
+    normalizedPayload.tone = payload.brand_tone;
+    normalizedPayload.brand_voice = payload.brand_tone;
+  }
+
+  // Ensure product_id is a string
+  if (normalizedPayload.product_id === undefined || normalizedPayload.product_id === null) {
+    normalizedPayload.product_id = "";
+  }
 
   const response = await api.post(
     "/api/v1/content/generate-post",
-    payload
+    normalizedPayload
   );
 
-  return response.data.data;
+  return response.data?.data || response.data;
 }
