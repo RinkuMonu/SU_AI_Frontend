@@ -589,15 +589,12 @@ export default function SignupPage() {
                   alt="DhandaGrow"
                   className="w-10 h-10 object-contain shrink-0"
                 />
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-xl font-bold tracking-tight text-[#4F75FF]">
-                      Dhanda<span className="text-[#FA5D42]">Grow</span>
-                    </span>
-                    <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded-md bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white tracking-wider">
-                      AI+
-                    </span>
-                  </div>
+                <div className="flex flex-col justify-center">
+                  <img
+                    src="/images/dhandagrow-text-logo.png"
+                    alt="DhandaGrow AI"
+                    className="h-6 w-auto object-contain select-none"
+                  />
                   <span className="text-xs text-slate-300 font-normal tracking-wide mt-1">
                     India&apos;s AI Business Growth App
                   </span>

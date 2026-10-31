@@ -3,26 +3,26 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  Sparkles, 
-  ArrowRight, 
-  ArrowLeft, 
-  Check, 
-  CheckCircle2, 
-  User as UserIcon, 
-  Building2, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Store, 
-  Briefcase, 
-  Tag, 
-  Globe, 
-  Calendar, 
-  Palette, 
-  Upload, 
-  ShieldCheck, 
-  Layers, 
+import {
+  Sparkles,
+  ArrowRight,
+  ArrowLeft,
+  Check,
+  CheckCircle2,
+  User as UserIcon,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  Store,
+  Briefcase,
+  Tag,
+  Globe,
+  Calendar,
+  Palette,
+  Upload,
+  ShieldCheck,
+  Layers,
   Loader2,
   Users,
   Target,
@@ -48,11 +48,14 @@ import {
   AlertTriangle,
   Shield,
   Volume2,
+  Settings,
   LayoutDashboard,
   Megaphone,
   Camera,
   Bot,
-  Video
+  Video,
+  Zap,
+  TrendingUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -95,10 +98,11 @@ import { GeneratedPost } from "@/types/content";
 type AccountType = "user" | "business" | "influencer";
 
 // Coat Hanger Icon matching reference screenshot for Fashion Photoshoot
-const HangerIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+const HangerIcon = ({ className = "w-5 h-5", fill = "currentColor", fillOpacity = 0.25 }: { className?: string; fill?: string; fillOpacity?: number | string }) => (
   <svg
     viewBox="0 0 24 24"
-    fill="none"
+    fill={fill}
+    fillOpacity={fillOpacity}
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
@@ -110,10 +114,11 @@ const HangerIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
 );
 
 // Video Camera / Play Icon matching reference screenshot for Marketing Video
-const VideoMarketingIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
+const VideoMarketingIcon = ({ className = "w-5 h-5", fill = "currentColor", fillOpacity = 0.25 }: { className?: string; fill?: string; fillOpacity?: number | string }) => (
   <svg
     viewBox="0 0 24 24"
-    fill="none"
+    fill={fill}
+    fillOpacity={fillOpacity}
     stroke="currentColor"
     strokeWidth="2"
     strokeLinecap="round"
@@ -122,7 +127,7 @@ const VideoMarketingIcon = ({ className = "w-5 h-5" }: { className?: string }) =
   >
     <rect x="2" y="4" width="14" height="16" rx="2" />
     <path d="m16 9 6-3v12l-6-3" />
-    <polygon points="7 10 11 12 7 14 7 10" fill="currentColor" stroke="none" />
+    <polygon points="7 10 11 12 7 14 7 10" fill="currentColor" stroke="none" fillOpacity={1} />
   </svg>
 );
 
@@ -133,7 +138,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "Automate Social Media",
     desc: "Auto post, schedule and grow your brand",
     icon: Megaphone,
-    iconBg: "bg-[#EDE9FE] dark:bg-[#3B2D54]",
+    iconBg: "bg-[#3B2D54] border border-[#7C3AED]/40",
     iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
   },
   {
@@ -141,7 +146,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "Marketing Video",
     desc: "Create engaging videos with AI",
     icon: VideoMarketingIcon,
-    iconBg: "bg-[#FCE7F3] dark:bg-[#4E243B]",
+    iconBg: "bg-[#4E243B] border border-[#EC4899]/40",
     iconColor: "text-[#EC4899] dark:text-[#F472B6]",
   },
   {
@@ -149,7 +154,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "Fashion Photoshoot",
     desc: "AI model photos for your clothing brand",
     icon: HangerIcon,
-    iconBg: "bg-[#F5D0FE] dark:bg-[#4A244E]",
+    iconBg: "bg-[#4A244E] border border-[#C026D3]/40",
     iconColor: "text-[#C026D3] dark:text-[#E879F9]",
   },
   {
@@ -157,7 +162,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "Product Photoshoot",
     desc: "Stunning product photos with AI",
     icon: Camera,
-    iconBg: "bg-[#FFEDD5] dark:bg-[#523321]",
+    iconBg: "bg-[#523321] border border-[#F97316]/40",
     iconColor: "text-[#F97316] dark:text-[#FB923C]",
   },
   {
@@ -165,7 +170,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "AI Website Builder",
     desc: "Create your business website in minutes",
     icon: Globe,
-    iconBg: "bg-[#D1FAE5] dark:bg-[#1A3D33]",
+    iconBg: "bg-[#1A3D33] border border-[#10B981]/40",
     iconColor: "text-[#10B981] dark:text-[#34D399]",
   },
   {
@@ -173,7 +178,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "Leads CRM",
     desc: "Manage leads and grow your sales",
     icon: Users,
-    iconBg: "bg-[#E0E7FF] dark:bg-[#2A2F5E]",
+    iconBg: "bg-[#2A2F5E] border border-[#6366F1]/40",
     iconColor: "text-[#6366F1] dark:text-[#818CF8]",
   },
   {
@@ -181,7 +186,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     title: "AI Marketing Agent",
     desc: "Get an AI agent to grow your business",
     icon: Bot,
-    iconBg: "bg-[#EDE9FE] dark:bg-[#3B2D54]",
+    iconBg: "bg-[#3B2D54] border border-[#7C3AED]/40",
     iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
   },
 ];
@@ -193,7 +198,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     title: "Business Website",
     desc: "Shopify, WooCommerce, or your own",
     icon: Globe,
-    iconBg: "bg-[#7C3AED]/20",
+    iconBg: "bg-[#292259] border border-[#7C3AED]/40",
     iconColor: "text-[#A78BFA]",
     businessType: "E-Commerce",
     sellingModel: "Online E-Commerce Store",
@@ -203,7 +208,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     title: "Google Maps",
     desc: "Business listing, address and available public information",
     icon: MapPin,
-    iconBg: "bg-[#F97316]/20",
+    iconBg: "bg-[#452312] border border-[#F97316]/40",
     iconColor: "text-[#FB923C]",
     businessType: "Retail Store",
     sellingModel: "Physical Retail Store / Walk-ins",
@@ -215,7 +220,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     logos: "/images/marketplace-logos.png",
     logosAlt: "Amazon, Myntra, Meesho, Blinkit, Flipkart",
     icon: ShoppingBag,
-    iconBg: "bg-[#EC4899]/20",
+    iconBg: "bg-[#471833] border border-[#EC4899]/40",
     iconColor: "text-[#F472B6]",
     businessType: "E-Commerce",
     sellingModel: "Online E-Commerce Store",
@@ -227,7 +232,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     logos: "/images/b2b-logos.png",
     logosAlt: "Moglix, Udaan, TradeIndia, Justdial",
     icon: Building2,
-    iconBg: "bg-[#8B5CF6]/20",
+    iconBg: "bg-[#2A1D57] border border-[#8B5CF6]/40",
     iconColor: "text-[#A78BFA]",
     businessType: "Wholesale",
     sellingModel: "Wholesale & Bulk Orders",
@@ -237,7 +242,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     title: "Social Media Only",
     desc: "Social profile links, if website doesn't exist",
     icon: Video,
-    iconBg: "bg-[#F59E0B]/20",
+    iconBg: "bg-[#442B0F] border border-[#F59E0B]/40",
     iconColor: "text-[#FBBF24]",
     businessType: "Social Commerce",
     sellingModel: "Social Media / Direct Selling",
@@ -247,7 +252,7 @@ export const ONLINE_PRESENCE_OPTIONS = [
     title: "No Online Presence",
     desc: "If the business does not have an online presence, continue with the manual setup",
     icon: X,
-    iconBg: "bg-[#E11D48]/20",
+    iconBg: "bg-[#481422] border border-[#E11D48]/40",
     iconColor: "text-[#FB7185]",
     businessType: "Retail Store",
     sellingModel: "Physical Retail Store / Walk-ins",
@@ -351,7 +356,7 @@ export default function OnboardingPage() {
         try {
           const parsed = JSON.parse(saved);
           if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        } catch (_) {}
+        } catch (_) { }
       }
     }
     return [];
@@ -436,7 +441,7 @@ export default function OnboardingPage() {
   const [newProductService, setNewProductService] = useState("");
 
   const [brandPreferences, setBrandPreferences] = useState({
-    palette: ["#FFFFFF", "#1E1E2F", "#FC9A5D", "#F0449B", "#BE32FF"],
+    palette: ["#FC9A5D", "#F0449A", "#BD32FF", "#7E36FA", "#6533BA"],
     tones: ["Modern", "Professional", "Trendy"] as string[],
     language: "English",
   });
@@ -444,6 +449,8 @@ export default function OnboardingPage() {
   const [websitePhotos, setWebsitePhotos] = useState<string[]>([]);
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [showAllTones, setShowAllTones] = useState(false);
+  const [isSavingBusinessDetails2, setIsSavingBusinessDetails2] = useState(false);
   const [isSavingBrandPreferences, setIsSavingBrandPreferences] = useState(false);
   const [isSavingPhotos, setIsSavingPhotos] = useState(false);
 
@@ -506,7 +513,7 @@ export default function OnboardingPage() {
       try {
         const saved = sessionStorage.getItem("business_social_platforms");
         if (saved) return JSON.parse(saved);
-      } catch (_) {}
+      } catch (_) { }
     }
     return ["instagram"];
   });
@@ -515,7 +522,7 @@ export default function OnboardingPage() {
       try {
         const saved = sessionStorage.getItem("business_social_handles");
         if (saved) return JSON.parse(saved);
-      } catch (_) {}
+      } catch (_) { }
       const savedIg = localStorage.getItem("instagram_username");
       if (savedIg) return { instagram: savedIg };
     }
@@ -524,12 +531,14 @@ export default function OnboardingPage() {
   const [isSavingSocialPlatforms, setIsSavingSocialPlatforms] = useState(false);
 
   // ─── First Content Creation & Post Maker Flow State ───
-  const [firstThingChoice, setFirstThingChoice] = useState<"post_maker" | "photoshoot" | "reel_maker">("post_maker");
+  const [firstThingChoice, setFirstThingChoice] = useState<"fashion_studio" | "product_studio" | "post_maker" | "reel_maker" | "photoshoot">("fashion_studio");
   const [promoPhoto, setPromoPhoto] = useState<string>("");
   const [festivalPhoto, setFestivalPhoto] = useState<string>("");
   const [adPhoto, setAdPhoto] = useState<string>("");
   const [activePhotoChangeTarget, setActivePhotoChangeTarget] = useState<"promo" | "festival" | "ad" | null>(null);
   const [isGeneratingPosts, setIsGeneratingPosts] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(25);
+  const [generationStage, setGenerationStage] = useState<"studying" | "first_step" | "daily_posts">("studying");
   const [generationStatusText, setGenerationStatusText] = useState("Analyzing your business & brand...");
   const [notifyContact, setNotifyContact] = useState("");
   const [isNotifySubmitted, setIsNotifySubmitted] = useState(false);
@@ -538,10 +547,10 @@ export default function OnboardingPage() {
 
   // ─── Default High-Quality Business Photo Assets ───
   const DEFAULT_BUSINESS_PHOTOS = [
-    "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1556742049-0a67c5574f73?w=800&auto=format&fit=crop&q=80",
-    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&auto=format&fit=crop&q=80"
+    "/images/fashion-photoshoot-hero.jpg",
+    "/images/influencer-ootd-post.jpg",
+    "/images/product-kundan-necklace.jpg",
+    "/images/ai-poster-mockup.jpg"
   ];
 
   const getAvailablePhotos = () => {
@@ -672,7 +681,7 @@ export default function OnboardingPage() {
         try {
           const parsed = JSON.parse(savedServices);
           if (Array.isArray(parsed) && parsed.length > 0) setSelectedServices(parsed);
-        } catch (_) {}
+        } catch (_) { }
       }
       const savedPresence = sessionStorage.getItem("business_online_presence") || localStorage.getItem("business_online_presence");
       if (savedPresence) setSelectedOnlinePresence(savedPresence);
@@ -686,21 +695,31 @@ export default function OnboardingPage() {
         try {
           const parsed = JSON.parse(savedDetails);
           setBusinessDetails((prev) => ({ ...prev, ...parsed }));
-        } catch (_) {}
+        } catch (_) { }
       }
       const savedBrand = sessionStorage.getItem("brand_preferences_data");
       if (savedBrand) {
         try {
           const parsed = JSON.parse(savedBrand);
           setBrandPreferences((prev) => ({ ...prev, ...parsed }));
-        } catch (_) {}
+        } catch (_) { }
+      }
+      const savedScraped = sessionStorage.getItem("website_scraped_photos");
+      if (savedScraped) {
+        try {
+          const parsed = JSON.parse(savedScraped);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setWebsitePhotos(parsed);
+            setSelectedPhotos(parsed);
+          }
+        } catch (_) { }
       }
       const savedPhotos = sessionStorage.getItem("website_selected_photos");
       if (savedPhotos) {
         try {
           const parsed = JSON.parse(savedPhotos);
           if (Array.isArray(parsed) && parsed.length > 0) setSelectedPhotos(parsed);
-        } catch (_) {}
+        } catch (_) { }
       }
     }
 
@@ -1140,7 +1159,7 @@ export default function OnboardingPage() {
       business_type: businessProfile.business_type,
       selling_model: businessProfile.selling_model,
       intent: "create_website",
-    }).catch(() => {});
+    }).catch(() => { });
   };
 
   const handlePresenceContinue = async () => {
@@ -1409,7 +1428,7 @@ export default function OnboardingPage() {
           online_presence: presenceToSave,
           business_type: businessProfile.business_type || (presenceToSave === "wholesale_b2b" ? "Wholesale" : "E-Commerce"),
         });
-      } catch (_) {}
+      } catch (_) { }
 
       // Staggered status animations matching actual scan phases
       const colorsTimer = setTimeout(() => {
@@ -1490,7 +1509,27 @@ export default function OnboardingPage() {
 
         if (result.photos && result.photos.length > 0) {
           setWebsitePhotos(result.photos);
-          setSelectedPhotos(result.photos.slice(0, 4));
+          setSelectedPhotos(result.photos);
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("website_scraped_photos", JSON.stringify(result.photos));
+            sessionStorage.setItem("website_selected_photos", JSON.stringify(result.photos));
+          }
+        } else if (formattedUrl) {
+          // If backend didn't return photos, fetch dynamically via our live scraper route
+          try {
+            const scrapeRes = await fetch(`/api/onboarding/scrape-photos?url=${encodeURIComponent(formattedUrl)}`);
+            if (scrapeRes.ok) {
+              const scrapeData = await scrapeRes.json();
+              if (Array.isArray(scrapeData?.photos) && scrapeData.photos.length > 0) {
+                setWebsitePhotos(scrapeData.photos);
+                setSelectedPhotos(scrapeData.photos);
+                if (typeof window !== "undefined") {
+                  sessionStorage.setItem("website_scraped_photos", JSON.stringify(scrapeData.photos));
+                  sessionStorage.setItem("website_selected_photos", JSON.stringify(scrapeData.photos));
+                }
+              }
+            }
+          } catch (_) {}
         }
       }
 
@@ -1688,9 +1727,9 @@ export default function OnboardingPage() {
         website_url: websiteUrl,
       });
 
-      // Advance to Screen 4 (brand_preferences)
-      const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
-      const target = brandIdx !== -1 ? brandIdx : currentStep + 1;
+      // Advance to Screen 4 (business_details_2)
+      const details2Idx = activeSteps.findIndex((s) => s.id === "business_details_2");
+      const target = details2Idx !== -1 ? details2Idx : currentStep + 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
@@ -1704,9 +1743,59 @@ export default function OnboardingPage() {
   };
 
   // ─── Screen 4: Brand Preferences Handlers (What's your business like?) ───
-  const handleBrandPreferencesBack = () => {
+  const handleBusinessDetails2Back = () => {
     const detailsIdx = activeSteps.findIndex((s) => s.id === "business_details");
     const target = detailsIdx !== -1 ? detailsIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleBusinessDetails2Continue = async () => {
+    setIsSavingBusinessDetails2(true);
+    setError("");
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_details_data", JSON.stringify(businessDetails));
+      }
+
+      await updateBrandKit({
+        business_name: businessDetails.business_name,
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        website: websiteUrl,
+        logo_url: businessDetails.logo_url,
+      });
+
+      await OnboardingService.updateProgress({
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        website_url: websiteUrl,
+      });
+
+      // Advance to Brand Identity (brand_preferences - Image 1)
+      const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
+      const target = brandIdx !== -1 ? brandIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save business profile details:", err);
+      setError(err?.message || "Failed to save details. Please retry.");
+    } finally {
+      setIsSavingBusinessDetails2(false);
+    }
+  };
+
+  const handleBrandPreferencesBack = () => {
+    const details2Idx = activeSteps.findIndex((s) => s.id === "business_details_2");
+    const target = details2Idx !== -1 ? details2Idx : currentStep - 1;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -1773,9 +1862,9 @@ export default function OnboardingPage() {
         services_products_summary: businessDetails.products_services,
       });
 
-      // Advance to Screen 5 (website_photos)
-      const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
-      const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
+      // Advance to Screen 5: Brand Services & Audience (Image 2)
+      const servicesIdx = activeSteps.findIndex((s) => s.id === "brand_services");
+      const target = servicesIdx !== -1 ? servicesIdx : currentStep + 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
@@ -1788,10 +1877,64 @@ export default function OnboardingPage() {
     }
   };
 
-  // ─── Screen 5: Website Photos Handlers (Pick the photos we should work with) ───
-  const handleWebsitePhotosBack = () => {
+  // ─── Screen 5: Brand Services & Audience Handlers (Image 2) ───
+  const [isSavingBrandServices, setIsSavingBrandServices] = useState(false);
+  const [newServiceInput, setNewServiceInput] = useState("");
+  const [isAddingService, setIsAddingService] = useState(false);
+
+  const handleBrandServicesBack = () => {
     const brandIdx = activeSteps.findIndex((s) => s.id === "brand_preferences");
     const target = brandIdx !== -1 ? brandIdx : currentStep - 1;
+    setCurrentStep(target);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", String(target));
+    }
+  };
+
+  const handleBrandServicesContinue = async () => {
+    setIsSavingBrandServices(true);
+    setError("");
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("business_details_data", JSON.stringify(businessDetails));
+      }
+
+      await updateBrandKit({
+        business_name: businessDetails.business_name,
+        tagline: businessDetails.tagline,
+        target_audience: businessDetails.target_audience,
+        differentiators: businessDetails.differentiators,
+        products_services: businessDetails.products_services,
+        website: websiteUrl,
+        logo_url: businessDetails.logo_url,
+      });
+
+      await OnboardingService.updateProgress({
+        target_audience: businessDetails.target_audience,
+        products_services: businessDetails.products_services,
+        target_audience_summary: businessDetails.target_audience,
+        services_products_summary: businessDetails.products_services,
+      });
+
+      // Advance to Screen 6 (website_photos)
+      const photosIdx = activeSteps.findIndex((s) => s.id === "website_photos");
+      const target = photosIdx !== -1 ? photosIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", String(target));
+      }
+    } catch (err: any) {
+      console.error("Failed to save brand details:", err);
+      setError(err?.message || "Failed to save details. Please retry.");
+    } finally {
+      setIsSavingBrandServices(false);
+    }
+  };
+
+  // ─── Screen 6: Website Photos Handlers (Pick the photos we should work with) ───
+  const handleWebsitePhotosBack = () => {
+    const brandServicesIdx = activeSteps.findIndex((s) => s.id === "brand_services");
+    const target = brandServicesIdx !== -1 ? brandServicesIdx : currentStep - 1;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2970,7 +3113,7 @@ export default function OnboardingPage() {
       } else {
         try {
           await userService.updateMe(influencerPayload);
-        } catch (_) {}
+        } catch (_) { }
 
         const updatedUser = {
           ...existingUser,
@@ -2993,7 +3136,7 @@ export default function OnboardingPage() {
           is_completed: true,
           onboarding_step: 3,
         });
-      } catch (_) {}
+      } catch (_) { }
 
       // Directly open Influencer Dashboard
       router.push("/influencer");
@@ -3005,7 +3148,7 @@ export default function OnboardingPage() {
         u.accountType = "influencer";
         u.onboardingCompleted = true;
         localStorage.setItem("user", JSON.stringify(u));
-      } catch (_) {}
+      } catch (_) { }
       router.push("/influencer");
     } finally {
       setIsActivatingInfluencer(false);
@@ -3200,59 +3343,63 @@ export default function OnboardingPage() {
     { id: "presence", title: "Online Presence", desc: "Where you sell" },
     ...(selectedOnlinePresence === "website"
       ? [
-          { id: "website_url", title: "Website", desc: "Your storefront" },
-          { id: "website_reading", title: "Reading Website", desc: "AI audit" },
-          { id: "business_details", title: "Business Details", desc: "Is this your business?" },
-          { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
-          { id: "website_photos", title: "Photos", desc: "Pick website photos" },
-        ]
+        { id: "website_url", title: "Website", desc: "Your storefront" },
+        { id: "website_reading", title: "Reading Website", desc: "AI audit" },
+        { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+        { id: "business_details_2", title: "Business Profile", desc: "Is this your business?" },
+        { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+        { id: "brand_services", title: "Brand Services", desc: "What's your business like?" },
+        { id: "website_photos", title: "Photos", desc: "Pick website photos" },
+      ]
       : selectedOnlinePresence === "google_maps"
-      ? [
+        ? [
           { id: "maps_search", title: "Google Maps", desc: "Find your shop" },
           { id: "maps_website", title: "Website", desc: "Storefront link" },
           { id: "maps_category", title: "Category", desc: "Business niche" },
           { id: "maps_details", title: "Business Details", desc: "About your shop" },
           { id: "maps_photos", title: "Photos", desc: "Pick shop photos" },
         ]
-      : selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller"
-      ? [
-          { id: "marketplace_platforms", title: "Marketplaces", desc: "Where you sell" },
-          { id: "marketplace_website", title: "Website", desc: "Storefront link" },
-          ...(marketplaceSkipWebsite
-            ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
-            : [
+        : selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller"
+          ? [
+            { id: "marketplace_platforms", title: "Marketplaces", desc: "Where you sell" },
+            { id: "marketplace_website", title: "Website", desc: "Storefront link" },
+            ...(marketplaceSkipWebsite
+              ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+              : [
                 { id: "website_reading", title: "Reading Website", desc: "AI audit" },
                 { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+                { id: "business_details_2", title: "Business Profile", desc: "Is this your business?" },
                 { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+                { id: "brand_services", title: "Brand Services", desc: "What's your business like?" },
                 { id: "website_photos", title: "Photos", desc: "Pick website photos" },
               ]),
-        ]
-      : selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b"
-      ? [
-          { id: "b2b_platforms", title: "B2B Channels", desc: "Wholesale platforms" },
-          { id: "b2b_website", title: "Storefront", desc: "Storefront link" },
-          ...(b2bSkipWebsite
-            ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
-            : [
-                { id: "website_reading", title: "Reading Website", desc: "AI audit" },
-                { id: "business_details", title: "Business Details", desc: "Is this your business?" },
-                { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
-                { id: "website_photos", title: "Photos", desc: "Pick website photos" },
-              ]),
-        ]
-      : selectedOnlinePresence === "social_media"
-      ? [
-          { id: "social_platforms", title: "Social Profiles", desc: "Select platforms & handles" },
-          { id: "identity", title: "Business Identity", desc: "Name & category" },
-        ]
-      : selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence"
-      ? [
-          { id: "none_details", title: "Business Basics", desc: "Name & products" },
-          { id: "none_brand_kit", title: "Brand Kit", desc: "Colors, font & voice" },
-        ]
-      : [
-          { id: "identity", title: "Business Identity", desc: "Name & category" },
-        ]),
+          ]
+          : selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b"
+            ? [
+              { id: "b2b_platforms", title: "B2B Channels", desc: "Wholesale platforms" },
+              { id: "b2b_website", title: "Storefront", desc: "Storefront link" },
+              ...(b2bSkipWebsite
+                ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+                : [
+                  { id: "website_reading", title: "Reading Website", desc: "AI audit" },
+                  { id: "business_details", title: "Business Details", desc: "Is this your business?" },
+                  { id: "brand_preferences", title: "Brand Identity", desc: "What's your business like?" },
+                  { id: "website_photos", title: "Photos", desc: "Pick website photos" },
+                ]),
+            ]
+            : selectedOnlinePresence === "social_media"
+              ? [
+                { id: "social_platforms", title: "Social Profiles", desc: "Select platforms & handles" },
+                { id: "identity", title: "Business Identity", desc: "Name & category" },
+              ]
+              : selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence"
+                ? [
+                  { id: "none_details", title: "Business Basics", desc: "Name & products" },
+                  { id: "none_brand_kit", title: "Brand Kit", desc: "Colors, font & voice" },
+                ]
+                : [
+                  { id: "identity", title: "Business Identity", desc: "Name & category" },
+                ]),
     { id: "first_thing", title: "First Creation", desc: "Make your first thing" },
     { id: "post_maker_pick", title: "Pick Photos", desc: "Select post photos" },
     { id: "post_maker_ready", title: "Posts Ready", desc: "Review your output" },
@@ -3262,13 +3409,36 @@ export default function OnboardingPage() {
     { id: "ready", title: "Ready", desc: "Launch AI engine" },
   ];
 
-  const activeSteps = 
-    accountType === "business" 
-      ? businessSteps 
-      : accountType === "influencer" 
-        ? influencerSteps 
+  const activeSteps =
+    accountType === "business"
+      ? businessSteps
+      : accountType === "influencer"
+        ? influencerSteps
         : userSteps;
   const currentStepObj = activeSteps[currentStep] || activeSteps[0];
+
+  // Dynamic website photos fetcher when entering website_photos step
+  useEffect(() => {
+    if (currentStepObj?.id === "website_photos" && websitePhotos.length === 0 && websiteUrl) {
+      const fetchLivePhotos = async () => {
+        try {
+          const res = await fetch(`/api/onboarding/scrape-photos?url=${encodeURIComponent(websiteUrl)}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data?.photos) && data.photos.length > 0) {
+              setWebsitePhotos(data.photos);
+              setSelectedPhotos(data.photos);
+              if (typeof window !== "undefined") {
+                sessionStorage.setItem("website_scraped_photos", JSON.stringify(data.photos));
+                sessionStorage.setItem("website_selected_photos", JSON.stringify(data.photos));
+              }
+            }
+          }
+        } catch (_) {}
+      };
+      fetchLivePhotos();
+    }
+  }, [currentStepObj?.id, websitePhotos.length, websiteUrl]);
 
 
   const isLastStep = currentStep === activeSteps.length - 1;
@@ -3280,7 +3450,9 @@ export default function OnboardingPage() {
     currentStepObj.id !== "website_url" &&
     currentStepObj.id !== "website_reading" &&
     currentStepObj.id !== "business_details" &&
+    currentStepObj.id !== "business_details_2" &&
     currentStepObj.id !== "brand_preferences" &&
+    currentStepObj.id !== "brand_services" &&
     currentStepObj.id !== "website_photos" &&
     currentStepObj.id !== "maps_search" &&
     currentStepObj.id !== "maps_website" &&
@@ -3355,12 +3527,12 @@ export default function OnboardingPage() {
         }
       } else if (stepId === "website_reading") {
         return true;
-      } else if (stepId === "business_details") {
+      } else if (stepId === "business_details" || stepId === "business_details_2") {
         if (!businessDetails.business_name.trim()) {
           setError("Business Name is required.");
           return false;
         }
-      } else if (stepId === "brand_preferences") {
+      } else if (stepId === "brand_preferences" || stepId === "brand_services") {
         return true;
       } else if (stepId === "website_photos") {
         return true;
@@ -3473,7 +3645,7 @@ export default function OnboardingPage() {
       // Already on ready screen -> Go to Dashboard or Creator Hub
       try {
         await OnboardingService.completeOnboarding();
-      } catch (_) {}
+      } catch (_) { }
       try {
         const stored = localStorage.getItem("user");
         if (stored) {
@@ -3485,7 +3657,7 @@ export default function OnboardingPage() {
           }
           localStorage.setItem("user", JSON.stringify(u));
         }
-      } catch (_) {}
+      } catch (_) { }
       if (accountType === "influencer") {
         router.push("/influencer");
       } else {
@@ -3500,27 +3672,29 @@ export default function OnboardingPage() {
     setIsSavingFirstThing(true);
     try {
       const backendChoice: "post_maker" | "ai_photoshoot" | "reel_maker" =
-        firstThingChoice === "photoshoot"
+        firstThingChoice === "fashion_studio" || firstThingChoice === "product_studio" || (firstThingChoice as any) === "photoshoot"
           ? "ai_photoshoot"
           : firstThingChoice === "reel_maker"
-          ? "reel_maker"
-          : "post_maker";
+            ? "reel_maker"
+            : "post_maker";
 
-      await OnboardingService.saveFirstContentChoice(backendChoice);
-
-      if (firstThingChoice === "post_maker") {
-        const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
-        const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (firstThingChoice === "photoshoot") {
-        router.push("/ai-photoshoot");
-      } else if (firstThingChoice === "reel_maker") {
-        router.push("/create/reel");
+      try {
+        await OnboardingService.saveFirstContentChoice(backendChoice);
+      } catch (err) {
+        console.warn("Notice: Continuing to post selection:", err);
       }
+
+      // User instruction: clicking button on Image 1 directly integrates Image 2 (Pick a photo per post)
+      const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
+      const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
     } catch (err: any) {
-      console.error("Failed to save first content choice:", err);
-      setError(err?.message || "Failed to save your selection. Please try again.");
+      console.error("Failed to proceed from first thing:", err);
+      const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
+      const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
     } finally {
       setIsSavingFirstThing(false);
     }
@@ -3587,79 +3761,76 @@ export default function OnboardingPage() {
 
   const handleGeneratePosts = async () => {
     setIsGeneratingPosts(true);
-    setGenerationStatusText("Analyzing your brand and visual style...");
-    const businessName = businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solutions";
-    const category = businessProfile.business_category || businessDetails.category || "Tech & Electronics";
-    const activePhoto = promoPhoto || getAvailablePhotos()[0];
+    setGenerationStage("studying");
+    setGenerationProgress(20);
+    setGenerationStatusText("Setting your mood");
+    const businessName = businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solution";
+    const category = businessProfile.business_category || businessDetails.category || "Testing electronics";
+    const activePhoto = promoPhoto || getAvailablePhotos()[0] || DEFAULT_BUSINESS_PHOTOS[0];
 
     try {
-      setGenerationStatusText(`Synthesizing ${businessName}'s promotional voice...`);
-      
-      let res: any = null;
+      // Stage 1: Studying your photo (Image 1)
+      await new Promise((r) => setTimeout(r, 1000));
+      setGenerationProgress(60);
+      await new Promise((r) => setTimeout(r, 1000));
+      setGenerationProgress(100);
+      await new Promise((r) => setTimeout(r, 600));
+
+      // Stage 2: You just took the first step (Image 2)
+      setGenerationStage("first_step");
+      await new Promise((r) => setTimeout(r, 2600));
+
+      // Stage 3: Your daily posts are being made (Image 3)
+      setGenerationStage("daily_posts");
+
+      // Background post synthesis
       try {
-        res = await contentService.generateContent({
+        const res = await contentService.generateContent({
           type: "Instagram Post",
           platform: "Instagram",
           language: brandPreferences.language || "English",
           tone: brandPreferences.tones[0] || "Professional",
           productName: businessName,
-          productDescription: businessProfile.business_description || businessDetails.tagline || `${category} business services and offerings`,
+          productDescription: businessProfile.business_description || businessDetails.tagline || (category + " business services and offerings"),
           use_brand_kit: true,
           brand_name: businessName,
-          targetAudience: businessDetails.target_audience || "Customers & clients",
+          targetAudience: businessDetails.target_audience || "Customers and clients",
           productImages: [activePhoto],
         });
-      } catch (apiErr) {
-        console.warn("Notice: Content generation API fallback to client synthesis:", apiErr);
-      }
 
-      setGenerationStatusText("Packaging high-converting captions and hashtags...");
-
-      const generatedPostData: GeneratedPost = {
-        product_id: "onboarding_" + Date.now(),
-        platform: "Instagram",
-        objective: "Promotions & Brand Growth",
-        headline: res?.data?.title || `${businessName} Special Launch & Offers`,
-        caption: res?.data?.caption || `Accelerate your results with ${businessName}. Top-tier solutions designed for your needs. Contact us today or visit our storefront to discover more!`,
-        call_to_action: res?.data?.callToAction || "Link in bio / Tap to learn more",
-        hashtags: Array.isArray(res?.data?.hashtags) && res.data.hashtags.length > 0 
-          ? res.data.hashtags 
-          : [`#${businessName.replace(/[^a-zA-Z0-9]/g, "")}`, `#${category.replace(/[^a-zA-Z0-9]/g, "")}`, "#BusinessGrowth", "#Trending", "#ScalioAI"],
-        image_url: activePhoto,
-        media_url: activePhoto,
-        creative_direction: "Vibrant high-conversion promotional design with curated brand color accents.",
-      };
-
-      setGeneratedOnboardingPost(generatedPostData);
-
-      const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
-      const target = readyIdx !== -1 ? readyIdx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("onboarding_step", String(target));
+        const generatedPostData: GeneratedPost = {
+          product_id: "onboarding_" + Date.now(),
+          platform: "Instagram",
+          objective: "Promotions and Brand Growth",
+          headline: res?.data?.title || (businessName + " Special Launch & Offers"),
+          caption: res?.data?.caption || ("Accelerate your results with " + businessName + ". Top-tier solutions designed for your needs."),
+          call_to_action: res?.data?.callToAction || "Link in bio / Tap to learn more",
+          hashtags: Array.isArray(res?.data?.hashtags) && res.data.hashtags.length > 0
+            ? res.data.hashtags
+            : ["#" + businessName.replace(/[^a-zA-Z0-9]/g, ""), "#" + category.replace(/[^a-zA-Z0-9]/g, ""), "#BusinessGrowth", "#DhandaGrow"],
+          image_url: activePhoto,
+          media_url: activePhoto,
+          creative_direction: "Vibrant high-conversion promotional design with curated brand color accents.",
+        };
+        setGeneratedOnboardingPost(generatedPostData);
+      } catch (synthErr) {
+        console.warn("Client fallback for generated post:", synthErr);
+        const fallbackPost: GeneratedPost = {
+          product_id: "onboarding_" + Date.now(),
+          platform: "Instagram",
+          objective: "Promotions and Brand Growth",
+          headline: businessName + " Special Launch",
+          caption: "Elevate your business with " + businessName + ". Quality, consistency, and results.",
+          call_to_action: "Visit profile link",
+          hashtags: ["#" + businessName.replace(/[^a-zA-Z0-9]/g, ""), "#BusinessGrowth", "#DhandaGrow"],
+          image_url: activePhoto,
+          media_url: activePhoto,
+        };
+        setGeneratedOnboardingPost(fallbackPost);
       }
     } catch (err: any) {
-      console.error("Post generation error:", err);
-      const fallbackPost: GeneratedPost = {
-        product_id: "onboarding_" + Date.now(),
-        platform: "Instagram",
-        objective: "Promotions & Brand Growth",
-        headline: `${businessName} Special Launch`,
-        caption: `Elevate your business with ${businessName}. Quality, consistency, and results. Visit us today!`,
-        call_to_action: "Visit profile link",
-        hashtags: [`#${businessName.replace(/[^a-zA-Z0-9]/g, "")}`, "#BusinessGrowth", "#DhandaGrow"],
-        image_url: activePhoto,
-        media_url: activePhoto,
-      };
-      setGeneratedOnboardingPost(fallbackPost);
-      const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
-      const target = readyIdx !== -1 ? readyIdx : currentStep + 1;
-      setCurrentStep(target);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("onboarding_step", String(target));
-      }
-    } finally {
-      setIsGeneratingPosts(false);
+      console.error("Post generation flow error:", err);
+      setGenerationStage("daily_posts");
     }
   };
 
@@ -3696,8 +3867,8 @@ export default function OnboardingPage() {
     }
 
     try {
-      OnboardingService.completeOnboarding().catch(() => {});
-    } catch (_) {}
+      OnboardingService.completeOnboarding().catch(() => { });
+    } catch (_) { }
 
     router.push(`/ai-post?edit_post_id=${encodeURIComponent(postId)}&from=onboarding`);
   };
@@ -4001,7 +4172,7 @@ export default function OnboardingPage() {
           sessionStorage.removeItem("pending_signup");
           try {
             await userService.updateMe(userPayload);
-          } catch (_) {}
+          } catch (_) { }
         } else {
           // Existing session (e.g. Google OAuth user)
           await userService.updateMe(userPayload);
@@ -4019,7 +4190,7 @@ export default function OnboardingPage() {
             is_completed: true,
             onboarding_completed_at: new Date().toISOString(),
           });
-        } catch (_) {}
+        } catch (_) { }
 
         // Advance to Ready step
         setCurrentStep(activeSteps.length - 1);
@@ -4076,7 +4247,7 @@ export default function OnboardingPage() {
           sessionStorage.removeItem("pending_signup");
           try {
             await userService.updateMe(influencerPayload);
-          } catch (_) {}
+          } catch (_) { }
         } else {
           await userService.updateMe(influencerPayload);
         }
@@ -4111,7 +4282,7 @@ export default function OnboardingPage() {
             is_completed: true,
             onboarding_completed_at: new Date().toISOString(),
           });
-        } catch (_) {}
+        } catch (_) { }
 
         // Advance to Ready step
         setCurrentStep(activeSteps.length - 1);
@@ -4244,7 +4415,7 @@ export default function OnboardingPage() {
               ...businessPayload,
               onboardingData: businessPayload,
             });
-          } catch (_) {}
+          } catch (_) { }
         } else {
           // Existing session (e.g. Google OAuth user)
           await userService.updateMe({
@@ -4279,7 +4450,7 @@ export default function OnboardingPage() {
               description: finalDescription || undefined,
               contact_phone: businessProfile.phone || undefined,
             });
-          } catch (_) {}
+          } catch (_) { }
         }
 
         // Create/Update BrandKit in Brand Collection
@@ -4313,7 +4484,7 @@ export default function OnboardingPage() {
             b2b_platforms: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? deduplicatedB2bPlatforms : undefined,
             b2b_listings: (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") ? finalB2bListings : undefined,
           });
-        } catch (_) {}
+        } catch (_) { }
 
         // Update Onboarding Progress API
         try {
@@ -4327,7 +4498,7 @@ export default function OnboardingPage() {
             onboarding_completed_at: new Date().toISOString(),
           });
           await OnboardingService.completeOnboarding();
-        } catch (_) {}
+        } catch (_) { }
 
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("onboarding_step");
@@ -4369,54 +4540,58 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070F22] text-[#ededf2] flex flex-col justify-between py-4 sm:py-6 px-4 sm:px-6 relative overflow-x-clip selection:bg-[#be32ff]/30">
-      {/* Background ambient lighting matching DhandaGrow dark navy & gradient accent theme */}
-      <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-gradient-to-br from-[#fc9a5d]/20 via-[#f0449b]/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
-      <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#be32ff]/20 via-[#7d36fa]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute -bottom-32 left-1/4 w-[30rem] h-[30rem] bg-gradient-to-tr from-[#f0449b]/15 via-[#be32ff]/10 to-transparent rounded-full blur-[150px] pointer-events-none" />
+    <div className={`${currentStepObj.id === "get_started" ? "h-screen h-[100dvh] max-h-screen overflow-hidden p-0" : "min-h-screen py-4 sm:py-6 px-4 sm:px-6 overflow-x-clip"} bg-[#081226] text-[#ededf2] flex flex-col justify-between relative selection:bg-[#be32ff]/30`}>
+      {/* Background ambient lighting matching DhandaGrow dark navy & gradient accent theme (hidden on get_started & business_services for exact #081226 background) */}
+      {!["get_started", "business_services", "presence", "website_url", "analyzing_site", "photos", "website_photos", "first_thing", "post_maker_pick", "post_maker_ready"].includes(currentStepObj.id) && (
+        <>
+          <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-gradient-to-br from-[#fc9a5d]/20 via-[#f0449b]/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#be32ff]/20 via-[#7d36fa]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
+          <div className="absolute -bottom-32 left-1/4 w-[30rem] h-[30rem] bg-gradient-to-tr from-[#f0449b]/15 via-[#be32ff]/10 to-transparent rounded-full blur-[150px] pointer-events-none" />
+        </>
+      )}
 
       {/* Bottom Waves matching Designer Screen 1 */}
       {currentStepObj.id === "get_started" && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          {/* Bottom Left Sunset Gradient Wave */}
+          {/* Bottom Left Sunset Gradient Wave (Exact Reference Curve & Colors) */}
           <svg
-            className="absolute bottom-0 left-0 w-[55vw] max-w-[650px] h-[34vh] max-h-[320px]"
-            viewBox="0 0 650 260"
+            className="absolute bottom-0 left-0 w-[44vw] min-w-[320px] max-w-[500px] h-[30vh] min-h-[190px] max-h-[260px]"
+            viewBox="0 0 380 216"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FA8366" />
-                <stop offset="25%" stopColor="#F2548E" />
-                <stop offset="60%" stopColor="#7E32A0" />
-                <stop offset="100%" stopColor="#2A125E" />
+              <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="70%" y2="100%">
+                <stop offset="0%" stopColor="#fc9a5d" stopOpacity="1" />
+                <stop offset="25%" stopColor="#f0449b" stopOpacity="0.95" />
+                <stop offset="60%" stopColor="#8824df" stopOpacity="0.88" />
+                <stop offset="100%" stopColor="#24144e" stopOpacity="0.95" />
               </linearGradient>
             </defs>
             <path
-              d="M0 90 C 160 120, 320 190, 650 260 L 650 260 L 0 260 Z"
+              d="M 0 0 C 130 46, 260 136, 380 216 L 0 216 Z"
               fill="url(#waveSunsetOnboarding)"
             />
           </svg>
 
-          {/* Bottom Right Deep Violet Wave Layer */}
+          {/* Bottom Right Deep Violet/Blue Wave Layer (Exact Reference Colors & Crest) */}
           <svg
-            className="absolute bottom-0 right-0 w-[45vw] max-w-[550px] h-[22vh] max-h-[220px]"
-            viewBox="0 0 550 220"
+            className="absolute bottom-0 right-0 w-[56vw] min-w-[400px] max-w-[650px] h-[15vh] min-h-[95px] max-h-[130px]"
+            viewBox="0 0 600 120"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"
           >
             <defs>
-              <linearGradient id="waveVioletRightOnboarding" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#1B124C" stopOpacity="0.3" />
-                <stop offset="60%" stopColor="#2E176E" stopOpacity="0.75" />
-                <stop offset="100%" stopColor="#4A1E9E" stopOpacity="0.85" />
+              <linearGradient id="waveVioletRightOnboarding" x1="0%" y1="100%" x2="70%" y2="0%">
+                <stop offset="0%" stopColor="#101334" stopOpacity="0.95" />
+                <stop offset="45%" stopColor="#261a5c" stopOpacity="0.98" />
+                <stop offset="100%" stopColor="#3b2081" stopOpacity="1" />
               </linearGradient>
             </defs>
             <path
-              d="M0 220 C 180 200, 340 140, 550 120 L 550 220 Z"
+              d="M 0 120 C 180 115, 320 22, 450 25 C 510 27, 560 38, 600 42 L 600 120 Z"
               fill="url(#waveVioletRightOnboarding)"
             />
           </svg>
@@ -4427,35 +4602,32 @@ export default function OnboardingPage() {
           SCREEN 1: GET STARTED (Designer Screenshot 1)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "get_started" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
-          {/* Top Header / Brand Logo */}
-          <div className="flex flex-col items-center justify-center pt-2">
-            <div className="flex items-center gap-2.5">
+        <div className="w-full max-w-md mx-auto h-full max-h-[100dvh] flex flex-col justify-between items-center text-center pt-8 sm:pt-10 pb-8 sm:pb-10 relative z-10 px-4">
+          {/* Top Header / Brand Logo with prominent larger D */}
+          <div className="flex items-center justify-center gap-2.5 sm:gap-3 pt-1 shrink-0">
+            <img
+              src="/images/logo-icon.png"
+              alt="DhandaGrow"
+              className="h-12 sm:h-14 w-auto object-contain drop-shadow-[0_0_15px_rgba(240,68,155,0.45)] select-none shrink-0"
+            />
+            <div className="flex flex-col justify-center text-left">
               <img
-                src="/images/logo-icon.png"
-                alt="DhandaGrow"
-                className="w-10 h-10 object-contain drop-shadow-[0_0_12px_rgba(240,68,155,0.4)]"
+                src="/images/dhandagrow-text-logo.png"
+                alt="DhandaGrow AI"
+                className="h-7 sm:h-8 w-auto object-contain select-none"
               />
-              <div className="flex items-center gap-1.5 leading-none">
-                <span className="text-2xl font-bold tracking-tight text-white">
-                  Dhanda<span className="text-[#FA5D42]">Grow</span>
-                </span>
-                <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded-md bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white tracking-wider">
-                  AI+
-                </span>
-              </div>
+              <p className="text-xs sm:text-[13px] text-white font-normal tracking-wide mt-1">
+                India&apos;s AI Business Growth App
+              </p>
             </div>
-            <p className="text-xs text-slate-400 font-normal tracking-wide mt-1.5">
-              India&apos;s AI Business Growth App
-            </p>
           </div>
 
           {/* Heading & Subtext */}
-          <div className="text-center space-y-2 px-2 mt-4 sm:mt-5">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Your Business<br />
-              Deserve to{" "}
-              <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+          <div className="text-center space-y-2 px-2 mt-4 sm:mt-6 shrink-0">
+            <h1 className="text-3xl sm:text-4xl text-white tracking-tight leading-[1.18]">
+              <span className="font-normal">Your Business</span><br />
+              <span className="font-normal">Deserve to </span>
+              <span className="font-bold bg-gradient-to-r from-[#f65b4e] via-[#e64d8e] to-[#a23fe2] bg-clip-text text-transparent">
                 Grow
               </span>
             </h1>
@@ -4464,23 +4636,24 @@ export default function OnboardingPage() {
             </p>
           </div>
 
-          {/* 3D Storefront Illustration */}
-          <div className="relative my-4 sm:my-5 flex items-center justify-center">
+          {/* 3D Storefront Illustration with generous space above & below matching screenshot */}
+          <div className="relative my-auto flex items-center justify-center shrink min-h-0 pt-5 pb-3">
             <div className="absolute inset-0 bg-gradient-to-r from-[#FA5D42]/10 via-[#E84E8F]/15 to-[#9936F1]/10 blur-2xl rounded-full transform scale-90 -z-0" />
             <img
               src="/images/onboarding-storefront.png"
               alt="DhandaGrow Business Storefront"
-              className="w-full max-w-[300px] sm:max-w-[340px] h-auto object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none"
+              className="w-auto h-auto max-h-[170px] sm:max-h-[190px] max-w-[260px] sm:max-w-[290px] object-contain relative z-10 drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)] select-none pointer-events-none"
             />
           </div>
 
-          {/* Get Started Button */}
-          <div className="pt-2 pb-2">
+          {/* Get Started Button (Exact Image 1 & 2 Colors) */}
+          <div className="w-full shrink-0 flex justify-center pt-2">
             <button
               type="button"
+              id="get-started-btn"
               onClick={handleGetStarted}
               disabled={isSavingGetStarted}
-              className="w-full h-12 sm:h-13 rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-base flex items-center justify-center gap-2 shadow-lg shadow-[#d334d7]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-[340px] sm:max-w-[360px] h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mx-auto"
             >
               {isSavingGetStarted ? (
                 <>
@@ -4516,7 +4689,7 @@ export default function OnboardingPage() {
               </button>
               <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(232,78,143,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(240,68,155,0.5)]"
                   style={{ width: "25%" }}
                 />
               </div>
@@ -4524,9 +4697,9 @@ export default function OnboardingPage() {
 
             {/* Heading & Subtitle Area (Image 4) */}
             <div className="mb-6 text-left">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
                 Choose your{" "}
-                <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                   business services
                 </span>
               </h1>
@@ -4535,10 +4708,10 @@ export default function OnboardingPage() {
               </p>
             </div>
 
-            {/* 7 Services Cards: 4 Top Row + 3 Bottom Row (Exact Image 4 Grid) */}
-            <div className="space-y-3 sm:space-y-4 my-2">
+            {/* 7 Services Cards: 4 Top Row + 3 Bottom Row (with increased spacing & non-bold text) */}
+            <div className="space-y-4 sm:space-y-6 my-3 sm:my-4">
               {/* Row 1: Top 4 Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
                 {BUSINESS_SERVICES_OPTIONS.slice(0, 4).map((srv) => {
                   const isSelected = selectedServices.includes(srv.id);
                   const IconComp = srv.icon;
@@ -4547,22 +4720,21 @@ export default function OnboardingPage() {
                       key={srv.id}
                       id={`service-card-${srv.id}`}
                       onClick={() => handleToggleService(srv.id)}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px] relative select-none ${
-                        isSelected
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${isSelected
                           ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
                           : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
-                      }`}
+                        }`}
                     >
-                      <div className="flex items-start justify-between w-full mb-3">
+                      <div className="flex items-start justify-between w-full mb-3.5">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
-                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} fill="currentColor" fillOpacity={0.25} />
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                      <div className="flex-1 flex flex-col justify-start">
+                        <h3 className="text-sm sm:text-base font-normal text-white tracking-normal leading-snug">
                           {srv.title}
                         </h3>
-                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug font-normal line-clamp-2">
+                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 leading-snug font-normal line-clamp-2">
                           {srv.desc}
                         </p>
                       </div>
@@ -4572,7 +4744,7 @@ export default function OnboardingPage() {
               </div>
 
               {/* Row 2: Bottom 3 Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-4xl mx-auto">
                 {BUSINESS_SERVICES_OPTIONS.slice(4).map((srv) => {
                   const isSelected = selectedServices.includes(srv.id);
                   const IconComp = srv.icon;
@@ -4581,22 +4753,21 @@ export default function OnboardingPage() {
                       key={srv.id}
                       id={`service-card-${srv.id}`}
                       onClick={() => handleToggleService(srv.id)}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between min-h-[140px] sm:min-h-[155px] relative select-none ${
-                        isSelected
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${isSelected
                           ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
                           : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
-                      }`}
+                        }`}
                     >
-                      <div className="flex items-start justify-between w-full mb-3">
+                      <div className="flex items-start justify-between w-full mb-3.5">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
-                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} />
+                          <IconComp className={`w-5 h-5 ${srv.iconColor}`} fill="currentColor" fillOpacity={0.25} />
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight leading-snug">
+                      <div className="flex-1 flex flex-col justify-start">
+                        <h3 className="text-sm sm:text-base font-normal text-white tracking-normal leading-snug">
                           {srv.title}
                         </h3>
-                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug font-normal line-clamp-2">
+                        <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 leading-snug font-normal line-clamp-2">
                           {srv.desc}
                         </p>
                       </div>
@@ -4620,11 +4791,10 @@ export default function OnboardingPage() {
               id="services-continue-btn"
               onClick={handleServicesContinue}
               disabled={isSavingServices || selectedServices.length === 0}
-              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#d334d7]/25 ${
-                selectedServices.length > 0 && !isSavingServices
-                  ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:brightness-110 active:scale-[0.98] text-white"
+              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 ${selectedServices.length > 0 && !isSavingServices
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
-              }`}
+                }`}
             >
               {isSavingServices ? (
                 <>
@@ -4660,7 +4830,7 @@ export default function OnboardingPage() {
               </button>
               <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(232,78,143,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(240,68,155,0.5)]"
                   style={{ width: "50%" }}
                 />
               </div>
@@ -4668,9 +4838,9 @@ export default function OnboardingPage() {
 
             {/* Heading & Subtitle Area (Image 5) */}
             <div className="mb-6 text-left">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
                 What does your{" "}
-                <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                   business
                 </span>{" "}
                 live online?
@@ -4693,26 +4863,20 @@ export default function OnboardingPage() {
                   <div
                     key={opt.id}
                     onClick={() => handleSelectPresence(opt.id)}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 min-h-[96px] sm:min-h-[105px] ${
-                      isSelected
+                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 min-h-[96px] sm:min-h-[105px] ${isSelected
                         ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
                         : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
-                    }`}
+                      }`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${opt.iconBg || "bg-white/10"}`}>
-                      <IconComp className={`w-5 h-5 ${opt.iconColor || "text-white"}`} />
+                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 ${opt.iconBg || "bg-white/10"}`}>
+                      <IconComp className={`w-5.5 h-5.5 ${opt.iconColor || "text-white"}`} fill="currentColor" fillOpacity={0.25} />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                        <h3 className="text-sm sm:text-base font-normal text-white tracking-tight">
                           {opt.title}
                         </h3>
-                        {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] flex items-center justify-center shrink-0">
-                            <Check className="w-3 h-3 text-white stroke-[3]" />
-                          </div>
-                        )}
                       </div>
 
                       {opt.desc && (
@@ -4741,11 +4905,10 @@ export default function OnboardingPage() {
               <button
                 type="button"
                 onClick={() => handleSelectPresence("other")}
-                className={`text-xs sm:text-sm transition-all cursor-pointer ${
-                  selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
-                    ? "text-transparent bg-clip-text bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] font-bold underline underline-offset-4"
+                className={`text-xs sm:text-sm transition-all cursor-pointer ${selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
+                    ? "text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] font-bold underline underline-offset-4"
                     : "text-slate-400 hover:text-white"
-                }`}
+                  }`}
               >
                 None of these - something else
               </button>
@@ -4765,11 +4928,10 @@ export default function OnboardingPage() {
               type="button"
               onClick={handlePresenceContinue}
               disabled={!selectedOnlinePresence || isSavingPresence}
-              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#d334d7]/25 ${
-                selectedOnlinePresence && !isSavingPresence
-                  ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
+              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#be32ff]/25 ${selectedOnlinePresence && !isSavingPresence
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-              }`}
+                }`}
             >
               {isSavingPresence ? (
                 <>
@@ -4853,11 +5015,10 @@ export default function OnboardingPage() {
                       key={plat.id}
                       type="button"
                       onClick={() => handleToggleSocialPlatform(plat.id)}
-                      className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer flex items-center gap-2.5 relative select-none ${
-                        isSelected
+                      className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer flex items-center gap-2.5 relative select-none ${isSelected
                           ? "bg-gradient-to-r from-[#201735]/95 to-[#281b3d]/95 border-[#BE32FF] shadow-[0_0_15px_rgba(190,50,255,0.25)] ring-1 ring-[#BE32FF]/50"
                           : "bg-white/[0.04] border-white/10 hover:border-white/20 hover:bg-white/[0.08]"
-                      }`}
+                        }`}
                     >
                       <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm bg-black/40">
                         {plat.renderIcon("w-4 h-4")}
@@ -4916,9 +5077,8 @@ export default function OnboardingPage() {
                             value={socialHandles[platId] || ""}
                             onChange={(e) => handleSocialHandleChange(platId, e.target.value)}
                             placeholder={plat.placeholder}
-                            className={`h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-600 text-xs rounded-xl focus:border-[#be32ff] ${
-                              plat.handlePrefix.length > 2 ? "pl-16" : "pl-8"
-                            }`}
+                            className={`h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-600 text-xs rounded-xl focus:border-[#be32ff] ${plat.handlePrefix.length > 2 ? "pl-16" : "pl-8"
+                              }`}
                           />
                         </div>
                       </div>
@@ -5021,7 +5181,7 @@ export default function OnboardingPage() {
               </button>
               <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
                   style={{ width: "30%" }}
                 />
               </div>
@@ -5029,13 +5189,13 @@ export default function OnboardingPage() {
 
             {/* 2-Column Layout matching Image 2 */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
-              
+
               {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
               <div className="space-y-6 max-w-lg">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
                     What your{" "}
-                    <span className="bg-gradient-to-r from-[#FA5D42] via-[#E84E8F] to-[#9936F1] bg-clip-text text-transparent">
+                    <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                       website
                     </span>
                     <span className="text-[#9936F1]">?</span>
@@ -5093,29 +5253,40 @@ export default function OnboardingPage() {
                   </span>
                 </div>
 
-                {/* Create Website Button with Sparkles Icon on Right (Image 2) */}
-                <button
-                  type="button"
-                  onClick={() => handleCreateWebsite("website")}
-                  className="w-full h-[46px] rounded-full bg-[#131728] hover:bg-[#1c223a] border border-slate-700/60 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm font-medium text-slate-200 cursor-pointer shadow-sm hover:border-slate-500"
-                >
-                  <span>Create Website</span>
-                  <Sparkles className="w-4 h-4 text-[#FA5D42]" />
-                </button>
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image) */}
+                <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => handleCreateWebsite("website")}
+                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
+                  >
+                    <span>Create Website</span>
+                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                  </button>
+                </div>
 
-                {/* 3 Value Pillars (AI-Powered | Secure | Grow Faster) */}
+                {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
                 <div className="grid grid-cols-3 divide-x divide-slate-800/80 pt-4 pb-2 text-left">
-                  <div className="pr-3 space-y-0.5">
-                    <p className="text-xs font-semibold text-slate-300">AI-Powered</p>
-                    <p className="text-[11px] text-slate-500">Fast &amp; Smart</p>
+                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">AI-Powered</p>
+                      <p className="text-[11px] text-slate-500 font-normal">Fast &amp; Smart</p>
+                    </div>
                   </div>
-                  <div className="px-3 space-y-0.5">
-                    <p className="text-xs font-semibold text-slate-300">Secure</p>
-                    <p className="text-[11px] text-slate-500">Your data is safe</p>
+                  <div className="flex items-center gap-2.5 px-3 min-w-0">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">Secure</p>
+                      <p className="text-[11px] text-slate-500 font-normal">Your data is safe</p>
+                    </div>
                   </div>
-                  <div className="pl-3 space-y-0.5">
-                    <p className="text-xs font-semibold text-slate-300">Grow Faster</p>
-                    <p className="text-[11px] text-slate-500">With AI insights</p>
+                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">Grow Faster</p>
+                      <p className="text-[11px] text-slate-500 font-normal">With AI insights</p>
+                    </div>
                   </div>
                 </div>
 
@@ -5126,18 +5297,17 @@ export default function OnboardingPage() {
                   </div>
                 )}
 
-                {/* Continue Button (Gradient Pill matching Image 2) */}
-                <div className="pt-2">
+                {/* Continue Button (Enlarged horizontally matching form width) */}
+                <div className="pt-3">
                   <button
                     type="button"
                     id="website-continue-btn"
                     onClick={handleWebsiteUrlContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
-                    className={`w-full max-w-[340px] h-[48px] rounded-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer ${
-                      isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
-                        ? "bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] text-white shadow-lg shadow-[#d334d7]/25 hover:opacity-95 active:scale-[0.99]"
+                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
-                    }`}
+                      }`}
                   >
                     {isSavingWebsite ? (
                       <>
@@ -5194,9 +5364,9 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle matching Image 2 */}
+            {/* Heading & Subtitle matching Image 2 (non-bold) */}
             <div className="text-center mt-5 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
                 Reading your website
               </h1>
               <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5">
@@ -5214,78 +5384,54 @@ export default function OnboardingPage() {
               />
             </div>
 
-            {/* 2x2 Grid of Status Chips matching Image 2 */}
-            <div className="grid grid-cols-2 gap-3.5 w-full max-w-md mx-auto my-3">
+            {/* 2x2 Grid of Status Chips matching Reference Image 2 */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-lg mx-auto my-4">
               {/* Chip 1: Brand Voice */}
-              <div
-                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
-                  analysisProgress.brandVoice.status === "completed"
-                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
-                    : "bg-[#14192b]/80 border-slate-700/50"
-                }`}
-              >
-                {analysisProgress.brandVoice.status === "completed" ? (
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
-                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                  </div>
-                ) : (
-                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
-                )}
-                <span className="text-xs font-medium text-slate-200 truncate">Brand Voice</span>
+              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+                  {analysisProgress.brandVoice.status === "completed" ? (
+                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  ) : (
+                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                  )}
+                </div>
+                <span className="text-sm font-normal text-white truncate">Brand Voice</span>
               </div>
 
               {/* Chip 2: Colors */}
-              <div
-                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
-                  analysisProgress.colors.status === "completed"
-                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
-                    : "bg-[#14192b]/80 border-slate-700/50"
-                }`}
-              >
-                {analysisProgress.colors.status === "completed" ? (
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
-                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                  </div>
-                ) : (
-                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
-                )}
-                <span className="text-xs font-medium text-slate-200 truncate">Colors</span>
+              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+                  {analysisProgress.colors.status === "completed" ? (
+                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  ) : (
+                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                  )}
+                </div>
+                <span className="text-sm font-normal text-white truncate">Colors</span>
               </div>
 
               {/* Chip 3: Category */}
-              <div
-                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
-                  analysisProgress.category.status === "completed"
-                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
-                    : "bg-[#14192b]/80 border-slate-700/50"
-                }`}
-              >
-                {analysisProgress.category.status === "completed" ? (
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
-                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                  </div>
-                ) : (
-                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
-                )}
-                <span className="text-xs font-medium text-slate-200 truncate">Category</span>
+              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+                  {analysisProgress.category.status === "completed" ? (
+                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  ) : (
+                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                  )}
+                </div>
+                <span className="text-sm font-normal text-white truncate">Category</span>
               </div>
 
               {/* Chip 4: Photos */}
-              <div
-                className={`h-11 px-4 rounded-xl border transition-all duration-300 flex items-center gap-2.5 ${
-                  analysisProgress.photos.status === "completed"
-                    ? "bg-[#1b1738]/90 border-[#BE32FF]/50 shadow-[0_0_12px_rgba(190,50,255,0.2)]"
-                    : "bg-[#14192b]/80 border-slate-700/50"
-                }`}
-              >
-                {analysisProgress.photos.status === "completed" ? (
-                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#FA5D42] to-[#9936F1] flex items-center justify-center shrink-0">
-                    <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                  </div>
-                ) : (
-                  <RotateCw className="w-3.5 h-3.5 text-[#FA5D42] animate-spin shrink-0" />
-                )}
-                <span className="text-xs font-medium text-slate-200 truncate">Photos</span>
+              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+                  {analysisProgress.photos.status === "completed" ? (
+                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                  ) : (
+                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                  )}
+                </div>
+                <span className="text-sm font-normal text-white truncate">Photos</span>
               </div>
             </div>
 
@@ -5321,7 +5467,7 @@ export default function OnboardingPage() {
                 type="button"
                 id="reading-continue-btn"
                 onClick={handleReadingContinue}
-                className="w-full max-w-sm mx-auto h-[48px] rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#d334d7]/20 transition-all cursor-pointer animate-in fade-in"
+                className="w-full max-w-sm mx-auto h-[48px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer animate-in fade-in"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-4 h-4 text-white" />
@@ -5332,10 +5478,10 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN: IS THIS YOUR BUSINESS? (Scrollable Step, Reference Screenshots 1, 2, 3)
+          SCREEN: IS THIS YOUR BUSINESS? (Exact Reference Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "business_details" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           <div className="space-y-6">
             {/* Top Header: Back button + Progress bar (~50%) */}
             <div className="flex items-center gap-3 w-full mb-2">
@@ -5358,333 +5504,212 @@ export default function OnboardingPage() {
             {/* Heading */}
             <div>
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Is this your business?
+                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">business?</span>
               </h1>
             </div>
 
-            {/* Status Banner */}
-            <div className="px-4 py-3 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/30 text-purple-200 flex items-center gap-2.5 text-xs sm:text-sm font-medium">
+            {/* Subtitle / Status Message */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
               <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
               <span>Still reading your website, more details filling in</span>
             </div>
 
-            {/* Form Fields Container */}
-            <div className="space-y-5">
-              {/* Field 1: Business name */}
+            {/* Section Header: Business Details Badge */}
+            <div className="flex items-center gap-2.5 pt-2">
+              <div className="w-8 h-8 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                <Store className="w-4 h-4 text-[#fc9a5d]" />
+              </div>
+              <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                Business Details
+              </span>
+            </div>
+
+            {/* Form Fields: Exact Image 2 */}
+            <div className="space-y-4 sm:space-y-4.5">
+              {/* Field 1: Business Name */}
               <div className="space-y-1.5">
-                <Label htmlFor="detail-b-name" className="text-xs font-semibold text-neutral-300">
-                  Business name
-                </Label>
-                <Input
-                  id="detail-b-name"
+                <label htmlFor="b-name" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  Business Name
+                </label>
+                <input
+                  id="b-name"
+                  type="text"
                   value={businessDetails.business_name}
                   onChange={(e) =>
                     setBusinessDetails({ ...businessDetails, business_name: e.target.value })
                   }
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
-                  placeholder="e.g. SevenUnique Tech Solutions Pvt. Ltd."
+                  placeholder="Your business name"
+                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                 />
               </div>
 
-              {/* Field 2: Category */}
+              {/* Field 2: Business Category */}
               <div className="space-y-1.5">
-                <Label htmlFor="detail-b-category" className="text-xs font-semibold text-neutral-300">
-                  Category
-                </Label>
+                <label htmlFor="b-category" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  Business Category
+                </label>
                 <div className="relative">
-                  <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                  <Input
-                    id="detail-b-category"
-                    value={businessDetails.category}
+                  <select
+                    id="b-category"
+                    value={businessDetails.category || ""}
                     onChange={(e) =>
                       setBusinessDetails({ ...businessDetails, category: e.target.value })
                     }
-                    className="h-12 pl-10 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
-                    placeholder="e.g. Tech & Electronics"
-                  />
+                    className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                  >
+                    <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                      Your category
+                    </option>
+                    {BUSINESS_CATEGORIES.map((cat) => (
+                      <option key={cat.id} value={cat.name} className="bg-[#13192b] text-white">
+                        {cat.name}
+                      </option>
+                    ))}
+                    {businessDetails.category &&
+                      !BUSINESS_CATEGORIES.some(
+                        (c) => c.name.toLowerCase() === (businessDetails.category || "").toLowerCase()
+                      ) && (
+                        <option value={businessDetails.category} className="bg-[#13192b] text-white">
+                          {businessDetails.category}
+                        </option>
+                      )}
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
                 </div>
               </div>
 
-              {/* Field 3: Business type (pick 1 or more, first tap = primary) */}
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-neutral-300">
-                  Business type (pick 1 or more, first tap = primary)
-                </Label>
-                <div className="flex flex-wrap gap-2.5">
-                  {["Product-based", "Physical Location", "Service / Digital"].map((type) => {
-                    const isSelected = businessDetails.business_types.includes(type);
-                    const isPrimary = businessDetails.primary_business_type === type;
-                    return (
-                      <button
-                        type="button"
-                        key={type}
-                        onClick={() => handleToggleBusinessType(type)}
-                        className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all flex items-center gap-1.5 cursor-pointer ${
-                          isSelected
-                            ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                            : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 text-[#be32ff] stroke-[3]" />}
-                        <span>{type}</span>
-                        {isPrimary && (
-                          <span
-                            onClick={(e) => handleSetPrimaryBusinessType(type, e)}
-                            className="ml-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] text-white shadow-sm"
-                          >
-                            PRIMARY
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+              {/* Grid 2 Columns: Business Type + Sub - Category */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Business Type */}
+                <div className="space-y-1.5">
+                  <label htmlFor="b-type" className="text-xs sm:text-sm font-medium text-neutral-300">
+                    Business Type
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="b-type"
+                      value={businessDetails.primary_business_type || businessDetails.business_types[0] || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setBusinessDetails({
+                          ...businessDetails,
+                          primary_business_type: val,
+                          business_types: val ? [val] : [],
+                        });
+                      }}
+                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                        Your business type
+                      </option>
+                      <option value="Service / Digital" className="bg-[#13192b] text-white">
+                        Service / Digital
+                      </option>
+                      <option value="Product-based" className="bg-[#13192b] text-white">
+                        Product-based
+                      </option>
+                      <option value="Physical Location" className="bg-[#13192b] text-white">
+                        Physical Location
+                      </option>
+                      <option value="Wholesale / B2B" className="bg-[#13192b] text-white">
+                        Wholesale / B2B
+                      </option>
+                      <option value="Hybrid" className="bg-[#13192b] text-white">
+                        Hybrid
+                      </option>
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                  </div>
                 </div>
-              </div>
 
-              {/* Field 4: Sub-category (optional) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="detail-b-subcat" className="text-xs font-semibold text-neutral-300">
-                  Sub-category (optional)
-                </Label>
-                <div className="relative">
-                  <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#be32ff]" />
-                  <Input
-                    id="detail-b-subcat"
-                    value={businessDetails.sub_category}
-                    onChange={(e) =>
-                      setBusinessDetails({ ...businessDetails, sub_category: e.target.value })
-                    }
-                    className="h-12 pl-10 pr-10 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
-                    placeholder="e.g. Software Development"
-                  />
-                  {businessDetails.sub_category && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setBusinessDetails({ ...businessDetails, sub_category: "" })
+                {/* Sub - Category */}
+                <div className="space-y-1.5">
+                  <label htmlFor="b-subcat" className="text-xs sm:text-sm font-medium text-neutral-300">
+                    Sub - Category
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="b-subcat"
+                      value={businessDetails.sub_category || ""}
+                      onChange={(e) =>
+                        setBusinessDetails({ ...businessDetails, sub_category: e.target.value })
                       }
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Field 5: City (i) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="detail-b-city" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
-                  <span>City</span>
-                  <Info className="w-3.5 h-3.5 text-neutral-400" />
-                </Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                  <Input
-                    id="detail-b-city"
-                    value={businessDetails.city}
-                    onChange={(e) =>
-                      setBusinessDetails({ ...businessDetails, city: e.target.value })
-                    }
-                    className="h-12 pl-10 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
-                    placeholder="e.g. Jaipur, India"
-                  />
-                </div>
-              </div>
-
-              {/* Field 6: Logo */}
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-neutral-300">Logo</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f1015] border border-white/15 flex items-center justify-center overflow-hidden p-1.5 shrink-0 shadow-md">
-                    {businessDetails.logo_url ? (
-                      <img
-                        src={businessDetails.logo_url}
-                        alt="Logo"
-                        className="w-full h-full object-contain"
-                      />
-                    ) : (
-                      <Store className="w-7 h-7 text-neutral-500" />
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-xs font-semibold text-[#be32ff] hover:text-[#f0449b] transition-colors cursor-pointer flex items-center gap-1.5">
-                      <RotateCw className="w-3.5 h-3.5" />
-                      <span>Change logo</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleWebsiteLogoUpload}
-                        className="hidden"
-                      />
-                    </label>
-                    {businessDetails.logo_url && (
-                      <button
-                        type="button"
-                        onClick={handleRemoveLogo}
-                        className="text-xs font-semibold text-neutral-400 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1.5"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                        <span>Remove</span>
-                      </button>
-                    )}
+                      <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                        Your sub - category
+                      </option>
+                      {(() => {
+                        const foundCat = BUSINESS_CATEGORIES.find(
+                          (c) => c.name.toLowerCase() === (businessDetails.category || "").toLowerCase()
+                        );
+                        const niches = foundCat
+                          ? foundCat.suggestedNiches
+                          : [
+                              "Custom Software Development & AI",
+                              "E-commerce & Retail",
+                              "Consulting & Services",
+                              "Healthcare & Wellness",
+                              "Education & Training",
+                              "Manufacturing & Distribution",
+                            ];
+                        return niches.map((n) => (
+                          <option key={n} value={n} className="bg-[#13192b] text-white">
+                            {n}
+                          </option>
+                        ));
+                      })()}
+                      {businessDetails.sub_category &&
+                        !BUSINESS_CATEGORIES.some((c) =>
+                          c.suggestedNiches?.includes(businessDetails.sub_category)
+                        ) && (
+                          <option value={businessDetails.sub_category} className="bg-[#13192b] text-white">
+                            {businessDetails.sub_category}
+                          </option>
+                        )}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
               </div>
 
-              {/* Field 7: Tagline (optional) */}
+              {/* Field 5: City */}
               <div className="space-y-1.5">
-                <Label htmlFor="detail-b-tagline" className="text-xs font-semibold text-neutral-300">
-                  Tagline (optional)
-                </Label>
-                <Input
-                  id="detail-b-tagline"
-                  value={businessDetails.tagline}
+                <label htmlFor="b-city" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  City
+                </label>
+                <input
+                  id="b-city"
+                  type="text"
+                  value={businessDetails.city}
                   onChange={(e) =>
-                    setBusinessDetails({ ...businessDetails, tagline: e.target.value })
+                    setBusinessDetails({ ...businessDetails, city: e.target.value })
                   }
-                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
-                  placeholder="e.g. Website Design Partner For Modern Businesses"
+                  placeholder="Your city"
+                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                 />
-              </div>
-
-              {/* Field 8: Who buys from you (optional) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="detail-b-audience" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
-                  <span>Who buys from you</span>
-                  <Info className="w-3.5 h-3.5 text-neutral-400" />
-                </Label>
-                <Input
-                  id="detail-b-audience"
-                  value={businessDetails.target_audience}
-                  onChange={(e) =>
-                    setBusinessDetails({ ...businessDetails, target_audience: e.target.value })
-                  }
-                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff]"
-                  placeholder="e.g. Startups, enterprises, and growing businesses"
-                />
-              </div>
-
-              {/* Field 9: What makes you different (optional) */}
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
-                  <span>What makes you different (optional)</span>
-                  <Info className="w-3.5 h-3.5 text-neutral-400" />
-                </Label>
-                <div className="space-y-2">
-                  {businessDetails.differentiators.map((diff, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-2xl bg-[#0f1015] border border-white/10 flex items-center justify-between gap-3 text-xs sm:text-sm text-neutral-200"
-                    >
-                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                        <Minus className="w-3.5 h-3.5 text-[#fc9a5d] shrink-0" />
-                        <span className="leading-snug">{diff}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveDifferentiator(idx)}
-                        className="text-neutral-400 hover:text-red-400 transition-colors p-1 shrink-0"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                  {/* Dashed Add Input */}
-                  <div className="p-2 sm:p-2.5 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={newDifferentiator}
-                      onChange={(e) => setNewDifferentiator(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddDifferentiator();
-                        }
-                      }}
-                      placeholder="e.g. Same-day delivery in Pune"
-                      className="flex-1 bg-transparent border-none text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none px-2"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddDifferentiator}
-                      className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Field 10: What you sell (optional) */}
-              <div className="space-y-2">
-                <Label className="text-xs font-semibold text-neutral-300">
-                  What you sell (optional)
-                </Label>
-                <div className="space-y-2">
-                  {businessDetails.products_services.map((prod, idx) => (
-                    <div
-                      key={idx}
-                      className="p-3 rounded-2xl bg-[#0f1015] border border-white/10 flex items-center justify-between gap-3 text-xs sm:text-sm text-neutral-200"
-                    >
-                      <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                        <Minus className="w-3.5 h-3.5 text-[#be32ff] shrink-0" />
-                        <span className="leading-snug">{prod}</span>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveProductService(idx)}
-                        className="text-neutral-400 hover:text-red-400 transition-colors p-1 shrink-0"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                  {/* Dashed Add Input */}
-                  <div className="p-2 sm:p-2.5 rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.02] flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={newProductService}
-                      onChange={(e) => setNewProductService(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleAddProductService();
-                        }
-                      }}
-                      placeholder="e.g. Cotton sarees"
-                      className="flex-1 bg-transparent border-none text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none px-2"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleAddProductService}
-                      className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition-all cursor-pointer"
-                    >
-                      Add
-                    </button>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
 
-          {/* Sticky Bottom Bar with Looks Right Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action: Centered Next Button (Exact Image 2) */}
+          <div className="flex justify-center pt-8 pb-4">
             <button
               type="button"
               id="details-continue-btn"
               onClick={handleBusinessDetailsContinue}
               disabled={isSavingBusinessDetails}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSavingBusinessDetails ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <span>Looks right</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -5693,12 +5718,271 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN: WHAT'S YOUR BUSINESS LIKE? (Single Step, Reference Screenshots 4, 5)
+          SCREEN: IS THIS YOUR BUSINESS? (Part 2 - Exact Reference Image 2)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "business_details_2" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~58%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleBusinessDetails2Back}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "58%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">business?</span>
+              </h1>
+            </div>
+
+            {/* Subtitle / Status Message */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+              <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
+              <span>Still reading your website, more details filling in</span>
+            </div>
+
+            {/* Form Container: Exact Image 2 */}
+            <div className="space-y-4 sm:space-y-4.5">
+              {/* Row 1: Business Logo (Left) + Actions & Tagline (Right) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
+                {/* Left: Business Logo */}
+                <div className="space-y-1.5">
+                  <label className="text-xs sm:text-sm font-medium text-neutral-300">
+                    Business Logo
+                  </label>
+                  <div className="w-full h-44 sm:h-48 rounded-2xl overflow-hidden bg-[#13192b] border border-white/10 relative flex items-center justify-center shadow-inner group">
+                    {businessDetails.logo_url ? (
+                      <img
+                        src={businessDetails.logo_url}
+                        alt="Business Logo"
+                        className="w-full h-full object-cover object-center"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#1a1c2e] via-[#13192b] to-[#0c0e18] p-4 text-center">
+                        <Store className="w-10 h-10 text-neutral-500 mb-2" />
+                        <span className="text-xs text-neutral-400">No logo uploaded</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right: Change logo, Remove, Tagline */}
+                <div className="space-y-3.5 flex flex-col justify-between">
+                  {/* Action Buttons */}
+                  <div className="space-y-2.5 pt-6">
+                    <label className="w-full h-11 sm:h-12 rounded-full bg-[#a825ff] hover:bg-[#b83eff] active:scale-[0.98] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
+                      <RotateCw className="w-4 h-4 text-white" />
+                      <span>Change logo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleWebsiteLogoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRemoveLogo}
+                      className="w-full h-11 sm:h-12 rounded-full bg-[#182035] hover:bg-[#1f2a44] border border-white/10 active:scale-[0.98] text-neutral-300 hover:text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                    >
+                      <X className="w-4 h-4 text-neutral-400" />
+                      <span>Remove</span>
+                    </button>
+                  </div>
+
+                  {/* Tagline */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="b-tagline-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                      Tagline
+                    </label>
+                    <input
+                      id="b-tagline-p2"
+                      type="text"
+                      value={businessDetails.tagline || ""}
+                      onChange={(e) =>
+                        setBusinessDetails({ ...businessDetails, tagline: e.target.value })
+                      }
+                      placeholder="Your tagline"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Who buys from you + What makes you different (Grid 2 cols) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Who buys from you */}
+                <div className="space-y-1.5">
+                  <label htmlFor="b-audience-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                    Who buys from you
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="b-audience-p2"
+                      value={businessDetails.target_audience || ""}
+                      onChange={(e) =>
+                        setBusinessDetails({ ...businessDetails, target_audience: e.target.value })
+                      }
+                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                        Your customer
+                      </option>
+                      <option value="Startups, enterprises, and growing businesses" className="bg-[#13192b] text-white">
+                        Startups, enterprises, and growing businesses
+                      </option>
+                      <option value="Retail consumers & families" className="bg-[#13192b] text-white">
+                        Retail consumers & families
+                      </option>
+                      <option value="B2B businesses & corporate clients" className="bg-[#13192b] text-white">
+                        B2B businesses & corporate clients
+                      </option>
+                      <option value="Young professionals & students" className="bg-[#13192b] text-white">
+                        Young professionals & students
+                      </option>
+                      <option value="Local neighborhood customers" className="bg-[#13192b] text-white">
+                        Local neighborhood customers
+                      </option>
+                      {businessDetails.target_audience &&
+                        ![
+                          "Startups, enterprises, and growing businesses",
+                          "Retail consumers & families",
+                          "B2B businesses & corporate clients",
+                          "Young professionals & students",
+                          "Local neighborhood customers",
+                        ].includes(businessDetails.target_audience) && (
+                          <option value={businessDetails.target_audience} className="bg-[#13192b] text-white">
+                            {businessDetails.target_audience}
+                          </option>
+                        )}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                  </div>
+                </div>
+
+                {/* What makes you different (optional) */}
+                <div className="space-y-1.5">
+                  <label htmlFor="b-different-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                    What makes you different (optional)
+                  </label>
+                  <div className="relative">
+                    <select
+                      id="b-different-p2"
+                      value={businessDetails.differentiators[0] || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setBusinessDetails({
+                          ...businessDetails,
+                          differentiators: val ? [val] : [],
+                        });
+                      }}
+                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                        Ex - Same day delivery in Pune
+                      </option>
+                      <option value="Ex - Same day delivery in Pune" className="bg-[#13192b] text-white">
+                        Ex - Same day delivery in Pune
+                      </option>
+                      <option value="Premium quality & handcrafted design" className="bg-[#13192b] text-white">
+                        Premium quality & handcrafted design
+                      </option>
+                      <option value="24/7 dedicated customer support" className="bg-[#13192b] text-white">
+                        24/7 dedicated customer support
+                      </option>
+                      <option value="Fast & free shipping across India" className="bg-[#13192b] text-white">
+                        Fast & free shipping across India
+                      </option>
+                      <option value="Affordable transparent pricing" className="bg-[#13192b] text-white">
+                        Affordable transparent pricing
+                      </option>
+                      {businessDetails.differentiators[0] &&
+                        ![
+                          "Ex - Same day delivery in Pune",
+                          "Premium quality & handcrafted design",
+                          "24/7 dedicated customer support",
+                          "Fast & free shipping across India",
+                          "Affordable transparent pricing",
+                        ].includes(businessDetails.differentiators[0]) && (
+                          <option value={businessDetails.differentiators[0]} className="bg-[#13192b] text-white">
+                            {businessDetails.differentiators[0]}
+                          </option>
+                        )}
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: What you sell (optional) */}
+              <div className="space-y-1.5">
+                <label htmlFor="b-sell-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  What you sell (optional)
+                </label>
+                <input
+                  id="b-sell-p2"
+                  type="text"
+                  value={businessDetails.products_services.join(", ")}
+                  onChange={(e) =>
+                    setBusinessDetails({
+                      ...businessDetails,
+                      products_services: e.target.value
+                        ? e.target.value.split(",").map((s) => s.trim())
+                        : [],
+                    })
+                  }
+                  placeholder="Ex - Cotton Saree"
+                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Action: Centered Next Button */}
+          <div className="flex justify-center pt-8 pb-4">
+            <button
+              type="button"
+              id="details2-continue-btn"
+              onClick={handleBusinessDetails2Continue}
+              disabled={isSavingBusinessDetails2}
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isSavingBusinessDetails2 ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN: WHAT'S YOUR BUSINESS LIKE? (Exact Reference Image 1)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "brand_preferences" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           <div className="space-y-6">
-            {/* Top Header: Back button + Progress bar (~65%) */}
+            {/* Top Header: Back button + Progress bar (~70%) */}
             <div className="flex items-center gap-3 w-full mb-2">
               <button
                 type="button"
@@ -5711,43 +5995,56 @@ export default function OnboardingPage() {
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "65%" }}
+                  style={{ width: "70%" }}
                 />
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
+            {/* Heading */}
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                What&apos;s {businessDetails.business_name || "your business"} like?
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1">
-                Still reading your site — we&apos;ll pre-fill what we find
+              {(() => {
+                const fullName = (businessDetails.business_name || "SevenUnique Tech Solution").trim();
+                const parts = fullName.split(/\s+/);
+                const first = parts[0] || "SevenUnique";
+                const rest = parts.slice(1).join(" ");
+                return (
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    What&apos;s{" "}
+                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                      {first}
+                    </span>{" "}
+                    {rest ? `${rest} ` : ""}like?
+                  </h1>
+                );
+              })()}
+            </div>
+
+            {/* Subtitle / Status Message */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+              <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
+              <span>Still reading your website, more details filling in</span>
+            </div>
+
+            {/* Section 1: Business Color */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                  <Palette className="w-4 h-4 text-[#fc9a5d]" />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Business Color
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-neutral-400 font-light -mt-1">
+                We&apos;ll use these colors in your design
               </p>
-            </div>
 
-            {/* Tagline Quotation Card */}
-            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 flex items-start gap-3 shadow-md">
-              <Quote className="w-6 h-6 text-[#fc9a5d] shrink-0 rotate-180" />
-              <div className="space-y-1">
-                <p className="text-sm sm:text-base font-semibold text-white italic">
-                  &ldquo;{businessDetails.tagline || "Trusted Website Design Partner For Modern Businesses"}&rdquo;
-                </p>
-                <p className="text-[11px] text-neutral-400 font-medium">Your tagline</p>
-              </div>
-            </div>
-
-            {/* Brand Colors */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2 font-semibold text-white text-sm sm:text-base">
-                <Palette className="w-4 h-4 text-[#f0449b]" />
-                <span>Your brand colors</span>
-              </div>
-              <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
-                {brandPreferences.palette.map((color, idx) => (
-                  <div key={idx} className="relative group">
+              {/* Color Circles Row with Hex Labels */}
+              <div className="flex items-center gap-3.5 sm:gap-4.5 pt-1 overflow-x-auto pb-1">
+                {brandPreferences.palette.slice(0, 5).map((color, idx) => (
+                  <div key={idx} className="flex flex-col items-center gap-2 shrink-0">
                     <label
-                      className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-white/20 relative shadow-lg cursor-pointer transition-transform hover:scale-105 block"
+                      className="w-13 h-13 sm:w-14 sm:h-14 rounded-full relative shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95 block border-2 border-white/15"
                       style={{ backgroundColor: color }}
                     >
                       <input
@@ -5756,137 +6053,100 @@ export default function OnboardingPage() {
                         onChange={(e) => handleColorChange(idx, e.target.value)}
                         className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
                       />
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-white text-neutral-900 flex items-center justify-center shadow-md">
-                        <Pencil className="w-2.5 h-2.5" />
-                      </div>
                     </label>
+                    <span className="text-[11px] sm:text-xs text-neutral-400 font-mono tracking-tight lowercase">
+                      {color.toLowerCase()}
+                    </span>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-neutral-400 font-light">
-                We&apos;ll use these colors in your designs. You can update these later in Brand settings.
-              </p>
             </div>
 
-            {/* Tone Selector */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white text-sm sm:text-base">
+            {/* Section 2: Pick your tone (as many as fit) */}
+            <div className="space-y-2.5 pt-1">
+              <label className="text-xs sm:text-sm font-medium text-neutral-300">
                 Pick your tone (as many as fit)
-              </h3>
+              </label>
               <div className="flex flex-wrap gap-2.5">
                 {[
-                  "Modern", "Trendy", "Youthful", "Bold",
-                  "Luxurious", "Fun", "Professional",
-                  "Minimal", "Traditional", "Warm",
-                  "Energetic", "Elegant", "Festive", "Desi",
-                  "Premium", "Budget-friendly"
-                ].map((tone) => {
-                  const isSelected = brandPreferences.tones.includes(tone);
+                  "Modern", "Fun", "Professional", "Elegant",
+                  "Trendy", "Warm", "Festive", "Youthful", "Bold",
+                  "Luxurious", "Minimal", "Traditional", "Energetic"
+                ]
+                  .slice(0, showAllTones ? 13 : 9)
+                  .map((tone) => {
+                    const isSelected = brandPreferences.tones.includes(tone);
+                    return (
+                      <button
+                        type="button"
+                        key={tone}
+                        onClick={() => handleToggleTone(tone)}
+                        className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                          isSelected
+                            ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                            : "bg-[#13192b] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
+                        }`}
+                      >
+                        {tone}
+                      </button>
+                    );
+                  })}
+                <button
+                  type="button"
+                  onClick={() => setShowAllTones(!showAllTones)}
+                  className="text-xs sm:text-sm font-semibold text-[#be32ff] hover:underline self-center ml-1 cursor-pointer"
+                >
+                  {showAllTones ? "See less" : "See all"}
+                </button>
+              </div>
+            </div>
+
+            {/* Section 3: What language should we post in? */}
+            <div className="space-y-2.5 pt-1">
+              <label className="text-xs sm:text-sm font-medium text-neutral-300">
+                What language should we post in?
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {["Hindi", "English", "Regional"].map((lang) => {
+                  const isSelected =
+                    brandPreferences.language.toLowerCase() === lang.toLowerCase();
                   return (
                     <button
                       type="button"
-                      key={tone}
-                      onClick={() => handleToggleTone(tone)}
-                      className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                      key={lang}
+                      onClick={() => handleSelectLanguage(lang)}
+                      className={`px-5 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
                         isSelected
                           ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                          : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
+                          : "bg-[#13192b] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
                       }`}
                     >
-                      {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-[#be32ff] stroke-[3]" />}
-                      {tone}
+                      {lang}
                     </button>
                   );
                 })}
-              </div>
-            </div>
-
-            {/* Language Selector */}
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white text-sm sm:text-base">
-                What language should we post in?
-              </h3>
-              <div className="flex flex-wrap gap-2.5">
-                {[
-                  { id: "Hindi", label: "हिंदी" },
-                  { id: "English", label: "English" },
-                  { id: "Hinglish", label: "Hinglish" },
-                  { id: "Tamil", label: "தமிழ்" },
-                  { id: "Telugu", label: "తెలుగు" },
-                  { id: "Bengali", label: "বাংলা" },
-                  { id: "Marathi", label: "मराठी" },
-                  { id: "Kannada", label: "ಕನ್ನಡ" },
-                  { id: "Gujarati", label: "ગુજરાતી" },
-                  { id: "Malayalam", label: "മലയാളം" },
-                ].map((lang) => {
-                  const isSelected = brandPreferences.language.toLowerCase() === lang.id.toLowerCase() || brandPreferences.language.toLowerCase() === lang.label.toLowerCase();
-                  return (
-                    <button
-                      type="button"
-                      key={lang.id}
-                      onClick={() => handleSelectLanguage(lang.id)}
-                      className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
-                        isSelected
-                          ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/25 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                          : "bg-[#0f1015] border-white/15 text-neutral-400 hover:text-white hover:border-white/30"
-                      }`}
-                    >
-                      {lang.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="text-xs text-neutral-400 font-light">
-                You can mix languages later — this is just your default.
-              </p>
-            </div>
-
-            {/* TARGET AUDIENCE Summary Card */}
-            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 space-y-1">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400">
-                TARGET AUDIENCE
-              </div>
-              <p className="text-xs sm:text-sm text-neutral-200">
-                {businessDetails.target_audience || "Startups, enterprises, and growing businesses globally"}
-              </p>
-            </div>
-
-            {/* SERVICES & PRODUCTS Summary Card */}
-            <div className="p-4 rounded-2xl bg-[#0f1015]/80 border border-white/10 space-y-2">
-              <div className="text-[10px] font-extrabold uppercase tracking-wider text-neutral-400">
-                SERVICES &amp; PRODUCTS
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {businessDetails.products_services.map((item, idx) => (
-                  <span
-                    key={idx}
-                    className="px-3 py-1 rounded-full text-xs font-medium bg-[#be32ff]/10 border border-[#be32ff]/25 text-purple-200"
-                  >
-                    {item}
-                  </span>
-                ))}
               </div>
             </div>
           </div>
 
-          {/* Sticky Bottom Bar with Save My Brand Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action: Centered Next Button */}
+          <div className="flex justify-center pt-8 pb-4">
             <button
               type="button"
               id="brand-continue-btn"
               onClick={handleBrandPreferencesContinue}
               disabled={isSavingBrandPreferences}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60"
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSavingBrandPreferences ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving brand preferences...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <span>Save my brand</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <span>Next</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -5895,12 +6155,242 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN: PICK THE PHOTOS WE SHOULD WORK WITH (Screenshot 6, Web-optimized Layout)
+          SCREEN: BRAND SERVICES & AUDIENCE (Exact Reference Image 2)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "brand_services" && (
+        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+          <div className="space-y-6">
+            {/* Top Header: Back button + Progress bar (~78%) */}
+            <div className="flex items-center gap-3 w-full mb-2">
+              <button
+                type="button"
+                onClick={handleBrandServicesBack}
+                aria-label="Go back"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "78%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading */}
+            <div>
+              {(() => {
+                const fullName = (businessDetails.business_name || "SevenUnique Tech Solution").trim();
+                const parts = fullName.split(/\s+/);
+                const first = parts[0] || "SevenUnique";
+                const rest = parts.slice(1).join(" ");
+                return (
+                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                    What&apos;s{" "}
+                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                      {first}
+                    </span>{" "}
+                    {rest ? `${rest} ` : ""}like?
+                  </h1>
+                );
+              })()}
+            </div>
+
+            {/* Subtitle / Status Message */}
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+              <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
+              <span>Still reading your website, more details filling in</span>
+            </div>
+
+            {/* Section 1: Target Audience */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                  <Users className="w-4 h-4 text-[#fc9a5d]" />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Target Audience
+                </span>
+              </div>
+
+              <textarea
+                value={businessDetails.target_audience || ""}
+                onChange={(e) =>
+                  setBusinessDetails({
+                    ...businessDetails,
+                    target_audience: e.target.value,
+                  })
+                }
+                placeholder="Startups, enterprises, and growing businesses looking for modern tech and web design solutions."
+                rows={4}
+                className="w-full p-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors resize-none shadow-inner"
+              />
+            </div>
+
+            {/* Section 2: Services and Products */}
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                  <Settings className="w-4 h-4 text-[#fc9a5d]" />
+                </div>
+                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                  Services and Products
+                </span>
+              </div>
+
+              <div className="w-full p-4 rounded-xl bg-[#13192b] border border-white/10 min-h-[120px] flex flex-wrap items-center gap-2.5 shadow-inner">
+                {(businessDetails.products_services.length > 0
+                  ? businessDetails.products_services
+                  : [
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                      "Web Design",
+                    ]
+                ).map((service, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#581c87]/90 hover:bg-[#6b21a8] text-white text-xs sm:text-sm font-semibold shadow-sm transition-all"
+                  >
+                    <span>{service}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const currentList =
+                          businessDetails.products_services.length > 0
+                            ? businessDetails.products_services
+                            : [
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                                "Web Design",
+                              ];
+                        const next = currentList.filter((_, i) => i !== idx);
+                        setBusinessDetails({
+                          ...businessDetails,
+                          products_services: next,
+                        });
+                      }}
+                      className="text-white/60 hover:text-white transition-colors cursor-pointer"
+                      title="Remove service"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </span>
+                ))}
+
+                {isAddingService ? (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182035] border border-[#be32ff]">
+                    <input
+                      type="text"
+                      value={newServiceInput}
+                      onChange={(e) => setNewServiceInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (newServiceInput.trim()) {
+                            const current =
+                              businessDetails.products_services.length > 0
+                                ? businessDetails.products_services
+                                : [];
+                            setBusinessDetails({
+                              ...businessDetails,
+                              products_services: [...current, newServiceInput.trim()],
+                            });
+                            setNewServiceInput("");
+                            setIsAddingService(false);
+                          }
+                        }
+                      }}
+                      placeholder="e.g. Web Design"
+                      className="bg-transparent text-white text-xs sm:text-sm focus:outline-none w-28 sm:w-36"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (newServiceInput.trim()) {
+                          const current =
+                            businessDetails.products_services.length > 0
+                              ? businessDetails.products_services
+                              : [];
+                          setBusinessDetails({
+                            ...businessDetails,
+                            products_services: [...current, newServiceInput.trim()],
+                          });
+                          setNewServiceInput("");
+                        }
+                        setIsAddingService(false);
+                      }}
+                      className="text-white hover:text-[#fc9a5d] text-xs font-bold"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewServiceInput("");
+                        setIsAddingService(false);
+                      }}
+                      className="text-white/60 hover:text-white text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingService(true)}
+                    className="inline-flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/40 cursor-pointer"
+                  >
+                    + Add more
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Action: Centered Save my Brand Button (Exact Image 2) */}
+          <div className="flex justify-center pt-8 pb-4">
+            <button
+              type="button"
+              id="brand-services-continue-btn"
+              onClick={handleBrandServicesContinue}
+              disabled={isSavingBrandServices}
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isSavingBrandServices ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
+                </>
+              ) : (
+                <>
+                  <span>Save my Brand</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          SCREEN: PICK THE PHOTOS WE SHOULD WORK WITH (Exact Reference Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_photos" && (
         <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           <div className="space-y-6">
-            {/* Top Header: Back button + Progress bar (~80%) */}
+            {/* Top Header: Back button + Progress bar (~85%) */}
             <div className="flex items-center gap-3 w-full mb-2">
               <button
                 type="button"
@@ -5913,7 +6403,7 @@ export default function OnboardingPage() {
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "80%" }}
+                  style={{ width: "85%" }}
                 />
               </div>
             </div>
@@ -5921,34 +6411,21 @@ export default function OnboardingPage() {
             {/* Heading & Subtitle */}
             <div className="space-y-1">
               <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Pick the photos we should work with
+                Pick the{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  Photos
+                </span>{" "}
+                we should work with?
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
-                We found {websitePhotos.length} photos on your website. Pick the ones that best represent your brand, or add more.
+              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+                Picking your best photos
               </p>
             </div>
 
-            {/* Control Bar: Selection Count + Select/Deselect All */}
-            <div className="flex items-center justify-between pt-1 pb-1">
-              <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#be32ff]/15 border border-[#be32ff]/30 text-purple-200 flex items-center gap-2 shadow-sm">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#be32ff]" />
-                <span>
-                  {selectedPhotos.length} of {websitePhotos.length} photos selected
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={handleSelectAllPhotos}
-                className="text-xs font-medium text-neutral-400 hover:text-white underline cursor-pointer transition-colors"
-              >
-                {selectedPhotos.length === websitePhotos.length ? "Deselect All" : "Select All"}
-              </button>
-            </div>
-
-            {/* Responsive Photo Grid (Web Layout: 4 columns on desktop, 2-3 on tablet/mobile) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-              {/* Upload Tile */}
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#be32ff] transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer group shadow-sm">
+            {/* Responsive Photo Grid: 4 cols on lg/desktop, 2-3 on mobile/tablet */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4.5">
+              {/* Slot 1: Upload Card */}
+              <label className="aspect-[4/3.2] rounded-2xl bg-[#13192b] border border-white/10 hover:border-white/30 hover:bg-[#182035] transition-all flex items-center justify-center gap-2.5 p-4 text-center cursor-pointer group shadow-inner">
                 <input
                   type="file"
                   multiple
@@ -5957,88 +6434,87 @@ export default function OnboardingPage() {
                   className="hidden"
                 />
                 {isUploadingPhoto ? (
-                  <Loader2 className="w-7 h-7 text-[#be32ff] animate-spin mb-2" />
+                  <Loader2 className="w-5 h-5 text-[#be32ff] animate-spin" />
                 ) : (
-                  <Upload className="w-7 h-7 text-[#fc9a5d] group-hover:scale-110 transition-transform mb-2" />
+                  <Upload className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
                 )}
-                <span className="text-xs font-semibold text-white">Upload photo</span>
-                <span className="text-[10px] text-neutral-400 mt-1">JPG, PNG up to 10MB</span>
+                <span className="text-sm sm:text-base font-semibold text-white">Upload</span>
               </label>
 
-              {/* Photos List */}
+              {/* Dynamic Website Photos */}
               {websitePhotos.map((photoUrl, idx) => {
                 const isSelected = selectedPhotos.includes(photoUrl);
                 return (
                   <div
-                    key={idx}
+                    key={`${photoUrl}-${idx}`}
                     onClick={() => handleTogglePhoto(photoUrl)}
-                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${
+                    className={`aspect-[4/3.2] rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 border ${
                       isSelected
-                        ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
-                        : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
+                        ? "border-purple-500/80 shadow-[0_0_15px_rgba(190,50,255,0.25)] ring-1 ring-purple-500/50"
+                        : "border-white/10 opacity-75 hover:opacity-100 hover:border-white/30"
                     }`}
                   >
                     <img
                       src={photoUrl}
                       alt={`Website photo ${idx + 1}`}
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        // If this photo cannot be loaded, hide its tile gracefully
+                        e.currentTarget.parentElement?.classList.add("hidden");
+                      }}
                     />
 
-                    {/* Selection Checkmark Badge */}
+                    {/* Selection Indicator */}
                     <div className="absolute top-2.5 right-2.5">
                       {isSelected ? (
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
+                          <Check className="w-3 h-3 stroke-[3]" />
                         </div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full border border-white/50 bg-black/40 backdrop-blur-sm" />
+                        <div className="w-5 h-5 rounded-full border border-white/40 bg-black/40 backdrop-blur-sm" />
                       )}
                     </div>
 
-                    {/* Delete Photo Button on Hover */}
+                    {/* Remove photo button on hover */}
                     <button
                       type="button"
                       onClick={(e) => handleRemovePhoto(photoUrl, e)}
                       aria-label="Remove photo"
-                      className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
+                      className="absolute bottom-2 right-2 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 );
               })}
-            </div>
 
-            {/* Empty State if 0 photos */}
-            {websitePhotos.length === 0 && (
-              <div className="py-12 text-center space-y-3 bg-[#0f1015]/60 border border-white/10 rounded-2xl">
-                <ImageIcon className="w-10 h-10 text-neutral-500 mx-auto" />
-                <h3 className="text-sm font-semibold text-white">No photos detected yet</h3>
-                <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-                  Click the Upload tile above to add your product shots, store images, or brand graphics.
-                </p>
-              </div>
-            )}
+              {websitePhotos.length === 0 && (
+                <div className="col-span-full py-8 text-center text-neutral-400 text-sm">
+                  Fetching photos from your website... Or click &quot;Upload&quot; to add your own brand photos.
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Sticky Bottom Bar with Continue Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action: Centered "Use these 11 photos →" Button (Exact Image 2) */}
+          <div className="flex justify-center pt-8 pb-4">
             <button
               type="button"
               id="photos-continue-btn"
               onClick={handleWebsitePhotosContinue}
               disabled={isSavingPhotos}
-              className="w-full h-13 sm:h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base flex items-center justify-center gap-2 shadow-[0_8px_30px_rgba(240,68,155,0.4)] transition-all cursor-pointer disabled:opacity-60"
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSavingPhotos ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving selected photos...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <span>Use these {selectedPhotos.length > 0 ? selectedPhotos.length : websitePhotos.length} photos</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -6292,11 +6768,10 @@ export default function OnboardingPage() {
               id="maps-use-shop-btn"
               onClick={handleUseShopContinue}
               disabled={!selectedMapsPlace}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedMapsPlace
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMapsPlace
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-              }`}
+                }`}
             >
               <span>Use this shop</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -6393,11 +6868,10 @@ export default function OnboardingPage() {
               id="maps-use-website-btn"
               onClick={handleUseWebsiteContinue}
               disabled={!mapsWebsiteUrl.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                mapsWebsiteUrl.trim()
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${mapsWebsiteUrl.trim()
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-              }`}
+                }`}
             >
               <span>Use this website</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -6522,11 +6996,10 @@ export default function OnboardingPage() {
                             type="button"
                             key={niche}
                             onClick={() => setMapsSubCategory(niche)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                              isSelected
+                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${isSelected
                                 ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/25 border-[#be32ff] text-white shadow-sm"
                                 : "bg-[#0f1015] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
-                            }`}
+                              }`}
                           >
                             {isSelected && <Check className="w-3 h-3 inline mr-1 text-[#be32ff]" />}
                             {niche}
@@ -6547,11 +7020,10 @@ export default function OnboardingPage() {
               id="maps-category-continue-btn"
               onClick={handleMapsCategoryContinue}
               disabled={!mapsCategory.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                mapsCategory.trim()
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${mapsCategory.trim()
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-              }`}
+                }`}
             >
               <span>Continue</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -6618,11 +7090,10 @@ export default function OnboardingPage() {
                       setIsCategoryDrawerOpen(false);
                       setCategorySearchTerm("");
                     }}
-                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${
-                      isSelected
+                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${isSelected
                         ? "bg-[#be32ff]/15 text-white font-bold"
                         : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
-                    }`}
+                      }`}
                   >
                     <span className="text-xs sm:text-sm">{cat.name}</span>
                     {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
@@ -6773,11 +7244,10 @@ export default function OnboardingPage() {
               id="maps-details-continue-btn"
               onClick={handleMapsDetailsContinue}
               disabled={!businessProfile.business_name.trim() || !mapsPromotion.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                businessProfile.business_name.trim() && mapsPromotion.trim()
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${businessProfile.business_name.trim() && mapsPromotion.trim()
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-              }`}
+                }`}
             >
               <span>Continue</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -6874,11 +7344,10 @@ export default function OnboardingPage() {
                   <div
                     key={idx}
                     onClick={() => handleToggleMapsPhoto(photoUrl)}
-                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${
-                      isSelected
+                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${isSelected
                         ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
                         : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
-                    }`}
+                      }`}
                   >
                     <img
                       src={photoUrl}
@@ -6930,11 +7399,10 @@ export default function OnboardingPage() {
               id="maps-photos-continue-btn"
               onClick={handleMapsPhotosContinue}
               disabled={isSavingMapsStep || selectedMapsPhotos.length === 0}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedMapsPhotos.length > 0 && !isSavingMapsStep
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMapsPhotos.length > 0 && !isSavingMapsStep
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-              }`}
+                }`}
             >
               {isSavingMapsStep ? (
                 <>
@@ -6995,11 +7463,10 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleMarketplace(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
                         ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
                         : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
-                    }`}
+                      }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
@@ -7062,13 +7529,12 @@ export default function OnboardingPage() {
                 selectedMarketplaces.length === 0 ||
                 (selectedMarketplaces.includes("other") && !customMarketplaceName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedMarketplaces.length > 0 &&
-                !isSavingMarketplace &&
-                (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMarketplaces.length > 0 &&
+                  !isSavingMarketplace &&
+                  (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
-              }`}
+                }`}
             >
               {isSavingMarketplace ? (
                 <>
@@ -7146,11 +7612,10 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleListing(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
                         ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
                         : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
-                    }`}
+                      }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
@@ -7213,13 +7678,12 @@ export default function OnboardingPage() {
                 selectedListings.length === 0 ||
                 (selectedListings.includes("other") && !customListingName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedListings.length > 0 &&
-                !isSavingMarketplace &&
-                (!selectedListings.includes("other") || customListingName.trim())
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedListings.length > 0 &&
+                  !isSavingMarketplace &&
+                  (!selectedListings.includes("other") || customListingName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
-              }`}
+                }`}
             >
               {isSavingMarketplace ? (
                 <>
@@ -7342,11 +7806,10 @@ export default function OnboardingPage() {
               id="marketplace-website-continue-btn"
               onClick={handleMarketplaceWebsiteContinue}
               disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-              }`}
+                }`}
             >
               {isSavingMarketplace ? (
                 <>
@@ -7428,11 +7891,10 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleB2bPlatform(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
                         ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
                         : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
-                    }`}
+                      }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
@@ -7495,13 +7957,12 @@ export default function OnboardingPage() {
                 selectedB2bPlatforms.length === 0 ||
                 (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedB2bPlatforms.length > 0 &&
-                !isSavingB2b &&
-                (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bPlatforms.length > 0 &&
+                  !isSavingB2b &&
+                  (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
-              }`}
+                }`}
             >
               {isSavingB2b ? (
                 <>
@@ -7579,11 +8040,10 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleB2bListing(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${
-                      isSelected
+                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
                         ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
                         : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
-                    }`}
+                      }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
@@ -7646,13 +8106,12 @@ export default function OnboardingPage() {
                 selectedB2bListings.length === 0 ||
                 (selectedB2bListings.includes("other") && !customB2bListingName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${
-                selectedB2bListings.length > 0 &&
-                !isSavingB2b &&
-                (!selectedB2bListings.includes("other") || customB2bListingName.trim())
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bListings.length > 0 &&
+                  !isSavingB2b &&
+                  (!selectedB2bListings.includes("other") || customB2bListingName.trim())
                   ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
-              }`}
+                }`}
             >
               {isSavingB2b ? (
                 <>
@@ -7775,11 +8234,10 @@ export default function OnboardingPage() {
               id="b2b-website-continue-btn"
               onClick={handleB2bWebsiteContinue}
               disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${
-                isValidWebsiteUrl(websiteUrl) && !isSavingB2b
+              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
                   ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-              }`}
+                }`}
             >
               {isSavingB2b ? (
                 <>
@@ -7939,11 +8397,10 @@ export default function OnboardingPage() {
                               setNoneProducts(matched.defaultPromote);
                             }
                           }}
-                          className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${
-                            isSelected
+                          className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${isSelected
                               ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/40 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
                               : "bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10"
-                          }`}
+                            }`}
                         >
                           {cat}
                         </button>
@@ -8266,11 +8723,10 @@ export default function OnboardingPage() {
                       key={preset.name}
                       type="button"
                       onClick={() => handleSelectColorPreset(preset)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
-                        isSelected
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${isSelected
                           ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_15px_rgba(190,50,255,0.25)]"
                           : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center -space-x-1.5">
@@ -8356,11 +8812,10 @@ export default function OnboardingPage() {
                       key={f.name}
                       type="button"
                       onClick={() => setSelectedFont(f.name)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                        isSelected
+                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
                           ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_12px_rgba(190,50,255,0.2)]"
                           : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-white">{f.name}</span>
@@ -8405,11 +8860,10 @@ export default function OnboardingPage() {
                       key={tone}
                       type="button"
                       onClick={() => handleToggleTone(tone)}
-                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${
-                        isSelected
+                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${isSelected
                           ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/50 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
                           : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
-                      }`}
+                        }`}
                     >
                       {isSelected ? "✓ " : "+ "}
                       {tone}
@@ -8444,11 +8898,10 @@ export default function OnboardingPage() {
                       key={lang.id}
                       type="button"
                       onClick={() => setBrandPreferences({ ...brandPreferences, language: lang.id })}
-                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${
-                        isSelected
+                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${isSelected
                           ? "bg-[#f0449b]/20 text-[#f0449b] font-bold border border-[#f0449b]/50 shadow-[0_0_10px_rgba(240,68,155,0.2)]"
                           : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
-                      }`}
+                        }`}
                     >
                       {lang.label}
                     </button>
@@ -8559,11 +9012,10 @@ export default function OnboardingPage() {
                       setIsNoneCategoryOpen(false);
                       setNoneCategorySearch("");
                     }}
-                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${
-                      isSelected
+                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${isSelected
                         ? "bg-[#be32ff]/15 text-white font-bold"
                         : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
-                    }`}
+                      }`}
                   >
                     <span className="text-xs sm:text-sm">{cat.name}</span>
                     {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
@@ -8579,10 +9031,10 @@ export default function OnboardingPage() {
           SCREEN 4: LET'S MAKE YOUR FIRST THING (Reference Screenshot 3)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "first_thing" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+        <div className="w-full max-w-4xl mx-auto my-auto py-2 sm:py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           <div>
             {/* Top Header: Back button + Progress Indicator (~75%) */}
-            <div className="flex items-center gap-3 w-full mb-4">
+            <div className="flex items-center gap-3 sm:gap-4 w-full mb-6 sm:mb-8">
               <button
                 type="button"
                 onClick={handleFirstThingBack}
@@ -8593,161 +9045,176 @@ export default function OnboardingPage() {
               </button>
               <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500"
                   style={{ width: "75%" }}
                 />
               </div>
             </div>
 
-            {/* Video / Guide Hero Banner */}
-            <div className="relative rounded-2xl overflow-hidden mb-5 border border-white/10 bg-gradient-to-b from-neutral-900 to-neutral-950 aspect-[16/9] shadow-xl flex items-center justify-center">
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&auto=format&fit=crop&q=80"
-                alt="Create First Post Guide"
-                className="w-full h-full object-cover object-center opacity-85"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-              <div className="absolute top-3 left-3 text-xs font-bold text-white tracking-wide drop-shadow-md">
-                Create Your First Post
-              </div>
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs text-white/90">
-                <span className="font-medium drop-shadow">Business setup complete ho gaya</span>
-                <span className="flex items-center gap-1 bg-black/60 px-2 py-1 rounded-full text-[10px] backdrop-blur-sm">
-                  <Volume2 className="w-3 h-3" /> Tap to mute
+            {/* Title & Subtitle (Non-bold as instructed) */}
+            <div className="mb-6 sm:mb-8 text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Let’s make your{" "}
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  first thing
                 </span>
-              </div>
-            </div>
-
-            {/* Title & Subtitle */}
-            <div className="mb-4">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
-                Let&apos;s make your first thing
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400">
-                What should we make first for {businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solutions"}?
+              <p className="text-xs sm:text-sm text-slate-300 font-normal mt-1.5 sm:mt-2">
+                What should we make first for {businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solution"}?
               </p>
             </div>
 
-            {/* Exactly 3 Choices: Post Maker (Recommended), AI Photo Shoot, Reel Maker */}
-            <div className="space-y-3">
-              {/* Option 1: Post Maker (Recommended) */}
+            {/* 4 Cards Grid (2x2) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+              {/* Card 1: Fashion Studio */}
+              <div
+                onClick={() => setFirstThingChoice("fashion_studio")}
+                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
+                  firstThingChoice === "fashion_studio"
+                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
+                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
+                }`}
+              >
+                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
+                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                    <img
+                      src="/images/fashion-photoshoot-hero.jpg"
+                      alt="Fashion model"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                    <img
+                      src="/images/influencer-ootd-post.jpg"
+                      alt="Fashion model 2"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-normal text-white">
+                    Fashion <span className="text-[#fc9a5d]">Studio</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                    Models wearing your products.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 2: Product Studio */}
+              <div
+                onClick={() => setFirstThingChoice("product_studio")}
+                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
+                  firstThingChoice === "product_studio"
+                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
+                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
+                }`}
+              >
+                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
+                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                    <img
+                      src="/images/product-saffron-serum.jpg"
+                      alt="Product bottle"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                    <img
+                      src="/images/product-kundan-necklace.jpg"
+                      alt="Product jewelry"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-normal text-white">
+                    Product <span className="text-[#f0449b]">Studio</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                    Studio - grade, no studio.
+                  </p>
+                </div>
+              </div>
+
+              {/* Card 3: Post Maker */}
               <div
                 onClick={() => setFirstThingChoice("post_maker")}
-                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
+                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
                   firstThingChoice === "post_maker"
-                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
+                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-bold text-white text-lg tracking-tight">
-                        Post <span className="italic font-serif font-normal text-emerald-400">Maker.</span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-400">Ready for Instagram & WhatsApp</p>
-                  </div>
-                  {/* Recommended badge + thumbnail strip */}
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="inline-flex items-center gap-1 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white" /> recommended
-                    </span>
-                    <div className="flex -space-x-2">
-                      <img
-                        src="https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=120&auto=format&fit=crop&q=80"
-                        alt="Promo sample"
-                        className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
-                      />
-                      <img
-                        src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=120&auto=format&fit=crop&q=80"
-                        alt="Promo sample 2"
-                        className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
-                      />
-                    </div>
-                  </div>
-                </div>
-                <p className="text-[11px] text-emerald-400/90 italic mt-2">
-                  Because customers buy these with their eyes
-                </p>
-              </div>
-
-              {/* Option 2: AI Photo Shoot */}
-              <div
-                onClick={() => setFirstThingChoice("photoshoot")}
-                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
-                  firstThingChoice === "photoshoot"
-                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-bold text-white text-lg tracking-tight">
-                        AI Photo <span className="italic font-serif font-normal text-purple-400">Shoot.</span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-400">Studio-grade product shots with AI</p>
-                  </div>
-                  <div className="flex -space-x-2 shrink-0">
+                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
+                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
                     <img
-                      src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=120&auto=format&fit=crop&q=80"
-                      alt="Product shot"
-                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                      src="/images/ai-poster-mockup.jpg"
+                      alt="Burger poster"
+                      className="w-full h-full object-cover"
                     />
+                  </div>
+                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
                     <img
-                      src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=120&auto=format&fit=crop&q=80"
-                      alt="Product shot 2"
-                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                      src="/images/diwali-festive-banner.jpg"
+                      alt="Festive poster"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-normal text-white">
+                    Post <span className="text-[#be32ff]">Maker</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                    Ready for instagram and whatsapp
+                  </p>
+                </div>
               </div>
 
-              {/* Option 3: Reel Maker */}
+              {/* Card 4: Reel Maker */}
               <div
                 onClick={() => setFirstThingChoice("reel_maker")}
-                className={`relative rounded-2xl p-3.5 border transition-all cursor-pointer ${
+                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
                   firstThingChoice === "reel_maker"
-                    ? "border-emerald-500 bg-emerald-500/[0.08] shadow-[0_0_20px_rgba(16,185,129,0.2)]"
-                    : "border-white/10 bg-white/[0.03] hover:border-white/20"
+                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
+                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
                 }`}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className="font-bold text-white text-lg tracking-tight">
-                        Reel <span className="italic font-serif font-normal text-pink-400">Maker.</span>
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-400">Ready for Instagram & YouTube Shorts</p>
-                  </div>
-                  <div className="shrink-0">
+                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
+                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
                     <img
-                      src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80"
-                      alt="Reel model"
-                      className="w-10 h-10 rounded-lg object-cover border border-white/20 shadow"
+                      src="/images/raw-selfie-woman.jpg"
+                      alt="Reel selfie"
+                      className="w-full h-full object-cover"
                     />
                   </div>
+                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                    <img
+                      src="/images/ai-reel-formats-showcase.jpg"
+                      alt="Reel format"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base sm:text-lg font-normal text-white">
+                    Reel <span className="text-[#7d36fa]">Maker</span>
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                    Ready for instagram and youtube shorts.
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Bottom Card + CTA */}
-          <div className="pt-4 pb-2 space-y-3">
-            <div className="flex items-center justify-center">
-              <span className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold px-3 py-1.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5" /> First one&apos;s on us — no card needed
-              </span>
-            </div>
-
+          {/* Centered Continue Button with 4-Color Gradient */}
+          <div className="pt-6 sm:pt-8 pb-2 flex flex-col items-center">
             <button
               type="button"
               onClick={handleFirstThingContinue}
               disabled={isSavingFirstThing}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isSavingFirstThing ? (
                 <>
@@ -8757,7 +9224,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2]" />
                 </>
               )}
             </button>
@@ -8765,69 +9232,131 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 5: POST MAKER - PICK A PHOTO PER POST (Reference Screenshot 4)
-      ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "post_maker_pick" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+        <div className="w-full max-w-4xl mx-auto my-auto py-2 sm:py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           {isGeneratingPosts ? (
-            /* Real Post Generation Loading Screen */
-            <div className="flex-1 flex flex-col justify-between py-6 animate-in fade-in duration-300">
-              <div className="space-y-6 text-center">
-                <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase">
-                  POST MAKER
-                </span>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  Generating {businessProfile.business_name || businessDetails.business_name}&apos;s 3 posts...
-                </h2>
+            <>
+              {/* ══════════════════════════════════════════════════════════════════════
+                 STAGE 1: STUDYING YOUR PHOTO (Image 1)
+              ══════════════════════════════════════════════════════════════════════ */}
+              {generationStage === "studying" && (
+                <div className="flex-1 flex flex-col justify-between py-6 sm:py-10 animate-in fade-in duration-300 w-full max-w-4xl mx-auto">
+                  <div className="flex-1 flex flex-col items-center justify-center text-center my-auto">
+                    <div className="w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 border-white/15 bg-[#0e162b] shadow-[0_0_50px_rgba(0,0,0,0.6)] flex items-center justify-center p-3 relative overflow-hidden">
+                      <img
+                        src={businessProfile.business_logo || "/logo.png"}
+                        alt="Brand Logo"
+                        className="w-full h-full object-contain rounded-full"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).src = "/images/dhandagrow-brand-icon.png";
+                        }}
+                      />
+                    </div>
 
-                {/* Animated Pulsing Ring */}
-                <div className="relative w-28 h-28 mx-auto my-6 flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full border-2 border-emerald-500/30 animate-ping" />
-                  <div className="absolute inset-2 rounded-full border-2 border-emerald-500/50 animate-pulse" />
-                  <div className="w-20 h-20 rounded-full bg-emerald-500/20 border border-emerald-500/60 flex items-center justify-center backdrop-blur-md">
-                    <Loader2 className="w-9 h-9 text-emerald-400 animate-spin" />
+                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight mt-6 sm:mt-8">
+                      Studying your photo
+                    </h2>
+
+                    <div className="flex items-center gap-3 mt-4">
+                      <div className="px-5 py-1.5 rounded-full bg-[#1c1436] border border-[#7d36fa]/30 text-[#c084fc] text-xs sm:text-sm font-normal">
+                        {businessProfile.business_category || businessDetails.category || "Testing electronics"}
+                      </div>
+                      <div className="px-5 py-1.5 rounded-full bg-[#1c1436] border border-[#7d36fa]/30 text-[#c084fc] text-xs sm:text-sm font-normal">
+                        Your photos
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full max-w-4xl mx-auto mt-auto pt-8">
+                    <div className="w-full h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-700 shadow-[0_0_12px_rgba(240,68,155,0.4)]"
+                        style={{ width: `${generationProgress}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between mt-2.5">
+                      <span className="text-xs sm:text-sm text-slate-400 font-normal">
+                        {generationStatusText || "Setting your mood"}
+                      </span>
+                    </div>
+
+                    <p className="text-xs sm:text-sm text-slate-400 font-normal text-center mt-6">
+                      Posting daily on instagram just got easy.
+                    </p>
                   </div>
                 </div>
+              )}
 
-                {/* Real generation status updates */}
-                <p className="text-sm font-medium text-emerald-300/90 animate-pulse px-4">
-                  {generationStatusText}
-                </p>
-              </div>
+              {/* ══════════════════════════════════════════════════════════════════════
+                 STAGE 2: YOU JUST TOOK THE FIRST STEP (Image 2)
+              ══════════════════════════════════════════════════════════════════════ */}
+              {generationStage === "first_step" && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-10 animate-in fade-in zoom-in-95 duration-400 max-w-2xl mx-auto">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-normal text-white tracking-tight">
+                    You just took the first step.
+                  </h2>
 
-              {/* "Get notified when your ads are ready" section */}
-              <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-md space-y-3 mt-6">
-                <div className="flex items-center gap-2 text-white font-semibold text-sm">
-                  <Bell className="w-4 h-4 text-emerald-400" />
-                  <span>Get notified when your ads are ready</span>
+                  <div className="flex items-center justify-center gap-2 mt-4 text-[#be32ff]">
+                    <RotateCw className="w-4 h-4 animate-spin text-[#be32ff]" />
+                    <span className="text-sm sm:text-base font-normal">Ads generating</span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-300 font-normal mt-4 leading-relaxed max-w-lg mx-auto">
+                    {businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solution"} is already one step ahead, while 93% of {(businessProfile.business_category || businessDetails.category || "tech and electronics").toLowerCase()} businesses are yet to explore AI.
+                  </p>
+
+                  <p className="text-xs sm:text-sm text-[#be32ff] font-normal mt-12 sm:mt-16">
+                    3 posts on the way. Ready for Instagram in under a minute.
+                  </p>
                 </div>
-                <p className="text-xs text-neutral-400">
-                  Don&apos;t want to wait? We will alert you immediately once creative rendering completes.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="text"
-                    value={notifyContact}
-                    onChange={(e) => setNotifyContact(e.target.value)}
-                    placeholder="Enter phone or email"
-                    className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl"
-                  />
-                  <Button
-                    type="button"
-                    onClick={() => setIsNotifySubmitted(true)}
-                    className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white text-xs font-bold shrink-0"
-                  >
-                    {isNotifySubmitted ? "✓ Saved" : "Notify me"}
-                  </Button>
+              )}
+
+              {/* ══════════════════════════════════════════════════════════════════════
+                 STAGE 3: YOUR DAILY POSTS ARE BEING MADE (Image 3)
+              ══════════════════════════════════════════════════════════════════════ */}
+              {generationStage === "daily_posts" && (
+                <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-10 animate-in fade-in zoom-in-95 duration-400 max-w-2xl mx-auto">
+                  <h2 className="text-xl sm:text-2xl lg:text-3xl font-normal text-white tracking-tight">
+                    Your daily posts are being made.
+                  </h2>
+
+                  <p className="text-xs sm:text-sm text-slate-300 font-normal mt-3 leading-relaxed max-w-lg mx-auto">
+                    While we finish setting things up, explore our Growth and Pro plans for daily posts, festive content, and ad creatives tailored to your brand voice.
+                  </p>
+
+                  {/* Button with exact Image 5 color gradient */}
+                  <div className="mt-8 sm:mt-10 w-full max-w-md mx-auto">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsGeneratingPosts(false);
+                        const readyIdx = activeSteps.findIndex((s) => s.id === "post_maker_ready");
+                        const target = readyIdx !== -1 ? readyIdx : currentStep + 1;
+                        setCurrentStep(target);
+                        if (typeof window !== "undefined") {
+                          sessionStorage.setItem("onboarding_step", String(target));
+                        }
+                      }}
+                      className="w-full h-14 rounded-full font-normal text-white flex items-center justify-center gap-3 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_30px_rgba(190,50,255,0.35)] hover:opacity-95 active:scale-[0.98] px-6"
+                    >
+                      <Lock className="w-5 h-5 text-white shrink-0" />
+                      <div className="flex flex-col items-start text-left">
+                        <span className="text-sm font-medium leading-tight">Your Previews are ready</span>
+                        <span className="text-[11px] text-white/80 leading-tight">Upgrade to unlock</span>
+                      </div>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              )}
+            </>
           ) : (
+            /* ══════════════════════════════════════════════════════════════════════
+               PICK A PHOTO PER POST SCREEN
+            ══════════════════════════════════════════════════════════════════════ */
             <>
               <div>
-                {/* Top Header: Back button + Progress Indicator (~90%) */}
-                <div className="flex items-center gap-3 w-full mb-4">
+                <div className="flex items-center gap-3 sm:gap-4 w-full mb-6 sm:mb-8">
                   <button
                     type="button"
                     onClick={handlePostMakerPickBack}
@@ -8838,108 +9367,108 @@ export default function OnboardingPage() {
                   </button>
                   <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                      style={{ width: "90%" }}
+                      className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500"
+                      style={{ width: "85%" }}
                     />
                   </div>
                 </div>
 
-                {/* Headings */}
-                <div className="mb-5">
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-1">
-                    Pick a photo per post.
+                <div className="mb-6 sm:mb-8 text-left">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                    Pick a{" "}
+                    <span className="font-normal bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] bg-clip-text text-transparent">
+                      photo
+                    </span>{" "}
+                    per post
                   </h1>
-                  <p className="text-xs sm:text-sm text-neutral-400">
-                    We&apos;ll turn your 3 photos into a promo post, a festival post, and an ad post.
+                  <p className="text-xs sm:text-sm text-slate-300 font-normal mt-1.5 sm:mt-2">
+                    We&apos;ll turn your 3 photos into a promo post, a festival post, and an ad post
                   </p>
                 </div>
 
-                {/* 3 Photo Selection Cards */}
-                <div className="space-y-3">
-                  {/* Card 1: Your promo post */}
-                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
-                    <img
-                      src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
-                      alt="Promo post"
-                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-white text-base">Your promo post</h3>
-                      <p className="text-xs text-neutral-400 mb-1.5">Shows off your offer or latest arrival.</p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActivePhotoChangeTarget("promo");
-                          setIsPhotoPickerOpen(true);
-                        }}
-                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        Change photo →
-                      </button>
+                <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto w-full">
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                    <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                      <img
+                        src={promoPhoto || getAvailablePhotos()[0] || DEFAULT_BUSINESS_PHOTOS[0]}
+                        alt="Promo post"
+                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
+                        <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">Show off your offer or latest arrival.</p>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivePhotoChangeTarget("promo");
+                        setIsPhotoPickerOpen(true);
+                      }}
+                      className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#7d36fa] hover:bg-[#6c28ea] text-white text-xs sm:text-sm font-normal cursor-pointer transition-all shrink-0 active:scale-95 shadow-md shadow-[#7d36fa]/20"
+                    >
+                      Change Photo
+                    </button>
                   </div>
 
-                  {/* Card 2: Your festival post */}
-                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
-                    <img
-                      src={festivalPhoto || DEFAULT_BUSINESS_PHOTOS[1]}
-                      alt="Festival post"
-                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-white text-base">Your Diwali post</h3>
-                      <p className="text-xs text-neutral-400 mb-1.5">in 12 days — in your brand voice.</p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActivePhotoChangeTarget("festival");
-                          setIsPhotoPickerOpen(true);
-                        }}
-                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        Change photo →
-                      </button>
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                    <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                      <img
+                        src={festivalPhoto || getAvailablePhotos()[1] || DEFAULT_BUSINESS_PHOTOS[1]}
+                        alt="Promo post 2"
+                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
+                        <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">Show off your offer or latest arrival.</p>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivePhotoChangeTarget("festival");
+                        setIsPhotoPickerOpen(true);
+                      }}
+                      className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#7d36fa] hover:bg-[#6c28ea] text-white text-xs sm:text-sm font-normal cursor-pointer transition-all shrink-0 active:scale-95 shadow-md shadow-[#7d36fa]/20"
+                    >
+                      Change Photo
+                    </button>
                   </div>
 
-                  {/* Card 3: Your ad post */}
-                  <div className="rounded-2xl border border-emerald-500/80 bg-white/[0.03] p-3.5 flex items-center gap-3.5 transition-all">
-                    <img
-                      src={adPhoto || DEFAULT_BUSINESS_PHOTOS[2]}
-                      alt="Ad post"
-                      className="w-18 h-18 sm:w-20 sm:h-20 rounded-xl object-cover border border-white/10 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-white text-base">Your ad post</h3>
-                      <p className="text-xs text-neutral-400 mb-1.5">Offer-led, built for clicks.</p>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActivePhotoChangeTarget("ad");
-                          setIsPhotoPickerOpen(true);
-                        }}
-                        className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 cursor-pointer"
-                      >
-                        Change photo →
-                      </button>
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                    <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                      <img
+                        src={adPhoto || getAvailablePhotos()[2] || DEFAULT_BUSINESS_PHOTOS[2]}
+                        alt="Promo post 3"
+                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
+                        <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">Show off your offer or latest arrival.</p>
+                      </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActivePhotoChangeTarget("ad");
+                        setIsPhotoPickerOpen(true);
+                      }}
+                      className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#7d36fa] hover:bg-[#6c28ea] text-white text-xs sm:text-sm font-normal cursor-pointer transition-all shrink-0 active:scale-95 shadow-md shadow-[#7d36fa]/20"
+                    >
+                      Change Photo
+                    </button>
                   </div>
                 </div>
-
-                <p className="text-[11px] text-neutral-400 text-center mt-4">
-                  Tuned for {businessProfile.business_category || businessDetails.category || "Tech & Electronics"} on Instagram
-                </p>
               </div>
 
-              {/* Action Button */}
-              <div className="pt-4 pb-2">
+              <div className="pt-6 sm:pt-8 pb-2 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={handleGeneratePosts}
-                  className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+                  className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 active:scale-[0.98]"
                 >
-                  <span>Generate Posts</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <span>Create Posts</span>
+                  <ArrowRight className="w-4 h-4 stroke-[2]" />
                 </button>
               </div>
             </>
@@ -8948,178 +9477,76 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN 6: POST MAKER OUTPUT READY (Reference Screenshot 5)
+          STAGE 4: 3 POSTS ARE READY (Image 4 Reference)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "post_maker_ready" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
-          <div>
-            {/* Top Header: Back button + Full Progress Indicator + Go to Dashboard */}
-            <div className="flex items-center justify-between gap-3 w-full mb-4">
-              <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                <button
-                  type="button"
-                  onClick={handlePostMakerReadyBack}
-                  aria-label="Go back"
-                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
-                >
-                  <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
-                <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden min-w-[50px]">
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]"
-                    style={{ width: "100%" }}
-                  />
-                </div>
-              </div>
+        <div className="w-full max-w-3xl mx-auto my-auto py-6 sm:py-10 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+          <div className="flex-1 flex flex-col items-center justify-center text-center">
+            {/* Title & Subtitle */}
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
+              {businessProfile.business_name || businessDetails.business_name || "SevenUnique Tech Solution"}’s<br />
+              3 posts are ready
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-400 font-normal mt-2.5">
+              Unlock to download and start posting - captions and hashtags included
+            </p>
 
-              {/* Direct Dashboard Button in Upper-Right */}
-              <button
-                type="button"
-                id="onboarding-go-to-dashboard-btn"
-                onClick={() => {
-                  try {
-                    OnboardingService.completeOnboarding().catch(() => {});
-                  } catch (_) {}
-                  router.push("/dashboard");
-                }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-full text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 transition-all cursor-pointer shrink-0 active:scale-95 shadow-sm"
-              >
-                <LayoutDashboard className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
-                <span className="whitespace-nowrap">Go to Dashboard</span>
-              </button>
-            </div>
-
-            {/* Header Titles */}
-            <div className="text-center mb-4">
-              <span className="text-xs font-bold text-emerald-400 tracking-wider uppercase block mb-1">
-                POST MAKER
+            {/* Category Pill */}
+            <div className="my-5">
+              <span className="px-5 py-1.5 rounded-full bg-[#1c1436] border border-[#7d36fa]/30 text-[#c084fc] text-xs sm:text-sm font-normal">
+                {businessProfile.business_category || businessDetails.category || "Testing electronics"}
               </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-2">
-                {businessProfile.business_name || businessDetails.business_name}&apos;s 3 posts are ready
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-300">
-                Unlock to download and start posting — captions and hashtags included.
-              </p>
             </div>
 
-            {/* Source Chip */}
-            <div className="flex justify-center mb-5">
-              <div className="inline-flex items-center gap-2 bg-white/[0.06] border border-white/10 px-3 py-1 rounded-full text-xs text-neutral-300">
-                <img
-                  src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
-                  alt="Source"
-                  className="w-4 h-4 rounded-full object-cover"
-                />
-                <span>From your photo</span>
-              </div>
-            </div>
-
-            {/* 3 Post Cards (1 Unlocked, 2 Locked) */}
-            <div className="grid grid-cols-3 gap-2.5 sm:gap-3 mb-5">
-              {/* Card 1: Unlocked Promo Post */}
+            {/* 3 Post Cards (1 Unlocked, 2 Locked - Image 4) */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full max-w-2xl mx-auto my-4">
+              {/* Card 1: Unlocked Post Preview */}
               <div
-                onClick={handleOpenUnlockedPostInCreate}
-                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border-2 border-emerald-400 bg-neutral-900 shadow-[0_0_20px_rgba(16,185,129,0.3)] transition-all cursor-pointer hover:scale-[1.02]"
+                onClick={() => setShowPlansModal(true)}
+                className="relative rounded-2xl overflow-hidden aspect-square border-2 border-sky-400/60 bg-slate-900 shadow-[0_0_25px_rgba(56,189,248,0.3)] transition-all cursor-pointer hover:scale-[1.02]"
               >
                 <img
-                  src={promoPhoto || DEFAULT_BUSINESS_PHOTOS[0]}
-                  alt="Promo post output"
+                  src={promoPhoto || getAvailablePhotos()[0] || DEFAULT_BUSINESS_PHOTOS[3] || "/images/ai-poster-mockup.jpg"}
+                  alt="Ready post preview"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent flex flex-col justify-between p-2.5">
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-[9px] font-bold bg-emerald-500 text-white px-1.5 py-0.5 rounded shadow">
-                      Unlocked
-                    </span>
-                    <button
-                      type="button"
-                      id="edit-unlocked-post-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenUnlockedPostInCreate();
-                      }}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold bg-emerald-500/90 hover:bg-emerald-400 text-white px-2 py-0.5 rounded-full shadow-md backdrop-blur-sm transition-all"
-                    >
-                      <Pencil className="w-2.5 h-2.5" />
-                      <span>Edit</span>
-                    </button>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-bold text-white line-clamp-2 leading-tight drop-shadow">
-                      {generatedOnboardingPost?.headline || "Promo post"}
-                    </p>
-                    <span className="text-[9px] text-emerald-300 flex items-center gap-0.5 mt-1 font-semibold group-hover:underline">
-                      Tap to edit in AI Post Maker ↗
-                    </span>
-                  </div>
-                </div>
               </div>
 
-              {/* Card 2: Locked Festival Post */}
+              {/* Card 2: Locked Festive Post (Pink) */}
               <div
-                onClick={handleLockedPostClick}
-                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border border-amber-500/30 bg-gradient-to-br from-amber-950/70 to-amber-900/40 backdrop-blur-md flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-amber-400/60 hover:scale-[1.02]"
+                onClick={() => setShowPlansModal(true)}
+                className="rounded-2xl aspect-square bg-[#f0449b] shadow-[0_0_25px_rgba(240,68,155,0.3)] flex flex-col items-center justify-center p-4 text-white text-center transition-all cursor-pointer hover:scale-[1.02]"
               >
-                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2 shadow-inner">
-                  <Lock className="w-5 h-5 text-white/90" />
-                </div>
-                <h4 className="text-xs font-bold text-amber-200 drop-shadow">Festival post</h4>
-                <span className="text-[9px] text-amber-400/80 mt-1">Locked</span>
+                <Lock className="w-6 h-6 text-white mb-2 stroke-[2.2]" />
+                <span className="text-sm sm:text-base font-normal">Festive post</span>
               </div>
 
-              {/* Card 3: Locked Ad Post */}
+              {/* Card 3: Locked Ad Post (Purple) */}
               <div
-                onClick={handleLockedPostClick}
-                className="group relative aspect-[9/14] rounded-2xl overflow-hidden border border-pink-500/30 bg-gradient-to-br from-pink-950/70 to-pink-900/40 backdrop-blur-md flex flex-col items-center justify-center p-2 text-center transition-all cursor-pointer hover:border-pink-400/60 hover:scale-[1.02]"
+                onClick={() => setShowPlansModal(true)}
+                className="rounded-2xl aspect-square bg-[#be32ff] shadow-[0_0_25px_rgba(190,50,255,0.3)] flex flex-col items-center justify-center p-4 text-white text-center transition-all cursor-pointer hover:scale-[1.02]"
               >
-                <div className="w-10 h-10 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center text-white mb-2 shadow-inner">
-                  <Lock className="w-5 h-5 text-white/90" />
-                </div>
-                <h4 className="text-xs font-bold text-pink-200 drop-shadow">Ad post</h4>
-                <span className="text-[9px] text-pink-400/80 mt-1">Locked</span>
+                <Lock className="w-6 h-6 text-white mb-2 stroke-[2.2]" />
+                <span className="text-sm sm:text-base font-normal">Ad post</span>
               </div>
             </div>
 
-            {/* Captions ready badge */}
-            <div className="flex items-center justify-center gap-1.5 text-xs text-emerald-400 font-medium">
-              <Sparkles className="w-3.5 h-3.5" />
+            {/* Note below cards */}
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-[#c084fc] font-normal mt-4">
+              <Sparkles className="w-4 h-4 text-[#c084fc]" />
               <span>Captions & hashtags ready to copy</span>
             </div>
           </div>
 
-          {/* Action Button & Links */}
-          <div className="pt-4 pb-2 space-y-2">
+          {/* Bottom CTA Button with Image 5 Gradient */}
+          <div className="pt-6 sm:pt-8 pb-4 flex flex-col items-center">
             <button
               type="button"
               onClick={() => setShowPlansModal(true)}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-emerald-500 hover:bg-emerald-400 text-white shadow-[0_8px_30px_rgba(16,185,129,0.35)] active:scale-[0.98]"
+              className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 active:scale-[0.98]"
             >
               <span>Upgrade to see your output</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-            </button>
-
-            <button
-              type="button"
-              id="edit-unlocked-post-action-btn"
-              onClick={handleOpenUnlockedPostInCreate}
-              className="w-full text-center text-xs text-neutral-300 hover:text-emerald-400 transition-colors py-1.5 font-medium cursor-pointer flex items-center justify-center gap-1.5"
-            >
-              <Pencil className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Edit unlocked post in AI Post Maker →</span>
-            </button>
-
-            <button
-              type="button"
-              id="bottom-go-to-dashboard-btn"
-              onClick={() => {
-                try {
-                  OnboardingService.completeOnboarding().catch(() => {});
-                } catch (_) {}
-                router.push("/dashboard");
-              }}
-              className="w-full text-center text-xs text-neutral-400 hover:text-white transition-colors py-1 font-medium cursor-pointer"
-            >
-              Skip to Dashboard →
+              <ArrowRight className="w-4 h-4 stroke-[2]" />
             </button>
           </div>
         </div>
@@ -9232,176 +9659,174 @@ export default function OnboardingPage() {
           <Card className="w-full bg-[#14151f]/90 border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6),0_0_40px_rgba(190,50,255,0.1)] backdrop-blur-xl rounded-2xl relative z-10 overflow-hidden">
             <CardContent className="p-6 sm:p-10">
 
-          {/* ══════════════════════════════════════════════════════════════════════
+              {/* ══════════════════════════════════════════════════════════════════════
               BRANCH A: USER STEPPER (accountType === 'user')
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "user" && currentStepObj.id === "personal_profile" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Your Personal Profile</h2>
-                <p className="text-xs text-neutral-400">Tell us a bit about yourself to personalize your creative suite.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="userFullName" className="text-xs font-medium text-neutral-300">Full Name</Label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="userFullName"
-                      placeholder="e.g. Deepak Yadav"
-                      value={userProfile.fullName}
-                      onChange={(e) => setUserProfile({ ...userProfile, fullName: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
+              {accountType === "user" && currentStepObj.id === "personal_profile" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Your Personal Profile</h2>
+                    <p className="text-xs text-neutral-400">Tell us a bit about yourself to personalize your creative suite.</p>
                   </div>
-                </div>
 
-                <div className="space-y-1.5">
-                  <Label htmlFor="userPhone" className="text-xs font-medium text-neutral-300">Contact Number</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="userPhone"
-                      placeholder="e.g. +91 98765 43210"
-                      value={userProfile.phone}
-                      onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="userLanguage" className="text-xs font-medium text-neutral-300">Preferred Language</Label>
-                  <select
-                    id="userLanguage"
-                    value={userProfile.preferredLanguage}
-                    onChange={(e) => setUserProfile({ ...userProfile, preferredLanguage: e.target.value })}
-                    className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                  >
-                    <option value="hinglish">Hinglish (Hindi + English)</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="english">English</option>
-                    <option value="marathi">Marathi</option>
-                    <option value="gujarati">Gujarati</option>
-                    <option value="punjabi">Punjabi</option>
-                    <option value="bengali">Bengali</option>
-                    <option value="tamil">Tamil</option>
-                    <option value="telugu">Telugu</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {accountType === "user" && currentStepObj.id === "goals" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">What would you like to create?</h2>
-                <p className="text-xs text-neutral-400">Select what interests you most to curate AI tools on your dashboard.</p>
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-xs font-medium text-neutral-300">Creative Interests</Label>
-                <div className="flex flex-wrap gap-2.5">
-                  {[
-                    "Instagram Reels",
-                    "AI Photoshoots",
-                    "Viral Scripts",
-                    "Posters & Banners",
-                    "Captions & Copywriting",
-                    "Fashion AI Modeling",
-                    "Festival Greeting Posts",
-                    "Personal Portfolio",
-                  ].map((item) => {
-                    const isSelected = userProfile.interests.includes(item);
-                    return (
-                      <button
-                        type="button"
-                        key={item}
-                        onClick={() => toggleInterest(item)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                          isSelected
-                            ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                            : "bg-[#0f1015] border-white/10 text-neutral-400 hover:border-white/20 hover:text-neutral-200"
-                        }`}
-                      >
-                        {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-[#be32ff]" />}
-                        {item}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div className="space-y-3 pt-2">
-                <Label className="text-xs font-medium text-neutral-300">Primary Platforms</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {[
-                    { id: "instagram", name: "Instagram" },
-                    { id: "youtube", name: "YouTube" },
-                    { id: "facebook", name: "Facebook" },
-                    
-                  ].map((p) => {
-                    const isSelected = userProfile.platforms.includes(p.id);
-                    return (
-                      <div
-                        key={p.id}
-                        onClick={() => {
-                          setUserProfile((prev) => ({
-                            ...prev,
-                            platforms: isSelected
-                              ? prev.platforms.filter((x) => x !== p.id)
-                              : [...prev.platforms, p.id],
-                          }));
-                        }}
-                        className={`p-3 rounded-xl border text-center text-xs font-medium cursor-pointer transition-all ${
-                          isSelected
-                            ? "bg-purple-600/15 border-purple-500/50 text-white"
-                            : "bg-[#0f1015] border-white/10 text-neutral-400 hover:text-white"
-                        }`}
-                      >
-                        {p.name}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="userFullName" className="text-xs font-medium text-neutral-300">Full Name</Label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="userFullName"
+                          placeholder="e.g. Deepak Yadav"
+                          value={userProfile.fullName}
+                          onChange={(e) => setUserProfile({ ...userProfile, fullName: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          )}
+                    </div>
 
-          {accountType === "user" && currentStepObj.id === "ready" && (
-            <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
-              <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
-                <Sparkles className="w-10 h-10 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-3xl font-extrabold text-white">
-                  Welcome aboard, {userProfile.fullName || "Creator"}!
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
-                  Your personal creator workspace is ready. Explore high-converting reels, generative photoshoot tools, and automated content creation.
-                </p>
-              </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="userPhone" className="text-xs font-medium text-neutral-300">Contact Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="userPhone"
+                          placeholder="e.g. +91 98765 43210"
+                          value={userProfile.phone}
+                          onChange={(e) => setUserProfile({ ...userProfile, phone: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
 
-              <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Account Role</span>
-                  <span className="text-white font-medium capitalize">Individual User</span>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="userLanguage" className="text-xs font-medium text-neutral-300">Preferred Language</Label>
+                      <select
+                        id="userLanguage"
+                        value={userProfile.preferredLanguage}
+                        onChange={(e) => setUserProfile({ ...userProfile, preferredLanguage: e.target.value })}
+                        className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                      >
+                        <option value="hinglish">Hinglish (Hindi + English)</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="english">English</option>
+                        <option value="marathi">Marathi</option>
+                        <option value="gujarati">Gujarati</option>
+                        <option value="punjabi">Punjabi</option>
+                        <option value="bengali">Bengali</option>
+                        <option value="tamil">Tamil</option>
+                        <option value="telugu">Telugu</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Language</span>
-                  <span className="text-white font-medium capitalize">{userProfile.preferredLanguage}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-neutral-400">Selected Interests</span>
-                  <span className="text-white font-medium">{userProfile.interests.length} topics selected</span>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* ══════════════════════════════════════════════════════════════════════
+              {accountType === "user" && currentStepObj.id === "goals" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">What would you like to create?</h2>
+                    <p className="text-xs text-neutral-400">Select what interests you most to curate AI tools on your dashboard.</p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Label className="text-xs font-medium text-neutral-300">Creative Interests</Label>
+                    <div className="flex flex-wrap gap-2.5">
+                      {[
+                        "Instagram Reels",
+                        "AI Photoshoots",
+                        "Viral Scripts",
+                        "Posters & Banners",
+                        "Captions & Copywriting",
+                        "Fashion AI Modeling",
+                        "Festival Greeting Posts",
+                        "Personal Portfolio",
+                      ].map((item) => {
+                        const isSelected = userProfile.interests.includes(item);
+                        return (
+                          <button
+                            type="button"
+                            key={item}
+                            onClick={() => toggleInterest(item)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-medium border transition-all cursor-pointer ${isSelected
+                                ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                                : "bg-[#0f1015] border-white/10 text-neutral-400 hover:border-white/20 hover:text-neutral-200"
+                              }`}
+                          >
+                            {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-[#be32ff]" />}
+                            {item}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <Label className="text-xs font-medium text-neutral-300">Primary Platforms</Label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {[
+                        { id: "instagram", name: "Instagram" },
+                        { id: "youtube", name: "YouTube" },
+                        { id: "facebook", name: "Facebook" },
+
+                      ].map((p) => {
+                        const isSelected = userProfile.platforms.includes(p.id);
+                        return (
+                          <div
+                            key={p.id}
+                            onClick={() => {
+                              setUserProfile((prev) => ({
+                                ...prev,
+                                platforms: isSelected
+                                  ? prev.platforms.filter((x) => x !== p.id)
+                                  : [...prev.platforms, p.id],
+                              }));
+                            }}
+                            className={`p-3 rounded-xl border text-center text-xs font-medium cursor-pointer transition-all ${isSelected
+                                ? "bg-purple-600/15 border-purple-500/50 text-white"
+                                : "bg-[#0f1015] border-white/10 text-neutral-400 hover:text-white"
+                              }`}
+                          >
+                            {p.name}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {accountType === "user" && currentStepObj.id === "ready" && (
+                <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
+                  <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
+                    <Sparkles className="w-10 h-10 animate-pulse" />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-extrabold text-white">
+                      Welcome aboard, {userProfile.fullName || "Creator"}!
+                    </h2>
+                    <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
+                      Your personal creator workspace is ready. Explore high-converting reels, generative photoshoot tools, and automated content creation.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Account Role</span>
+                      <span className="text-white font-medium capitalize">Individual User</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Language</span>
+                      <span className="text-white font-medium capitalize">{userProfile.preferredLanguage}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-neutral-400">Selected Interests</span>
+                      <span className="text-white font-medium">{userProfile.interests.length} topics selected</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ══════════════════════════════════════════════════════════════════════
               BRANCH B: BUSINESS STEPPER (accountType === 'business')
               Matches exact DB schema:
               business_name, business_type, business_category, business_description,
@@ -9410,733 +9835,732 @@ export default function OnboardingPage() {
               business_model, selling_model, target_age_group, target_gender,
               target_location, customer_type.
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "business" && currentStepObj.id === "identity" && (
-            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Business Identity &amp; Branding</h2>
-                <p className="text-xs text-neutral-400">Configure your business name, industry type, and visual brand identity.</p>
-              </div>
-
-              <div className="space-y-4">
-                {/* Business Name */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_name" className="text-xs font-medium text-neutral-300">
-                    Business Name <span className="text-red-400">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_name"
-                      placeholder="e.g. Sharma Fashion"
-                      value={businessProfile.business_name}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, business_name: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                {/* Business Type & Category Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="b_type" className="text-xs font-medium text-neutral-300">
-                      Business Type <span className="text-red-400">*</span>
-                    </Label>
-                    <select
-                      id="b_type"
-                      value={businessProfile.business_type}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, business_type: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="Retail Store">Retail Store / Physical Shop</option>
-                      <option value="E-Commerce">E-Commerce / Online Brand</option>
-                      <option value="Restaurant">Restaurant / Cafe / Food</option>
-                      <option value="Service Provider">Service Provider / Freelance</option>
-                      <option value="Manufacturing">Manufacturer / Producer</option>
-                      <option value="Healthcare">Doctor / Clinic / Hospital</option>
-                      <option value="Salon & Beauty">Salon / Spa / Wellness</option>
-                      <option value="Real Estate">Real Estate / Construction</option>
-                      <option value="Wholesale">Wholesale &amp; Distribution</option>
-                      <option value="Other">Other Business</option>
-                    </select>
+              {accountType === "business" && currentStepObj.id === "identity" && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Business Identity &amp; Branding</h2>
+                    <p className="text-xs text-neutral-400">Configure your business name, industry type, and visual brand identity.</p>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="b_category" className="text-xs font-medium text-neutral-300">
-                      Category <span className="text-red-400">*</span>
-                    </Label>
-                    <select
-                      id="b_category"
-                      value={businessProfile.business_category}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, business_category: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="clothing">Clothing / Fashion &amp; Apparel</option>
-                      <option value="restaurant">Restaurant &amp; Food Services</option>
-                      <option value="jewellery">Jewellery &amp; Luxury Accessories</option>
-                      <option value="salon">Salon, Beauty &amp; Personal Care</option>
-                      <option value="real_estate">Real Estate &amp; Housing</option>
-                      <option value="doctor">Healthcare, Doctor &amp; Clinic</option>
-                      <option value="gym">Gym &amp; Fitness</option>
-                      <option value="electronics">Electronics &amp; Appliances</option>
-                      <option value="fmcg">Grocery &amp; FMCG</option>
-                      <option value="other">Other Local Business</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_desc" className="text-xs font-medium text-neutral-300">Business Description</Label>
-                  <textarea
-                    id="b_desc"
-                    rows={2}
-                    placeholder="Short description of your products or services (e.g. Trendy ethnic wear for modern women)..."
-                    value={businessProfile.business_description}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, business_description: e.target.value })}
-                    className="flex w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                  />
-                </div>
-
-                {/* Logo & Brand Color */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-neutral-300">Business Logo</Label>
-                    <div className="flex items-center gap-3">
-                      {logoPreview ? (
-                        <img src={logoPreview} alt="Logo" className="w-12 h-12 rounded-xl object-contain border border-white/20 bg-white/5" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-xl border border-dashed border-white/20 flex items-center justify-center text-neutral-500 bg-white/5">
-                          <Upload className="w-5 h-5" />
-                        </div>
-                      )}
-                      <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 text-xs font-medium text-white transition-colors">
-                        <span>Upload Logo</span>
-                        <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label className="text-xs font-medium text-neutral-300">Brand Color Accent</Label>
-                    <div className="flex items-center gap-2">
-                      {["#be32ff", "#f0449b", "#fc9a5d", "#3b82f6", "#10b981", "#eab308"].map((c) => (
-                        <button
-                          type="button"
-                          key={c}
-                          onClick={() => setBusinessProfile({ ...businessProfile, brand_color: c })}
-                          className={`w-7 h-7 rounded-lg transition-transform ${
-                            businessProfile.brand_color === c ? "scale-125 ring-2 ring-white shadow-md" : "opacity-80 hover:opacity-100"
-                          }`}
-                          style={{ backgroundColor: c }}
+                  <div className="space-y-4">
+                    {/* Business Name */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_name" className="text-xs font-medium text-neutral-300">
+                        Business Name <span className="text-red-400">*</span>
+                      </Label>
+                      <div className="relative">
+                        <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_name"
+                          placeholder="e.g. Sharma Fashion"
+                          value={businessProfile.business_name}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_name: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
                         />
-                      ))}
+                      </div>
+                    </div>
+
+                    {/* Business Type & Category Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="b_type" className="text-xs font-medium text-neutral-300">
+                          Business Type <span className="text-red-400">*</span>
+                        </Label>
+                        <select
+                          id="b_type"
+                          value={businessProfile.business_type}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_type: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="Retail Store">Retail Store / Physical Shop</option>
+                          <option value="E-Commerce">E-Commerce / Online Brand</option>
+                          <option value="Restaurant">Restaurant / Cafe / Food</option>
+                          <option value="Service Provider">Service Provider / Freelance</option>
+                          <option value="Manufacturing">Manufacturer / Producer</option>
+                          <option value="Healthcare">Doctor / Clinic / Hospital</option>
+                          <option value="Salon & Beauty">Salon / Spa / Wellness</option>
+                          <option value="Real Estate">Real Estate / Construction</option>
+                          <option value="Wholesale">Wholesale &amp; Distribution</option>
+                          <option value="Other">Other Business</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="b_category" className="text-xs font-medium text-neutral-300">
+                          Category <span className="text-red-400">*</span>
+                        </Label>
+                        <select
+                          id="b_category"
+                          value={businessProfile.business_category}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_category: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="clothing">Clothing / Fashion &amp; Apparel</option>
+                          <option value="restaurant">Restaurant &amp; Food Services</option>
+                          <option value="jewellery">Jewellery &amp; Luxury Accessories</option>
+                          <option value="salon">Salon, Beauty &amp; Personal Care</option>
+                          <option value="real_estate">Real Estate &amp; Housing</option>
+                          <option value="doctor">Healthcare, Doctor &amp; Clinic</option>
+                          <option value="gym">Gym &amp; Fitness</option>
+                          <option value="electronics">Electronics &amp; Appliances</option>
+                          <option value="fmcg">Grocery &amp; FMCG</option>
+                          <option value="other">Other Local Business</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_desc" className="text-xs font-medium text-neutral-300">Business Description</Label>
+                      <textarea
+                        id="b_desc"
+                        rows={2}
+                        placeholder="Short description of your products or services (e.g. Trendy ethnic wear for modern women)..."
+                        value={businessProfile.business_description}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, business_description: e.target.value })}
+                        className="flex w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                      />
+                    </div>
+
+                    {/* Logo & Brand Color */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-neutral-300">Business Logo</Label>
+                        <div className="flex items-center gap-3">
+                          {logoPreview ? (
+                            <img src={logoPreview} alt="Logo" className="w-12 h-12 rounded-xl object-contain border border-white/20 bg-white/5" />
+                          ) : (
+                            <div className="w-12 h-12 rounded-xl border border-dashed border-white/20 flex items-center justify-center text-neutral-500 bg-white/5">
+                              <Upload className="w-5 h-5" />
+                            </div>
+                          )}
+                          <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 text-xs font-medium text-white transition-colors">
+                            <span>Upload Logo</span>
+                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label className="text-xs font-medium text-neutral-300">Brand Color Accent</Label>
+                        <div className="flex items-center gap-2">
+                          {["#be32ff", "#f0449b", "#fc9a5d", "#3b82f6", "#10b981", "#eab308"].map((c) => (
+                            <button
+                              type="button"
+                              key={c}
+                              onClick={() => setBusinessProfile({ ...businessProfile, brand_color: c })}
+                              className={`w-7 h-7 rounded-lg transition-transform ${businessProfile.brand_color === c ? "scale-125 ring-2 ring-white shadow-md" : "opacity-80 hover:opacity-100"
+                                }`}
+                              style={{ backgroundColor: c }}
+                            />
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {accountType === "business" && currentStepObj.id === "registration" && (
-            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Registration &amp; Contact Info</h2>
-                <p className="text-xs text-neutral-400">Add optional official registration details and direct contact numbers.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_reg" className="text-xs font-medium text-neutral-300">GSTIN / Registration Number (Optional)</Label>
-                  <div className="relative">
-                    <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_reg"
-                      placeholder="e.g. 07AAAAA0000A1Z5"
-                      value={businessProfile.registration_number}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, registration_number: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_year" className="text-xs font-medium text-neutral-300">Year Established</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_year"
-                      type="number"
-                      placeholder="e.g. 2021"
-                      value={businessProfile.year_established}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, year_established: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_phone" className="text-xs font-medium text-neutral-300">Official Business Phone</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_phone"
-                      placeholder="e.g. +91 98765 43210"
-                      value={businessProfile.phone}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, phone: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_lang" className="text-xs font-medium text-neutral-300">Preferred Marketing Language</Label>
-                  <select
-                    id="b_lang"
-                    value={businessProfile.preferredLanguage}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, preferredLanguage: e.target.value })}
-                    className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                  >
-                    <option value="hinglish">Hinglish (Recommended for Indian Retail)</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="english">English</option>
-                    <option value="marathi">Marathi</option>
-                    <option value="gujarati">Gujarati</option>
-                    <option value="punjabi">Punjabi</option>
-                    <option value="tamil">Tamil</option>
-                    <option value="bengali">Bengali</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {accountType === "business" && currentStepObj.id === "location" && (
-            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Business Location &amp; Address</h2>
-                <p className="text-xs text-neutral-400">Enables city-specific ad targeting and local festival promotions.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_city" className="text-xs font-medium text-neutral-300">
-                    City <span className="text-red-400">*</span>
-                  </Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_city"
-                      placeholder="e.g. Mumbai, Jaipur, Bengaluru"
-                      value={businessProfile.city}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, city: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_state" className="text-xs font-medium text-neutral-300">State</Label>
-                  <Input
-                    id="b_state"
-                    placeholder="e.g. Maharashtra, Rajasthan, Karnataka"
-                    value={businessProfile.state}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, state: e.target.value })}
-                    className="h-11 bg-[#0f1015] border-white/10 text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_area" className="text-xs font-medium text-neutral-300">Area / Market Name</Label>
-                  <Input
-                    id="b_area"
-                    placeholder="e.g. Andheri West, MI Road, Sector 18"
-                    value={businessProfile.area}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, area: e.target.value })}
-                    className="h-11 bg-[#0f1015] border-white/10 text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="b_pincode" className="text-xs font-medium text-neutral-300">Pincode</Label>
-                  <Input
-                    id="b_pincode"
-                    placeholder="e.g. 400053"
-                    value={businessProfile.pincode}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, pincode: e.target.value })}
-                    className="h-11 bg-[#0f1015] border-white/10 text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="b_full_addr" className="text-xs font-medium text-neutral-300">Full Address</Label>
-                  <Input
-                    id="b_full_addr"
-                    placeholder="Shop/Office number, building name, street..."
-                    value={businessProfile.full_address}
-                    onChange={(e) => setBusinessProfile({ ...businessProfile, full_address: e.target.value })}
-                    className="h-11 bg-[#0f1015] border-white/10 text-white"
-                  />
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="b_gmaps" className="text-xs font-medium text-neutral-300">Google Maps Link (Optional)</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="b_gmaps"
-                      placeholder="https://maps.app.goo.gl/..."
-                      value={businessProfile.google_maps_url}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, google_maps_url: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {accountType === "business" && currentStepObj.id === "audience" && (
-            <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Target Audience &amp; Selling Model</h2>
-                <p className="text-xs text-neutral-400">Our AI uses this demographic data to craft high-converting ad copy and reel scripts.</p>
-              </div>
-
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="b_model" className="text-xs font-medium text-neutral-300">Business Model</Label>
-                    <select
-                      id="b_model"
-                      value={businessProfile.business_model}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, business_model: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="B2C">B2C (Business to Consumer)</option>
-                      <option value="B2B">B2B (Business to Business)</option>
-                      <option value="D2C">D2C (Direct to Consumer)</option>
-                      <option value="B2B2C">B2B2C (Hybrid Partnership)</option>
-                    </select>
+              {accountType === "business" && currentStepObj.id === "registration" && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Registration &amp; Contact Info</h2>
+                    <p className="text-xs text-neutral-400">Add optional official registration details and direct contact numbers.</p>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="s_model" className="text-xs font-medium text-neutral-300">Selling Channel</Label>
-                    <select
-                      id="s_model"
-                      value={businessProfile.selling_model}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, selling_model: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="Retail Store">Physical Retail Store / Walk-ins</option>
-                      <option value="Online E-Commerce">Online E-Commerce Store</option>
-                      <option value="Hybrid Store">Hybrid (Store + Online/Social)</option>
-                      <option value="Wholesale">Wholesale &amp; Bulk Orders</option>
-                    </select>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_reg" className="text-xs font-medium text-neutral-300">GSTIN / Registration Number (Optional)</Label>
+                      <div className="relative">
+                        <ShieldCheck className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_reg"
+                          placeholder="e.g. 07AAAAA0000A1Z5"
+                          value={businessProfile.registration_number}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, registration_number: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_year" className="text-xs font-medium text-neutral-300">Year Established</Label>
+                      <div className="relative">
+                        <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_year"
+                          type="number"
+                          placeholder="e.g. 2021"
+                          value={businessProfile.year_established}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, year_established: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_phone" className="text-xs font-medium text-neutral-300">Official Business Phone</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_phone"
+                          placeholder="e.g. +91 98765 43210"
+                          value={businessProfile.phone}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, phone: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_lang" className="text-xs font-medium text-neutral-300">Preferred Marketing Language</Label>
+                      <select
+                        id="b_lang"
+                        value={businessProfile.preferredLanguage}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, preferredLanguage: e.target.value })}
+                        className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                      >
+                        <option value="hinglish">Hinglish (Recommended for Indian Retail)</option>
+                        <option value="hindi">Hindi</option>
+                        <option value="english">English</option>
+                        <option value="marathi">Marathi</option>
+                        <option value="gujarati">Gujarati</option>
+                        <option value="punjabi">Punjabi</option>
+                        <option value="tamil">Tamil</option>
+                        <option value="bengali">Bengali</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                {/* Target Age Group Multi-Select Pills */}
-                <div className="space-y-2 pt-1">
-                  <Label className="text-xs font-medium text-neutral-300">Target Age Groups</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {["18-24", "25-34", "35-44", "45-54", "55+"].map((age) => {
-                      const isSelected = businessProfile.target_age_group.includes(age);
-                      return (
-                        <button
-                          type="button"
-                          key={age}
-                          onClick={() => toggleAgeGroup(age)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${
-                            isSelected
-                              ? "bg-pink-600/20 border-pink-500 text-white shadow-sm"
-                              : "bg-[#0f1015] border-white/10 text-neutral-400 hover:text-white"
-                          }`}
+              {accountType === "business" && currentStepObj.id === "location" && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Business Location &amp; Address</h2>
+                    <p className="text-xs text-neutral-400">Enables city-specific ad targeting and local festival promotions.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_city" className="text-xs font-medium text-neutral-300">
+                        City <span className="text-red-400">*</span>
+                      </Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_city"
+                          placeholder="e.g. Mumbai, Jaipur, Bengaluru"
+                          value={businessProfile.city}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, city: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_state" className="text-xs font-medium text-neutral-300">State</Label>
+                      <Input
+                        id="b_state"
+                        placeholder="e.g. Maharashtra, Rajasthan, Karnataka"
+                        value={businessProfile.state}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, state: e.target.value })}
+                        className="h-11 bg-[#0f1015] border-white/10 text-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_area" className="text-xs font-medium text-neutral-300">Area / Market Name</Label>
+                      <Input
+                        id="b_area"
+                        placeholder="e.g. Andheri West, MI Road, Sector 18"
+                        value={businessProfile.area}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, area: e.target.value })}
+                        className="h-11 bg-[#0f1015] border-white/10 text-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="b_pincode" className="text-xs font-medium text-neutral-300">Pincode</Label>
+                      <Input
+                        id="b_pincode"
+                        placeholder="e.g. 400053"
+                        value={businessProfile.pincode}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, pincode: e.target.value })}
+                        className="h-11 bg-[#0f1015] border-white/10 text-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="b_full_addr" className="text-xs font-medium text-neutral-300">Full Address</Label>
+                      <Input
+                        id="b_full_addr"
+                        placeholder="Shop/Office number, building name, street..."
+                        value={businessProfile.full_address}
+                        onChange={(e) => setBusinessProfile({ ...businessProfile, full_address: e.target.value })}
+                        className="h-11 bg-[#0f1015] border-white/10 text-white"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="b_gmaps" className="text-xs font-medium text-neutral-300">Google Maps Link (Optional)</Label>
+                      <div className="relative">
+                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="b_gmaps"
+                          placeholder="https://maps.app.goo.gl/..."
+                          value={businessProfile.google_maps_url}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, google_maps_url: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {accountType === "business" && currentStepObj.id === "audience" && (
+                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Target Audience &amp; Selling Model</h2>
+                    <p className="text-xs text-neutral-400">Our AI uses this demographic data to craft high-converting ad copy and reel scripts.</p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="b_model" className="text-xs font-medium text-neutral-300">Business Model</Label>
+                        <select
+                          id="b_model"
+                          value={businessProfile.business_model}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_model: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
                         >
-                          {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-pink-400" />}
-                          {age} yrs
-                        </button>
-                      );
-                    })}
+                          <option value="B2C">B2C (Business to Consumer)</option>
+                          <option value="B2B">B2B (Business to Business)</option>
+                          <option value="D2C">D2C (Direct to Consumer)</option>
+                          <option value="B2B2C">B2B2C (Hybrid Partnership)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="s_model" className="text-xs font-medium text-neutral-300">Selling Channel</Label>
+                        <select
+                          id="s_model"
+                          value={businessProfile.selling_model}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, selling_model: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="Retail Store">Physical Retail Store / Walk-ins</option>
+                          <option value="Online E-Commerce">Online E-Commerce Store</option>
+                          <option value="Hybrid Store">Hybrid (Store + Online/Social)</option>
+                          <option value="Wholesale">Wholesale &amp; Bulk Orders</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Target Age Group Multi-Select Pills */}
+                    <div className="space-y-2 pt-1">
+                      <Label className="text-xs font-medium text-neutral-300">Target Age Groups</Label>
+                      <div className="flex flex-wrap gap-2">
+                        {["18-24", "25-34", "35-44", "45-54", "55+"].map((age) => {
+                          const isSelected = businessProfile.target_age_group.includes(age);
+                          return (
+                            <button
+                              type="button"
+                              key={age}
+                              onClick={() => toggleAgeGroup(age)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer ${isSelected
+                                  ? "bg-pink-600/20 border-pink-500 text-white shadow-sm"
+                                  : "bg-[#0f1015] border-white/10 text-neutral-400 hover:text-white"
+                                }`}
+                            >
+                              {isSelected && <Check className="w-3.5 h-3.5 inline mr-1 text-pink-400" />}
+                              {age} yrs
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="t_gender" className="text-xs font-medium text-neutral-300">Target Gender</Label>
+                        <select
+                          id="t_gender"
+                          value={businessProfile.target_gender}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, target_gender: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="All">All Genders</option>
+                          <option value="Female">Women / Female Focus</option>
+                          <option value="Male">Men / Male Focus</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="t_loc" className="text-xs font-medium text-neutral-300">Target Reach</Label>
+                        <select
+                          id="t_loc"
+                          value={businessProfile.target_location}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, target_location: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="Local City">Local City / Neighborhood</option>
+                          <option value="State-wide">State-wide Reach</option>
+                          <option value="Pan India">Pan India Delivery</option>
+                          <option value="Global">Global / International</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="c_type" className="text-xs font-medium text-neutral-300">Customer Segment</Label>
+                        <select
+                          id="c_type"
+                          value={businessProfile.customer_type}
+                          onChange={(e) => setBusinessProfile({ ...businessProfile, customer_type: e.target.value })}
+                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                        >
+                          <option value="Mass Market">Mass Market</option>
+                          <option value="Value for Money">Value for Money</option>
+                          <option value="Premium / Luxury">Premium / Luxury</option>
+                          <option value="B2B Clients">B2B Clients</option>
+                        </select>
+                      </div>
+                    </div>
                   </div>
                 </div>
+              )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="t_gender" className="text-xs font-medium text-neutral-300">Target Gender</Label>
-                    <select
-                      id="t_gender"
-                      value={businessProfile.target_gender}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, target_gender: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="All">All Genders</option>
-                      <option value="Female">Women / Female Focus</option>
-                      <option value="Male">Men / Male Focus</option>
-                    </select>
+              {accountType === "business" && currentStepObj.id === "ready" && (
+                <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
+                  <div
+                    className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto text-white shadow-2xl transition-all"
+                    style={{
+                      background: `linear-gradient(135deg, ${businessProfile.brand_color || "#be32ff"}, #f0449b)`,
+                      boxShadow: `0 0 35px ${businessProfile.brand_color || "#be32ff"}55`,
+                    }}
+                  >
+                    <Store className="w-10 h-10" />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="t_loc" className="text-xs font-medium text-neutral-300">Target Reach</Label>
-                    <select
-                      id="t_loc"
-                      value={businessProfile.target_location}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, target_location: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="Local City">Local City / Neighborhood</option>
-                      <option value="State-wide">State-wide Reach</option>
-                      <option value="Pan India">Pan India Delivery</option>
-                      <option value="Global">Global / International</option>
-                    </select>
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-extrabold text-white">
+                      {businessProfile.business_name || "Your Business"} is Ready!
+                    </h2>
+                    <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
+                      We have mapped your business category, target location, and demographic preferences into our AI Marketing &amp; Ad Engine.
+                    </p>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="c_type" className="text-xs font-medium text-neutral-300">Customer Segment</Label>
-                    <select
-                      id="c_type"
-                      value={businessProfile.customer_type}
-                      onChange={(e) => setBusinessProfile({ ...businessProfile, customer_type: e.target.value })}
-                      className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                    >
-                      <option value="Mass Market">Mass Market</option>
-                      <option value="Value for Money">Value for Money</option>
-                      <option value="Premium / Luxury">Premium / Luxury</option>
-                      <option value="B2B Clients">B2B Clients</option>
-                    </select>
+                  {/* Summary of Business Identity */}
+                  <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Business Name</span>
+                      <span className="text-white font-semibold">{businessProfile.business_name}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Type &amp; Category</span>
+                      <span className="text-white font-medium capitalize">{businessProfile.business_type} • {businessProfile.business_category}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Location</span>
+                      <span className="text-white font-medium">{businessProfile.city ? `${businessProfile.city}, ${businessProfile.state}` : "India"}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-neutral-400">Target Audience</span>
+                      <span className="text-white font-medium">{businessProfile.target_gender} • {businessProfile.target_location}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {accountType === "business" && currentStepObj.id === "ready" && (
-            <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
-              <div
-                className="w-20 h-20 rounded-2xl flex items-center justify-center mx-auto text-white shadow-2xl transition-all"
-                style={{
-                  background: `linear-gradient(135deg, ${businessProfile.brand_color || "#be32ff"}, #f0449b)`,
-                  boxShadow: `0 0 35px ${businessProfile.brand_color || "#be32ff"}55`,
-                }}
-              >
-                <Store className="w-10 h-10" />
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="text-3xl font-extrabold text-white">
-                  {businessProfile.business_name || "Your Business"} is Ready!
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
-                  We have mapped your business category, target location, and demographic preferences into our AI Marketing &amp; Ad Engine.
-                </p>
-              </div>
-
-              {/* Summary of Business Identity */}
-              <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Business Name</span>
-                  <span className="text-white font-semibold">{businessProfile.business_name}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Type &amp; Category</span>
-                  <span className="text-white font-medium capitalize">{businessProfile.business_type} • {businessProfile.business_category}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Location</span>
-                  <span className="text-white font-medium">{businessProfile.city ? `${businessProfile.city}, ${businessProfile.state}` : "India"}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-neutral-400">Target Audience</span>
-                  <span className="text-white font-medium">{businessProfile.target_gender} • {businessProfile.target_location}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════════════
+              {/* ══════════════════════════════════════════════════════════════════════
               BRANCH C: INFLUENCER / CREATOR STEPPER (accountType === 'influencer')
           ══════════════════════════════════════════════════════════════════════ */}
-          {accountType === "influencer" && currentStepObj.id === "creator_profile" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Creator Identity &amp; Niche</h2>
-                <p className="text-xs text-neutral-400">Set up your creator display name, primary content category, and bio for brands to discover.</p>
-              </div>
+              {accountType === "influencer" && currentStepObj.id === "creator_profile" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Creator Identity &amp; Niche</h2>
+                    <p className="text-xs text-neutral-400">Set up your creator display name, primary content category, and bio for brands to discover.</p>
+                  </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infFullName" className="text-xs font-medium text-neutral-300">Creator / Display Name *</Label>
-                  <div className="relative">
-                    <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="infFullName"
-                      placeholder="e.g. Rohit Verma"
-                      value={influencerProfile.fullName}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, fullName: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infFullName" className="text-xs font-medium text-neutral-300">Creator / Display Name *</Label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="infFullName"
+                          placeholder="e.g. Rohit Verma"
+                          value={influencerProfile.fullName}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, fullName: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infUsername" className="text-xs font-medium text-neutral-300">Creator Handle / Username</Label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500 font-bold">@</span>
+                        <Input
+                          id="infUsername"
+                          placeholder="rohit_fashion_vibe"
+                          value={influencerProfile.username}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, username: e.target.value.replace(/^@/, "") })}
+                          className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infCategory" className="text-xs font-medium text-neutral-300">Primary Content Niche *</Label>
+                      <select
+                        id="infCategory"
+                        value={influencerProfile.category}
+                        onChange={(e) => setInfluencerProfile({ ...influencerProfile, category: e.target.value })}
+                        className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                      >
+                        <option value="Fashion">Fashion &amp; Apparel</option>
+                        <option value="Technology">Technology &amp; Gadgets</option>
+                        <option value="Food &amp; Travel">Food &amp; Travel</option>
+                        <option value="Fitness &amp; Health">Fitness &amp; Health</option>
+                        <option value="Beauty &amp; Lifestyle">Beauty &amp; Lifestyle</option>
+                        <option value="Gaming">Gaming &amp; Esports</option>
+                        <option value="Entertainment">Entertainment &amp; Comedy</option>
+                        <option value="Business &amp; Finance">Business &amp; Finance</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infBio" className="text-xs font-medium text-neutral-300">Creator Bio / Profile Summary</Label>
+                      <textarea
+                        id="infBio"
+                        rows={3}
+                        placeholder="Briefly describe your content niche, audience vibe, and brand collaboration style..."
+                        value={influencerProfile.bio}
+                        onChange={(e) => setInfluencerProfile({ ...influencerProfile, bio: e.target.value })}
+                        className="w-full rounded-xl border border-white/10 bg-[#0f1015] p-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="infCity" className="text-xs font-medium text-neutral-300">City</Label>
+                      <div className="relative">
+                        <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="infCity"
+                          placeholder="e.g. Mumbai"
+                          value={influencerProfile.city}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, city: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="infState" className="text-xs font-medium text-neutral-300">State / Region</Label>
+                      <Input
+                        id="infState"
+                        placeholder="e.g. Maharashtra"
+                        value={influencerProfile.state}
+                        onChange={(e) => setInfluencerProfile({ ...influencerProfile, state: e.target.value })}
+                        className="h-11 bg-[#0f1015] border-white/10 text-white"
+                      />
+                    </div>
                   </div>
                 </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infUsername" className="text-xs font-medium text-neutral-300">Creator Handle / Username</Label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500 font-bold">@</span>
-                    <Input
-                      id="infUsername"
-                      placeholder="rohit_fashion_vibe"
-                      value={influencerProfile.username}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, username: e.target.value.replace(/^@/, "") })}
-                      className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infCategory" className="text-xs font-medium text-neutral-300">Primary Content Niche *</Label>
-                  <select
-                    id="infCategory"
-                    value={influencerProfile.category}
-                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, category: e.target.value })}
-                    className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                  >
-                    <option value="Fashion">Fashion &amp; Apparel</option>
-                    <option value="Technology">Technology &amp; Gadgets</option>
-                    <option value="Food &amp; Travel">Food &amp; Travel</option>
-                    <option value="Fitness &amp; Health">Fitness &amp; Health</option>
-                    <option value="Beauty &amp; Lifestyle">Beauty &amp; Lifestyle</option>
-                    <option value="Gaming">Gaming &amp; Esports</option>
-                    <option value="Entertainment">Entertainment &amp; Comedy</option>
-                    <option value="Business &amp; Finance">Business &amp; Finance</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infBio" className="text-xs font-medium text-neutral-300">Creator Bio / Profile Summary</Label>
-                  <textarea
-                    id="infBio"
-                    rows={3}
-                    placeholder="Briefly describe your content niche, audience vibe, and brand collaboration style..."
-                    value={influencerProfile.bio}
-                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, bio: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-[#0f1015] p-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff]"
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="infCity" className="text-xs font-medium text-neutral-300">City</Label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="infCity"
-                      placeholder="e.g. Mumbai"
-                      value={influencerProfile.city}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, city: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="infState" className="text-xs font-medium text-neutral-300">State / Region</Label>
-                  <Input
-                    id="infState"
-                    placeholder="e.g. Maharashtra"
-                    value={influencerProfile.state}
-                    onChange={(e) => setInfluencerProfile({ ...influencerProfile, state: e.target.value })}
-                    className="h-11 bg-[#0f1015] border-white/10 text-white"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          {accountType === "influencer" && currentStepObj.id === "social_reach" && (
-            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-              <div className="text-center space-y-1">
-                <h2 className="text-2xl font-bold text-white">Social Channels &amp; Commercials</h2>
-                <p className="text-xs text-neutral-400">Add your social channels and base commercial rate per deliverable.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infInstagram" className="text-xs font-medium text-neutral-300">Instagram Profile Link or Handle *</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400" />
-                    <Input
-                      id="infInstagram"
-                      placeholder="https://instagram.com/yourhandle"
-                      value={influencerProfile.instagram_url}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, instagram_url: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infYoutube" className="text-xs font-medium text-neutral-300">YouTube Channel URL (Optional)</Label>
-                  <div className="relative">
-                    <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
-                    <Input
-                      id="infYoutube"
-                      placeholder="https://youtube.com/@channel"
-                      value={influencerProfile.youtube_url}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, youtube_url: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="infFollowers" className="text-xs font-medium text-neutral-300">Total Followers / Audience</Label>
-                  <div className="relative">
-                    <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="infFollowers"
-                      type="number"
-                      placeholder="50000"
-                      value={influencerProfile.follower_count}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, follower_count: Number(e.target.value) })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label htmlFor="infPrice" className="text-xs font-medium text-neutral-300">Expected Rate per Reel (₹ INR)</Label>
-                  <div className="relative">
-                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-400 font-bold">₹</span>
-                    <Input
-                      id="infPrice"
-                      type="number"
-                      placeholder="5000"
-                      value={influencerProfile.expectedPricePerPost}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, expectedPricePerPost: Number(e.target.value) })}
-                      className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1.5 sm:col-span-2">
-                  <Label htmlFor="infPhone" className="text-xs font-medium text-neutral-300">Contact Number (For Private Brand Inquiries)</Label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                    <Input
-                      id="infPhone"
-                      placeholder="+91 98765 43210"
-                      value={influencerProfile.phone}
-                      onChange={(e) => setInfluencerProfile({ ...influencerProfile, phone: e.target.value })}
-                      className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {accountType === "influencer" && currentStepObj.id === "ready" && (
-            <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
-              <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#be32ff]/20 to-[#7d36fa]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
-                <Sparkles className="w-10 h-10 animate-pulse" />
-              </div>
-              <div className="space-y-2">
-                <h2 className="text-3xl font-extrabold text-white">
-                  Welcome aboard, {influencerProfile.fullName || "Creator"}!
-                </h2>
-                <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
-                  Your Creator Profile and Media Kit are now live! Brands can discover your profile, send bilateral digital agreements, and fund escrow-secured campaigns.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Account Type</span>
-                  <span className="text-white font-medium capitalize">Creator &amp; Influencer</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Primary Niche</span>
-                  <span className="text-white font-medium capitalize">{influencerProfile.category}</span>
-                </div>
-                <div className="flex justify-between py-1 border-b border-white/5">
-                  <span className="text-neutral-400">Location</span>
-                  <span className="text-white font-medium">{influencerProfile.city ? `${influencerProfile.city}, ${influencerProfile.state}` : "India"}</span>
-                </div>
-                <div className="flex justify-between py-1">
-                  <span className="text-neutral-400">Starting Reel Rate</span>
-                  <span className="text-[#fc9a5d] font-bold">₹{Number(influencerProfile.expectedPricePerPost).toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Error notice */}
-          {error && (
-            <div className="mt-6 p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-              <span className="font-semibold text-red-400">Error:</span> {error}
-            </div>
-          )}
-
-          {/* Stepper Navigation Buttons */}
-          <div className="flex items-center justify-between mt-8 pt-5 border-t border-white/10">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 0 || isSubmitting}
-              className={`h-11 px-4 rounded-xl border-white/10 bg-[#0f1015] text-neutral-300 hover:text-white hover:bg-white/5 text-xs font-semibold ${
-                currentStep === 0 ? "opacity-0 pointer-events-none" : ""
-              }`}
-            >
-              <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
-            </Button>
-
-            <Button
-              type="button"
-              onClick={(e) => {
-                if (currentStep === 0 && accountType === "influencer") {
-                  handleSelectInfluencerAndLaunch(e);
-                } else {
-                  handleNext(e);
-                }
-              }}
-              disabled={isSubmitting}
-              className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-xs tracking-wide shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_30px_rgba(190,50,255,0.5)] transition-all cursor-pointer min-w-[140px]"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Saving Setup...
-                </span>
-              ) : isLastStep ? (
-                <span className="flex items-center gap-1.5">
-                  {accountType === "influencer" ? "Go to Creator Dashboard" : "Go to Dashboard"} <ArrowRight className="w-4 h-4" />
-                </span>
-              ) : currentStep === activeSteps.length - 2 ? (
-                <span className="flex items-center gap-1.5">
-                  Complete Setup <Sparkles className="w-4 h-4" />
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5">
-                  Continue <ArrowRight className="w-4 h-4" />
-                </span>
               )}
-            </Button>
-          </div>
 
-        </CardContent>
-      </Card>
+              {accountType === "influencer" && currentStepObj.id === "social_reach" && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+                  <div className="text-center space-y-1">
+                    <h2 className="text-2xl font-bold text-white">Social Channels &amp; Commercials</h2>
+                    <p className="text-xs text-neutral-400">Add your social channels and base commercial rate per deliverable.</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infInstagram" className="text-xs font-medium text-neutral-300">Instagram Profile Link or Handle *</Label>
+                      <div className="relative">
+                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-pink-400" />
+                        <Input
+                          id="infInstagram"
+                          placeholder="https://instagram.com/yourhandle"
+                          value={influencerProfile.instagram_url}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, instagram_url: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infYoutube" className="text-xs font-medium text-neutral-300">YouTube Channel URL (Optional)</Label>
+                      <div className="relative">
+                        <Globe className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-red-400" />
+                        <Input
+                          id="infYoutube"
+                          placeholder="https://youtube.com/@channel"
+                          value={influencerProfile.youtube_url}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, youtube_url: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="infFollowers" className="text-xs font-medium text-neutral-300">Total Followers / Audience</Label>
+                      <div className="relative">
+                        <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="infFollowers"
+                          type="number"
+                          placeholder="50000"
+                          value={influencerProfile.follower_count}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, follower_count: Number(e.target.value) })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="infPrice" className="text-xs font-medium text-neutral-300">Expected Rate per Reel (₹ INR)</Label>
+                      <div className="relative">
+                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-neutral-400 font-bold">₹</span>
+                        <Input
+                          id="infPrice"
+                          type="number"
+                          placeholder="5000"
+                          value={influencerProfile.expectedPricePerPost}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, expectedPricePerPost: Number(e.target.value) })}
+                          className="pl-9 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 sm:col-span-2">
+                      <Label htmlFor="infPhone" className="text-xs font-medium text-neutral-300">Contact Number (For Private Brand Inquiries)</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                        <Input
+                          id="infPhone"
+                          placeholder="+91 98765 43210"
+                          value={influencerProfile.phone}
+                          onChange={(e) => setInfluencerProfile({ ...influencerProfile, phone: e.target.value })}
+                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {accountType === "influencer" && currentStepObj.id === "ready" && (
+                <div className="space-y-6 text-center animate-in fade-in zoom-in-95 duration-400 py-4">
+                  <div className="w-20 h-20 bg-gradient-to-tr from-[#fc9a5d]/20 via-[#be32ff]/20 to-[#7d36fa]/30 rounded-2xl border border-[#be32ff]/40 flex items-center justify-center mx-auto text-[#be32ff] shadow-[0_0_30px_rgba(190,50,255,0.4)]">
+                    <Sparkles className="w-10 h-10 animate-pulse" />
+                  </div>
+                  <div className="space-y-2">
+                    <h2 className="text-3xl font-extrabold text-white">
+                      Welcome aboard, {influencerProfile.fullName || "Creator"}!
+                    </h2>
+                    <p className="text-xs sm:text-sm text-neutral-400 max-w-md mx-auto leading-relaxed">
+                      Your Creator Profile and Media Kit are now live! Brands can discover your profile, send bilateral digital agreements, and fund escrow-secured campaigns.
+                    </p>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-[#0f1015] border border-white/10 max-w-md mx-auto text-left text-xs space-y-2">
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Account Type</span>
+                      <span className="text-white font-medium capitalize">Creator &amp; Influencer</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Primary Niche</span>
+                      <span className="text-white font-medium capitalize">{influencerProfile.category}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-white/5">
+                      <span className="text-neutral-400">Location</span>
+                      <span className="text-white font-medium">{influencerProfile.city ? `${influencerProfile.city}, ${influencerProfile.state}` : "India"}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-neutral-400">Starting Reel Rate</span>
+                      <span className="text-[#fc9a5d] font-bold">₹{Number(influencerProfile.expectedPricePerPost).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Error notice */}
+              {error && (
+                <div className="mt-6 p-3.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                  <span className="font-semibold text-red-400">Error:</span> {error}
+                </div>
+              )}
+
+              {/* Stepper Navigation Buttons */}
+              <div className="flex items-center justify-between mt-8 pt-5 border-t border-white/10">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBack}
+                  disabled={currentStep === 0 || isSubmitting}
+                  className={`h-11 px-4 rounded-xl border-white/10 bg-[#0f1015] text-neutral-300 hover:text-white hover:bg-white/5 text-xs font-semibold ${currentStep === 0 ? "opacity-0 pointer-events-none" : ""
+                    }`}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={(e) => {
+                    if (currentStep === 0 && accountType === "influencer") {
+                      handleSelectInfluencerAndLaunch(e);
+                    } else {
+                      handleNext(e);
+                    }
+                  }}
+                  disabled={isSubmitting}
+                  className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-xs tracking-wide shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_30px_rgba(190,50,255,0.5)] transition-all cursor-pointer min-w-[140px]"
+                >
+                  {isSubmitting ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" /> Saving Setup...
+                    </span>
+                  ) : isLastStep ? (
+                    <span className="flex items-center gap-1.5">
+                      {accountType === "influencer" ? "Go to Creator Dashboard" : "Go to Dashboard"} <ArrowRight className="w-4 h-4" />
+                    </span>
+                  ) : currentStep === activeSteps.length - 2 ? (
+                    <span className="flex items-center gap-1.5">
+                      Complete Setup <Sparkles className="w-4 h-4" />
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1.5">
+                      Continue <ArrowRight className="w-4 h-4" />
+                    </span>
+                  )}
+                </Button>
+              </div>
+
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Subscription Plan Modal */}
+      <AvailablePlansModal
+        isOpen={showPlansModal}
+        onClose={() => setShowPlansModal(false)}
+        isModal={true}
+      />
+
+      {/* Footer (hidden on get_started to ensure zero vertical scroll) */}
+      {currentStepObj.id !== "get_started" && (
+        <footer className="w-full max-w-4xl mx-auto mt-6 text-center text-xs text-neutral-500 z-10 relative">
+          &copy; {new Date().getFullYear()} DhandaGrow AI. Tailored for Indian enterprises and creators.
+        </footer>
+      )}
     </div>
-  )}
-
-  {/* Subscription Plan Modal */}
-  <AvailablePlansModal
-    isOpen={showPlansModal}
-    onClose={() => setShowPlansModal(false)}
-    isModal={true}
-  />
-
-  {/* Footer */}
-  <footer className="w-full max-w-4xl mx-auto mt-6 text-center text-xs text-neutral-500 z-10 relative">
-    &copy; {new Date().getFullYear()} DhandaGrow AI. Tailored for Indian enterprises and creators.
-  </footer>
-</div>
   );
 }

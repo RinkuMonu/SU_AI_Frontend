@@ -73,9 +73,68 @@ export const aiService = {
       const response = await api.post("/api/v1/ai/website-analysis", payload);
       const resData = response.data?.data || response.data || {};
 
-      // If backend returns photos/images, ensure clean array
-      const rawPhotos = resData.photos || resData.images || resData.scraped_images || [];
-      const photos = Array.isArray(rawPhotos) ? rawPhotos.map((p: any) => (typeof p === "string" ? p : p?.url || "")).filter((u: string) => typeof u === "string" && u.startsWith("http")) : [];
+      // 1. Extract all potential photos from backend response
+      const rawPhotosList = [
+        ...(Array.isArray(resData.photos) ? resData.photos : []),
+        ...(Array.isArray(resData.images) ? resData.images : []),
+        ...(Array.isArray(resData.scraped_images) ? resData.scraped_images : []),
+        ...(Array.isArray(resData.scraped_photos) ? resData.scraped_photos : []),
+        ...(Array.isArray(resData.website_photos) ? resData.website_photos : []),
+        ...(Array.isArray(resData.visual_assets) ? resData.visual_assets : []),
+        ...(Array.isArray(resData.media) ? resData.media : []),
+        ...(Array.isArray(resData.gallery) ? resData.gallery : []),
+        ...(Array.isArray(resData.assets) ? resData.assets : []),
+        ...(Array.isArray(resData.data?.photos) ? resData.data.photos : []),
+        ...(Array.isArray(resData.data?.images) ? resData.data.images : []),
+        resData.og_image,
+        resData.metadata?.og_image,
+        resData.logo_url,
+        resData.logo,
+      ].filter(Boolean);
+
+      const baseUrl = payload.website_url
+        ? (payload.website_url.startsWith("http") ? payload.website_url : `https://${payload.website_url}`)
+        : "";
+
+      const seen = new Set<string>();
+      const photos: string[] = [];
+
+      const addCandidatePhoto = (item: any) => {
+        let u = typeof item === "string" ? item : (item?.url || item?.src || item?.link || item?.image || "");
+        if (typeof u === "string") {
+          u = u.trim();
+          if (!u || (u.startsWith("data:") && u.length > 2000)) return;
+          if (u.startsWith("//")) {
+            u = `https:${u}`;
+          } else if (!u.startsWith("http://") && !u.startsWith("https://") && baseUrl) {
+            try {
+              u = new URL(u, baseUrl).href;
+            } catch (_) {}
+          }
+          if ((u.startsWith("http://") || u.startsWith("https://")) && !seen.has(u)) {
+            const lower = u.toLowerCase();
+            if (!lower.endsWith(".svg") && !lower.includes("1x1") && !lower.includes("pixel.gif")) {
+              seen.add(u);
+              photos.push(u);
+            }
+          }
+        }
+      };
+
+      rawPhotosList.forEach(addCandidatePhoto);
+
+      // 2. Client-side scraper fallback if backend returned few photos
+      if (typeof window !== "undefined" && photos.length < 8 && baseUrl) {
+        try {
+          const scrapeRes = await fetch(`/api/onboarding/scrape-photos?url=${encodeURIComponent(baseUrl)}`);
+          if (scrapeRes.ok) {
+            const scrapeData = await scrapeRes.json();
+            if (Array.isArray(scrapeData?.photos)) {
+              scrapeData.photos.forEach(addCandidatePhoto);
+            }
+          }
+        } catch (_) {}
+      }
 
       // Differentiators
       const diffs =

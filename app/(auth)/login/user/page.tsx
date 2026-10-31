@@ -762,52 +762,42 @@ export default function LoginPage() {
   const formattedDisplayPhone = `${countryCode} ${phone || ""}`;
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[#071226] text-[#f1f1f5] flex items-center justify-center relative select-none font-sans px-4 sm:px-6 pt-2 pb-2 sm:pt-3 sm:pb-3">
+    <div className="h-screen w-screen overflow-hidden bg-[#071226] text-[#f1f1f5] flex items-center justify-center relative select-none font-sans p-[5px]">
       
       {/* ─────────────────────────────────────────────────────────────────────────────
-          BOTTOM WAVES: Flowing organic curves matching Image 1
+          BACKGROUND PURPLE WAVE: Exact organic wave matching reference design
          ───────────────────────────────────────────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Bottom Left Sunset Gradient Wave */}
         <svg
-          className="absolute bottom-0 left-0 w-[55vw] max-w-[650px] h-[34vh] max-h-[320px]"
-          viewBox="0 0 650 260"
+          className="absolute bottom-0 left-0 w-full h-[16vh] min-h-[90px] max-h-[160px]"
+          viewBox="0 0 1440 180"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="none"
         >
           <defs>
-            <linearGradient id="waveSunsetLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FA8366" />
-              <stop offset="25%" stopColor="#F2548E" />
-              <stop offset="60%" stopColor="#7E32A0" />
-              <stop offset="100%" stopColor="#2A125E" />
+            <linearGradient id="purpleWaveGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+              <stop offset="0%" stopColor="#4A229E" stopOpacity="0.85" />
+              <stop offset="35%" stopColor="#2E156D" stopOpacity="0.7" />
+              <stop offset="70%" stopColor="#1B0C46" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#0B0522" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="purpleWaveStroke" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#2E156D" stopOpacity="0.25" />
+              <stop offset="35%" stopColor="#6C35DE" stopOpacity="0.65" />
+              <stop offset="68%" stopColor="#8747FF" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#4E20B3" stopOpacity="0.35" />
             </linearGradient>
           </defs>
           <path
-            d="M0 90 C 160 120, 320 190, 650 260 L 650 260 L 0 260 Z"
-            fill="url(#waveSunsetLogin)"
+            d="M0 168 C 300 155, 620 115, 980 75 C 1180 52, 1340 76, 1440 95 L 1440 180 L 0 180 Z"
+            fill="url(#purpleWaveGradient)"
           />
-        </svg>
-
-        {/* Bottom Right Deep Violet Wave Layer */}
-        <svg
-          className="absolute bottom-0 right-0 w-[45vw] max-w-[550px] h-[22vh] max-h-[220px]"
-          viewBox="0 0 550 220"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="waveVioletRightLogin" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#1B124C" stopOpacity="0.3" />
-              <stop offset="60%" stopColor="#2E176E" stopOpacity="0.75" />
-              <stop offset="100%" stopColor="#4A1E9E" stopOpacity="0.85" />
-            </linearGradient>
-          </defs>
           <path
-            d="M0 220 C 180 200, 340 140, 550 120 L 550 220 Z"
-            fill="url(#waveVioletRightLogin)"
+            d="M0 168 C 300 155, 620 115, 980 75 C 1180 52, 1340 76, 1440 95"
+            stroke="url(#purpleWaveStroke)"
+            strokeWidth="1.5"
+            fill="none"
           />
         </svg>
       </div>
@@ -815,10 +805,10 @@ export default function LoginPage() {
       {/* ─────────────────────────────────────────────────────────────────────────────
           MAIN CONTENT: Centered Auth Card
          ───────────────────────────────────────────────────────────────────────────── */}
-      <main className="relative z-10 w-full max-w-5xl xl:max-w-6xl h-full flex items-center justify-center gap-8 lg:gap-14 px-4">
+      <main className="relative z-10 w-full h-full flex items-center justify-between">
 
         {/* Left Column: 3D Phone Mockup Showcase (Dynamically updates on step and when typing OTP) */}
-        <div className="hidden lg:flex w-[460px] xl:w-[490px] h-[calc(100vh-90px)] max-h-[640px] xl:max-h-[680px] self-start mt-3 sm:mt-4 items-center justify-center rounded-2xl overflow-hidden bg-[#201653] shadow-2xl relative select-none shrink-0 border border-white/5">
+        <div className="hidden lg:flex w-[490px] xl:w-[550px] 2xl:w-[620px] h-[calc(100vh-10px)] items-center justify-center rounded-3xl overflow-hidden bg-[#201653] shadow-2xl relative select-none shrink-0 border border-white/10">
           <img
             key={step === "otp" && otp.length > 0 ? "otp-typing" : step}
             src={
@@ -829,12 +819,13 @@ export default function LoginPage() {
                 : "/images/auth-phone-mockup.jpg"
             }
             alt="DhandaGrow AI+"
-            className="w-full h-full object-cover object-center select-none pointer-events-none transition-opacity duration-300 animate-in fade-in"
+            className="w-full h-full object-cover object-center select-none pointer-events-none transition-transform duration-300 animate-in fade-in"
           />
         </div>
 
         {/* Right Column: Dark Auth Card (#10131c) - Exact Images 1 & 2 */}
-        <div className="w-full max-w-[375px] xl:max-w-[390px] self-center bg-[#10131c] rounded-2xl border border-slate-700/60 shadow-2xl shadow-black/50 p-6 sm:p-7 space-y-4 sm:space-y-4.5 relative z-10 shrink-0">
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6">
+          <div className="w-full max-w-[375px] xl:max-w-[390px] bg-[#10131c] rounded-2xl border border-slate-700/60 shadow-2xl shadow-black/50 p-6 sm:p-7 space-y-4 sm:space-y-4.5 relative z-10 shrink-0">
           
           {/* Global Error Banner */}
           {error && (
@@ -884,17 +875,14 @@ export default function LoginPage() {
                 <img
                   src="/images/logo-icon.png"
                   alt="DhandaGrow"
-                  className="w-10 h-10 object-contain shrink-0"
+                  className="h-12 sm:h-13 w-auto object-contain shrink-0 drop-shadow-[0_0_12px_rgba(240,68,155,0.4)]"
                 />
-                <div className="flex flex-col">
-                  <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-xl font-bold tracking-tight text-[#4F75FF]">
-                      Dhanda<span className="text-[#FA5D42]">Grow</span>
-                    </span>
-                    <span className="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded-md bg-gradient-to-r from-[#7C3AED] to-[#EC4899] text-white tracking-wider">
-                      AI+
-                    </span>
-                  </div>
+                <div className="flex flex-col justify-center">
+                  <img
+                    src="/images/dhandagrow-text-logo.png"
+                    alt="DhandaGrow AI"
+                    className="h-6 w-auto object-contain select-none"
+                  />
                   <span className="text-xs text-slate-300 font-normal tracking-wide mt-1">
                     India&apos;s AI Business Growth App
                   </span>
@@ -957,7 +945,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleSendOtp("sms")}
                 disabled={isSendingOtp}
-                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#F59B67] via-[#F2548E] to-[#9035FC] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#F2548E]/20 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
+                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#F2548E]/20 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {isSendingOtp ? (
                   <>
@@ -1077,7 +1065,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => handleVerifyOtp()}
                 disabled={otp.length !== 6 || isVerifyingOtp}
-                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#8241fd] via-[#d334d7] to-[#f56983] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#d334d7]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#d334d7]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               >
                 {isVerifyingOtp ? (
                   <>
@@ -1145,6 +1133,7 @@ export default function LoginPage() {
             </div>
           )}
 
+          </div>
         </div>
       </main>
 
