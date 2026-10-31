@@ -408,7 +408,7 @@ export default function LeadsCRMPage() {
           </h1>
 
           <p className="text-base sm:text-xl text-slate-300/90 leading-relaxed mb-8 max-w-3xl mx-auto font-normal">
-            No more lost inquiries across fragmented chats and spreadsheets. Our AI automatically captures leads from Social, Instagram DMs, YouTube comments, Facebook Ads, LinkedIn B2B forms, and Twitter (X) messages, scores buyer urgency with Gemini AI, and closes deals with instant UPI checkout.
+            No more lost inquiries across fragmented chats and spreadsheets. Our AI automatically captures leads from Social, Instagram DMs, YouTube comments, Facebook Ads, LinkedIn B2B forms, and Twitter (X) messages, scores buyer urgency with AI, and closes deals with instant UPI checkout.
           </p>
 
           {/* Social Platforms Connected Bar */}
@@ -538,7 +538,7 @@ export default function LeadsCRMPage() {
                 </span>
                 <span className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                  Gemini 2.0 AI Lead Scoring Engine (Hinglish + Regional)
+                  AI Lead Scoring Engine (Hinglish + Regional)
                 </span>
                 <span className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-cyan-400" />
@@ -862,7 +862,7 @@ export default function LeadsCRMPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-teal-400" />
-                          <span className="text-xs font-bold text-white uppercase tracking-wider">Gemini Intent Score</span>
+                          <span className="text-xs font-bold text-white uppercase tracking-wider">AI Intent Score</span>
                         </div>
                         <span className="text-sm font-black text-teal-300 font-mono">{selectedLead.aiScore}% Ready</span>
                       </div>
@@ -1035,7 +1035,7 @@ export default function LeadsCRMPage() {
                   <div>
                     <h4 className="font-bold text-white text-sm mb-1">2. Multilingual AI Scoring & Intent Detection</h4>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Gemini 2.0 reads Hinglish, Hindi, and English across platforms, detecting budget, purchase urgency, and timeline, tagging "Hot", "Warm", or "Cold" within milliseconds.
+                      AI reads Hinglish, Hindi, and English across platforms, detecting budget, purchase urgency, and timeline, tagging "Hot", "Warm", or "Cold" within milliseconds.
                     </p>
                   </div>
                 </div>
@@ -1304,7 +1304,7 @@ export default function LeadsCRMPage() {
                   <td className="py-4 px-4 font-semibold text-slate-300">Hinglish & Regional AI Understanding</td>
                   <td className="py-4 px-4 text-slate-500">❌ None</td>
                   <td className="py-4 px-4 text-slate-500">❌ English only bots</td>
-                  <td className="py-4 px-4 font-bold text-teal-300 bg-teal-500/5">✅ Native Gemini 2.0 Hinglish</td>
+                  <td className="py-4 px-4 font-bold text-teal-300 bg-teal-500/5">✅ Native AI Hinglish</td>
                 </tr>
                 <tr>
                   <td className="py-4 px-4 font-semibold text-slate-300">Instant Lead Scoring (0-100%)</td>

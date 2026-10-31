@@ -49,7 +49,7 @@ export function ReelGenerationProgress({ jobId, onComplete, onError }: ReelGener
 
     const stages = [
     { key: "queued", label: "Queued" },
-    { key: "planning", label: "Gemini AI Storyboard" },
+    { key: "planning", label: "AI Storyboard" },
     { key: "generating_voice", label: "Neural Voiceover" },
     { key: "generating_video", label: "Google Veo 3.1 Video" },
     { key: "composing", label: "Syncing Captions & Export" },

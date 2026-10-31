@@ -45,7 +45,7 @@ const WELCOME_MSG: Message = {
   id: "welcome",
   role: "ai",
   content:
-    "Namaste! Main **UNI AI Assistant** hoon — powered by Google Gemini. Main aapke business ke liye high-converting social posts, viral reel scripts, festival campaigns aur marketing strategies natively Hindi & Hinglish mein bana sakta hoon.\n\nAap mujhse koi bhi marketing advice pooch sakte hain ya post/reel create karne ko keh sakte hain!",
+    "Namaste! Main **UNI AI Assistant** hoon — powered by OpenAI. Main aapke business ke liye high-converting social posts, viral reel scripts, festival campaigns aur marketing strategies natively Hindi & Hinglish mein bana sakta hoon.\n\nAap mujhse koi bhi marketing advice pooch sakte hain ya post/reel create karne ko keh sakte hain!",
 };
 
 const STARTER_PROMPTS = [
@@ -65,7 +65,7 @@ function createSession(): ChatSession {
   };
 }
 
-// Markdown & Formatted Text Renderer for Gemini responses
+// Markdown & Formatted Text Renderer for AI responses
 function FormattedMessage({ content }: { content: string }) {
   if (!content) return null;
 
@@ -272,7 +272,7 @@ export default function UniAIPage() {
       let aiContent = "";
       let customAction = res.action;
 
-      // Dynamic Personalized Messaging from Gemini (No more hardcoded static replies)
+      // Dynamic Personalized Messaging from AI (No more hardcoded static replies)
       if (res.message && typeof res.message === "string" && res.message.trim().length > 0) {
         aiContent = res.message.trim();
       } else if (res.data && typeof res.data === "string" && res.data.trim().length > 0) {
@@ -657,7 +657,7 @@ export default function UniAIPage() {
                 <h1 className="text-lg font-bold text-white leading-tight">UNI AI Assistant</h1>
                 <span className="px-2 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30 flex items-center gap-1">
                   <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                  Gemini Flash 3.8
+                  GPT-4.1 Mini
                 </span>
               </div>
               <p className="text-xs text-text-muted mt-0.5">Speaks Hindi &amp; Hinglish natively &bull; Marketing &amp; Creative Intelligence</p>
@@ -711,7 +711,7 @@ export default function UniAIPage() {
                     />
                   ))}
                 </span>
-                <span>UNI AI is consulting Gemini...</span>
+                <span>UNI AI is consulting OpenAI...</span>
               </div>
             </div>
           )}

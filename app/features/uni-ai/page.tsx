@@ -189,7 +189,7 @@ export default function UNIAIPage() {
               </div>
               <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
                 <CheckCircle2 className="w-4 h-4 text-cyan-400" />
-                <span>Connected to Gemini 2.0 Flash Audio, Official Meta Cloud API & Razorpay Instant Settlement</span>
+                <span>Connected to OpenAI Audio & Intelligence, Official Meta Cloud API & Razorpay Instant Settlement</span>
               </div>
             </div>
           ) : activeTab === 'architecture' ? (

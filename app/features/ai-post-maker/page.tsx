@@ -247,8 +247,8 @@ const backendPipelineSteps = [
   },
   {
     step: '02',
-    title: 'Product Catalog & Gemini Vision',
-    desc: 'Select directly from your product catalog or upload raw phone photos. Google Gemini Multimodal Vision extracts subject details, cuts, and textures.',
+    title: 'Product Catalog & AI Vision',
+    desc: 'Select directly from your product catalog or upload raw phone photos. Multimodal AI Vision extracts subject details, cuts, and textures.',
     badge: 'Step 2 • Multimodal AI'
   },
   {
@@ -288,7 +288,7 @@ const faqs = [
   },
   {
     q: 'Can I upload raw smartphone photos of my products?',
-    a: 'Absolutely. With Gemini Multimodal Vision, you can upload simple phone pictures of your kurtis, food dishes, jewellery, or store products. The AI isolates the primary subject and embeds it into high-end studio lighting and festive environments.'
+    a: 'Absolutely. With Multimodal AI Vision, you can upload simple phone pictures of your kurtis, food dishes, jewellery, or store products. The AI isolates the primary subject and embeds it into high-end studio lighting and festive environments.'
   },
   {
     q: 'What aspect ratios are supported for different social media platforms?',
@@ -384,7 +384,7 @@ export default function PostmakerPage() {
                   'Hinglish & Regional Captions',
                   'Auto-Logo & Brand Color Sync',
                   'Instant Instagram & Facebook Export',
-                  'Gemini Vision Reference Matching',
+                  'AI Vision Reference Matching',
                   '8K Ultra-Realistic Commercial Graphics'
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-700">
@@ -659,7 +659,7 @@ export default function PostmakerPage() {
                     <p className="text-[11px] font-bold text-orange-600 uppercase tracking-wider">
                       AI Creative Prompt
                     </p>
-                    <span className="text-[10px] text-slate-400">• Gemini 2.5 Multimodal Engine</span>
+                    <span className="text-[10px] text-slate-400">• GPT-4.1 Multimodal Engine</span>
                   </div>
                   <p className="text-sm sm:text-base font-semibold text-slate-800 leading-snug">
                     &ldquo;{customPrompt || activePreset.prompt}&rdquo;
@@ -689,7 +689,7 @@ export default function PostmakerPage() {
                 <Sparkles className="w-4 h-4 text-purple-600 animate-spin" />
                 <span>
                   {simStep === 1 && "1/4: Syncing brand colors and logo watermark from Brand Kit..."}
-                  {simStep === 2 && "2/4: Gemini Vision analyzing subject attributes and festive palette..."}
+                  {simStep === 2 && "2/4: AI Vision analyzing subject attributes and festive palette..."}
                   {simStep === 3 && `3/4: Crafting regional ${selectedLang} copywriting and viral hashtags...`}
                   {simStep === 4 && "4/4: Synthesizing 8K commercial resolution poster..."}
                 </span>

@@ -477,7 +477,7 @@ export default function FestivalsPage() {
         };
         setCampaigns((prev) => [mappedCampaign, ...prev]);
         setSelected(mappedCampaign);
-        showToast(`🎉 ${festivalName} content generated with Gemini!`);
+        showToast(`🎉 ${festivalName} content generated with AI!`);
       } else {
         showToast("AI generation failed, please try again.", "error");
       }

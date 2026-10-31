@@ -42,7 +42,7 @@ export const reviewsService = {
       });
       return { data: res.data?.data || "Thank you for your feedback!" };
     } catch (error) {
-      console.error("Generate reply error with Gemini:", error);
+      console.error("Generate reply error with AI:", error);
       return { 
         data: "Thank you so much for your valuable feedback! We truly appreciate your support and look forward to serving you again." 
       };

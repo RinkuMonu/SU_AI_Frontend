@@ -62,8 +62,8 @@ interface AnalyticsPreset {
   roas: string;
   peakTime: string;
   festiveCampaign: string;
-  geminiInsightTitle: string;
-  geminiInsightText: string;
+  aiInsightTitle: string;
+  aiInsightText: string;
   recommendationAction: string;
 }
 
@@ -93,8 +93,8 @@ const analyticsPresets: AnalyticsPreset[] = [
     roas: '4.2x',
     peakTime: '7:30 PM - 9:30 PM',
     festiveCampaign: 'Navratri & Diwali Bridal Blast',
-    geminiInsightTitle: 'High-Converting Festive Asset Identified',
-    geminiInsightText: 'Velvet Lehenga reels drove 3.4x higher Product catalogue inquiries than static posts. Boost evening reel scheduling between 7:30 PM and 9:15 PM ahead of Dhanteras rush.',
+    aiInsightTitle: 'High-Converting Festive Asset Identified',
+    aiInsightText: 'Velvet Lehenga reels drove 3.4x higher Product catalogue inquiries than static posts. Boost evening reel scheduling between 7:30 PM and 9:15 PM ahead of Dhanteras rush.',
     recommendationAction: 'Schedule 2 Velvet Reels for Tonight'
   },
   {
@@ -122,8 +122,8 @@ const analyticsPresets: AnalyticsPreset[] = [
     roas: '5.1x',
     peakTime: '1:30 PM - 3:00 PM & 8:00 PM - 10:00 PM',
     festiveCampaign: 'Dhanteras Shubh Muhurat Offers',
-    geminiInsightTitle: 'ROAS Optimization Alert',
-    geminiInsightText: '0% Making Charge creatives generated 42 showroom appointments. Meta ad creative #4 has exhausted ₹6,200 with low conversions—redirect budget to Kundan Choker showcase video.',
+    aiInsightTitle: 'ROAS Optimization Alert',
+    aiInsightText: '0% Making Charge creatives generated 42 showroom appointments. Meta ad creative #4 has exhausted ₹6,200 with low conversions—redirect budget to Kundan Choker showcase video.',
     recommendationAction: 'Reallocate ₹6,200 to Kundan Video'
   },
   {
@@ -151,8 +151,8 @@ const analyticsPresets: AnalyticsPreset[] = [
     roas: '3.8x',
     peakTime: '6:00 PM - 9:30 PM (Dinner Rush)',
     festiveCampaign: 'Weekend Royal Handi Feast',
-    geminiInsightTitle: 'Immediate Revenue Opportunity',
-    geminiInsightText: 'Weekend Biryani handi promo reels delivered 48% direct Social online orders. Launch an evening flash story with Flat 25% discount code precisely at 6:45 PM for maximum dinner pickup.',
+    aiInsightTitle: 'Immediate Revenue Opportunity',
+    aiInsightText: 'Weekend Biryani handi promo reels delivered 48% direct Social online orders. Launch an evening flash story with Flat 25% discount code precisely at 6:45 PM for maximum dinner pickup.',
     recommendationAction: 'Launch Evening Biryani Promo'
   }
 ];
@@ -201,7 +201,7 @@ export default function AnalyticsPage() {
             <TrendingUp className="w-4 h-4 text-cyan-400" />
             <span>AI Marketing Visual Analytics</span>
             <span className="bg-gradient-to-r from-cyan-600 to-purple-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
-              Gemini & Groq Engine
+              OpenAI GPT-4.1 Engine
             </span>
           </div>
 
@@ -213,7 +213,7 @@ export default function AnalyticsPage() {
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-slate-300 leading-relaxed font-medium mb-10 max-w-3xl mx-auto">
-            One unified intelligence cockpit tailored for Indian businesses. Monitor AI content velocity across Reels, Posts & Photoshoots, track Product catalogue conversions, and get predictive Gemini recommendations on peak posting times and festival campaigns.
+            One unified intelligence cockpit tailored for Indian businesses. Monitor AI content velocity across Reels, Posts & Photoshoots, track Product catalogue conversions, and get predictive AI recommendations on peak posting times and festival campaigns.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -230,7 +230,7 @@ export default function AnalyticsPage() {
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-xs text-slate-400 font-medium">
-            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> Gemini Marketing Health Score (0-100)</span>
+            <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-emerald-400" /> AI Marketing Health Score (0-100)</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-cyan-400" /> Instagram & Facebook Lead Attribution</span>
             <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-purple-400" /> Automated Festival Spike Alerts</span>
           </div>
@@ -446,7 +446,7 @@ export default function AnalyticsPage() {
 
             </div>
 
-            {/* Middle Section: Live Trend Chart + Gemini Marketing Health Score */}
+            {/* Middle Section: Live Trend Chart + AI Marketing Health Score */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
               
               {/* Left Column (8 cols): Trend Chart with Multi-Series Curves */}
@@ -547,13 +547,13 @@ export default function AnalyticsPage() {
                 </div>
               </div>
 
-              {/* Right Column (4 cols): Gemini Marketing Health Score & Breakdown */}
+              {/* Right Column (4 cols): AI Marketing Health Score & Breakdown */}
               <div className="lg:col-span-4 p-5 rounded-2xl bg-gradient-to-br from-[#121726] via-[#0d162a] to-[#121726] border border-cyan-500/30 flex flex-col justify-between text-left">
                 
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
                     <Gauge className="w-4 h-4 text-cyan-400" />
-                    Gemini Marketing Score
+                    AI Marketing Score
                   </span>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                     {activePreset.scoreStatus}
@@ -615,7 +615,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>Engine: Gemini 1.5 Flash</span>
+                  <span>Engine: OpenAI GPT-4.1 Mini</span>
                   <span className="text-cyan-400 font-semibold">100% Calibrated</span>
                 </div>
               </div>
@@ -671,7 +671,7 @@ export default function AnalyticsPage() {
 
             </div>
 
-            {/* Gemini AI Actionable Recommendation Card */}
+            {/* AI Actionable Recommendation Card */}
             <div className="rounded-2xl bg-gradient-to-r from-cyan-950/40 via-[#121726] to-purple-950/40 border border-cyan-500/40 p-4 sm:p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-left">
               <div className="flex items-start gap-3.5">
                 <div className="w-11 h-11 rounded-2xl bg-cyan-500 text-slate-950 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/30">
@@ -680,17 +680,17 @@ export default function AnalyticsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">
-                      Gemini Predictive Signal
+                      AI Predictive Signal
                     </span>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
                       High Impact
                     </span>
                   </div>
                   <h4 className="text-sm sm:text-base font-bold text-white mt-0.5">
-                    {activePreset.geminiInsightTitle}
+                    {activePreset.aiInsightTitle}
                   </h4>
                   <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
-                    {activePreset.geminiInsightText}
+                    {activePreset.aiInsightText}
                   </p>
                 </div>
               </div>
@@ -773,7 +773,7 @@ export default function AnalyticsPage() {
                   <h3 className="text-base font-bold text-white">Peak-Hour Posting Calibration</h3>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Gemini analyzes customer interaction timestamps across Indian cities to recommend exact publishing windows (e.g., 7:30 PM - 9:30 PM for wedding ethnic wear).
+                  AI analyzes customer interaction timestamps across Indian cities to recommend exact publishing windows (e.g., 7:30 PM - 9:30 PM for wedding ethnic wear).
                 </p>
               </div>
 

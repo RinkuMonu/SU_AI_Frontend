@@ -145,7 +145,7 @@ const featureContent: Record<FeatureKey, FeatureContent> = {
     title: 'Qualify, follow up, and close leads across Social, Instagram, YouTube, Facebook, LinkedIn & Twitter.',
     description: 'Stop dropping high-intent buyers across fragmented channels. DhandaGrow AI automatically captures leads from YouTube, Facebook, LinkedIn, Twitter, Instagram & Social, evaluates purchasing probability with AI scoring, and schedules smart follow-up triggers.',
     benefits: [
-      { title: 'AI Intent & Readiness Scoring', description: 'Our Gemini-powered engine scans inquiries from YouTube comments, DMs, and Social in Hinglish, Hindi, and English to instantly distinguish hot buyers from window shoppers.' },
+      { title: 'AI Intent & Readiness Scoring', description: 'Our AI-powered engine scans inquiries from YouTube comments, DMs, and Social in Hinglish, Hindi, and English to instantly distinguish hot buyers from window shoppers.' },
       { title: 'Unified Omnichannel Inbox', description: 'Consolidate Social, Instagram DMs, Facebook Ads & Messenger, YouTube video inquiries, LinkedIn B2B forms, and Twitter DMs into a single Kanban sales board.' },
       { title: 'Zero-Effort Automated Follow-ups', description: 'Schedule intelligent 24h, 48h, and 7-day multi-channel follow-up nudges with personalized catalogue suggestions and coupon codes.' },
     ],

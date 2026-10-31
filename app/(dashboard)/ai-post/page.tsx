@@ -673,7 +673,7 @@ export default function AIPostPage() {
                   Upload Product Images
                 </h3>
                 <p className="text-xs text-text-muted mt-0.5">
-                  Upload 1–4 clear product photos. Gemini Vision will analyze texture, framing &amp; angles.
+                  Upload 1–4 clear product photos. AI Vision will analyze texture, framing &amp; angles.
                 </p>
               </div>
 

@@ -520,7 +520,7 @@ export default function CataloguePage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Multilingual AI Copywriter</h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                Gemini 2.0 writes high-converting product descriptions in natural Hinglish, Hindi, and English. Automatically extracts fabrics, wash care instructions, and festive hashtags.
+                AI writes high-converting product descriptions in natural Hinglish, Hindi, and English. Automatically extracts fabrics, wash care instructions, and festive hashtags.
               </p>
             </div>
 

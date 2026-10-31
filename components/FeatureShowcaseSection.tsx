@@ -102,7 +102,7 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
     items: [
       { category: 'Content Velocity', title: 'Track every AI creation', description: 'Monitor output across reels, posts, photoshoots, and captions in real-time.' },
       { category: 'Social Funnel', title: 'Trace leads from chat to order', description: 'See catalogue enquiries, responses, and customer orders directly inside CRM.' },
-      { category: 'Gemini Health Score', title: 'Measure marketing vitality (0-100)', description: 'AI evaluates your posting consistency, catalogue depth, and reel momentum.' },
+      { category: 'Marketing Health Score', title: 'Measure marketing vitality (0-100)', description: 'AI evaluates your posting consistency, catalogue depth, and reel momentum.' },
       { category: 'Predictive Signals', title: 'Automated peak hour & budget alerts', description: 'Get smart suggestions on best posting times and festive campaign budget shifts.' },
     ],
   },
@@ -125,7 +125,7 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
     description: 'Centralize inventory with AI photoshoot backgrounds, Hinglish descriptions, live multi-channel stock sync, and instant UPI checkout.',
     items: [
       { category: 'AI Studio Shoot', title: 'Virtual Indian models & clean podiums', description: 'Transform raw mobile photos into high-fashion studio catalog imagery in 5 seconds.' },
-      { category: 'Hinglish SEO Copy', title: 'Persuasive AI descriptions & tags', description: 'Gemini writes festival-ready descriptions, key specifications, and Instagram hashtags.' },
+      { category: 'Hinglish SEO Copy', title: 'Persuasive AI descriptions & tags', description: 'AI writes festival-ready descriptions, key specifications, and Instagram hashtags.' },
       { category: 'Omnichannel Sync', title: 'Social, Instagram & Web in 1-Click', description: 'Central inventory syncs live stock and price changes across Social Shop and Web store.' },
       { category: '1-Tap UPI QR', title: 'Instant in-chat payment links', description: 'Send dynamic Razorpay or BHIM UPI payment cards directly in customer conversations.' },
     ],

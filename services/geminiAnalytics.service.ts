@@ -1,7 +1,7 @@
 import api from "@/lib/api";
 import { AnalyticsData } from "@/types/analytics";
 
-export interface GeminiVisualPillar {
+export interface VisualPillar {
   pillar: string;
   score: number;
   maxScore: number;
@@ -9,7 +9,7 @@ export interface GeminiVisualPillar {
   color: string;
 }
 
-export interface GeminiVisualForecast {
+export interface VisualForecast {
   currentScore: number;
   projectedScore: number;
   growthFactor: string;
@@ -17,7 +17,7 @@ export interface GeminiVisualForecast {
   efficiencyRating: "Optimal" | "High Velocity" | "Moderate" | "Enterprise Grade";
 }
 
-export interface GeminiVisualAnalytics {
+export interface VisualAnalytics {
   forecast: GeminiVisualForecast;
   pillars: GeminiVisualPillar[];
   topActions: {
@@ -33,9 +33,9 @@ export type GroqVisualPillar = GeminiVisualPillar;
 export type GroqVisualForecast = GeminiVisualForecast;
 export type GroqVisualAnalytics = GeminiVisualAnalytics;
 
-export const geminiAnalyticsService = {
+export const aiAnalyticsService = {
   /**
-   * Generates dynamic visual forecast and benchmark data powered by Gemini API via backend.
+   * Generates dynamic visual forecast and benchmark data powered by OpenAI GPT-4.1 Mini via backend.
    */
   async generateVisualAnalytics(data: AnalyticsData, range: number): Promise<GeminiVisualAnalytics> {
     try {
@@ -50,7 +50,7 @@ export const geminiAnalyticsService = {
       }
       throw new Error("Invalid response from visual-forecast endpoint");
     } catch (err) {
-      console.warn("Backend Gemini visual analytics warning, applying calculated fallback:", err);
+      console.warn("Backend AI visual analytics warning, applying calculated fallback:", err);
       
       const score = data.marketing_score?.score ?? (range === 7 ? 74 : range === 30 ? 88 : 96);
       const is7 = range === 7;
@@ -91,3 +91,8 @@ export const geminiAnalyticsService = {
 };
 
 export const groqAnalyticsService = geminiAnalyticsService;
+
+export type GeminiVisualPillar = VisualPillar;
+export type GeminiVisualForecast = VisualForecast;
+export type GeminiVisualAnalytics = VisualAnalytics;
+export const geminiAnalyticsService = aiAnalyticsService;

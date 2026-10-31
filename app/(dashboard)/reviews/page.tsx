@@ -90,7 +90,7 @@ export default function ReviewsPage() {
           <Star className="h-6 w-6 text-amber-500" />
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-white">Google Reviews</h1>
-            <p className="text-text-muted mt-1">Manage and respond to your customer reviews powered by Gemini AI.</p>
+            <p className="text-text-muted mt-1">Manage and respond to your customer reviews powered by AI.</p>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default function ReviewsPage() {
             {isGeneratingReviews ? (
               <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating Reviews...</>
             ) : (
-              <><Sparkles className="h-4 w-4 mr-2" /> Generate Reviews with Gemini</>
+              <><Sparkles className="h-4 w-4 mr-2" /> Generate Reviews with AI</>
             )}
           </Button>
 
@@ -130,7 +130,7 @@ export default function ReviewsPage() {
             disabled={isGeneratingReviews}
             className="bg-brand-gradient text-white"
           >
-            <Sparkles className="h-4 w-4 mr-2" /> Generate Initial Customer Reviews with Gemini
+            <Sparkles className="h-4 w-4 mr-2" /> Generate Initial Customer Reviews with AI
           </Button>
         </div>
       ) : (
@@ -159,7 +159,7 @@ export default function ReviewsPage() {
                   
                   {review.status === 'Replied' ? (
                     <div className="mt-4 bg-brand-purple/10 p-4 rounded-lg border-l-4 border-brand-purple">
-                      <p className="text-sm font-semibold mb-1 text-white">Your Reply (via Gemini):</p>
+                      <p className="text-sm font-semibold mb-1 text-white">Your Reply (via AI):</p>
                       <p className="text-sm text-text-secondary">{review.reply}</p>
                     </div>
                   ) : (
@@ -198,7 +198,7 @@ export default function ReviewsPage() {
                               className="border-border hover:bg-surface-elevated hover:text-white"
                             >
                               {generatingFor === reviewId ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : null}
-                              Regenerate with Gemini
+                              Regenerate with AI
                             </Button>
                             <Button size="sm" onClick={() => handleSendReply(reviewId)} className="bg-brand-gradient hover:opacity-90 text-white">
                               <Send className="h-4 w-4 mr-2" /> Post Reply
@@ -213,7 +213,7 @@ export default function ReviewsPage() {
                           className="border-border hover:bg-surface-elevated hover:text-white"
                         >
                           {generatingFor === reviewId ? (
-                            <><Loader2 className="h-4 w-4 mr-2 animate-spin text-brand-purple" /> Gemini Generating Reply...</>
+                            <><Loader2 className="h-4 w-4 mr-2 animate-spin text-brand-purple" /> AI Generating Reply...</>
                           ) : (
                             <><Sparkles className="h-4 w-4 mr-2 text-brand-purple" /> Generate AI Reply</>
                           )}
