@@ -167,7 +167,9 @@ export default function SubscriptionPage() {
         setUpgradeSuccess("Free Plan activated successfully!");
       } else {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
-        if (response.order_id) {
+        if (response.payment_url) {
+          window.location.href = response.payment_url;
+        } else if (response.order_id) {
           setActivePaymentOrder(response);
           setShowPaymentModal(true);
         } else {

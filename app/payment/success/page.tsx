@@ -18,7 +18,11 @@ import { Button } from "@/components/ui/button";
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const orderId = searchParams.get("order_id") || searchParams.get("orderId");
+  const orderId =
+    searchParams.get("order_id") ||
+    searchParams.get("orderId") ||
+    searchParams.get("sub_id") ||
+    searchParams.get("subscription_id");
 
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed" | "cancelled">("loading");
   const [retryCount, setRetryCount] = useState(0);

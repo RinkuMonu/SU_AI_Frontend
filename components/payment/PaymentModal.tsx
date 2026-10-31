@@ -50,7 +50,7 @@ export function PaymentModal({
 
   const orderId = orderData?.order_id || "";
   const paymentUrl = orderData?.payment_url || "";
-  const upiUrl = orderData?.upi_url || (orderId ? `upi://pay?pa=finuniques.zkp@icici&pn=FINUNIQUES&tr=${orderId}&am=${orderData?.amount || 1.0}&cu=INR&mc=4900` : "");
+  const upiUrl = orderData?.upi_url || "";
   const amount = orderData?.amount ?? 1;
   const planName = orderData?.plan_name || "Plan Subscription";
 
@@ -299,10 +299,10 @@ export function PaymentModal({
             </div>
             <div>
               <h2 className="text-lg font-bold text-white tracking-tight flex items-center gap-2">
-                Secure UPI &amp; Gateway Payment
+                Cashfree Subscriptions &amp; AutoPay
               </h2>
               <div className="flex items-center gap-2 mt-0.5 text-xs text-text-muted">
-                <span>Finunique PayIn Gateway</span>
+                <span>NPCI &amp; Bank Mandate</span>
                 <span>&bull;</span>
                 <span className="text-emerald-400 flex items-center gap-1 font-semibold">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -411,32 +411,40 @@ export function PaymentModal({
                 </div>
               </div>
 
-              {/* QR Code Container */}
-              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center relative">
-                <div className="bg-white p-2.5 rounded-2xl shadow-xl shadow-purple-950/20 mb-3 border border-purple-200">
-                  <canvas ref={canvasRef} className="rounded-lg" />
-                </div>
-
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold text-white flex items-center justify-center gap-1.5">
-                    <Smartphone className="w-4 h-4 text-purple-400" />
-                    <span>Scan with any UPI App</span>
+              {/* Cashfree AutoPay & Recurring Mandate Options */}
+              <div className="flex flex-col p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center relative space-y-3">
+                <div className="grid grid-cols-3 gap-2 text-left">
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-center space-y-1">
+                    <div className="text-xs font-semibold text-white">Bank Account</div>
+                    <div className="text-[10px] text-text-muted">eNACH / NetBanking</div>
                   </div>
-                  <p className="text-[11px] text-text-muted">
-                    Google Pay &bull; PhonePe &bull; Paytm &bull; BHIM &bull; CRED
-                  </p>
+                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center space-y-1">
+                    <div className="text-xs font-semibold text-purple-200">UPI AutoPay</div>
+                    <div className="text-[10px] text-purple-300/70">GPay, PhonePe, Paytm</div>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/10 text-center space-y-1">
+                    <div className="text-xs font-semibold text-white">Cards</div>
+                    <div className="text-[10px] text-text-muted">Credit / Debit Mandate</div>
+                  </div>
                 </div>
 
-                {/* Direct UPI Intent Link for Mobile Devices */}
-                {upiUrl && (
-                  <a
-                    href={upiUrl}
-                    className="mt-3 inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 font-semibold underline underline-offset-4 cursor-pointer"
+                {paymentUrl && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = paymentUrl;
+                    }}
+                    className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:opacity-95 shadow-lg flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
-                    <span>Tap here to open installed UPI App</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
+                    <span>Proceed to Cashfree AutoPay Checkout</span>
+                    <ExternalLink className="w-4 h-4" />
+                  </button>
                 )}
+
+                <div className="text-[11px] text-text-muted flex items-center justify-center gap-2">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Powered by Cashfree &bull; Official NPCI / RBI Recurring Mandate</span>
+                </div>
               </div>
 
               {/* Real-time Status Badge */}
@@ -464,22 +472,6 @@ export function PaymentModal({
                   <span>Verify</span>
                 </button>
               </div>
-
-              {/* Alternative Checkout Link */}
-              {paymentUrl && (
-                <div className="text-center pt-1">
-                  <a
-                    href={paymentUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-gray-200 hover:text-white border border-white/10 transition-colors"
-                  >
-                    <CreditCard className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Pay via Cards / NetBanking / Web Checkout</span>
-                    <ExternalLink className="w-3 h-3 opacity-70" />
-                  </a>
-                </div>
-              )}
 
               {/* Modal Action Buttons */}
               <div className="flex items-center gap-3 pt-2">

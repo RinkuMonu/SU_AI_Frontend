@@ -205,11 +205,11 @@ export function AvailablePlansModal({
         // Paid plan selection: initiate secure payment flow with chosen billing cycle
         const response = await paymentService.createPayment(plan.id, selectedCycle);
 
-        if (response.order_id) {
+        if (response.payment_url) {
+          window.location.href = response.payment_url;
+        } else if (response.order_id) {
           setActivePaymentOrder(response);
           setShowPaymentModal(true);
-        } else if (response.payment_url) {
-          window.location.href = response.payment_url;
         } else {
           throw new Error("No checkout URL received from payment service.");
         }
@@ -320,22 +320,20 @@ export function AvailablePlansModal({
           <button
             type="button"
             onClick={() => setSelectedCycle("monthly")}
-            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center ${
-              selectedCycle === "monthly"
+            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center ${selectedCycle === "monthly"
                 ? "bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white shadow-md"
                 : "text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             Monthly
           </button>
           <button
             type="button"
             onClick={() => setSelectedCycle("quarterly")}
-            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${
-              selectedCycle === "quarterly"
+            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${selectedCycle === "quarterly"
                 ? "bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white shadow-md"
                 : "text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             <span>Quarterly</span>
             <span className="hidden sm:inline text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.2 rounded-full">
@@ -345,11 +343,10 @@ export function AvailablePlansModal({
           <button
             type="button"
             onClick={() => setSelectedCycle("yearly")}
-            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${
-              selectedCycle === "yearly"
+            className={`flex-1 py-2 px-4 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${selectedCycle === "yearly"
                 ? "bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white shadow-md"
                 : "text-gray-400 hover:text-white"
-            }`}
+              }`}
           >
             <span>Yearly</span>
             <span className="hidden sm:inline text-[10px] bg-pink-500/20 text-pink-300 px-1.5 py-0.2 rounded-full">
@@ -370,11 +367,10 @@ export function AvailablePlansModal({
           return (
             <div
               key={plan.id}
-              className={`rounded-2xl p-5 sm:p-6 transition-all relative overflow-hidden ${
-                isCurrent
+              className={`rounded-2xl p-5 sm:p-6 transition-all relative overflow-hidden ${isCurrent
                   ? "bg-[#1E1238] border-2 border-[#EC4899] shadow-lg shadow-pink-500/10"
                   : "bg-[#18102E]/90 border border-white/10 hover:border-purple-500/30"
-              }`}
+                }`}
             >
               {/* Current Plan Badge over Top Right */}
               {isCurrent && (
@@ -455,9 +451,8 @@ export function AvailablePlansModal({
                 >
                   <span>{isExpanded ? "Hide features" : "View all features"}</span>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                      isExpanded ? "rotate-180" : ""
-                    }`}
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -476,11 +471,10 @@ export function AvailablePlansModal({
                       type="button"
                       onClick={() => handleSelectPlan(plan)}
                       disabled={isProcessing || processingPlanId !== null}
-                      className={`py-2 px-5 rounded-full text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer ${
-                        plan.isPopular
+                      className={`py-2 px-5 rounded-full text-xs font-bold transition-all shadow-md active:scale-95 flex items-center gap-1.5 cursor-pointer ${plan.isPopular
                           ? "bg-gradient-to-r from-[#BE32FF] via-[#E040FB] to-[#FF6B8B] hover:opacity-95 text-white"
                           : "bg-[#2D1B54] hover:bg-[#3D2570] text-white border border-white/10"
-                      }`}
+                        }`}
                     >
                       {isProcessing ? (
                         <>
