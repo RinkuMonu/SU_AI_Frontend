@@ -25,6 +25,7 @@ function VerifyPhoneContent() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const isVerifyingRef = useRef(false);
   const [isResending, setIsResending] = useState(false);
   const [countdown, setCountdown] = useState(60);
 
@@ -91,8 +92,8 @@ function VerifyPhoneContent() {
       return;
     }
 
-    if (isVerifying) return; // Prevent duplicate submission
-
+    if (isVerifyingRef.current || isVerifying) return;
+    isVerifyingRef.current = true;
     setIsVerifying(true);
     setError("");
     setSuccessMsg("");
@@ -137,6 +138,7 @@ function VerifyPhoneContent() {
     } catch (err: any) {
       setError(err.message || "Invalid or expired verification code. Please try again.");
     } finally {
+      isVerifyingRef.current = false;
       setIsVerifying(false);
     }
   };

@@ -69,7 +69,7 @@ const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
 );
 
 
-async function navigateAfterAuth(user: any, router: any) {
+async function navigateAfterAuth(user: any, router: any, explicitRoute?: string) {
   const pendingRole = typeof window !== "undefined" ? sessionStorage.getItem("selected_role") : null;
   if (pendingRole && (pendingRole === "businessman" || pendingRole === "influencer")) {
     try {
@@ -94,6 +94,11 @@ async function navigateAfterAuth(user: any, router: any) {
     user?.onboarding_completed === true ||
     user?.is_completed === true
   );
+
+  if (explicitRoute) {
+    router.push(explicitRoute);
+    return;
+  }
 
   if (isCompleted) {
     router.push(getDashboardRouteForRole(user?.role));
@@ -125,6 +130,7 @@ export default function LoginPage() {
   const [otpError, setOtpError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const isVerifyingRef = useRef(false);
   const [countdown, setCountdown] = useState(60);
   const [showRightNumberAlert, setShowRightNumberAlert] = useState(true);
 
@@ -282,7 +288,8 @@ export default function LoginPage() {
       return;
     }
 
-    if (isVerifyingOtp) return;
+    if (isVerifyingRef.current || isVerifyingOtp) return;
+    isVerifyingRef.current = true;
     setIsVerifyingOtp(true);
     setOtpError("");
     setError("");
@@ -314,7 +321,7 @@ export default function LoginPage() {
           onboardingCompleted: isDone,
         };
 
-        navigateAfterAuth(finalUser, router);
+        navigateAfterAuth(finalUser, router, response.dashboard_route);
       } else {
         throw new Error(response.message || "OTP verification did not return session.");
       }
@@ -322,6 +329,7 @@ export default function LoginPage() {
       console.warn("OTP verification failed:", err?.message || err);
       setOtpError(err.message || "Invalid or expired OTP. Please check and try again.");
     } finally {
+      isVerifyingRef.current = false;
       setIsVerifyingOtp(false);
     }
   };

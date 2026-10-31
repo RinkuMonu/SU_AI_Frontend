@@ -81,6 +81,7 @@ export default function SignupPage() {
   const [otpError, setOtpError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const isVerifyingRef = useRef(false);
   const [countdown, setCountdown] = useState(60);
   const [showRightNumberAlert, setShowRightNumberAlert] = useState(true);
 
@@ -231,7 +232,8 @@ export default function SignupPage() {
       return;
     }
 
-    if (isVerifyingOtp) return;
+    if (isVerifyingRef.current || isVerifyingOtp) return;
+    isVerifyingRef.current = true;
     setIsVerifyingOtp(true);
     setOtpError("");
     setError("");
@@ -277,6 +279,7 @@ export default function SignupPage() {
         setOtpError(errMsg || "Invalid or expired OTP. Please check and try again.");
       }
     } finally {
+      isVerifyingRef.current = false;
       setIsVerifyingOtp(false);
     }
   };
