@@ -19,8 +19,8 @@ function saveToLocalCache(item: GeneratedContent) {
   if (typeof window === "undefined") return;
   try {
     const current = getLocalCache();
-    const index = current.findIndex(c => 
-      (c._id && c._id === item._id) || 
+    const index = current.findIndex(c =>
+      (c._id && c._id === item._id) ||
       (c.title && c.title === item.title && c.caption === item.caption)
     );
     if (index >= 0) {
@@ -88,11 +88,11 @@ export const contentService = {
     const apiData = response.data?.data || response.data || {};
 
     const rawHashtags = apiData.hashtags;
-    const formattedHashtags = Array.isArray(rawHashtags) 
-      ? rawHashtags 
-      : typeof rawHashtags === 'string' 
-      ? rawHashtags.split(/\s+/).filter(Boolean) 
-      : [];
+    const formattedHashtags = Array.isArray(rawHashtags)
+      ? rawHashtags
+      : typeof rawHashtags === 'string'
+        ? rawHashtags.split(/\s+/).filter(Boolean)
+        : [];
 
     const effectiveMediaUrl = apiData.media_url || apiData.image_url || (request.productImages && request.productImages[0]) || "";
 
@@ -107,25 +107,25 @@ export const contentService = {
       topic: request.topic || request.productName,
       callToAction: request.callToAction || apiData.call_to_action || '',
       additionalInstructions: request.additionalInstructions,
-      
+
       title: apiData.headline || apiData.title || (request.productName ? `${request.productName} • ${request.type}` : ("Generated " + (request.type || "Post"))),
       caption: apiData.caption || apiData.text || "",
       hashtags: formattedHashtags,
       suggestions: apiData.creative_direction ? [apiData.creative_direction] : (apiData.suggestions || []),
-      
+
       status: 'Draft',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       media_url: effectiveMediaUrl,
       imageUrl: effectiveMediaUrl,
     };
-    
+
     return { data: newContent };
   },
 
   async saveContent(content: GeneratedContent): Promise<{ data: GeneratedContent }> {
     const isValidMongoId = content._id && /^[0-9a-fA-F]{24}$/.test(content._id);
-    
+
     const payload: Record<string, any> = {
       title: content.title || "Generated Post",
       caption: content.caption || "",
@@ -248,7 +248,7 @@ export const contentService = {
     if (!content) throw new Error('Content not found');
     return { data: content };
   },
-  
+
   async deleteContent(id: string): Promise<void> {
     removeFromLocalCache(id);
     if (/^[0-9a-fA-F]{24}$/.test(id)) {
@@ -261,9 +261,7 @@ export const contentService = {
   }
 };
 
-export async function generatePost(
-  payload: GeneratePostRequest
-): Promise<GeneratedPost> {
+export async function generatePost(payload: GeneratePostRequest): Promise<GeneratedPost> {
   const normalizedPayload: any = { ...payload };
 
   // Normalize brand_colors: if object, convert to array for backend schema compatibility
