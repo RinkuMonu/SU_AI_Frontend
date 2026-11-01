@@ -288,7 +288,8 @@ export async function generatePost(payload: GeneratePostRequest): Promise<Genera
 
   const response = await api.post(
     "/api/v1/content/generate-post",
-    normalizedPayload
+    normalizedPayload,
+    { timeout: 180000 }
   );
 
   return response.data?.data || response.data;

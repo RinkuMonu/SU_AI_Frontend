@@ -241,7 +241,7 @@ export function Pricing() {
         <div className="flex flex-col items-center text-center mb-7 sm:mb-9">
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-slate-200/80 mb-2.5 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-xs font-semibold text-slate-700 tracking-wide">Simple, Transparent Pricing with 18% GST</span>
+            <span className="text-xs font-semibold text-slate-700 tracking-wide">Simple, Transparent Pricing</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
@@ -387,7 +387,7 @@ export function Pricing() {
 
                 {/* GST Text Note */}
                 <p className="text-[11px] sm:text-xs text-slate-400 font-medium mb-4 sm:mb-5">
-                  {plan.id === 'FREE' ? 'No GST shown' : '+ 18% GST where applicable'}
+                  {plan.id === 'FREE' ? 'No payment required' : 'Actual plan price'}
                 </p>
 
                 {/* Short Way Benefits */}

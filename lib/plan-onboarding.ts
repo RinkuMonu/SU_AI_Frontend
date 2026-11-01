@@ -181,7 +181,7 @@ export function calculatePlanPrice(
     return {
       displayPrice: totalQuarterly,
       perMonthPrice: discountedPerMonth,
-      intervalLabel: "/ quarter + GST",
+      intervalLabel: "/ quarter",
       savingsPercent: 10,
     };
   }
@@ -192,7 +192,7 @@ export function calculatePlanPrice(
     return {
       displayPrice: totalYearly,
       perMonthPrice: discountedPerMonth,
-      intervalLabel: "/ year + GST",
+      intervalLabel: "/ year",
       savingsPercent: 20,
     };
   }
@@ -201,7 +201,7 @@ export function calculatePlanPrice(
   return {
     displayPrice: baseMonthlyPrice,
     perMonthPrice: baseMonthlyPrice,
-    intervalLabel: "/ month + GST",
+    intervalLabel: "/ month",
     savingsPercent: 0,
   };
 }

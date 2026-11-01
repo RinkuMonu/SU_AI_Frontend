@@ -97,7 +97,7 @@ const navigation = [
     children: [
       { name: "Plans", href: "/subscription", icon: Crown },
       { name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
-      { name: "AI Token/Credit Usage Report", href: "/subscription/credits", icon: Zap },
+      { name: "AI Token & Credit Usage", href: "/subscription/credits", icon: Zap },
     ],
   },
   { name: "Support", href: "/support", icon: Headphones },
@@ -195,31 +195,32 @@ export function Sidebar() {
               </div>
               
               {isOpen && (
-                <div className="pl-11 pr-3 space-y-1">
+                <div className="pl-8 pr-2 space-y-1">
                   {item.children.map((child: any) => {
                     const isExactActive = pathname === child.href;
                     return (
                       <Link
                         key={child.name}
                         href={child.href}
+                        title={child.name}
                         onClick={() => onItemClick && onItemClick()}
                         className={cn(
-                          "group flex items-center px-3 py-2 text-xs font-medium rounded-md transition-colors",
+                          "group flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors leading-tight",
                           isExactActive
-                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white"
+                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white font-semibold"
                             : "text-text-muted hover:bg-surface-elevated hover:text-white"
                         )}
                       >
                         {child.icon && (
                           <child.icon
                             className={cn(
-                              "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
+                              "mr-2 h-3.5 w-3.5 flex-shrink-0",
                               isExactActive ? "text-brand-purple" : "opacity-80 group-hover:opacity-100"
                             )}
                             aria-hidden="true"
                           />
                         )}
-                        <span className="truncate">{child.name}</span>
+                        <span className="truncate" title={child.name}>{child.name}</span>
                       </Link>
                     );
                   })}

@@ -368,7 +368,11 @@ export default function AIPostPage() {
       setEditedHeadline(result.headline || "");
       setEditedCaption(result.caption || "");
       setEditedCta(result.call_to_action || (includeOffer ? "Claim Offer 👉" : "Learn More"));
-      setEditedHashtags(result.hashtags?.join(" ") || "");
+      setEditedHashtags(
+        Array.isArray(result?.hashtags)
+          ? result.hashtags.join(" ")
+          : (typeof result?.hashtags === "string" ? result.hashtags : "")
+      );
       window.dispatchEvent(new Event("credit-update"));
 
     } catch (error: any) {
@@ -376,7 +380,13 @@ export default function AIPostPage() {
       if (error?.response?.status === 402 || error?.message?.toLowerCase().includes("credit")) {
         setHasInsufficientCredits(true);
       } else {
-        setPublishErrorMessage(error?.response?.data?.detail || error?.message || "Unable to generate post. Please try again.", "Generation Failed");
+        const detailMsg =
+          error?.response?.data?.detail ||
+          error?.response?.data?.message ||
+          (typeof error?.response?.data === "string" && !error.response.data.includes("<html") ? error.response.data : null) ||
+          error?.message ||
+          "Unable to generate post. Please try again.";
+        setPublishErrorMessage(detailMsg, "Generation Failed");
       }
     } finally {
       setLoading(false);

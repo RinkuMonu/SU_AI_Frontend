@@ -1,9 +1,16 @@
 import axios, { AxiosError } from "axios";
 
 export const getBaseUrl = () => {
-  // In the browser, ALWAYS use empty string "" so that all requests are relative same-origin.
-  // Next.js rewrites in next.config.ts will securely forward /api/:path* to the backend server-side.
-  // This guarantees the real backend IP, domain, ngrok tunnel, and port are 100% hidden in DevTools/Inspect!
+  // If explicitly configured via NEXT_PUBLIC_API_URL, use it directly (e.g. http://127.0.0.1:8000)
+  // This bypasses Node.js / Turbopack dev server rewrite socket timeouts on 30-50s AI image generation!
+  const publicApi = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
+  if (publicApi) {
+    return publicApi
+      .replace(/\/docs\/?$/, "")
+      .replace(/\/+$/, "")
+      .replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1");
+  }
+
   if (typeof window !== "undefined") {
     return "";
   }
@@ -12,7 +19,6 @@ export const getBaseUrl = () => {
   const backend =
     process.env.INTERNAL_BACKEND_URL ||
     process.env.BACKEND_API_URL ||
-    process.env.NEXT_PUBLIC_API_URL ||
     "http://127.0.0.1:8000";
 
   return backend
@@ -23,6 +29,7 @@ export const getBaseUrl = () => {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
+  timeout: 180000, // 3 minutes timeout for heavy AI generation
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
