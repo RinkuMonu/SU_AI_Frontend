@@ -172,16 +172,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      const isOnboardingComplete = Boolean(
-        user.onboardingCompleted === true ||
-        (user as any).onboarding_completed === true ||
-        (user as any).is_completed === true
-      );
+      const isOnboardingComplete = role === 'influencer'
+        ? Boolean((user as any).influencer_onboarding_completed === true)
+        : Boolean(
+            user.onboardingCompleted === true ||
+            (user as any).onboarding_completed === true ||
+            (user as any).is_completed === true
+          );
 
       // If authenticated user is on login or signup route, direct them to select-role or dashboard
       if (isAuthRoute) {
         if (!isOnboardingComplete && role !== 'admin') {
-          router.replace('/select-role');
+          if (role === 'influencer') {
+            router.replace('/onboarding/influencer');
+          } else {
+            router.replace('/select-role');
+          }
         } else {
           router.replace(getDashboardRouteForRole(role));
         }

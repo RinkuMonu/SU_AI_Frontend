@@ -29,7 +29,8 @@ import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { needsRoleSelection, getDashboardRouteForRole } from "@/lib/role-routing";
+import { needsRoleSelection, getDashboardRouteForRole, normalizeRole } from "@/lib/role-routing";
+import { creatorOnboardingService } from "@/services/creator-onboarding.service";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 import { OtpInput } from "@/components/ui/OtpInput";
 import { useTheme } from "@/components/theme/ThemeProvider";
@@ -88,14 +89,40 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
     return;
   }
 
-  // Check if onboarding is completed
+  const role = user?.role ? normalizeRole(user.role) : (pendingRole ? normalizeRole(pendingRole) : null);
+
+  // Case 1: No role chosen yet -> always route to Role Selection
+  if (!role) {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("show_onboarding_plan", "true");
+    }
+    router.push("/select-role");
+    return;
+  }
+
+  // Case 2: Influencer role -> fetch real onboarding status from backend
+  if (role === "influencer") {
+    try {
+      const onbStatus = await creatorOnboardingService.getInfluencerOnboardingStatus();
+      if (onbStatus.isCompleted) {
+        router.push("/influencer");
+      } else {
+        router.push("/onboarding/influencer");
+      }
+    } catch (_) {
+      router.push("/onboarding/influencer");
+    }
+    return;
+  }
+
+  // Case 3: Business role -> existing flow
   const isCompleted = Boolean(
     user?.onboardingCompleted === true ||
     user?.onboarding_completed === true ||
     user?.is_completed === true
   );
 
-  if (explicitRoute) {
+  if (explicitRoute && explicitRoute !== "/influencer") {
     router.push(explicitRoute);
     return;
   }
@@ -103,7 +130,6 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
   if (isCompleted) {
     router.push(getDashboardRouteForRole(user?.role));
   } else {
-    // New users and users with incomplete onboarding route to Role Selection (/select-role)
     if (typeof window !== "undefined") {
       sessionStorage.setItem("show_onboarding_plan", "true");
     }
