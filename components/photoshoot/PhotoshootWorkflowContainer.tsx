@@ -746,7 +746,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
 
             const resultsRes = await productPhotoshootService.getSessionResults(state.sessionId!);
             let mappedResults: PhotoshootFinalResult[] = [];
-            if (resultsRes.success && resultsRes.results) {
+            if (resultsRes.success && resultsRes.results && resultsRes.results.length > 0) {
               mappedResults = resultsRes.results.map((r) => ({
                 id: r.image_id,
                 imageUrl: r.url,
@@ -757,6 +757,19 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
                 resolution: "4K Ultra-HD",
                 selected: true,
                 isSaved: r.is_saved,
+                createdAt: r.created_at,
+              }));
+            } else if (statusRes.result_images && statusRes.result_images.length > 0) {
+              mappedResults = statusRes.result_images.map((r: any) => ({
+                id: r.image_id,
+                imageUrl: r.url,
+                title: `${state.productName || "Product"} — ${r.style_applied}`,
+                prompt: state.customPrompt || `Commercial photoshoot in ${r.style_applied}`,
+                styleName: r.style_applied,
+                modelUsed: isAvatarMode && state.selectedModelId ? state.selectedModelId : undefined,
+                resolution: "4K Ultra-HD",
+                selected: true,
+                isSaved: r.is_saved || false,
                 createdAt: r.created_at,
               }));
             }
@@ -780,11 +793,56 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
               clearInterval(pollRef.current);
               pollRef.current = null;
             }
-            updateState({
-              isGenerating: false,
-              canRetryJob: Boolean(statusRes.can_retry),
-              errorMessage: statusRes.error || "Photoshoot generation failed. Please try again.",
-            });
+            let fallbackResults: PhotoshootFinalResult[] = [];
+            if (statusRes.result_images && statusRes.result_images.length > 0) {
+              fallbackResults = statusRes.result_images.map((r: any) => ({
+                id: r.image_id,
+                imageUrl: r.url,
+                title: `${state.productName || "Product"} — ${r.style_applied}`,
+                prompt: state.customPrompt || `Commercial photoshoot in ${r.style_applied}`,
+                styleName: r.style_applied,
+                modelUsed: isAvatarMode && state.selectedModelId ? state.selectedModelId : undefined,
+                resolution: "4K Ultra-HD",
+                selected: true,
+                isSaved: r.is_saved || false,
+                createdAt: r.created_at,
+              }));
+            } else {
+              try {
+                const res = await productPhotoshootService.getSessionResults(state.sessionId!);
+                if (res?.success && res.results && res.results.length > 0) {
+                  fallbackResults = res.results.map((r) => ({
+                    id: r.image_id,
+                    imageUrl: r.url,
+                    title: `${state.productName || "Product"} — ${r.style_applied}`,
+                    prompt: state.customPrompt || `Commercial photoshoot in ${r.style_applied}`,
+                    styleName: r.style_applied,
+                    modelUsed: isAvatarMode && state.selectedModelId ? state.selectedModelId : undefined,
+                    resolution: "4K Ultra-HD",
+                    selected: true,
+                    isSaved: r.is_saved,
+                    createdAt: r.created_at,
+                  }));
+                }
+              } catch (_) {}
+            }
+
+            if (fallbackResults.length > 0) {
+              updateState({
+                generationProgress: 100,
+                generationStage: "Photoshoot complete!",
+                isGenerating: false,
+                errorMessage: null,
+                finalResults: fallbackResults,
+                selectedResultIds: fallbackResults.map((r) => r.id),
+              });
+            } else {
+              updateState({
+                isGenerating: false,
+                canRetryJob: Boolean(statusRes.can_retry),
+                errorMessage: statusRes.error || "Photoshoot generation failed. Please try again.",
+              });
+            }
             isSubmittingGenRef.current = false;
           } else if (pollAttempts > 65) {
             if (pollRef.current) {

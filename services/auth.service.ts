@@ -205,11 +205,13 @@ export const authService = {
 
       let onboardingDone = Boolean(rawUser.onboardingCompleted || rawUser.onboarding_completed);
 
-      // Verify onboarding status using /api/v1/onboarding/status as instructed
+      // Verify business onboarding status using /api/v1/onboarding/status as instructed
       try {
-        const isDone = await OnboardingService.isCompleted();
-        if (isDone) {
-          onboardingDone = true;
+        if (rawUser.role !== 'influencer') {
+          const isDone = await OnboardingService.isCompleted();
+          if (isDone) {
+            onboardingDone = true;
+          }
         }
       } catch (_) {}
 

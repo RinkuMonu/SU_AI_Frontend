@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   Sparkles, 
   Briefcase, 
@@ -53,9 +54,39 @@ import influencerService, {
   OpportunityFilters 
 } from '@/services/influencer.service';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { creatorOnboardingService } from '@/services/creator-onboarding.service';
 
 export default function InfluencerDashboard() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, isLoading: isAuthLoading } = useAuth();
+
+  // Guard: incomplete influencers must complete onboarding first
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function checkAccess() {
+      if (typeof window === 'undefined' || isAuthLoading) return;
+      if (!user) return;
+
+      try {
+        const onbStatus = await creatorOnboardingService.getInfluencerOnboardingStatus();
+        if (isCancelled) return;
+        if (!onbStatus.isCompleted) {
+          router.replace('/onboarding/influencer');
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          router.replace('/onboarding/influencer');
+        }
+      }
+    }
+
+    checkAccess();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [user, isAuthLoading, router]);
   
   // Data States
   const [profile, setProfile] = useState<InfluencerProfile | null>(null);

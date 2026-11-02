@@ -17,6 +17,7 @@ import {
   needsRoleSelection,
   getDashboardRouteForRole,
 } from "@/lib/role-routing";
+import { creatorOnboardingService } from "@/services/creator-onboarding.service";
 
 type SelectedRole = "businessman" | "influencer" | null;
 
@@ -218,6 +219,22 @@ export default function SelectRolePage() {
           router.replace(getDashboardRouteForRole(authoritativeRole));
         } else {
           router.replace("/onboarding");
+        }
+      } else if (authoritativeRole === "influencer") {
+        // Clear any stale local flags so creator always sees authoritative state
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("creator_onboarding_completed");
+        }
+        try {
+          const onbStatus = await creatorOnboardingService.getInfluencerOnboardingStatus();
+          if (onbStatus.isCompleted) {
+            router.replace("/influencer");
+          } else {
+            router.replace("/onboarding/influencer");
+          }
+        } catch (statusErr) {
+          console.warn("Could not check influencer onboarding status, routing to onboarding:", statusErr);
+          router.replace("/onboarding/influencer");
         }
       } else {
         router.replace(getDashboardRouteForRole(authoritativeRole));
