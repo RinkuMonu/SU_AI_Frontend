@@ -4553,25 +4553,42 @@ export default function OnboardingPage() {
       {/* Bottom Waves matching Designer Screen 1 */}
       {currentStepObj.id === "get_started" && (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-          {/* Bottom Left Sunset Gradient Wave (Exact Reference Curve & Colors) */}
+          {/* Bottom Left Sunset Gradient Wave (Exact Figma Image 1 Vector 7: Fill #FC9A5D -> #BE32FF 18%, Border 2px #FC9A5D -> #7D36FA 68%) */}
           <svg
-            className="absolute bottom-0 left-0 w-[44vw] min-w-[320px] max-w-[500px] h-[30vh] min-h-[190px] max-h-[260px]"
+            className="absolute bottom-0 left-0 w-[48vw] min-w-[340px] max-w-[540px] h-[32vh] min-h-[200px] max-h-[280px]"
             viewBox="0 0 380 216"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"
           >
             <defs>
+              {/* Warm Sunset Wave: More Orange Presence, Reduced Cold Blue */}
               <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="70%" y2="100%">
-                <stop offset="0%" stopColor="#fc9a5d" stopOpacity="1" />
-                <stop offset="25%" stopColor="#f0449b" stopOpacity="0.95" />
-                <stop offset="60%" stopColor="#8824df" stopOpacity="0.88" />
-                <stop offset="100%" stopColor="#24144e" stopOpacity="0.95" />
+                <stop offset="0%" stopColor="#FFA266" stopOpacity="1" />
+                <stop offset="20%" stopColor="#FC9A5D" stopOpacity="1" />
+                <stop offset="45%" stopColor="#FA6E59" stopOpacity="0.95" />
+                <stop offset="70%" stopColor="#B42EF5" stopOpacity="0.92" />
+                <stop offset="90%" stopColor="#3E1568" stopOpacity="0.95" />
+                <stop offset="100%" stopColor="#150E33" stopOpacity="0.98" />
+              </linearGradient>
+              {/* Border stroke with stronger orange lead */}
+              <linearGradient id="waveBorderSunset" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FFA266" />
+                <stop offset="40%" stopColor="#FC9A5D" />
+                <stop offset="75%" stopColor="#BE32FF" />
+                <stop offset="100%" stopColor="#8A3BFA" stopOpacity="0.2" />
               </linearGradient>
             </defs>
             <path
               d="M 0 0 C 130 46, 260 136, 380 216 L 0 216 Z"
               fill="url(#waveSunsetOnboarding)"
+            />
+            {/* 2px stroke matching Figma Vector 7 Border */}
+            <path
+              d="M 0 0 C 130 46, 260 136, 380 216"
+              stroke="url(#waveBorderSunset)"
+              strokeWidth="2"
+              fill="none"
             />
           </svg>
 
@@ -4627,7 +4644,7 @@ export default function OnboardingPage() {
             <h1 className="text-3xl sm:text-4xl text-white tracking-tight leading-[1.18]">
               <span className="font-normal">Your Business</span><br />
               <span className="font-normal">Deserve to </span>
-              <span className="font-bold bg-gradient-to-r from-[#f65b4e] via-[#e64d8e] to-[#a23fe2] bg-clip-text text-transparent">
+              <span className="font-bold bg-gradient-to-r from-[#FFA266] via-[#FC9A5D] via-[#FA6E59] to-[#BE32FF] bg-clip-text text-transparent">
                 Grow
               </span>
             </h1>
@@ -4653,7 +4670,10 @@ export default function OnboardingPage() {
               id="get-started-btn"
               onClick={handleGetStarted}
               disabled={isSavingGetStarted}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mx-auto"
+              className="w-full max-w-[280px] sm:max-w-[320px] h-11 sm:h-12 rounded-full text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-[#FC9A5D]/25 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mx-auto px-5"
+              style={{
+                background: "linear-gradient(90deg, #8B3BFA 0%, #BE32FF 20%, #FA6252 46%, #FC9A5D 75%, #FFA768 100%)"
+              }}
             >
               {isSavingGetStarted ? (
                 <>
@@ -7424,38 +7444,41 @@ export default function OnboardingPage() {
           MARKETPLACE STEP 1: WHICH MARKETPLACES DO YOU SELL ON?
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "marketplace_platforms" && (
-        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Progress bar (~25%) */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Header: Back button + Long Gradient Progress Bar */}
+            <div className="flex items-center w-full mb-6">
               <button
                 type="button"
                 onClick={handleMarketplacePlatformsBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-slate-700/60"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "25%" }}
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(240,68,155,0.5)]"
+                  style={{ width: "35%" }}
                 />
               </div>
             </div>
 
             {/* Title & Subtitle */}
-            <div className="mb-5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Which marketplaces do you sell on?
+            <div className="mb-6 text-left">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
+                Which marketplaces do you{" "}
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
+                  sell on?
+                </span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5 leading-relaxed">
                 Pick all that apply.
               </p>
             </div>
 
-            {/* Selectable Cards Grid */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+            {/* Selectable Cards Grid - Desktop Balanced */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-4">
               {MARKETPLACE_SELLER_PLATFORMS.map((item) => {
                 const isSelected = selectedMarketplaces.includes(item.id);
                 return (
@@ -7463,25 +7486,25 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleMarketplace(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
-                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
-                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[130px] sm:min-h-[145px] ${isSelected
+                        ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 scale-[1.02]"
+                        : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                       }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
-                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-3 h-3 text-white stroke-[3]" />
                       </div>
                     )}
 
                     {/* Logo Tile */}
-                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
-                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-2 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
 
                     {/* Label */}
-                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                    <span className="mt-3 text-sm sm:text-base font-semibold text-white tracking-tight line-clamp-1">
                       {item.name}
                     </span>
                   </button>
@@ -7491,7 +7514,7 @@ export default function OnboardingPage() {
 
             {/* If 'Other' is selected, reveal custom input */}
             {selectedMarketplaces.includes("other") && (
-              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="mt-5 p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200 max-w-xl mx-auto w-full">
                 <Label htmlFor="custom-marketplace-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
                   Marketplace name <span className="text-[#f0449b]">*</span>
                 </Label>
@@ -7512,14 +7535,14 @@ export default function OnboardingPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in max-w-xl mx-auto">
                 <span className="font-semibold text-red-400">Notice:</span> {error}
               </div>
             )}
           </div>
 
-          {/* Continue Button */}
-          <div className="pt-6 pb-2">
+          {/* Continue Button + Create Website Option matching Reference Image 1 */}
+          <div className="pt-6 pb-2 flex flex-col items-center">
             <button
               type="button"
               id="marketplace-platforms-continue-btn"
@@ -7529,10 +7552,10 @@ export default function OnboardingPage() {
                 selectedMarketplaces.length === 0 ||
                 (selectedMarketplaces.includes("other") && !customMarketplaceName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMarketplaces.length > 0 &&
+              className={`w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMarketplaces.length > 0 &&
                   !isSavingMarketplace &&
                   (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white shadow-lg shadow-[#be32ff]/25"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
                 }`}
             >
@@ -7549,20 +7572,18 @@ export default function OnboardingPage() {
               )}
             </button>
 
-            <div className="pt-3 text-center">
+            {/* Don't have a website yet? Create Website -> */}
+            <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={() => handleCreateWebsite("marketplace")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
+                className="text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1.5 cursor-pointer py-1"
               >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
+                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
+                <span>Don&apos;t have a website yet?</span>
+                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:underline">
+                  Create Website &rarr;
                 </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>
@@ -7702,147 +7723,177 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          MARKETPLACE STEP 3: DO YOU ALSO HAVE A WEBSITE?
+          MARKETPLACE STEP 2: WHAT YOUR WEBSITE? (Exact Image 3 Desktop Layout)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "marketplace_website" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Progress bar (~60%) */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~60%) */}
+            <div className="flex items-center gap-3 w-full mb-8">
               <button
                 type="button"
                 onClick={handleMarketplaceWebsiteBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
                   style={{ width: "60%" }}
                 />
               </div>
             </div>
 
-            {/* Heading */}
-            <div className="mb-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Do you also have a{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  website?
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
-                We&apos;ll read your brand from it — skip if you don&apos;t have one.
-              </p>
-            </div>
+            {/* 2-Column Layout matching Image 3 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
 
-            {/* Website URL Input Card matching existing website screen */}
-            <div className="mt-8">
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
-                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
+              {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
+              <div className="space-y-6 max-w-lg">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
+                    What your{" "}
+                    <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
+                      website
+                    </span>
+                    <span className="text-[#9936F1]">?</span>
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                    We&apos;ll read it for you, so there&apos;s no need to type anything.
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
-                    id="marketplace-website-url-input"
-                    value={websiteUrl}
-                    onChange={(e) => {
-                      setWebsiteUrl(e.target.value);
-                      setError("");
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
-                        handleMarketplaceWebsiteContinue();
-                      }
-                    }}
-                    placeholder="yourbusiness.com"
-                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
-                    autoFocus
-                  />
+
+                {/* Website URL Input (Pill container matching Image 3) */}
+                <div className="space-y-2">
+                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                    <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      id="marketplace-website-url-input"
+                      value={websiteUrl}
+                      onChange={(e) => {
+                        setWebsiteUrl(e.target.value);
+                        setError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                          handleMarketplaceWebsiteContinue();
+                        }
+                      }}
+                      placeholder="yourwebsite.com"
+                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      autoFocus
+                    />
+                    {websiteUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setWebsiteUrl("")}
+                        className="text-slate-400 hover:text-white transition-colors p-1"
+                        aria-label="Clear input"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                    <p className="text-[11px] text-[#E84E8F] pl-3 font-medium">
+                      Please enter a valid website address (e.g. yourbrand.com)
+                    </p>
+                  )}
                 </div>
-                {websiteUrl && (
+
+                {/* OR Divider with subtle line */}
+                <div className="relative flex items-center justify-center py-2">
+                  <div className="w-full border-t border-slate-700/50" />
+                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                    OR
+                  </span>
+                </div>
+
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image 3) */}
+                <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
                   <button
                     type="button"
-                    onClick={() => setWebsiteUrl("")}
-                    className="text-neutral-500 hover:text-white transition-colors p-1"
-                    aria-label="Clear input"
+                    onClick={() => handleCreateWebsite("marketplace")}
+                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
                   >
-                    <X className="w-4 h-4" />
+                    <span>Create Website</span>
+                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
                   </button>
+                </div>
+
+                {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
+                <div className="grid grid-cols-3 divide-x divide-slate-800/80 pt-4 pb-2 text-left">
+                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">AI-Powered</p>
+                      <p className="text-[11px] text-slate-500 font-normal">Fast &amp; Smart</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 min-w-0">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">Secure</p>
+                      <p className="text-[11px] text-slate-500 font-normal">Your data is safe</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-normal text-slate-300">Grow Faster</p>
+                      <p className="text-[11px] text-slate-500 font-normal">With AI insights</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Notice */}
+                {error && (
+                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                    <span className="font-semibold text-red-400">Notice:</span> {error}
+                  </div>
                 )}
+
+                {/* Continue Button */}
+                <div className="pt-3">
+                  <button
+                    type="button"
+                    id="marketplace-website-continue-btn"
+                    onClick={handleMarketplaceWebsiteContinue}
+                    disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
+                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
+                        : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
+                      }`}
+                  >
+                    {isSavingMarketplace ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Scanning &amp; Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue</span>
+                        <ArrowRight className="w-4 h-4 text-white" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              {/* Validation helper */}
-              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
-                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
-                  <span>Please enter a valid website address (e.g. yourbusiness.com)</span>
-                </p>
-              )}
-
-              {/* Helpful context */}
-              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
-                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Our AI scans your products, brand colors, voice, and category automatically from your URL.
-                </span>
+              {/* Right Column: 3D Website Artwork (Exact Image 3 Artwork) */}
+              <div className="hidden lg:flex items-center justify-center relative select-none">
+                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                  <img
+                    src="/images/website-reading-artwork.png"
+                    alt="What your website?"
+                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_0_40px_rgba(153,54,241,0.25)] animate-in fade-in duration-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Error Notice */}
-            {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <span className="font-semibold text-red-400">Notice:</span> {error}
-              </div>
-            )}
-          </div>
-
-          {/* Continue Button + Skip Action */}
-          <div className="pt-4 pb-2 space-y-3">
-            <button
-              type="button"
-              id="marketplace-website-continue-btn"
-              onClick={handleMarketplaceWebsiteContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
-                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-                }`}
-            >
-              {isSavingMarketplace ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </>
-              )}
-            </button>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
-              <button
-                type="button"
-                onClick={handleSkipMarketplaceWebsite}
-                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
-              >
-                I&apos;ll enter it myself
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("marketplace")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
             </div>
           </div>
         </div>
