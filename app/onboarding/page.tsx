@@ -5286,26 +5286,26 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
-                <div className="grid grid-cols-3 divide-x divide-slate-800/80 pt-4 pb-2 text-left">
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
                   <div className="flex items-center gap-2.5 pr-3 min-w-0">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">AI-Powered</p>
-                      <p className="text-[11px] text-slate-500 font-normal">Fast &amp; Smart</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 px-3 min-w-0">
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">Secure</p>
-                      <p className="text-[11px] text-slate-500 font-normal">Your data is safe</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 pl-3 min-w-0">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">Grow Faster</p>
-                      <p className="text-[11px] text-slate-500 font-normal">With AI insights</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
                     </div>
                   </div>
                 </div>
@@ -7573,19 +7573,7 @@ export default function OnboardingPage() {
             </button>
 
             {/* Don't have a website yet? Create Website -> */}
-            <div className="mt-4 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("marketplace")}
-                className="text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1.5 cursor-pointer py-1"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
-                <span>Don&apos;t have a website yet?</span>
-                <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:underline">
-                  Create Website &rarr;
-                </span>
-              </button>
-            </div>
+            
           </div>
         </div>
       )}
@@ -7825,26 +7813,26 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
-                <div className="grid grid-cols-3 divide-x divide-slate-800/80 pt-4 pb-2 text-left">
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
                   <div className="flex items-center gap-2.5 pr-3 min-w-0">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">AI-Powered</p>
-                      <p className="text-[11px] text-slate-500 font-normal">Fast &amp; Smart</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 px-3 min-w-0">
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">Secure</p>
-                      <p className="text-[11px] text-slate-500 font-normal">Your data is safe</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2.5 pl-3 min-w-0">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#be32ff] shrink-0" />
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
-                      <p className="text-xs font-normal text-slate-300">Grow Faster</p>
-                      <p className="text-[11px] text-slate-500 font-normal">With AI insights</p>
+                      <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
                     </div>
                   </div>
                 </div>
@@ -7903,38 +7891,41 @@ export default function OnboardingPage() {
           WHOLESALE / B2B STEP 1: WHERE DO YOU SELL YOUR PRODUCTS WHOLESALE?
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "b2b_platforms" && (
-        <div className="w-full max-w-md sm:max-w-lg mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Progress bar (~25%) */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Header: Back button + Long Gradient Progress Bar */}
+            <div className="flex items-center w-full mb-6">
               <button
                 type="button"
                 onClick={handleB2bPlatformsBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-800/80 hover:bg-slate-700 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-slate-700/60"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden ml-4 sm:ml-6">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "25%" }}
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_10px_rgba(240,68,155,0.5)]"
+                  style={{ width: "35%" }}
                 />
               </div>
             </div>
 
             {/* Title & Subtitle */}
-            <div className="mb-5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Where do you sell your products wholesale?
+            <div className="mb-6 text-left">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
+                Where do you sell your products{" "}
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
+                  wholesale?
+                </span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5 leading-relaxed">
                 Select all the platforms you use.
               </p>
             </div>
 
-            {/* Selectable Cards Grid */}
-            <div className="grid grid-cols-3 gap-3 sm:gap-3.5 mt-6">
+            {/* Selectable Cards Grid - Desktop Proportions */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-4">
               {B2B_WHOLESALE_PLATFORMS.map((item) => {
                 const isSelected = selectedB2bPlatforms.includes(item.id);
                 return (
@@ -7942,25 +7933,25 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleB2bPlatform(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[110px] sm:min-h-[125px] ${isSelected
-                        ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/60"
-                        : "bg-[#131728]/75 border-white/10 hover:border-white/20 hover:bg-[#131728]"
+                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[130px] sm:min-h-[145px] ${isSelected
+                        ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 scale-[1.02]"
+                        : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                       }`}
                   >
                     {/* Selected Checkmark Badge */}
                     {isSelected && (
-                      <div className="absolute top-2 right-2 w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
-                        <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
+                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                        <Check className="w-3 h-3 text-white stroke-[3]" />
                       </div>
                     )}
 
                     {/* Logo Tile */}
-                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center shadow-sm overflow-hidden p-1.5 shrink-0">
-                      <PlatformIcon id={item.id} name={item.name} className="w-8 h-8" />
+                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-2 shrink-0">
+                      <PlatformIcon id={item.id} name={item.name} className="w-10 h-10 sm:w-12 sm:h-12" />
                     </div>
 
                     {/* Label */}
-                    <span className="mt-2.5 text-xs sm:text-sm font-semibold text-white tracking-tight line-clamp-1">
+                    <span className="mt-3 text-sm sm:text-base font-semibold text-white tracking-tight line-clamp-1">
                       {item.name}
                     </span>
                   </button>
@@ -7970,7 +7961,7 @@ export default function OnboardingPage() {
 
             {/* If 'Other' is selected, reveal custom input */}
             {selectedB2bPlatforms.includes("other") && (
-              <div className="mt-5 p-3.5 sm:p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="mt-5 p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200 max-w-xl mx-auto w-full">
                 <Label htmlFor="custom-b2b-platform-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
                   Wholesale platform name <span className="text-[#f0449b]">*</span>
                 </Label>
@@ -7991,14 +7982,14 @@ export default function OnboardingPage() {
 
             {/* Error Message */}
             {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in max-w-xl mx-auto">
                 <span className="font-semibold text-red-400">Notice:</span> {error}
               </div>
             )}
           </div>
 
-          {/* Continue Button */}
-          <div className="pt-6 pb-2">
+          {/* Continue Button (Bottom Create Website button removed as requested) */}
+          <div className="pt-6 pb-2 flex flex-col items-center">
             <button
               type="button"
               id="b2b-platforms-continue-btn"
@@ -8008,10 +7999,10 @@ export default function OnboardingPage() {
                 selectedB2bPlatforms.length === 0 ||
                 (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim())
               }
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bPlatforms.length > 0 &&
+              className={`w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bPlatforms.length > 0 &&
                   !isSavingB2b &&
                   (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white shadow-lg shadow-[#be32ff]/25"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
                 }`}
             >
@@ -8027,23 +8018,6 @@ export default function OnboardingPage() {
                 </>
               )}
             </button>
-
-            <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("b2b")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -8184,144 +8158,174 @@ export default function OnboardingPage() {
           WHOLESALE / B2B STEP 3: DO YOU HAVE A WEBSITE OR ONLINE STOREFRONT?
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "b2b_website" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[480px] sm:min-h-[540px] animate-in fade-in duration-400 relative z-10 px-2 sm:px-4">
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Header: Back button + Progress bar (~60%) */}
-            <div className="flex items-center gap-3 w-full mb-6">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~60%) */}
+            <div className="flex items-center gap-3 w-full mb-8">
               <button
                 type="button"
                 onClick={handleB2bWebsiteBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
                   style={{ width: "60%" }}
                 />
               </div>
             </div>
 
-            {/* Heading */}
-            <div className="mb-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Do you have a website or{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  online storefront?
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
-                Add your link so we can understand your business — or skip and enter details yourself.
-              </p>
-            </div>
+            {/* 2-Column Layout matching Image 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
 
-            {/* Website URL Input Card */}
-            <div className="mt-8">
-              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#131728]/75 border border-white/10 focus-within:border-[#BE32FF] focus-within:shadow-[0_0_25px_rgba(190,50,255,0.3)] focus-within:ring-1 focus-within:ring-[#BE32FF]/50 transition-all flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center shrink-0 text-neutral-300">
-                  <Link2 className="w-5 h-5 -rotate-45 text-neutral-300" />
+              {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
+              <div className="space-y-6 max-w-lg">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
+                    What your{" "}
+                    <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
+                      website
+                    </span>
+                    <span className="text-[#9936F1]">?</span>
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                    We&apos;ll read it for you, so there&apos;s no need to type anything.
+                  </p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <input
-                    type="text"
-                    id="b2b-website-url-input"
-                    value={websiteUrl}
-                    onChange={(e) => {
-                      setWebsiteUrl(e.target.value);
-                      setError("");
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
-                        handleB2bWebsiteContinue();
-                      }
-                    }}
-                    placeholder="yourbusiness.com"
-                    className="w-full bg-transparent border-none text-white text-sm sm:text-base placeholder:text-neutral-500 focus:outline-none tracking-normal font-medium"
-                    autoFocus
-                  />
+
+                {/* Website URL Input (Pill container matching Image 2) */}
+                <div className="space-y-2">
+                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                    <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
+                    <input
+                      type="text"
+                      id="b2b-website-url-input"
+                      value={websiteUrl}
+                      onChange={(e) => {
+                        setWebsiteUrl(e.target.value);
+                        setError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && isValidWebsiteUrl(websiteUrl)) {
+                          handleB2bWebsiteContinue();
+                        }
+                      }}
+                      placeholder="yourwebsite.com"
+                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      autoFocus
+                    />
+                    {websiteUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setWebsiteUrl("")}
+                        className="text-slate-400 hover:text-white transition-colors p-1"
+                        aria-label="Clear input"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
+                    <p className="text-[11px] text-[#E84E8F] pl-3 font-medium">
+                      Please enter a valid website address (e.g. yourbrand.com)
+                    </p>
+                  )}
                 </div>
-                {websiteUrl && (
+
+                {/* OR Divider with subtle line */}
+                <div className="relative flex items-center justify-center py-2">
+                  <div className="w-full border-t border-slate-700/50" />
+                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                    OR
+                  </span>
+                </div>
+
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image 2) */}
+                <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
                   <button
                     type="button"
-                    onClick={() => setWebsiteUrl("")}
-                    className="text-neutral-500 hover:text-white transition-colors p-1"
-                    aria-label="Clear input"
+                    onClick={() => handleCreateWebsite("b2b")}
+                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
                   >
-                    <X className="w-4 h-4" />
+                    <span>Create Website</span>
+                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
                   </button>
+                </div>
+
+                {/* 3 Value Pillars with Icons & Purple Text (Image 3 Reference) */}
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
+                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
+                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 px-3 min-w-0">
+                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
+                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
+                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Error Notice */}
+                {error && (
+                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                    <span className="font-semibold text-red-400">Notice:</span> {error}
+                  </div>
                 )}
+
+                {/* Continue Button */}
+                <div className="pt-3">
+                  <button
+                    type="button"
+                    id="b2b-website-continue-btn"
+                    onClick={handleB2bWebsiteContinue}
+                    disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
+                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
+                        : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
+                      }`}
+                  >
+                    {isSavingB2b ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Scanning &amp; Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue</span>
+                        <ArrowRight className="w-4 h-4 text-white" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
 
-              {/* Validation helper */}
-              {websiteUrl && !isValidWebsiteUrl(websiteUrl) && (
-                <p className="text-[11px] text-[#f0449b] mt-2 px-1 font-medium flex items-center gap-1.5">
-                  <span>Please enter a valid website address (e.g. yourbusiness.com)</span>
-                </p>
-              )}
-
-              {/* Helpful context */}
-              <div className="mt-5 p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 text-xs text-neutral-300 flex items-start gap-2.5">
-                <Sparkles className="w-4 h-4 text-[#be32ff] shrink-0 mt-0.5" />
-                <span className="leading-relaxed">
-                  Our AI scans your products, catalog, brand colors, voice, and category automatically from your link.
-                </span>
+              {/* Right Column: 3D Website Artwork (Exact Image 2 Artwork) */}
+              <div className="hidden lg:flex items-center justify-center relative select-none">
+                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                  <img
+                    src="/images/website-reading-artwork.png"
+                    alt="What your website?"
+                    className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_0_40px_rgba(153,54,241,0.25)] animate-in fade-in duration-500"
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Error Notice */}
-            {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <span className="font-semibold text-red-400">Notice:</span> {error}
-              </div>
-            )}
-          </div>
-
-          {/* Continue Button + Skip Action */}
-          <div className="pt-4 pb-2 space-y-3">
-            <button
-              type="button"
-              id="b2b-website-continue-btn"
-              onClick={handleB2bWebsiteContinue}
-              disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all duration-200 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
-                  ? "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_8px_30px_rgba(236,72,153,0.4)] hover:brightness-110 active:scale-[0.98] cursor-pointer"
-                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
-                }`}
-            >
-              {isSavingB2b ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </>
-              )}
-            </button>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
-              <button
-                type="button"
-                onClick={handleSkipB2bWebsite}
-                className="text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 px-3 font-medium cursor-pointer"
-              >
-                I&apos;ll enter it myself
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("b2b")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
             </div>
           </div>
         </div>
