@@ -1,18 +1,21 @@
 export type PhotoshootTabMode = "avatar" | "product";
 
 export type ProductCategory =
-  | "mens_clothing"
-  | "womens_clothing"
-  | "unisex_clothing"
-  | "beauty_cosmetics"
-  | "jewellery_accessories"
   | "food_beverage"
+  | "crockery_kitchenware"
+  | "furniture_living"
+  | "jewellery_accessories"
+  | "beauty_cosmetics"
   | "electronics"
   | "home_decor"
   | "candles"
+  | "clothing"
+  | "mens_clothing"
+  | "womens_clothing"
+  | "unisex_clothing"
   | "other";
 
-export type ImageAngle = "front" | "back" | "side" | "closeup" | "other";
+export type ImageAngle = "front" | "back" | "side" | "topdown" | "angle45" | "closeup" | "other";
 
 export interface PhotoshootUploadedImage {
   id: string;

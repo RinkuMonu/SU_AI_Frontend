@@ -2,23 +2,25 @@
 
 import React, { useState, useRef } from "react";
 import { 
-  Upload, 
+  UploadCloud, 
   X, 
   Plus, 
   Image as ImageIcon, 
-  CheckCircle2, 
+  Check, 
   AlertCircle, 
-  Sparkles,
   ArrowRight,
+  ArrowLeft,
   Shirt,
   Gem,
   Coffee,
   Smartphone,
   Home,
-  Flame,
-  Package,
+  Sparkles,
   Layers,
-  Smile
+  Maximize2,
+  Info,
+  RefreshCw,
+  Utensils
 } from "lucide-react";
 import { 
   PhotoshootUploadedImage, 
@@ -39,18 +41,23 @@ interface Step1UploadProps {
   onNameChange: (name: string) => void;
   onColorChange: (color: string) => void;
   onNext: () => void;
+  onBack?: () => void;
 }
 
-const MAX_IMAGES = 8;
+const MAX_IMAGES = 4;
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 
-const ANGLE_LABELS: Record<ImageAngle, string> = {
-  front: "Front Angle",
-  back: "Back Angle",
-  side: "Side Angle",
-  closeup: "Close-up",
-  other: "Custom Angle",
-};
+// Option 3 Primary Categories Display
+const DISPLAY_CATEGORIES: { id: ProductCategory; label: string; icon: any }[] = [
+  { id: "food_beverage", label: "Food & Spices", icon: Coffee },
+  { id: "crockery_kitchenware", label: "Crockery & Kitchen", icon: Utensils },
+  { id: "furniture_living", label: "Furniture & Living", icon: Home },
+  { id: "jewellery_accessories", label: "Jewellery", icon: Gem },
+  { id: "beauty_cosmetics", label: "Beauty & Cosmetics", icon: Sparkles },
+  { id: "electronics", label: "Electronics", icon: Smartphone },
+  { id: "clothing", label: "Clothing & Apparel", icon: Shirt },
+  { id: "mens_clothing", label: "Men's Clothing", icon: Shirt },
+];
 
 export const Step1Upload: React.FC<Step1UploadProps> = ({
   mode = "avatar",
@@ -63,26 +70,13 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
   onNameChange,
   onColorChange,
   onNext,
+  onBack,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const replaceInputRef = useRef<HTMLInputElement>(null);
+  const [replacingImageId, setReplacingImageId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
-  const isAvatarMode = mode === "avatar";
-
-  const getCategoryIcon = (iconName: string) => {
-    switch (iconName) {
-      case "Shirt": return <Shirt className="w-5 h-5" />;
-      case "Sparkles": return <Sparkles className="w-5 h-5" />;
-      case "Layers": return <Layers className="w-5 h-5" />;
-      case "Smile": return <Smile className="w-5 h-5" />;
-      case "Gem": return <Gem className="w-5 h-5" />;
-      case "Coffee": return <Coffee className="w-5 h-5" />;
-      case "Smartphone": return <Smartphone className="w-5 h-5" />;
-      case "Home": return <Home className="w-5 h-5" />;
-      case "Flame": return <Flame className="w-5 h-5" />;
-      default: return <Package className="w-5 h-5" />;
-    }
-  };
 
   const processFiles = (files: FileList | File[]) => {
     setUploadError(null);
@@ -90,7 +84,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
 
     const fileArray = Array.from(files);
     if (uploadedImages.length + fileArray.length > MAX_IMAGES) {
-      setUploadError(`You can upload a maximum of ${MAX_IMAGES} product images.`);
+      setUploadError(`You can upload up to ${MAX_IMAGES} product images.`);
     }
 
     const allowedFiles = fileArray.slice(0, MAX_IMAGES - uploadedImages.length);
@@ -101,14 +95,13 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
         return;
       }
 
-      if (file.size > 15 * 1024 * 1024) {
-        setUploadError(`File ${file.name} exceeds 15MB size limit.`);
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError(`File ${file.name} exceeds 10MB size limit.`);
         return;
       }
 
       const previewUrl = URL.createObjectURL(file);
-      // Auto-assign logical default angles: first is front, second is back, third is side, fourth is closeup
-      const defaultAngleOrder: ImageAngle[] = ["front", "back", "side", "closeup"];
+      const defaultAngleOrder: ImageAngle[] = ["front", "back", "side", "topdown", "angle45", "closeup"];
       const angle = defaultAngleOrder[(uploadedImages.length + index) % defaultAngleOrder.length];
 
       newItems.push({
@@ -125,7 +118,6 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
 
     if (newItems.length > 0) {
       onImagesChange([...uploadedImages, ...newItems]);
-      // If product name is empty, suggest default from first file
       if (!productName && newItems[0]) {
         const cleanName = newItems[0].name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
         onNameChange(cleanName.charAt(0).toUpperCase() + cleanName.slice(1));
@@ -147,6 +139,43 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
     }
   };
 
+  const handleTriggerReplace = (id: string) => {
+    setReplacingImageId(id);
+    replaceInputRef.current?.click();
+  };
+
+  const handleReplaceFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0 && replacingImageId) {
+      const file = e.target.files[0];
+      if (!ACCEPTED_TYPES.includes(file.type)) {
+        setUploadError("Only JPG, JPEG, PNG, and WEBP images are supported.");
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        setUploadError(`File ${file.name} exceeds 10MB size limit.`);
+        return;
+      }
+      const previewUrl = URL.createObjectURL(file);
+      const updated = uploadedImages.map((img) => {
+        if (img.id === replacingImageId) {
+          return {
+            ...img,
+            name: file.name,
+            size: file.size,
+            url: previewUrl,
+            previewUrl,
+            file,
+            uploadedAt: new Date().toISOString(),
+          };
+        }
+        return img;
+      });
+      onImagesChange(updated);
+      setReplacingImageId(null);
+      if (replaceInputRef.current) replaceInputRef.current.value = "";
+    }
+  };
+
   const handleRemoveImage = (id: string) => {
     const updated = uploadedImages.filter((img) => img.id !== id);
     onImagesChange(updated);
@@ -159,88 +188,140 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
     onImagesChange(updated);
   };
 
-  const handleLoadDemo = (category: ProductCategory) => {
-    onCategoryChange(category);
-    let demoImage = "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80";
-    let demoName = "Classic White Organic T-Shirt";
-    let demoColor = "White";
-
-    if (category === "jewellery_accessories") {
-      demoImage = "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80";
-      demoName = "Royal Emerald Kundan Necklace";
-      demoColor = "Gold & Emerald";
-    } else if (category === "beauty_cosmetics") {
-      demoImage = "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80";
-      demoName = "Hydrating Glow Facial Serum";
-      demoColor = "Amber Rose";
-    } else if (category === "candles") {
-      demoImage = "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800&q=80";
-      demoName = "Lavender & Vanilla Scented Candle";
-      demoColor = "Warm Cream";
-    }
-
-    onImagesChange([
-      {
-        id: `demo_${Date.now()}`,
-        name: `${demoName}.jpg`,
-        size: 1024 * 720,
-        url: demoImage,
-        previewUrl: demoImage,
-        angle: "front",
-        uploadedAt: new Date().toISOString(),
-      },
-    ]);
-    onNameChange(demoName);
-    onColorChange(demoColor);
-  };
-
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Step Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/30 text-brand-purple text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>
-            {isAvatarMode 
-              ? "Step 1 of 5 • Fashion & Apparel Upload" 
-              : "Step 1 of 5 • Commercial Product Upload"}
-          </span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          {isAvatarMode ? "Upload Your Product" : "Upload Your Product Images"}
-        </h1>
-        <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-          {isAvatarMode
-            ? "Upload multiple product angles to showcase on your chosen AI model."
-            : "Upload your product images to create studio, lifestyle, and marketplace commercial shots."}
-        </p>
-      </div>
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Hidden file input for adding new photos */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="image/png,image/jpeg,image/webp,image/jpg"
+        onChange={handleFileInput}
+        className="hidden"
+      />
 
-      {/* Main Grid: Upload Area & Category Picker */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Image Upload Dropzone & Previews (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-brand-pink" />
-              <span>Product Image Uploads</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-neutral-300 font-normal">
-                {uploadedImages.length} / {MAX_IMAGES}
+      {/* Hidden file input for replacing single photo */}
+      <input
+        ref={replaceInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/jpg"
+        onChange={handleReplaceFileInput}
+        className="hidden"
+      />
+
+      {/* Main Grid: Upload Product Images on Left, Category on Right - Option 3 Spec */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Product Images (7 cols) */}
+        <section className="lg:col-span-7 bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+          {/* Header */}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#A855F7]/25 to-[#EC4899]/25 text-[#EC4899] border border-[#EC4899]/30 flex items-center justify-center shrink-0">
+                <ImageIcon className="w-4 h-4" />
               </span>
-            </h2>
-
-            {uploadedImages.length === 0 && (
-              <button
-                type="button"
-                onClick={() => handleLoadDemo(productCategory)}
-                className="text-xs text-brand-pink hover:text-white transition-colors underline cursor-pointer"
-              >
-                Try with Demo Product
-              </button>
-            )}
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>Upload Product Images</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 font-bold">
+                  {uploadedImages.length} / {MAX_IMAGES}
+                </span>
+              </h2>
+            </div>
+            <p className="text-xs text-text-muted mt-1">
+              Upload 1–4 clear product photos from different angles for the best results.
+            </p>
           </div>
 
-          {/* Drag & Drop Box */}
+          {/* Upload Error Banner */}
+          {uploadError && (
+            <div className="p-3 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <span>{uploadError}</span>
+            </div>
+          )}
+
+          {/* 4-Slot Image Row - Option 3 Pixel Match */}
+          <div className="grid grid-cols-4 gap-3">
+            {[0, 1, 2, 3].map((slotIndex) => {
+              const img = uploadedImages[slotIndex];
+
+              if (img) {
+                return (
+                  <div
+                    key={img.id}
+                    className="relative aspect-square rounded-xl overflow-hidden border border-white/10 bg-[#0E1838] shadow group"
+                  >
+                    <img
+                      src={img.previewUrl}
+                      alt={img.name}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+
+                    {/* Top Right Close X Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveImage(img.id);
+                      }}
+                      className="w-6 h-6 rounded-full bg-black/75 hover:bg-rose-600 text-white flex items-center justify-center transition-colors shadow absolute top-2 right-2 z-10 cursor-pointer"
+                      title="Remove image"
+                    >
+                      <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+
+                    {/* Quick Replace on hover */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTriggerReplace(img.id);
+                      }}
+                      className="absolute top-2 left-2 w-6 h-6 rounded-full bg-black/75 hover:bg-brand-purple text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 cursor-pointer"
+                      title="Replace photo"
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                    </button>
+
+                    {/* Angle Selector Bar */}
+                    <div className="absolute inset-x-0 bottom-0 p-1 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                      <select
+                        value={img.angle}
+                        onChange={(e) => handleAngleChange(img.id, e.target.value as ImageAngle)}
+                        className="w-full text-[10px] font-semibold bg-black/70 text-white border border-white/20 rounded px-1.5 py-0.5 outline-none cursor-pointer"
+                      >
+                        <option value="front">Front View</option>
+                        <option value="back">Back View</option>
+                        <option value="side">Side View</option>
+                        <option value="topdown">Top-Down</option>
+                        <option value="angle45">45° Angle</option>
+                        <option value="closeup">Close-up</option>
+                        <option value="other">Other Angle</option>
+                      </select>
+                    </div>
+                  </div>
+                );
+              }
+
+              // Empty Slot
+              return (
+                <button
+                  key={`empty_${slotIndex}`}
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="aspect-square rounded-xl border border-dashed border-white/20 bg-[#0E1838]/40 hover:border-[#A855F7] hover:bg-[#A855F7]/5 transition-all flex flex-col items-center justify-center cursor-pointer group"
+                >
+                  <span className="text-[#EC4899] text-xl font-bold leading-none mb-1 group-hover:scale-110 transition-transform">
+                    +
+                  </span>
+                  <span className="text-[11px] sm:text-xs font-medium text-slate-300 group-hover:text-white">
+                    Add Image
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Large Drag & Drop Box - Option 3 Pixel Match */}
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -249,237 +330,125 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`border-2 border-dashed rounded-2xl p-6 sm:p-8 text-center transition-all cursor-pointer flex flex-col items-center justify-center gap-3 relative overflow-hidden ${
-              isDragging
-                ? "border-brand-purple bg-brand-purple/10 shadow-[0_0_25px_rgba(190,50,255,0.25)] scale-[1.01]"
-                : "border-white/15 hover:border-brand-purple/50 bg-[#0f1120]/60 hover:bg-[#121426]"
+            className={`rounded-2xl border border-dashed border-[#A855F7]/40 bg-[#121133]/60 hover:border-[#EC4899] hover:bg-[#121133]/80 transition-all p-6 flex flex-col items-center justify-center text-center cursor-pointer ${
+              isDragging ? "border-[#EC4899] bg-[#121133]" : ""
             }`}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/png,image/jpeg,image/webp,image/jpg"
-              onChange={handleFileInput}
-              className="hidden"
-            />
+            <UploadCloud className="w-9 h-9 text-[#EC4899] mb-2 stroke-[1.5]" />
+            <p className="text-xs sm:text-sm text-slate-200">
+              Drag &amp; drop product images here or{" "}
+              <span className="text-[#E085FF] font-semibold hover:underline">browse files</span>
+            </p>
 
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-purple/20 to-brand-pink/20 border border-brand-purple/30 flex items-center justify-center text-brand-pink shadow-lg">
-              <Upload className="w-6 h-6 animate-pulse" />
-            </div>
-
-            <div>
-              <p className="text-sm font-semibold text-white">
-                Drag &amp; drop product photos, or{" "}
-                <span className="text-brand-pink underline">browse files</span>
-              </p>
-              <p className="text-xs text-neutral-400 mt-1">
-                Supports JPG, JPEG, PNG, WEBP (Up to 15MB each, max {MAX_IMAGES} photos)
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] text-neutral-400">
-              <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5">Front View</span>
-              <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5">Back View</span>
-              <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5">Side Profile</span>
-              <span className="px-2 py-0.5 rounded bg-white/5 border border-white/5">Close-up Details</span>
+            <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-3 flex-wrap justify-center">
+              <span className="flex items-center gap-1.5">
+                <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
+                <span>JPG, PNG, WEBP</span>
+              </span>
+              <span className="text-white/20">•</span>
+              <span className="flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5 text-slate-400" />
+                <span>Up to 4 images</span>
+              </span>
+              <span className="text-white/20">•</span>
+              <span className="flex items-center gap-1.5">
+                <Maximize2 className="w-3.5 h-3.5 text-slate-400" />
+                <span>Max 10 MB each</span>
+              </span>
             </div>
           </div>
+        </section>
 
-          {/* Error Banner */}
-          {uploadError && (
-            <div className="p-3 rounded-xl bg-red-950/50 border border-red-500/40 text-red-200 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
-              <span>{uploadError}</span>
-            </div>
-          )}
-
-          {/* Uploaded Images Gallery Grid */}
-          {uploadedImages.length > 0 && (
-            <div className="space-y-3 pt-2">
-              <div className="flex items-center justify-between text-xs text-neutral-400">
-                <span>Select angle tags for accurate 3D scene placement:</span>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadedImages.length >= MAX_IMAGES}
-                  className="text-brand-pink hover:text-white flex items-center gap-1 font-semibold cursor-pointer disabled:opacity-40"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Add More</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                {uploadedImages.map((img, idx) => (
-                  <div
-                    key={img.id}
-                    className="relative rounded-xl border border-white/10 bg-[#0a0d1a] overflow-hidden group hover:border-brand-purple/50 transition-all shadow-md"
-                  >
-                    {/* Image Preview */}
-                    <div className="relative aspect-square w-full bg-black/40 overflow-hidden flex items-center justify-center">
-                      {img.previewUrl && img.previewUrl.trim() ? (
-                        <img
-                          src={img.previewUrl}
-                          alt={img.name}
-                          className="w-full h-full object-contain p-1.5 transition-transform duration-300 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-neutral-600">
-                          <ImageIcon className="w-8 h-8" />
-                        </div>
-                      )}
-
-                      {/* Primary Badge */}
-                      {idx === 0 && (
-                        <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded bg-brand-purple text-white text-[9px] font-bold shadow-sm">
-                          Main Hero
-                        </div>
-                      )}
-
-                      {/* Remove Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleRemoveImage(img.id);
-                        }}
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-black/70 hover:bg-red-600 text-white flex items-center justify-center transition-colors cursor-pointer"
-                        title="Remove image"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Angle Selector */}
-                    <div className="p-2 border-t border-white/10 bg-[#121424]">
-                      <select
-                        value={img.angle}
-                        onChange={(e) => handleAngleChange(img.id, e.target.value as ImageAngle)}
-                        className="w-full text-[10px] font-semibold bg-[#1a1d30] text-neutral-200 border border-white/10 rounded-lg px-2 py-1 outline-none focus:border-brand-purple cursor-pointer"
-                      >
-                        <option value="front">Front Angle</option>
-                        <option value="back">Back Angle</option>
-                        <option value="side">Side Angle</option>
-                        <option value="closeup">Close-up</option>
-                        <option value="other">Custom Angle</option>
-                      </select>
-                      <p className="text-[9px] text-neutral-400 truncate mt-1">
-                        {(img.size / 1024).toFixed(0)} KB • {img.name}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Right Column: Category & Product Metadata (5 cols) */}
-        <div className="lg:col-span-5 space-y-5">
-          <div className="bg-[#0f1120] border border-white/10 rounded-2xl p-5 space-y-5">
-            <div>
-              <h2 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-brand-purple" />
-                <span>Product Category *</span>
+        {/* Right Column: Product Category (5 cols) - Option 3 Pixel Match */}
+        <section className="lg:col-span-5 bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+          {/* Header */}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#A855F7]/25 to-[#EC4899]/25 text-[#EC4899] border border-[#EC4899]/30 flex items-center justify-center shrink-0">
+                <Layers className="w-4 h-4" />
+              </span>
+              <h2 className="text-base font-bold text-white flex items-center">
+                <span>Product Category</span>
+                <span className="text-[#EC4899] ml-1">*</span>
               </h2>
-              <p className="text-xs text-neutral-400 mt-0.5">
-                Adapts AI lighting, models, and background composition.
-              </p>
             </div>
-
-            {/* Category Selector Grid */}
-            <div className="grid grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
-              {PRODUCT_CATEGORIES.map((cat) => {
-                const isSelected = productCategory === cat.id;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => onCategoryChange(cat.id)}
-                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
-                      isSelected
-                        ? "bg-gradient-to-r from-brand-purple/20 to-brand-pink/20 border-brand-purple text-white shadow-md shadow-brand-purple/20"
-                        : "bg-white/[0.03] hover:bg-white/[0.06] border-white/10 text-neutral-300 hover:text-white"
-                    }`}
-                  >
-                    <div className={`p-1.5 rounded-lg shrink-0 mt-0.5 ${
-                      isSelected ? "bg-brand-purple text-white" : "bg-white/5 text-neutral-400"
-                    }`}>
-                      {getCategoryIcon(cat.iconName)}
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-xs font-bold block truncate leading-tight">
-                        {cat.label}
-                      </span>
-                      <span className="text-[10px] text-neutral-400 truncate block mt-0.5">
-                        {cat.sublabel.split(",")[0]}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Optional Name & Color */}
-            <div className="pt-2 border-t border-white/10 space-y-3">
-              <div>
-                <label className="text-xs font-semibold text-neutral-200 block mb-1">
-                  Product Name / Title <span className="text-neutral-500 font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={productName}
-                  onChange={(e) => onNameChange(e.target.value)}
-                  placeholder="e.g. Royal Silk Banarasi Saree, Minimalist Ceramic Vase"
-                  className="w-full h-10 rounded-xl bg-black/40 border border-white/10 px-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-purple"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-neutral-200 block mb-1">
-                  Primary Product Color <span className="text-neutral-500 font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={productColor}
-                  onChange={(e) => onColorChange(e.target.value)}
-                  placeholder="e.g. Crimson Red &amp; Gold, Matte Black, Pastel Sage"
-                  className="w-full h-10 rounded-xl bg-black/40 border border-white/10 px-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-purple"
-                />
-              </div>
-            </div>
+            <p className="text-xs text-text-muted mt-1">
+              Select product type to calibrate AI lighting &amp; camera perspective.
+            </p>
           </div>
-        </div>
+
+          {/* 2-Column Category Grid with Option 3 Checkmark Badge */}
+          <div className="grid grid-cols-2 gap-2.5">
+            {DISPLAY_CATEGORIES.map((cat) => {
+              const isSelected = productCategory === cat.id;
+              const IconComp = cat.icon;
+
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => onCategoryChange(cat.id)}
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                    isSelected
+                      ? "bg-[#131E42] border-2 border-[#BE32FF] ring-2 ring-[#BE32FF]/30 text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
+                      : "bg-[#0E1838] hover:bg-[#121E45] border-white/10 text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`p-1.5 rounded-lg shrink-0 ${
+                        isSelected ? "bg-[#BE32FF]/20 text-[#BE32FF]" : "bg-white/5 text-slate-400"
+                      }`}
+                    >
+                      <IconComp className="w-4 h-4" />
+                    </div>
+                    <span className="text-xs font-semibold truncate leading-tight">
+                      {cat.label}
+                    </span>
+                  </div>
+
+                  {/* Pink Circle Checkmark Badge for Selected Item - Option 3 Match */}
+                  {isSelected && (
+                    <span className="w-5 h-5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] text-white flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(236,72,153,0.5)] ml-2">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Bottom Info Callout Box - Option 3 Pixel Match */}
+          <div className="bg-[#0E1838]/60 border border-white/10 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-slate-400 mt-4">
+            <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
+              Choose the right category for more accurate lighting, background and product presentation.
+            </p>
+          </div>
+        </section>
       </div>
 
-      {/* Step 1 Footer Action Bar */}
-      <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-        <div className="text-xs text-neutral-400">
-          {uploadedImages.length === 0 ? (
-            <span className="text-amber-400 flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5" />
-              Upload at least 1 product image to proceed
-            </span>
-          ) : (
-            <span className="text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              {uploadedImages.length} {uploadedImages.length === 1 ? "image" : "images"} ready for AI enhancement
-            </span>
-          )}
-        </div>
+      {/* Bottom Action Footer - Option 3 Pixel Match */}
+      <div className="flex items-center justify-between pt-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="px-6 py-2.5 rounded-xl bg-[#0E1838] hover:bg-[#16234D] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
 
         <button
           type="button"
           disabled={uploadedImages.length === 0}
           onClick={onNext}
-          className="px-6 py-3 rounded-full bg-brand-gradient hover:opacity-95 text-white font-bold text-sm shadow-xl shadow-brand-purple/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          className="px-7 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center gap-2 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <span>Continue to Enhancement</span>
+          <span>Continue to AI Enhancement</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
     </div>
   );
 };
-

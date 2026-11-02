@@ -10,6 +10,55 @@ export interface CategoryInfo {
 
 export const PRODUCT_CATEGORIES: CategoryInfo[] = [
   {
+    id: "food_beverage",
+    label: "Food, Spices & Groceries",
+    sublabel: "Salt, Spices, Packaged foods, Snacks, Tea, Coffee & Bottles",
+    iconName: "Coffee",
+    suitableForModel: false,
+  },
+  {
+    id: "crockery_kitchenware",
+    label: "Crockery & Kitchenware",
+    sublabel: "Dinner sets, Ceramic plates, Bowls, Cutlery & Cookware",
+    iconName: "Layers",
+    suitableForModel: false,
+  },
+  {
+    id: "furniture_living",
+    label: "Furniture & Living",
+    sublabel: "Chairs, Tables, Desks, Sofas & Home furnishings",
+    iconName: "Home",
+    suitableForModel: false,
+  },
+  {
+    id: "jewellery_accessories",
+    label: "Jewellery & Watches",
+    sublabel: "Necklaces, Rings, Earrings, Bangles & Luxury watches",
+    iconName: "Gem",
+    suitableForModel: true,
+  },
+  {
+    id: "beauty_cosmetics",
+    label: "Beauty & Cosmetics",
+    sublabel: "Skincare, Makeup, Perfumes, Serums & Lotions",
+    iconName: "Smile",
+    suitableForModel: true,
+  },
+  {
+    id: "electronics",
+    label: "Electronics & Gadgets",
+    sublabel: "Headphones, Speakers, Smartphones, Cases & Smart tech",
+    iconName: "Smartphone",
+    suitableForModel: false,
+  },
+  {
+    id: "clothing",
+    label: "Clothing & Apparel",
+    sublabel: "Shirts, T-shirts, Sarees, Dresses, Hoodies & Activewear",
+    iconName: "Shirt",
+    suitableForModel: true,
+  },
+  {
     id: "mens_clothing",
     label: "Men's Clothing",
     sublabel: "Shirts, T-shirts, Suits, Kurtas & Trousers",
@@ -24,58 +73,23 @@ export const PRODUCT_CATEGORIES: CategoryInfo[] = [
     suitableForModel: true,
   },
   {
-    id: "unisex_clothing",
-    label: "Unisex Clothing",
-    sublabel: "Hoodies, Jackets, Streetwear & Activewear",
-    iconName: "Layers",
-    suitableForModel: true,
-  },
-  {
-    id: "beauty_cosmetics",
-    label: "Beauty & Cosmetics",
-    sublabel: "Skincare, Makeup, Perfumes & Serums",
-    iconName: "Smile",
-    suitableForModel: true,
-  },
-  {
-    id: "jewellery_accessories",
-    label: "Jewellery & Accessories",
-    sublabel: "Necklaces, Rings, Watches & Handbags",
-    iconName: "Gem",
-    suitableForModel: true,
-  },
-  {
-    id: "food_beverage",
-    label: "Food & Beverage",
-    sublabel: "Packaged foods, Tea, Coffee, Snacks & Bottles",
-    iconName: "Coffee",
-    suitableForModel: false,
-  },
-  {
-    id: "electronics",
-    label: "Electronics",
-    sublabel: "Headphones, Gadgets, Cases & Smart tech",
-    iconName: "Smartphone",
-    suitableForModel: false,
-  },
-  {
     id: "home_decor",
-    label: "Home Decor",
-    sublabel: "Vases, Cushions, Clocks & Art pieces",
+    label: "Home Decor & Accents",
+    sublabel: "Vases, Cushions, Clocks, Wall art & Sculptures",
     iconName: "Home",
     suitableForModel: false,
   },
   {
     id: "candles",
-    label: "Candles",
-    sublabel: "Scented candles, Wax melts & Holders",
+    label: "Candles & Fragrances",
+    sublabel: "Scented candles, Wax melts, Diffusers & Holders",
     iconName: "Flame",
     suitableForModel: false,
   },
   {
     id: "other",
     label: "Other Products",
-    sublabel: "Stationery, Gifts, Handmade & Unique goods",
+    sublabel: "Stationery, Gifts, Handmade crafts & Custom goods",
     iconName: "Package",
     suitableForModel: false,
   },
@@ -296,104 +310,119 @@ export const MODEL_POSES_JEWELLERY: PhotographyStyleOption[] = [
 
 export const PRODUCT_ONLY_STYLES: PhotographyStyleOption[] = [
   {
-    id: "style_studio_premium",
-    name: "Studio Premium",
+    id: "style_luxury_studio",
+    name: "Luxury Studio",
     category: "product_only",
-    description: "Centered podium centerpiece with balanced commercial daylight softboxes and soft natural floor shadow.",
-    badge: "Most Popular",
+    description: "Centered hero podium with balanced commercial daylight softboxes, polished reflections, and pure studio clarity.",
+    badge: "Studio Grade",
     previewUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80",
-    recommendedFor: ["mens_clothing", "womens_clothing", "unisex_clothing", "beauty_cosmetics", "jewellery_accessories", "food_beverage", "electronics", "home_decor", "candles", "other"],
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
-    id: "style_luxury_cinematic",
-    name: "Luxury Cinematic",
+    id: "style_cinematic",
+    name: "Cinematic",
     category: "product_only",
-    description: "Dark architectural onyx stone pedestal with golden rim-lighting, dramatic shadows, and luxury flair.",
-    badge: "Editorial High-End",
+    description: "Warm dramatic lighting, rich chiaroscuro contrast, and shallow cinematic depth of field creating an arresting luxury mood.",
+    badge: "Atmospheric",
     previewUrl: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80",
-    recommendedFor: ["beauty_cosmetics", "jewellery_accessories", "candles", "food_beverage", "electronics", "home_decor"],
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
-    id: "style_marketplace_white",
-    name: "Marketplace White",
+    id: "style_premium_minimal",
+    name: "Premium Minimal",
     category: "product_only",
-    description: "Crisp pure white background with realistic drop shadow, 100% compliant with Amazon and Flipkart standards.",
-    badge: "Amazon / Flipkart",
-    previewUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
-    recommendedFor: ["mens_clothing", "womens_clothing", "unisex_clothing", "beauty_cosmetics", "jewellery_accessories", "food_beverage", "electronics", "home_decor", "candles", "other"],
+    description: "Clean pastel or travertine podiums, geometric negative space, architectural lines, and soft diffused shadows.",
+    badge: "Minimalist",
+    previewUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&q=80",
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
     id: "style_lifestyle",
     name: "Lifestyle",
     category: "product_only",
-    description: "Placed organically in an aesthetic real-world setting: marble tabletop, designer cafe, or sunny living space.",
-    badge: "Social Media Ready",
+    description: "Placed organically in an authentic upscale setting: marble tabletop, designer kitchen, cafe counter, or living space.",
+    badge: "Authentic Staging",
     previewUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&q=80",
-    recommendedFor: ["food_beverage", "home_decor", "candles", "beauty_cosmetics", "electronics", "other"],
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
-    id: "style_minimal",
-    name: "Minimal",
+    id: "style_ecommerce_white",
+    name: "E-commerce White Background",
     category: "product_only",
-    description: "Clean pastel podiums, geometric arches, negative space, and soft diffused shadows for modern brands.",
-    badge: "Minimalist Aesthetic",
-    previewUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&q=80",
-    recommendedFor: ["beauty_cosmetics", "jewellery_accessories", "candles", "food_beverage", "electronics", "home_decor"],
+    description: "Pure #FFFFFF clean seamless white background with natural drop shadow, 100% compliant with Amazon and Flipkart standards.",
+    badge: "Amazon / Flipkart",
+    previewUrl: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80",
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
-    id: "style_top_down",
-    name: "Top-Down",
+    id: "style_editorial",
+    name: "Editorial",
     category: "product_only",
-    description: "Overhead 90-degree flat lay surrounded by curated color-matched props and textured natural surface.",
-    badge: "Instagram Flat Lay",
-    previewUrl: "https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=600&q=80",
-    recommendedFor: ["mens_clothing", "womens_clothing", "unisex_clothing", "beauty_cosmetics", "food_beverage", "candles"],
+    description: "Art-directed still life styling for premium magazines with curated textures, linen drapery, and evocative shadows.",
+    badge: "Vogue Catalog",
+    previewUrl: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=600&q=80",
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
   {
-    id: "style_closeup",
-    name: "Close-Up",
+    id: "style_creative_commercial",
+    name: "Creative Commercial",
     category: "product_only",
-    description: "Macro-lens detail framing highlighting texture, material grain, stitching, engraving, or packaging craft.",
-    badge: "Macro Detail",
-    previewUrl: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
-    recommendedFor: ["jewellery_accessories", "electronics", "candles", "home_decor", "beauty_cosmetics", "other"],
-  },
-  {
-    id: "style_campaign",
-    name: "Campaign Photography",
-    category: "product_only",
-    description: "Bold advertising campaign concept with dynamic floating botanical elements, color splashes, or smoke effects.",
-    badge: "Commercial Ad",
+    description: "Bold brand campaign visual with vibrant color-blocked studio backdrops, dynamic lighting, and razor-sharp clarity.",
+    badge: "Brand Campaign",
     previewUrl: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&q=80",
-    recommendedFor: ["food_beverage", "beauty_cosmetics", "electronics", "candles", "jewellery_accessories", "other"],
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
+  },
+  {
+    id: "style_natural_photography",
+    name: "Natural Photography",
+    category: "product_only",
+    description: "Soft golden morning sunlight filtering through botanical leaves with organic wood, stone textures, and authentic warm bokeh.",
+    badge: "Sunlit Botanical",
+    previewUrl: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=600&q=80",
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
+  },
+  {
+    id: "style_product_showcase",
+    name: "Product Showcase",
+    category: "product_only",
+    description: "Hero centerpiece presentation on an elevated plinth highlighting packaging design, fine craftsmanship, and true material finish.",
+    badge: "Hero Feature",
+    previewUrl: "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=600&q=80",
+    recommendedFor: ["food_beverage", "crockery_kitchenware", "furniture_living", "jewellery_accessories", "beauty_cosmetics", "electronics", "home_decor", "candles", "clothing", "other"],
   },
 ];
 
 export const PRESET_PROMPTS = [
-  "Soft natural golden hour sunlight on neutral warm sand podium with minimalist architectural arches",
-  "Luxury dark onyx stone pedestal with subtle gold rim-lighting and blurred bokeh background",
-  "Pristine white marble bathroom counter with fresh botanical green leaves and morning sunlight",
-  "Vibrant festive Indian setting with warm marigold petals, brass lanterns, and gentle festive glow",
-  "Modern Scandinavian oak wood table with soft overcast daylight and artisanal ceramic accents",
-  "High-energy urban neon street background with shallow depth of field and premium cinematic blur",
+  "Make the background more luxurious with marble textures and subtle architectural accents",
+  "Use soft golden lighting with warm natural shadows and crisp highlights",
+  "Create a premium product advertisement with clean commercial studio presentation",
+  "Keep the original product colour, texture, and label details completely unchanged",
+  "Show the product in a modern lifestyle setting with elegant ambient daylight",
+  "Position on a minimalist travertine stone pedestal with soft botanical shadows",
 ];
 
 export function categoryIdToBackendName(cat: ProductCategory): string {
   switch (cat) {
+    case "food_beverage":
+      return "Food & Beverage";
+    case "crockery_kitchenware":
+      return "Crockery & Kitchenware";
+    case "furniture_living":
+      return "Furniture & Living";
+    case "jewellery_accessories":
+      return "Jewellery & Accessories";
+    case "beauty_cosmetics":
+      return "Beauty & Cosmetics";
+    case "electronics":
+      return "Electronics";
+    case "clothing":
+      return "Clothing";
     case "mens_clothing":
       return "Men's Clothing";
     case "womens_clothing":
       return "Women's Clothing";
     case "unisex_clothing":
       return "Unisex Clothing";
-    case "beauty_cosmetics":
-      return "Beauty & Cosmetics";
-    case "jewellery_accessories":
-      return "Jewellery & Accessories";
-    case "food_beverage":
-      return "Food & Beverage";
-    case "electronics":
-      return "Electronics";
     case "home_decor":
       return "Home Decor";
     case "candles":
@@ -404,17 +433,19 @@ export function categoryIdToBackendName(cat: ProductCategory): string {
 }
 
 export function backendNameToCategoryId(name?: string): ProductCategory {
-  if (!name) return "womens_clothing";
+  if (!name) return "food_beverage";
   const lower = name.toLowerCase();
+  if (lower.includes("crockery") || lower.includes("kitchen") || lower.includes("cookware")) return "crockery_kitchenware";
+  if (lower.includes("furniture") || lower.includes("chair") || lower.includes("table")) return "furniture_living";
+  if (lower.includes("salt") || lower.includes("spice") || lower.includes("food") || lower.includes("beverage")) return "food_beverage";
+  if (lower.includes("jewel") || lower.includes("accessory") || lower.includes("watch")) return "jewellery_accessories";
+  if (lower.includes("beauty") || lower.includes("cosmetic") || lower.includes("skincare")) return "beauty_cosmetics";
+  if (lower.includes("electronic") || lower.includes("gadget") || lower.includes("phone")) return "electronics";
+  if (lower.includes("candle") || lower.includes("fragrance")) return "candles";
+  if (lower.includes("decor") || lower.includes("home")) return "home_decor";
   if (lower.includes("men") && !lower.includes("women")) return "mens_clothing";
   if (lower.includes("women")) return "womens_clothing";
-  if (lower.includes("unisex")) return "unisex_clothing";
-  if (lower.includes("jewel") || lower.includes("accessory")) return "jewellery_accessories";
-  if (lower.includes("beauty") || lower.includes("cosmetic")) return "beauty_cosmetics";
-  if (lower.includes("food") || lower.includes("beverage")) return "food_beverage";
-  if (lower.includes("electronic") || lower.includes("gadget")) return "electronics";
-  if (lower.includes("decor") || lower.includes("home")) return "home_decor";
-  if (lower.includes("candle")) return "candles";
+  if (lower.includes("cloth") || lower.includes("apparel")) return "clothing";
   return "other";
 }
 

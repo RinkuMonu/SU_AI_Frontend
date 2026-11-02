@@ -66,24 +66,36 @@ export const contentService = {
       .filter(Boolean)
       .join(". ");
 
-    const response = await api.post("/api/v1/content/generate-post", {
-      product_id: request.productId || "",
-      product_name: request.productName,
-      platform: (request.platform || "instagram").toLowerCase(),
-      objective: (request.campaignObjective || request.type || "post").toLowerCase(),
-      language: request.language || "English",
-      tone: request.brand_tone || request.tone || "Professional",
-      additional_instruction: compiledInstructions || request.additionalInstructions,
-      reference_images: request.productImages || [],
-      use_brand_kit: request.use_brand_kit,
-      brand_kit_id: request.brand_kit_id,
-      brand_name: request.brand_name,
-      brand_colors: request.brand_colors,
-      brand_font: request.brand_font,
-      brand_tone: request.brand_tone,
-      logo_url: request.logo_url,
-      include_logo: request.include_logo,
-    });
+    let response;
+    try {
+      response = await api.post("/api/v1/content/generate-post", {
+        product_id: request.productId || "",
+        product_name: request.productName,
+        platform: (request.platform || "instagram").toLowerCase(),
+        objective: (request.campaignObjective || request.type || "post").toLowerCase(),
+        language: request.language || "English",
+        tone: request.brand_tone || request.tone || "Professional",
+        additional_instruction: compiledInstructions || request.additionalInstructions,
+        reference_images: request.productImages || [],
+        use_brand_kit: request.use_brand_kit,
+        brand_kit_id: request.brand_kit_id,
+        brand_name: request.brand_name,
+        brand_colors: request.brand_colors,
+        brand_font: request.brand_font,
+        brand_tone: request.brand_tone,
+        logo_url: request.logo_url,
+        include_logo: request.include_logo,
+      });
+    } catch (error: any) {
+      const serverDetail = error?.response?.data?.detail || error?.response?.data?.message;
+      if (serverDetail) {
+        const msg = typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail);
+        const customErr: any = new Error(msg);
+        customErr.response = error.response;
+        throw customErr;
+      }
+      throw error;
+    }
 
     const apiData = response.data?.data || response.data || {};
 
@@ -286,11 +298,22 @@ export async function generatePost(payload: GeneratePostRequest): Promise<Genera
     normalizedPayload.product_id = "";
   }
 
-  const response = await api.post(
-    "/api/v1/content/generate-post",
-    normalizedPayload,
-    { timeout: 180000 }
-  );
+  try {
+    const response = await api.post(
+      "/api/v1/content/generate-post",
+      normalizedPayload,
+      { timeout: 180000 }
+    );
 
-  return response.data?.data || response.data;
+    return response.data?.data || response.data;
+  } catch (error: any) {
+    const serverDetail = error?.response?.data?.detail || error?.response?.data?.message;
+    if (serverDetail) {
+      const msg = typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail);
+      const customErr: any = new Error(msg);
+      customErr.response = error.response;
+      throw customErr;
+    }
+    throw error;
+  }
 }

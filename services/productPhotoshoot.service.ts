@@ -271,6 +271,7 @@ export class ProductPhotoshootService {
     category?: string;
     useModel?: boolean;
     modelId?: string;
+    workflowMode?: string;
   }): Promise<BackendPhotographyStyleItem[]> {
     const response = await api.get<{ success: boolean; styles: BackendPhotographyStyleItem[] }>(
       `${this.baseRoute}/styles`,
@@ -279,6 +280,7 @@ export class ProductPhotoshootService {
           category: params?.category,
           use_model: params?.useModel ?? false,
           model_id: params?.modelId,
+          workflow_mode: params?.workflowMode,
         },
       }
     );

@@ -25,78 +25,79 @@ export const PhotoshootStepper: React.FC<PhotoshootStepperProps> = ({
       shortTitle: mode === "avatar" ? "Model" : "Style", 
       icon: Sparkles 
     },
-    { step: 4 as const, title: "Instructions", shortTitle: "Prompt", icon: MessageSquareText },
-    { step: 5 as const, title: "Final Photos", shortTitle: "Photos", icon: ImageIcon },
+    { step: 4 as const, title: "Instructions", shortTitle: "Instructions", icon: MessageSquareText },
+    { step: 5 as const, title: "Final Photos", shortTitle: "Final Photos", icon: ImageIcon },
   ];
 
+  const progressPercent = ((currentStep - 1) / (steps.length - 1)) * 100;
+
   return (
-    <div className="w-full bg-[#0a0d1a]/80 backdrop-blur-md border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 shadow-xl">
-      <div className="flex items-center justify-between max-w-4xl mx-auto relative">
-        {/* Continuous connector line behind circles */}
-        <div className="absolute top-1/2 left-6 right-6 -translate-y-1/2 h-0.5 bg-white/10 -z-0" />
+    <div className="w-full bg-[#0B132B] border border-white/10 rounded-2xl px-5 sm:px-10 py-5 shadow-xl mb-6 relative">
+      <div className="relative max-w-4xl mx-auto">
+        {/* Continuous inactive track behind circles */}
+        <div className="absolute top-[22px] sm:top-[24px] left-6 sm:left-12 right-6 sm:right-12 h-[2px] bg-white/10 z-0" />
         
-        {/* Active progress track */}
+        {/* Active glowing progress track */}
         <div 
-          className="absolute top-1/2 left-6 -translate-y-1/2 h-0.5 bg-gradient-to-r from-brand-purple to-brand-pink transition-all duration-500 -z-0"
-          style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 90}%` }}
+          className="absolute top-[22px] sm:top-[24px] left-6 sm:left-12 h-[2px] bg-gradient-to-r from-[#A855F7] to-[#EC4899] shadow-[0_0_12px_rgba(236,72,153,0.55)] transition-all duration-300 ease-out z-0"
+          style={{ width: `calc(${progressPercent}% * 0.88)` }}
         />
 
-        {steps.map((s) => {
-          const isCompleted = s.step < currentStep;
-          const isCurrent = s.step === currentStep;
-          const isClickable = canNavigateToStep(s.step);
-          const IconComponent = s.icon;
+        {/* Steps */}
+        <div className="flex items-center justify-between relative z-10">
+          {steps.map((s) => {
+            const isCompleted = s.step < currentStep;
+            const isCurrent = s.step === currentStep;
+            const isClickable = canNavigateToStep(s.step);
+            const IconComponent = s.icon;
 
-          return (
-            <button
-              key={s.step}
-              type="button"
-              disabled={!isClickable}
-              onClick={() => onStepClick(s.step)}
-              className={`relative z-10 flex flex-col items-center group transition-all ${
-                isClickable ? "cursor-pointer" : "cursor-not-allowed opacity-60"
-              }`}
-            >
-              {/* Step Circle */}
-              <div
-                className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all duration-300 ${
-                  isCurrent
-                    ? "bg-gradient-to-r from-brand-purple to-brand-pink text-white shadow-[0_0_20px_rgba(190,50,255,0.6)] ring-4 ring-brand-purple/20 scale-110"
-                    : isCompleted
-                    ? "bg-brand-purple text-white shadow-md shadow-brand-purple/30 group-hover:bg-brand-pink"
-                    : "bg-[#121422] text-neutral-400 border border-white/15 group-hover:border-white/30"
+            return (
+              <button
+                key={s.step}
+                type="button"
+                disabled={!isClickable}
+                onClick={() => onStepClick(s.step)}
+                className={`flex flex-col items-center group transition-all focus:outline-none ${
+                  isClickable ? "cursor-pointer" : "cursor-not-allowed opacity-60"
                 }`}
               >
-                {isCompleted ? (
-                  <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white stroke-[3]" />
-                ) : (
-                  <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
-                )}
-              </div>
-
-              {/* Step Label */}
-              <div className="mt-2 text-center">
-                <span
-                  className={`text-[11px] sm:text-xs font-semibold block transition-colors ${
+                {/* Step Circle */}
+                <div
+                  className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full flex items-center justify-center font-bold text-xs transition-all duration-300 z-10 ${
                     isCurrent
-                      ? "text-white font-bold"
+                      ? "bg-gradient-to-r from-[#A855F7] to-[#EC4899] text-white shadow-[0_0_20px_rgba(236,72,153,0.6)] ring-4 ring-[#EC4899]/20 scale-105"
                       : isCompleted
-                      ? "text-neutral-300 group-hover:text-white"
-                      : "text-neutral-500"
+                      ? "bg-gradient-to-r from-[#7C3AED] to-[#A855F7] text-white shadow-md"
+                      : "bg-[#0E1838] text-slate-400 border border-white/15 group-hover:border-white/30 group-hover:text-slate-200"
                   }`}
                 >
-                  <span className="hidden sm:inline">{s.title}</span>
-                  <span className="inline sm:hidden">{s.shortTitle}</span>
-                </span>
-                <span className="text-[10px] text-neutral-500 hidden md:block">
-                  Step {s.step}
-                </span>
-              </div>
-            </button>
-          );
-        })}
+                  {isCompleted ? (
+                    <Check className="w-4 h-4 text-white stroke-[3]" />
+                  ) : (
+                    <IconComponent className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                  )}
+                </div>
+
+                {/* Step Title */}
+                <div className="mt-2 text-center">
+                  <span
+                    className={`text-[11px] sm:text-xs block transition-colors ${
+                      isCurrent
+                        ? "text-white font-bold"
+                        : isCompleted
+                        ? "text-slate-300 font-medium group-hover:text-white"
+                        : "text-slate-400 font-normal"
+                    }`}
+                  >
+                    <span className="hidden sm:inline">{s.step}. {s.title}</span>
+                    <span className="inline sm:hidden">{s.step}. {s.shortTitle}</span>
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
 };
-

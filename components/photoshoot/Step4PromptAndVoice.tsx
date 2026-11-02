@@ -8,17 +8,15 @@ import {
   ArrowRight, 
   ArrowLeft, 
   Camera, 
-  Layers, 
-  ShieldCheck, 
   UserCheck, 
   Box, 
   Info,
-  Sliders,
-  CheckCircle2
+  Loader2
 } from "lucide-react";
 import { VoiceInputButton } from "@/components/ui/VoiceInput";
 import { 
   AIModelProfile, 
+  EnhancedVariation,
   EnhancementStyle, 
   PhotoshootUploadedImage, 
   ProductCategory,
@@ -27,7 +25,10 @@ import {
 import { 
   AI_MODELS, 
   ENHANCEMENT_STYLES, 
-  PRODUCT_CATEGORIES 
+  PRODUCT_CATEGORIES,
+  MODEL_POSES_CLOTHING,
+  MODEL_POSES_JEWELLERY,
+  PRODUCT_ONLY_STYLES
 } from "./data";
 
 interface Step4PromptAndVoiceProps {
@@ -37,6 +38,7 @@ interface Step4PromptAndVoiceProps {
   productName: string;
   productColor: string;
   enhancementStyle: EnhancementStyle;
+  selectedEnhancedImage?: EnhancedVariation | null;
   withModel?: boolean;
   selectedModelId: string | null;
   selectedStyles: string[];
@@ -53,20 +55,21 @@ interface Step4PromptAndVoiceProps {
 const MAX_PROMPT_LENGTH = 600;
 
 const AVATAR_PROMPT_PRESETS = [
-  "High-fashion editorial pose with soft studio daylight and clean neutral background",
+  "High-fashion editorial pose with soft studio daylight and clean luxury background",
   "Casual urban streetwear setting with natural golden hour bokeh and confident expression",
-  "Classic Indian festive aesthetic with warm marigold lighting and rich traditional ambience (त्योहारी अंदाज और सुनहरी रोशनी)",
-  "Modern minimalist studio portrait with crisp fabric draping and balanced commercial lighting",
-  "Elegant full-length walking posture with natural outdoor daylight and subtle blur",
+  "Keep the original product colour, texture, and label details completely accurate",
+  "Show the model in a modern luxury lifestyle setting with soft warm lighting",
+  "Modern minimalist studio portrait with crisp fabric draping and commercial lighting",
+  "Classic Indian festive aesthetic with warm marigold lighting and rich traditional ambience",
 ];
 
 const PRODUCT_PROMPT_PRESETS = [
-  "Centered on luxury dark onyx stone pedestal with subtle gold rim-lighting",
-  "Soft natural golden hour sunlight on neutral warm sand podium with architectural shadows",
-  "Pristine white marble counter with fresh botanical green leaves and morning daylight",
-  "Clean high-key studio lighting with soft natural drop shadow on pure white background",
-  "Vibrant festive Indian setting with warm marigold petals and brass lanterns (दिवाली स्टाइल मार्बल बेस और सुनहरी रोशनी)",
-  "Modern Scandinavian oak wood table with minimalist ceramic accents and soft diffused daylight",
+  "Make the background more luxurious with marble textures and subtle architectural accents",
+  "Use soft golden lighting with warm natural shadows and crisp highlights",
+  "Create a premium product advertisement with clean commercial studio presentation",
+  "Keep the original product colour, texture, and packaging details completely unchanged",
+  "Show the product in a modern lifestyle setting with elegant ambient daylight",
+  "Position on a minimalist travertine stone pedestal with soft botanical shadows",
 ];
 
 export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
@@ -76,6 +79,7 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
   productName,
   productColor,
   enhancementStyle,
+  selectedEnhancedImage,
   selectedModelId,
   selectedStyles,
   uploadedImages,
@@ -92,6 +96,13 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
   const selectedStyleObj = ENHANCEMENT_STYLES.find((s) => s.id === enhancementStyle);
   const currentCategoryInfo = PRODUCT_CATEGORIES.find((c) => c.id === productCategory);
 
+  const allStylesPool = isAvatarMode
+    ? [...MODEL_POSES_CLOTHING, ...MODEL_POSES_JEWELLERY]
+    : PRODUCT_ONLY_STYLES;
+  const styleNames = selectedStyles
+    .map((sId) => allStylesPool.find((s) => s.id === sId)?.name || sId)
+    .join(", ");
+
   const presetsToUse = isAvatarMode ? AVATAR_PROMPT_PRESETS : PRODUCT_PROMPT_PRESETS;
 
   const handleApplyPreset = (preset: string) => {
@@ -103,33 +114,27 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/30 text-brand-purple text-xs font-semibold">
-          <MessageSquareText className="w-3.5 h-3.5" />
-          <span>Step 4 of 5 • Creative Instructions &amp; Voice Input</span>
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          {isAvatarMode ? "Direct Your Model Photoshoot" : "Direct Your Product Photography"}
-        </h1>
-        <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-          {isAvatarMode
-            ? "Provide custom styling instructions, environment preferences, or speak in Hindi/English/Hinglish."
-            : "Specify background aesthetics, lighting mood, podium materials, or speak your instructions."}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Column: Prompt Input with Multilingual Voice Dictation (7 cols) */}
+    <div className="space-y-5 animate-in fade-in duration-300">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        {/* Left Column: Prompt Input with Voice Dictation (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="bg-[#0c0e1b] border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
-            {/* Field Header with Character Counter & Voice Button */}
-            <div className="flex items-center justify-between">
-              <label htmlFor="photoshoot-prompt" className="text-xs font-bold text-white flex items-center gap-2">
-                <Wand2 className="w-4 h-4 text-brand-pink" />
-                <span>Text or Voice Instructions</span>
-                <span className="text-[10px] text-neutral-400 font-normal">(English, Hindi, Hinglish)</span>
+          <div className="bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
+            {/* Header */}
+            <div className="pb-3 border-b border-white/10">
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>Step 4 — Give your instructions</span>
+                <span className="text-xs text-text-muted font-normal">(Optional)</span>
+              </h2>
+              <p className="text-xs text-text-muted mt-1">
+                Tell the AI how you want your photoshoot to look. Type or use the microphone to dictate in your preferred language.
+              </p>
+            </div>
+
+            {/* Instruction Field Header */}
+            <div className="flex items-center justify-between pt-1">
+              <label htmlFor="photoshoot-prompt" className="text-xs font-semibold text-text-secondary flex items-center gap-2">
+                <Wand2 className="w-3.5 h-3.5 text-brand-pink" />
+                <span>Optional creative direction</span>
               </label>
 
               <div className="flex items-center gap-2">
@@ -139,7 +144,7 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                   size="sm"
                   tooltip="Speak instructions in Hindi, English, or Hinglish"
                 />
-                <span className="text-[11px] font-mono text-neutral-400">
+                <span className="text-[11px] font-mono text-text-muted">
                   {customPrompt.length} / {MAX_PROMPT_LENGTH}
                 </span>
               </div>
@@ -149,19 +154,18 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
             <div className="relative">
               <textarea
                 id="photoshoot-prompt"
-                rows={5}
+                rows={4}
                 maxLength={MAX_PROMPT_LENGTH}
                 value={customPrompt}
                 onChange={(e) => onPromptChange(e.target.value)}
                 placeholder={
                   isAvatarMode
-                    ? "Example: Elegant luxury campaign look with soft studio lighting, beige background, and confident pose."
-                    : "Example: Place product on white marble slab with morning sunlight, soft palm shadows, and minimalist background."
+                    ? "Create a premium, realistic ecommerce photoshoot. Keep the original product colour, fabric, shape and details accurate. Use soft studio lighting and a clean luxury background."
+                    : "Create a commercial product photography shoot. Place product on white marble pedestal with soft morning daylight and clean shadows. Keep packaging details sharp and true to life."
                 }
-                className="w-full rounded-xl bg-black/40 border border-white/10 p-3.5 pb-10 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple resize-none leading-relaxed"
+                className="w-full rounded-xl bg-[#071023] border border-white/15 p-3.5 pb-10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#BE32FF] focus:ring-1 focus:ring-[#BE32FF] resize-none leading-relaxed"
               />
 
-              {/* Bottom Right Inner Voice Button */}
               <div className="absolute right-2.5 bottom-2.5">
                 <VoiceInputButton
                   onTranscript={(text) => onPromptChange(text)}
@@ -171,10 +175,14 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
               </div>
             </div>
 
+            <p className="text-[11px] text-slate-400 flex items-center gap-1.5 pt-0.5">
+              <span>🎤 Voice input button available above — Hindi, English and other supported languages.</span>
+            </p>
+
             {/* Preset Inspiration Chips */}
             <div className="space-y-2 pt-2 border-t border-white/10">
-              <span className="text-xs font-semibold text-neutral-300 block">
-                Quick Inspiration Ideas (Click to append):
+              <span className="text-[11px] font-semibold text-text-secondary block">
+                Quick Inspiration (Click to append):
               </span>
               <div className="flex flex-wrap gap-1.5">
                 {presetsToUse.map((preset, idx) => (
@@ -182,7 +190,7 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleApplyPreset(preset)}
-                    className="text-[11px] px-2.5 py-1 rounded-lg bg-white/5 hover:bg-brand-purple/20 border border-white/10 hover:border-brand-purple/40 text-neutral-300 hover:text-white transition-colors cursor-pointer text-left"
+                    className="text-[10px] px-2.5 py-1 rounded-lg bg-[#071023] hover:bg-[#131E42] border border-white/10 hover:border-[#BE32FF]/40 text-text-muted hover:text-white transition-colors cursor-pointer text-left"
                   >
                     + {preset}
                   </button>
@@ -191,47 +199,43 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
             </div>
 
             {/* Backend Prompt Preview Accordion */}
-            <div className="space-y-2 pt-2 border-t border-white/10">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-neutral-400 flex items-center gap-1.5">
-                  <Info className="w-3.5 h-3.5" />
-                  <span>Synthesized AI Directives</span>
-                </span>
-                {onPreparePrompt && (
+            {onPreparePrompt && (
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
+                    <Info className="w-3.5 h-3.5" />
+                    <span>Synthesized AI Prompt</span>
+                  </span>
                   <button
                     type="button"
                     disabled={isPreparingPrompt}
                     onClick={onPreparePrompt}
-                    className="text-xs text-brand-purple hover:text-brand-pink font-semibold transition-colors cursor-pointer disabled:opacity-50"
+                    className="text-xs text-[#E085FF] hover:text-[#EC4899] font-semibold transition-colors cursor-pointer disabled:opacity-50"
                   >
-                    {isPreparingPrompt ? "Synthesizing..." : "Preview Backend Directives ↻"}
+                    {isPreparingPrompt ? "Synthesizing..." : "Preview Directives ↻"}
                   </button>
-                )}
-              </div>
-
-              {preparedPrompt ? (
-                <div className="p-3 rounded-xl bg-black/60 border border-brand-purple/20 text-[11px] text-neutral-300 font-mono leading-relaxed max-h-32 overflow-y-auto">
-                  {preparedPrompt}
                 </div>
-              ) : (
-                <p className="text-[11px] text-neutral-500 italic">
-                  Click &quot;Preview Backend Directives&quot; to inspect how your instructions, product attributes, and lighting are synthesized.
-                </p>
-              )}
-            </div>
+
+                {preparedPrompt ? (
+                  <div className="p-3 rounded-xl bg-[#071023] border border-white/10 text-[11px] text-text-secondary font-mono leading-relaxed max-h-28 overflow-y-auto">
+                    {preparedPrompt}
+                  </div>
+                ) : null}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Right Column: Configuration Summary Card (5 cols) */}
+        {/* Right Column: "Your current setup" Summary Card (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-[#0f1120] border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
-            <h2 className="text-sm font-bold text-white flex items-center gap-2 pb-2 border-b border-white/10">
-              <Sparkles className="w-4 h-4 text-brand-purple" />
-              <span>Photoshoot Configuration Summary</span>
+          <div className="bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
+            <h2 className="text-sm font-bold text-white flex items-center gap-2 pb-2.5 border-b border-white/10">
+              <Sparkles className="w-4 h-4 text-[#BE32FF]" />
+              <span>Your current setup</span>
             </h2>
 
             {/* Product Snapshot */}
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#071023] border border-border">
               <div className="w-12 h-12 rounded-lg bg-black/60 overflow-hidden shrink-0 border border-white/10">
                 {uploadedImages[0]?.previewUrl && uploadedImages[0].previewUrl.trim() ? (
                   <img
@@ -240,7 +244,7 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-neutral-500">
+                  <div className="w-full h-full flex items-center justify-center text-text-muted">
                     <Box className="w-5 h-5" />
                   </div>
                 )}
@@ -250,125 +254,115 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                   {productName || currentCategoryInfo?.label || "Product"}
                 </span>
                 <span className="text-[11px] text-brand-purple block truncate">
-                  Category: {currentCategoryInfo?.label}
+                  Category: {currentCategoryInfo?.label || "General"}
                 </span>
                 {productColor && (
-                  <span className="text-[10px] text-neutral-400 block truncate">
+                  <span className="text-[10px] text-text-muted block truncate">
                     Color: {productColor}
                   </span>
                 )}
               </div>
             </div>
 
-            {/* Settings Rows */}
-            <div className="space-y-2.5 text-xs">
-              {/* Studio Mode */}
-              <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                <span className="text-neutral-400">Studio Mode:</span>
-                <span className="font-bold text-white flex items-center gap-1.5">
-                  {isAvatarMode ? (
-                    <>
-                      <UserCheck className="w-3.5 h-3.5 text-brand-pink" />
-                      <span>AI Avatar Photoshoot</span>
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="w-3.5 h-3.5 text-blue-400" />
-                      <span>AI Product Photography</span>
-                    </>
-                  )}
+            {/* Clean Setup Summary Rows */}
+            <div className="space-y-2 text-xs divide-y divide-border">
+              <div className="flex items-center justify-between pt-1 pb-1.5">
+                <span className="text-text-muted">Workflow:</span>
+                <span className="font-bold text-white">
+                  {isAvatarMode ? "AI Avatar Photoshoot" : "AI Product Photography"}
                 </span>
               </div>
 
-              {/* Model Choice (Avatar mode only) */}
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-text-muted">Selected Enhancement:</span>
+                <span className="font-bold text-white flex items-center gap-1.5">
+                  {selectedEnhancedImage?.enhancedUrl && (
+                    <img
+                      src={selectedEnhancedImage.enhancedUrl}
+                      alt="Enhanced"
+                      className="w-4 h-4 rounded object-cover border border-brand-purple/40"
+                    />
+                  )}
+                  <span>
+                    {selectedEnhancedImage?.styleName || selectedStyleObj?.name || "Studio Premium"}
+                  </span>
+                </span>
+              </div>
+
               {isAvatarMode && (
-                <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                  <span className="text-neutral-400">Selected Model:</span>
-                  <span className="font-bold text-brand-pink flex items-center gap-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-brand-pink" />
-                    <span>{selectedModel?.name || "Curated Model"}</span>
+                <div className="flex items-center justify-between py-1.5">
+                  <span className="text-text-muted">Selected Model:</span>
+                  <span className="font-bold text-brand-pink">
+                    {selectedModel?.name || "Selected Model"}
                   </span>
                 </div>
               )}
 
-              {/* Enhancement Style */}
-              <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                <span className="text-neutral-400">Enhancement Style:</span>
-                <span className="font-bold text-white flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  {selectedStyleObj?.name || "Studio Premium"}
-                </span>
-              </div>
-
-              {/* Selected Angles / Styles Count */}
-              <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                <span className="text-neutral-400">
-                  {isAvatarMode ? "Selected Poses:" : "Selected Styles:"}
-                </span>
-                <span className="font-bold text-brand-purple">
-                  {selectedStyles.length} variation {selectedStyles.length === 1 ? "style" : "styles"}
-                </span>
-              </div>
-
-              {/* Production Resolution */}
-              <div className="flex items-center justify-between py-1.5 border-b border-white/5">
-                <span className="text-neutral-400">Output Quality:</span>
-                <span className="font-bold text-amber-300">
-                  4K Ultra-HD • Commercial Print Ready
-                </span>
-              </div>
-
-              {/* Credit Cost Display */}
               <div className="flex items-center justify-between py-1.5">
-                <span className="text-neutral-400">Generation Cost:</span>
-                <span className="font-bold text-emerald-400 flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px]">
-                    5 Credits
-                  </span>
-                  <span className="text-[10px] text-neutral-400 font-normal">
-                    (Auto-refunded if job fails)
-                  </span>
+                <span className="text-text-muted">
+                  {isAvatarMode ? "Model Poses:" : "Photography Style:"}
+                </span>
+                <span className="font-bold text-brand-purple text-right truncate max-w-[200px]" title={styleNames}>
+                  {styleNames || `${selectedStyles.length} selected`}
                 </span>
               </div>
-            </div>
 
-            {/* Fidelity Assurance Notice */}
-            <div className="p-3 rounded-xl bg-brand-purple/10 border border-brand-purple/20 text-[11px] text-neutral-300 flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-brand-pink shrink-0 mt-0.5" />
-              <span>
-                Our neural rendering engine preserves your original product shape, colors, logo, and texture without artificial distortion.
-              </span>
+              <div className="flex items-start justify-between py-1.5 gap-2">
+                <span className="text-text-muted shrink-0">Custom Instructions:</span>
+                <span className="font-medium text-text-secondary text-right line-clamp-2 max-w-[200px]">
+                  {customPrompt.trim() || "Default commercial studio directives"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-text-muted">Output Quality:</span>
+                <span className="font-bold text-amber-300">
+                  4K Ultra-HD • Print Ready
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-1.5">
+                <span className="text-text-muted">Variations:</span>
+                <span className="font-bold text-white">5 High-Res Photos</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer Navigation */}
-      <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+      {/* Step 4 Footer Action Bar - Option 3 Visual Match */}
+      <div className="flex items-center justify-between pt-2">
         <button
           type="button"
           onClick={onBack}
-          className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors"
+          disabled={isGenerating}
+          className="px-6 py-2.5 rounded-xl bg-[#0E1838] hover:bg-[#16234D] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all disabled:opacity-50"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to Styles</span>
+          <span>Back</span>
         </button>
+
+        <span className="text-xs text-slate-500 hidden sm:inline">
+          Step 4 of 5
+        </span>
 
         <button
           type="button"
           disabled={isGenerating}
           onClick={onGenerate}
-          className="px-7 py-3.5 rounded-full bg-gradient-to-r from-brand-purple via-brand-pink to-brand-purple hover:opacity-95 text-white font-extrabold text-sm shadow-xl shadow-brand-purple/30 transition-all flex items-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+          className="px-8 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center gap-2 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <Sparkles className="w-4 h-4 animate-spin text-white" style={{ animationDuration: "3s" }} />
-          <span>
-            {isGenerating
-              ? "Generating Photoshoot..."
-              : isAvatarMode
-              ? "Generate Avatar Photoshoot"
-              : "Generate Product Photoshoot"}
-          </span>
-          <ArrowRight className="w-4 h-4" />
+          {isGenerating ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Generating Photoshoot...</span>
+            </>
+          ) : (
+            <>
+              <span>Generate photoshoot</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
         </button>
       </div>
     </div>

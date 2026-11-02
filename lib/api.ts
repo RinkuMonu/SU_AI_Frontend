@@ -1,17 +1,25 @@
 import axios, { AxiosError } from "axios";
 
 export const getBaseUrl = () => {
-  // If explicitly configured via NEXT_PUBLIC_API_URL, use it directly (e.g. http://127.0.0.1:8000)
-  // This bypasses Node.js / Turbopack dev server rewrite socket timeouts on 30-50s AI image generation!
-  const publicApi = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
-  if (publicApi) {
-    return publicApi
-      .replace(/\/docs\/?$/, "")
-      .replace(/\/+$/, "")
-      .replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1");
-  }
-
+  // Browser context (client-side):
   if (typeof window !== "undefined") {
+    // If the browser is running on localhost or 127.0.0.1, always use relative URLs ("")
+    // This routes all requests through Next.js rewrite proxy to http://127.0.0.1:8000,
+    // completely eliminating Chrome Private Network Access (PNA), CORS preflight, and IPv6 [::1] connection refused issues.
+    const isLocalhost =
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1" ||
+      window.location.hostname === "0.0.0.0";
+
+    if (isLocalhost) {
+      return "";
+    }
+
+    // In production or custom remote frontend:
+    const publicApi = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL;
+    if (publicApi) {
+      return publicApi.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
+    }
     return "";
   }
 
@@ -19,12 +27,10 @@ export const getBaseUrl = () => {
   const backend =
     process.env.INTERNAL_BACKEND_URL ||
     process.env.BACKEND_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
     "http://127.0.0.1:8000";
 
-  return backend
-    .replace(/\/docs\/?$/, "")
-    .replace(/\/+$/, "")
-    .replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1");
+  return backend.replace(/\/docs\/?$/, "").replace(/\/+$/, "");
 };
 
 const api = axios.create({
@@ -175,6 +181,21 @@ api.interceptors.response.use(
           }, 100);
         }
       }
+    }
+
+    // Handle transient network errors: if direct backend URL failed (e.g. uvicorn reload or socket reset), retry once
+    const config = error.config as any;
+    if (
+      (!error.response || error.code === "ERR_NETWORK" || error.message === "Network Error") &&
+      config &&
+      !config._retry
+    ) {
+      config._retry = true;
+      // If direct backend port failed, fallback to local Next.js proxy rewrite
+      if (typeof window !== "undefined" && config.baseURL && config.baseURL.startsWith("http")) {
+        config.baseURL = "";
+      }
+      return new Promise((resolve) => setTimeout(resolve, 800)).then(() => api(config));
     }
 
     return Promise.reject(error);

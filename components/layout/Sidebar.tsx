@@ -27,6 +27,8 @@ import {
   Zap,
   Crown,
   Camera,
+  UserCheck,
+  Box,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -74,7 +76,14 @@ const navigation = [
       { name: "AI Calendar", href: "/ai-calendar" },
     ]
   },
-  { name: "AI Product Photoshoot", href: "/ai-photoshoot", icon: Camera },
+  { 
+    name: "AI Photoshoot Studio", 
+    icon: Camera, 
+    children: [
+      { name: "AI Avatar Photoshoot", href: "/ai-photoshoot/avatar", icon: UserCheck },
+      { name: "AI Product Photography", href: "/ai-photoshoot/product", icon: Box },
+    ]
+  },
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
   { name: "Influencers", href: "/influencers", icon: Users },
@@ -111,6 +120,7 @@ export function Sidebar() {
   
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
     "Image and Reel Generation": ["/create/reel", "/ai-post", "/ai-calendar"].some(p => pathname.startsWith(p)),
+    "AI Photoshoot Studio": ["/ai-photoshoot"].some(p => pathname.startsWith(p)),
     "Social Platforms": ["/social-platforms"].some(p => pathname.startsWith(p)),
     "Billing & Plans": pathname.startsWith("/subscription"),
   });
@@ -118,6 +128,9 @@ export function Sidebar() {
   useEffect(() => {
     if (pathname.startsWith("/subscription")) {
       setOpenDropdowns((prev) => ({ ...prev, "Billing & Plans": true }));
+    }
+    if (pathname.startsWith("/ai-photoshoot")) {
+      setOpenDropdowns((prev) => ({ ...prev, "AI Photoshoot Studio": true }));
     }
   }, [pathname]);
 

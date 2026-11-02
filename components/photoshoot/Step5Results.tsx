@@ -7,15 +7,12 @@ import {
   Check,
   RotateCcw,
   Trash2,
-  Eye,
   Maximize2,
   CheckCircle2,
   X,
   Loader2,
-  Share2,
   Bookmark,
   ArrowLeft,
-  Layers,
   Camera,
   CheckSquare,
   Square
@@ -81,49 +78,77 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Step Header */}
-      <div className="text-center max-w-2xl mx-auto space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-          <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Step 5 of 5 • Commercial Production Ready</span>
+    <div className="space-y-5 animate-in fade-in duration-300">
+      {/* Header Card - Option 3 Visual Match */}
+      <div className="bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <Check className="w-4 h-4 stroke-[2.5]" />
+            </span>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <span>Commercial Photoshoot Results</span>
+                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">
+                  Production Ready
+                </span>
+              </h2>
+              <p className="text-xs text-text-muted mt-0.5">
+                High-resolution commercial photos created for {productName || "your product"}. Select, download, or save to library.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={onBackToEdit}
+              className="px-4 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] border border-white/10 text-white text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Edit Instructions</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onStartNewPhotoshoot}
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-xs font-bold text-white shadow-[0_0_15px_rgba(236,72,153,0.35)] flex items-center gap-2 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>New Photoshoot</span>
+            </button>
+          </div>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-          Your Photoshoot Is Ready
-        </h1>
-        <p className="text-sm sm:text-base text-neutral-300 leading-relaxed">
-          High-resolution marketing imagery crafted for {productName || "your product"}. Select, download, or save directly to your gallery.
-        </p>
       </div>
 
       {/* Loading State Banner (When actively generating) */}
       {isGenerating && (
-        <div className="bg-[#101224] border border-brand-purple/40 rounded-2xl p-6 text-center space-y-4 shadow-2xl relative overflow-hidden">
+        <div className="bg-surface border border-brand-purple/40 rounded-2xl p-6 text-center space-y-4 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-brand-purple/5 via-brand-pink/5 to-transparent animate-pulse" />
 
           <div className="relative z-10 space-y-3 max-w-md mx-auto">
-            <div className="w-14 h-14 rounded-full bg-brand-purple/20 border border-brand-purple/40 flex items-center justify-center text-brand-pink mx-auto">
-              <Loader2 className="w-7 h-7 animate-spin" />
+            <div className="w-12 h-12 rounded-full bg-brand-purple/20 border border-brand-purple/40 flex items-center justify-center text-brand-pink mx-auto">
+              <Loader2 className="w-6 h-6 animate-spin" />
             </div>
 
             <div>
-              <h2 className="text-base font-bold text-white">
+              <h3 className="text-sm sm:text-base font-bold text-white">
                 {generationStage || "Generating AI Product Photoshoot..."}
-              </h2>
-              <p className="text-xs text-neutral-400 mt-1">
-                Synthesizing realistic lighting, shadows, and commercial textures.
+              </h3>
+              <p className="text-xs text-text-muted mt-0.5">
+                Rendering studio reflections, apparel draping, and commercial lighting.
               </p>
             </div>
 
             {/* Progress bar */}
-            <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-[#071023] rounded-full h-2 overflow-hidden border border-border">
               <div
-                className="h-full bg-gradient-to-r from-brand-purple via-brand-pink to-brand-coral transition-all duration-300 rounded-full"
+                className="h-full bg-gradient-to-r from-brand-purple via-purple-500 to-brand-pink transition-all duration-300 rounded-full"
                 style={{ width: `${generationProgress}%` }}
               />
             </div>
 
-            <div className="flex items-center justify-between text-[11px] text-neutral-400 font-mono">
+            <div className="flex items-center justify-between text-[11px] text-text-muted font-mono">
               <span>Rendering variations</span>
               <span>{generationProgress}% complete</span>
             </div>
@@ -131,9 +156,9 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
         </div>
       )}
 
-      {/* Gallery Saved Toast Notification */}
+      {/* Toast Notification */}
       {gallerySavedNotice && (
-        <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between shadow-xl animate-in fade-in slide-in-from-top-2">
+        <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-center justify-between shadow-xl animate-in fade-in">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
             <span className="font-semibold">
@@ -152,7 +177,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
 
       {/* Partial Generation / Retry Banner */}
       {partialNotice && (
-        <div className="p-4 rounded-2xl bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl animate-in fade-in">
+        <div className="p-3.5 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
           <div className="flex items-center gap-2.5">
             <RotateCcw className="w-4 h-4 text-amber-400 shrink-0" />
             <div>
@@ -160,22 +185,23 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
               <span className="text-amber-300/90 text-[11px]">{partialNotice}</span>
             </div>
           </div>
+
           {canRetryJob && onRetryFailedJob && (
             <button
               type="button"
-              onClick={onRetryFailedJob}
               disabled={isRetryingJob}
-              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shrink-0 shadow-md"
+              onClick={onRetryFailedJob}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
             >
               {isRetryingJob ? (
                 <>
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span>Retrying...</span>
+                  <span>Retrying in background...</span>
                 </>
               ) : (
                 <>
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Retry Failed Variations</span>
+                  <span>Retry Remaining Variations</span>
                 </>
               )}
             </button>
@@ -183,78 +209,65 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
         </div>
       )}
 
-      {/* Top Action Controls Bar */}
+      {/* Batch Action Toolbar */}
       {results.length > 0 && (
-        <div className="bg-[#0b0e1b] border border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg">
-          {/* Left: Selection count and Select All button */}
+        <div className="p-4 rounded-2xl bg-[#0B132B] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
+          {/* Left: Select Controls */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={allSelected ? onDeselectAll : onSelectAll}
-              className="flex items-center gap-2 text-xs font-semibold text-neutral-200 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer"
             >
               {allSelected ? (
                 <>
-                  <CheckSquare className="w-4 h-4 text-brand-purple" />
+                  <CheckSquare className="w-4 h-4 text-[#E085FF]" />
                   <span>Deselect All</span>
                 </>
               ) : (
                 <>
-                  <Square className="w-4 h-4 text-neutral-400" />
+                  <Square className="w-4 h-4 text-slate-400" />
                   <span>Select All ({results.length})</span>
                 </>
               )}
             </button>
 
-            <span className="text-xs text-neutral-400">
+            <span className="text-xs text-slate-400">
               <strong className="text-white">{selectedResultIds.length}</strong> of {results.length} selected
             </span>
           </div>
 
           {/* Right: Actions */}
           <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-            {/* Download Selected */}
             <button
               type="button"
               disabled={selectedResultIds.length === 0}
               onClick={onDownloadSelected}
-              className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed border border-white/10"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(236,72,153,0.3)]"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Download Selected ({selectedResultIds.length})</span>
             </button>
 
-            {/* Download ZIP Archive */}
             {onDownloadZip && (
               <button
                 type="button"
                 onClick={onDownloadZip}
-                className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-200 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-white/10"
-                title="Download all high-res photos in this photoshoot session as a ZIP archive"
+                className="px-3.5 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border border-white/10"
+                title="Download all high-res photos as ZIP"
               >
-                <Download className="w-3.5 h-3.5 text-brand-pink" />
+                <Download className="w-3.5 h-3.5 text-[#E085FF]" />
                 <span>Download All (ZIP)</span>
               </button>
             )}
 
-            {/* Save to My Gallery */}
             <button
               type="button"
               onClick={handleSaveWithToast}
-              className="px-4 py-2 rounded-xl bg-brand-purple/20 hover:bg-brand-purple/30 text-brand-pink text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-brand-purple/40"
+              className="px-4 py-2 rounded-xl bg-[#2D164D] hover:bg-[#3D1E68] text-[#E085FF] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-[#A855F7]/40 shadow-sm"
             >
               <Bookmark className="w-3.5 h-3.5" />
               <span>Save to My Gallery</span>
-            </button>
-
-            {/* Generate Another Photoshoot */}
-            <button
-              type="button"
-              onClick={onStartNewPhotoshoot}
-              className="px-4 py-2 rounded-xl bg-brand-gradient hover:opacity-95 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-md shadow-brand-purple/20"
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>New Photoshoot</span>
             </button>
           </div>
         </div>
@@ -262,36 +275,35 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
 
       {/* Empty State */}
       {!isGenerating && results.length === 0 && (
-        <div className="p-12 text-center rounded-2xl bg-[#0c0e1b] border border-white/10 space-y-3">
-          <Camera className="w-12 h-12 text-neutral-600 mx-auto" />
-          <h2 className="text-base font-bold text-white">No Photoshoot Results Yet</h2>
-          <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-            Click back to customize your prompt or re-trigger generation.
+        <div className="p-12 text-center rounded-2xl bg-[#0B132B] border border-white/10 space-y-3 shadow-xl">
+          <Camera className="w-12 h-12 text-slate-500 mx-auto" />
+          <h3 className="text-base font-bold text-white">No Photoshoot Results Yet</h3>
+          <p className="text-xs text-text-muted max-w-sm mx-auto">
+            Click back to customize your instructions or start generation.
           </p>
           <button
             type="button"
             onClick={onBackToEdit}
-            className="px-5 py-2.5 rounded-full bg-brand-gradient text-white text-xs font-bold cursor-pointer"
+            className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] text-white text-xs font-bold cursor-pointer shadow-md"
           >
             Back to Customize
           </button>
         </div>
       )}
 
-      {/* Final Images Grid (5-6 Variations) */}
+      {/* Final Images Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {results.map((item, index) => {
           const isSelected = selectedResultIds.includes(item.id);
 
-          // Handle individual failed variation
           if (item.isFailed) {
             return (
               <div
                 key={item.id}
-                className="rounded-2xl border border-rose-500/30 bg-[#160d15] p-5 flex flex-col justify-between shadow-xl min-h-[300px]"
+                className="rounded-2xl border border-rose-500/30 bg-[#160d15] p-5 flex flex-col justify-between shadow-sm min-h-[280px]"
               >
                 <div className="space-y-3">
-                  <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center">
                     <X className="w-5 h-5" />
                   </div>
                   <div>
@@ -307,7 +319,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     type="button"
                     onClick={() => onRegenerateResult(item.id)}
                     disabled={item.isRegenerating}
-                    className="w-full py-2 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs font-bold border border-rose-500/40 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-1.5 px-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs font-bold border border-rose-500/40 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     {item.isRegenerating ? (
                       <>
@@ -317,7 +329,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     ) : (
                       <>
                         <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Retry This Image</span>
+                        <span>Retry Image</span>
                       </>
                     )}
                   </button>
@@ -329,10 +341,11 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
           return (
             <div
               key={item.id}
-              className={`rounded-2xl border transition-all overflow-hidden flex flex-col justify-between group shadow-xl ${isSelected
-                  ? "bg-[#141122] border-brand-purple shadow-brand-purple/20 ring-2 ring-brand-purple"
-                  : "bg-[#0c0e1a] border-white/10 hover:border-white/20"
-                }`}
+              className={`rounded-2xl border transition-all overflow-hidden flex flex-col justify-between group shadow-xl ${
+                isSelected
+                  ? "bg-[#131E42] border-2 border-[#BE32FF] ring-2 ring-[#BE32FF]/30 shadow-[0_0_20px_rgba(190,50,255,0.25)]"
+                  : "bg-[#0B132B] border-white/10 hover:border-white/20"
+              }`}
             >
               {/* Image Preview Container */}
               <div className="relative aspect-square w-full bg-black/60 overflow-hidden select-none flex items-center justify-center">
@@ -343,24 +356,24 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-neutral-600">
-                    <Camera className="w-10 h-10 mb-1" />
-                    <span className="text-xs text-neutral-400">Rendering visual...</span>
+                  <div className="w-full h-full flex flex-col items-center justify-center text-text-muted">
+                    <Camera className="w-8 h-8 mb-1" />
+                    <span className="text-xs text-text-muted">Rendering visual...</span>
                   </div>
                 )}
 
-                {/* Top Overlay Badges */}
+                {/* Top Badges */}
                 <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between z-10">
                   <div className="flex items-center gap-1.5">
-                    {/* Select Checkbox */}
                     <button
                       type="button"
                       onClick={() => onToggleSelect(item.id)}
-                      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${isSelected
-                          ? "bg-brand-purple border-brand-purple text-white shadow-md"
+                      className={`w-6 h-6 rounded-lg border flex items-center justify-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "bg-gradient-to-r from-[#A855F7] to-[#EC4899] border-transparent text-white shadow-md"
                           : "bg-black/60 backdrop-blur-md border-white/30 text-transparent hover:border-white"
-                        }`}
-                      title={isSelected ? "Deselect image" : "Select image"}
+                      }`}
+                      title={isSelected ? "Deselect" : "Select"}
                     >
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
                     </button>
@@ -370,8 +383,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     </span>
                   </div>
 
-                  {/* Quality Pill */}
-                  <span className="px-2 py-0.5 rounded-md bg-brand-purple/80 backdrop-blur-md text-white text-[10px] font-bold shadow-md">
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 text-[10px] font-bold shadow">
                     {item.resolution}
                   </span>
                 </div>
@@ -389,52 +401,48 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
                     )}
                   </div>
 
-                  {/* Lightbox / Zoom Button */}
                   <button
                     type="button"
                     onClick={() => setLightboxItem(item)}
-                    className="p-1.5 rounded-lg bg-black/70 hover:bg-brand-purple text-white transition-colors cursor-pointer shadow-md"
+                    className="p-1.5 rounded-lg bg-black/70 hover:bg-[#BE32FF] text-white transition-colors cursor-pointer shadow"
                     title="Fullscreen Lightbox"
                   >
-                    <Maximize2 className="w-4 h-4" />
+                    <Maximize2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
 
               {/* Card Footer Actions */}
-              <div className="p-3 bg-[#111322] border-t border-white/10 flex items-center justify-between gap-2">
-                {/* Download Button */}
+              <div className="p-2.5 bg-[#071023] border-t border-white/10 flex items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={() => onDownloadSingle(item)}
-                  className="flex-1 py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                  className="flex-1 py-1.5 px-2.5 rounded-xl bg-[#0F1735] hover:bg-[#152047] text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5 text-brand-pink" />
+                  <Download className="w-3.5 h-3.5 text-[#E085FF]" />
                   <span>Download</span>
                 </button>
 
-                {/* Regenerate Button */}
                 <button
                   type="button"
                   disabled={item.isRegenerating}
                   onClick={() => onRegenerateResult(item.id)}
-                  className="py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-40"
+                  className="py-1.5 px-2.5 rounded-xl bg-[#0F1735] hover:bg-[#152047] text-slate-300 hover:text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1 transition-colors cursor-pointer disabled:opacity-40"
                   title="Re-roll this specific variation"
                 >
                   {item.isRegenerating ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-purple" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-[#BE32FF]" />
                   ) : (
                     <RotateCcw className="w-3.5 h-3.5" />
                   )}
                   <span>Re-roll</span>
                 </button>
 
-                {/* Delete Button */}
                 <button
                   type="button"
                   onClick={() => onDeleteResult(item.id)}
-                  className="p-1.5 rounded-xl bg-white/5 hover:bg-red-500/20 text-neutral-400 hover:text-red-300 border border-white/10 transition-colors cursor-pointer"
-                  title="Delete this image"
+                  className="p-1.5 rounded-xl bg-[#0F1735] hover:bg-red-500/20 text-slate-400 hover:text-red-300 border border-white/10 transition-colors cursor-pointer"
+                  title="Delete image"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
@@ -447,87 +455,51 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
       {/* Lightbox Modal */}
       {lightboxItem && (
         <div
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"
           onClick={() => setLightboxItem(null)}
         >
           <div
-            className="relative max-w-5xl max-h-[95vh] w-full bg-[#090b16] border border-white/20 rounded-2xl p-4 overflow-hidden shadow-2xl flex flex-col justify-between"
+            className="relative max-w-4xl max-h-[90vh] w-full bg-surface border border-border rounded-2xl p-4 overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Lightbox Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-bold text-white">{lightboxItem.title}</span>
-                <span className="text-xs px-2 py-0.5 rounded bg-brand-purple text-white font-bold">
-                  {lightboxItem.resolution}
+            <div className="flex items-center justify-between pb-3 border-b border-border">
+              <div>
+                <span className="text-xs font-bold text-white block">
+                  {lightboxItem.title}
                 </span>
-                {lightboxItem.modelUsed && (
-                  <span className="text-xs text-brand-pink font-semibold">
-                    • Model: {lightboxItem.modelUsed}
-                  </span>
-                )}
+                <span className="text-[10px] text-text-muted font-mono">
+                  {lightboxItem.resolution} • Commercial Grade
+                </span>
               </div>
-
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => onDownloadSingle(lightboxItem)}
-                  className="px-3 py-1.5 rounded-xl bg-brand-gradient text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                  className="px-3 py-1 rounded-xl bg-gradient-to-r from-brand-purple to-brand-pink text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow hover:opacity-95"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Download Ultra-HD</span>
+                  <span>Download</span>
                 </button>
-
                 <button
                   type="button"
                   onClick={() => setLightboxItem(null)}
-                  className="text-neutral-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                  className="text-text-muted hover:text-white p-1 rounded-lg cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
             </div>
 
-            {/* Lightbox Image View */}
             <div className="py-4 flex items-center justify-center max-h-[75vh] overflow-hidden">
-              {lightboxItem.imageUrl && lightboxItem.imageUrl.trim() ? (
-                <img
-                  src={lightboxItem.imageUrl}
-                  alt={lightboxItem.title}
-                  className="max-h-[72vh] w-auto object-contain rounded-xl shadow-2xl"
-                />
-              ) : null}
-            </div>
-
-            {/* Prompt details at bottom */}
-            <div className="pt-2 border-t border-white/10 text-xs text-neutral-400 truncate">
-              <span className="font-semibold text-neutral-300">Prompt:</span> {lightboxItem.prompt}
+              <img
+                src={lightboxItem.imageUrl}
+                alt={lightboxItem.title}
+                className="max-h-[70vh] w-auto object-contain rounded-xl"
+              />
             </div>
           </div>
         </div>
       )}
-
-      {/* Navigation Footer */}
-      <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBackToEdit}
-          className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center gap-2 cursor-pointer transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Custom Prompt</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={onStartNewPhotoshoot}
-          className="px-6 py-3 rounded-full bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer border border-white/10"
-        >
-          <Sparkles className="w-4 h-4 text-brand-pink" />
-          <span>Start Another Photoshoot</span>
-        </button>
-      </div>
     </div>
   );
 };
-
