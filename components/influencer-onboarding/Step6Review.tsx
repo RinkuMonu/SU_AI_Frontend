@@ -146,19 +146,24 @@ export const Step6Review: React.FC<Step6ReviewProps> = ({
             </div>
             <div className="flex items-center gap-2">
               {connectedPlatforms.length > 0 ? (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {connectedPlatforms.map((p) => (
                     <span
                       key={p.platform}
-                      className="px-2 py-0.5 rounded-md bg-[#0E1838] border border-white/10 text-xs text-white capitalize flex items-center gap-1"
+                      className="px-2 py-0.5 rounded-md bg-[#0E1838] border border-white/10 text-xs text-white capitalize flex items-center gap-1.5"
                     >
                       <span className="text-[10px] text-[#EC4899]">●</span>
-                      {p.platform}: @{p.handle}
+                      <span>{p.platform}: @{p.handle}</span>
+                      {p.isVerified ? (
+                        <span className="text-[10px] text-emerald-400 font-semibold">(Verified)</span>
+                      ) : (
+                        <span className="text-[10px] text-amber-400/80">(Unverified)</span>
+                      )}
                     </span>
                   ))}
                 </div>
               ) : (
-                <span className="text-slate-500 text-xs">None linked</span>
+                <span className="text-slate-500 text-xs">None linked (can link on dashboard)</span>
               )}
               <button
                 type="button"

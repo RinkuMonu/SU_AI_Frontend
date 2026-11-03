@@ -1,5 +1,7 @@
 "use client";
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { 
   Share2, 
   CheckCircle2, 
@@ -11,311 +13,521 @@ import {
   Link as LinkIcon, 
   Unlink, 
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { InstagramIcon, FacebookIcon, LinkedInIcon } from '@/components/social/SocialIcons';
 import influencerService, { InfluencerProfile } from '@/services/influencer.service';
+import { 
+  influencerSocialService, 
+  PlatformKey, 
+  InfluencerSocialStatus, 
+  SocialPlatformInfo 
+} from '@/services/influencer-social.service';
 
-const InstagramIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-  </svg>
-);
-
-const YoutubeIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
-);
-
-export default function SocialAccountsPage() {
+function SocialAccountsContent() {
+  const searchParams = useSearchParams();
   const [profile, setProfile] = useState<InfluencerProfile | null>(null);
+  const [socialStatus, setSocialStatus] = useState<InfluencerSocialStatus | null>(null);
   const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [statusNotification, setStatusNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-  // Connect dialog
-  const [editingPlatform, setEditingPlatform] = useState<'instagram' | 'youtube' | 'facebook' | 'linkedin' | null>(null);
+  // Manual Link dialog
+  const [manualPlatform, setManualPlatform] = useState<PlatformKey | null>(null);
   const [inputUrl, setInputUrl] = useState('');
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSavingManual, setIsSavingManual] = useState(false);
 
-  const fetchProfile = async () => {
+  // Handle URL callback parameters after OAuth redirect
+  useEffect(() => {
+    const isConnected = searchParams.get('social_connected');
+    const platform = searchParams.get('platform');
+    const username = searchParams.get('username');
+    const socialError = searchParams.get('social_error');
+
+    if (isConnected === 'true' && platform) {
+      setStatusNotification({
+        type: 'success',
+        message: `Successfully connected & verified your ${platform.toUpperCase()} account${username ? ` (@${decodeURIComponent(username)})` : ''}!`,
+      });
+    } else if (socialError) {
+      setStatusNotification({
+        type: 'error',
+        message: `Social connection failed: ${decodeURIComponent(socialError)}`,
+      });
+    }
+  }, [searchParams]);
+
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await influencerService.getMyProfile();
-      if (res.success && res.data) {
-        setProfile(res.data);
+      const [profileRes, statusRes] = await Promise.allSettled([
+        influencerService.getMyProfile(),
+        influencerSocialService.getStatus(),
+      ]);
+
+      if (profileRes.status === 'fulfilled' && profileRes.value?.success) {
+        setProfile(profileRes.value.data);
+      }
+      if (statusRes.status === 'fulfilled') {
+        setSocialStatus(statusRes.value);
       }
     } catch (err: any) {
-      console.error("Failed to load profile:", err);
+      console.error("Failed to load social accounts data:", err);
       setError(err?.response?.data?.detail || err.message || "Failed to load social accounts.");
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchProfile();
   }, []);
 
-  const handleSaveSocial = async () => {
-    if (!editingPlatform) return;
-    try {
-      setIsSaving(true);
-      const updateData: any = {};
-      if (editingPlatform === 'instagram') updateData.instagram_url = inputUrl.trim();
-      if (editingPlatform === 'youtube') updateData.youtube_url = inputUrl.trim();
-      if (editingPlatform === 'facebook') updateData.facebook_url = inputUrl.trim();
-      if (editingPlatform === 'linkedin') updateData.linkedin_url = inputUrl.trim();
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
-      const res = await influencerService.updateMyProfile(updateData);
-      if (res.success) {
-        alert(`${editingPlatform.toUpperCase()} profile updated!`);
-        setEditingPlatform(null);
-        setInputUrl('');
-        await fetchProfile();
+  // Initiate OAuth Connection
+  const handleConnectOAuth = async (platform: PlatformKey) => {
+    try {
+      setActionLoading(`connect_${platform}`);
+      setError(null);
+      const authUrl = await influencerSocialService.getConnectUrl(platform);
+      if (authUrl) {
+        window.location.href = authUrl;
       }
     } catch (err: any) {
-      console.error("Save social failed:", err);
-      alert(err?.response?.data?.detail || err.message || "Failed to update platform link.");
+      setError(err?.response?.data?.detail || err.message || `Unable to initiate ${platform} connection.`);
+      setActionLoading(null);
+    }
+  };
+
+  // Disconnect Platform
+  const handleDisconnect = async (platform: PlatformKey) => {
+    const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+    if (!confirm(`Are you sure you want to disconnect ${platformName}? Your verified status will be removed.`)) {
+      return;
+    }
+
+    try {
+      setActionLoading(`disconnect_${platform}`);
+      await influencerSocialService.disconnect(platform);
+
+      // Also clear manual link if desired
+      const clearData: Record<string, string> = {};
+      if (platform === 'instagram') clearData.instagram_url = '';
+      if (platform === 'facebook') clearData.facebook_url = '';
+      if (platform === 'linkedin') clearData.linkedin_url = '';
+      await influencerService.updateMyProfile(clearData).catch(() => {});
+
+      setStatusNotification({
+        type: 'success',
+        message: `${platformName} disconnected successfully.`,
+      });
+      await loadData();
+    } catch (err: any) {
+      setError(err?.response?.data?.detail || err.message || `Failed to disconnect ${platform}.`);
     } finally {
-      setIsSaving(false);
+      setActionLoading(null);
     }
   };
 
-  const handleDisconnect = async (platform: string) => {
-    if (!confirm(`Are you sure you want to disconnect ${platform}?`)) return;
+  // Save Manual Link (Clearly marked unverified)
+  const handleSaveManual = async () => {
+    if (!manualPlatform) return;
     try {
-      const updateData: any = {};
-      if (platform === 'Instagram') updateData.instagram_url = "";
-      if (platform === 'YouTube') updateData.youtube_url = "";
-      if (platform === 'Facebook') updateData.facebook_url = "";
-      if (platform === 'LinkedIn') updateData.linkedin_url = "";
+      setIsSavingManual(true);
+      const updateData: Partial<InfluencerProfile> = {};
+      if (manualPlatform === 'instagram') updateData.instagram_url = inputUrl.trim();
+      if (manualPlatform === 'facebook') updateData.facebook_url = inputUrl.trim();
+      if (manualPlatform === 'linkedin') updateData.linkedin_url = inputUrl.trim();
 
       const res = await influencerService.updateMyProfile(updateData);
       if (res.success) {
-        alert(`${platform} disconnected.`);
-        await fetchProfile();
+        setStatusNotification({
+          type: 'success',
+          message: `${manualPlatform.toUpperCase()} link saved (unverified). Connect via OAuth anytime to get the verified badge.`,
+        });
+        setManualPlatform(null);
+        setInputUrl('');
+        await loadData();
       }
     } catch (err: any) {
-      alert("Failed to disconnect platform.");
+      setError(err?.response?.data?.detail || err.message || "Failed to update profile link.");
+    } finally {
+      setIsSavingManual(false);
     }
   };
 
-  const platforms = [
+  const platformsConfig: Array<{
+    id: PlatformKey;
+    name: string;
+    icon: React.ComponentType<{ className?: string }>;
+    gradient: string;
+    borderColor: string;
+    manualUrl?: string;
+  }> = [
     {
       id: 'instagram',
       name: 'Instagram',
       icon: InstagramIcon,
-      color: 'from-pink-500 to-rose-500',
-      url: profile?.instagram_url,
-      connected: !!profile?.instagram_url,
-      followers: profile?.follower_count || 0,
-      engagement: profile?.engagement_rate ? `${profile.engagement_rate}%` : 'N/A'
-    },
-    {
-      id: 'youtube',
-      name: 'YouTube',
-      icon: YoutubeIcon,
-      color: 'from-red-600 to-rose-700',
-      url: profile?.youtube_url,
-      connected: !!profile?.youtube_url,
-      followers: profile?.follower_count || 0,
-      engagement: profile?.engagement_rate ? `${profile.engagement_rate}%` : 'N/A'
+      gradient: 'from-pink-500 to-rose-600',
+      borderColor: 'border-pink-500/30',
+      manualUrl: profile?.instagram_url,
     },
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: Share2,
-      color: 'from-blue-600 to-indigo-600',
-      url: profile?.facebook_url,
-      connected: !!profile?.facebook_url,
-      followers: 0,
-      engagement: 'N/A'
+      icon: FacebookIcon,
+      gradient: 'from-blue-600 to-indigo-700',
+      borderColor: 'border-blue-500/30',
+      manualUrl: profile?.facebook_url,
     },
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: Share2,
-      color: 'from-sky-600 to-blue-700',
-      url: profile?.linkedin_url,
-      connected: !!profile?.linkedin_url,
-      followers: 0,
-      engagement: 'N/A'
-    }
+      icon: LinkedInIcon,
+      gradient: 'from-sky-600 to-blue-800',
+      borderColor: 'border-sky-500/30',
+      manualUrl: profile?.linkedin_url,
+    },
   ];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-300">
+    <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-300">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-white/10 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-            <Share2 className="w-6 h-6 text-[#be32ff]" /> Connected Social Accounts
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#d87aff] text-xs font-bold uppercase tracking-wider mb-2">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Channel Verification &amp; Reach</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
+            <Share2 className="w-7 h-7 text-[#be32ff]" /> Connected Social Accounts
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">
-            Connect and verify your social channels to display genuine metrics, reach, and engagement to hiring brands.
+          <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl">
+            Connect your official creator accounts via OAuth. Verified accounts receive top placement in brand discovery and bilateral hiring campaigns.
           </p>
         </div>
+
         <Button
           variant="outline"
           size="sm"
-          onClick={fetchProfile}
+          onClick={loadData}
           disabled={loading}
-          className="border-white/10 bg-white/5 text-xs text-neutral-300 hover:text-white"
+          className="h-10 px-4 border-white/15 bg-white/5 text-xs text-neutral-200 hover:text-white rounded-xl cursor-pointer"
         >
-          {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : <RefreshCw className="w-3.5 h-3.5 mr-1.5" />}
-          Sync Accounts
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
+          ) : (
+            <RefreshCw className="w-4 h-4 mr-1.5" />
+          )}
+          <span>Sync Status</span>
         </Button>
       </div>
 
-      {/* Loading Skeleton */}
-      {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {[1, 2, 3, 4].map(n => (
-            <div key={n} className="h-44 rounded-2xl bg-white/[0.03] border border-white/10 animate-pulse" />
-          ))}
+      {/* Notifications */}
+      {statusNotification && (
+        <div
+          className={`p-4 rounded-2xl text-xs font-semibold flex items-center justify-between gap-3 ${
+            statusNotification.type === 'success'
+              ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-300'
+              : 'bg-rose-500/15 border border-rose-500/30 text-rose-300'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {statusNotification.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
+            <span>{statusNotification.message}</span>
+          </div>
+          <button
+            onClick={() => setStatusNotification(null)}
+            className="text-white/60 hover:text-white text-xs underline cursor-pointer"
+          >
+            Dismiss
+          </button>
         </div>
       )}
 
-      {/* Error */}
       {error && !loading && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Platform Cards */}
+      {/* Policy Notice: Real Verification Only */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-black/40 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#d87aff] shrink-0">
+            <ShieldCheck className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+              Authoritative Verification Standards
+            </h4>
+            <p className="text-[11px] text-neutral-300 mt-0.5">
+              A green &quot;Verified&quot; badge is issued exclusively through official OAuth authentication. Manually entered URLs are marked unverified.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Loading Skeleton */}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="h-56 rounded-3xl bg-white/[0.03] border border-white/10 animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {/* Platform Cards (Strictly Instagram, Facebook, LinkedIn) */}
       {!loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {platforms.map(p => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {platformsConfig.map((p) => {
             const Icon = p.icon;
+            const backendInfo: SocialPlatformInfo | undefined = socialStatus?.platforms?.[p.id];
+            
+            // STRICT VERIFICATION CHECK: Only true if verified via OAuth from backend
+            const isOAuthVerified = Boolean(
+              backendInfo && 
+              backendInfo.is_verified && 
+              backendInfo.verification_method === 'oauth'
+            );
+
+            // Connected without OAuth or manual handle
+            const hasManualUrl = Boolean(p.manualUrl && p.manualUrl.trim().length > 0);
+            const isConnected = isOAuthVerified || Boolean(backendInfo?.status === 'VERIFIED') || hasManualUrl;
+
+            const isConnecting = actionLoading === `connect_${p.id}`;
+            const isDisconnecting = actionLoading === `disconnect_${p.id}`;
+
+            const verifiedHandle = backendInfo?.platform_username 
+              ? `@${backendInfo.platform_username}`
+              : backendInfo?.display_name || null;
+
             return (
-              <Card key={p.id} className="bg-[#0e0f17] border-white/10 hover:border-white/20 transition-all rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${p.color} flex items-center justify-center text-white shadow-md`}>
-                      <Icon />
+              <Card
+                key={p.id}
+                className={`bg-[#0c0d16] border ${p.borderColor} rounded-3xl p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all shadow-xl`}
+              >
+                <div className="space-y-4">
+                  {/* Top Bar: Icon & Name */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-11 h-11 rounded-2xl bg-gradient-to-tr ${p.gradient} flex items-center justify-center text-white shadow-lg`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-white">{p.name}</h3>
+                        <p className="text-[11px] text-neutral-400">
+                          {p.id === 'instagram' ? 'Reels & Media' : p.id === 'facebook' ? 'Pages & Groups' : 'Professional & B2B'}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white">{p.name}</h3>
-                      <p className="text-[11px] text-neutral-400">
-                        {p.connected ? (
-                          <span className="text-emerald-400 flex items-center gap-1 font-semibold">
-                            <CheckCircle2 className="w-3.5 h-3.5" /> Connected &amp; Verified
-                          </span>
-                        ) : (
-                          <span className="text-neutral-500 flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5" /> Not Connected
-                          </span>
-                        )}
-                      </p>
-                    </div>
+
+                    {/* Verification Status Pill */}
+                    {isOAuthVerified ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                        <span>Verified</span>
+                      </span>
+                    ) : hasManualUrl ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="Manual URL - OAuth verification pending">
+                        <AlertCircle className="w-3 h-3 text-amber-400" />
+                        <span>Unverified</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-white/5 text-neutral-400 border border-white/10">
+                        <Clock className="w-3 h-3" />
+                        <span>Not Linked</span>
+                      </span>
+                    )}
                   </div>
 
-                  {p.connected ? (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleDisconnect(p.name)}
-                      className="border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs h-8 rounded-lg"
-                    >
-                      <Unlink className="w-3.5 h-3.5 mr-1" /> Disconnect
-                    </Button>
+                  {/* Channel Details */}
+                  {isOAuthVerified ? (
+                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400 text-[11px]">Verified Handle:</span>
+                        <span className="text-emerald-300 font-bold truncate max-w-[150px]">
+                          {verifiedHandle || 'Verified Account'}
+                        </span>
+                      </div>
+                      {backendInfo?.profile_url && (
+                        <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                          <span className="text-neutral-400 text-[11px]">Profile:</span>
+                          <a
+                            href={backendInfo.profile_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#d87aff] hover:underline flex items-center gap-1 truncate max-w-[150px]"
+                          >
+                            <span>Open Channel</span>
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                          </a>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 text-[10px] text-emerald-400/90 pt-1">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Live OAuth sync active</span>
+                      </div>
+                    </div>
+                  ) : hasManualUrl ? (
+                    <div className="p-3.5 rounded-2xl bg-amber-500/[0.04] border border-amber-500/20 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-neutral-400 text-[11px]">Manual Link:</span>
+                        <a
+                          href={p.manualUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-amber-300 hover:underline flex items-center gap-1 truncate max-w-[150px]"
+                        >
+                          <span className="truncate">{p.manualUrl}</span>
+                          <ExternalLink className="w-3 h-3 shrink-0" />
+                        </a>
+                      </div>
+                      <p className="text-[10px] text-amber-400/80 leading-relaxed">
+                        ⚠️ Not verified via OAuth. Brands require verified channels to offer higher payouts.
+                      </p>
+                    </div>
                   ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => { setEditingPlatform(p.id as any); setInputUrl(p.url || ''); }}
-                      className="bg-white/10 hover:bg-white/15 text-white text-xs h-8 rounded-lg"
-                    >
-                      <LinkIcon className="w-3.5 h-3.5 mr-1" /> Connect
-                    </Button>
+                    <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 text-xs text-neutral-400 space-y-1">
+                      <p className="text-[11px] leading-relaxed">
+                        Connect {p.name} to authenticate your follower reach and enable automated campaign performance metrics.
+                      </p>
+                    </div>
                   )}
                 </div>
 
-                {p.connected ? (
-                  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 space-y-2 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-400">Profile URL:</span>
-                      <a href={p.url} target="_blank" rel="noreferrer" className="text-purple-400 hover:underline flex items-center gap-1 truncate max-w-[200px]">
-                        {p.url} <ExternalLink className="w-3 h-3 shrink-0" />
-                      </a>
+                {/* Card Action Buttons */}
+                <div className="pt-2 border-t border-white/5 space-y-2">
+                  {isOAuthVerified ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={isDisconnecting}
+                      onClick={() => handleDisconnect(p.id)}
+                      className="w-full h-10 rounded-xl border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-semibold cursor-pointer transition-all"
+                    >
+                      {isDisconnecting ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                      ) : (
+                        <Unlink className="w-3.5 h-3.5 mr-1.5" />
+                      )}
+                      <span>Disconnect {p.name}</span>
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        size="sm"
+                        disabled={isConnecting}
+                        onClick={() => handleConnectOAuth(p.id)}
+                        className="w-full h-10 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-purple-500/20 cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                      >
+                        {isConnecting ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Connecting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Connect via OAuth</span>
+                            <ArrowRight className="w-3.5 h-3.5" />
+                          </>
+                        )}
+                      </Button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setManualPlatform(p.id);
+                          setInputUrl(p.manualUrl || '');
+                        }}
+                        className="text-[11px] text-neutral-400 hover:text-white transition-colors text-center cursor-pointer py-1"
+                      >
+                        {hasManualUrl ? 'Edit manual handle' : 'Or add manual handle (unverified)'}
+                      </button>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/5">
-                      <div>
-                        <span className="text-neutral-400 block text-[11px]">Followers</span>
-                        <span className="font-bold text-white">{Number(p.followers).toLocaleString()}</span>
-                      </div>
-                      <div>
-                        <span className="text-neutral-400 block text-[11px]">Avg Engagement</span>
-                        <span className="font-bold text-emerald-400">{p.engagement}</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-3 rounded-xl bg-white/[0.01] border border-white/5 text-xs text-neutral-400">
-                    Connect your {p.name} handle or URL to automatically include your metrics in bilateral campaign hiring proposals.
-                  </div>
-                )}
+                  )}
+                </div>
               </Card>
             );
           })}
         </div>
       )}
 
-      {/* Connect Platform Dialog */}
-      {editingPlatform && (
-        <Dialog open={!!editingPlatform} onOpenChange={() => setEditingPlatform(null)}>
-          <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md">
+      {/* Manual Link Input Dialog */}
+      {manualPlatform && (
+        <Dialog open={!!manualPlatform} onOpenChange={() => setManualPlatform(null)}>
+          <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md rounded-3xl">
             <DialogHeader>
               <DialogTitle className="text-base font-bold capitalize flex items-center gap-2">
-                <LinkIcon className="w-5 h-5 text-purple-400" /> Connect {editingPlatform}
+                <LinkIcon className="w-5 h-5 text-purple-400" /> Enter {manualPlatform} Profile Link
               </DialogTitle>
               <DialogDescription className="text-xs text-neutral-400">
-                Enter your public handle or profile link to sync metrics with your creator media kit.
+                You can add your public link for informational display. Note: To obtain the genuine Verified badge, connect via OAuth.
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-3 py-2 text-xs">
               <label className="text-neutral-300 font-semibold block">
-                {editingPlatform.toUpperCase()} URL / Handle:
+                {manualPlatform.toUpperCase()} Profile URL or Handle:
               </label>
               <Input
                 value={inputUrl}
-                onChange={e => setInputUrl(e.target.value)}
-                placeholder={editingPlatform === 'instagram' ? 'https://instagram.com/yourhandle' : 'https://youtube.com/@yourchannel'}
-                className="bg-white/5 border-white/10 text-white text-xs h-10 rounded-xl"
+                onChange={(e) => setInputUrl(e.target.value)}
+                placeholder={
+                  manualPlatform === 'instagram'
+                    ? 'https://instagram.com/yourhandle'
+                    : manualPlatform === 'facebook'
+                    ? 'https://facebook.com/yourpage'
+                    : 'https://linkedin.com/in/yourprofile'
+                }
+                className="bg-white/5 border-white/10 text-white text-xs h-11 rounded-xl"
               />
+              <p className="text-[11px] text-amber-300/80 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                ⚠️ Notice: Manually entered links will be marked &quot;Unverified&quot;. Official verification requires direct OAuth authorization.
+              </p>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="flex items-center justify-end gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setEditingPlatform(null)}
-                className="border-white/10 bg-white/5 text-neutral-300 text-xs"
+                onClick={() => setManualPlatform(null)}
+                className="border-white/10 bg-white/5 text-neutral-300 text-xs h-10 rounded-xl"
               >
                 Cancel
               </Button>
               <Button
                 size="sm"
-                disabled={isSaving || !inputUrl.trim()}
-                onClick={handleSaveSocial}
-                className="bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white text-xs font-bold"
+                disabled={isSavingManual}
+                onClick={handleSaveManual}
+                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold h-10 px-5 rounded-xl"
               >
-                {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
-                Save &amp; Verify Link
+                {isSavingManual ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : null}
+                Save Link
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       )}
     </div>
+  );
+}
+
+export default function SocialAccountsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-neutral-400 text-xs">Loading social accounts...</div>}>
+      <SocialAccountsContent />
+    </Suspense>
   );
 }

@@ -1,5 +1,5 @@
 export interface SocialAccountItem {
-  platform: 'instagram' | 'youtube' | 'tiktok' | 'facebook';
+  platform: 'instagram' | 'facebook' | 'linkedin';
   handle: string;
   url: string;
   connected: boolean;
@@ -23,7 +23,7 @@ export interface CreatorOnboardingData {
   niches: string[];
   customNiche?: string;
 
-  // Step 4: Social Accounts
+  // Step 4: Social Accounts (Available: Instagram, Facebook, LinkedIn)
   socialAccounts: SocialAccountItem[];
 
   // Step 5: Goals
@@ -45,11 +45,9 @@ export const INITIAL_ONBOARDING_DATA: CreatorOnboardingData = {
   niches: ['Fashion & Style'],
   socialAccounts: [
     { platform: 'instagram', handle: '', url: '', connected: false, isVerified: false },
-    { platform: 'youtube', handle: '', url: '', connected: false, isVerified: false },
-    { platform: 'tiktok', handle: '', url: '', connected: false, isVerified: false },
     { platform: 'facebook', handle: '', url: '', connected: false, isVerified: false },
+    { platform: 'linkedin', handle: '', url: '', connected: false, isVerified: false },
   ],
   goals: ['Get Brand Collaborations'],
   isCompleted: false,
 };
-

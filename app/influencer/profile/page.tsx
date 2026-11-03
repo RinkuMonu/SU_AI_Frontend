@@ -37,23 +37,21 @@ export default function InfluencerProfilePage() {
   useEffect(() => {
     // 1. Instant load from local onboarding data if available
     try {
-      const local = creatorOnboardingService.loadOnboardingData(user);
-      if (local) {
-        if (local.step2?.fullName) setFullName(local.step2.fullName);
-        if (local.step2?.username) setUsername(local.step2.username);
-        if (local.step2?.bio) setBio(local.step2.bio);
-        if (local.step2?.city) setLocation(local.step2.city);
-        if (local.step3?.niches?.[0]) setCategory(local.step3.niches[0]);
-        if (local.step4?.instagram?.handle) {
-          setInstagramUrl(`https://instagram.com/${local.step4.instagram.handle.replace(/^@/, '')}`);
+      creatorOnboardingService.loadOnboardingData(user).then((local) => {
+        if (local) {
+          if (local.fullName) setFullName(local.fullName);
+          if (local.username) setUsername(local.username);
+          if (local.bio) setBio(local.bio);
+          if (local.location) setLocation(local.location);
+          if (local.niches?.[0]) setCategory(local.niches[0]);
+          const ig = local.socialAccounts?.find(s => s.platform === 'instagram')?.url;
+          if (ig) setInstagramUrl(ig);
+          const fb = local.socialAccounts?.find(s => s.platform === 'facebook')?.url;
+          if (fb) setFacebookUrl(fb);
+          const li = local.socialAccounts?.find(s => s.platform === 'linkedin')?.url;
+          if (li) setLinkedinUrl(li);
         }
-        if (local.step4?.facebook?.handle) {
-          setFacebookUrl(`https://facebook.com/${local.step4.facebook.handle.replace(/^@/, '')}`);
-        }
-        if (local.step4?.linkedin?.handle) {
-          setLinkedinUrl(`https://linkedin.com/in/${local.step4.linkedin.handle.replace(/^@/, '')}`);
-        }
-      }
+      }).catch(() => {});
     } catch {}
 
     // 2. Authoritative load from backend profile API
