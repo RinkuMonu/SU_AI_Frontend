@@ -55,7 +55,7 @@ export default function DashboardLayout({
         <Sidebar />
         <div className="flex flex-col flex-1 w-0 overflow-hidden">
           <Navbar />
-          <main className="flex-1 relative overflow-y-auto focus:outline-none custom-scrollbar">
+          <main className="flex-1 relative overflow-y-auto overflow-x-hidden focus:outline-none custom-scrollbar">
             <div className="py-6 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto w-full">
               <OnboardingProvider>
                 {children}

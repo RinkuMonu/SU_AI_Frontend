@@ -61,7 +61,7 @@ export function AIInsights({ insights }: AIInsightsProps) {
           <button
             type="button"
             onClick={handleAction}
-            className="px-5 py-2 rounded-full bg-gradient-to-r from-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white text-xs font-semibold shadow-md shadow-pink-500/20 transition-all cursor-pointer"
+            className="px-5 py-2 sm:px-6 sm:py-2.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] hover:opacity-95 active:scale-[0.98] text-white text-xs sm:text-sm font-medium shadow-[0_4px_16px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
           >
             {currentInsight.actionType || "Create Reel"}
           </button>

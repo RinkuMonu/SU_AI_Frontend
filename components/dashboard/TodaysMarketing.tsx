@@ -40,8 +40,8 @@ export function TodaysMarketing() {
         const campaigns = campaignsRes?.data ? campaignsRes.data.length : 0;
 
         setData({
-          postsReels: postsReels || 2,
-          enquiries: enquiries || 2,
+          postsReels: postsReels,
+          enquiries: enquiries,
           campaigns,
           loading: false,
         });
@@ -57,7 +57,7 @@ export function TodaysMarketing() {
   return (
     <div className="space-y-3.5">
       <div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+        <h2 className="text-2xl sm:text-3xl font-normal tracking-tight text-white">
           Today&apos;s Marketing
         </h2>
         <p className="text-sm sm:text-base text-slate-300 mt-1">

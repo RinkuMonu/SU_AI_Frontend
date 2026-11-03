@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { userService } from "@/services/user.service";
+import { businessService } from "@/services/business.service";
 import { useSidebar } from "@/components/layout/SidebarContext";
 
 export function Navbar() {
@@ -260,7 +261,16 @@ export function Navbar() {
 
               <div className="hidden sm:flex sm:flex-col sm:items-start text-left">
                 <span className="text-xs sm:text-sm font-semibold leading-tight text-white group-hover:text-purple-300 transition-colors line-clamp-1 max-w-[130px]">
-                  {user?.name || "User xyz"}
+                  {(
+                  (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
+                  (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
+                  user?.business_name ||
+                  user?.businessName ||
+                  (typeof window !== "undefined" && (localStorage.getItem("business_name") || localStorage.getItem("onboarding_business_name"))) ||
+                  user?.name ||
+                  user?.fullName ||
+                  "Member"
+                )}
                 </span>
                 <span className="text-[10px] text-slate-400 leading-tight font-normal mt-0.5">
                   {isBusiness ? "Business Profile" : "Personal Profile"}

@@ -19,6 +19,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { analyticsService } from "@/services/analytics.service";
 import { creditService } from "@/services/credit.service";
+import { businessService } from "@/services/business.service";
 import { AnalyticsData } from "@/types/analytics";
 import { CreditBalance } from "@/types/credits";
 import { AIInsights } from "@/components/ai/AIInsights";
@@ -32,6 +33,7 @@ export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loadingAnalytics, setLoadingAnalytics] = useState(true);
   const [creditBalance, setCreditBalance] = useState<CreditBalance | null>(null);
+  const [businessProfile, setBusinessProfile] = useState<any>(null);
   const [showReportModal, setShowReportModal] = useState(false);
   const [paymentSuccessMsg, setPaymentSuccessMsg] = useState<string | null>(null);
 
@@ -43,6 +45,12 @@ export default function DashboardPage() {
 
     creditService.getCredits()
       .then(setCreditBalance)
+      .catch(() => null);
+
+    businessService.getMyBusiness()
+      .then((biz) => {
+        if (biz) setBusinessProfile(biz);
+      })
       .catch(() => null);
 
     if (typeof window !== "undefined") {
@@ -74,17 +82,19 @@ export default function DashboardPage() {
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
   // Stat values with intelligent fallback to reference designs
-  const postsCount = analytics?.content.posts ?? 14;
-  const reelsCount = analytics?.content.reels ?? 30;
-  const aiGensCount = analytics?.ai_usage.total_generations ?? 12;
+  const postsCount = analytics?.content.posts ?? 0;
+  const reelsCount = analytics?.content.reels ?? 0;
+  const aiGensCount = analytics?.ai_usage.total_generations ?? 0;
   const marketingScore = analytics?.marketing_score.score ?? 60;
 
   return (
-    <div className="relative space-y-8 animate-in fade-in duration-500">
-      {/* Subtle Background Glows without changing color scheme */}
-      <div className="absolute -top-20 -left-20 w-96 h-96 bg-[#7d36fa]/10 rounded-full blur-[140px] pointer-events-none -z-10" />
-      <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] bg-[#be32ff]/10 rounded-full blur-[150px] pointer-events-none -z-10" />
-      <div className="absolute bottom-10 left-1/4 w-80 h-80 bg-[#f0449b]/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+    <div className="relative space-y-8 animate-in fade-in duration-500 overflow-x-hidden max-w-full">
+      {/* Subtle Background Glows contained inside overflow-hidden to prevent scrollbars */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-20 -left-20 w-96 h-96 bg-[#7d36fa]/10 rounded-full blur-[140px]" />
+        <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] bg-[#be32ff]/10 rounded-full blur-[150px]" />
+        <div className="absolute bottom-10 left-1/4 w-80 h-80 bg-[#f0449b]/10 rounded-full blur-[140px]" />
+      </div>
 
       {paymentSuccessMsg && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-2xl flex items-center justify-between shadow-lg animate-in slide-in-from-top-2 duration-300">
@@ -121,7 +131,19 @@ export default function DashboardPage() {
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             {greeting},{" "}
             <span className="bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] bg-clip-text text-transparent font-bold">
-              {user?.name || user?.fullName || "User xyz"}
+              {(
+              (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
+              (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
+              businessProfile?.name ||
+              businessProfile?.business_name ||
+              businessProfile?.businessName ||
+              user?.business_name ||
+              user?.businessName ||
+              (typeof window !== "undefined" && (localStorage.getItem("business_name") || localStorage.getItem("onboarding_business_name"))) ||
+              user?.name ||
+              user?.fullName ||
+              "Member"
+            )}
             </span>
             !
           </h1>
@@ -228,7 +250,7 @@ export default function DashboardPage() {
       {/* Quick Actions with User Attached Images matching Reference Image 2 */}
       <div className="space-y-3.5">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+          <h2 className="text-2xl sm:text-3xl font-normal tracking-tight text-white">
             Quick Actions
           </h2>
           <p className="text-sm sm:text-base text-slate-300 mt-1">
