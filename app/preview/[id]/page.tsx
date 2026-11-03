@@ -1,7 +1,24 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { Globe, ArrowRight, Check, ShoppingBag, Phone, MapPin, MessageSquare } from "lucide-react";
+import { Globe, ArrowRight, Check, ShoppingBag, Phone, MapPin, MessageSquare, ExternalLink } from "lucide-react";
+import { websiteBuilderService, SiteDetailsResponse, WebsiteSection, WebsiteSectionItem } from "@/services/website-builder.service";
+
+const resolveImageUrl = (
+  explicitUrl: string | undefined,
+  contextQuery: string,
+  width = 800,
+  height = 600
+): string => {
+  if (explicitUrl && typeof explicitUrl === "string" && explicitUrl.trim() !== "") {
+    if (!explicitUrl.includes("photo-1551434678-e076c223a692") && !explicitUrl.includes("source.unsplash.com")) {
+      return explicitUrl.trim();
+    }
+  }
+  const cleanContext = (contextQuery || "business storefront").trim();
+  const encoded = encodeURIComponent(cleanContext);
+  return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&nologo=true`;
+};
 
 export default function PreviewWebsite() {
   const params = useParams();
@@ -14,12 +31,11 @@ export default function PreviewWebsite() {
   useEffect(() => {
     async function fetchSite() {
       try {
-        const res = await fetch(`/api/v1/website-builder/site/${siteId}`);
-        if (!res.ok) throw new Error("Failed to fetch site data");
-        const data = await res.json();
+        const data = await websiteBuilderService.getSite(siteId);
         setSiteData(data);
       } catch (e: any) {
-        setError(e.message);
+        console.error("Failed to load site preview", e);
+        setError(e?.response?.data?.detail || e.message || "Failed to load website preview.");
       } finally {
         setLoading(false);
       }
@@ -33,8 +49,8 @@ export default function PreviewWebsite() {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-900">
         <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-14 w-14 border-4 border-brand-purple border-t-transparent"></div>
-          <p className="text-gray-300 font-medium">Loading website preview...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+          <p className="text-gray-300 font-medium text-sm">Loading website preview...</p>
         </div>
       </div>
     );
@@ -42,10 +58,10 @@ export default function PreviewWebsite() {
 
   if (error || !siteData) {
     return (
-      <div className="flex flex-col h-screen w-full items-center justify-center bg-gray-50 text-gray-800">
+      <div className="flex flex-col h-screen w-full items-center justify-center bg-gray-50 text-gray-800 p-6 text-center">
         <Globe size={48} className="text-gray-400 mb-4" />
         <h1 className="text-2xl font-bold mb-2">Website Not Found</h1>
-        <p className="text-gray-500">The website preview you are looking for does not exist or failed to load.</p>
+        <p className="text-gray-500 max-w-md">{error || "The website preview you are looking for does not exist or has expired."}</p>
       </div>
     );
   }
@@ -53,147 +69,223 @@ export default function PreviewWebsite() {
   const pages = siteData.pages || [];
   const activePage = pages.find((p: any) => p.name?.toLowerCase() === activePageName.toLowerCase()) || pages[0] || {};
   const sections = activePage.sections || [];
-  const businessName = siteData.business_name || (siteData.business_id && siteData.business_id !== "None" ? siteData.business_id : "Your Brand");
-
-  const getItemData = (item: any) => {
-    if (typeof item === "object" && item !== null) {
-      return {
-        title: item.title || item.name || "Feature",
-        description: item.description || "",
-        imagePrompt: item.image_prompt || item.title || item.name || ""
-      };
-    }
-    const itemStr = String(item);
-    const parts = itemStr.split(":");
-    if (parts.length > 1) {
-      return {
-        title: parts[0].trim(),
-        description: parts.slice(1).join(":").trim(),
-        imagePrompt: parts[0].trim()
-      };
-    }
-    return {
-      title: itemStr,
-      description: "",
-      imagePrompt: itemStr
-    };
-  };
-
-  const getImageUrl = (prompt: string, idx: number) => {
-    const fullQuery = `${businessName} ${activePageName} ${prompt}`.trim();
-    return `https://image.pollinations.ai/prompt/${encodeURIComponent(fullQuery)}?width=600&height=400&nologo=true`;
-  };
+  const businessName = siteData.business_name || (siteData.business_id && siteData.business_id !== "None" ? siteData.business_id : "My Business");
+  const primaryColor = siteData.theme?.primary || "#4f46e5";
+  const logoUrl = typeof siteData.logo === "string" ? siteData.logo : siteData.logo?.url || null;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-brand-purple selection:text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-purple-600 selection:text-white">
       {/* Header */}
-      <header className="w-full py-5 px-8 bg-white/90 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 flex justify-between items-center shadow-sm">
+      <header className="w-full py-5 px-8 bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 flex justify-between items-center shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white font-extrabold text-lg shadow-md">
-            {businessName.charAt(0).toUpperCase()}
-          </div>
-          <h1 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-brand-purple to-brand-pink bg-clip-text text-transparent">
+          {logoUrl ? (
+            <img src={logoUrl} alt={businessName} className="h-10 w-auto object-contain" />
+          ) : (
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-lg shadow-md"
+              style={{ backgroundColor: primaryColor }}
+            >
+              {businessName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <h1 className="text-2xl font-extrabold tracking-tight text-gray-900">
             {businessName}
           </h1>
         </div>
-        <nav className="hidden md:flex gap-8">
-          {pages.map((p: any, i: number) => (
-            <a 
-              key={i} 
-              href="#" 
-              onClick={(e) => { e.preventDefault(); setActivePageName(p.name || `Page ${i + 1}`); }} 
-              className={`font-semibold text-sm transition-all duration-200 hover:text-brand-purple ${activePageName === (p.name || `Page ${i + 1}`) ? "text-brand-purple border-b-2 border-brand-purple pb-1" : "text-gray-600"}`}
-            >
-              {p.name || `Page ${i + 1}`}
-            </a>
-          ))}
+        <nav className="hidden md:flex items-center gap-8">
+          {pages.map((p: any, i: number) => {
+            const pageName = p.name || `Page ${i + 1}`;
+            const isActive = activePageName.toLowerCase() === pageName.toLowerCase();
+            return (
+              <button
+                key={i}
+                onClick={() => setActivePageName(pageName)}
+                className={`font-semibold text-sm transition-all duration-200 cursor-pointer ${
+                  isActive ? "text-purple-600 border-b-2 border-purple-600 pb-1" : "text-gray-600 hover:text-purple-600"
+                }`}
+              >
+                {pageName}
+              </button>
+            );
+          })}
+          <a
+            href="#contact"
+            className="px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-md transition"
+            style={{ backgroundColor: primaryColor }}
+          >
+            Contact
+          </a>
         </nav>
       </header>
 
       {/* Main Content */}
       <main className="w-full">
         {sections.length > 0 ? (
-          sections.map((section: any, index: number) => {
-            if (section.type === "hero") {
-              const heroBg = `https://image.pollinations.ai/prompt/${encodeURIComponent(businessName + " " + (section.title || "hero banner"))}?width=1200&height=500&nologo=true`;
+          sections.map((section: WebsiteSection, index: number) => {
+            const sectionType = (section.type || "section").toLowerCase();
+            const sTitle = section.title || section.name || "";
+            const sSubtitle = section.subtitle || "";
+            const sDesc = section.description || section.content || "";
+
+            // 1. HERO SECTION
+            if (sectionType === "hero") {
+              const heroQuery = `${businessName} ${sTitle || "hero banner"}`.trim();
+              const heroImg = resolveImageUrl(section.image_url, heroQuery, 1200, 600);
+
               return (
-                <section key={index} className="relative py-28 px-8 overflow-hidden bg-gray-900 text-white flex items-center justify-center min-h-[480px]">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay scale-105 transition-transform duration-1000"
-                    style={{ backgroundImage: `url(${heroBg})` }}
+                <section key={index} className="relative py-28 px-8 overflow-hidden bg-gray-900 text-white flex items-center justify-center min-h-[500px]">
+                  <div
+                    className="absolute inset-0 bg-cover bg-center opacity-40 mix-blend-overlay scale-105"
+                    style={{ backgroundImage: `url(${heroImg})` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-gray-900/90" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-gray-900/90" />
                   <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
                     <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white drop-shadow-lg leading-tight">
-                      {section.title}
+                      {sTitle}
                     </h2>
-                    {section.subtitle && (
+                    {sSubtitle && (
                       <p className="text-lg md:text-2xl text-gray-200 max-w-2xl mx-auto font-light leading-relaxed drop-shadow">
-                        {section.subtitle}
+                        {sSubtitle}
                       </p>
                     )}
-                    {section.cta && (
-                      <div className="pt-4">
-                        <button 
-                          onClick={() => alert(`Action: ${section.cta}`)}
-                          className="px-9 py-4 bg-gradient-to-r from-brand-purple to-brand-pink text-white rounded-full font-bold text-lg hover:shadow-xl hover:shadow-brand-purple/40 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2 mx-auto"
+                    <div className="pt-4 flex justify-center gap-4">
+                      {section.cta ? (
+                        <a
+                          href="#contact"
+                          className="px-9 py-4 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          style={{ backgroundColor: primaryColor }}
                         >
                           {section.cta} <ArrowRight size={20} />
-                        </button>
-                      </div>
-                    )}
+                        </a>
+                      ) : (
+                        <a
+                          href="#contact"
+                          className="px-9 py-4 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          style={{ backgroundColor: primaryColor }}
+                        >
+                          Explore Offerings <ArrowRight size={20} />
+                        </a>
+                      )}
+                    </div>
                   </div>
                 </section>
               );
             }
 
-            return (
-              <section key={index} className={`w-full py-20 px-8 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                <div className="max-w-6xl mx-auto text-center">
-                  {section.title && (
-                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">
-                      {section.title}
-                    </h2>
-                  )}
-                  {section.subtitle && (
-                    <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">
-                      {section.subtitle}
-                    </p>
-                  )}
-
-                  {section.items && section.items.length > 0 && (
+            // 2. PRODUCTS / BOUQUETS / MENU / CATALOG / ITEMS
+            if (
+              sectionType === "products" ||
+              sectionType === "menu" ||
+              sectionType === "bouquets" ||
+              sectionType === "catalog" ||
+              sectionType === "items" ||
+              sectionType === "offerings"
+            ) {
+              const items = section.items || [];
+              return (
+                <section key={index} className="w-full py-20 px-8 bg-gray-50 border-b border-gray-100">
+                  <div className="max-w-6xl mx-auto text-center">
+                    {sTitle && <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">{sTitle}</h2>}
+                    {sSubtitle && <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">{sSubtitle}</p>}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-8">
-                      {section.items.map((rawItem: any, i: number) => {
-                        const item = getItemData(rawItem);
-                        const imgUrl = getImageUrl(item.imagePrompt, i);
+                      ${items.map((item: WebsiteSectionItem, itemIdx: number) => {
+                        const itemTitle = item.title || item.name || `Item ${itemIdx + 1}`;
+                        const itemQuery = `${businessName} ${itemTitle}`.trim();
+                        const itemImg = resolveImageUrl(item.image_url, itemQuery, 600, 450);
 
                         return (
-                          <div 
-                            key={i} 
-                            onClick={() => alert(`Selected: ${item.title}`)}
-                            className="flex flex-col bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer overflow-hidden group"
+                          <div
+                            key={itemIdx}
+                            className="flex flex-col bg-white rounded-2xl shadow-xs border border-gray-100 hover:shadow-xl hover:-translate-y-1 transition duration-300 overflow-hidden"
                           >
-                            <div className="w-full h-52 bg-gray-200 relative overflow-hidden">
-                              <img 
-                                src={imgUrl} 
-                                alt={item.title} 
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                                loading="lazy" 
-                                onError={(e: any) => {
-                                  e.currentTarget.src = `https://source.unsplash.com/featured/600x400/?${encodeURIComponent(businessName + " " + item.title)}`;
-                                }}
-                              />
-                            </div>
-                            <div className="p-6 flex flex-col justify-between flex-1 space-y-3">
-                              <h3 className="font-bold text-gray-900 text-lg group-hover:text-brand-purple transition-colors">
-                                {item.title}
-                              </h3>
-                              {item.description && (
-                                <p className="text-gray-600 text-sm leading-relaxed">
-                                  {item.description}
-                                </p>
+                            <div className="w-full h-52 bg-gray-100 relative overflow-hidden">
+                              <img src={itemImg} alt={itemTitle} className="w-full h-full object-cover" loading="lazy" />
+                              {item.price && (
+                                <span className="absolute top-3 right-3 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow">
+                                  {item.price}
+                                </span>
                               )}
                             </div>
+                            <div className="p-6 flex flex-col justify-between flex-1 space-y-3">
+                              <div>
+                                <h3 className="font-bold text-gray-900 text-lg">{itemTitle}</h3>
+                                {item.description && <p className="text-gray-600 text-sm leading-relaxed mt-1">{item.description}</p>}
+                              </div>
+                              <div className="pt-3 border-t border-gray-50 flex items-center justify-between">
+                                {item.price ? <span className="text-lg font-bold text-purple-600">{item.price}</span> : <span></span>}
+                                <button
+                                  onClick={() => alert(`Inquiry submitted for ${itemTitle}`)}
+                                  className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition"
+                                  style={{ backgroundColor: primaryColor }}
+                                >
+                                  Inquire
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
+            // 3. GALLERY / PORTFOLIO
+            if (sectionType === "gallery" || sectionType === "portfolio") {
+              const items = section.items || [];
+              return (
+                <section key={index} className="w-full py-20 px-8 bg-white border-b border-gray-100">
+                  <div className="max-w-6xl mx-auto text-center">
+                    {sTitle && <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">{sTitle}</h2>}
+                    {sSubtitle && <p className="text-lg text-gray-600 mb-12 max-w-2xl mx-auto">{sSubtitle}</p>}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+                      {items.map((item: WebsiteSectionItem, itemIdx: number) => {
+                        const itemTitle = item.title || item.name || `Photo ${itemIdx + 1}`;
+                        const itemQuery = `${businessName} ${itemTitle}`.trim();
+                        const itemImg = resolveImageUrl(item.image_url, itemQuery, 500, 500);
+
+                        return (
+                          <div key={itemIdx} className="relative group rounded-xl overflow-hidden aspect-square bg-gray-100 shadow-xs">
+                            <img src={itemImg} alt={itemTitle} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300 flex items-end p-3">
+                              <span className="text-white text-xs font-semibold">{itemTitle}</span>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
+            // 4. GENERIC SECTION (Features, Services, About, etc.)
+            const items = section.items || [];
+            return (
+              <section key={index} className={`w-full py-20 px-8 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
+                <div className="max-w-6xl mx-auto text-center">
+                  {sTitle && <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">{sTitle}</h2>}
+                  {sSubtitle && <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">{sSubtitle}</p>}
+                  {sDesc && <p className="text-base text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">{sDesc}</p>}
+
+                  {items.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-8">
+                      {items.map((item: WebsiteSectionItem, i: number) => {
+                        const itemTitle = item.title || item.name || `Feature ${i + 1}`;
+                        const itemDesc = item.description || "";
+                        const itemQuery = `${businessName} ${itemTitle}`.trim();
+                        const itemImg = item.image_url ? resolveImageUrl(item.image_url, itemQuery, 600, 400) : null;
+
+                        return (
+                          <div key={i} className="flex flex-col bg-white rounded-2xl shadow-xs border border-gray-100 p-6 space-y-3">
+                            {itemImg && (
+                              <div className="w-full h-44 rounded-xl overflow-hidden mb-2">
+                                <img src={itemImg} alt={itemTitle} className="w-full h-full object-cover" loading="lazy" />
+                              </div>
+                            )}
+                            <h3 className="font-bold text-gray-900 text-lg">{itemTitle}</h3>
+                            {itemDesc && <p className="text-gray-600 text-sm leading-relaxed">{itemDesc}</p>}
                           </div>
                         );
                       })}
@@ -209,10 +301,10 @@ export default function PreviewWebsite() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-12 bg-gray-900 text-gray-400 text-center border-t border-gray-800">
+      <footer className="w-full py-12 bg-gray-950 text-gray-400 text-center border-t border-gray-800">
         <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="font-extrabold text-white text-xl">{businessName}</div>
-          <p className="text-sm text-gray-400">&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
+          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
         </div>
       </footer>
     </div>
