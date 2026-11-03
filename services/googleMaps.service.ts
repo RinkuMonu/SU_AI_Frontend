@@ -83,8 +83,12 @@ export const googleMapsService = {
           name: "GT Mall Jaipur",
           address: "D-Block, Crystal Court, Jawahar Nagar, Jaipur, Rajasthan 302017",
           rating: 4.5,
-          userRatingCount: 840,
-          photos: [],
+          userRatingCount: 15,
+          photos: [
+            "/images/places/gt_mall_1.jpg",
+            "/images/places/gt_mall_2.jpg",
+            "/images/places/gt_mall_3.jpg",
+          ],
           googleMapsUrl: "https://maps.google.com/?q=GT+Mall+Jaipur",
         },
         {
@@ -135,8 +139,12 @@ export const googleMapsService = {
           name: "GT Mall Jaipur",
           address: "D-Block, Crystal Court, Jawahar Nagar, Jaipur, Rajasthan 302017",
           rating: 4.5,
-          userRatingCount: 840,
-          photos: [],
+          userRatingCount: 15,
+          photos: [
+            "/images/places/gt_mall_1.jpg",
+            "/images/places/gt_mall_2.jpg",
+            "/images/places/gt_mall_3.jpg",
+          ],
           googleMapsUrl: "https://maps.google.com/?q=GT+Mall+Jaipur",
         },
         {
@@ -289,9 +297,13 @@ export const googleMapsService = {
         placeId: `place_${encodeURIComponent(lower)}_1`,
         name: `${title}`,
         address: "D-Block, Crystal Court, Jawahar Nagar, Jaipur, Rajasthan 302017",
-        rating: 4.6,
-        userRatingCount: 184,
-        photos: [],
+        rating: 4.5,
+        userRatingCount: 15,
+        photos: [
+          "/images/places/gt_mall_1.jpg",
+          "/images/places/gt_mall_2.jpg",
+          "/images/places/gt_mall_3.jpg",
+        ],
         googleMapsUrl: `https://maps.google.com/?q=${encodeURIComponent(title)}`,
       },
       {

@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BrandKitRegistrationModal } from "@/components/brand/BrandKitRegistrationModal";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Sparkles,
   ArrowRight,
   ArrowLeft,
+  UserPlus,
   Check,
   CheckCircle2,
   User as UserIcon,
@@ -44,6 +46,8 @@ import {
   ChevronDown,
   ChevronRight,
   Lock,
+  Eye,
+  EyeOff,
   Bell,
   AlertTriangle,
   Shield,
@@ -236,16 +240,6 @@ export const ONLINE_PRESENCE_OPTIONS = [
     iconColor: "text-[#A78BFA]",
     businessType: "Wholesale",
     sellingModel: "Wholesale & Bulk Orders",
-  },
-  {
-    id: "social_media",
-    title: "Social Media Only",
-    desc: "Social profile links, if website doesn't exist",
-    icon: Video,
-    iconBg: "bg-[#442B0F] border border-[#F59E0B]/40",
-    iconColor: "text-[#FBBF24]",
-    businessType: "Social Commerce",
-    sellingModel: "Social Media / Direct Selling",
   },
   {
     id: "none",
@@ -462,7 +456,7 @@ export default function OnboardingPage() {
   const [selectedMapsPlace, setSelectedMapsPlace] = useState<GooglePlaceResult | null>(null);
 
   const [mapsWebsiteUrl, setMapsWebsiteUrl] = useState("");
-  const [mapsCategory, setMapsCategory] = useState("Gift Store & Souvenirs");
+  const [mapsCategory, setMapsCategory] = useState("");
   const [mapsSubCategory, setMapsSubCategory] = useState("");
   const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
   const [categorySearchTerm, setCategorySearchTerm] = useState("");
@@ -508,6 +502,108 @@ export default function OnboardingPage() {
   const [showPlansModal, setShowPlansModal] = useState(false);
 
   // ─── Social Media Only Flow State ───
+  const [isCreateAccountModalOpen, setIsCreateAccountModalOpen] = useState(false);
+  const [createAccountPlatform, setCreateAccountPlatform] = useState<"instagram" | "facebook" | "linkedin">("facebook");
+  const [socialAuthModalMode, setSocialAuthModalMode] = useState<"login" | "create">("login");
+  const [createAccountHandle, setCreateAccountHandle] = useState("");
+  const [socialAuthPassword, setSocialAuthPassword] = useState("");
+  const [showSocialAuthPassword, setShowSocialAuthPassword] = useState(false);
+  const [socialAuthFullName, setSocialAuthFullName] = useState("");
+  const [socialAuthEmail, setSocialAuthEmail] = useState("");
+  const [socialAuthError, setSocialAuthError] = useState("");
+  const [isSubmittingSocialAuth, setIsSubmittingSocialAuth] = useState(false);
+
+  const [connectedSocialAccounts, setConnectedSocialAccounts] = useState<{ [key: string]: boolean }>({
+    instagram: true,
+    facebook: false,
+    linkedin: false,
+  });
+
+  const handleOpenSocialAuth = (platform: "instagram" | "facebook" | "linkedin", mode: "login" | "create" = "login") => {
+    setCreateAccountPlatform(platform);
+    setSocialAuthModalMode(mode);
+    setSocialAuthError("");
+    setSocialAuthPassword("");
+    setShowSocialAuthPassword(false);
+
+    const existingHandle = socialHandles?.[platform] || "";
+    const suggested = businessProfile.business_name
+      ? `@${businessProfile.business_name.toLowerCase().replace(/\s+/g, "")}`
+      : "";
+    setCreateAccountHandle(existingHandle || suggested);
+    setSocialAuthFullName(businessProfile.business_name || "");
+    setSocialAuthEmail(user?.email || "");
+    setIsCreateAccountModalOpen(true);
+  };
+
+  const handleToggleConnectAccount = (platformKey: "instagram" | "facebook" | "linkedin") => {
+    if (connectedSocialAccounts[platformKey]) {
+      // Toggle off / disconnect
+      setConnectedSocialAccounts((prev) => {
+        const next = { ...prev, [platformKey]: false };
+        const connectedList = Object.keys(next).filter((k) => next[k]);
+        setSelectedSocialPlatforms(connectedList);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("business_social_platforms", JSON.stringify(connectedList));
+          sessionStorage.setItem("connected_social_accounts", JSON.stringify(next));
+        }
+        return next;
+      });
+    } else {
+      // Open login modal for this platform
+      handleOpenSocialAuth(platformKey, "login");
+    }
+  };
+
+  const handleSubmitSocialAuth = async () => {
+    setSocialAuthError("");
+    const handle = createAccountHandle.trim();
+    if (!handle) {
+      setSocialAuthError("Please enter your account username or email.");
+      return;
+    }
+    if (!socialAuthPassword.trim()) {
+      setSocialAuthError("Please enter your account password to connect.");
+      return;
+    }
+
+    setIsSubmittingSocialAuth(true);
+
+    try {
+      const formattedHandle = handle.startsWith("@") || handle.includes("@") || handle.includes("/")
+        ? handle
+        : `@${handle}`;
+
+      setSocialHandles((prev) => {
+        const next = { ...prev, [createAccountPlatform]: formattedHandle };
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("business_social_handles", JSON.stringify(next));
+          if (createAccountPlatform === "instagram") {
+            localStorage.setItem("instagram_username", formattedHandle.replace(/^@/, "").trim());
+          }
+        }
+        return next;
+      });
+
+      setConnectedSocialAccounts((prev) => {
+        const next = { ...prev, [createAccountPlatform]: true };
+        const connectedList = Object.keys(next).filter((k) => next[k]);
+        setSelectedSocialPlatforms(connectedList);
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("business_social_platforms", JSON.stringify(connectedList));
+          sessionStorage.setItem("connected_social_accounts", JSON.stringify(next));
+        }
+        return next;
+      });
+
+      setIsCreateAccountModalOpen(false);
+    } catch (err: any) {
+      setSocialAuthError(extractErrorMessage(err, "Failed to connect account. Please try again."));
+    } finally {
+      setIsSubmittingSocialAuth(false);
+    }
+  };
+
   const [selectedSocialPlatforms, setSelectedSocialPlatforms] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -1041,6 +1137,18 @@ export default function OnboardingPage() {
         selling_model: "Other Business Model",
       }));
     }
+
+    // Save selection in background
+    OnboardingService.saveOnlinePresence(presenceId, {
+      business_type: match?.businessType || (presenceId === "other" ? "Other" : businessProfile.business_type),
+      selling_model: match?.sellingModel || (presenceId === "other" ? "Other Business Model" : businessProfile.selling_model),
+    }).catch(() => {});
+
+    // Immediately open clicked screen: index 3 is always the dedicated first screen of chosen flow
+    setCurrentStep(3);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("onboarding_step", "3");
+    }
   };
 
   const handleGetStarted = async () => {
@@ -1184,46 +1292,10 @@ export default function OnboardingPage() {
         }
       );
 
-      // Route directly to the presence-specific step
-      if (selectedOnlinePresence === "website") {
-        const idx = activeSteps.findIndex((s) => s.id === "website_url");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (selectedOnlinePresence === "google_maps") {
-        const idx = activeSteps.findIndex((s) => s.id === "maps_search");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
-        const idx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
-        const idx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (selectedOnlinePresence === "social_media") {
-        const idx = activeSteps.findIndex((s) => s.id === "social_platforms");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else if (
-        selectedOnlinePresence === "none" ||
-        selectedOnlinePresence === "no_online_presence" ||
-        selectedOnlinePresence === "no_website_yet"
-      ) {
-        const idx = activeSteps.findIndex((s) => s.id === "none_details");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
-      } else {
-        const idx = activeSteps.findIndex((s) => s.id === "identity");
-        const target = idx !== -1 ? idx : 3;
-        setCurrentStep(target);
-        if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
+      // Route directly to the presence-specific step (index 3 is always the dedicated first step)
+      setCurrentStep(3);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("onboarding_step", "3");
       }
     } catch (err: any) {
       console.error("Failed to save online presence:", err);
@@ -1269,51 +1341,32 @@ export default function OnboardingPage() {
   };
 
   const handleSocialPlatformsContinue = async () => {
-    if (selectedSocialPlatforms.length === 0) {
-      setError("Please select at least one social media platform.");
-      return;
-    }
-    const hasAtLeastOneHandle = selectedSocialPlatforms.some(
-      (p) => socialHandles[p] && socialHandles[p].trim().length > 0
-    );
-    if (!hasAtLeastOneHandle) {
-      setError("Please enter your username or page handle for at least one selected platform.");
-      return;
-    }
     setError("");
     setIsSavingSocialPlatforms(true);
     try {
+      const connectedList = Object.keys(connectedSocialAccounts).filter((k) => connectedSocialAccounts[k]);
       if (typeof window !== "undefined") {
-        sessionStorage.setItem("business_social_platforms", JSON.stringify(selectedSocialPlatforms));
-        sessionStorage.setItem("business_social_handles", JSON.stringify(socialHandles));
-      }
-      if (!businessProfile.business_name.trim()) {
-        const firstHandle = (socialHandles.instagram || Object.values(socialHandles).find((v) => v && v.trim())) || "";
-        const cleanName = firstHandle.replace(/^@/, "").replace(/[^a-zA-Z0-9 ]/g, " ").trim();
-        if (cleanName) {
-          const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-          setBusinessProfile((prev) => ({ ...prev, business_name: capitalized }));
-          setBusinessDetails((prev) => ({ ...prev, business_name: capitalized }));
-        }
+        sessionStorage.setItem("business_social_platforms", JSON.stringify(connectedList));
+        sessionStorage.setItem("connected_social_accounts", JSON.stringify(connectedSocialAccounts));
       }
       await OnboardingService.saveOnlinePresence("social_media", {
         business_type: businessProfile.business_type || "Social Commerce",
         selling_model: businessProfile.selling_model || "Social Media / Direct Selling",
-        selected_platforms: selectedSocialPlatforms,
-        social_handles: socialHandles,
-        instagram_handle: socialHandles.instagram,
-        facebook_handle: socialHandles.facebook,
-        youtube_handle: socialHandles.youtube,
-      });
-      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-      const target = identIdx !== -1 ? identIdx : currentStep + 1;
+        selected_platforms: connectedList,
+        connected_accounts: connectedList,
+      }).catch(() => {});
+
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
       }
     } catch (err: any) {
-      console.error("Failed to save social platforms:", err);
-      setError(err?.message || "Failed to save social platforms. Please try again.");
+      console.warn("Non-blocking error saving social platforms:", err);
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
+      setCurrentStep(target);
     } finally {
       setIsSavingSocialPlatforms(false);
     }
@@ -1321,8 +1374,8 @@ export default function OnboardingPage() {
 
   const handleSkipSocialPlatforms = () => {
     setError("");
-    const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-    const target = identIdx !== -1 ? identIdx : currentStep + 1;
+    const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+    const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
     setCurrentStep(target);
     if (typeof window !== "undefined") {
       sessionStorage.setItem("onboarding_step", String(target));
@@ -2028,7 +2081,18 @@ export default function OnboardingPage() {
   };
 
   const handleSelectMapsShop = (place: GooglePlaceResult) => {
-    setSelectedMapsPlace(place);
+    const photosToUse = place.photos && place.photos.length > 0
+      ? place.photos
+      : [
+          "/images/places/gt_mall_1.jpg",
+          "/images/places/gt_mall_2.jpg",
+          "/images/places/gt_mall_3.jpg",
+        ];
+    const placeWithPhotos = {
+      ...place,
+      photos: photosToUse,
+    };
+    setSelectedMapsPlace(placeWithPhotos);
     setMapsSearchQuery(place.name);
     setMapsSearchError(null);
 
@@ -2045,10 +2109,8 @@ export default function OnboardingPage() {
       setMapsWebsiteUrl(place.website);
     }
 
-    if (place.photos && place.photos.length > 0) {
-      setMapsPhotos(place.photos);
-      setSelectedMapsPhotos(place.photos.slice(0, 10));
-    }
+    setMapsPhotos(photosToUse);
+    setSelectedMapsPhotos(photosToUse.slice(0, 10));
 
     // Try detecting category from place types or business name
     const matchedCat = detectCategoryFromTypes(place.types, place.name);
@@ -2610,8 +2672,8 @@ export default function OnboardingPage() {
         skip_website: true,
       });
 
-      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-      const target = identIdx !== -1 ? identIdx : 5;
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
@@ -2619,8 +2681,8 @@ export default function OnboardingPage() {
     } catch (err: any) {
       console.error("Failed to skip website:", err);
       setError(extractErrorMessage(err, "Failed to skip website. Please retry."));
-      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-      setCurrentStep(identIdx !== -1 ? identIdx : 5);
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      setCurrentStep(firstThingIdx !== -1 ? firstThingIdx : currentStep + 1);
     } finally {
       setIsSavingMarketplace(false);
     }
@@ -2816,8 +2878,8 @@ export default function OnboardingPage() {
         skip_website: true,
       });
 
-      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-      const target = identIdx !== -1 ? identIdx : 5;
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      const target = firstThingIdx !== -1 ? firstThingIdx : currentStep + 1;
       setCurrentStep(target);
       if (typeof window !== "undefined") {
         sessionStorage.setItem("onboarding_step", String(target));
@@ -2825,8 +2887,8 @@ export default function OnboardingPage() {
     } catch (err: any) {
       console.error("Failed to skip wholesale website:", err);
       setError(extractErrorMessage(err, "Failed to skip website. Please retry."));
-      const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-      setCurrentStep(identIdx !== -1 ? identIdx : 5);
+      const firstThingIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+      setCurrentStep(firstThingIdx !== -1 ? firstThingIdx : currentStep + 1);
     } finally {
       setIsSavingB2b(false);
     }
@@ -3364,7 +3426,7 @@ export default function OnboardingPage() {
             { id: "marketplace_platforms", title: "Marketplaces", desc: "Where you sell" },
             { id: "marketplace_website", title: "Website", desc: "Storefront link" },
             ...(marketplaceSkipWebsite
-              ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+              ? []
               : [
                 { id: "website_reading", title: "Reading Website", desc: "AI audit" },
                 { id: "business_details", title: "Business Details", desc: "Is this your business?" },
@@ -3379,7 +3441,7 @@ export default function OnboardingPage() {
               { id: "b2b_platforms", title: "B2B Channels", desc: "Wholesale platforms" },
               { id: "b2b_website", title: "Storefront", desc: "Storefront link" },
               ...(b2bSkipWebsite
-                ? [{ id: "identity", title: "Business Identity", desc: "Name & category" }]
+                ? []
                 : [
                   { id: "website_reading", title: "Reading Website", desc: "AI audit" },
                   { id: "business_details", title: "Business Details", desc: "Is this your business?" },
@@ -3389,17 +3451,14 @@ export default function OnboardingPage() {
             ]
             : selectedOnlinePresence === "social_media"
               ? [
-                { id: "social_platforms", title: "Social Profiles", desc: "Select platforms & handles" },
-                { id: "identity", title: "Business Identity", desc: "Name & category" },
+                { id: "social_platforms", title: "Social Profiles", desc: "Connect social media" },
               ]
               : selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence"
                 ? [
                   { id: "none_details", title: "Business Basics", desc: "Name & products" },
                   { id: "none_brand_kit", title: "Brand Kit", desc: "Colors, font & voice" },
                 ]
-                : [
-                  { id: "identity", title: "Business Identity", desc: "Name & category" },
-                ]),
+                : []),
     { id: "first_thing", title: "First Creation", desc: "Make your first thing" },
     { id: "post_maker_pick", title: "Pick Photos", desc: "Select post photos" },
     { id: "post_maker_ready", title: "Posts Ready", desc: "Review your output" },
@@ -3416,6 +3475,68 @@ export default function OnboardingPage() {
         ? influencerSteps
         : userSteps;
   const currentStepObj = activeSteps[currentStep] || activeSteps[0];
+
+  // Lock body/html scroll on single-screen steps to completely eliminate double scrollbars
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const noScrollSteps = [
+      "business_details",
+      "business_details_2",
+      "brand_preferences",
+      "brand_services",
+      "presence",
+      "get_started",
+      "maps_details",
+      "maps_website",
+      "website_connect",
+      "website_url",
+    ];
+    if (currentStepObj && noScrollSteps.includes(currentStepObj.id)) {
+      document.documentElement.style.overflow = "hidden";
+      document.documentElement.style.height = "100%";
+      document.body.style.overflow = "hidden";
+      document.body.style.height = "100%";
+    } else {
+      document.documentElement.style.overflow = "auto";
+      document.documentElement.style.height = "auto";
+      document.body.style.overflow = "auto";
+      document.body.style.height = "auto";
+    }
+    return () => {
+      document.documentElement.style.overflow = "";
+      document.documentElement.style.height = "";
+      document.body.style.overflow = "";
+      document.body.style.height = "";
+    };
+  }, [currentStepObj?.id]);
+
+  // Safeguard: Ensure user is never stranded on a legacy identity screen
+  useEffect(() => {
+    if (accountType === "business" && currentStepObj && (currentStepObj.id as string) === "identity") {
+      if (selectedOnlinePresence === "social_media") {
+        const idx = activeSteps.findIndex((s) => s.id === "social_platforms");
+        if (idx !== -1) setCurrentStep(idx);
+      } else if (selectedOnlinePresence === "google_maps") {
+        const idx = activeSteps.findIndex((s) => s.id === "maps_search");
+        if (idx !== -1) setCurrentStep(idx);
+      } else if (selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence") {
+        const idx = activeSteps.findIndex((s) => s.id === "none_details");
+        if (idx !== -1) setCurrentStep(idx);
+      } else if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
+        const idx = activeSteps.findIndex((s) => s.id === "marketplace_platforms");
+        if (idx !== -1) setCurrentStep(idx);
+      } else if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
+        const idx = activeSteps.findIndex((s) => s.id === "b2b_platforms");
+        if (idx !== -1) setCurrentStep(idx);
+      } else if (selectedOnlinePresence === "website") {
+        const idx = activeSteps.findIndex((s) => s.id === "website_url");
+        if (idx !== -1) setCurrentStep(idx);
+      } else {
+        const pIdx = activeSteps.findIndex((s) => s.id === "presence");
+        if (pIdx !== -1) setCurrentStep(pIdx);
+      }
+    }
+  }, [currentStepObj?.id, selectedOnlinePresence, activeSteps, accountType]);
 
   // Dynamic website photos fetcher when entering website_photos step
   useEffect(() => {
@@ -3515,10 +3636,6 @@ export default function OnboardingPage() {
           return false;
         }
       } else if (stepId === "social_platforms") {
-        if (selectedSocialPlatforms.length === 0) {
-          setError("Please select at least one social media platform.");
-          return false;
-        }
         return true;
       } else if (stepId === "website_url") {
         if (!isValidWebsiteUrl(websiteUrl)) {
@@ -3713,8 +3830,8 @@ export default function OnboardingPage() {
       if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
     } else if (selectedOnlinePresence === "marketplace" || selectedOnlinePresence === "marketplace_seller") {
       if (marketplaceSkipWebsite) {
-        const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-        const target = identIdx !== -1 ? identIdx : currentStep - 1;
+        const platIdx = activeSteps.findIndex((s) => s.id === "marketplace_website");
+        const target = platIdx !== -1 ? platIdx : currentStep - 1;
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       } else {
@@ -3725,8 +3842,8 @@ export default function OnboardingPage() {
       }
     } else if (selectedOnlinePresence === "b2b" || selectedOnlinePresence === "wholesale_b2b") {
       if (b2bSkipWebsite) {
-        const identIdx = activeSteps.findIndex((s) => s.id === "identity");
-        const target = identIdx !== -1 ? identIdx : currentStep - 1;
+        const platIdx = activeSteps.findIndex((s) => s.id === "b2b_website");
+        const target = platIdx !== -1 ? platIdx : currentStep - 1;
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       } else {
@@ -3735,6 +3852,11 @@ export default function OnboardingPage() {
         setCurrentStep(target);
         if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
       }
+    } else if (selectedOnlinePresence === "social_media") {
+      const sIdx = activeSteps.findIndex((s) => s.id === "social_platforms");
+      const target = sIdx !== -1 ? sIdx : 3;
+      setCurrentStep(target);
+      if (typeof window !== "undefined") sessionStorage.setItem("onboarding_step", String(target));
     } else if (selectedOnlinePresence === "none" || selectedOnlinePresence === "no_online_presence") {
       const brandKitIdx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
       const target = brandKitIdx !== -1 ? brandKitIdx : currentStep - 1;
@@ -4540,9 +4662,29 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div className={`${currentStepObj.id === "get_started" ? "h-screen h-[100dvh] max-h-screen overflow-hidden p-0" : "min-h-screen py-4 sm:py-6 px-4 sm:px-6 overflow-x-clip"} bg-[#081226] text-[#ededf2] flex flex-col justify-between relative selection:bg-[#be32ff]/30`}>
+    <div className={`${
+      currentStepObj.id === "get_started"
+        ? "h-screen h-[100dvh] max-h-screen overflow-hidden p-0"
+        : [
+            "business_details",
+            "business_details_2",
+            "brand_preferences",
+            "brand_services",
+            "presence",
+            "maps_details",
+            "maps_website",
+            "website_connect",
+            "website_url",
+          ].includes(currentStepObj.id)
+        ? "h-screen h-[100dvh] max-h-screen overflow-hidden py-1.5 sm:py-2 px-3 sm:px-6 select-none"
+        : ["website_photos", "maps_photos", "photos"].includes(currentStepObj.id)
+        ? "min-h-screen py-4 sm:py-6 px-3 sm:px-6 overflow-y-auto overflow-x-hidden"
+        : "min-h-screen py-2 sm:py-3 lg:py-2.5 px-3 sm:px-6 overflow-y-auto overflow-x-hidden"
+    } bg-[#081226] text-[#ededf2] flex flex-col justify-between relative selection:bg-[#be32ff]/30 ${
+      ["website_photos", "maps_photos", "photos"].includes(currentStepObj.id) ? "overflow-y-auto" : "overflow-hidden"
+    }`}>
       {/* Background ambient lighting matching DhandaGrow dark navy & gradient accent theme (hidden on get_started & business_services for exact #081226 background) */}
-      {!["get_started", "business_services", "presence", "website_url", "analyzing_site", "photos", "website_photos", "first_thing", "post_maker_pick", "post_maker_ready"].includes(currentStepObj.id) && (
+      {!["get_started", "business_services", "presence", "website_url", "analyzing_site", "photos", "website_photos", "first_thing", "post_maker_pick", "post_maker_ready", "none_details", "none_brand_kit"].includes(currentStepObj.id) && (
         <>
           <div className="absolute -top-32 -left-32 w-[28rem] h-[28rem] bg-gradient-to-br from-[#fc9a5d]/20 via-[#f0449b]/15 to-transparent rounded-full blur-[140px] pointer-events-none" />
           <div className="absolute top-1/3 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#be32ff]/20 via-[#7d36fa]/10 to-transparent rounded-full blur-[160px] pointer-events-none" />
@@ -4555,37 +4697,31 @@ export default function OnboardingPage() {
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
           {/* Bottom Left Sunset Gradient Wave (Exact Figma Image 1 Vector 7: Fill #FC9A5D -> #BE32FF 18%, Border 2px #FC9A5D -> #7D36FA 68%) */}
           <svg
-            className="absolute bottom-0 left-0 w-[48vw] min-w-[340px] max-w-[540px] h-[32vh] min-h-[200px] max-h-[280px]"
-            viewBox="0 0 380 216"
+            className="absolute bottom-0 left-0 w-[55vw] min-w-[380px] max-w-[700px] h-[36vh] min-h-[220px] max-h-[366px]"
+            viewBox="0 0 1033 366"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             preserveAspectRatio="none"
           >
             <defs>
-              {/* Warm Sunset Wave: More Orange Presence, Reduced Cold Blue */}
-              <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="70%" y2="100%">
-                <stop offset="0%" stopColor="#FFA266" stopOpacity="1" />
-                <stop offset="20%" stopColor="#FC9A5D" stopOpacity="1" />
-                <stop offset="45%" stopColor="#FA6E59" stopOpacity="0.95" />
-                <stop offset="70%" stopColor="#B42EF5" stopOpacity="0.92" />
-                <stop offset="90%" stopColor="#3E1568" stopOpacity="0.95" />
-                <stop offset="100%" stopColor="#150E33" stopOpacity="0.98" />
+              {/* Exact Figma Vector 7 Colors: Linear Gradient #FC9A5D -> #BE32FF 18% */}
+              <linearGradient id="waveSunsetOnboarding" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#FC9A5D" stopOpacity="1" />
+                <stop offset="100%" stopColor="#BE32FF" stopOpacity="0.18" />
               </linearGradient>
-              {/* Border stroke with stronger orange lead */}
+              {/* Exact Figma Vector 7 Borders: 2px Linear Gradient #FC9A5D -> #7D36FA 68% */}
               <linearGradient id="waveBorderSunset" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#FFA266" />
-                <stop offset="40%" stopColor="#FC9A5D" />
-                <stop offset="75%" stopColor="#BE32FF" />
-                <stop offset="100%" stopColor="#8A3BFA" stopOpacity="0.2" />
+                <stop offset="0%" stopColor="#FC9A5D" stopOpacity="1" />
+                <stop offset="100%" stopColor="#7D36FA" stopOpacity="0.68" />
               </linearGradient>
             </defs>
             <path
-              d="M 0 0 C 130 46, 260 136, 380 216 L 0 216 Z"
+              d="M 0 0 C 353 78, 706 230, 1033 366 L 0 366 Z"
               fill="url(#waveSunsetOnboarding)"
             />
             {/* 2px stroke matching Figma Vector 7 Border */}
             <path
-              d="M 0 0 C 130 46, 260 136, 380 216"
+              d="M 0 0 C 353 78, 706 230, 1033 366"
               stroke="url(#waveBorderSunset)"
               strokeWidth="2"
               fill="none"
@@ -4670,9 +4806,10 @@ export default function OnboardingPage() {
               id="get-started-btn"
               onClick={handleGetStarted}
               disabled={isSavingGetStarted}
-              className="w-full max-w-[280px] sm:max-w-[320px] h-11 sm:h-12 rounded-full text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-[#FC9A5D]/25 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mx-auto px-5"
+              className="w-full max-w-[290px] sm:max-w-[340px] h-11 sm:h-12 rounded-full text-white font-medium text-sm sm:text-base flex items-center justify-center gap-2 shadow-xl shadow-[#be32ff]/25 hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed mx-auto px-6"
               style={{
-                background: "linear-gradient(90deg, #8B3BFA 0%, #BE32FF 20%, #FA6252 46%, #FC9A5D 75%, #FFA768 100%)"
+                background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 66%, #fc9a5d 100%)",
+                boxShadow: "0 4px 25px rgba(190, 50, 255, 0.35)",
               }}
             >
               {isSavingGetStarted ? (
@@ -4836,10 +4973,10 @@ export default function OnboardingPage() {
           SCREEN 3: WHERE DOES YOUR BUSINESS LIVE ONLINE? (Designer Screenshot 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "presence" && (
-        <div className="w-full max-w-4xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto pt-1 sm:pt-2 pb-2 flex flex-col justify-start animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
             {/* Top Bar: Back button + Long Gradient Progress Bar (Image 5) */}
-            <div className="flex items-center w-full mb-6">
+            <div className="flex items-center w-full mb-3 sm:mb-4">
               <button
                 type="button"
                 onClick={handlePresenceBack}
@@ -4857,21 +4994,21 @@ export default function OnboardingPage() {
             </div>
 
             {/* Heading & Subtitle Area (Image 5) */}
-            <div className="mb-6 text-left">
-              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
+            <div className="mb-3 sm:mb-4 text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
                 What does your{" "}
                 <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                   business
                 </span>{" "}
                 live online?
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-normal">
+              <p className="text-sm sm:text-base text-slate-300 mt-1 font-normal">
                 Choose how you want your business to establish and grow its online presence
               </p>
             </div>
 
-            {/* 6 Presence Cards (2 Columns x 3 Rows Grid - Exact Image 5) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 my-3">
+            {/* 5 Presence Cards (Symmetric 5-card layout with centered 5th card of identical width) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5 my-2 sm:my-3">
               {ONLINE_PRESENCE_OPTIONS.map((opt) => {
                 const isSelected =
                   selectedOnlinePresence === opt.id ||
@@ -4879,28 +5016,29 @@ export default function OnboardingPage() {
                   (opt.id === "b2b" && selectedOnlinePresence === "wholesale_b2b") ||
                   (opt.id === "none" && selectedOnlinePresence === "no_online_presence");
                 const IconComp = opt.icon;
+                const isNone = opt.id === "none";
                 return (
                   <div
                     key={opt.id}
                     onClick={() => handleSelectPresence(opt.id)}
-                    className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 min-h-[96px] sm:min-h-[105px] ${isSelected
+                    className={`p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer relative overflow-hidden flex items-start gap-3.5 min-h-[82px] sm:min-h-[88px] ${isNone ? "md:col-span-2 md:w-[calc(50%-0.4375rem)] md:mx-auto w-full" : ""} ${isSelected
                         ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
                         : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                       }`}
                   >
-                    <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 mt-0.5 ${opt.iconBg || "bg-white/10"}`}>
-                      <IconComp className={`w-5.5 h-5.5 ${opt.iconColor || "text-white"}`} fill="currentColor" fillOpacity={0.25} />
+                    <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center shrink-0 mt-0.5 ${opt.iconBg || "bg-white/10"}`}>
+                      <IconComp className={`w-5 h-5 sm:w-5.5 sm:h-5.5 ${opt.iconColor || "text-white"}`} fill="currentColor" fillOpacity={0.25} />
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-sm sm:text-base font-normal text-white tracking-tight">
+                        <h3 className="text-base sm:text-lg font-medium text-white tracking-tight">
                           {opt.title}
                         </h3>
                       </div>
 
                       {opt.desc && (
-                        <p className="text-xs text-slate-400 mt-0.5 leading-relaxed font-normal">
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1 leading-tight font-normal line-clamp-1">
                           {opt.desc}
                         </p>
                       )}
@@ -4910,7 +5048,7 @@ export default function OnboardingPage() {
                           <img
                             src={opt.logos}
                             alt={opt.logosAlt}
-                            className="h-6 sm:h-7 w-auto object-contain select-none"
+                            className="h-5.5 sm:h-6 w-auto object-contain select-none"
                           />
                         </div>
                       )}
@@ -4921,11 +5059,11 @@ export default function OnboardingPage() {
             </div>
 
             {/* None of these - something else (Image 5) */}
-            <div className="text-center pt-3 pb-1">
+            <div className="text-center pt-2 pb-0.5">
               <button
                 type="button"
                 onClick={() => handleSelectPresence("other")}
-                className={`text-xs sm:text-sm transition-all cursor-pointer ${selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
+                className={`text-sm sm:text-base transition-all cursor-pointer ${selectedOnlinePresence === "other" || selectedOnlinePresence === "something_else"
                     ? "text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] font-bold underline underline-offset-4"
                     : "text-slate-400 hover:text-white"
                   }`}
@@ -4936,19 +5074,19 @@ export default function OnboardingPage() {
 
             {/* Error Notice */}
             {error && (
-              <div className="mt-3 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+              <div className="mt-2 p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                 <span className="font-semibold text-red-400">Notice:</span> {error}
               </div>
             )}
           </div>
 
-          {/* Centered Continue Button (Image 5) */}
-          <div className="pt-6 pb-4 flex justify-center">
+          {/* Centered Continue Button (Exact Image 2 Alignment) */}
+          <div className="pt-4 sm:pt-6 pb-2 flex flex-col items-center">
             <button
               type="button"
               onClick={handlePresenceContinue}
               disabled={!selectedOnlinePresence || isSavingPresence}
-              className={`w-full max-w-sm h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#be32ff]/25 ${selectedOnlinePresence && !isSavingPresence
+              className={`w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#be32ff]/25 ${selectedOnlinePresence && !isSavingPresence
                   ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
                   : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
                 }`}
@@ -4983,22 +5121,22 @@ export default function OnboardingPage() {
       </svg>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN: SOCIAL MEDIA ONLY (social_platforms)
+          SCREEN: CONNECT YOUR SOCIAL MEDIA ACCOUNTS (Exact Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "social_platforms" && (
-        <div className="w-full max-w-md mx-auto my-auto py-2 flex flex-col justify-between min-h-[500px] sm:min-h-[560px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-4">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 sm:py-4 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-8">
           <div>
-            {/* Top Header: Back button + Progress bar (~35%) */}
-            <div className="flex items-center gap-3 w-full mb-4">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~35%) */}
+            <div className="flex items-center gap-3 w-full mb-4 sm:mb-6">
               <button
                 type="button"
                 onClick={handleSocialPlatformsBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "35%" }}
@@ -5006,180 +5144,555 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading */}
-            <div className="mb-4">
-              <span className="text-[10px] font-bold text-neutral-400 tracking-wider uppercase block mb-1">
-                SOCIAL MEDIA PRESENCE
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Where is your business active on{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  Social Media?
+            {/* Heading & Subtitle (Exact Image 2) */}
+            <div className="mb-6 sm:mb-8 text-left">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Connect your{" "}
+                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                  social media accounts
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light mt-1.5 leading-relaxed">
-                Select your active channels and enter your handle so AI can tailor content to your brand.
+              <p className="text-xs sm:text-sm text-slate-400 mt-1.5 font-normal">
+                Link your social media accounts to create, schedule and manage content - all in one place.
               </p>
             </div>
 
-            {/* Platform Selection Chips / Grid */}
-            <div className="mb-4">
-              <label className="text-xs font-semibold text-neutral-300 block mb-2">
-                1. Select your active platforms:
-              </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {SOCIAL_PLATFORM_OPTIONS.map((plat) => {
-                  const isSelected = selectedSocialPlatforms.includes(plat.id);
-                  return (
-                    <button
-                      key={plat.id}
-                      type="button"
-                      onClick={() => handleToggleSocialPlatform(plat.id)}
-                      className={`p-2.5 rounded-xl border text-left transition-all duration-200 cursor-pointer flex items-center gap-2.5 relative select-none ${isSelected
-                          ? "bg-gradient-to-r from-[#201735]/95 to-[#281b3d]/95 border-[#BE32FF] shadow-[0_0_15px_rgba(190,50,255,0.25)] ring-1 ring-[#BE32FF]/50"
-                          : "bg-white/[0.04] border-white/10 hover:border-white/20 hover:bg-white/[0.08]"
-                        }`}
-                    >
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 overflow-hidden shadow-sm bg-black/40">
-                        {plat.renderIcon("w-4 h-4")}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-white truncate">
-                          {plat.name}
-                        </p>
-                        <span className="text-[10px] text-neutral-400 truncate block">
-                          {isSelected ? "Selected" : "Tap to add"}
-                        </span>
-                      </div>
-                      {isSelected && (
-                        <div className="w-4 h-4 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] flex items-center justify-center shrink-0">
-                          <Check className="w-2.5 h-2.5 text-white stroke-[3]" />
-                        </div>
-                      )}
-                    </button>
-                  );
-                })}
+            {/* Accounts Card List */}
+            <div className="w-full max-w-2xl sm:max-w-3xl mx-auto rounded-2xl bg-[#0e162b]/90 border border-slate-800/80 divide-y divide-slate-800/80 overflow-hidden shadow-xl">
+              {/* Row 1: Instagram */}
+              <div
+                onClick={() => handleOpenSocialAuth("instagram", "login")}
+                className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.04] cursor-pointer group"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl overflow-hidden shrink-0 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center">
+                    <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                      <defs>
+                        <radialGradient id="igOfficialGradRow" cx="20%" cy="115%" r="135%">
+                          <stop offset="0%" stopColor="#fdf497" />
+                          <stop offset="5%" stopColor="#fdf497" />
+                          <stop offset="45%" stopColor="#fd5949" />
+                          <stop offset="60%" stopColor="#d6249f" />
+                          <stop offset="90%" stopColor="#285AEB" />
+                        </radialGradient>
+                      </defs>
+                      <rect width="44" height="44" rx="11" fill="url(#igOfficialGradRow)" />
+                      <rect x="9.5" y="9.5" width="25" height="25" rx="7" stroke="#ffffff" strokeWidth="2.8" fill="none" />
+                      <circle cx="22" cy="22" r="6.2" stroke="#ffffff" strokeWidth="2.8" fill="none" />
+                      <circle cx="29.8" cy="14.2" r="1.6" fill="#ffffff" />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="font-normal text-white text-base sm:text-lg block">Instagram</span>
+                    {socialHandles.instagram && (
+                      <span className="text-[11px] text-slate-400 font-mono block">@{socialHandles.instagram.replace(/^@/, '')}</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleConnectAccount("instagram");
+                  }}
+                  className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
+                    connectedSocialAccounts.instagram
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
+                  }`}
+                  style={connectedSocialAccounts.instagram ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
+                >
+                  {connectedSocialAccounts.instagram ? "Connected" : "Connect"}
+                </button>
+              </div>
+
+              {/* Row 2: Facebook */}
+              <div
+                onClick={() => handleOpenSocialAuth("facebook", "login")}
+                className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.04] cursor-pointer group"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden shrink-0 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center">
+                    <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                      <circle cx="22" cy="22" r="22" fill="#1877F2" />
+                      <path
+                        d="M29.5 22.8H24.5V38H18.2V22.8H14.8V17.5H18.2V13.8C18.2 9.9 20.7 7.7 24.6 7.7C26.5 7.7 28.1 7.8 28.6 7.9V12.4H25.9C24 12.4 23.6 13.3 23.6 14.7V17.5H28.7L27.9 22.8H29.5Z"
+                        fill="#FFFFFF"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="font-normal text-white text-base sm:text-lg block">Facebook</span>
+                    {socialHandles.facebook && (
+                      <span className="text-[11px] text-slate-400 font-mono block">@{socialHandles.facebook.replace(/^@/, '')}</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleConnectAccount("facebook");
+                  }}
+                  className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
+                    connectedSocialAccounts.facebook
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
+                  }`}
+                  style={connectedSocialAccounts.facebook ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
+                >
+                  {connectedSocialAccounts.facebook ? "Connected" : "Connect"}
+                </button>
+              </div>
+
+              {/* Row 3: LinkedIn */}
+              <div
+                onClick={() => handleOpenSocialAuth("linkedin", "login")}
+                className="p-4 sm:p-5 flex items-center justify-between gap-4 transition-colors hover:bg-white/[0.04] cursor-pointer group"
+              >
+                <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl overflow-hidden shrink-0 shadow-md group-hover:scale-105 transition-transform flex items-center justify-center">
+                    <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                      <rect width="44" height="44" rx="9" fill="#0A66C2" />
+                      <path
+                        d="M13.2 17.5H18V33H13.2V17.5ZM15.6 9.8C17.1 9.8 18.3 11 18.3 12.5C18.3 14 17.1 15.2 15.6 15.2C14.1 15.2 12.9 14 12.9 12.5C12.9 11 14.1 9.8 15.6 9.8ZM21 17.5H25.6V19.6H25.7C26.3 18.4 27.9 17.1 30.3 17.1C35.2 17.1 36.1 20.3 36.1 24.5V33H31.3V25.3C31.3 23.5 31.2 21.1 28.7 21.1C26.1 21.1 25.8 23.1 25.8 25.2V33H21V17.5Z"
+                        fill="#FFFFFF"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <span className="font-normal text-white text-base sm:text-lg block">LinkedIn</span>
+                    {socialHandles.linkedin && (
+                      <span className="text-[11px] text-slate-400 font-mono block">@{socialHandles.linkedin.replace(/^@/, '')}</span>
+                    )}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleConnectAccount("linkedin");
+                  }}
+                  className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
+                    connectedSocialAccounts.linkedin
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
+                  }`}
+                  style={connectedSocialAccounts.linkedin ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
+                >
+                  {connectedSocialAccounts.linkedin ? "Connected" : "Connect"}
+                </button>
               </div>
             </div>
-
-            {/* Usernames / Handles Input Section */}
-            {selectedSocialPlatforms.length > 0 && (
-              <div className="space-y-3 mb-4 rounded-2xl border border-white/15 bg-white/[0.03] p-3.5 backdrop-blur-md animate-in fade-in duration-300">
-                <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-neutral-200">
-                    2. Enter your usernames / links:
-                  </label>
-                  <span className="text-[10px] text-neutral-400 font-mono">
-                    {selectedSocialPlatforms.length} platform{selectedSocialPlatforms.length > 1 ? "s" : ""}
-                  </span>
-                </div>
-
-                <div className="space-y-2.5 max-h-[240px] overflow-y-auto pr-1">
-                  {selectedSocialPlatforms.map((platId) => {
-                    const plat = SOCIAL_PLATFORM_OPTIONS.find((p) => p.id === platId);
-                    if (!plat) return null;
-                    return (
-                      <div key={platId} className="space-y-1">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="text-neutral-300 font-medium flex items-center gap-1.5">
-                            {plat.renderIcon("w-3.5 h-3.5")} {plat.name}
-                          </span>
-                          <span className="text-[10px] text-neutral-500 font-mono">
-                            {plat.helperText}
-                          </span>
-                        </div>
-                        <div className="relative flex items-center">
-                          <div className="absolute left-3 text-xs font-bold text-neutral-500 select-none">
-                            {plat.handlePrefix}
-                          </div>
-                          <Input
-                            type="text"
-                            value={socialHandles[platId] || ""}
-                            onChange={(e) => handleSocialHandleChange(platId, e.target.value)}
-                            placeholder={plat.placeholder}
-                            className={`h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-600 text-xs rounded-xl focus:border-[#be32ff] ${plat.handlePrefix.length > 2 ? "pl-16" : "pl-8"
-                              }`}
-                          />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Optional Business Name confirmation */}
-            <div className="mb-3">
-              <label className="text-xs font-medium text-neutral-400 block mb-1">
-                Business / Brand Name (Optional)
-              </label>
-              <Input
-                type="text"
-                value={businessProfile.business_name}
-                onChange={(e) => {
-                  setBusinessProfile({ ...businessProfile, business_name: e.target.value });
-                  setBusinessDetails({ ...businessDetails, business_name: e.target.value });
-                }}
-                placeholder="e.g. My Brand / Store Name"
-                className="h-10 bg-black/30 border-white/10 text-white placeholder:text-neutral-500 text-xs rounded-xl focus:border-[#be32ff]"
-              />
-            </div>
-
-            {/* Validation notice */}
-            {error && (
-              <div className="mb-2 p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
-                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-2 pb-2 space-y-2">
+          {/* Bottom Actions */}
+          <div className="pt-6 sm:pt-8 pb-2 flex flex-col items-center">
             <button
               type="button"
               onClick={handleSocialPlatformsContinue}
               disabled={isSavingSocialPlatforms}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingSocialPlatforms ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving profiles...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span>Saving...</span>
                 </>
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2]" />
                 </>
               )}
             </button>
 
-            <div className="pt-3 text-center flex flex-col items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("social_media")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              <button
-                type="button"
-                onClick={handleSkipSocialPlatforms}
-                className="text-center text-xs text-neutral-400 hover:text-white transition-colors py-1 px-3 font-medium cursor-pointer"
-              >
-                Skip handles for now
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const firstUnconnected = (["facebook", "linkedin", "instagram"] as const).find(
+                  (k) => !connectedSocialAccounts[k]
+                ) || "facebook";
+                handleOpenSocialAuth(firstUnconnected, "create");
+              }}
+              className="w-full max-w-sm sm:max-w-md h-10 sm:h-11 mt-3 rounded-full bg-[#182035]/80 hover:bg-[#202b47] border border-white/10 text-xs sm:text-sm text-slate-300 font-medium flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            >
+              <span>Create Account</span>
+              <UserPlus className="w-4 h-4 text-slate-400" />
+            </button>
           </div>
+
+          {/* Create & Connect Social Account Modal */}
+          {isCreateAccountModalOpen && (
+            <div
+              role="dialog"
+              aria-modal="true"
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
+              onClick={() => setIsCreateAccountModalOpen(false)}
+            >
+              <div
+                className="relative w-full max-w-md bg-[#0e162b] border border-slate-700/80 rounded-2xl shadow-2xl p-6 text-white overflow-hidden max-h-[92vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Glow accent */}
+                <div className="absolute -top-16 -right-16 w-36 h-36 bg-purple-600/25 rounded-full blur-3xl pointer-events-none" />
+
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">
+                      {socialAuthModalMode === "login"
+                        ? `Log In to ${createAccountPlatform === "instagram" ? "Instagram" : createAccountPlatform === "facebook" ? "Facebook" : "LinkedIn"}`
+                        : `Create ${createAccountPlatform === "instagram" ? "Instagram" : createAccountPlatform === "facebook" ? "Facebook" : "LinkedIn"} Account`}
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {socialAuthModalMode === "login"
+                        ? `Enter your account username/ID and password to link your profile`
+                        : `Create a new account for your business and connect it directly`}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsCreateAccountModalOpen(false)}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Mode Selector Tabs (Log In vs Create Account) */}
+                <div className="mt-4 p-1 bg-black/40 border border-white/10 rounded-xl flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSocialAuthModalMode("login");
+                      setSocialAuthError("");
+                    }}
+                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      socialAuthModalMode === "login"
+                        ? "bg-gradient-to-r from-[#7d36fa] to-[#be32ff] text-white shadow"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <Lock className="w-3.5 h-3.5" />
+                    <span>Log In</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSocialAuthModalMode("create");
+                      setSocialAuthError("");
+                    }}
+                    className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      socialAuthModalMode === "create"
+                        ? "bg-gradient-to-r from-[#be32ff] to-[#f0449b] text-white shadow"
+                        : "text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    <span>Create Account</span>
+                  </button>
+                </div>
+
+                {/* Platform Selector Buttons */}
+                <div className="mt-4">
+                  <label className="text-xs font-semibold text-slate-300 block mb-2">
+                    Select Social Platform:
+                  </label>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCreateAccountPlatform("instagram");
+                        setCreateAccountHandle(socialHandles.instagram || (businessProfile.business_name ? `@${businessProfile.business_name.toLowerCase().replace(/\s+/g, '')}` : ""));
+                        setSocialAuthError("");
+                      }}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                        createAccountPlatform === "instagram"
+                          ? "bg-gradient-to-tr from-[#f09433]/20 via-[#dc2743]/20 to-[#bc1888]/20 border-[#bc1888] shadow-sm ring-1 ring-[#bc1888]/50"
+                          : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-300"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                        <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                          <rect width="44" height="44" rx="10" fill="url(#igOfficialGradRow)" />
+                          <rect x="9.5" y="9.5" width="25" height="25" rx="7" stroke="#ffffff" strokeWidth="2.8" fill="none" />
+                          <circle cx="22" cy="22" r="6.2" stroke="#ffffff" strokeWidth="2.8" fill="none" />
+                          <circle cx="29.8" cy="14.2" r="1.6" fill="#ffffff" />
+                        </svg>
+                      </div>
+                      <span className="text-[11px] font-semibold text-white">Instagram</span>
+                      {connectedSocialAccounts.instagram && (
+                        <span className="text-[9px] text-emerald-400 font-medium">Linked ✓</span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCreateAccountPlatform("facebook");
+                        setCreateAccountHandle(socialHandles.facebook || (businessProfile.business_name ? `@${businessProfile.business_name.toLowerCase().replace(/\s+/g, '')}` : ""));
+                        setSocialAuthError("");
+                      }}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                        createAccountPlatform === "facebook"
+                          ? "bg-[#1877F2]/20 border-[#1877F2] shadow-sm ring-1 ring-[#1877F2]/50"
+                          : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-300"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center">
+                        <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                          <circle cx="22" cy="22" r="22" fill="#1877F2" />
+                          <path
+                            d="M29.5 22.8H24.5V38H18.2V22.8H14.8V17.5H18.2V13.8C18.2 9.9 20.7 7.7 24.6 7.7C26.5 7.7 28.1 7.8 28.6 7.9V12.4H25.9C24 12.4 23.6 13.3 23.6 14.7V17.5H28.7L27.9 22.8H29.5Z"
+                            fill="#FFFFFF"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-[11px] font-semibold text-white">Facebook</span>
+                      {connectedSocialAccounts.facebook && (
+                        <span className="text-[9px] text-emerald-400 font-medium">Linked ✓</span>
+                      )}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCreateAccountPlatform("linkedin");
+                        setCreateAccountHandle(socialHandles.linkedin || (businessProfile.business_name ? `@${businessProfile.business_name.toLowerCase().replace(/\s+/g, '')}` : ""));
+                        setSocialAuthError("");
+                      }}
+                      className={`p-2.5 rounded-xl border flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
+                        createAccountPlatform === "linkedin"
+                          ? "bg-[#0A66C2]/20 border-[#0A66C2] shadow-sm ring-1 ring-[#0A66C2]/50"
+                          : "bg-white/5 border-white/10 hover:bg-white/10 text-slate-300"
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                        <svg className="w-full h-full" viewBox="0 0 44 44" fill="none">
+                          <rect width="44" height="44" rx="8" fill="#0A66C2" />
+                          <path
+                            d="M13.2 17.5H18V33H13.2V17.5ZM15.6 9.8C17.1 9.8 18.3 11 18.3 12.5C18.3 14 17.1 15.2 15.6 15.2C14.1 15.2 12.9 14 12.9 12.5C12.9 11 14.1 9.8 15.6 9.8ZM21 17.5H25.6V19.6H25.7C26.3 18.4 27.9 17.1 30.3 17.1C35.2 17.1 36.1 20.3 36.1 24.5V33H31.3V25.3C31.3 23.5 31.2 21.1 28.7 21.1C26.1 21.1 25.8 23.1 25.8 25.2V33H21V17.5Z"
+                            fill="#FFFFFF"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-[11px] font-semibold text-white">LinkedIn</span>
+                      {connectedSocialAccounts.linkedin && (
+                        <span className="text-[9px] text-emerald-400 font-medium">Linked ✓</span>
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Form Fields: Log In Mode */}
+                {socialAuthModalMode === "login" ? (
+                  <div className="mt-4 space-y-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Account Username, Phone or Email <span className="text-pink-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          type="text"
+                          value={createAccountHandle}
+                          onChange={(e) => setCreateAccountHandle(e.target.value)}
+                          placeholder={
+                            createAccountPlatform === "instagram"
+                              ? "e.g. @yourbusiness or phone/email"
+                              : createAccountPlatform === "facebook"
+                              ? "e.g. fb.com/yourpage or email"
+                              : "e.g. username@company.com"
+                          }
+                          className="pl-10 h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Password <span className="text-pink-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          type={showSocialAuthPassword ? "text" : "password"}
+                          value={socialAuthPassword}
+                          onChange={(e) => setSocialAuthPassword(e.target.value)}
+                          placeholder="Enter your account password"
+                          className="pl-10 pr-10 h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSocialAuthPassword(!showSocialAuthPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        >
+                          {showSocialAuthPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                      This will securely authenticate and link your {createAccountPlatform === "instagram" ? "Instagram" : createAccountPlatform === "facebook" ? "Facebook" : "LinkedIn"} profile to create and manage social posts automatically.
+                    </p>
+                  </div>
+                ) : (
+                  /* Form Fields: Create Account Mode */
+                  <div className="mt-4 space-y-3.5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Business / Full Name
+                      </label>
+                      <Input
+                        type="text"
+                        value={socialAuthFullName}
+                        onChange={(e) => setSocialAuthFullName(e.target.value)}
+                        placeholder="e.g. Your Business or Brand Name"
+                        className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Desired Username or Handle <span className="text-pink-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          type="text"
+                          value={createAccountHandle}
+                          onChange={(e) => setCreateAccountHandle(e.target.value)}
+                          placeholder="e.g. @mybusinesshandle"
+                          className="pl-10 h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Email or Mobile
+                      </label>
+                      <Input
+                        type="text"
+                        value={socialAuthEmail}
+                        onChange={(e) => setSocialAuthEmail(e.target.value)}
+                        placeholder="e.g. business@gmail.com"
+                        className="h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 block">
+                        Create Password <span className="text-pink-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <Input
+                          type={showSocialAuthPassword ? "text" : "password"}
+                          value={socialAuthPassword}
+                          onChange={(e) => setSocialAuthPassword(e.target.value)}
+                          placeholder="Create a secure password"
+                          className="pl-10 pr-10 h-10 bg-black/40 border-white/10 text-white placeholder:text-neutral-500 text-xs sm:text-sm rounded-xl focus:border-[#be32ff]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSocialAuthPassword(!showSocialAuthPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                        >
+                          {showSocialAuthPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Validation Error Notice */}
+                {socialAuthError && (
+                  <div className="mt-3 p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                    <span className="font-semibold text-red-400">Notice:</span> {socialAuthError}
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="mt-5 space-y-3">
+                  <button
+                    type="button"
+                    onClick={handleSubmitSocialAuth}
+                    disabled={isSubmittingSocialAuth}
+                    className="w-full h-11 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:brightness-110 active:scale-[0.98]"
+                    style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
+                  >
+                    {isSubmittingSocialAuth ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Connecting Account...</span>
+                      </>
+                    ) : socialAuthModalMode === "login" ? (
+                      <>
+                        <span>Log In &amp; Connect Account</span>
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </>
+                    ) : (
+                      <>
+                        <span>Create &amp; Connect Account</span>
+                        <Check className="w-4 h-4 stroke-[2.5]" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="text-center pt-1">
+                    {socialAuthModalMode === "login" ? (
+                      <p className="text-xs text-slate-400">
+                        Don&apos;t have an account on {createAccountPlatform === "instagram" ? "Instagram" : createAccountPlatform === "facebook" ? "Facebook" : "LinkedIn"}?{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSocialAuthModalMode("create");
+                            setSocialAuthError("");
+                          }}
+                          className="text-[#fc9a5d] hover:text-[#f0449b] font-medium underline underline-offset-2 transition-colors cursor-pointer"
+                        >
+                          Create Account
+                        </button>
+                      </p>
+                    ) : (
+                      <p className="text-xs text-slate-400">
+                        Already have an account?{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSocialAuthModalMode("login");
+                            setSocialAuthError("");
+                          }}
+                          className="text-[#fc9a5d] hover:text-[#f0449b] font-medium underline underline-offset-2 transition-colors cursor-pointer"
+                        >
+                          Log In
+                        </button>
+                      </p>
+                    )}
+                  </div>
+
+                  <a
+                    href={
+                      createAccountPlatform === "instagram"
+                        ? "https://www.instagram.com/accounts/emailsignup/"
+                        : createAccountPlatform === "facebook"
+                        ? "https://www.facebook.com/r.php"
+                        : "https://www.linkedin.com/signup"
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-1.5 flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <span>Register on official {createAccountPlatform} site</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -5187,19 +5700,19 @@ export default function OnboardingPage() {
           SCREEN 3: WHAT YOUR WEBSITE? (Exact Image 2 Design)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_url" && (
-        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-6xl xl:max-w-7xl mx-auto pt-1 sm:pt-2 pb-2 flex flex-col justify-start animate-in fade-in duration-400 relative z-10 px-4 sm:px-8">
           <div>
             {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~30%) */}
-            <div className="flex items-center gap-3 w-full mb-8">
+            <div className="flex items-center gap-3 w-full mb-3 sm:mb-5">
               <button
                 type="button"
                 onClick={handleWebsiteUrlBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
                   style={{ width: "30%" }}
@@ -5207,27 +5720,27 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* 2-Column Layout matching Image 2 */}
+            {/* 2-Column Layout (Broad Content Design) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
 
-              {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
-              <div className="space-y-6 max-w-lg">
-                <div>
+              {/* Left Column: Heading, Inputs, Highlights & Action Buttons (Broadened width) */}
+              <div className="space-y-3.5 sm:space-y-4 w-full max-w-xl lg:max-w-2xl">
+                <div className="space-y-1 mb-1">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
-                    What your{" "}
+                    What&apos;s your{" "}
                     <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                       website
                     </span>
                     <span className="text-[#9936F1]">?</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                  <p className="text-sm sm:text-base text-slate-400 mt-1.5 font-normal leading-relaxed">
                     We&apos;ll read it for you, so there&apos;s no need to type anything.
                   </p>
                 </div>
 
-                {/* Website URL Input (Pill container matching Image 2) */}
-                <div className="space-y-2">
-                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                {/* Website URL Input (Broad container) */}
+                <div className="space-y-1.5">
+                  <div className="h-[48px] sm:h-[50px] px-4 sm:px-5 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-2.5 sm:gap-3">
                     <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
                     <input
                       type="text"
@@ -5243,7 +5756,7 @@ export default function OnboardingPage() {
                         }
                       }}
                       placeholder="yourwebsite.com"
-                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      className="w-full bg-transparent border-none text-white text-xs sm:text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
                       autoFocus
                     />
                     {websiteUrl && (
@@ -5266,65 +5779,65 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* OR Divider with subtle line */}
-                <div className="relative flex items-center justify-center py-2">
+                <div className="relative flex items-center justify-center py-1">
                   <div className="w-full border-t border-slate-700/50" />
-                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                  <span className="absolute bg-[#071226] px-3 text-[10px] sm:text-[11px] font-normal tracking-widest text-slate-500 uppercase">
                     OR
                   </span>
                 </div>
 
-                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image) */}
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Broad) */}
                 <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
                   <button
                     type="button"
                     onClick={() => handleCreateWebsite("website")}
-                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
+                    className="w-full h-[44px] sm:h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-xs sm:text-sm font-normal text-white cursor-pointer"
                   >
                     <span>Create Website</span>
-                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                    <Sparkles className="w-3.5 h-3.5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
                   </button>
                 </div>
 
                 {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
-                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
-                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-2.5 pb-1.5 text-left">
+                  <div className="flex items-center gap-2 pr-2.5 min-w-0">
+                    <Zap className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Fast &amp; Smart</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 px-3 min-w-0">
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 px-2.5 min-w-0">
+                    <Shield className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Your data is safe</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 pl-2.5 min-w-0">
+                    <TrendingUp className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">With AI insights</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Error Notice */}
                 {error && (
-                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                  <div className="p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                     <span className="font-semibold text-red-400">Notice:</span> {error}
                   </div>
                 )}
 
-                {/* Continue Button (Enlarged horizontally matching form width) */}
-                <div className="pt-3">
+                {/* Continue Button (Broad width matching the expanded container) */}
+                <div className="pt-2">
                   <button
                     type="button"
                     id="website-continue-btn"
                     onClick={handleWebsiteUrlContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
-                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
+                    className={`w-full h-[48px] sm:h-[50px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
                         ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
@@ -5344,12 +5857,12 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Right Column: 3D Website Artwork (Exact Image 2 Artwork) */}
+              {/* Right Column: 3D Website Artwork (Broadened) */}
               <div className="hidden lg:flex items-center justify-center relative select-none">
-                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                <div className="relative w-full max-w-[420px] lg:max-w-[480px] xl:max-w-[520px] flex items-center justify-center">
                   <img
                     src="/images/website-reading-artwork.png"
-                    alt="What your website?"
+                    alt="What's your website?"
                     className="w-full h-auto object-contain select-none pointer-events-none drop-shadow-[0_0_40px_rgba(153,54,241,0.25)] animate-in fade-in duration-500"
                   />
                 </div>
@@ -5364,101 +5877,101 @@ export default function OnboardingPage() {
           SCREEN 4: READING YOUR WEBSITE (Exact Image 2 Design)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_reading" && (
-        <div className="w-full max-w-xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4">
+        <div className="w-full max-w-2xl sm:max-w-3xl mx-auto my-auto py-2 sm:py-4 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
             {/* Top Header: Back button + Centered Website URL Pill */}
-            <div className="relative flex items-center justify-center w-full mb-4">
+            <div className="relative flex items-center justify-center w-full mb-3 sm:mb-4">
               <button
                 type="button"
                 onClick={handleWebsiteReadingBack}
                 aria-label="Go back"
-                className="absolute left-0 w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
+                className="absolute left-0 w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
 
               {/* Website URL Pill Badge matching Image 2 */}
-              <div className="px-5 py-1.5 rounded-full bg-[#1b1738]/90 border border-purple-500/40 text-xs sm:text-sm text-purple-200 font-medium inline-flex items-center gap-2 shadow-[0_0_15px_rgba(190,50,255,0.2)]">
-                <Globe className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <div className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-full bg-[#1b1738]/90 border border-purple-500/40 text-sm sm:text-base text-purple-200 font-medium inline-flex items-center gap-2.5 shadow-[0_0_20px_rgba(190,50,255,0.25)]">
+                <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-purple-400 shrink-0" />
                 <span className="truncate">{getDisplayHostname(websiteUrl)}</span>
               </div>
             </div>
 
-            {/* Heading & Subtitle matching Image 2 (non-bold) */}
-            <div className="text-center mt-5 mb-2">
-              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
+            {/* Heading & Subtitle matching Image 2 (scaled up) */}
+            <div className="text-center mt-2 sm:mt-3 mb-2">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold text-white tracking-tight">
                 Reading your website
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5">
+              <p className="text-sm sm:text-base text-slate-400 font-normal mt-1">
                 Spotting your audience...
               </p>
             </div>
 
-            {/* 3D Robot Mascot Graphic matching Image 2 (clean floating illustration) */}
-            <div className="relative my-4 flex items-center justify-center select-none">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#9936F1]/20 via-[#7d36fa]/15 to-[#E84E8F]/15 blur-3xl rounded-full transform scale-90 -z-0 pointer-events-none" />
+            {/* 3D Robot Mascot Graphic matching Image 2 (compact & crisp to fit comfortably in viewport) */}
+            <div className="relative my-2 sm:my-3 flex items-center justify-center select-none">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#9936F1]/25 via-[#7d36fa]/20 to-[#E84E8F]/20 blur-3xl rounded-full transform scale-95 -z-0 pointer-events-none" />
               <img
                 src="/images/reading-robot-graphic.png"
                 alt="Reading your website"
-                className="w-full max-w-[280px] sm:max-w-[320px] h-auto object-contain relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)] select-none pointer-events-none animate-in zoom-in-95 duration-500"
+                className="w-full max-w-[190px] sm:max-w-[220px] lg:max-w-[240px] h-auto object-contain relative z-10 drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)] select-none pointer-events-none animate-in zoom-in-95 duration-500"
               />
             </div>
 
-            {/* 2x2 Grid of Status Chips matching Reference Image 2 */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 w-full max-w-lg mx-auto my-4">
+            {/* 2x2 Grid of Status Chips matching Reference Image 2 (compact height) */}
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3 w-full max-w-xl sm:max-w-2xl mx-auto my-2 sm:my-3">
               {/* Chip 1: Brand Voice */}
-              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="h-10 sm:h-11 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-2.5 transition-all">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
                   {analysisProgress.brandVoice.status === "completed" ? (
-                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                    <Check className="w-3 h-3 text-white stroke-[2.5]" />
                   ) : (
-                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                    <RotateCw className="w-3 h-3 text-white animate-spin stroke-[2.5]" />
                   )}
                 </div>
-                <span className="text-sm font-normal text-white truncate">Brand Voice</span>
+                <span className="text-xs sm:text-sm font-medium text-white truncate">Brand Voice</span>
               </div>
 
               {/* Chip 2: Colors */}
-              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="h-10 sm:h-11 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-2.5 transition-all">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
                   {analysisProgress.colors.status === "completed" ? (
-                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                    <Check className="w-3 h-3 text-white stroke-[2.5]" />
                   ) : (
-                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                    <RotateCw className="w-3 h-3 text-white animate-spin stroke-[2.5]" />
                   )}
                 </div>
-                <span className="text-sm font-normal text-white truncate">Colors</span>
+                <span className="text-xs sm:text-sm font-medium text-white truncate">Colors</span>
               </div>
 
               {/* Chip 3: Category */}
-              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="h-10 sm:h-11 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-2.5 transition-all">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
                   {analysisProgress.category.status === "completed" ? (
-                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                    <Check className="w-3 h-3 text-white stroke-[2.5]" />
                   ) : (
-                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                    <RotateCw className="w-3 h-3 text-white animate-spin stroke-[2.5]" />
                   )}
                 </div>
-                <span className="text-sm font-normal text-white truncate">Category</span>
+                <span className="text-xs sm:text-sm font-medium text-white truncate">Category</span>
               </div>
 
               {/* Chip 4: Photos */}
-              <div className="h-12 sm:h-13 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-3 transition-all">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
+              <div className="h-10 sm:h-11 px-4 sm:px-5 rounded-full border border-[#a855f7]/70 bg-[#0e162b]/90 shadow-[0_0_15px_rgba(168,85,247,0.15)] flex items-center gap-2.5 transition-all">
+                <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shrink-0 shadow-sm">
                   {analysisProgress.photos.status === "completed" ? (
-                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
+                    <Check className="w-3 h-3 text-white stroke-[2.5]" />
                   ) : (
-                    <RotateCw className="w-3.5 h-3.5 text-white animate-spin stroke-[2.5]" />
+                    <RotateCw className="w-3 h-3 text-white animate-spin stroke-[2.5]" />
                   )}
                 </div>
-                <span className="text-sm font-normal text-white truncate">Photos</span>
+                <span className="text-xs sm:text-sm font-medium text-white truncate">Photos</span>
               </div>
             </div>
 
             {/* Error state alert with Retry and Skip options */}
             {analysisError && (
-              <div className="mt-4 p-3.5 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs text-red-200 animate-in fade-in max-w-sm mx-auto">
-                <p className="font-semibold text-red-400 mb-2">{analysisError}</p>
+              <div className="mt-2 p-2.5 bg-red-500/10 border border-red-500/20 rounded-2xl text-xs sm:text-sm text-red-200 animate-in fade-in max-w-sm mx-auto">
+                <p className="font-semibold text-red-400 mb-1.5">{analysisError}</p>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -5480,19 +5993,28 @@ export default function OnboardingPage() {
             )}
           </div>
 
-          {/* Bottom Action: Continue appears once analysis is completed */}
-          <div className="pt-4 pb-2">
+          {/* Bottom Action: Continue Button (Always visible & accessible) */}
+          <div className="pt-2 sm:pt-3 pb-2 flex justify-center">
             {analysisCompleted ? (
               <button
                 type="button"
                 id="reading-continue-btn"
                 onClick={handleReadingContinue}
-                className="w-full max-w-sm mx-auto h-[48px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer animate-in fade-in"
+                className="w-full max-w-sm sm:max-w-md mx-auto h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer animate-in fade-in"
               >
                 <span>Continue</span>
-                <ArrowRight className="w-4 h-4 text-white" />
+                <ArrowRight className="w-4 h-4 text-white stroke-[2.5]" />
               </button>
-            ) : null}
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="w-full max-w-sm sm:max-w-md mx-auto h-11 sm:h-12 rounded-full bg-white/10 text-slate-400 font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 border border-white/5 opacity-70 cursor-not-allowed"
+              >
+                <Loader2 className="w-4 h-4 animate-spin text-purple-300" />
+                <span>Reading website...</span>
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -5501,19 +6023,19 @@ export default function OnboardingPage() {
           SCREEN: IS THIS YOUR BUSINESS? (Exact Reference Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "business_details" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-6xl lg:max-w-7xl xl:max-w-[1400px] mx-auto h-full flex flex-col justify-between animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12 xl:px-16 py-1 overflow-hidden select-none">
+          <div className="space-y-3 sm:space-y-3.5">
             {/* Top Header: Back button + Progress bar (~50%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1 sm:mb-1.5">
               <button
                 type="button"
                 onClick={handleBusinessDetailsBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "50%" }}
@@ -5523,19 +6045,19 @@ export default function OnboardingPage() {
 
             {/* Heading */}
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">business?</span>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">business?</span>
               </h1>
             </div>
 
             {/* Subtitle / Status Message */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium py-0.5">
               <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
               <span>Still reading your website, more details filling in</span>
             </div>
 
             {/* Section Header: Business Details Badge */}
-            <div className="flex items-center gap-2.5 pt-2">
+            <div className="flex items-center gap-2.5 pt-0.5 pb-0.5">
               <div className="w-8 h-8 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
                 <Store className="w-4 h-4 text-[#fc9a5d]" />
               </div>
@@ -5544,11 +6066,11 @@ export default function OnboardingPage() {
               </span>
             </div>
 
-            {/* Form Fields: Exact Image 2 */}
-            <div className="space-y-4 sm:space-y-4.5">
+            {/* Form Fields: Broad & Clear across the page */}
+            <div className="space-y-3 sm:space-y-3.5">
               {/* Field 1: Business Name */}
               <div className="space-y-1.5">
-                <label htmlFor="b-name" className="text-xs sm:text-sm font-medium text-neutral-300">
+                <label htmlFor="b-name" className="text-sm sm:text-base font-medium text-neutral-200 block">
                   Business Name
                 </label>
                 <input
@@ -5559,13 +6081,13 @@ export default function OnboardingPage() {
                     setBusinessDetails({ ...businessDetails, business_name: e.target.value })
                   }
                   placeholder="Your business name"
-                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                  className="w-full h-11 sm:h-12 px-4.5 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                 />
               </div>
 
               {/* Field 2: Business Category */}
               <div className="space-y-1.5">
-                <label htmlFor="b-category" className="text-xs sm:text-sm font-medium text-neutral-300">
+                <label htmlFor="b-category" className="text-sm sm:text-base font-medium text-neutral-200 block">
                   Business Category
                 </label>
                 <div className="relative">
@@ -5575,7 +6097,7 @@ export default function OnboardingPage() {
                     onChange={(e) =>
                       setBusinessDetails({ ...businessDetails, category: e.target.value })
                     }
-                    className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                    className="w-full h-11 sm:h-12 px-4.5 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                   >
                     <option value="" disabled className="bg-[#13192b] text-neutral-500">
                       Your category
@@ -5594,15 +6116,15 @@ export default function OnboardingPage() {
                         </option>
                       )}
                   </select>
-                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                  <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400 pointer-events-none" />
                 </div>
               </div>
 
               {/* Grid 2 Columns: Business Type + Sub - Category */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                 {/* Business Type */}
                 <div className="space-y-1.5">
-                  <label htmlFor="b-type" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  <label htmlFor="b-type" className="text-sm sm:text-base font-medium text-neutral-200 block">
                     Business Type
                   </label>
                   <div className="relative">
@@ -5617,7 +6139,7 @@ export default function OnboardingPage() {
                           business_types: val ? [val] : [],
                         });
                       }}
-                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                      className="w-full h-11 sm:h-12 px-4.5 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                     >
                       <option value="" disabled className="bg-[#13192b] text-neutral-500">
                         Your business type
@@ -5638,13 +6160,13 @@ export default function OnboardingPage() {
                         Hybrid
                       </option>
                     </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
 
                 {/* Sub - Category */}
                 <div className="space-y-1.5">
-                  <label htmlFor="b-subcat" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  <label htmlFor="b-subcat" className="text-sm sm:text-base font-medium text-neutral-200 block">
                     Sub - Category
                   </label>
                   <div className="relative">
@@ -5654,7 +6176,7 @@ export default function OnboardingPage() {
                       onChange={(e) =>
                         setBusinessDetails({ ...businessDetails, sub_category: e.target.value })
                       }
-                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                      className="w-full h-11 sm:h-12 px-4.5 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                     >
                       <option value="" disabled className="bg-[#13192b] text-neutral-500">
                         Your sub - category
@@ -5688,14 +6210,14 @@ export default function OnboardingPage() {
                           </option>
                         )}
                     </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
               </div>
 
               {/* Field 5: City */}
               <div className="space-y-1.5">
-                <label htmlFor="b-city" className="text-xs sm:text-sm font-medium text-neutral-300">
+                <label htmlFor="b-city" className="text-sm sm:text-base font-medium text-neutral-200 block">
                   City
                 </label>
                 <input
@@ -5706,20 +6228,21 @@ export default function OnboardingPage() {
                     setBusinessDetails({ ...businessDetails, city: e.target.value })
                   }
                   placeholder="Your city"
-                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                  className="w-full h-11 sm:h-12 px-4.5 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                 />
               </div>
             </div>
           </div>
 
-          {/* Bottom Action: Centered Next Button (Exact Image 2) */}
-          <div className="flex justify-center pt-8 pb-4">
+          {/* Bottom Action: Centered Next Button */}
+          <div className="flex justify-center pt-4 pb-1">
             <button
               type="button"
               id="details-continue-btn"
               onClick={handleBusinessDetailsContinue}
               disabled={isSavingBusinessDetails}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingBusinessDetails ? (
                 <>
@@ -5741,19 +6264,19 @@ export default function OnboardingPage() {
           SCREEN: IS THIS YOUR BUSINESS? (Part 2 - Exact Reference Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "business_details_2" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-6xl lg:max-w-7xl xl:max-w-[1400px] mx-auto h-full flex flex-col justify-between animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12 xl:px-16 py-1 overflow-hidden select-none">
+          <div className="space-y-3 sm:space-y-3.5">
             {/* Top Header: Back button + Progress bar (~58%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1 sm:mb-1.5">
               <button
                 type="button"
                 onClick={handleBusinessDetails2Back}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "58%" }}
@@ -5763,36 +6286,36 @@ export default function OnboardingPage() {
 
             {/* Heading */}
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">business?</span>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Is this your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">business?</span>
               </h1>
             </div>
 
             {/* Subtitle / Status Message */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium py-0.5">
               <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
               <span>Still reading your website, more details filling in</span>
             </div>
 
-            {/* Form Container: Exact Image 2 */}
-            <div className="space-y-4 sm:space-y-4.5">
+            {/* Form Container: Broad & Expanded across the page */}
+            <div className="space-y-3 sm:space-y-3.5">
               {/* Row 1: Business Logo (Left) + Actions & Tagline (Right) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
                 {/* Left: Business Logo */}
                 <div className="space-y-1.5">
-                  <label className="text-xs sm:text-sm font-medium text-neutral-300">
+                  <label className="text-sm sm:text-base font-medium text-neutral-200 block">
                     Business Logo
                   </label>
-                  <div className="w-full h-44 sm:h-48 rounded-2xl overflow-hidden bg-[#13192b] border border-white/10 relative flex items-center justify-center shadow-inner group">
+                  <div className="w-full h-36 sm:h-42 rounded-2xl overflow-hidden bg-[#13192b] border border-white/10 relative flex items-center justify-center shadow-inner group p-2">
                     {businessDetails.logo_url ? (
                       <img
                         src={businessDetails.logo_url}
                         alt="Business Logo"
-                        className="w-full h-full object-cover object-center"
+                        className="w-full h-full object-contain object-center"
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#1a1c2e] via-[#13192b] to-[#0c0e18] p-4 text-center">
-                        <Store className="w-10 h-10 text-neutral-500 mb-2" />
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#1a1c2e] via-[#13192b] to-[#0c0e18] p-3 text-center">
+                        <Store className="w-8 h-8 text-neutral-500 mb-1" />
                         <span className="text-xs text-neutral-400">No logo uploaded</span>
                       </div>
                     )}
@@ -5800,11 +6323,11 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* Right: Change logo, Remove, Tagline */}
-                <div className="space-y-3.5 flex flex-col justify-between">
+                <div className="space-y-2.5 flex flex-col justify-between">
                   {/* Action Buttons */}
-                  <div className="space-y-2.5 pt-6">
-                    <label className="w-full h-11 sm:h-12 rounded-full bg-[#a825ff] hover:bg-[#b83eff] active:scale-[0.98] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer">
-                      <RotateCw className="w-4 h-4 text-white" />
+                  <div className="space-y-2 pt-0.5">
+                    <label className="w-full h-10 sm:h-11 rounded-full bg-[#a825ff] hover:bg-[#b83eff] active:scale-[0.98] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer">
+                      <RotateCw className="w-3.5 h-3.5 text-white" />
                       <span>Change logo</span>
                       <input
                         type="file"
@@ -5816,16 +6339,16 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={handleRemoveLogo}
-                      className="w-full h-11 sm:h-12 rounded-full bg-[#182035] hover:bg-[#1f2a44] border border-white/10 active:scale-[0.98] text-neutral-300 hover:text-white font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      className="w-full h-10 sm:h-11 rounded-full bg-[#182035] hover:bg-[#1f2a44] border border-white/10 active:scale-[0.98] text-neutral-300 hover:text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
-                      <X className="w-4 h-4 text-neutral-400" />
+                      <X className="w-3.5 h-3.5 text-neutral-400" />
                       <span>Remove</span>
                     </button>
                   </div>
 
                   {/* Tagline */}
                   <div className="space-y-1.5">
-                    <label htmlFor="b-tagline-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                    <label htmlFor="b-tagline-p2" className="text-sm sm:text-base font-medium text-neutral-200 block">
                       Tagline
                     </label>
                     <input
@@ -5836,17 +6359,17 @@ export default function OnboardingPage() {
                         setBusinessDetails({ ...businessDetails, tagline: e.target.value })
                       }
                       placeholder="Your tagline"
-                      className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                      className="w-full h-11 sm:h-12 px-4.5 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Row 2: Who buys from you + What makes you different (Grid 2 cols) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 {/* Who buys from you */}
                 <div className="space-y-1.5">
-                  <label htmlFor="b-audience-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  <label htmlFor="b-audience-p2" className="text-sm sm:text-base font-medium text-neutral-200 block">
                     Who buys from you
                   </label>
                   <div className="relative">
@@ -5856,7 +6379,7 @@ export default function OnboardingPage() {
                       onChange={(e) =>
                         setBusinessDetails({ ...businessDetails, target_audience: e.target.value })
                       }
-                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                      className="w-full h-11 sm:h-12 px-4.5 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                     >
                       <option value="" disabled className="bg-[#13192b] text-neutral-500">
                         Your customer
@@ -5865,13 +6388,13 @@ export default function OnboardingPage() {
                         Startups, enterprises, and growing businesses
                       </option>
                       <option value="Retail consumers & families" className="bg-[#13192b] text-white">
-                        Retail consumers & families
+                        Retail consumers &amp; families
                       </option>
                       <option value="B2B businesses & corporate clients" className="bg-[#13192b] text-white">
-                        B2B businesses & corporate clients
+                        B2B businesses &amp; corporate clients
                       </option>
                       <option value="Young professionals & students" className="bg-[#13192b] text-white">
-                        Young professionals & students
+                        Young professionals &amp; students
                       </option>
                       <option value="Local neighborhood customers" className="bg-[#13192b] text-white">
                         Local neighborhood customers
@@ -5889,13 +6412,13 @@ export default function OnboardingPage() {
                           </option>
                         )}
                     </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
 
                 {/* What makes you different (optional) */}
                 <div className="space-y-1.5">
-                  <label htmlFor="b-different-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                  <label htmlFor="b-different-p2" className="text-sm sm:text-base font-medium text-neutral-200 block">
                     What makes you different (optional)
                   </label>
                   <div className="relative">
@@ -5909,7 +6432,7 @@ export default function OnboardingPage() {
                           differentiators: val ? [val] : [],
                         });
                       }}
-                      className="w-full h-11 sm:h-12 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
+                      className="w-full h-11 sm:h-12 px-4.5 pr-10 rounded-xl bg-[#13192b] border border-white/10 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer"
                     >
                       <option value="" disabled className="bg-[#13192b] text-neutral-500">
                         Ex - Same day delivery in Pune
@@ -5918,13 +6441,13 @@ export default function OnboardingPage() {
                         Ex - Same day delivery in Pune
                       </option>
                       <option value="Premium quality & handcrafted design" className="bg-[#13192b] text-white">
-                        Premium quality & handcrafted design
+                        Premium quality &amp; handcrafted design
                       </option>
                       <option value="24/7 dedicated customer support" className="bg-[#13192b] text-white">
                         24/7 dedicated customer support
                       </option>
                       <option value="Fast & free shipping across India" className="bg-[#13192b] text-white">
-                        Fast & free shipping across India
+                        Fast &amp; free shipping across India
                       </option>
                       <option value="Affordable transparent pricing" className="bg-[#13192b] text-white">
                         Affordable transparent pricing
@@ -5942,43 +6465,51 @@ export default function OnboardingPage() {
                           </option>
                         )}
                     </select>
-                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
               </div>
 
               {/* Row 3: What you sell (optional) */}
               <div className="space-y-1.5">
-                <label htmlFor="b-sell-p2" className="text-xs sm:text-sm font-medium text-neutral-300">
+                <label htmlFor="b-sell-p2" className="text-sm sm:text-base font-medium text-neutral-200 block">
                   What you sell (optional)
                 </label>
                 <input
                   id="b-sell-p2"
                   type="text"
-                  value={businessDetails.products_services.join(", ")}
-                  onChange={(e) =>
+                  value={
+                    businessDetails.products_services?.length > 0
+                      ? businessDetails.products_services.join(", ")
+                      : ""
+                  }
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    const items = raw
+                      .split(",")
+                      .map((s) => s.trim())
+                      .filter(Boolean);
                     setBusinessDetails({
                       ...businessDetails,
-                      products_services: e.target.value
-                        ? e.target.value.split(",").map((s) => s.trim())
-                        : [],
-                    })
-                  }
-                  placeholder="Ex - Cotton Saree"
-                  className="w-full h-11 sm:h-12 px-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
+                      products_services: items,
+                    });
+                  }}
+                  placeholder="Menswear, Womenswear, Kidswear, Ethnic Wear, Beauty Products, Footwear"
+                  className="w-full h-11 sm:h-12 px-4.5 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors"
                 />
               </div>
             </div>
           </div>
 
           {/* Bottom Action: Centered Next Button */}
-          <div className="flex justify-center pt-8 pb-4">
+          <div className="flex justify-center pt-4 pb-1">
             <button
               type="button"
               id="details2-continue-btn"
               onClick={handleBusinessDetails2Continue}
               disabled={isSavingBusinessDetails2}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingBusinessDetails2 ? (
                 <>
@@ -6000,19 +6531,19 @@ export default function OnboardingPage() {
           SCREEN: WHAT'S YOUR BUSINESS LIKE? (Exact Reference Image 1)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "brand_preferences" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-6xl lg:max-w-7xl xl:max-w-[1400px] mx-auto h-full flex flex-col justify-between animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12 xl:px-16 py-1 overflow-hidden select-none">
+          <div className="space-y-3 sm:space-y-3.5">
             {/* Top Header: Back button + Progress bar (~70%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1 sm:mb-1.5">
               <button
                 type="button"
                 onClick={handleBrandPreferencesBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "70%" }}
@@ -6028,9 +6559,9 @@ export default function OnboardingPage() {
                 const first = parts[0] || "SevenUnique";
                 const rest = parts.slice(1).join(" ");
                 return (
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
                     What&apos;s{" "}
-                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">
                       {first}
                     </span>{" "}
                     {rest ? `${rest} ` : ""}like?
@@ -6040,31 +6571,35 @@ export default function OnboardingPage() {
             </div>
 
             {/* Subtitle / Status Message */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium py-0.5">
               <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
               <span>Still reading your website, more details filling in</span>
             </div>
 
             {/* Section 1: Business Color */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+            <div className="space-y-2 pt-0.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
                   <Palette className="w-4 h-4 text-[#fc9a5d]" />
                 </div>
                 <span className="text-base sm:text-lg font-bold text-white tracking-tight">
                   Business Color
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light -mt-1">
+              <p className="text-xs sm:text-sm text-neutral-400 font-normal">
                 We&apos;ll use these colors in your design
               </p>
 
-              {/* Color Circles Row with Hex Labels */}
-              <div className="flex items-center gap-3.5 sm:gap-4.5 pt-1 overflow-x-auto pb-1">
+              {/* Color Circles Row with Hex Labels - Broad & Expanded */}
+              <div className="flex items-center gap-4 sm:gap-6 pt-1 overflow-x-auto pb-1">
                 {brandPreferences.palette.slice(0, 5).map((color, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-2 shrink-0">
+                  <div key={idx} className="flex flex-col items-center gap-1.5 shrink-0">
                     <label
-                      className="w-13 h-13 sm:w-14 sm:h-14 rounded-full relative shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95 block border-2 border-white/15"
+                      className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full relative shadow-md cursor-pointer transition-transform hover:scale-105 active:scale-95 block border-2 ${
+                        idx === 0
+                          ? "border-[#be32ff] ring-2 ring-[#be32ff]/50 shadow-[0_0_12px_rgba(190,50,255,0.4)]"
+                          : "border-white/20 hover:border-[#be32ff]/60"
+                      }`}
                       style={{ backgroundColor: color }}
                     >
                       <input
@@ -6074,7 +6609,7 @@ export default function OnboardingPage() {
                         className="opacity-0 absolute inset-0 w-full h-full cursor-pointer"
                       />
                     </label>
-                    <span className="text-[11px] sm:text-xs text-neutral-400 font-mono tracking-tight lowercase">
+                    <span className="text-xs text-neutral-400 font-mono tracking-tight lowercase">
                       {color.toLowerCase()}
                     </span>
                   </div>
@@ -6082,12 +6617,12 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Section 2: Pick your tone (as many as fit) */}
-            <div className="space-y-2.5 pt-1">
-              <label className="text-xs sm:text-sm font-medium text-neutral-300">
+            {/* Section 2: Pick your tone (as many as fit) - Broad pills with GT highlight color border */}
+            <div className="space-y-2 pt-0.5">
+              <label className="text-sm sm:text-base font-medium text-neutral-200 block">
                 Pick your tone (as many as fit)
               </label>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
                 {[
                   "Modern", "Fun", "Professional", "Elegant",
                   "Trendy", "Warm", "Festive", "Youthful", "Bold",
@@ -6098,13 +6633,13 @@ export default function OnboardingPage() {
                     const isSelected = brandPreferences.tones.includes(tone);
                     return (
                       <button
-                        type="button"
                         key={tone}
+                        type="button"
                         onClick={() => handleToggleTone(tone)}
-                        className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                        className={`py-2 px-4.5 sm:px-5.5 rounded-full text-sm sm:text-base font-normal transition-all duration-200 cursor-pointer ${
                           isSelected
-                            ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                            : "bg-[#13192b] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
+                            ? "bg-[#1f152b] border-2 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.4)] ring-1 ring-[#be32ff]/60"
+                            : "bg-[#13192b] border border-white/10 text-neutral-300 hover:border-white/20 hover:text-white"
                         }`}
                       >
                         {tone}
@@ -6114,34 +6649,42 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => setShowAllTones(!showAllTones)}
-                  className="text-xs sm:text-sm font-semibold text-[#be32ff] hover:underline self-center ml-1 cursor-pointer"
+                  className="py-2 px-3 text-sm sm:text-base text-[#be32ff] hover:text-[#d946ef] font-medium transition-colors cursor-pointer"
                 >
-                  {showAllTones ? "See less" : "See all"}
+                  {showAllTones ? "Show less" : "See all"}
                 </button>
               </div>
             </div>
 
-            {/* Section 3: What language should we post in? */}
-            <div className="space-y-2.5 pt-1">
-              <label className="text-xs sm:text-sm font-medium text-neutral-300">
+            {/* Section 3: What language should we post in? - Broad pills with GT highlight color border */}
+            <div className="space-y-2 pt-0.5">
+              <label className="text-sm sm:text-base font-medium text-neutral-200 block">
                 What language should we post in?
               </label>
-              <div className="flex flex-wrap gap-2.5">
-                {["Hindi", "English", "Regional"].map((lang) => {
-                  const isSelected =
-                    brandPreferences.language.toLowerCase() === lang.toLowerCase();
+              <div className="flex flex-wrap gap-2.5 sm:gap-3">
+                {[
+                  { id: "hi", name: "Hindi" },
+                  { id: "en", name: "English" },
+                  { id: "regional", name: "Regional" },
+                ].map((lang) => {
+                  const isSelected = brandPreferences.language === lang.id || (lang.id === "en" && !brandPreferences.language);
                   return (
                     <button
+                      key={lang.id}
                       type="button"
-                      key={lang}
-                      onClick={() => handleSelectLanguage(lang)}
-                      className={`px-5 py-2 rounded-2xl text-xs sm:text-sm font-semibold border transition-all cursor-pointer ${
+                      onClick={() =>
+                        setBrandPreferences({
+                          ...brandPreferences,
+                          language: lang.id,
+                        })
+                      }
+                      className={`h-10.5 sm:h-11 px-5 rounded-xl text-sm sm:text-base font-normal transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? "bg-gradient-to-r from-[#fc9a5d]/15 to-[#be32ff]/20 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                          : "bg-[#13192b] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
+                          ? "bg-[#1f152b] border-2 border-[#be32ff] text-white shadow-[0_0_15px_rgba(190,50,255,0.4)] ring-1 ring-[#be32ff]/60"
+                          : "bg-[#13192b] border border-white/10 text-neutral-300 hover:border-white/20 hover:text-white"
                       }`}
                     >
-                      {lang}
+                      {lang.name}
                     </button>
                   );
                 })}
@@ -6150,13 +6693,14 @@ export default function OnboardingPage() {
           </div>
 
           {/* Bottom Action: Centered Next Button */}
-          <div className="flex justify-center pt-8 pb-4">
+          <div className="flex justify-center pt-4 pb-1">
             <button
               type="button"
               id="brand-continue-btn"
               onClick={handleBrandPreferencesContinue}
               disabled={isSavingBrandPreferences}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingBrandPreferences ? (
                 <>
@@ -6175,22 +6719,22 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          SCREEN: BRAND SERVICES & AUDIENCE (Exact Reference Image 2)
+          SCREEN: BRAND SERVICES & AUDIENCE (Expanded Broad Layout, Fits 100vh with Zero Scroll)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "brand_services" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-6xl lg:max-w-7xl xl:max-w-[1400px] mx-auto h-full flex flex-col justify-between animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12 xl:px-16 py-1 overflow-hidden select-none">
+          <div className="space-y-3 sm:space-y-3.5">
             {/* Top Header: Back button + Progress bar (~78%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1 sm:mb-1.5">
               <button
                 type="button"
                 onClick={handleBrandServicesBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "78%" }}
@@ -6206,9 +6750,9 @@ export default function OnboardingPage() {
                 const first = parts[0] || "SevenUnique";
                 const rest = parts.slice(1).join(" ");
                 return (
-                  <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
                     What&apos;s{" "}
-                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                    <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">
                       {first}
                     </span>{" "}
                     {rest ? `${rest} ` : ""}like?
@@ -6218,20 +6762,20 @@ export default function OnboardingPage() {
             </div>
 
             {/* Subtitle / Status Message */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-[#be32ff] font-medium py-0.5">
               <RotateCw className="w-4 h-4 text-[#be32ff] animate-spin shrink-0" />
               <span>Still reading your website, more details filling in</span>
             </div>
 
-            {/* Section 1: Target Audience */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
-                  <Users className="w-4 h-4 text-[#fc9a5d]" />
+            {/* Section 1: Target Audience (Broad Full Page Width) */}
+            <div className="space-y-2 pt-0.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#fc9a5d]" />
                 </div>
-                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
                   Target Audience
-                </span>
+                </h3>
               </div>
 
               <textarea
@@ -6243,23 +6787,23 @@ export default function OnboardingPage() {
                   })
                 }
                 placeholder="Startups, enterprises, and growing businesses looking for modern tech and web design solutions."
-                rows={4}
-                className="w-full p-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors resize-none shadow-inner"
+                rows={3}
+                className="w-full min-h-[75px] sm:min-h-[85px] p-3.5 sm:p-4 rounded-xl bg-[#13192b] border border-white/10 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors resize-none shadow-inner"
               />
             </div>
 
-            {/* Section 2: Services and Products */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#3a1d28] border border-[#f0449b]/30 flex items-center justify-center text-[#fc9a5d] shadow-sm">
-                  <Settings className="w-4 h-4 text-[#fc9a5d]" />
+            {/* Section 2: Services and Products (Broad Full Page Width) */}
+            <div className="space-y-2 pt-0.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-[#fc9a5d] shadow-sm">
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-[#fc9a5d]" />
                 </div>
-                <span className="text-base sm:text-lg font-bold text-white tracking-tight">
+                <h3 className="text-base sm:text-lg font-bold text-white tracking-wide">
                   Services and Products
-                </span>
+                </h3>
               </div>
 
-              <div className="w-full p-4 rounded-xl bg-[#13192b] border border-white/10 min-h-[120px] flex flex-wrap items-center gap-2.5 shadow-inner">
+              <div className="w-full p-3.5 sm:p-4 rounded-xl bg-[#13192b] border border-white/10 min-h-[95px] flex flex-wrap items-center gap-2.5 shadow-inner">
                 {(businessDetails.products_services.length > 0
                   ? businessDetails.products_services
                   : [
@@ -6275,7 +6819,7 @@ export default function OnboardingPage() {
                 ).map((service, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#581c87]/90 hover:bg-[#6b21a8] text-white text-xs sm:text-sm font-semibold shadow-sm transition-all"
+                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-[#be32ff]/20 border border-[#be32ff]/40 hover:bg-[#be32ff]/30 text-white text-sm font-semibold shadow-sm transition-all"
                   >
                     <span>{service}</span>
                     <button
@@ -6300,93 +6844,46 @@ export default function OnboardingPage() {
                           products_services: next,
                         });
                       }}
-                      className="text-white/60 hover:text-white transition-colors cursor-pointer"
-                      title="Remove service"
+                      className="text-white/70 hover:text-white transition-colors w-4 h-4 rounded-full bg-white/10 flex items-center justify-center hover:bg-rose-500/80"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <X className="w-3 h-3" />
                     </button>
                   </span>
                 ))}
 
-                {isAddingService ? (
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#182035] border border-[#be32ff]">
-                    <input
-                      type="text"
-                      value={newServiceInput}
-                      onChange={(e) => setNewServiceInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          if (newServiceInput.trim()) {
-                            const current =
-                              businessDetails.products_services.length > 0
-                                ? businessDetails.products_services
-                                : [];
-                            setBusinessDetails({
-                              ...businessDetails,
-                              products_services: [...current, newServiceInput.trim()],
-                            });
-                            setNewServiceInput("");
-                            setIsAddingService(false);
-                          }
-                        }
-                      }}
-                      placeholder="e.g. Web Design"
-                      className="bg-transparent text-white text-xs sm:text-sm focus:outline-none w-28 sm:w-36"
-                      autoFocus
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (newServiceInput.trim()) {
-                          const current =
-                            businessDetails.products_services.length > 0
-                              ? businessDetails.products_services
-                              : [];
-                          setBusinessDetails({
-                            ...businessDetails,
-                            products_services: [...current, newServiceInput.trim()],
-                          });
-                          setNewServiceInput("");
-                        }
-                        setIsAddingService(false);
-                      }}
-                      className="text-white hover:text-[#fc9a5d] text-xs font-bold"
-                    >
-                      ✓
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewServiceInput("");
-                        setIsAddingService(false);
-                      }}
-                      className="text-white/60 hover:text-white text-xs"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => setIsAddingService(true)}
-                    className="inline-flex items-center gap-1 px-3 py-2 text-xs sm:text-sm font-semibold text-white/80 hover:text-white underline underline-offset-4 decoration-white/40 cursor-pointer"
-                  >
-                    + Add more
-                  </button>
-                )}
+                {/* Add more button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newSrv = prompt("Enter product or service name:");
+                    if (newSrv && newSrv.trim()) {
+                      setBusinessDetails({
+                        ...businessDetails,
+                        products_services: [
+                          ...businessDetails.products_services,
+                          newSrv.trim(),
+                        ],
+                      });
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/25 hover:border-white/50 text-neutral-300 hover:text-white text-sm font-medium transition-all cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add more</span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Bottom Action: Centered Save my Brand Button (Exact Image 2) */}
-          <div className="flex justify-center pt-8 pb-4">
+          {/* Bottom Action: Centered Save my Brand Button */}
+          <div className="flex justify-center pt-3 pb-1">
             <button
               type="button"
               id="brand-services-continue-btn"
               onClick={handleBrandServicesContinue}
               disabled={isSavingBrandServices}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingBrandServices ? (
                 <>
@@ -6408,7 +6905,7 @@ export default function OnboardingPage() {
           SCREEN: PICK THE PHOTOS WE SHOULD WORK WITH (Exact Reference Image 2)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "website_photos" && (
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+        <div className="w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto pt-2 pb-14 flex flex-col justify-start relative z-10 px-4 sm:px-8">
           <div className="space-y-6">
             {/* Top Header: Back button + Progress bar (~85%) */}
             <div className="flex items-center gap-3 w-full mb-2">
@@ -6428,11 +6925,11 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
+            {/* Heading & Subtitle (Un-bolded / Normal font) */}
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
                 Pick the{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">
                   Photos
                 </span>{" "}
                 we should work with?
@@ -6524,7 +7021,8 @@ export default function OnboardingPage() {
               id="photos-continue-btn"
               onClick={handleWebsitePhotosContinue}
               disabled={isSavingPhotos}
-              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7644fb] via-[#bc33ff] to-[#fb8a6a] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="w-full max-w-[340px] sm:max-w-[360px] h-10 sm:h-11 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingPhotos ? (
                 <>
@@ -6546,19 +7044,19 @@ export default function OnboardingPage() {
           GOOGLE MAPS STEP 1: FIND YOUR SHOP ON GOOGLE MAPS (Reference Screenshots 1, 2, 3, 4)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "maps_search" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto pt-2 sm:pt-3 md:pt-4 pb-2 flex flex-col animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12">
+          <div className="space-y-4 sm:space-y-5">
             {/* Top Header: Back button + Progress bar (~20%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1 sm:mb-1.5">
               <button
                 type="button"
                 onClick={handleMapsSearchBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "20%" }}
@@ -6566,12 +7064,12 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
+            {/* Heading & Subtitle (Image 2, 3, 4) */}
             <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Find your shop on Google Maps
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Find your shop on <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">Google Maps</span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light">
+              <p className="text-sm sm:text-base text-neutral-400 font-light mt-1">
                 Your photos and reviews do most of the work
               </p>
             </div>
@@ -6583,13 +7081,14 @@ export default function OnboardingPage() {
                 type="text"
                 value={mapsSearchQuery}
                 onChange={(e) => {
-                  setMapsSearchQuery(e.target.value);
-                  if (selectedMapsPlace && e.target.value !== selectedMapsPlace.name) {
+                  const val = e.target.value;
+                  setMapsSearchQuery(val);
+                  if (selectedMapsPlace && val !== selectedMapsPlace.name) {
                     setSelectedMapsPlace(null);
                   }
                 }}
-                placeholder="Search your shop, or paste Maps link"
-                className="h-14 pl-12 pr-11 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff] shadow-inner"
+                placeholder="Search your shop, or paste map link"
+                className="h-13 sm:h-14 pl-12 pr-12 rounded-full bg-[#13192b] border-white/10 text-white placeholder:text-neutral-500 text-base sm:text-lg focus:border-[#be32ff] shadow-inner"
               />
               {isSearchingMaps ? (
                 <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#be32ff] animate-spin" />
@@ -6601,115 +7100,79 @@ export default function OnboardingPage() {
                     setSelectedMapsPlace(null);
                     setMapsSearchResults([]);
                   }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               ) : null}
             </div>
 
-            {/* Selected Shop Preview Card (Screenshot 4) */}
+            {/* Main Interactive Card: 3 Dynamic States (Image 2, 3, 4) */}
             {selectedMapsPlace ? (
-              <div className="rounded-3xl bg-[#0f1015]/90 border border-[#be32ff]/40 p-4 sm:p-5 space-y-4 shadow-[0_0_30px_rgba(190,50,255,0.2)] animate-in zoom-in-95 duration-300">
-                {/* Mosaic / Photo Preview */}
-                {selectedMapsPlace.photos && selectedMapsPlace.photos.length > 0 ? (
-                  <div className="grid grid-cols-3 gap-2 h-44 sm:h-52 rounded-2xl overflow-hidden">
-                    <div className="col-span-2 h-full relative overflow-hidden bg-neutral-900">
+              /* State 4: Selected Shop Card with 3 Photos & Rating (Image 4) */
+              <div className="rounded-2xl sm:rounded-3xl bg-[#13192b]/80 border border-[#f0449b]/40 p-3 sm:p-4 space-y-3 shadow-xl ring-1 ring-[#be32ff]/25 animate-in zoom-in-95 duration-200">
+                {/* 3 Photos row side-by-side */}
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 h-28 sm:h-36 rounded-xl overflow-hidden">
+                  {(selectedMapsPlace.photos && selectedMapsPlace.photos.length > 0
+                    ? selectedMapsPlace.photos.slice(0, 3)
+                    : [
+                        "/images/places/gt_mall_1.jpg",
+                        "/images/places/gt_mall_2.jpg",
+                        "/images/places/gt_mall_3.jpg",
+                      ]
+                  ).map((photoUrl, idx) => (
+                    <div key={idx} className="h-full relative overflow-hidden bg-neutral-900 rounded-lg">
                       <img
-                        src={selectedMapsPlace.photos[0]}
-                        alt={selectedMapsPlace.name}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                        src={photoUrl}
+                        alt=""
+                        className="w-full h-full object-cover select-none"
                       />
                     </div>
-                    <div className="col-span-1 grid grid-rows-2 gap-2 h-full">
-                      <div className="h-full relative overflow-hidden bg-neutral-900 rounded-lg">
-                        <img
-                          src={selectedMapsPlace.photos[1] || selectedMapsPlace.photos[0]}
-                          alt={`${selectedMapsPlace.name} 2`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="h-full relative overflow-hidden bg-neutral-900 rounded-lg">
-                        <img
-                          src={selectedMapsPlace.photos[2] || selectedMapsPlace.photos[0]}
-                          alt={`${selectedMapsPlace.name} 3`}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-32 rounded-2xl bg-gradient-to-r from-purple-900/30 via-pink-900/20 to-orange-900/30 border border-white/10 flex items-center justify-center gap-3 text-neutral-400">
-                    <Store className="w-8 h-8 text-[#be32ff]" />
-                    <span className="text-sm font-medium">Google Maps listing verified</span>
-                  </div>
-                )}
-
-                {/* Info row */}
-                <div className="space-y-1.5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
-                      {selectedMapsPlace.name}
-                    </h3>
-                    {selectedMapsPlace.rating && (
-                      <div className="px-2.5 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 font-bold text-xs flex items-center gap-1 shrink-0">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span>{selectedMapsPlace.rating}</span>
-                        {selectedMapsPlace.userRatingCount && (
-                          <span className="text-amber-300/70 font-normal">
-                            ({selectedMapsPlace.userRatingCount})
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs sm:text-sm text-neutral-300 leading-snug flex items-start gap-1.5 pt-0.5">
-                    <MapPin className="w-4 h-4 text-[#fc9a5d] shrink-0 mt-0.5" />
-                    <span>{selectedMapsPlace.address}</span>
-                  </p>
+                  ))}
                 </div>
 
-                {/* Change selection button */}
-                <div className="pt-1 flex items-center justify-between border-t border-white/10">
-                  <span className="text-xs text-neutral-400">Selected Google Maps shop</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedMapsPlace(null);
-                      setMapsSearchQuery("");
-                      setMapsSearchResults([]);
-                    }}
-                    className="text-xs font-semibold text-[#be32ff] hover:text-[#f0449b] transition-colors cursor-pointer"
-                  >
-                    Change shop
-                  </button>
+                {/* Details + Rating */}
+                <div className="flex items-start justify-between gap-3 pt-0.5">
+                  <div className="flex items-start gap-2.5 min-w-0">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 border border-white/15 text-neutral-300 flex items-center justify-center shrink-0 mt-0.5">
+                      <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#fc9a5d]" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-white text-xs sm:text-sm leading-tight truncate">
+                        {selectedMapsPlace.name}
+                      </h3>
+                      <p className="text-[11px] sm:text-xs text-neutral-400 line-clamp-1 mt-0.5">
+                        {selectedMapsPlace.address}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="px-2.5 sm:px-3 py-1 rounded-full bg-[#3d3215] border border-amber-500/40 text-amber-300 font-bold text-xs flex items-center gap-1.5 shrink-0">
+                    <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                    <span>{selectedMapsPlace.rating || 4.5}</span>
+                    <span className="text-amber-300/80 font-normal">
+                      ({selectedMapsPlace.userRatingCount || 15})
+                    </span>
+                  </div>
                 </div>
               </div>
             ) : mapsSearchResults.length > 0 ? (
-              /* Search Results Dropdown List (Screenshot 3) */
-              <div className="rounded-2xl bg-[#0f1015] border border-white/15 overflow-hidden divide-y divide-white/10 shadow-xl max-h-72 sm:max-h-80 overflow-y-auto">
+              /* State 3: Dynamic Search Autocomplete Results List (Image 3) */
+              <div className="rounded-2xl bg-[#13192b]/95 border border-white/10 overflow-hidden divide-y divide-white/10 shadow-2xl max-h-56 sm:max-h-64 overflow-y-auto animate-in fade-in duration-200">
                 {mapsSearchResults.map((place) => (
                   <button
                     type="button"
                     key={place.id}
                     onClick={() => handleSelectMapsShop(place)}
-                    className="w-full p-3.5 sm:p-4 text-left hover:bg-white/[0.06] transition-colors flex items-start gap-3.5 group cursor-pointer"
+                    className="w-full p-3 sm:p-3.5 text-left hover:bg-white/[0.06] transition-colors flex items-start gap-3 group cursor-pointer"
                   >
-                    <div className="w-9 h-9 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#be32ff] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                    <div className="w-8 h-8 rounded-full bg-white/10 border border-white/10 text-neutral-300 flex items-center justify-center shrink-0 mt-0.5 group-hover:text-white group-hover:border-[#be32ff]/50 transition-colors">
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-white text-sm sm:text-base truncate group-hover:text-purple-300 transition-colors">
-                          {place.name}
-                        </span>
-                        {place.rating && (
-                          <span className="text-amber-400 text-xs font-semibold shrink-0 flex items-center gap-0.5">
-                            ★ {place.rating}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-neutral-400 line-clamp-1 mt-0.5">
+                      <h4 className="font-semibold text-white text-xs sm:text-sm group-hover:text-[#be32ff] transition-colors">
+                        {place.name}
+                      </h4>
+                      <p className="text-[11px] sm:text-xs text-neutral-400 line-clamp-1 mt-0.5">
                         {place.address}
                       </p>
                     </div>
@@ -6717,7 +7180,7 @@ export default function OnboardingPage() {
                 ))}
               </div>
             ) : mapsSearchError ? (
-              /* Error / Empty State */
+              /* Error State */
               <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/10 text-center space-y-2">
                 <p className="text-xs sm:text-sm text-neutral-300">{mapsSearchError}</p>
                 <button
@@ -6729,214 +7192,195 @@ export default function OnboardingPage() {
                       });
                     }
                   }}
-                  className="text-xs font-semibold text-[#be32ff] hover:underline"
+                  className="text-xs font-semibold text-[#be32ff] hover:underline cursor-pointer"
                 >
                   Retry search
                 </button>
               </div>
             ) : (
-              /* Help Card (Screenshot 1 & 2) */
-              <div className="p-5 rounded-3xl bg-[#0f1015]/80 border border-white/10 space-y-4 shadow-sm">
+              /* State 2: Can't find it? Helper Card (Image 2) */
+              <div className="p-5 sm:p-6 rounded-2xl sm:rounded-3xl bg-[#13192b]/60 border border-white/10 space-y-3.5">
                 <h3 className="font-bold text-white text-sm sm:text-base">
-                  Can&apos;t find it? Paste the Maps link instead
+                  Can&apos;t find it? Paste the Map link instead
                 </h3>
-                <ol className="space-y-2.5 text-xs sm:text-sm text-neutral-300">
-                  <li className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
-                      1
-                    </span>
-                    <span>Open the Google Maps app</span>
+                <ul className="space-y-2 text-xs sm:text-sm text-neutral-300 font-normal">
+                  <li className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                    <span>Open the Google Map app</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
-                      2
-                    </span>
+                  <li className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                     <span>Search your shop name</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
-                      3
-                    </span>
-                    <span>Tap Share → Copy link</span>
+                  <li className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                    <span>Tap Share - Copy link</span>
                   </li>
-                  <li className="flex items-center gap-3">
-                    <span className="w-6 h-6 rounded-full bg-[#be32ff]/20 text-[#be32ff] font-bold text-xs flex items-center justify-center shrink-0">
-                      4
-                    </span>
+                  <li className="flex items-center gap-2.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
                     <span>Come back here and paste it above</span>
                   </li>
-                </ol>
-                <div className="pt-1">
+                </ul>
+                <div className="pt-1.5">
                   <a
                     href="https://maps.google.com"
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition-all border border-white/10"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs sm:text-sm font-semibold text-white transition-all border border-white/10 cursor-pointer"
                   >
-                    <span>Open Maps</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
+                    <ExternalLink className="w-4 h-4" />
+                    <span>Open Map</span>
                   </a>
                 </div>
               </div>
             )}
           </div>
 
-          {/* Sticky Bottom Bar with "Use this shop" Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action Area (Image 2, 3, 4) */}
+          <div className="flex flex-col items-center gap-3 pt-8 sm:pt-12 md:pt-14 pb-2">
+            {!selectedMapsPlace && (
+              <button
+                type="button"
+                onClick={() => handleCreateWebsite("google_maps")}
+                className="px-6 py-2 rounded-full bg-transparent hover:bg-white/5 border border-white/20 text-white text-sm sm:text-base flex items-center gap-2 transition-all cursor-pointer"
+              >
+                <span>Create Website</span>
+                <Sparkles className="w-4 h-4 text-white" />
+              </button>
+            )}
+
             <button
               type="button"
               id="maps-use-shop-btn"
-              onClick={handleUseShopContinue}
-              disabled={!selectedMapsPlace}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMapsPlace
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-                }`}
+              onClick={() => {
+                if (selectedMapsPlace) {
+                  handleUseShopContinue();
+                } else {
+                  // User clicked Use this Shop without searching: trigger dynamic search with "Gt mall"
+                  setMapsSearchQuery("Gt mall");
+                }
+              }}
+              className="w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-base sm:text-lg flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
+            >
+              <span>Use this shop</span>
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════════════════════════════════════════════════════════
+          GOOGLE MAPS STEP 2: GOT A WEBSITE? (Exact Reference Image 5)
+      ══════════════════════════════════════════════════════════════════════ */}
+      {currentStepObj.id === "maps_website" && (
+        <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto pt-4 sm:pt-6 md:pt-8 pb-4 flex flex-col animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12">
+          <div className="space-y-4 sm:space-y-6">
+            {/* Top Header: Back button + Progress bar (~40%) */}
+            <div className="flex items-center gap-3.5 w-full mb-1 sm:mb-2">
+              <button
+                type="button"
+                onClick={handleMapsWebsiteBack}
+                aria-label="Go back"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
+              >
+                <ArrowLeft className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
+                  style={{ width: "40%" }}
+                />
+              </div>
+            </div>
+
+            {/* Heading & Subtitle (Un-bolded / Normal font) */}
+            <div>
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                Got a website for{" "}
+                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">
+                  {selectedMapsPlace?.name || businessProfile.business_name || "GT Mall Jaipur"}
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-neutral-300 font-normal mt-1">
+                Your photos and reviews do most of the work
+              </p>
+            </div>
+
+            {/* Selected Shop Summary Card (Scaled up / Zoomed in) */}
+            <div className="p-4 sm:p-5 md:p-6 rounded-2xl bg-[#13192b]/90 border border-white/15 flex items-start gap-4 shadow-md">
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/10 border border-white/15 text-neutral-300 flex items-center justify-center shrink-0 mt-0.5">
+                <MapPin className="w-5 h-5 sm:w-6 sm:h-6 text-[#fc9a5d]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-bold text-white text-base sm:text-lg leading-tight truncate">
+                  {selectedMapsPlace?.name || businessProfile.business_name || "GT Mall Jaipur"}
+                </h3>
+                <p className="text-xs sm:text-sm text-neutral-300 line-clamp-1 mt-1">
+                  {selectedMapsPlace?.address || businessProfile.full_address || "D-Block, Crystal Court, Jawahar Nagar, Jaipur, Rajasthan 302017"}
+                </p>
+              </div>
+            </div>
+
+            {/* Website URL Input Field (Scaled up / Zoomed in) */}
+            <div className="relative pt-1">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 flex items-center justify-center text-neutral-300 text-xs sm:text-sm font-bold pointer-events-none">
+                @
+              </div>
+              <Input
+                type="text"
+                value={mapsWebsiteUrl}
+                onChange={(e) => setMapsWebsiteUrl(e.target.value)}
+                placeholder="yourwebsite.com"
+                className="h-12 sm:h-14 pl-14 sm:pl-16 pr-5 rounded-2xl bg-[#13192b] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff] shadow-inner"
+              />
+            </div>
+          </div>
+
+          {/* Bottom Action Area (Shifted down / Lower placement) */}
+          <div className="flex flex-col items-center gap-3 pt-12 sm:pt-20 lg:pt-28 pb-1">
+            <button
+              type="button"
+              id="maps-use-website-btn"
+              onClick={() => {
+                if (mapsWebsiteUrl && mapsWebsiteUrl.trim()) {
+                  handleUseWebsiteContinue();
+                } else {
+                  handleSkipWebsite();
+                }
+              }}
+              className="w-full max-w-md sm:max-w-lg h-12 sm:h-13 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               <span>Use this shop</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
             </button>
 
-            <div className="pt-3 text-center">
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("google_maps")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group active:scale-[0.98]"
-              >
-                <Sparkles className="w-4 h-4 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm text-neutral-300">
-                  Don&apos;t have a website yet?{" "}
-                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] group-hover:underline">
-                    Create Website
-                  </span>
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          GOOGLE MAPS STEP 2: GOT A WEBSITE? (Reference Screenshot 5)
-      ══════════════════════════════════════════════════════════════════════ */}
-      {currentStepObj.id === "maps_website" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
-            {/* Top Header: Back button + Progress bar (~38%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
-              <button
-                type="button"
-                onClick={handleMapsWebsiteBack}
-                aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "38%" }}
-                />
-              </div>
-            </div>
-
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Got a website for {selectedMapsPlace?.name || businessProfile.business_name || "your shop"}?
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
-                We didn&apos;t find one on Google Maps. Paste a link to use it as your source — or skip and we&apos;ll set you up manually.
-              </p>
-            </div>
-
-            {/* Selected Shop Summary Card */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#0f1015]/90 border border-white/10 flex items-start gap-3.5 shadow-sm">
-              <div className="w-9 h-9 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#be32ff] flex items-center justify-center shrink-0 mt-0.5">
-                <MapPin className="w-4 h-4" />
-              </div>
-              <div className="space-y-1 min-w-0">
-                <h3 className="font-bold text-white text-sm sm:text-base leading-tight">
-                  {selectedMapsPlace?.name || businessProfile.business_name}
-                </h3>
-                <p className="text-xs text-neutral-400 leading-snug">
-                  {selectedMapsPlace?.address || businessProfile.full_address || "Google Maps verified location"}
-                </p>
-              </div>
-            </div>
-
-            {/* Website URL Input */}
-            <div className="space-y-2">
-              <div className="relative">
-                <Link2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400" />
-                <Input
-                  type="text"
-                  value={mapsWebsiteUrl}
-                  onChange={(e) => setMapsWebsiteUrl(e.target.value)}
-                  placeholder="yourbusiness.com"
-                  className="h-14 pl-12 pr-4 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff] shadow-inner"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Sticky Bottom Bar with "Use this website" and "Skip" */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent space-y-3 text-center">
             <button
               type="button"
-              id="maps-use-website-btn"
-              onClick={handleUseWebsiteContinue}
-              disabled={!mapsWebsiteUrl.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${mapsWebsiteUrl.trim()
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-                }`}
+              onClick={handleSkipWebsite}
+              className="text-sm sm:text-base text-neutral-400 hover:text-white transition-colors cursor-pointer py-1.5"
             >
-              <span>Use this website</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              Skip - I don&apos;t have one
             </button>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-2 pt-3">
-              <button
-                type="button"
-                onClick={handleSkipWebsite}
-                className="text-xs sm:text-sm font-semibold text-neutral-400 hover:text-white transition-colors cursor-pointer py-1.5 px-3"
-              >
-                Skip — I don&apos;t have one
-              </button>
-              <button
-                type="button"
-                onClick={() => handleCreateWebsite("google_maps")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-[#f0449b]/60 hover:border-[#f0449b] shadow-[0_0_18px_rgba(240,68,155,0.25)] hover:shadow-[0_0_26px_rgba(240,68,155,0.45)] transition-all cursor-pointer group"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                  Create Website
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-[#f0449b] group-hover:translate-x-0.5 transition-transform" />
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          GOOGLE MAPS STEP 3: WHAT KIND OF BUSINESS DO YOU RUN? (Category & Subcategory)
-      ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "maps_category" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto pt-4 sm:pt-6 md:pt-8 pb-4 flex flex-col animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12">
+          <div className="space-y-6 sm:space-y-8">
             {/* Top Header: Back button + Progress bar (~55%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3.5 w-full mb-2 sm:mb-3">
               <button
                 type="button"
                 onClick={handleMapsCategoryBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "55%" }}
@@ -6944,106 +7388,66 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                What kind of business do you run?
+            {/* Heading & Subtitle (Un-bolded / Normal font) */}
+            <div className="space-y-1.5">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
+                What kind of <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">Business</span> do you run?
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light">
-                So we know what to make for you.
+              <p className="text-sm sm:text-base text-neutral-300 font-normal mt-1">
+                So we know what to make for you
               </p>
             </div>
 
-            {/* Field 1: Category Selector Trigger */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-semibold text-neutral-300">Category</Label>
-              <button
-                type="button"
-                onClick={() => setIsCategoryDrawerOpen(true)}
-                className="w-full h-14 px-4 rounded-2xl bg-[#0f1015] border border-white/15 hover:border-[#be32ff] transition-all flex items-center justify-between text-left cursor-pointer group shadow-sm"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <Search className="w-5 h-5 text-neutral-400 group-hover:text-[#be32ff] transition-colors" />
-                  <span className={`text-sm sm:text-base font-semibold truncate ${mapsCategory ? "text-white" : "text-neutral-500"}`}>
-                    {mapsCategory || "Select a category"}
-                  </span>
-                </div>
-                <ChevronDown className="w-5 h-5 text-neutral-400 group-hover:text-white transition-colors shrink-0" />
-              </button>
-            </div>
-
-            {/* Field 2: Sub-category (optional) */}
-            <div className="space-y-2">
-              <Label htmlFor="maps-subcat" className="text-xs font-semibold text-neutral-300">
-                Sub-category (optional)
+            {/* Field: Category Dropdown Selector (Scaled up / Zoomed in) */}
+            <div className="space-y-2.5 pt-2">
+              <Label htmlFor="maps-category-select" className="text-sm sm:text-base font-semibold text-neutral-200">
+                Category
               </Label>
               <div className="relative">
-                <Sparkles className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#be32ff]" />
-                <Input
-                  id="maps-subcat"
-                  type="text"
-                  value={mapsSubCategory}
-                  onChange={(e) => setMapsSubCategory(e.target.value)}
-                  placeholder="Search or type your niche..."
-                  className="h-14 pl-11 pr-10 rounded-2xl bg-[#0f1015] border-white/15 text-white placeholder:text-neutral-500 text-sm sm:text-base focus:border-[#be32ff]"
-                />
-                {mapsSubCategory && (
-                  <button
-                    type="button"
-                    onClick={() => setMapsSubCategory("")}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
+                <select
+                  id="maps-category-select"
+                  value={mapsCategory}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setMapsCategory(val);
+                    const catObj = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === val.toLowerCase());
+                    if (catObj) {
+                      setMapsPromotion(catObj.defaultPromote);
+                    }
+                  }}
+                  className="w-full h-12 sm:h-14 px-5 pr-12 rounded-2xl bg-[#13192b] border border-white/15 text-white focus:outline-none focus:border-[#be32ff] text-sm sm:text-base transition-colors appearance-none cursor-pointer shadow-inner"
+                >
+                  <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                    Select a category
+                  </option>
+                  {BUSINESS_CATEGORIES.map((cat) => (
+                    <option key={cat.id} value={cat.name} className="bg-[#13192b] text-white py-2">
+                      {cat.name}
+                    </option>
+                  ))}
+                  {mapsCategory &&
+                    !BUSINESS_CATEGORIES.some(
+                      (c) => c.name.toLowerCase() === mapsCategory.toLowerCase()
+                    ) && (
+                      <option value={mapsCategory} className="bg-[#13192b] text-white py-2">
+                        {mapsCategory}
+                      </option>
+                    )}
+                </select>
+                <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-400 pointer-events-none" />
               </div>
-
-              {/* Dynamic Suggested Niche Chips */}
-              {(() => {
-                const currentCat = BUSINESS_CATEGORIES.find(
-                  (c) => c.name.toLowerCase() === mapsCategory.toLowerCase()
-                );
-                const niches = currentCat?.suggestedNiches || [];
-                if (niches.length === 0) return null;
-                return (
-                  <div className="space-y-1.5 pt-1">
-                    <span className="text-[11px] font-medium text-neutral-400">Popular niches for {mapsCategory}:</span>
-                    <div className="flex flex-wrap gap-2">
-                      {niches.map((niche) => {
-                        const isSelected = mapsSubCategory === niche;
-                        return (
-                          <button
-                            type="button"
-                            key={niche}
-                            onClick={() => setMapsSubCategory(niche)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${isSelected
-                                ? "bg-gradient-to-r from-[#fc9a5d]/20 to-[#be32ff]/25 border-[#be32ff] text-white shadow-sm"
-                                : "bg-[#0f1015] border-white/10 text-neutral-300 hover:text-white hover:border-white/25"
-                              }`}
-                          >
-                            {isSelected && <Check className="w-3 h-3 inline mr-1 text-[#be32ff]" />}
-                            {niche}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           </div>
 
-          {/* Sticky Bottom Bar with Continue Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action: Centered Continue Button (Shifted down / Lower placement) */}
+          <div className="flex justify-center pt-16 sm:pt-28 lg:pt-36 pb-2">
             <button
               type="button"
               id="maps-category-continue-btn"
               onClick={handleMapsCategoryContinue}
               disabled={!mapsCategory.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${mapsCategory.trim()
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-                }`}
+              className="w-full max-w-md sm:max-w-lg h-12 sm:h-13 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-bold text-base sm:text-lg flex items-center justify-center gap-2.5 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               <span>Continue</span>
               <ArrowRight className="w-5 h-5 stroke-[2.5]" />
@@ -7052,96 +7456,20 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* ─── Category Selection Modal / Drawer ─── */}
-      {isCategoryDrawerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-md max-h-[85vh] bg-[#0c1222] border border-white/15 rounded-3xl p-5 sm:p-6 flex flex-col shadow-2xl relative">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-bold text-white">Select a category</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsCategoryDrawerOpen(false);
-                  setCategorySearchTerm("");
-                }}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-neutral-300 hover:text-white"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Search Input */}
-            <div className="py-3">
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input
-                  type="text"
-                  value={categorySearchTerm}
-                  onChange={(e) => setCategorySearchTerm(e.target.value)}
-                  placeholder="Search categories..."
-                  className="h-11 pl-10 pr-9 rounded-xl bg-[#0f1015] border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff]"
-                />
-                {categorySearchTerm && (
-                  <button
-                    type="button"
-                    onClick={() => setCategorySearchTerm("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Scrollable Category List */}
-            <div className="flex-1 overflow-y-auto space-y-1 divide-y divide-white/5 pr-1 max-h-[55vh]">
-              {BUSINESS_CATEGORIES.filter((c) =>
-                c.name.toLowerCase().includes(categorySearchTerm.toLowerCase())
-              ).map((cat) => {
-                const isSelected = mapsCategory === cat.name;
-                return (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    onClick={() => {
-                      setMapsCategory(cat.name);
-                      setMapsPromotion(cat.defaultPromote);
-                      setIsCategoryDrawerOpen(false);
-                      setCategorySearchTerm("");
-                    }}
-                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${isSelected
-                        ? "bg-[#be32ff]/15 text-white font-bold"
-                        : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
-                      }`}
-                  >
-                    <span className="text-xs sm:text-sm">{cat.name}</span>
-                    {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          GOOGLE MAPS STEP 4: TELL US ABOUT YOUR BUSINESS (Business Details & Logo)
-      ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "maps_details" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl xl:max-w-6xl mx-auto pt-1 sm:pt-2 pb-2 flex flex-col justify-start animate-in fade-in duration-400 relative z-10 px-4 sm:px-8 lg:px-12">
+          <div className="space-y-2.5 sm:space-y-3">
             {/* Top Header: Back button + Progress bar (~70%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-1">
               <button
                 type="button"
                 onClick={handleMapsDetailsBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 sm:h-2.5 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "70%" }}
@@ -7149,150 +7477,162 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Tell us about your business
+            {/* Heading & Subtitle (Un-bolded / Normal font) */}
+            <div className="space-y-1 mt-1 mb-1">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-normal text-white tracking-tight">
+                Tell us about your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent font-normal">business?</span>
               </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light">
-                We’ll use this on every post and ad.
+              <p className="text-xs sm:text-sm text-neutral-300 font-normal mt-1">
+                We&apos;ll use this on every post and ad
               </p>
             </div>
 
-            {/* Form Fields Container */}
-            <div className="space-y-4">
-              {/* Field 1: Business name (required) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="maps-b-name" className="text-xs font-semibold text-neutral-300">
-                  Business name <span className="text-rose-400">*</span>
+            {/* Form Fields with balanced spacing and clear separation between text and label */}
+            <div className="space-y-3 sm:space-y-3.5 pt-0.5">
+              {/* Field 1: Business Name (required) */}
+              <div className="space-y-2">
+                <Label htmlFor="maps-b-name" className="text-xs sm:text-sm font-medium text-neutral-300 block">
+                  Business Name <span className="text-rose-500 font-normal">(required)</span>
                 </Label>
                 <Input
                   id="maps-b-name"
                   type="text"
                   value={businessProfile.business_name}
                   onChange={(e) => setBusinessProfile({ ...businessProfile, business_name: e.target.value })}
-                  placeholder="e.g. Gift store (Rudra's villa)"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                  placeholder="Your business name"
+                  className="w-full h-10 sm:h-11 px-4 rounded-xl bg-[#13192b] border border-white/15 text-white placeholder:text-neutral-500 text-xs sm:text-sm focus:border-[#be32ff] transition-colors shadow-inner"
                 />
               </div>
 
               {/* Field 2: What should we promote? (required) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="maps-b-promote" className="text-xs font-semibold text-neutral-300">
-                  What should we promote? <span className="text-rose-400">*</span>
+              <div className="space-y-2">
+                <Label htmlFor="maps-b-promote" className="text-xs sm:text-sm font-medium text-neutral-300 block">
+                  What should we promote? <span className="text-rose-500 font-normal">(required)</span>
                 </Label>
                 <Input
                   id="maps-b-promote"
                   type="text"
                   value={mapsPromotion}
                   onChange={(e) => setMapsPromotion(e.target.value)}
-                  placeholder="e.g. Customized gifts, personalized mugs, handmade hampers"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
+                  placeholder="What you promote"
+                  className="w-full h-10 sm:h-11 px-4 rounded-xl bg-[#13192b] border border-white/15 text-white placeholder:text-neutral-500 text-xs sm:text-sm focus:border-[#be32ff] transition-colors shadow-inner"
                 />
               </div>
 
-              {/* Field 3: Who do you sell to? (optional) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="maps-b-audience" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
-                  <span>Who do you sell to? (optional)</span>
-                  <Info className="w-3.5 h-3.5 text-neutral-400" />
-                </Label>
-                <Input
-                  id="maps-b-audience"
-                  type="text"
-                  value={mapsAudience}
-                  onChange={(e) => setMapsAudience(e.target.value)}
-                  placeholder="Example: young professionals, parents, local shoppers"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
-                />
-              </div>
-
-              {/* Field 4: What makes you different? (optional) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="maps-b-diff" className="text-xs font-semibold text-neutral-300 flex items-center gap-1.5">
-                  <span>What makes you different? (optional)</span>
-                  <Info className="w-3.5 h-3.5 text-neutral-400" />
-                </Label>
-                <Input
-                  id="maps-b-diff"
-                  type="text"
-                  value={mapsDifferentiator}
-                  onChange={(e) => setMapsDifferentiator(e.target.value)}
-                  placeholder="Example: same-day delivery, organic ingredients"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4"
-                />
-              </div>
-
-              {/* Field 5: Logo (optional) */}
-              <div className="space-y-2 pt-1">
-                <Label className="text-xs font-semibold text-neutral-300">Logo (optional)</Label>
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-[#0f1015] border border-white/15 flex items-center justify-center overflow-hidden p-1.5 shrink-0 shadow-md">
-                    {mapsLogoUrl ? (
-                      <img src={mapsLogoUrl} alt="Logo" className="w-full h-full object-contain" />
-                    ) : (
-                      <Store className="w-7 h-7 text-neutral-500" />
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all cursor-pointer border border-white/10">
-                      <Upload className="w-3.5 h-3.5 text-[#fc9a5d]" />
-                      <span>{mapsLogoUrl ? "Change logo" : "Upload logo"}</span>
-                      <input type="file" accept="image/*" onChange={handleMapsLogoUpload} className="hidden" />
-                    </label>
-                    {mapsLogoUrl && (
-                      <div>
-                        <button
-                          type="button"
-                          onClick={handleRemoveMapsLogo}
-                          className="text-xs font-medium text-neutral-400 hover:text-red-400 transition-colors cursor-pointer"
-                        >
-                          Remove logo
-                        </button>
-                      </div>
-                    )}
+              {/* Grid 2 Columns: What do you sell to? (optional) + What makes you different? (optional) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4.5">
+                {/* Column 1: What do you sell to? (optional) */}
+                <div className="space-y-2">
+                  <Label htmlFor="maps-b-audience" className="text-xs sm:text-sm font-medium text-neutral-300 block">
+                    What do you sell to? (optional)
+                  </Label>
+                  <div className="relative">
+                    <select
+                      id="maps-b-audience"
+                      value={mapsAudience}
+                      onChange={(e) => setMapsAudience(e.target.value)}
+                      className="w-full h-10 sm:h-11 px-4 pr-10 rounded-xl bg-[#13192b] border border-white/15 text-white focus:outline-none focus:border-[#be32ff] text-xs sm:text-sm transition-colors appearance-none cursor-pointer shadow-inner"
+                    >
+                      <option value="" disabled className="bg-[#13192b] text-neutral-500">
+                        Your business type
+                      </option>
+                      <option value="Product-based" className="bg-[#13192b] text-white py-1">
+                        Product-based
+                      </option>
+                      <option value="Service / Digital" className="bg-[#13192b] text-white py-1">
+                        Service / Digital
+                      </option>
+                      <option value="Physical Location" className="bg-[#13192b] text-white py-1">
+                        Physical Location
+                      </option>
+                      <option value="Wholesale / B2B" className="bg-[#13192b] text-white py-1">
+                        Wholesale / B2B
+                      </option>
+                      <option value="Hybrid" className="bg-[#13192b] text-white py-1">
+                        Hybrid
+                      </option>
+                    </select>
+                    <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
                   </div>
                 </div>
+
+                {/* Column 2: What makes you different? (optional) */}
+                <div className="space-y-2">
+                  <Label htmlFor="maps-b-diff" className="text-xs sm:text-sm font-medium text-neutral-300 block">
+                    What makes you different? (optional)
+                  </Label>
+                  <Input
+                    id="maps-b-diff"
+                    type="text"
+                    value={mapsDifferentiator}
+                    onChange={(e) => setMapsDifferentiator(e.target.value)}
+                    placeholder="Different"
+                    className="w-full h-10 sm:h-11 px-4 rounded-xl bg-[#13192b] border border-white/15 text-white placeholder:text-neutral-500 text-xs sm:text-sm focus:border-[#be32ff] transition-colors shadow-inner"
+                  />
+                </div>
+              </div>
+
+              {/* Field 4: Logo (optional) */}
+              <div className="space-y-2">
+                <Label className="text-xs sm:text-sm font-medium text-neutral-300 block">Logo (optional)</Label>
+                <label className="w-full h-14 sm:h-16 rounded-xl bg-[#13192b]/60 border border-white/15 hover:border-white/25 transition-all flex flex-col items-center justify-center cursor-pointer group relative overflow-hidden">
+                  {mapsLogoUrl ? (
+                    <div className="relative w-full h-full p-1.5 flex items-center justify-center">
+                      <img src={mapsLogoUrl} alt="Logo" className="max-h-full max-w-full object-contain" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRemoveMapsLogo();
+                        }}
+                        className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/60 text-neutral-300 hover:text-white cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center gap-2 text-neutral-400 group-hover:text-white transition-colors py-1">
+                      <Upload className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                      <span className="text-xs sm:text-sm font-medium">Upload</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" onChange={handleMapsLogoUpload} className="hidden" />
+                </label>
               </div>
             </div>
           </div>
 
-          {/* Sticky Bottom Bar with Continue Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Bottom Action: Centered Continue Button (Shifted down with comfortable clearance) */}
+          <div className="flex justify-center pt-4 sm:pt-5 pb-2">
             <button
               type="button"
               id="maps-details-continue-btn"
               onClick={handleMapsDetailsContinue}
-              disabled={!businessProfile.business_name.trim() || !mapsPromotion.trim()}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${businessProfile.business_name.trim() && mapsPromotion.trim()
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
-                }`}
+              disabled={!businessProfile.business_name.trim()}
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg shadow-[#be32ff]/25 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               <span>Continue</span>
-              <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          GOOGLE MAPS STEP 5: PICK BUSINESS PHOTOS
-      ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "maps_photos" && (
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
+        <div className="w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl mx-auto pt-2 pb-14 flex flex-col justify-start relative z-10 px-4 sm:px-8">
+          <div className="space-y-2.5 sm:space-y-3">
             {/* Top Header: Back button + Progress bar (~85%) */}
-            <div className="flex items-center gap-3 w-full mb-2">
+            <div className="flex items-center gap-3 w-full mb-0.5 sm:mb-1">
               <button
                 type="button"
                 onClick={handleMapsPhotosBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-white/10 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
                   style={{ width: "85%" }}
@@ -7300,9 +7640,9 @@ export default function OnboardingPage() {
               </div>
             </div>
 
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            {/* Heading & Subtitle (Un-bolded / Normal font) */}
+            <div className="space-y-0.5">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-normal text-white tracking-tight">
                 Pick the photos we should work with
               </h1>
               <p className="text-xs sm:text-sm text-neutral-400 font-light leading-relaxed">
@@ -7311,10 +7651,10 @@ export default function OnboardingPage() {
             </div>
 
             {/* Informational Status Card */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/25 flex items-center justify-between gap-3 text-xs sm:text-sm">
-              <div className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-5 h-5 text-[#be32ff] shrink-0" />
-                <span className="font-semibold text-white">Google Maps details are ready</span>
+            <div className="p-2 sm:p-2.5 rounded-xl bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-orange-500/10 border border-purple-500/25 flex items-center justify-between gap-3 text-xs sm:text-sm">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#be32ff] shrink-0" />
+                <span className="font-medium text-white text-xs sm:text-sm">Google Maps details are ready</span>
               </div>
               <span className="text-neutral-400 text-xs">
                 {mapsPhotos.length > 0 ? `${mapsPhotos.length} photos loaded` : "Upload photos below"}
@@ -7322,8 +7662,8 @@ export default function OnboardingPage() {
             </div>
 
             {/* Photo count indicator & Select All toggle */}
-            <div className="flex items-center justify-between pt-1 pb-1">
-              <div className="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#be32ff]/15 border border-[#be32ff]/30 text-purple-200 flex items-center gap-2 shadow-sm">
+            <div className="flex items-center justify-between pt-0.5 pb-0.5">
+              <div className="px-3 py-0.5 rounded-full text-xs font-medium bg-[#be32ff]/15 border border-[#be32ff]/30 text-purple-200 flex items-center gap-2 shadow-sm">
                 <span>{selectedMapsPhotos.length} / 15 · more = more variety</span>
               </div>
               {mapsPhotos.length > 0 && (
@@ -7337,102 +7677,94 @@ export default function OnboardingPage() {
               )}
             </div>
 
-            {/* Responsive Photo Grid (Web Layout: 4 columns on desktop, 2-3 on tablet/mobile) */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-              {/* Upload Tile */}
-              <label className="aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#be32ff] transition-all flex flex-col items-center justify-center p-4 text-center cursor-pointer group shadow-sm">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleMapsPhotoUpload}
-                  className="hidden"
-                />
-                {isUploadingMapsPhoto ? (
-                  <Loader2 className="w-7 h-7 text-[#be32ff] animate-spin mb-2" />
-                ) : (
-                  <Upload className="w-7 h-7 text-[#fc9a5d] group-hover:scale-110 transition-transform mb-2" />
-                )}
-                <span className="text-xs font-semibold text-white">Upload a photo</span>
-                <span className="text-[10px] text-neutral-400 mt-1">JPG, PNG up to 10MB</span>
-              </label>
+            {/* Responsive Photo Grid (Height sized with clean clearance above Continue button) */}
+            <div className="w-full">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4 pb-2">
+                {/* Upload Tile */}
+                <label className="aspect-square rounded-2xl border-2 border-dashed border-white/20 bg-white/[0.03] hover:bg-white/[0.06] hover:border-[#be32ff] transition-all flex flex-col items-center justify-center p-3 text-center cursor-pointer group shadow-sm">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleMapsPhotoUpload}
+                    className="hidden"
+                  />
+                  {isUploadingMapsPhoto ? (
+                    <Loader2 className="w-6 h-6 text-[#be32ff] animate-spin mb-1.5" />
+                  ) : (
+                    <Upload className="w-6 h-6 text-[#fc9a5d] group-hover:scale-110 transition-transform mb-1.5" />
+                  )}
+                  <span className="text-xs font-semibold text-white">Upload a photo</span>
+                  <span className="text-[10px] text-neutral-400 mt-0.5">JPG, PNG up to 10MB</span>
+                </label>
 
-              {/* Photos List */}
-              {mapsPhotos.map((photoUrl, idx) => {
-                const isSelected = selectedMapsPhotos.includes(photoUrl);
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => handleToggleMapsPhoto(photoUrl)}
-                    className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${isSelected
-                        ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
-                        : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
-                      }`}
-                  >
-                    <img
-                      src={photoUrl}
-                      alt={`Shop photo ${idx + 1}`}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-
-                    {/* Selection Checkmark Badge */}
-                    <div className="absolute top-2.5 right-2.5">
-                      {isSelected ? (
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
-                          <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        </div>
-                      ) : (
-                        <div className="w-6 h-6 rounded-full border border-white/50 bg-black/40 backdrop-blur-sm" />
-                      )}
-                    </div>
-
-                    {/* Delete Photo Button on Hover */}
-                    <button
-                      type="button"
-                      onClick={(e) => handleRemoveMapsPhoto(photoUrl, e)}
-                      aria-label="Remove photo"
-                      className="absolute bottom-2.5 right-2.5 w-7 h-7 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
+                {/* Photos List */}
+                {mapsPhotos.map((photoUrl, idx) => {
+                  const isSelected = selectedMapsPhotos.includes(photoUrl);
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => handleToggleMapsPhoto(photoUrl)}
+                      className={`aspect-square rounded-2xl overflow-hidden relative cursor-pointer group transition-all duration-300 ${isSelected
+                          ? "border-2 border-[#be32ff] shadow-[0_0_20px_rgba(190,50,255,0.4)]"
+                          : "border border-white/10 opacity-70 hover:opacity-100 hover:border-white/30"
+                        }`}
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
+                      <img
+                        src={photoUrl}
+                        alt={`Shop photo ${idx + 1}`}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
 
-            {/* Empty state if no photos yet */}
-            {mapsPhotos.length === 0 && (
-              <div className="py-12 text-center space-y-3 bg-[#0f1015]/60 border border-white/10 rounded-2xl">
-                <ImageIcon className="w-10 h-10 text-neutral-500 mx-auto" />
-                <h3 className="text-sm font-semibold text-white">No photos detected yet</h3>
-                <p className="text-xs text-neutral-400 max-w-sm mx-auto">
-                  Click the Upload tile above to add your shop front, inside view, or product images.
-                </p>
+                      {/* Selection Checkmark Badge */}
+                      <div className="absolute top-2.5 right-2.5">
+                        {isSelected ? (
+                          <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white flex items-center justify-center shadow-md">
+                            <Check className="w-3.5 h-3.5 stroke-[3]" />
+                          </div>
+                        ) : (
+                          <div className="w-6 h-6 rounded-full border border-white/50 bg-black/40 backdrop-blur-sm" />
+                        )}
+                      </div>
+
+                      {/* Delete Photo Button on Hover */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleRemoveMapsPhoto(photoUrl, e)}
+                        aria-label="Remove photo"
+                        className="absolute bottom-2.5 right-2.5 w-6 h-6 rounded-full bg-black/60 hover:bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all backdrop-blur-sm shadow-md"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
-            )}
+            </div>
           </div>
 
-          {/* Sticky Bottom Bar with Continue Button */}
-          <div className="sticky bottom-0 pt-6 pb-4 mt-6 bg-gradient-to-t from-[#070F22] via-[#070F22]/90 to-transparent">
+          {/* Compact Centered Continue Button (Shifted down so it never overlaps photo cards and is 100% unclipped) */}
+          <div className="flex justify-center pt-5 sm:pt-7 pb-2">
             <button
               type="button"
               id="maps-photos-continue-btn"
               onClick={handleMapsPhotosContinue}
               disabled={isSavingMapsStep || selectedMapsPhotos.length === 0}
-              className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMapsPhotos.length > 0 && !isSavingMapsStep
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5"
+              className={`w-full max-w-sm sm:max-w-md h-10 sm:h-11 rounded-full font-semibold text-sm sm:text-base flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 ${selectedMapsPhotos.length > 0 && !isSavingMapsStep
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white"
+                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
                 }`}
+              style={{ background: selectedMapsPhotos.length > 0 && !isSavingMapsStep ? "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" : undefined }}
             >
               {isSavingMapsStep ? (
                 <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   <span>Saving shop photos...</span>
                 </>
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -7440,14 +7772,11 @@ export default function OnboardingPage() {
         </div>
       )}
 
-      {/* ══════════════════════════════════════════════════════════════════════
-          MARKETPLACE STEP 1: WHICH MARKETPLACES DO YOU SELL ON?
-      ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "marketplace_platforms" && (
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-1 sm:py-2 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
             {/* Top Header: Back button + Long Gradient Progress Bar */}
-            <div className="flex items-center w-full mb-6">
+            <div className="flex items-center w-full mb-3 sm:mb-4">
               <button
                 type="button"
                 onClick={handleMarketplacePlatformsBack}
@@ -7465,20 +7794,20 @@ export default function OnboardingPage() {
             </div>
 
             {/* Title & Subtitle */}
-            <div className="mb-6 text-left">
+            <div className="mb-3 sm:mb-4 text-left">
               <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
                 Which marketplaces do you{" "}
                 <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                   sell on?
                 </span>
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1 leading-relaxed">
                 Pick all that apply.
               </p>
             </div>
 
-            {/* Selectable Cards Grid - Desktop Balanced */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-4">
+            {/* Selectable Cards Grid - Enlarged Box Size (Image 1 Fix) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-2.5 sm:my-3">
               {MARKETPLACE_SELLER_PLATFORMS.map((item) => {
                 const isSelected = selectedMarketplaces.includes(item.id);
                 return (
@@ -7486,25 +7815,27 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleMarketplace(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[130px] sm:min-h-[145px] ${isSelected
+                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[135px] sm:min-h-[150px] ${isSelected
                         ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 scale-[1.02]"
                         : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                       }`}
                   >
-                    {/* Selected Checkmark Badge */}
                     {isSelected && (
-                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                      <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md">
                         <Check className="w-3 h-3 text-white stroke-[3]" />
                       </div>
                     )}
 
-                    {/* Logo Tile */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-2 shrink-0">
-                      <PlatformIcon id={item.id} name={item.name} className="w-10 h-10 sm:w-12 sm:h-12" />
+                    {/* Logo Tile - Enlarged */}
+                    <div className="mb-2.5 shrink-0 flex items-center justify-center">
+                      <PlatformIcon
+                        id={item.id}
+                        name={item.name}
+                        className="w-14 h-14 sm:w-16 sm:h-16"
+                      />
                     </div>
 
-                    {/* Label */}
-                    <span className="mt-3 text-sm sm:text-base font-semibold text-white tracking-tight line-clamp-1">
+                    <span className="text-sm sm:text-base font-medium text-white">
                       {item.name}
                     </span>
                   </button>
@@ -7512,51 +7843,24 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            {/* If 'Other' is selected, reveal custom input */}
-            {selectedMarketplaces.includes("other") && (
-              <div className="mt-5 p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200 max-w-xl mx-auto w-full">
-                <Label htmlFor="custom-marketplace-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
-                  Marketplace name <span className="text-[#f0449b]">*</span>
-                </Label>
-                <input
-                  id="custom-marketplace-input"
-                  type="text"
-                  value={customMarketplaceName}
-                  onChange={(e) => {
-                    setCustomMarketplaceName(e.target.value);
-                    setError("");
-                  }}
-                  placeholder="e.g. Nykaa, Tata CLiQ, Etsy, Ajio"
-                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
-                  autoFocus
-                />
-              </div>
-            )}
-
-            {/* Error Message */}
+            {/* Error Notice */}
             {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in max-w-xl mx-auto">
+              <div className="mt-2 p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                 <span className="font-semibold text-red-400">Notice:</span> {error}
               </div>
             )}
           </div>
 
-          {/* Continue Button + Create Website Option matching Reference Image 1 */}
-          <div className="pt-6 pb-2 flex flex-col items-center">
+          {/* Continue Button */}
+          <div className="pt-3 sm:pt-4 pb-1 flex justify-center">
             <button
               type="button"
               id="marketplace-platforms-continue-btn"
               onClick={handleMarketplacePlatformsContinue}
-              disabled={
-                isSavingMarketplace ||
-                selectedMarketplaces.length === 0 ||
-                (selectedMarketplaces.includes("other") && !customMarketplaceName.trim())
-              }
-              className={`w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedMarketplaces.length > 0 &&
-                  !isSavingMarketplace &&
-                  (!selectedMarketplaces.includes("other") || customMarketplaceName.trim())
-                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white shadow-lg shadow-[#be32ff]/25"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
+              disabled={selectedMarketplaces.length === 0 || isSavingMarketplace}
+              className={`w-full max-w-sm h-11 sm:h-12 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#be32ff]/25 ${selectedMarketplaces.length > 0 && !isSavingMarketplace
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
                 }`}
             >
               {isSavingMarketplace ? (
@@ -7567,13 +7871,10 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
-
-            {/* Don't have a website yet? Create Website -> */}
-            
           </div>
         </div>
       )}
@@ -7714,47 +8015,47 @@ export default function OnboardingPage() {
           MARKETPLACE STEP 2: WHAT YOUR WEBSITE? (Exact Image 3 Desktop Layout)
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "marketplace_website" && (
-        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-1 sm:py-2 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~60%) */}
-            <div className="flex items-center gap-3 w-full mb-8">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~40%) */}
+            <div className="flex items-center gap-3 w-full mb-3 sm:mb-4 lg:mb-4">
               <button
                 type="button"
                 onClick={handleMarketplaceWebsiteBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
-                  style={{ width: "60%" }}
+                  style={{ width: "40%" }}
                 />
               </div>
             </div>
 
-            {/* 2-Column Layout matching Image 3 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+            {/* 2-Column Layout matching Image 2 */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
 
               {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
-              <div className="space-y-6 max-w-lg">
+              <div className="space-y-3 sm:space-y-3.5 lg:space-y-4 max-w-lg">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-normal text-white tracking-tight leading-tight">
                     What your{" "}
                     <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                       website
                     </span>
                     <span className="text-[#9936F1]">?</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 font-normal leading-relaxed">
                     We&apos;ll read it for you, so there&apos;s no need to type anything.
                   </p>
                 </div>
 
-                {/* Website URL Input (Pill container matching Image 3) */}
-                <div className="space-y-2">
-                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                {/* Website URL Input (Pill container matching Image 2) */}
+                <div className="space-y-1.5">
+                  <div className="h-[44px] sm:h-[46px] px-3.5 sm:px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-2.5 sm:gap-3">
                     <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
                     <input
                       type="text"
@@ -7770,7 +8071,7 @@ export default function OnboardingPage() {
                         }
                       }}
                       placeholder="yourwebsite.com"
-                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      className="w-full bg-transparent border-none text-white text-xs sm:text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
                       autoFocus
                     />
                     {websiteUrl && (
@@ -7793,65 +8094,65 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* OR Divider with subtle line */}
-                <div className="relative flex items-center justify-center py-2">
+                <div className="relative flex items-center justify-center py-1">
                   <div className="w-full border-t border-slate-700/50" />
-                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                  <span className="absolute bg-[#071226] px-3 text-[10px] sm:text-[11px] font-normal tracking-widest text-slate-500 uppercase">
                     OR
                   </span>
                 </div>
 
-                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image 3) */}
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image) */}
                 <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
                   <button
                     type="button"
                     onClick={() => handleCreateWebsite("marketplace")}
-                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
+                    className="w-full h-[40px] sm:h-[42px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-xs sm:text-sm font-normal text-white cursor-pointer"
                   >
                     <span>Create Website</span>
-                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                    <Sparkles className="w-3.5 h-3.5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
                   </button>
                 </div>
 
                 {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
-                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
-                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-2 pb-1 text-left">
+                  <div className="flex items-center gap-2 pr-2.5 min-w-0">
+                    <Zap className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Fast &amp; Smart</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 px-3 min-w-0">
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 px-2.5 min-w-0">
+                    <Shield className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Your data is safe</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 pl-2.5 min-w-0">
+                    <TrendingUp className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">With AI insights</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Error Notice */}
                 {error && (
-                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                  <div className="p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                     <span className="font-semibold text-red-400">Notice:</span> {error}
                   </div>
                 )}
 
                 {/* Continue Button */}
-                <div className="pt-3">
+                <div className="pt-2">
                   <button
                     type="button"
                     id="marketplace-website-continue-btn"
                     onClick={handleMarketplaceWebsiteContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
-                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
+                    className={`w-full max-w-md sm:max-w-lg h-[46px] sm:h-[48px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
                         ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
@@ -7871,9 +8172,9 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Right Column: 3D Website Artwork (Exact Image 3 Artwork) */}
+              {/* Right Column: 3D Website Artwork (Exact Image 2 Artwork) */}
               <div className="hidden lg:flex items-center justify-center relative select-none">
-                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                <div className="relative w-full max-w-[380px] lg:max-w-[420px] xl:max-w-[450px] flex items-center justify-center">
                   <img
                     src="/images/website-reading-artwork.png"
                     alt="What your website?"
@@ -7891,10 +8192,10 @@ export default function OnboardingPage() {
           WHOLESALE / B2B STEP 1: WHERE DO YOU SELL YOUR PRODUCTS WHOLESALE?
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "b2b_platforms" && (
-        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-4 sm:py-6 flex flex-col justify-between min-h-[540px] sm:min-h-[580px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto my-auto py-1 sm:py-2 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
             {/* Top Header: Back button + Long Gradient Progress Bar */}
-            <div className="flex items-center w-full mb-6">
+            <div className="flex items-center w-full mb-3 sm:mb-4">
               <button
                 type="button"
                 onClick={handleB2bPlatformsBack}
@@ -7912,20 +8213,17 @@ export default function OnboardingPage() {
             </div>
 
             {/* Title & Subtitle */}
-            <div className="mb-6 text-left">
+            <div className="mb-3 sm:mb-4 text-left">
               <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-tight">
-                Where do you sell your products{" "}
-                <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
-                  wholesale?
-                </span>
+                Where do you sell your products wholesale?
               </h1>
-              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1 leading-relaxed">
                 Select all the platforms you use.
               </p>
             </div>
 
-            {/* Selectable Cards Grid - Desktop Proportions */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-4">
+            {/* Selectable Cards Grid - Enlarged Box Size (Image 1 Fix) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5 my-2.5 sm:my-3">
               {B2B_WHOLESALE_PLATFORMS.map((item) => {
                 const isSelected = selectedB2bPlatforms.includes(item.id);
                 return (
@@ -7933,25 +8231,27 @@ export default function OnboardingPage() {
                     key={item.id}
                     type="button"
                     onClick={() => handleToggleB2bPlatform(item.id)}
-                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[130px] sm:min-h-[145px] ${isSelected
+                    className={`relative flex flex-col items-center justify-center p-5 sm:p-6 rounded-2xl transition-all duration-200 border text-center cursor-pointer select-none min-h-[135px] sm:min-h-[150px] ${isSelected
                         ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 scale-[1.02]"
                         : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
                       }`}
                   >
-                    {/* Selected Checkmark Badge */}
                     {isSelected && (
-                      <div className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md animate-in zoom-in-75 duration-150">
+                      <div className="absolute top-3.5 right-3.5 w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center shadow-md">
                         <Check className="w-3 h-3 text-white stroke-[3]" />
                       </div>
                     )}
 
-                    {/* Logo Tile */}
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white flex items-center justify-center shadow-md overflow-hidden p-2 shrink-0">
-                      <PlatformIcon id={item.id} name={item.name} className="w-10 h-10 sm:w-12 sm:h-12" />
+                    {/* Logo Tile - Enlarged */}
+                    <div className="mb-2.5 shrink-0 flex items-center justify-center">
+                      <PlatformIcon
+                        id={item.id}
+                        name={item.name}
+                        className="w-14 h-14 sm:w-16 sm:h-16"
+                      />
                     </div>
 
-                    {/* Label */}
-                    <span className="mt-3 text-sm sm:text-base font-semibold text-white tracking-tight line-clamp-1">
+                    <span className="text-sm sm:text-base font-medium text-white">
                       {item.name}
                     </span>
                   </button>
@@ -7959,51 +8259,24 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            {/* If 'Other' is selected, reveal custom input */}
-            {selectedB2bPlatforms.includes("other") && (
-              <div className="mt-5 p-4 rounded-2xl bg-[#131728]/80 border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)] animate-in fade-in slide-in-from-top-2 duration-200 max-w-xl mx-auto w-full">
-                <Label htmlFor="custom-b2b-platform-input" className="text-xs font-semibold text-neutral-300 block mb-1.5">
-                  Wholesale platform name <span className="text-[#f0449b]">*</span>
-                </Label>
-                <input
-                  id="custom-b2b-platform-input"
-                  type="text"
-                  value={customB2bPlatformName}
-                  onChange={(e) => {
-                    setCustomB2bPlatformName(e.target.value);
-                    setError("");
-                  }}
-                  placeholder="e.g. IndustryBuying, Moglix, Power2SME"
-                  className="w-full h-11 px-3.5 rounded-xl bg-white/5 border border-white/10 focus:border-[#be32ff] text-white text-sm focus:outline-none placeholder:text-neutral-500 font-medium transition-all"
-                  autoFocus
-                />
-              </div>
-            )}
-
-            {/* Error Message */}
+            {/* Error Notice */}
             {error && (
-              <div className="mt-4 p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in max-w-xl mx-auto">
+              <div className="mt-2 p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                 <span className="font-semibold text-red-400">Notice:</span> {error}
               </div>
             )}
           </div>
 
-          {/* Continue Button (Bottom Create Website button removed as requested) */}
-          <div className="pt-6 pb-2 flex flex-col items-center">
+          {/* Continue Button */}
+          <div className="pt-3 sm:pt-4 pb-1 flex justify-center">
             <button
               type="button"
               id="b2b-platforms-continue-btn"
               onClick={handleB2bPlatformsContinue}
-              disabled={
-                isSavingB2b ||
-                selectedB2bPlatforms.length === 0 ||
-                (selectedB2bPlatforms.includes("other") && !customB2bPlatformName.trim())
-              }
-              className={`w-full max-w-sm sm:max-w-md h-12 sm:h-13 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bPlatforms.length > 0 &&
-                  !isSavingB2b &&
-                  (!selectedB2bPlatforms.includes("other") || customB2bPlatformName.trim())
-                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:brightness-110 active:scale-[0.98] text-white shadow-lg shadow-[#be32ff]/25"
-                  : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
+              disabled={selectedB2bPlatforms.length === 0 || isSavingB2b}
+              className={`w-full max-w-sm h-11 sm:h-12 rounded-full font-semibold text-base flex items-center justify-center gap-2 transition-all duration-200 shadow-lg shadow-[#be32ff]/25 ${selectedB2bPlatforms.length > 0 && !isSavingB2b
+                  ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98] cursor-pointer"
+                  : "bg-white/10 text-white/40 cursor-not-allowed pointer-events-none opacity-60"
                 }`}
             >
               {isSavingB2b ? (
@@ -8014,7 +8287,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </>
               )}
             </button>
@@ -8158,47 +8431,47 @@ export default function OnboardingPage() {
           WHOLESALE / B2B STEP 3: DO YOU HAVE A WEBSITE OR ONLINE STOREFRONT?
       ══════════════════════════════════════════════════════════════════════ */}
       {currentStepObj.id === "b2b_website" && (
-        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-4 flex flex-col justify-between min-h-[520px] animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
+        <div className="w-full max-w-5xl xl:max-w-6xl mx-auto my-auto py-1 sm:py-2 flex flex-col justify-center animate-in fade-in duration-400 relative z-10 px-4 sm:px-6">
           <div>
-            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~60%) */}
-            <div className="flex items-center gap-3 w-full mb-8">
+            {/* Top Bar: Back button + Full-width Thin Gradient Progress Bar (~40%) */}
+            <div className="flex items-center gap-3 w-full mb-3 sm:mb-4 lg:mb-4">
               <button
                 type="button"
                 onClick={handleB2bWebsiteBack}
                 aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/10"
               >
-                <ArrowLeft className="w-5 h-5 text-white" />
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </button>
-              <div className="flex-1 h-2 bg-slate-800/80 rounded-full overflow-hidden">
+              <div className="flex-1 h-1.5 sm:h-2 bg-slate-800/80 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(232,78,143,0.5)]"
-                  style={{ width: "60%" }}
+                  style={{ width: "40%" }}
                 />
               </div>
             </div>
 
             {/* 2-Column Layout matching Image 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
 
               {/* Left Column: Heading, Inputs, Highlights & Action Buttons */}
-              <div className="space-y-6 max-w-lg">
+              <div className="space-y-3 sm:space-y-3.5 lg:space-y-4 max-w-lg">
                 <div>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight leading-tight">
+                  <h1 className="text-2xl sm:text-3xl lg:text-[32px] font-normal text-white tracking-tight leading-tight">
                     What your{" "}
                     <span className="font-normal bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] bg-clip-text text-transparent">
                       website
                     </span>
                     <span className="text-[#9936F1]">?</span>
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-400 mt-2 font-normal leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1 font-normal leading-relaxed">
                     We&apos;ll read it for you, so there&apos;s no need to type anything.
                   </p>
                 </div>
 
                 {/* Website URL Input (Pill container matching Image 2) */}
-                <div className="space-y-2">
-                  <div className="h-[48px] px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-3">
+                <div className="space-y-1.5">
+                  <div className="h-[44px] sm:h-[46px] px-3.5 sm:px-4 rounded-full bg-[#131728] border border-slate-700/60 focus-within:border-[#9936F1] focus-within:ring-1 focus-within:ring-[#9936F1]/40 transition-all flex items-center gap-2.5 sm:gap-3">
                     <Link2 className="w-4 h-4 -rotate-45 text-slate-400 shrink-0" />
                     <input
                       type="text"
@@ -8214,7 +8487,7 @@ export default function OnboardingPage() {
                         }
                       }}
                       placeholder="yourwebsite.com"
-                      className="w-full bg-transparent border-none text-white text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
+                      className="w-full bg-transparent border-none text-white text-xs sm:text-sm placeholder:text-slate-500 focus:outline-none tracking-normal font-normal"
                       autoFocus
                     />
                     {websiteUrl && (
@@ -8237,65 +8510,65 @@ export default function OnboardingPage() {
                 </div>
 
                 {/* OR Divider with subtle line */}
-                <div className="relative flex items-center justify-center py-2">
+                <div className="relative flex items-center justify-center py-1">
                   <div className="w-full border-t border-slate-700/50" />
-                  <span className="absolute bg-[#071226] px-3 text-[11px] font-normal tracking-widest text-slate-500 uppercase">
+                  <span className="absolute bg-[#071226] px-3 text-[10px] sm:text-[11px] font-normal tracking-widest text-slate-500 uppercase">
                     OR
                   </span>
                 </div>
 
-                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image 2) */}
+                {/* Create Website Button with Gradient Border & Sparkles Icon (Reference Image) */}
                 <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-sm">
                   <button
                     type="button"
                     onClick={() => handleCreateWebsite("b2b")}
-                    className="w-full h-[46px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2.5 text-sm font-normal text-white cursor-pointer"
+                    className="w-full h-[40px] sm:h-[42px] rounded-full bg-[#0d1427] hover:bg-[#121c35] active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-xs sm:text-sm font-normal text-white cursor-pointer"
                   >
                     <span>Create Website</span>
-                    <Sparkles className="w-4 h-4 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
+                    <Sparkles className="w-3.5 h-3.5 text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.7)]" />
                   </button>
                 </div>
 
-                {/* 3 Value Pillars with Icons & Purple Text (Image 3 Reference) */}
-                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-4 pb-2 text-left">
-                  <div className="flex items-center gap-2.5 pr-3 min-w-0">
-                    <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                {/* 3 Value Pillars with Icons (AI-Powered | Secure | Grow Faster) */}
+                <div className="grid grid-cols-3 divide-x divide-purple-900/40 pt-2 pb-1 text-left">
+                  <div className="flex items-center gap-2 pr-2.5 min-w-0">
+                    <Zap className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">AI-Powered</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Fast &amp; Smart</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Fast &amp; Smart</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 px-3 min-w-0">
-                    <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 px-2.5 min-w-0">
+                    <Shield className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Secure</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">Your data is safe</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">Your data is safe</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2.5 pl-3 min-w-0">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-[#C084FC] shrink-0" />
+                  <div className="flex items-center gap-2 pl-2.5 min-w-0">
+                    <TrendingUp className="w-4 h-4 text-[#C084FC] shrink-0" />
                     <div className="space-y-0.5 min-w-0">
                       <p className="text-xs font-medium text-[#E9D5FF]">Grow Faster</p>
-                      <p className="text-[11px] text-[#C084FC]/80 font-normal">With AI insights</p>
+                      <p className="text-[10px] sm:text-[11px] text-[#C084FC]/80 font-normal truncate">With AI insights</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Error Notice */}
                 {error && (
-                  <div className="p-3 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
+                  <div className="p-2.5 text-xs text-red-300 bg-red-500/10 border border-red-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                     <span className="font-semibold text-red-400">Notice:</span> {error}
                   </div>
                 )}
 
                 {/* Continue Button */}
-                <div className="pt-3">
+                <div className="pt-2">
                   <button
                     type="button"
                     id="b2b-website-continue-btn"
                     onClick={handleB2bWebsiteContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
-                    className={`w-full max-w-md sm:max-w-lg h-[50px] rounded-full font-normal text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
+                    className={`w-full max-w-md sm:max-w-lg h-[46px] sm:h-[48px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
                         ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
@@ -8317,7 +8590,7 @@ export default function OnboardingPage() {
 
               {/* Right Column: 3D Website Artwork (Exact Image 2 Artwork) */}
               <div className="hidden lg:flex items-center justify-center relative select-none">
-                <div className="relative w-full max-w-[500px] flex items-center justify-center">
+                <div className="relative w-full max-w-[380px] lg:max-w-[420px] xl:max-w-[450px] flex items-center justify-center">
                   <img
                     src="/images/website-reading-artwork.png"
                     alt="What your website?"
@@ -8332,753 +8605,36 @@ export default function OnboardingPage() {
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          NO ONLINE PRESENCE STEP 1: BUSINESS BASICS & WHAT TO PROMOTE (none_details)
+          NO ONLINE PRESENCE: BRAND KIT SETUP (Step 1 Basics & Step 2 Logo Studio)
       ══════════════════════════════════════════════════════════════════════ */}
-      {currentStepObj.id === "none_details" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
-            {/* Top Header: Back button + Progress bar (~45%) + Completion Status */}
-            <div className="flex items-center gap-3 w-full mb-2">
-              <button
-                type="button"
-                onClick={handleNoneDetailsBack}
-                aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "45%" }}
-                />
-              </div>
-              <span className="text-[11px] text-[#be32ff] font-semibold bg-[#be32ff]/10 px-2.5 py-1 rounded-full border border-[#be32ff]/20 shrink-0 hidden sm:inline-block">
-                Brand Kit · Step 1
-              </span>
-            </div>
-
-            {/* Friendly Non-Blocking Banner */}
-            <div className="p-3 sm:p-3.5 rounded-2xl bg-[#be32ff]/10 border border-[#be32ff]/20 flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-[#be32ff] shrink-0 mt-0.5" />
-              <div className="text-xs text-neutral-300 space-y-0.5">
-                <span className="font-semibold text-white block">
-                  Flexible Brand Kit Setup
-                </span>
-                <span className="text-neutral-400 leading-relaxed block">
-                  Only business name is required. You can complete or update your Brand Kit anytime later in Settings.
-                </span>
-              </div>
-            </div>
-
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Tell us about your{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  business
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light">
-                We&apos;ll use this information to craft personalized AI posts, ads, and graphics for your brand.
-              </p>
-            </div>
-
-            {/* Form Fields Container */}
-            <div className="space-y-4">
-              {/* Field 1: Business Name (Required *) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="none-b-name" className="text-xs font-semibold text-neutral-300">
-                    Business name <span className="text-rose-400">*</span>
-                  </Label>
-                  <span className="text-[11px] text-neutral-500">Required</span>
-                </div>
-                <Input
-                  id="none-b-name"
-                  type="text"
-                  value={businessProfile.business_name}
-                  onChange={(e) => {
-                    setBusinessProfile({ ...businessProfile, business_name: e.target.value });
-                    setError("");
-                  }}
-                  placeholder="e.g. Amber & Oak Studio, Ramesh Textiles, Green Cafe"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm sm:text-base focus:border-[#be32ff] px-4 font-medium"
-                  autoFocus
-                />
-              </div>
-
-              {/* Field 2: Business Category & Suggested Niches */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label className="text-xs font-semibold text-neutral-300">
-                    Category & industry <span className="text-neutral-500 font-normal">(Optional)</span>
-                  </Label>
-                  <button
-                    type="button"
-                    onClick={() => setIsNoneCategoryOpen(true)}
-                    className="text-xs text-[#be32ff] hover:text-[#fc9a5d] transition-colors flex items-center gap-1 font-medium cursor-pointer"
-                  >
-                    <span>Browse all categories</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Active Category Display & Picker Trigger */}
-                <div
-                  onClick={() => setIsNoneCategoryOpen(true)}
-                  className="h-12 px-4 rounded-2xl bg-[#0f1015] border border-white/15 hover:border-white/30 transition-all flex items-center justify-between cursor-pointer"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Store className="w-4 h-4 text-[#be32ff]" />
-                    <span className="text-sm font-semibold text-white">{noneCategory}</span>
-                  </div>
-                  <ChevronDown className="w-4 h-4 text-neutral-400" />
-                </div>
-
-                {/* Quick Category Chips for Fast 1-Tap Switching */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["Fashion & Apparel", "Jewellery", "Restaurant & Cafe", "Beauty & Wellness", "Grocery & Supermarket", "Tech & Electronics"].map(
-                    (cat) => {
-                      const isSelected = noneCategory.toLowerCase() === cat.toLowerCase();
-                      return (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => {
-                            setNoneCategory(cat);
-                            const matched = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === cat.toLowerCase());
-                            if (matched && !noneProducts.trim()) {
-                              setNoneProducts(matched.defaultPromote);
-                            }
-                          }}
-                          className={`text-xs px-2.5 py-1 rounded-full transition-all cursor-pointer ${isSelected
-                              ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/40 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
-                              : "bg-white/5 text-neutral-400 hover:text-white hover:bg-white/10 border border-white/10"
-                            }`}
-                        >
-                          {cat}
-                        </button>
-                      );
-                    }
-                  )}
-                </div>
-
-                {/* Optional Sub-category / Niche */}
-                <div className="pt-1.5 space-y-1.5">
-                  <Input
-                    type="text"
-                    value={noneSubCategory}
-                    onChange={(e) => setNoneSubCategory(e.target.value)}
-                    placeholder="Specific niche / sub-category (e.g. Organic sourdough, Bridal lehengas)"
-                    className="h-10 rounded-xl bg-white/5 border-white/10 text-white text-xs sm:text-sm focus:border-[#be32ff] px-3.5"
-                  />
-
-                  {/* Dynamic Suggested Niche Chips from Selected Category */}
-                  {(() => {
-                    const matchedCat = BUSINESS_CATEGORIES.find((c) => c.name.toLowerCase() === noneCategory.toLowerCase());
-                    if (!matchedCat || !matchedCat.suggestedNiches?.length) return null;
-                    return (
-                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                        <span className="text-[11px] text-neutral-500 font-medium">Quick suggestions:</span>
-                        {matchedCat.suggestedNiches.slice(0, 4).map((niche) => (
-                          <button
-                            key={niche}
-                            type="button"
-                            onClick={() => setNoneSubCategory(niche)}
-                            className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10 transition-colors cursor-pointer"
-                          >
-                            + {niche}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-
-              {/* Field 3: What should we promote? (Optional) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="none-b-promote" className="text-xs font-semibold text-neutral-300">
-                    Products or services to promote <span className="text-neutral-500 font-normal">(Optional)</span>
-                  </Label>
-                </div>
-                <Input
-                  id="none-b-promote"
-                  type="text"
-                  value={noneProducts}
-                  onChange={(e) => setNoneProducts(e.target.value)}
-                  placeholder="e.g. Artisanal sourdough breads, birthday cakes, breakfast hampers"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
-                />
-              </div>
-
-              {/* Field 4: Target Audience (Optional) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="none-b-audience" className="text-xs font-semibold text-neutral-300">
-                    Target audience <span className="text-neutral-500 font-normal">(Optional)</span>
-                  </Label>
-                </div>
-                <Input
-                  id="none-b-audience"
-                  type="text"
-                  value={noneAudience}
-                  onChange={(e) => setNoneAudience(e.target.value)}
-                  placeholder="e.g. Local neighborhood foodies, young families, office workers"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
-                />
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["Local Walk-in Customers", "Young Adults & Gen-Z", "Families with Kids", "Working Professionals", "Pan-India Buyers"].map((aud) => (
-                    <button
-                      key={aud}
-                      type="button"
-                      onClick={() => setNoneAudience(aud)}
-                      className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
-                    >
-                      + {aud}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Field 5: What makes you different / Differentiators (Optional) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="none-b-diff" className="text-xs font-semibold text-neutral-300">
-                    What makes your business different? <span className="text-neutral-500 font-normal">(Optional)</span>
-                  </Label>
-                </div>
-                <Input
-                  id="none-b-diff"
-                  type="text"
-                  value={noneDifferentiator}
-                  onChange={(e) => setNoneDifferentiator(e.target.value)}
-                  placeholder="e.g. 100% organic, baked fresh daily, custom designs, fastest delivery"
-                  className="h-12 rounded-2xl bg-[#0f1015] border-white/15 text-white text-sm focus:border-[#be32ff] px-4"
-                />
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {["100% Pure & Handcrafted", "Best Prices Guaranteed", "Freshly Made Daily", "Fast Local Delivery", "Customized to Order"].map((diff) => (
-                    <button
-                      key={diff}
-                      type="button"
-                      onClick={() => setNoneDifferentiator(diff)}
-                      className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white border border-white/10 transition-colors cursor-pointer"
-                    >
-                      + {diff}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Field 6: Short Business Description (Optional) */}
-              <div className="space-y-1.5">
-                <Label htmlFor="none-b-desc" className="text-xs font-semibold text-neutral-300">
-                  Business story / description <span className="text-neutral-500 font-normal">(Optional)</span>
-                </Label>
-                <textarea
-                  id="none-b-desc"
-                  rows={2}
-                  value={noneDescription}
-                  onChange={(e) => setNoneDescription(e.target.value)}
-                  placeholder="Tell us a little about your business background or specialities..."
-                  className="w-full p-3 rounded-2xl bg-[#0f1015] border border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff] focus:outline-none resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Error Banner */}
-            {error && (
-              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <span className="font-semibold text-rose-400">Notice:</span> {error}
-              </div>
-            )}
-          </div>
-
-          {/* Sticky Bottom Bar with Continue and Skip for now */}
-          <div className="pt-6 pb-2 space-y-3">
-            <button
-              type="button"
-              id="none-details-continue-btn"
-              onClick={handleNoneDetailsContinue}
-              disabled={isSavingBrandKitStep}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-            >
-              {isSavingBrandKitStep ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <>
-                  <span>Continue to Brand Style</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleNoneDetailsSkip}
-              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
-            >
-              Skip for now · Continue with defaults
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════════════════════
-          NO ONLINE PRESENCE STEP 2: BRAND KIT STYLE & CREATIVE IDENTITY (none_brand_kit)
-      ══════════════════════════════════════════════════════════════════════ */}
-      {currentStepObj.id === "none_brand_kit" && (
-        <div className="w-full max-w-xl sm:max-w-2xl mx-auto my-auto py-2 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
-          <div className="space-y-6">
-            {/* Top Header: Back button + Progress bar (~70%) + Badge */}
-            <div className="flex items-center gap-3 w-full mb-2">
-              <button
-                type="button"
-                onClick={handleNoneBrandKitBack}
-                aria-label="Go back"
-                className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500 shadow-[0_0_12px_rgba(240,68,155,0.5)]"
-                  style={{ width: "70%" }}
-                />
-              </div>
-              <span className="text-[11px] text-[#f0449b] font-semibold bg-[#f0449b]/10 px-2.5 py-1 rounded-full border border-[#f0449b]/20 shrink-0 hidden sm:inline-block">
-                Brand Kit · Step 2
-              </span>
-            </div>
-
-            {/* Heading & Subtitle */}
-            <div className="space-y-1">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-snug">
-                Customize your{" "}
-                <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">
-                  Brand Kit
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-400 font-light">
-                Choose your brand colors, typography, tone, and logo for AI creatives. Everything is optional and editable later.
-              </p>
-            </div>
-
-            {/* ─── SECTION 1: LOGO UPLOAD (OPTIONAL) ─── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-[#be32ff]" />
-                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Logo</span>
-                  <span className="text-[11px] text-neutral-500">(Optional)</span>
-                </div>
-                {logoPreview && (
-                  <button
-                    type="button"
-                    onClick={handleRemoveBrandLogo}
-                    className="text-xs text-rose-400 hover:text-rose-300 font-medium cursor-pointer"
-                  >
-                    Remove logo
-                  </button>
-                )}
-              </div>
-
-              {logoPreview ? (
-                <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/10">
-                  <div className="w-16 h-16 rounded-xl bg-white/10 border border-white/15 overflow-hidden flex items-center justify-center p-1.5 shrink-0">
-                    <img src={logoPreview} alt="Brand Logo" className="w-full h-full object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span className="text-xs font-semibold text-white truncate">Logo ready for creatives</span>
-                    </div>
-                    <p className="text-[11px] text-neutral-400 mt-0.5">
-                      Will be placed on all AI generated posters and banners.
-                    </p>
-                  </div>
-                  <label
-                    htmlFor="brand-kit-logo-input"
-                    className="text-xs font-medium text-[#be32ff] hover:text-[#fc9a5d] px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 transition-colors cursor-pointer shrink-0"
-                  >
-                    Change
-                  </label>
-                  <input
-                    id="brand-kit-logo-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleBrandLogoUpload}
-                    className="hidden"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <label
-                    htmlFor="brand-kit-logo-input"
-                    className="flex flex-col items-center justify-center p-5 rounded-xl border border-dashed border-white/20 hover:border-[#be32ff]/60 bg-white/[0.02] hover:bg-[#be32ff]/[0.04] transition-all cursor-pointer group text-center"
-                  >
-                    {isUploadingBrandLogo ? (
-                      <Loader2 className="w-6 h-6 text-[#be32ff] animate-spin mb-1.5" />
-                    ) : (
-                      <Upload className="w-6 h-6 text-neutral-400 group-hover:text-[#be32ff] transition-colors mb-1.5" />
-                    )}
-                    <span className="text-xs sm:text-sm font-semibold text-white">
-                      Click to upload your logo
-                    </span>
-                    <span className="text-[11px] text-neutral-500 mt-0.5">
-                      PNG, JPG, SVG, WebP up to 5MB (Transparent background recommended)
-                    </span>
-                    <span className="text-[11px] text-[#be32ff] font-medium mt-2 bg-[#be32ff]/10 px-2 py-0.5 rounded-md">
-                      No logo? Skip it — AI creates one or uses smart typography!
-                    </span>
-                  </label>
-                  <input
-                    id="brand-kit-logo-input"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleBrandLogoUpload}
-                    className="hidden"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* ─── SECTION 2: BRAND COLORS & 1-CLICK PRESETS ─── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Palette className="w-4 h-4 text-[#f0449b]" />
-                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Colors</span>
-                  <span className="text-[11px] text-neutral-500">(Curated presets)</span>
-                </div>
-                {/* Active Palette Preview */}
-                <div className="flex items-center gap-1.5">
-                  {brandPreferences.palette.slice(0, 3).map((col, idx) => (
-                    <div
-                      key={idx}
-                      className="w-5 h-5 rounded-full border border-white/30 shadow-sm"
-                      style={{ backgroundColor: col }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* 6 Curated 1-Click Color Presets */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                {CURATED_COLOR_PRESETS.map((preset) => {
-                  const isSelected =
-                    brandPreferences.palette[0]?.toLowerCase() === preset.primary.toLowerCase();
-                  return (
-                    <button
-                      key={preset.name}
-                      type="button"
-                      onClick={() => handleSelectColorPreset(preset)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${isSelected
-                          ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                          : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
-                        }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center -space-x-1.5">
-                          <span
-                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
-                            style={{ backgroundColor: preset.primary }}
-                          />
-                          <span
-                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
-                            style={{ backgroundColor: preset.secondary }}
-                          />
-                          <span
-                            className="w-5 h-5 rounded-full border border-white/40 shadow-sm"
-                            style={{ backgroundColor: preset.accent }}
-                          />
-                        </div>
-                        {isSelected && <Check className="w-4 h-4 text-[#be32ff]" />}
-                      </div>
-                      <span className="text-[11px] font-semibold text-white truncate">
-                        {preset.name}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Custom Color Adjustment */}
-              <div className="pt-1 flex items-center justify-between text-xs text-neutral-400 border-t border-white/5">
-                <span>Or pick custom colors:</span>
-                <div className="flex items-center gap-2">
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <span className="text-[11px]">Primary:</span>
-                    <input
-                      type="color"
-                      value={brandPreferences.palette[0] || "#BE32FF"}
-                      onChange={(e) => {
-                        const col = e.target.value;
-                        setBrandPreferences((prev) => ({
-                          ...prev,
-                          palette: [col, prev.palette[1] || "#F0449B", prev.palette[2] || "#FC9A5D"],
-                        }));
-                        setBusinessProfile((prev) => ({ ...prev, brand_color: col }));
-                      }}
-                      className="w-6 h-6 rounded-full border border-white/30 cursor-pointer overflow-hidden bg-transparent"
-                    />
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <span className="text-[11px]">Secondary:</span>
-                    <input
-                      type="color"
-                      value={brandPreferences.palette[1] || "#F0449B"}
-                      onChange={(e) => {
-                        const col = e.target.value;
-                        setBrandPreferences((prev) => ({
-                          ...prev,
-                          palette: [prev.palette[0] || "#BE32FF", col, prev.palette[2] || "#FC9A5D"],
-                        }));
-                      }}
-                      className="w-6 h-6 rounded-full border border-white/30 cursor-pointer overflow-hidden bg-transparent"
-                    />
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            {/* ─── SECTION 3: TYPOGRAPHY / FONT ─── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3.5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Tag className="w-4 h-4 text-[#fc9a5d]" />
-                  <span className="text-xs sm:text-sm font-semibold text-white">Typography / Font Style</span>
-                  <span className="text-[11px] text-neutral-500">(Headline font)</span>
-                </div>
-                <span className="text-xs font-semibold text-[#be32ff]">{selectedFont}</span>
-              </div>
-
-              {/* Supported Fonts Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {SUPPORTED_FONTS.map((f) => {
-                  const isSelected = selectedFont.toLowerCase() === f.name.toLowerCase();
-                  return (
-                    <button
-                      key={f.name}
-                      type="button"
-                      onClick={() => setSelectedFont(f.name)}
-                      className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${isSelected
-                          ? "bg-[#be32ff]/15 border-[#be32ff] shadow-[0_0_12px_rgba(190,50,255,0.2)]"
-                          : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
-                        }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold text-white">{f.name}</span>
-                        {isSelected && <Check className="w-3.5 h-3.5 text-[#be32ff]" />}
-                      </div>
-                      <span className="text-[10px] text-neutral-400 block mb-1">{f.category}</span>
-                      <span className="text-[11px] text-neutral-300 font-medium block truncate">
-                        {f.sample}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ─── SECTION 4: BRAND VOICE / TONE ─── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#be32ff]" />
-                  <span className="text-xs sm:text-sm font-semibold text-white">Brand Voice / Tone</span>
-                  <span className="text-[11px] text-neutral-500">(Select multiple)</span>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {[
-                  "Modern",
-                  "Professional",
-                  "Friendly",
-                  "Bold",
-                  "Luxurious",
-                  "Festive",
-                  "Desi / Authentic",
-                  "Warm",
-                  "Fun & Playful",
-                  "Minimal",
-                ].map((tone) => {
-                  const isSelected = brandPreferences.tones.includes(tone);
-                  return (
-                    <button
-                      key={tone}
-                      type="button"
-                      onClick={() => handleToggleTone(tone)}
-                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${isSelected
-                          ? "bg-[#be32ff]/20 text-[#be32ff] font-bold border border-[#be32ff]/50 shadow-[0_0_10px_rgba(190,50,255,0.2)]"
-                          : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
-                        }`}
-                    >
-                      {isSelected ? "✓ " : "+ "}
-                      {tone}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ─── SECTION 5: AI CONTENT LANGUAGE ─── */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-[#131728]/75 border border-white/10 space-y-2.5">
-              <div className="flex items-center gap-2">
-                <Globe className="w-4 h-4 text-emerald-400" />
-                <span className="text-xs sm:text-sm font-semibold text-white">AI Content Language</span>
-                <span className="text-[11px] text-neutral-500">(For captions & ad copy)</span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { id: "English", label: "English" },
-                  { id: "hinglish", label: "Hinglish (Conversational)" },
-                  { id: "hindi", label: "हिंदी (Hindi)" },
-                  { id: "marathi", label: "मराठी (Marathi)" },
-                  { id: "gujarati", label: "ગુજરાતી (Gujarati)" },
-                  { id: "bengali", label: "বাংলা (Bengali)" },
-                  { id: "tamil", label: "தமிழ் (Tamil)" },
-                ].map((lang) => {
-                  const isSelected =
-                    brandPreferences.language.toLowerCase() === lang.id.toLowerCase() ||
-                    (lang.id === "English" && brandPreferences.language === "English");
-                  return (
-                    <button
-                      key={lang.id}
-                      type="button"
-                      onClick={() => setBrandPreferences({ ...brandPreferences, language: lang.id })}
-                      className={`text-xs px-3 py-1.5 rounded-full transition-all cursor-pointer ${isSelected
-                          ? "bg-[#f0449b]/20 text-[#f0449b] font-bold border border-[#f0449b]/50 shadow-[0_0_10px_rgba(240,68,155,0.2)]"
-                          : "bg-white/5 text-neutral-300 hover:text-white hover:bg-white/10 border border-white/10"
-                        }`}
-                    >
-                      {lang.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Error Banner */}
-            {error && (
-              <div className="p-3 text-xs text-rose-300 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
-                <span className="font-semibold text-rose-400">Notice:</span> {error}
-              </div>
-            )}
-          </div>
-
-          {/* Sticky Bottom Bar with Continue and Skip */}
-          <div className="pt-6 pb-2 space-y-3">
-            <button
-              type="button"
-              id="none-brand-kit-continue-btn"
-              onClick={handleNoneBrandKitContinue}
-              disabled={isSavingBrandKitStep}
-              className="w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
-            >
-              {isSavingBrandKitStep ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>Saving Brand Kit...</span>
-                </>
-              ) : (
-                <>
-                  <span>Save & Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
-                </>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleNoneBrandKitSkip}
-              className="w-full text-center text-xs sm:text-sm text-neutral-400 hover:text-white transition-colors py-1.5 font-medium cursor-pointer"
-            >
-              Skip for now · Use defaults
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ─── Category Selection Modal for No Online Presence Flow ─── */}
-      {isNoneCategoryOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="w-full max-w-md max-h-[85vh] bg-[#0c1222] border border-white/15 rounded-3xl p-5 sm:p-6 flex flex-col shadow-2xl relative">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-white/10">
-              <h3 className="text-lg font-bold text-white">Select business category</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsNoneCategoryOpen(false);
-                  setNoneCategorySearch("");
-                }}
-                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-neutral-300 hover:text-white"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* Search Input */}
-            <div className="py-3">
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                <Input
-                  type="text"
-                  value={noneCategorySearch}
-                  onChange={(e) => setNoneCategorySearch(e.target.value)}
-                  placeholder="Search categories (e.g. fashion, bakery, salon)..."
-                  className="h-11 pl-10 pr-9 rounded-xl bg-[#0f1015] border-white/15 text-white text-xs sm:text-sm focus:border-[#be32ff]"
-                  autoFocus
-                />
-                {noneCategorySearch && (
-                  <button
-                    type="button"
-                    onClick={() => setNoneCategorySearch("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Scrollable Category List */}
-            <div className="flex-1 overflow-y-auto space-y-1 divide-y divide-white/5 pr-1 max-h-[55vh]">
-              {BUSINESS_CATEGORIES.filter((c) =>
-                c.name.toLowerCase().includes(noneCategorySearch.toLowerCase())
-              ).map((cat) => {
-                const isSelected = noneCategory.toLowerCase() === cat.name.toLowerCase();
-                return (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    onClick={() => {
-                      setNoneCategory(cat.name);
-                      if (!noneProducts.trim()) {
-                        setNoneProducts(cat.defaultPromote);
-                      }
-                      setIsNoneCategoryOpen(false);
-                      setNoneCategorySearch("");
-                    }}
-                    className={`w-full p-3 rounded-xl text-left flex items-center justify-between transition-colors cursor-pointer ${isSelected
-                        ? "bg-[#be32ff]/15 text-white font-bold"
-                        : "text-neutral-300 hover:bg-white/[0.05] hover:text-white"
-                      }`}
-                  >
-                    <span className="text-xs sm:text-sm">{cat.name}</span>
-                    {isSelected && <Check className="w-4 h-4 text-[#be32ff] shrink-0" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      {(currentStepObj.id === "none_details" || currentStepObj.id === "none_brand_kit") && (
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto py-2 sm:py-4 px-3 sm:px-6 animate-in fade-in duration-300">
+          <BrandKitRegistrationModal
+            isOpen={true}
+            isModal={false}
+            initialStep={currentStepObj.id === "none_brand_kit" ? "logo" : "basics"}
+            onBack={handleNoneDetailsBack}
+            onStepChange={(st) => {
+              if (st === "basics") {
+                const idx = activeSteps.findIndex((s) => s.id === "none_details");
+                if (idx !== -1) setCurrentStep(idx);
+              } else if (st === "logo") {
+                const idx = activeSteps.findIndex((s) => s.id === "none_brand_kit");
+                if (idx !== -1) setCurrentStep(idx);
+              }
+            }}
+            onClose={() => {
+              router.push("/dashboard");
+            }}
+            onComplete={async () => {
+              const nextIdx = activeSteps.findIndex((s) => s.id === "first_thing");
+              if (nextIdx !== -1) {
+                setCurrentStep(nextIdx);
+              } else {
+                router.push("/dashboard");
+              }
+            }}
+          />
         </div>
       )}
 
@@ -9288,7 +8844,7 @@ export default function OnboardingPage() {
       )}
 
       {currentStepObj.id === "post_maker_pick" && (
-        <div className="w-full max-w-4xl mx-auto my-auto py-2 sm:py-4 flex flex-col justify-between min-h-[580px] sm:min-h-[660px] animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
+        <div className="w-full max-w-4xl lg:max-w-5xl mx-auto pt-3 sm:pt-4 pb-2 flex flex-col justify-between animate-in fade-in duration-400 relative z-10 px-3 sm:px-6">
           {isGeneratingPosts ? (
             <>
               {/* ══════════════════════════════════════════════════════════════════════
@@ -9411,7 +8967,7 @@ export default function OnboardingPage() {
             ══════════════════════════════════════════════════════════════════════ */
             <>
               <div>
-                <div className="flex items-center gap-3 sm:gap-4 w-full mb-6 sm:mb-8">
+                <div className="flex items-center gap-3 sm:gap-4 w-full mb-2 sm:mb-3">
                   <button
                     type="button"
                     onClick={handlePostMakerPickBack}
@@ -9428,7 +8984,7 @@ export default function OnboardingPage() {
                   </div>
                 </div>
 
-                <div className="mb-6 sm:mb-8 text-left">
+                <div className="mb-2.5 sm:mb-3.5 text-left">
                   <h1 className="text-2xl sm:text-3xl lg:text-4xl font-normal text-white tracking-tight">
                     Pick a{" "}
                     <span className="font-normal bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] bg-clip-text text-transparent">
@@ -9441,13 +8997,13 @@ export default function OnboardingPage() {
                   </p>
                 </div>
 
-                <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto w-full">
-                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                <div className="space-y-2 sm:space-y-2.5 max-w-4xl mx-auto w-full">
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-2.5 sm:p-3 flex items-center justify-between gap-4 transition-all">
                     <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                       <img
                         src={promoPhoto || getAvailablePhotos()[0] || DEFAULT_BUSINESS_PHOTOS[0]}
                         alt="Promo post"
-                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                        className="w-14 h-16 sm:w-16 sm:h-18 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
                       />
                       <div className="min-w-0">
                         <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
@@ -9466,12 +9022,12 @@ export default function OnboardingPage() {
                     </button>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-2.5 sm:p-3 flex items-center justify-between gap-4 transition-all">
                     <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                       <img
                         src={festivalPhoto || getAvailablePhotos()[1] || DEFAULT_BUSINESS_PHOTOS[1]}
                         alt="Promo post 2"
-                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                        className="w-14 h-16 sm:w-16 sm:h-18 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
                       />
                       <div className="min-w-0">
                         <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
@@ -9490,12 +9046,12 @@ export default function OnboardingPage() {
                     </button>
                   </div>
 
-                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-3.5 sm:p-4 flex items-center justify-between gap-4 transition-all">
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36] p-2.5 sm:p-3 flex items-center justify-between gap-4 transition-all">
                     <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
                       <img
                         src={adPhoto || getAvailablePhotos()[2] || DEFAULT_BUSINESS_PHOTOS[2]}
                         alt="Promo post 3"
-                        className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
+                        className="w-14 h-16 sm:w-16 sm:h-18 rounded-xl object-cover bg-slate-800 border border-white/10 shrink-0"
                       />
                       <div className="min-w-0">
                         <h3 className="font-normal text-white text-base sm:text-lg">Your promo post</h3>
@@ -9516,11 +9072,11 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <div className="pt-6 sm:pt-8 pb-2 flex flex-col items-center">
+              <div className="pt-3 sm:pt-4 pb-1 flex flex-col items-center">
                 <button
                   type="button"
                   onClick={handleGeneratePosts}
-                  className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 active:scale-[0.98]"
+                  className="w-full max-w-sm sm:max-w-md h-10 sm:h-11 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]" style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
                 >
                   <span>Create Posts</span>
                   <ArrowRight className="w-4 h-4 stroke-[2]" />
@@ -9553,18 +9109,41 @@ export default function OnboardingPage() {
               </span>
             </div>
 
-            {/* 3 Post Cards (1 Unlocked, 2 Locked - Image 4) */}
+            {/* 3 Post Cards (1 Blurred with Edit Button, 2 Locked - Image 4) */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full max-w-2xl mx-auto my-4">
-              {/* Card 1: Unlocked Post Preview */}
+              {/* Card 1: Blurred Post Preview with Edit Button (redirects to /ai-post) */}
               <div
-                onClick={() => setShowPlansModal(true)}
-                className="relative rounded-2xl overflow-hidden aspect-square border-2 border-sky-400/60 bg-slate-900 shadow-[0_0_25px_rgba(56,189,248,0.3)] transition-all cursor-pointer hover:scale-[1.02]"
+                className="relative rounded-2xl overflow-hidden aspect-square border-2 border-sky-400/60 bg-slate-900 shadow-[0_0_25px_rgba(56,189,248,0.3)] transition-all group"
               >
+                {/* 1st image kept blurred as requested */}
                 <img
                   src={promoPhoto || getAvailablePhotos()[0] || DEFAULT_BUSINESS_PHOTOS[3] || "/images/ai-poster-mockup.jpg"}
                   alt="Ready post preview"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover filter blur-md scale-110 pointer-events-none select-none"
                 />
+
+                {/* Lock overlay on the blurred preview */}
+                <div
+                  onClick={() => setShowPlansModal(true)}
+                  className="absolute inset-0 bg-black/40 backdrop-blur-[1px] cursor-pointer flex flex-col items-center justify-center p-4 text-white text-center transition-all hover:bg-black/30"
+                >
+                  <Lock className="w-6 h-6 text-white mb-2 stroke-[2.2] drop-shadow-md" />
+                  <span className="text-sm sm:text-base font-normal drop-shadow">Promo post</span>
+                </div>
+
+                {/* Edit Button on the image - redirects to create post in dashboard */}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push("/ai-post");
+                  }}
+                  className="absolute top-2.5 right-2.5 z-20 px-3 py-1.5 rounded-full bg-black/75 hover:bg-[#be32ff] border border-white/25 hover:border-white/40 text-white text-xs font-medium flex items-center gap-1.5 backdrop-blur-md shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                  title="Edit post in Dashboard"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                  <span>Edit</span>
+                </button>
               </div>
 
               {/* Card 2: Locked Festive Post (Pink) */}
@@ -9890,131 +9469,6 @@ export default function OnboardingPage() {
               business_model, selling_model, target_age_group, target_gender,
               target_location, customer_type.
           ══════════════════════════════════════════════════════════════════════ */}
-              {accountType === "business" && currentStepObj.id === "identity" && (
-                <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                  <div className="text-center space-y-1">
-                    <h2 className="text-2xl font-bold text-white">Business Identity &amp; Branding</h2>
-                    <p className="text-xs text-neutral-400">Configure your business name, industry type, and visual brand identity.</p>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Business Name */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="b_name" className="text-xs font-medium text-neutral-300">
-                        Business Name <span className="text-red-400">*</span>
-                      </Label>
-                      <div className="relative">
-                        <Store className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                        <Input
-                          id="b_name"
-                          placeholder="e.g. Sharma Fashion"
-                          value={businessProfile.business_name}
-                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_name: e.target.value })}
-                          className="pl-10 h-11 bg-[#0f1015] border-white/10 text-white"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Business Type & Category Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <Label htmlFor="b_type" className="text-xs font-medium text-neutral-300">
-                          Business Type <span className="text-red-400">*</span>
-                        </Label>
-                        <select
-                          id="b_type"
-                          value={businessProfile.business_type}
-                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_type: e.target.value })}
-                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                        >
-                          <option value="Retail Store">Retail Store / Physical Shop</option>
-                          <option value="E-Commerce">E-Commerce / Online Brand</option>
-                          <option value="Restaurant">Restaurant / Cafe / Food</option>
-                          <option value="Service Provider">Service Provider / Freelance</option>
-                          <option value="Manufacturing">Manufacturer / Producer</option>
-                          <option value="Healthcare">Doctor / Clinic / Hospital</option>
-                          <option value="Salon & Beauty">Salon / Spa / Wellness</option>
-                          <option value="Real Estate">Real Estate / Construction</option>
-                          <option value="Wholesale">Wholesale &amp; Distribution</option>
-                          <option value="Other">Other Business</option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label htmlFor="b_category" className="text-xs font-medium text-neutral-300">
-                          Category <span className="text-red-400">*</span>
-                        </Label>
-                        <select
-                          id="b_category"
-                          value={businessProfile.business_category}
-                          onChange={(e) => setBusinessProfile({ ...businessProfile, business_category: e.target.value })}
-                          className="flex h-11 w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                        >
-                          <option value="clothing">Clothing / Fashion &amp; Apparel</option>
-                          <option value="restaurant">Restaurant &amp; Food Services</option>
-                          <option value="jewellery">Jewellery &amp; Luxury Accessories</option>
-                          <option value="salon">Salon, Beauty &amp; Personal Care</option>
-                          <option value="real_estate">Real Estate &amp; Housing</option>
-                          <option value="doctor">Healthcare, Doctor &amp; Clinic</option>
-                          <option value="gym">Gym &amp; Fitness</option>
-                          <option value="electronics">Electronics &amp; Appliances</option>
-                          <option value="fmcg">Grocery &amp; FMCG</option>
-                          <option value="other">Other Local Business</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    {/* Description */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="b_desc" className="text-xs font-medium text-neutral-300">Business Description</Label>
-                      <textarea
-                        id="b_desc"
-                        rows={2}
-                        placeholder="Short description of your products or services (e.g. Trendy ethnic wear for modern women)..."
-                        value={businessProfile.business_description}
-                        onChange={(e) => setBusinessProfile({ ...businessProfile, business_description: e.target.value })}
-                        className="flex w-full rounded-xl border border-white/10 bg-[#0f1015] px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
-                      />
-                    </div>
-
-                    {/* Logo & Brand Color */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center pt-1">
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-medium text-neutral-300">Business Logo</Label>
-                        <div className="flex items-center gap-3">
-                          {logoPreview ? (
-                            <img src={logoPreview} alt="Logo" className="w-12 h-12 rounded-xl object-contain border border-white/20 bg-white/5" />
-                          ) : (
-                            <div className="w-12 h-12 rounded-xl border border-dashed border-white/20 flex items-center justify-center text-neutral-500 bg-white/5">
-                              <Upload className="w-5 h-5" />
-                            </div>
-                          )}
-                          <label className="cursor-pointer px-3.5 py-2 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 text-xs font-medium text-white transition-colors">
-                            <span>Upload Logo</span>
-                            <input type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
-                          </label>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <Label className="text-xs font-medium text-neutral-300">Brand Color Accent</Label>
-                        <div className="flex items-center gap-2">
-                          {["#be32ff", "#f0449b", "#fc9a5d", "#3b82f6", "#10b981", "#eab308"].map((c) => (
-                            <button
-                              type="button"
-                              key={c}
-                              onClick={() => setBusinessProfile({ ...businessProfile, brand_color: c })}
-                              className={`w-7 h-7 rounded-lg transition-transform ${businessProfile.brand_color === c ? "scale-125 ring-2 ring-white shadow-md" : "opacity-80 hover:opacity-100"
-                                }`}
-                              style={{ backgroundColor: c }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
 
               {accountType === "business" && currentStepObj.id === "registration" && (
                 <div className="space-y-5 animate-in fade-in slide-in-from-bottom-4 duration-300">
@@ -10610,9 +10064,9 @@ export default function OnboardingPage() {
         isModal={true}
       />
 
-      {/* Footer (hidden on get_started to ensure zero vertical scroll) */}
-      {currentStepObj.id !== "get_started" && (
-        <footer className="w-full max-w-4xl mx-auto mt-6 text-center text-xs text-neutral-500 z-10 relative">
+      {/* Footer (hidden on single-screen steps to ensure zero vertical scroll and zero scrollbars) */}
+      {!["get_started", "none_details", "none_brand_kit", "maps_details", "business_details", "business_details_2", "brand_preferences", "brand_services", "presence", "maps_website", "website_connect"].includes(currentStepObj.id) && (
+        <footer className="w-full max-w-4xl mx-auto py-1 text-center text-[11px] text-neutral-500 shrink-0 z-10 relative select-none">
           &copy; {new Date().getFullYear()} DhandaGrow AI. Tailored for Indian enterprises and creators.
         </footer>
       )}

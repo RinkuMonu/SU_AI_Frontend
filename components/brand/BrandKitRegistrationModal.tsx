@@ -68,6 +68,8 @@ export interface BrandKitRegistrationModalProps {
   onClose: () => void;
   onComplete?: () => void;
   isModal?: boolean; // true if overlay popup, false if embedded page
+  initialStep?: StepId;
+  onStepChange?: (step: StepId) => void;
 }
 
 // 10 Curated AI Logo Styles
@@ -101,6 +103,8 @@ export function BrandKitRegistrationModal({
   onComplete,
   isModal = true,
   onBack,
+  initialStep = "basics",
+  onStepChange,
 }: BrandKitRegistrationModalProps) {
   const { user } = useAuth();
   const router = useRouter();
@@ -122,7 +126,19 @@ export function BrandKitRegistrationModal({
 
 
   // Active Wizard Step
-  const [currentStep, setCurrentStep] = useState<StepId>("basics");
+  const [currentStep, setCurrentStep] = useState<StepId>(initialStep || "basics");
+
+  useEffect(() => {
+    if (initialStep) {
+      setCurrentStep(initialStep);
+    }
+  }, [initialStep]);
+
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStep);
+    }
+  }, [currentStep, onStepChange]);
 
   // Existing Data States
   const [existingBrand, setExistingBrand] = useState<BrandKit | null>(null);
