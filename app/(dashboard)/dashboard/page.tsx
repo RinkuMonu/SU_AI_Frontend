@@ -10,6 +10,7 @@ import {
   Video,
   Camera,
   TrendingUp,
+  Wand2,
   ArrowRight,
   Zap,
   FileText,
@@ -184,62 +185,57 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 4 Stats Cards with Elevated Hover & Glass Finish */}
+      {/* 4 Stats Cards matching Reference Image 1, 2 (2F1262 & 071023) & 3 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. Post Created */}
-        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#12162e]/90 via-[#0c1020]/95 to-[#080d1e] border border-white/10 hover:border-[#be32ff]/50 hover:shadow-[0_10px_30px_rgba(190,50,255,0.18)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#be32ff] tracking-tight">
+        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
+          <div className="flex items-start justify-between">
+            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
               {postsCount}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform">
-              <ImageIcon className="w-4 h-4" />
-            </div>
+            <ImageIcon className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
           </div>
-          <h3 className="text-sm font-semibold text-white mt-2 leading-tight">Post Created</h3>
+          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Post Created</h3>
           <p className="text-xs text-slate-400 mt-1">In the last 7 days</p>
         </div>
 
         {/* 2. Reel Created */}
-        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#12162e]/90 via-[#0c1020]/95 to-[#080d1e] border border-white/10 hover:border-[#be32ff]/50 hover:shadow-[0_10px_30px_rgba(190,50,255,0.18)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#be32ff] tracking-tight">
+        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
+          <div className="flex items-start justify-between">
+            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
               {reelsCount}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform">
-              <Video className="w-4 h-4" />
-            </div>
+            <svg className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <path d="m15.5 10-3 2v-1.5a.5.5 0 0 0-.5-.5h-3.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5H12a.5.5 0 0 0 .5-.5V12l3 2v-4z" fill="currentColor" stroke="none" />
+            </svg>
           </div>
-          <h3 className="text-sm font-semibold text-white mt-2 leading-tight">Reel Created</h3>
+          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Reel Created</h3>
           <p className="text-xs text-slate-400 mt-1">In the last 7 days</p>
         </div>
 
         {/* 3. AI Generations */}
-        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#12162e]/90 via-[#0c1020]/95 to-[#080d1e] border border-white/10 hover:border-[#be32ff]/50 hover:shadow-[0_10px_30px_rgba(190,50,255,0.18)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#be32ff] tracking-tight">
+        <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
+          <div className="flex items-start justify-between">
+            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
               {aiGensCount}
             </span>
-            <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform">
-              <Sparkles className="w-4 h-4" />
-            </div>
+            <Wand2 className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
           </div>
-          <h3 className="text-sm font-semibold text-white mt-2 leading-tight">AI Generations</h3>
+          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">AI Generations</h3>
           <p className="text-xs text-slate-400 mt-1">Total AI uses this week</p>
         </div>
 
         {/* 4. Marketing Score */}
         <Link href="/analytics" className="block group">
-          <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#12162e]/90 via-[#0c1020]/95 to-[#080d1e] border border-white/10 hover:border-[#be32ff]/50 hover:shadow-[0_10px_30px_rgba(190,50,255,0.18)] hover:-translate-y-1 transition-all duration-300 h-full shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                {marketingScore}<span className="text-[#be32ff]">/100</span>
+          <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 h-full shadow-sm">
+            <div className="flex items-start justify-between">
+              <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
+                {marketingScore}/100
               </span>
-              <div className="w-8 h-8 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform">
-                <TrendingUp className="w-4 h-4" />
-              </div>
+              <TrendingUp className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
             </div>
-            <h3 className="text-sm font-semibold text-white mt-2 leading-tight">Marketing Score</h3>
+            <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Marketing Score</h3>
             <p className="text-xs text-slate-400 mt-1 group-hover:text-purple-300 transition-colors">
               View full analytics
             </p>

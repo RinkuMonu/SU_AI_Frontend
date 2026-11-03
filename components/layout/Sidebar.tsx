@@ -143,8 +143,8 @@ export function Sidebar() {
                 className={cn(
                   "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   (isChildActive || isParentActive) && !isOpen
-                    ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)] rounded-xl"
-                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-xl"
+                    ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
                 )}
               >
                 {item.href ? (
@@ -207,8 +207,8 @@ export function Sidebar() {
                         className={cn(
                           "group flex items-center px-3 py-2 text-xs font-medium rounded-md transition-colors",
                           isExactActive
-                            ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)] rounded-xl"
-                            : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-xl"
+                            ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                            : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
                         )}
                       >
                         {child.icon && (
@@ -242,8 +242,8 @@ export function Sidebar() {
             className={cn(
               "group flex items-center px-3.5 py-2.5 text-sm font-medium rounded-xl transition-all",
               isActive
-                ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)]"
-                : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
+                ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
             )}
           >
             <item.icon
@@ -265,7 +265,7 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop & Laptop Sidebar (md+ screens) */}
-      <div className="hidden md:flex h-full w-64 flex-col bg-[#081226] border-r border-white/5 shrink-0">
+      <div className="hidden md:flex h-full w-64 flex-col bg-[#071023] border-r border-white/5 shrink-0">
         <div className="flex h-16 items-center px-6 border-b border-white/5 min-w-0">
           <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
             <Logo size="sm" />
@@ -296,7 +296,7 @@ export function Sidebar() {
           />
 
           {/* Slide-in Drawer */}
-          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-[#081226] border-r border-white/5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-[#071023] border-r border-white/5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
             <div className="flex h-16 items-center justify-between px-6 border-b border-white/5 min-w-0">
               <Link 
                 href="/dashboard" 

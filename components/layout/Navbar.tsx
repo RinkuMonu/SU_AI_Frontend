@@ -149,7 +149,7 @@ export function Navbar() {
   const initials = getInitials(user?.name || user?.fullName, user?.email);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-surface px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-white/5 bg-[#071023] px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
       <button 
         type="button" 
         onClick={toggleSidebar}
