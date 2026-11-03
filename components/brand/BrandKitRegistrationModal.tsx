@@ -967,11 +967,8 @@ export function BrandKitRegistrationModal({
               Step {currentStepIndex + 1} of {steps.length}
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white mt-1">
-            Business{" "}
-            <span className="bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] bg-clip-text text-transparent">
-              Information
-            </span>
+          <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-white mt-1">
+            Business Information
           </h1>
         </div>
       </div>
@@ -1015,7 +1012,7 @@ export function BrandKitRegistrationModal({
       </div>
 
       {/* STEP TABS / STEPPER */}
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090C19] border border-white/10 shrink-0">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#071023] border border-white/10 shrink-0">
         {steps.map((st, idx) => {
           const isActive = currentStep === st.id;
           const isDone = idx < currentStepIndex;
@@ -1026,7 +1023,7 @@ export function BrandKitRegistrationModal({
               onClick={() => setCurrentStep(st.id)}
               className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 isActive
-                  ? "bg-gradient-to-r from-[#BE32FF]/20 to-[#F0449B]/20 border border-[#F0449B]/40 text-white shadow-sm"
+                  ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/50 text-white shadow-[0_4px_16px_rgba(47,18,98,0.4)]"
                   : isDone
                   ? "text-emerald-300 hover:bg-white/5"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -1034,7 +1031,7 @@ export function BrandKitRegistrationModal({
             >
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
                 isActive
-                  ? "bg-brand-pink text-white"
+                  ? "bg-[#2F1262] text-white border border-[#4c1d95]/70 shadow-sm"
                   : isDone
                   ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                   : "bg-white/10 text-slate-300"

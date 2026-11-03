@@ -164,13 +164,13 @@ export function Navbar() {
       <div className="h-6 w-px bg-border md:hidden" aria-hidden="true" />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1 items-center">
-          <div className="relative w-full max-w-sm hidden sm:flex items-center">
+        <div className="flex flex-1 items-center justify-start pr-2 sm:pr-4">
+          <div className="relative w-full max-w-2xl lg:max-w-3xl xl:max-w-4xl hidden sm:flex items-center">
             <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
               placeholder="Search...."
-              className="w-full h-9 pl-9 pr-4 rounded-xl bg-surface-secondary/70 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-brand-purple transition-all"
+              className="w-full h-9.5 pl-9 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-brand-purple transition-all"
             />
           </div>
         </div>
