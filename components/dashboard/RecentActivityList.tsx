@@ -127,7 +127,7 @@ export function RecentActivityList() {
       <CardHeader className="p-4 sm:p-6 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-white text-lg sm:text-xl font-bold tracking-tight">
+            <CardTitle className="text-white text-xl sm:text-2xl font-normal tracking-tight">
               Recent Activity
             </CardTitle>
             <CardDescription className="text-slate-400 text-xs sm:text-sm mt-1">

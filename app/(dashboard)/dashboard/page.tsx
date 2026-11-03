@@ -330,7 +330,7 @@ export default function DashboardPage() {
           <Card className="h-full bg-gradient-to-br from-[#12162e]/90 via-[#0c1020]/95 to-[#080d1e] border-white/10 backdrop-blur-xl rounded-2xl hover:border-purple-500/40 hover:shadow-[0_10px_30px_rgba(190,50,255,0.15)] transition-all duration-500 relative overflow-hidden flex flex-col shadow-sm">
             <CardHeader className="p-4 sm:p-6 pb-3">
               <div className="flex items-center justify-between gap-2">
-                <CardTitle className="text-white text-lg sm:text-xl font-bold tracking-tight">
+                <CardTitle className="text-white text-xl sm:text-2xl font-normal tracking-tight">
                   AI Insights
                 </CardTitle>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-purple-500/15 text-[#be32ff] border border-purple-500/30">

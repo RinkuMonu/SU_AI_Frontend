@@ -40,7 +40,7 @@ export function AIInsights({ insights }: AIInsightsProps) {
           <div className="w-9 h-9 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center shrink-0">
             <FileText className="w-4 h-4 text-orange-400" />
           </div>
-          <h4 className="text-sm sm:text-base font-bold text-white tracking-tight">
+          <h4 className="text-base sm:text-lg font-normal text-white tracking-tight">
             {currentInsight.title || "AI Recommendation"}
           </h4>
         </div>
