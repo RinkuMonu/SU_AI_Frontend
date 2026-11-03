@@ -56,6 +56,7 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const [isValidatingUsername, setIsValidatingUsername] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,13 +94,26 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
   const cleanUsername = username.replace(/^@/, "").trim();
   const isValid = fullName.trim().length >= 2 && cleanUsername.length >= 3;
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!isValid) {
       setErrorMsg("Please provide your Full Name and a valid Username (at least 3 characters).");
       return;
     }
     setErrorMsg(null);
-    onNext();
+    setIsValidatingUsername(true);
+    try {
+      const check = await creatorOnboardingService.checkUsernameAvailability(cleanUsername);
+      if (!check.available) {
+        setErrorMsg(check.message || "This username is already taken. Please choose another.");
+        setIsValidatingUsername(false);
+        return;
+      }
+      onNext();
+    } catch (_) {
+      onNext();
+    } finally {
+      setIsValidatingUsername(false);
+    }
   };
 
   return (
@@ -271,12 +285,21 @@ export const Step2Profile: React.FC<Step2ProfileProps> = ({
 
         <button
           type="button"
-          disabled={!isValid}
+          disabled={!isValid || isValidatingUsername}
           onClick={handleContinue}
           className="px-8 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center gap-2 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed hover:scale-[1.02]"
         >
-          <span>Continue</span>
-          <ArrowRight className="w-4 h-4" />
+          {isValidatingUsername ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Checking Handle...</span>
+            </>
+          ) : (
+            <>
+              <span>Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </>
+          )}
         </button>
       </div>
     </div>

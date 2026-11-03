@@ -153,7 +153,8 @@ api.interceptors.response.use(
         url.includes("/auth/google") ||
         url.includes("/auth/facebook") ||
         url.includes("/auth/instagram") ||
-        url.includes("/auth/linkedin");
+        url.includes("/auth/linkedin") ||
+        url.includes("/influencer/onboarding");
 
       // 2. Mark error as handled so global unhandledrejection listener knows not to crash
       (error as any).__isHandled401 = true;

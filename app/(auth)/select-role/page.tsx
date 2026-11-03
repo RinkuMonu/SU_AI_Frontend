@@ -230,11 +230,13 @@ export default function SelectRolePage() {
           if (onbStatus.isCompleted) {
             router.replace("/influencer");
           } else {
+            creatorOnboardingService.clearLocalDraft(updatedUser?.id || (user as any)?.id);
             router.replace("/onboarding/influencer");
           }
         } catch (statusErr) {
           console.warn("Could not check influencer onboarding status, routing to onboarding:", statusErr);
-          router.replace("/onboarding/influencer");
+          creatorOnboardingService.clearLocalDraft(updatedUser?.id || (user as any)?.id);
+            router.replace("/onboarding/influencer");
         }
       } else {
         router.replace(getDashboardRouteForRole(authoritativeRole));

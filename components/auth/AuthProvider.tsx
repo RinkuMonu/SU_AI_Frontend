@@ -59,7 +59,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (token) {
         try {
           const freshUser = await authService.getCurrentUser();
-          const mergedUser: User = { ...(cachedUser || {}), ...freshUser };
+          const cachedId = cachedUser?.id || (cachedUser as any)?._id;
+          const freshId = freshUser?.id || (freshUser as any)?._id;
+          const validCached = cachedId && freshId && String(cachedId) === String(freshId) ? cachedUser : null;
+          const mergedUser: User = { ...(validCached || {}), ...freshUser };
           const userPhone = (mergedUser.phone || mergedUser.phone_number || mergedUser.mobile || '').trim();
           const isOAuth = Boolean(
             mergedUser.auth_provider === 'google' ||
@@ -125,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         '/festivals',
         '/preview',
         '/support',
-      ].some((route) => pathname.startsWith(route));
+      ].some((route) => pathname.startsWith(route)) && !pathname.startsWith('/onboarding/influencer');
 
       // CASE 1: Unauthenticated visitor
       if (!user) {
@@ -173,7 +176,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const isOnboardingComplete = role === 'influencer'
-        ? Boolean((user as any).influencer_onboarding_completed === true)
+        ? Boolean(
+            (user as any).influencer_onboarding_completed === true ||
+            (user as any).onboarding_status === 'completed' ||
+            (user as any).onboardingCompleted === true
+          )
         : Boolean(
             user.onboardingCompleted === true ||
             (user as any).onboarding_completed === true ||
