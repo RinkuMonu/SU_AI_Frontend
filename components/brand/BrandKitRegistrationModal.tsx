@@ -937,7 +937,7 @@ export function BrandKitRegistrationModal({
     .toUpperCase();
 
   const content = (
-    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto text-white space-y-6 sm:space-y-7 py-2 sm:py-4">
+    <div className="w-full max-w-5xl lg:max-w-6xl mx-auto text-white space-y-6 sm:space-y-7 py-2 sm:py-4">
       {/* HEADER WITH PROGRESS */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4 shrink-0">
         <div className="flex items-center gap-3">
@@ -967,7 +967,7 @@ export function BrandKitRegistrationModal({
               Step {currentStepIndex + 1} of {steps.length}
             </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-normal tracking-tight text-white mt-1">
+          <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white mt-1">
             Business Information
           </h1>
         </div>
@@ -1023,7 +1023,7 @@ export function BrandKitRegistrationModal({
               onClick={() => setCurrentStep(st.id)}
               className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 isActive
-                  ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/50 text-white shadow-[0_4px_16px_rgba(47,18,98,0.4)]"
+                  ? "bg-gradient-to-b from-[#2F1262] via-[#1c0b3d] to-[#000000] border border-[#4c1d95]/60 text-white shadow-[0_4px_20px_rgba(47,18,98,0.5)] rounded-2xl"
                   : isDone
                   ? "text-emerald-300 hover:bg-white/5"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -1031,7 +1031,7 @@ export function BrandKitRegistrationModal({
             >
               <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
                 isActive
-                  ? "bg-[#2F1262] text-white border border-[#4c1d95]/70 shadow-sm"
+                  ? "bg-[#270e54] text-white border border-[#4c1d95]/70 shadow-sm"
                   : isDone
                   ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
                   : "bg-white/10 text-slate-300"
@@ -1129,10 +1129,10 @@ export function BrandKitRegistrationModal({
                     <Store className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm sm:text-base font-bold text-white tracking-wide uppercase">
+                    <h2 className="text-base sm:text-lg font-normal text-white tracking-widest uppercase">
                       Business Basics
                     </h2>
-                    <p className="text-xs text-text-muted mt-0.5">
+                    <p className="text-xs text-slate-400 mt-1">
                       Tell us about your brand to customize AI-generated marketing content.
                     </p>
                   </div>
@@ -1245,17 +1245,17 @@ export function BrandKitRegistrationModal({
                       type="button"
                       onClick={() => handleAnalyzeWebsite(website, true)}
                       disabled={websiteAnalysisLoading || !website.trim()}
-                      className="h-11 sm:h-12 px-4 sm:px-5 rounded-xl bg-gradient-to-r from-brand-purple/25 to-brand-pink/25 hover:from-brand-purple/40 hover:to-brand-pink/40 border border-brand-pink/30 text-xs font-bold text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-40 shadow-sm"
+                      className="h-11 sm:h-12 px-4 sm:px-5 rounded-xl bg-gradient-to-b from-[#2F1262] to-[#000000] hover:from-[#3a167d] hover:to-[#080312] border border-[#4c1d95]/70 text-xs font-semibold text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-40 shadow-[0_4px_16px_rgba(47,18,98,0.4)]"
                       title="Fetch business details from website"
                     >
                       {websiteAnalysisLoading ? (
                         <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-pink" />
+                          <Loader2 className="w-3.5 h-3.5 animate-spin text-[#b18cf8]" />
                           <span>Fetching...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
+                          <Sparkles className="w-3.5 h-3.5 text-[#b18cf8]" />
                           <span>Auto-Fill</span>
                         </>
                       )}
