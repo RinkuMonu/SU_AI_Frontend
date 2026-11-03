@@ -233,6 +233,9 @@ export function Sidebar() {
         const isActive = item.href === "/dashboard" 
           ? pathname === "/dashboard" 
           : (pathname === item.href || pathname.startsWith(item.href + "/"));
+
+        const isDashboardActive = item.href === "/dashboard" && pathname === "/dashboard";
+
         return (
           <Link
             key={item.name}
@@ -240,15 +243,21 @@ export function Sidebar() {
             onClick={() => onItemClick && onItemClick()}
             className={cn(
               "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-              isActive
+              isDashboardActive
+                ? "bg-[#0c1a3b] border border-[#1e3a8a]/70 text-white shadow-[0_4px_16px_rgba(14,35,80,0.4)]"
+                : isActive
                 ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
                 : "text-text-muted hover:bg-surface-elevated hover:text-white"
             )}
           >
             <item.icon
               className={cn(
-                "mr-3 h-5 w-5 flex-shrink-0",
-                isActive ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
+                isDashboardActive
+                  ? "fill-white text-white"
+                  : isActive
+                  ? "text-brand-purple"
+                  : "text-text-muted group-hover:text-white"
               )}
               aria-hidden="true"
             />

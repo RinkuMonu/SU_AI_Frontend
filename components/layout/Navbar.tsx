@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth/AuthProvider";
 import { 
-  Menu, 
+  Menu,
+  Search,
   Bell, 
   CheckCircle2, 
   Circle, 
@@ -162,13 +163,22 @@ export function Navbar() {
       <div className="h-6 w-px bg-border md:hidden" aria-hidden="true" />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1"></div>
+        <div className="flex flex-1 items-center">
+          <div className="relative w-full max-w-sm hidden sm:flex items-center">
+            <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search...."
+              className="w-full h-9 pl-9 pr-4 rounded-xl bg-surface-secondary/70 border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-brand-purple transition-all"
+            />
+          </div>
+        </div>
         <div className="flex items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
           {/* Notifications Dropdown */}
           <div className="relative" ref={notifDropdownRef}>
             <button 
               type="button" 
-              className="-m-2.5 p-2.5 text-text-muted hover:text-white relative transition-colors focus:outline-none"
+              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white relative transition-all cursor-pointer focus:outline-none"
               onClick={() => {
                 setShowNotifications(!showNotifications);
                 setShowProfileMenu(false);
@@ -176,9 +186,9 @@ export function Navbar() {
               title="Notifications"
             >
               <span className="sr-only">View notifications</span>
-              <Bell className="h-6 w-6" aria-hidden="true" />
+              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-slate-300" aria-hidden="true" />
               {hasUnread && (
-                <span className="absolute top-2 right-2.5 flex h-2.5 w-2.5 rounded-full bg-brand-pink border-2 border-surface animate-pulse"></span>
+                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-brand-pink border border-surface animate-pulse"></span>
               )}
             </button>
             
@@ -228,13 +238,13 @@ export function Navbar() {
                 setShowProfileMenu(!showProfileMenu);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-x-3 p-1 rounded-xl hover:bg-surface-secondary/70 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-purple/40"
+              className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all cursor-pointer group focus:outline-none"
               aria-expanded={showProfileMenu}
               aria-haspopup="true"
               id="user-menu-button"
             >
               <div className="relative">
-                <div className="h-9 w-9 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-md border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                <div className="h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-sm border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
                   {avatarUrl && !imageError ? (
                     <img 
                       src={avatarUrl} 
@@ -246,20 +256,19 @@ export function Navbar() {
                     <span>{initials}</span>
                   )}
                 </div>
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
               </div>
 
-              <div className="hidden lg:flex lg:flex-col lg:items-start text-left">
-                <span className="text-sm font-semibold leading-tight text-white group-hover:text-brand-pink transition-colors line-clamp-1 max-w-[150px]">
-                  {user?.name || "User"}
+              <div className="hidden sm:flex sm:flex-col sm:items-start text-left">
+                <span className="text-xs sm:text-sm font-semibold leading-tight text-white group-hover:text-purple-300 transition-colors line-clamp-1 max-w-[130px]">
+                  {user?.name || "User xyz"}
                 </span>
-                <span className="text-[11px] text-text-muted leading-tight font-medium mt-0.5">
-                  {isBusiness ? "Business Account" : "Personal Account"}
+                <span className="text-[10px] text-slate-400 leading-tight font-normal mt-0.5">
+                  {isBusiness ? "Business Profile" : "Personal Profile"}
                 </span>
               </div>
 
               <ChevronDown 
-                className={`h-4 w-4 text-text-muted group-hover:text-white transition-transform duration-200 hidden lg:block ${
+                className={`h-3.5 w-3.5 text-slate-400 group-hover:text-white transition-transform duration-200 hidden sm:block ${
                   showProfileMenu ? 'rotate-180 text-white' : ''
                 }`} 
               />
