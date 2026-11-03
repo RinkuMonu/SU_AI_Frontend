@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { 
@@ -36,7 +36,7 @@ import influencerService, { InfluencerProfile } from '@/services/influencer.serv
 
 type FilterCategory = 'all' | 'brands' | 'collaborations' | 'unread';
 
-export default function InfluencerChatsPage() {
+function InfluencerChatsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
@@ -849,3 +849,16 @@ export default function InfluencerChatsPage() {
   );
 }
 
+
+
+export default function InfluencerChatsPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="w-8 h-8 rounded-full border-2 border-[#be32ff] border-t-transparent animate-spin" />
+      </div>
+    }>
+      <InfluencerChatsContent />
+    </Suspense>
+  );
+}
