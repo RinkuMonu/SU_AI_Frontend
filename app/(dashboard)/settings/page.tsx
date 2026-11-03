@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -1033,7 +1034,7 @@ export default function SettingsPage() {
                     <Phone className="w-3.5 h-3.5 text-emerald-400" />
                     Business Contact / Phone No.
                   </Label>
-                  <Input
+                  {/* <Input
                     id="businessPhone"
                     type="tel"
                     value={businessPhone}
@@ -1044,7 +1045,26 @@ export default function SettingsPage() {
                       "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
                       !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
                     )}
+                  /> */}
+
+                  <Input 
+                    id="businessPhone" 
+                    type="tel" 
+                    value={businessPhone} 
+                    onChange={(e) => {
+                      const numericValue = e.target.value.replace(/\D/g, "");
+                      if (numericValue.length <= 10) {
+                        setBusinessPhone(numericValue);
+                      }
+                    }} 
+                    placeholder="9876543210" // Cleaned up placeholder to match 10-digit format
+                    disabled={!isEditingBusiness} 
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )} 
                   />
+
                 </div>
               </div>
 
@@ -1168,19 +1188,20 @@ export default function SettingsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
-                    <Button
-                      type="button"
-                      onClick={() => setIsEditingBusiness(true)}
-                      className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      <span>Edit Business Details</span>
-                    </Button>
-                    <span className="text-xs text-text-muted flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
-                    </span>
-                  </div>
+                  <div></div>
+                  // <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
+                  //   <Button
+                  //     type="button"
+                  //     onClick={() => setIsEditingBusiness(true)}
+                  //     className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
+                  //   >
+                  //     <Pencil className="w-4 h-4" />
+                  //     <span>Edit Business Details</span>
+                  //   </Button>
+                  //   <span className="text-xs text-text-muted flex items-center gap-1.5">
+                  //     <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
+                  //   </span>
+                  // </div>
                 )}
               </div>
             </form>

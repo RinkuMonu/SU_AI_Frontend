@@ -4,14 +4,14 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { User } from '@/types';
 import { useRouter, usePathname } from 'next/navigation';
 import { authService } from '@/services/auth.service';
-import { needsRoleSelection, getDashboardRouteForRole } from '@/lib/role-routing';
+import { getDashboardRouteForRole } from '@/lib/role-routing';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
-  login: (token: string, userData: User) => void;
+  login: (userData: User) => void;
   updateUser: (userData: Partial<User>) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<User | null>;
 }
 
@@ -27,11 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const freshUser = await authService.getCurrentUser();
       setUser(freshUser);
-      localStorage.setItem('user', JSON.stringify(freshUser));
       return freshUser;
     } catch {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user');
       setUser(null);
       return null;
     }
@@ -39,53 +36,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (typeof window !== 'undefined') {
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlToken = urlParams.get('token');
-        if (urlToken) {
-          localStorage.setItem('access_token', urlToken);
-        }
+      try {
+        await refreshUser();
+      } finally {
+        setIsLoading(false);
       }
-      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-      const cached = typeof window !== 'undefined' ? localStorage.getItem('user') : null;
-      let cachedUser: User | null = null;
-      if (cached) {
-        try {
-          cachedUser = JSON.parse(cached);
-          setUser(cachedUser);
-        } catch (_) {}
-      }
-
-      if (token) {
-        try {
-          const freshUser = await authService.getCurrentUser();
-          const mergedUser: User = { ...(cachedUser || {}), ...freshUser };
-          const userPhone = (mergedUser.phone || mergedUser.phone_number || mergedUser.mobile || '').trim();
-          const isOAuth = Boolean(
-            mergedUser.auth_provider === 'google' ||
-            mergedUser.provider === 'google' ||
-            mergedUser.auth_provider === 'facebook' ||
-            mergedUser.provider === 'facebook' ||
-            mergedUser.auth_provider === 'instagram' ||
-            mergedUser.provider === 'instagram' ||
-            mergedUser.auth_provider === 'linkedin' ||
-            mergedUser.provider === 'linkedin' ||
-            mergedUser.google_id ||
-            mergedUser.googleId ||
-            (!userPhone && mergedUser.email)
-          );
-          if (isOAuth || !userPhone) {
-            mergedUser.phone_verified = true;
-          }
-          setUser(mergedUser);
-          localStorage.setItem('user', JSON.stringify(mergedUser));
-        } catch (error) {
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('user');
-          setUser(null);
-        }
-      }
-      setIsLoading(false);
     };
 
     checkAuth();
@@ -227,28 +182,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user, isLoading, pathname, router]);
 
-  const login = (token: string, userData: User) => {
-    localStorage.setItem('access_token', token);
-    localStorage.setItem('user', JSON.stringify(userData));
-    if (typeof document !== 'undefined') {
-      document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
-    }
+  const login = (userData: User) => {
     setUser(userData);
   };
 
   const updateUser = (userData: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return null;
-      const updated = { ...prev, ...userData } as User;
-      localStorage.setItem('user', JSON.stringify(updated));
-      return updated;
+      return { ...prev, ...userData } as User;
     });
   };
 
-  const logout = () => {
+  const logout = async () => {
     const wasAdmin = user?.role === 'admin';
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user');
     const keysToClear = [
       'business_selected_services',
       'selected_services',
@@ -276,11 +222,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.removeItem(k);
       } catch (_) {}
     });
-    if (typeof document !== 'undefined') {
-      document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+    try {
+      await authService.logout();
+    } finally {
+      setUser(null);
+      router.replace(wasAdmin ? '/login/admin' : '/login/user');
     }
-    setUser(null);
-    router.replace(wasAdmin ? '/login/admin' : '/login/user');
   };
 
   return (
@@ -297,4 +244,3 @@ export function useAuth() {
   }
   return context;
 }
-

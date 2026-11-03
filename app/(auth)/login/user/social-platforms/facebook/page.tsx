@@ -7,7 +7,6 @@ import { authService } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import { useAuth } from "@/components/auth/AuthProvider";
-import api from "@/lib/api";
 
 export default function FacebookCallbackHandlerPage() {
   const [statusText, setStatusText] = useState("Completing Facebook authentication...");
@@ -43,15 +42,15 @@ export default function FacebookCallbackHandlerPage() {
         let pageToken = searchParams.get("fb_access_token") || searchParams.get("page_access_token") || "";
         let pageId = searchParams.get("fb_page_id") || searchParams.get("page_id") || "";
         let pageName = searchParams.get("fb_page_name") || searchParams.get("page_name") || "";
-        let sessionToken = searchParams.get("token") || "";
+        const hasSessionCallback = searchParams.has("token");
 
-        if (!userAccessToken && !sessionToken) {
+        if (!userAccessToken && !hasSessionCallback) {
           throw new Error("No Facebook access token returned from authorization.");
         }
 
         setStatusText("Authenticating Facebook profile & discovering business pages...");
 
-        let userObj: any = null;
+        let userObj: any;
 
         // Exchange Facebook user access token with backend for fresh session and user profile
         if (userAccessToken) {
@@ -59,18 +58,9 @@ export default function FacebookCallbackHandlerPage() {
             access_token: userAccessToken,
             accountType: "user",
           });
-          sessionToken = authResult.token;
           userObj = authResult.user;
-          api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-          localStorage.setItem("access_token", sessionToken);
-        } else if (sessionToken) {
-          api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-          localStorage.setItem("access_token", sessionToken);
-          try {
-            userObj = await authService.getCurrentUser();
-          } catch (_) {
-            userObj = { onboardingCompleted: true, accountType: "user", role: "user" };
-          }
+        } else {
+          userObj = await authService.getCurrentUser();
         }
 
         // Discover Facebook Pages if page token is missing
@@ -95,19 +85,22 @@ export default function FacebookCallbackHandlerPage() {
             pageAccessToken: pageToken || undefined,
             pageId: pageId || undefined,
             pageName: pageName || undefined,
-            authToken: sessionToken,
           });
         } catch (_) {}
 
         setStatusText("Opening your dashboard...");
+        let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
+        try {
+          if (await OnboardingService.isCompleted()) isDone = true;
+        } catch (_) {}
         const finalUser = {
           ...userObj,
           accountType: userObj?.accountType || "user",
           role: userObj?.role || "user",
-          onboardingCompleted: true,
+          onboardingCompleted: isDone,
         };
 
-        login(sessionToken, finalUser);
+        login(finalUser);
         sessionStorage.removeItem("facebook_auth_mode");
 
         const redirectAfter = sessionStorage.getItem("auth_redirect_after");
@@ -121,6 +114,8 @@ export default function FacebookCallbackHandlerPage() {
             sessionStorage.removeItem("pending_plan");
             sessionStorage.removeItem("pending_billing");
             router.replace(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+          } else if (!isDone) {
+            router.replace("/select-role");
           } else {
             router.replace("/dashboard");
           }

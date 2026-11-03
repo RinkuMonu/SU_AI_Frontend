@@ -39,8 +39,7 @@ export function Navbar() {
   useEffect(() => {
     let isMounted = true;
     const fetchFreshProfile = async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-      if (!token) return;
+      if (!user) return;
       try {
         const fresh = await userService.getProfile();
         if (fresh && isMounted) {
@@ -62,7 +61,7 @@ export function Navbar() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [user, updateUser]);
   
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {

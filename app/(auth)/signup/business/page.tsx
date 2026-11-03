@@ -151,11 +151,9 @@ export default function SignupPage() {
         role: "business"
       };
       const response = await authService.signup(payload);
-      if (response && response.token && response.user) {
-        localStorage.setItem("access_token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+      if (response?.user) {
+        login(response.user);
         localStorage.setItem("business_just_registered", "1");
-        login(response.token, response.user);
       }
       setRegisteredBusinessName(data.business_name);
       setIsRegisteredSuccess(true);
@@ -721,4 +719,3 @@ export default function SignupPage() {
     </div>
   );
 }
-

@@ -166,10 +166,9 @@ export const OnboardingService = {
   /**
    * Check if onboarding has been marked completed on the backend
    */
-  isCompleted: async (token?: string): Promise<boolean> => {
+  isCompleted: async (): Promise<boolean> => {
     try {
-      const config = token ? { headers: { Authorization: `Bearer ${token}` } } : undefined;
-      const response = await api.get('/api/v1/onboarding/status', config);
+      const response = await api.get('/api/v1/onboarding/status');
       const data = response.data?.data || response.data;
       if (!data) return false;
       return Boolean(
@@ -425,4 +424,3 @@ export const OnboardingService = {
     }
   },
 };
-

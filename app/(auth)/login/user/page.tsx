@@ -25,9 +25,9 @@ import {
   maskPhoneNumber 
 } from "@/lib/phone";
 import { authService, OtpDeliveryChannel } from "@/services/auth.service";
+import { User } from "@/types";
 import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
-import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { needsRoleSelection, getDashboardRouteForRole } from "@/lib/role-routing";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
@@ -42,22 +42,10 @@ let inFlightGoogleCode: string | null = null;
 // Official Google "G" Icon (Icon Only - no clutter)
 const GoogleIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-    <path
-      fill="#4285F4"
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-    />
-    <path
-      fill="#34A853"
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-    />
-    <path
-      fill="#FBBC05"
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-    />
-    <path
-      fill="#EA4335"
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-    />
+    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
   </svg>
 );
 
@@ -68,8 +56,11 @@ const WhatsAppIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   </svg>
 );
 
-
-async function navigateAfterAuth(user: any, router: any, explicitRoute?: string) {
+async function navigateAfterAuth(
+  user: User,
+  router: ReturnType<typeof useRouter>,
+  explicitRoute?: string
+) {
   const pendingRole = typeof window !== "undefined" ? sessionStorage.getItem("selected_role") : null;
   if (pendingRole && (pendingRole === "businessman" || pendingRole === "influencer")) {
     try {
@@ -79,36 +70,20 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
       }
     } catch (_) {}
   }
-  const pendingPlan = typeof window !== "undefined" ? sessionStorage.getItem("pending_plan") : null;
-  const pendingBilling = typeof window !== "undefined" ? sessionStorage.getItem("pending_billing") || "monthly" : "monthly";
-  if (pendingPlan) {
-    sessionStorage.removeItem("pending_plan");
-    sessionStorage.removeItem("pending_billing");
-    router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
-    return;
-  }
-
-  // Check if onboarding is completed
   const isCompleted = Boolean(
     user?.onboardingCompleted === true ||
     user?.onboarding_completed === true ||
     user?.is_completed === true
   );
 
-  if (explicitRoute) {
-    router.push(explicitRoute);
-    return;
+  const route = isCompleted
+    ? getDashboardRouteForRole(user?.role) || explicitRoute || "/dashboard"
+    : "/select-role";
+  if (!isCompleted && typeof window !== "undefined") {
+    sessionStorage.setItem("show_onboarding_plan", "true");
   }
-
-  if (isCompleted) {
-    router.push(getDashboardRouteForRole(user?.role));
-  } else {
-    // New users and users with incomplete onboarding route to Role Selection (/select-role)
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("show_onboarding_plan", "true");
-    }
-    router.push("/select-role");
-  }
+  console.log("Navigating to:", route);
+  router.push(route);
 }
 
 export default function LoginPage() {
@@ -116,16 +91,11 @@ export default function LoginPage() {
   const { login } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
-  // Screen flow: "phone" -> "otp"
   const [step, setStep] = useState<"phone" | "otp">("phone");
-
-  // Phone input states
   const [countryCode, setCountryCode] = useState("+91");
   const [phone, setPhone] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [selectedChannel, setSelectedChannel] = useState<OtpDeliveryChannel>("sms");
-
-  // OTP states
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -133,17 +103,12 @@ export default function LoginPage() {
   const isVerifyingRef = useRef(false);
   const [countdown, setCountdown] = useState(60);
   const [showRightNumberAlert, setShowRightNumberAlert] = useState(true);
-
-  // Status & Notifications
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [socialNotice, setSocialNotice] = useState<string | null>(null);
-
-  // Language Translation Hook
   const { t } = useLanguage();
 
-  // Modal for OAuth / handshakes
   const [authModal, setAuthModal] = useState<{
     open: boolean;
     status: AuthModalStatus;
@@ -154,11 +119,9 @@ export default function LoginPage() {
     actionHref?: string;
   } | null>(null);
 
-  // Track the last phone number OTP was automatically sent to avoid duplicate trigger loops
-  const lastAutoSentPhoneRef = useRef<string>("");
-  const autoSendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // const lastAutoSentPhoneRef = useRef<string>("");
+  // const autoSendTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Countdown timer for OTP resend (60s)
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (step === "otp" && countdown > 0) {
@@ -167,7 +130,6 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, [step, countdown]);
 
-  // Read URL query parameters on initial mount (e.g. registered=true, verified=true, phone=...)
   useEffect(() => {
     if (typeof window === "undefined") return;
     const searchParams = new URLSearchParams(window.location.search);
@@ -196,33 +158,24 @@ export default function LoginPage() {
     }
   }, []);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 1. AUTO-TRIGGER SEND OTP WHEN VALID NUMBER IS ENTERED
-  // ─────────────────────────────────────────────────────────────────────────────
+  /*
   useEffect(() => {
     if (step !== "phone") return;
-
     const validation = validatePhoneNumber(countryCode, phone);
     const cleanNumber = phone.replace(/\D/g, "");
-
-    // Check if the user reached valid number length (e.g. 10 digits in India)
     const isReadyForAutoSend = validation.isValid && (countryCode === "+91" ? cleanNumber.length === 10 : cleanNumber.length >= 8);
-
     if (isReadyForAutoSend && validation.e164 !== lastAutoSentPhoneRef.current && !isSendingOtp) {
       if (autoSendTimeoutRef.current) clearTimeout(autoSendTimeoutRef.current);
       autoSendTimeoutRef.current = setTimeout(() => {
         handleSendOtp(selectedChannel, validation.e164);
       }, 350);
     }
-
     return () => {
       if (autoSendTimeoutRef.current) clearTimeout(autoSendTimeoutRef.current);
     };
   }, [phone, countryCode, step, selectedChannel, isSendingOtp]);
+  */
 
-  /**
-   * Send OTP via SMS (Fast2SMS) or WhatsApp (MSG91)
-   */
   const handleSendOtp = async (channel: OtpDeliveryChannel = "sms", targetE164?: string) => {
     setPhoneError("");
     setError("");
@@ -239,7 +192,7 @@ export default function LoginPage() {
     if (isSendingOtp) return;
     setIsSendingOtp(true);
     setSelectedChannel(channel);
-    lastAutoSentPhoneRef.current = e164;
+    // lastAutoSentPhoneRef.current = e164;
 
     try {
       if (typeof window !== "undefined") {
@@ -278,7 +231,7 @@ export default function LoginPage() {
   };
 
   /**
-   * Verify 6-digit OTP (Auto-triggered immediately when 6 digits are typed)
+   * Verify 6-digit OTP
    */
   const handleVerifyOtp = async (codeToVerify?: string) => {
     const finalOtp = (codeToVerify || otp).trim();
@@ -293,6 +246,8 @@ export default function LoginPage() {
     setIsVerifyingOtp(true);
     setOtpError("");
     setError("");
+    //  Clear success message so the stale "code sent" banner doesn't linger
+    setSuccessMsg("");
 
     const validation = validatePhoneNumber(countryCode, phone);
     const targetPhone = validation.isValid ? validation.e164 : (countryCode + phone);
@@ -303,30 +258,30 @@ export default function LoginPage() {
         finalOtp
       );
 
-      const token = response.token;
       const user = response.user;
-
-      if (token && user) {
-        login(token, user);
-
-        let isDone = Boolean(user.onboardingCompleted);
-        try {
-          const statusDone = await OnboardingService.isCompleted(token);
-          if (statusDone) isDone = true;
-        } catch (_) {}
-
-        const finalUser = {
-          ...user,
-          phone_verified: true,
-          onboardingCompleted: isDone,
-        };
-
-        navigateAfterAuth(finalUser, router, response.dashboard_route);
-      } else {
-        throw new Error(response.message || "OTP verification did not return session.");
+      if (!user) {
+        throw new Error(response.message || "OTP verification did not return user data.");
       }
+
+      setOtpError("");
+      login(user);
+
+      let isDone = Boolean(user.onboardingCompleted);
+      try {
+        const statusDone = await OnboardingService.isCompleted();
+        if (statusDone) isDone = true;
+      } catch (_) {}
+
+      const finalUser = {
+        ...user,
+        phone_verified: true,
+        onboardingCompleted: isDone,
+      };
+
+      navigateAfterAuth(finalUser, router, response.dashboard_route);
     } catch (err: any) {
       console.warn("OTP verification failed:", err?.message || err);
+      //  Only set OTP error if the response is actually an error.
       setOtpError(err.message || "Invalid or expired OTP. Please check and try again.");
     } finally {
       isVerifyingRef.current = false;
@@ -334,31 +289,22 @@ export default function LoginPage() {
     }
   };
 
-  /**
-   * Resend OTP with channel toggle support
-   */
   const handleResend = async (targetChannel?: OtpDeliveryChannel) => {
     const channelToUse = targetChannel || selectedChannel;
     setOtp("");
     setOtpError("");
-    lastAutoSentPhoneRef.current = ""; // Reset to allow re-sending
+    // lastAutoSentPhoneRef.current = "";
     await handleSendOtp(channelToUse);
   };
 
-  /**
-   * Return to phone input screen
-   */
   const handleChangeNumber = () => {
     setStep("phone");
     setOtp("");
     setOtpError("");
     setError("");
-    lastAutoSentPhoneRef.current = ""; // Allow re-entering/editing
+    // lastAutoSentPhoneRef.current = "";
   };
 
-  /**
-   * Continue with WhatsApp alternative option
-   */
   const handleContinueWithWhatsApp = () => {
     const validation = validatePhoneNumber(countryCode, phone);
     if (!validation.isValid) {
@@ -371,9 +317,6 @@ export default function LoginPage() {
     handleSendOtp("whatsapp", validation.e164);
   };
 
-  /**
-   * Launch standard Google OAuth account chooser screen (Screenshot 3)
-   */
   const handleGoogleLogin = () => {
     setError("");
     setSocialLoading("Google");
@@ -432,9 +375,6 @@ export default function LoginPage() {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // 2. PRESERVED OAUTH CALLBACK LISTENER (Google, Facebook, Instagram, LinkedIn)
-  // ─────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (typeof window === "undefined") return;
     const hash = window.location.hash || "";
@@ -495,10 +435,9 @@ export default function LoginPage() {
             verification_token: preservedToken,
           });
 
-          const token = res.token;
           const userObj = res.user;
 
-          if (token && userObj) {
+          if (userObj) {
             const isExistingUser = Boolean(res.exists || res.is_existing_user || res.user_exists);
 
             if (isSignup && isExistingUser) {
@@ -523,7 +462,7 @@ export default function LoginPage() {
 
             let isDone = Boolean(userObj.onboardingCompleted);
             try {
-              const statusDone = await OnboardingService.isCompleted(token);
+              const statusDone = await OnboardingService.isCompleted();
               if (statusDone) isDone = true;
             } catch (_) {}
 
@@ -533,7 +472,9 @@ export default function LoginPage() {
               phone_verified: true,
               onboardingCompleted: isDone,
             };
-            login(token, finalUser);
+
+            login(finalUser);
+
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
@@ -542,16 +483,17 @@ export default function LoginPage() {
 
             navigateAfterAuth(finalUser, router);
           } else {
-            throw new Error(res.message || "Google authentication did not return session token.");
+            throw new Error(res.message || "Google authentication did not return user data.");
           }
         } catch (err: any) {
           console.warn("Google authentication error:", err?.message || err);
-          // If session token was already set by a parallel flow, safely navigate to dashboard
-          const existingToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-          if (existingToken) {
-            router.push("/dashboard");
+
+          try {
+            const existingUser = await authService.getCurrentUser();
+            login(existingUser);
+            navigateAfterAuth(existingUser, router);
             return;
-          }
+          } catch { /* continue to error UI */ }
 
           let msg = err.response?.data?.detail || err.message || (isSignup ? "Failed to register with Google." : "Failed to sign in with Google.");
           if (typeof msg === "string") {
@@ -665,20 +607,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc] dark:bg-[#0d0e12] text-neutral-900 dark:text-[#f1f1f5] flex flex-col justify-between selection:bg-brand-purple/20 transition-colors duration-200">
       
-      {/* ─────────────────────────────────────────────────────────────────────────────
-          TOP NAVBAR: DhandaGrow Brand Logo + Language Selector + Theme Toggle
-         ───────────────────────────────────────────────────────────────────────────── */}
       <header className="w-full px-6 py-4 md:px-12 flex items-center justify-between z-20">
         <Link href="/" className="flex items-center gap-2 group">
-          <img
-            src="/images/dhandagrow.png"
-            alt="DhandaGrow AI"
-            className="h-8 md:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
-          />
+          <img src="/images/dhandagrow.png" alt="DhandaGrow AI" className="h-8 md:h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105" />
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Theme Toggle Button (Light/Dark Mode) */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -688,35 +622,21 @@ export default function LoginPage() {
           >
             {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-neutral-600" />}
           </button>
-
-          {/* Scaleo-style Language Dropdown */}
           <LanguageSelector align="right" />
         </div>
       </header>
 
-      {/* ─────────────────────────────────────────────────────────────────────────────
-          MAIN SECTION: Scaleo Desktop Split View & Mobile Centered Card
-         ───────────────────────────────────────────────────────────────────────────── */}
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-12 my-auto py-6 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
         
-        {/* Scaleo Promotional Left Banner (Desktop only - Screenshots 2 & 3) */}
         <div className="hidden lg:flex lg:col-span-6 xl:col-span-6 flex-col justify-between rounded-3xl overflow-hidden relative min-h-[580px] shadow-2xl border border-neutral-200 dark:border-white/10 p-8 select-none bg-neutral-900">
-          <img
-            src="/images/ai-reel-maker-hero.jpg"
-            alt="DhandaGrow AI Studio"
-            className="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity scale-105"
-          />
+          <img src="/images/ai-reel-maker-hero.jpg" alt="DhandaGrow AI Studio" className="absolute inset-0 w-full h-full object-cover opacity-45 mix-blend-luminosity scale-105" />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
-          
-          {/* Top pill badge */}
           <div className="relative z-10">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 backdrop-blur-md text-white border border-white/20">
               <Sparkles className="w-3.5 h-3.5 text-amber-300" />
               {t("banner_badge", "Get the app • DhandaGrow AI")}
             </span>
           </div>
-
-          {/* Hero text from Scaleo screenshot */}
           <div className="relative z-10 space-y-3 max-w-md">
             <h2 className="text-3xl xl:text-4xl font-extrabold text-white tracking-tight leading-tight">
               {t("banner_title", "Turn viewers into buyers")}
@@ -727,13 +647,9 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* ─────────────────────────────────────────────────────────────────────────────
-            RIGHT COLUMN: The Scaleo-style Centered Auth Card
-           ───────────────────────────────────────────────────────────────────────────── */}
         <div className="col-span-1 lg:col-span-6 xl:col-span-6 flex flex-col justify-center items-center w-full">
           <div className="w-full max-w-[440px] bg-white dark:bg-[#15161b] rounded-3xl border border-neutral-200/80 dark:border-white/10 shadow-xl shadow-neutral-200/40 dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-6 sm:p-8 space-y-6 transition-all relative">
             
-            {/* Global Error Banner */}
             {error && (
               <div className="p-3 text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl flex items-start justify-between gap-2 animate-in fade-in">
                 <div className="flex items-start gap-2">
@@ -741,10 +657,7 @@ export default function LoginPage() {
                   <span className="leading-relaxed">{error}</span>
                 </div>
                 {error.includes("No account found") || error.includes("sign up") ? (
-                  <Link
-                    href="/signup"
-                    className="shrink-0 font-bold text-xs text-brand-purple hover:underline"
-                  >
+                  <Link href="/signup" className="shrink-0 font-bold text-xs text-brand-purple hover:underline">
                     Sign Up &rarr;
                   </Link>
                 ) : (error.toLowerCase().includes("sms") || error.toLowerCase().includes("whatsapp") || error.toLowerCase().includes("temporarily unavailable")) ? (
@@ -763,7 +676,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Global Success Banner */}
             {successMsg && !error && (
               <div className="p-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-xl flex items-center gap-2 animate-in fade-in">
                 <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-500" />
@@ -771,29 +683,20 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* ═══════════════════════════════════════════════════════════════════════════
-                STEP 1: Scaleo Phone Input Screen (Screenshot 1)
-               ═══════════════════════════════════════════════════════════════════════════ */}
             {step === "phone" && (
               <div className="space-y-6 animate-in fade-in duration-300">
-                {/* Heading */}
                 <div className="text-center space-y-1">
                   <h1 className="text-3xl font-extrabold text-neutral-900 dark:text-white tracking-tight">
                     {t("welcome_title", "Welcome to DhandaGrow")}
                   </h1>
                 </div>
 
-                {/* Phone Field Group */}
                 <div className="space-y-2">
-                  <label
-                    htmlFor="scaleo-phone"
-                    className="block text-[11px] font-bold tracking-wider text-neutral-500 dark:text-neutral-400 uppercase"
-                  >
+                  <label htmlFor="scaleo-phone" className="block text-[11px] font-bold tracking-wider text-neutral-500 dark:text-neutral-400 uppercase">
                     {t("phone_label", "ENTER YOUR PHONE NUMBER")}
                   </label>
 
                   <div className="flex gap-2">
-                    {/* Country Code Pill */}
                     <div className="w-28 sm:w-32 shrink-0">
                       <select
                         id="scaleo-country-code"
@@ -815,7 +718,6 @@ export default function LoginPage() {
                       </select>
                     </div>
 
-                    {/* Mobile Number Input */}
                     <div className="flex-1">
                       <input
                         id="scaleo-phone"
@@ -843,12 +745,9 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {phoneError && (
-                    <p className="text-xs text-red-500 pl-1">{phoneError}</p>
-                  )}
+                  {phoneError && <p className="text-xs text-red-500 pl-1">{phoneError}</p>}
                 </div>
 
-                {/* Scaleo Soft Mint Green "Send OTP" Button */}
                 <button
                   type="button"
                   onClick={() => handleSendOtp("sms")}
@@ -865,7 +764,6 @@ export default function LoginPage() {
                   )}
                 </button>
 
-                {/* Scaleo OR Divider */}
                 <div className="relative flex items-center justify-center py-1">
                   <div className="w-full border-t border-neutral-200 dark:border-white/10" />
                   <span className="absolute bg-white dark:bg-[#15161b] px-3 text-[11px] font-bold tracking-widest text-neutral-400 dark:text-neutral-500 uppercase">
@@ -873,9 +771,7 @@ export default function LoginPage() {
                   </span>
                 </div>
 
-                {/* Alternative Authentication: Google (G Logo Only) + WhatsApp (Logo Only) */}
                 <div className="grid grid-cols-2 gap-3">
-                  {/* Google Button: ONLY Google "G" Logo - Clean & Clutter-Free */}
                   <button
                     type="button"
                     onClick={handleGoogleLogin}
@@ -891,7 +787,6 @@ export default function LoginPage() {
                     )}
                   </button>
 
-                  {/* WhatsApp Button: ONLY WhatsApp Logo - Clean & Clutter-Free */}
                   <button
                     type="button"
                     onClick={handleContinueWithWhatsApp}
@@ -908,7 +803,6 @@ export default function LoginPage() {
                   </button>
                 </div>
 
-                {/* Need an account? Link */}
                 <div className="text-center text-xs text-neutral-500 dark:text-neutral-400 pt-1">
                   {t("no_account", "Don't have an account?")}{" "}
                   <Link href="/signup" className="font-bold text-brand-purple hover:underline">
@@ -918,13 +812,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* ═══════════════════════════════════════════════════════════════════════════
-                STEP 2: Scaleo Clean 6-Digit OTP Screen (Screenshot 2)
-               ═══════════════════════════════════════════════════════════════════════════ */}
             {step === "otp" && (
               <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                
-                {/* Header: "Enter your OTP" with Scaleo "X" close button */}
                 <div className="relative text-center pt-1">
                   <button
                     type="button"
@@ -942,9 +831,7 @@ export default function LoginPage() {
                   <div className="mt-2 space-y-0.5 text-xs text-neutral-500 dark:text-neutral-400">
                     <p>
                       {t("otp_sent_to", "OTP sent to")}{" "}
-                      <strong className="text-neutral-800 dark:text-neutral-200">
-                        {formattedDisplayPhone}
-                      </strong>
+                      <strong className="text-neutral-800 dark:text-neutral-200">{formattedDisplayPhone}</strong>
                     </p>
                     <button
                       type="button"
@@ -956,7 +843,6 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                {/* Six-digit OTP Box Grid (Auto-verifies immediately on 6th digit) */}
                 <div className="py-2 space-y-2">
                   <OtpInput
                     value={otp}
@@ -980,7 +866,6 @@ export default function LoginPage() {
                   )}
                 </div>
 
-                {/* Scaleo Alert Banner (Screenshot 2) */}
                 {showRightNumberAlert && (
                   <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 flex items-center justify-between gap-3 text-xs">
                     <div className="flex items-center gap-2 text-neutral-700 dark:text-neutral-300 leading-snug">
@@ -1010,7 +895,6 @@ export default function LoginPage() {
                   </div>
                 )}
 
-                {/* Scaleo "Verify OTP" Button */}
                 <button
                   type="button"
                   onClick={() => handleVerifyOtp()}
@@ -1027,7 +911,6 @@ export default function LoginPage() {
                   )}
                 </button>
 
-                {/* Resend Actions & Channel Toggle */}
                 <div className="pt-1 text-center space-y-2 text-xs text-neutral-500 dark:text-neutral-400">
                   <div>
                     {t("didnt_receive_otp", "Didn't receive the OTP?")}{" "}
@@ -1054,7 +937,6 @@ export default function LoginPage() {
                     )}
                   </div>
 
-                  {/* Switch between SMS and WhatsApp */}
                   <div className="pt-1 flex items-center justify-center gap-3 text-[11px]">
                     <span className="text-neutral-400">{t("try_other_method", "Try other method:")}</span>
                     {selectedChannel === "whatsapp" ? (
@@ -1083,7 +965,6 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Scaleo Footer Links (Terms · Privacy · Need help? · v1.9.7) */}
             <div className="pt-2 border-t border-neutral-100 dark:border-white/5 text-center space-y-1">
               <div className="flex items-center justify-center gap-2 text-xs text-neutral-500 dark:text-neutral-400">
                 <Link href="/terms" className="hover:text-neutral-900 dark:hover:text-white transition-colors">
@@ -1101,11 +982,9 @@ export default function LoginPage() {
             </div>
 
           </div>
-
         </div>
       </main>
 
-      {/* Auth Center Modal for OAuth Handshakes */}
       {authModal && (
         <AuthCenterModal
           open={authModal.open}

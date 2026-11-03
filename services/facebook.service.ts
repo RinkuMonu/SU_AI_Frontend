@@ -184,7 +184,6 @@ export class FacebookService {
     pageAccessToken?: string;
     pageId?: string;
     pageName?: string;
-    authToken?: string;
   }) {
     return this.saveFacebookCredentials(creds);
   }
@@ -194,7 +193,6 @@ export class FacebookService {
     pageAccessToken?: string;
     pageId?: string;
     pageName?: string;
-    authToken?: string;
   }) {
     if (typeof window === "undefined") return;
 

@@ -6,7 +6,6 @@ import { Loader2 } from "lucide-react";
 import { authService } from "@/services/auth.service";
 import { OnboardingService } from "@/services/onboarding.service";
 import { useAuth } from "@/components/auth/AuthProvider";
-import api from "@/lib/api";
 
 export default function InstagramCallbackHandlerPage() {
   const [statusText, setStatusText] = useState("Completing Instagram authentication...");
@@ -40,42 +39,33 @@ export default function InstagramCallbackHandlerPage() {
           searchParams.get("access_token");
 
         const authCode = searchParams.get("code");
-        let sessionToken = searchParams.get("token") || "";
+        const hasSessionCallback = searchParams.has("token");
 
-        if (!userAccessToken && !sessionToken && !authCode) {
+        if (!userAccessToken && !hasSessionCallback && !authCode) {
           throw new Error("No Instagram access token or authorization code returned.");
         }
 
         setStatusText("Authenticating Instagram profile & establishing session...");
 
-        let userObj: any = null;
+        let userObj: any;
 
         // Exchange Instagram credentials with backend for fresh session and user profile
-        if (sessionToken) {
-          api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-          localStorage.setItem("access_token", sessionToken);
-          try {
-            userObj = await authService.getCurrentUser();
-          } catch (_) {
-            userObj = { onboardingCompleted: false };
-          }
-        } else {
+        if (userAccessToken || authCode) {
           const authResult = await authService.instagramLogin({
             access_token: userAccessToken || undefined,
             code: authCode || undefined,
             accountType: "business",
           });
-          sessionToken = authResult.token;
           userObj = authResult.user;
-          api.defaults.headers.common["Authorization"] = `Bearer ${sessionToken}`;
-          localStorage.setItem("access_token", sessionToken);
+        } else {
+          userObj = await authService.getCurrentUser();
         }
 
         // Verify onboarding completion status via OnboardingService.isCompleted
         setStatusText("Verifying onboarding status...");
         let isDone = Boolean(userObj?.onboardingCompleted || userObj?.onboarding_completed);
         try {
-          const statusDone = await OnboardingService.isCompleted(sessionToken);
+          const statusDone = await OnboardingService.isCompleted();
           if (statusDone) isDone = true;
         } catch (_) {}
 
@@ -84,7 +74,7 @@ export default function InstagramCallbackHandlerPage() {
           onboardingCompleted: isDone,
         };
 
-        login(sessionToken, finalUser);
+        login(finalUser);
         sessionStorage.removeItem("instagram_auth_mode");
 
         // If incomplete onboarding -> route to onboarding!

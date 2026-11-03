@@ -354,55 +354,49 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
   // Load Backend Categories and User Store Products on Mount
   useEffect(() => {
     async function loadData() {
-      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-
       // 1. Try loading backend taxonomy categories
-      if (token) {
-        try {
-          const catRes = await reelService.getCategories();
-          if (catRes.success && catRes.data && catRes.data.length > 0) {
-            const mappedCats: TaxonomyCategory[] = catRes.data.map((c: any) => ({
-              id: c.id,
-              name: c.name,
-              icon: c.icon || "📦",
-              subcategories: (c.subcategories || []).map((s: any) => ({
-                id: s.id || s.subcategory_id || "general",
-                name: s.name,
-                productTypes: s.productTypes || [s.name],
-              })),
-            }));
-            setTaxonomy(mappedCats);
-            if (mappedCats[0]) {
-              setSelectedCategory(mappedCats[0].id);
-              if (mappedCats[0].subcategories[0]) {
-                setSelectedSubcategory(mappedCats[0].subcategories[0].id);
-                setSelectedProductType(mappedCats[0].subcategories[0].productTypes[0] || "General Product");
-              }
+      try {
+        const catRes = await reelService.getCategories();
+        if (catRes.success && catRes.data && catRes.data.length > 0) {
+          const mappedCats: TaxonomyCategory[] = catRes.data.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            icon: c.icon || "📦",
+            subcategories: (c.subcategories || []).map((s: any) => ({
+              id: s.id || s.subcategory_id || "general",
+              name: s.name,
+              productTypes: s.productTypes || [s.name],
+            })),
+          }));
+          setTaxonomy(mappedCats);
+          if (mappedCats[0]) {
+            setSelectedCategory(mappedCats[0].id);
+            if (mappedCats[0].subcategories[0]) {
+              setSelectedSubcategory(mappedCats[0].subcategories[0].id);
+              setSelectedProductType(mappedCats[0].subcategories[0].productTypes[0] || "General Product");
             }
           }
-        } catch (catErr) {
-          console.warn("Using default taxonomy:", catErr);
         }
+      } catch (catErr) {
+        console.warn("Using default taxonomy:", catErr);
       }
 
       // 2. Load User Store Products
-      if (token) {
-        try {
-          const prods = await FashionService.getProducts();
-          if (prods && prods.length > 0) {
-            const mapped: ProductItem[] = prods.map((p) => ({
-              id: p.id,
-              name: p.name,
-              category: p.category || "General",
-              description: p.description || p.name,
-              image_url: p.image_url,
-              isUserProduct: true,
-            }));
-            setUserProducts(mapped);
-          }
-        } catch (err) {
-          console.warn("Using sample catalog products:", err);
+      try {
+        const prods = await FashionService.getProducts();
+        if (prods && prods.length > 0) {
+          const mapped: ProductItem[] = prods.map((p) => ({
+            id: p.id,
+            name: p.name,
+            category: p.category || "General",
+            description: p.description || p.name,
+            image_url: p.image_url,
+            isUserProduct: true,
+          }));
+          setUserProducts(mapped);
         }
+      } catch (err) {
+        console.warn("Using sample catalog products:", err);
       }
     }
 
