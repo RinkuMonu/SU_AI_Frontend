@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { VoiceInputButton } from "@/components/ui/VoiceInput";
+import { useRouter } from "next/navigation";
 import {
   getBrandKit,
   createBrandKit,
@@ -62,11 +63,14 @@ import {
   createSvgLogoFallback,
 } from "@/lib/brand-kit";
 
-interface BrandKitRegistrationModalProps {
+export interface BrandKitRegistrationModalProps {
+  onBack?: () => void;
   isOpen: boolean;
   onClose: () => void;
   onComplete?: () => void;
   isModal?: boolean; // true if overlay popup, false if embedded page
+  initialStep?: StepId;
+  onStepChange?: (step: StepId) => void;
 }
 
 // 10 Curated AI Logo Styles
@@ -99,11 +103,43 @@ export function BrandKitRegistrationModal({
   onClose,
   onComplete,
   isModal = true,
+  onBack,
+  initialStep = "basics",
+  onStepChange,
 }: BrandKitRegistrationModalProps) {
   const { user } = useAuth();
+  const router = useRouter();
+  const isDummyName = (str?: string | null) => {
+    if (!str) return true;
+    const s = str.toLowerCase().trim();
+    return s.includes("user's brand") || s.includes("user’s brand") || s.includes("'s brand") || s.includes("’s brand") || s === "my business";
+  };
+  const isDummyWeb = (str?: string | null) => {
+    if (!str) return true;
+    const s = str.toLowerCase().trim();
+    return s.includes("zudio") || s.includes("example.com");
+  };
+  const isDummyDesc = (str?: string | null) => {
+    if (!str) return true;
+    const s = str.toLowerCase().trim();
+    return s.includes("verified online business presence") || s === "description";
+  };
+
 
   // Active Wizard Step
-  const [currentStep, setCurrentStep] = useState<StepId>("basics");
+  const [currentStep, setCurrentStep] = useState<StepId>(initialStep || "basics");
+
+  useEffect(() => {
+    if (initialStep) {
+      setCurrentStep(initialStep);
+    }
+  }, [initialStep]);
+
+  useEffect(() => {
+    if (onStepChange) {
+      onStepChange(currentStep);
+    }
+  }, [currentStep, onStepChange]);
 
   // Existing Data States
   const [existingBrand, setExistingBrand] = useState<BrandKit | null>(null);
@@ -112,7 +148,7 @@ export function BrandKitRegistrationModal({
 
   // SECTION A: Business Basics
   const [businessName, setBusinessName] = useState("");
-  const [businessCategory, setBusinessCategory] = useState("clothing");
+  const [businessCategory, setBusinessCategory] = useState("");
   const [businessDescription, setBusinessDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [tagline, setTagline] = useState("");
@@ -230,9 +266,9 @@ export function BrandKitRegistrationModal({
         if (biz.status === "fulfilled" && biz.value) {
           const b = biz.value;
           setExistingBusiness(b);
-          if (b.name) setBusinessName(b.name);
+          if (b.name && !isDummyName(b.name)) setBusinessName(b.name);
           if (b.category) setBusinessCategory(b.category);
-          if (b.description) setBusinessDescription(b.description);
+          if (b.description && !isDummyDesc(b.description)) setBusinessDescription(b.description);
           if (b.location) setSelectedLocationFocus(b.location);
         }
 
@@ -253,15 +289,15 @@ export function BrandKitRegistrationModal({
           }
           if (bk.font) setSelectedFont(bk.font);
           if (bk.tone) setSelectedTone(bk.tone);
-          if (bk.website) setWebsite(bk.website);
-          if (bk.business_name && !businessName) setBusinessName(bk.business_name);
+          if (bk.website && !isDummyWeb(bk.website)) setWebsite(bk.website);
+          if (bk.business_name && !isDummyName(bk.business_name) && !businessName) setBusinessName(bk.business_name);
           if (bk.business_type) setBusinessType(bk.business_type);
           if (bk.registration_number) setRegistrationNumber(bk.registration_number);
           if (bk.business_model) setBusinessModel(bk.business_model);
           if (bk.selling_model) setSellingModel(bk.selling_model);
           if (bk.business_category) setBusinessCategory(bk.business_category);
           const loadedDesc = bk.business_description || bk.brand_description;
-          if (loadedDesc && !businessDescription) {
+          if (loadedDesc && !isDummyDesc(loadedDesc) && !businessDescription) {
             setBusinessDescription(loadedDesc);
           }
           if (bk.age_group) setSelectedAgeGroup(bk.age_group);
@@ -295,7 +331,7 @@ export function BrandKitRegistrationModal({
                 cachedBizProfile?.business_name ||
                 mapsPlace?.name ||
                 (cachedSocialHandles?.instagram ? String(cachedSocialHandles.instagram).replace(/^@/, "") : null);
-              if (candidateName) {
+              if (!isDummyName(candidateName)) {
                 setBusinessName(candidateName);
               }
             }
@@ -314,13 +350,13 @@ export function BrandKitRegistrationModal({
             // 3. Website URL
             if (!bk?.website && !b?.website) {
               const candidateUrl = cachedWeb || cachedBizProfile?.website || mapsWeb || mapsPlace?.website;
-              if (candidateUrl) setWebsite(candidateUrl);
+              if (!isDummyWeb(candidateUrl)) setWebsite(candidateUrl);
             }
 
             // 4. Description
             if (!bk?.business_description && !bk?.brand_description) {
               const candidateDesc = b?.description || cachedBizProfile?.description;
-              if (candidateDesc) setBusinessDescription(candidateDesc);
+              if (!isDummyDesc(candidateDesc)) setBusinessDescription(candidateDesc);
             }
 
             // 5. Address / Location
@@ -902,14 +938,32 @@ export function BrandKitRegistrationModal({
     .toUpperCase();
 
   const content = (
-    <div className="w-full max-w-4xl mx-auto text-white space-y-6">
+    <div className="w-full max-w-4xl lg:max-w-5xl mx-auto text-white space-y-6 sm:space-y-7 py-2 sm:py-4">
       {/* HEADER WITH PROGRESS */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple border border-brand-purple/30">
-              Brand Kit Setup
-            </span>
+      <div className="flex items-center justify-between border-b border-white/10 pb-4 shrink-0">
+        <div className="flex items-center gap-3">
+          {(onBack || currentStepIndex > 0) && (
+            <button
+              type="button"
+              onClick={() => {
+                if (currentStepIndex > 0) {
+                  const prevStep = steps[currentStepIndex - 1].id;
+                  setCurrentStep(prevStep);
+                } else if (onBack) {
+                  onBack();
+                }
+              }}
+              aria-label="Go back"
+              className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 active:scale-95 flex items-center justify-center text-white transition-all cursor-pointer shrink-0 border border-white/5"
+            >
+              <ArrowLeft className="w-5 h-5 text-white" />
+            </button>
+          )}
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple border border-brand-purple/30">
+                Brand Kit Setup
+              </span>
             <span className="text-xs text-text-muted">
               Step {currentStepIndex + 1} of {steps.length}
             </span>
@@ -921,6 +975,7 @@ export function BrandKitRegistrationModal({
             </span>
           </h1>
         </div>
+      </div>
 
         {/* Action Controls */}
         <div className="flex items-center gap-2">
@@ -961,7 +1016,7 @@ export function BrandKitRegistrationModal({
       </div>
 
       {/* STEP TABS / STEPPER */}
-      <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090C19] border border-white/10">
+      <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#090C19] border border-white/10 shrink-0">
         {steps.map((st, idx) => {
           const isActive = currentStep === st.id;
           const isDone = idx < currentStepIndex;
@@ -970,7 +1025,7 @@ export function BrandKitRegistrationModal({
               key={st.id}
               type="button"
               onClick={() => setCurrentStep(st.id)}
-              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2.5 px-2 rounded-xl text-xs font-semibold transition-all ${
+              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 isActive
                   ? "bg-gradient-to-r from-[#BE32FF]/20 to-[#F0449B]/20 border border-[#F0449B]/40 text-white shadow-sm"
                   : isDone
@@ -978,7 +1033,7 @@ export function BrandKitRegistrationModal({
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
             >
-              <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
+              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
                 isActive
                   ? "bg-brand-pink text-white"
                   : isDone
@@ -994,7 +1049,7 @@ export function BrandKitRegistrationModal({
       </div>
 
       {/* BRAND KIT DYNAMIC COMPLETION INDICATOR */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-[#090C19] border border-brand-purple/20 space-y-2.5">
+      <div className="p-3.5 sm:p-4.5 rounded-2xl bg-[#090C19] border border-brand-purple/20 space-y-2.5 shrink-0 text-xs sm:text-sm">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div className="flex items-center gap-2">
             <span className="font-bold text-white flex items-center gap-1.5">
@@ -1021,7 +1076,7 @@ export function BrandKitRegistrationModal({
         </div>
 
         {/* Dynamic Progress Bar Track */}
-        <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+        <div className="h-2 sm:h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] rounded-full transition-all duration-500 ease-out"
             style={{ width: `${currentProgress.percentage}%` }}
@@ -1066,22 +1121,22 @@ export function BrandKitRegistrationModal({
           </div>
         </div>
       ) : (
-        <div>
+        <div className="w-full space-y-6 sm:space-y-7">
           {/* ========================================================================= */}
           {/* STEP 1: BUSINESS BASICS                                                   */}
           {/* ========================================================================= */}
           {currentStep === "basics" && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-brand-purple/20 border border-brand-purple/30 flex items-center justify-center text-brand-purple">
+              <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1122]/90 border border-white/10 shadow-xl space-y-5 sm:space-y-6">
+                <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                  <div className="w-9 h-9 rounded-xl bg-brand-purple/20 border border-brand-purple/30 flex items-center justify-center text-brand-purple">
                     <Store className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white tracking-wide uppercase">
+                    <h2 className="text-sm sm:text-base font-bold text-white tracking-wide uppercase">
                       Business Basics
                     </h2>
-                    <p className="text-[11px] text-text-muted">
+                    <p className="text-xs text-text-muted mt-0.5">
                       Tell us about your brand to customize AI-generated marketing content.
                     </p>
                   </div>
@@ -1104,8 +1159,7 @@ export function BrandKitRegistrationModal({
                       manuallyEditedFieldsRef.current.add("businessName");
                     }}
                     placeholder="e.g. Aura Luxe Jewels, Sharma Textiles"
-                    required
-                    className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                   />
                 </div>
 
@@ -1122,8 +1176,9 @@ export function BrandKitRegistrationModal({
                         setBusinessCategory(e.target.value);
                         manuallyEditedFieldsRef.current.add("businessCategory");
                       }}
-                      className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
+                      <option value="" disabled className="bg-[#080B17] text-slate-400">Select Industry / Category</option>
                       {BUSINESS_CATEGORIES.map((cat) => (
                         <option key={cat.value} value={cat.value} className="bg-[#080B17] text-white">
                           {cat.label}
@@ -1185,7 +1240,7 @@ export function BrandKitRegistrationModal({
                           }
                         }}
                         placeholder="https://www.yourbrand.com"
-                        className="w-full h-11 pl-9 pr-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                        className="w-full h-11 sm:h-12 pl-10 pr-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                       />
                       <ExternalLink className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 pointer-events-none" />
                     </div>
@@ -1194,7 +1249,7 @@ export function BrandKitRegistrationModal({
                       type="button"
                       onClick={() => handleAnalyzeWebsite(website, true)}
                       disabled={websiteAnalysisLoading || !website.trim()}
-                      className="h-11 px-4 rounded-xl bg-gradient-to-r from-brand-purple/25 to-brand-pink/25 hover:from-brand-purple/40 hover:to-brand-pink/40 border border-brand-pink/30 text-xs font-bold text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-40 shadow-sm"
+                      className="h-11 sm:h-12 px-4 sm:px-5 rounded-xl bg-gradient-to-r from-brand-purple/25 to-brand-pink/25 hover:from-brand-purple/40 hover:to-brand-pink/40 border border-brand-pink/30 text-xs font-bold text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer disabled:opacity-40 shadow-sm"
                       title="Fetch business details from website"
                     >
                       {websiteAnalysisLoading ? (
@@ -1294,6 +1349,7 @@ export function BrandKitRegistrationModal({
                       />
                     </div>
                   </div>
+
                 </div>
               </div>
 
@@ -1303,7 +1359,7 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={handleSkipToDashboard}
-                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto px-6 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <span>Skip for Now &amp; Go to Dashboard</span>
                 </button>
@@ -1311,15 +1367,14 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={() => {
-                    const effective = businessName.trim() || existingBusiness?.name || existingBrand?.business_name;
-                    if (!effective) {
-                      setFormError("Please enter your business name.");
-                      return;
+                    const effective = businessName.trim() || existingBusiness?.name || existingBrand?.business_name || "My Brand";
+                    if (!businessName.trim()) {
+                      setBusinessName(effective);
                     }
                     setFormError(null);
                     setCurrentStep("logo");
                   }}
-                  className="w-full sm:w-auto px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-7 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
                 >
                   <span>Continue to Logo Studio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1333,7 +1388,7 @@ export function BrandKitRegistrationModal({
           {/* ========================================================================= */}
           {currentStep === "logo" && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-5">
+              <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1122]/90 border border-white/10 shadow-xl space-y-5">
                 <div className="flex items-center justify-between pb-2 border-b border-white/5">
                   <div className="flex items-center gap-2.5">
                     <div className="w-8 h-8 rounded-lg bg-brand-pink/20 border border-brand-pink/30 flex items-center justify-center text-brand-pink">
@@ -1366,7 +1421,7 @@ export function BrandKitRegistrationModal({
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-center">
                   {/* Left: Preview Box */}
                   <div className="md:col-span-5 flex flex-col items-center">
-                    <div className="relative w-44 h-44 sm:w-48 sm:h-48 rounded-2xl bg-[#070913] border-2 border-white/15 flex items-center justify-center overflow-hidden shadow-2xl group">
+                    <div className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-2xl bg-[#070913] border-2 border-white/15 flex items-center justify-center overflow-hidden shadow-2xl group">
                       {logoUrl && !logoLoadFailed ? (
                         <>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1435,7 +1490,7 @@ export function BrandKitRegistrationModal({
                     <button
                       type="button"
                       onClick={() => setShowAiStudio(!showAiStudio)}
-                      className="w-full h-14 rounded-2xl bg-gradient-to-r from-[#BE32FF]/20 via-[#F0449B]/20 to-[#FC9A5D]/20 border border-[#F0449B]/50 hover:border-[#F0449B] text-white font-semibold text-sm flex items-center justify-between px-4 transition-all shadow-md group"
+                      className="w-full h-13 sm:h-14 rounded-2xl bg-gradient-to-r from-[#BE32FF]/20 via-[#F0449B]/20 to-[#FC9A5D]/20 border border-[#F0449B]/50 hover:border-[#F0449B] text-white font-semibold text-sm flex items-center justify-between px-4 transition-all shadow-md group"
                     >
                       <div className="flex items-center gap-3">
                         <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-[#BE32FF] to-[#F0449B] flex items-center justify-center shadow-md">
@@ -1718,7 +1773,7 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={() => setCurrentStep("basics")}
-                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Basics</span>
@@ -1728,7 +1783,7 @@ export function BrandKitRegistrationModal({
                   <button
                     type="button"
                     onClick={handleSkipToDashboard}
-                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial px-5 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
                   >
                     Skip for Now
                   </button>
@@ -1739,7 +1794,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("identity");
                     }}
-                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-7 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1901,7 +1956,7 @@ export function BrandKitRegistrationModal({
                 <button
                   type="button"
                   onClick={() => setCurrentStep("logo")}
-                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-4 sm:px-5 h-10 sm:h-11 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   <span>Back to Logo</span>
