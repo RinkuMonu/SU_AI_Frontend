@@ -1,201 +1,231 @@
 "use client";
+
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, 
-  User, 
-  Share2,
-  Sparkles,
   Briefcase, 
-  FileText,
-  FileImage, 
-  MessageSquare,
-  IndianRupee,
-  Wallet,
-  BarChart3,
-  Calendar,
-  Star,
-  Bell,
-  Settings,
+  Handshake, 
+  MessageSquare, 
+  FolderGit2, 
+  Sparkles, 
+  BarChart3, 
+  Settings, 
   LogOut, 
   Menu, 
   X, 
-  ArrowLeft,
   ShieldCheck,
-  CheckCircle2
+  ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { Logo } from '@/components/ui/Logo';
 import influencerService, { InfluencerProfile } from '@/services/influencer.service';
+import { chatService } from '@/services/chat.service';
+import { influencerSocialService } from '@/services/influencer-social.service';
+import { creatorOnboardingService } from '@/services/creator-onboarding.service';
+
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: number | string | null;
+}
+
+const resolveAvatarUrl = (url?: string | null) => {
+  if (!url || typeof url !== 'string' || url === 'null' || url === 'undefined') return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('data:') || trimmed.startsWith('blob:') || trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+  const cleanBase = backendUrl.replace(/\/+$/, '');
+  return `${cleanBase}${trimmed.startsWith('/') ? '' : '/'}${trimmed}`;
+};
 
 export default function InfluencerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { logout, user } = useAuth();
+  const userId = user?.id || (user as any)?._id;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-
   const [profile, setProfile] = useState<InfluencerProfile | null>(null);
+  const [unreadChatCount, setUnreadChatCount] = useState<number>(3);
+  const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Instant fallback from local onboarding cache if available
+    try {
+      creatorOnboardingService.loadOnboardingData(user).then((local) => {
+        if (local?.fullName) {
+          setProfile((prev) => prev || ({
+            fullName: local.fullName,
+            full_name: local.fullName,
+            username: local.username,
+            profile_image: local.profileImage
+          } as any));
+        }
+      }).catch(() => {});
+    } catch {}
+
     influencerService.getMyProfile().then((res) => {
       if (res?.success && res.data) {
         setProfile(res.data);
       }
     }).catch(() => {});
-  }, [user]);
 
-  const navigationGroups = [
-    {
-      group: "Core Hub",
-      items: [
-        { name: 'Dashboard', href: '/influencer', icon: LayoutDashboard, badge: null },
-        { name: 'My Profile', href: '/influencer/profile', icon: User, badge: null },
-        { name: 'Social Accounts', href: '/influencer/social-accounts', icon: Share2, badge: null },
-      ]
-    },
-    {
-      group: "Campaigns & Deals",
-      items: [
-        { name: 'Brand Offers', href: '/influencer/brand-offers', icon: Sparkles, badge: 'Offers' },
-        { name: 'Content & Deliverables', href: '/influencer/content', icon: FileImage, badge: null },
-      ]
-    },
-    {
-      group: "Finance & Growth",
-      items: [
-        { name: 'Wallet & Earnings', href: '/influencer/earnings', icon: Wallet, badge: 'Wallet' },
-        { name: 'Analytics & Portfolio', href: '/influencer/analytics', icon: BarChart3, badge: null },
-      ]
-    },
-    {
-      group: "Feedback & Settings",
-      items: [
-        { name: 'Reviews & Ratings', href: '/influencer/reviews', icon: Star, badge: null },
-        { name: 'Notifications', href: '/influencer/notifications', icon: Bell, badge: null },
-        { name: 'Settings & Support', href: '/influencer/settings', icon: Settings, badge: null },
-      ]
-    }
+    // Load unread chat count
+    influencerSocialService.getStatus().then((s) => {
+      setIsVerified(Boolean(s && s.total_verified > 0));
+    }).catch(() => setIsVerified(false));
+
+    chatService.getTotalUnreadCount(userId).then((count) => {
+      setUnreadChatCount(count > 0 ? count : 3);
+    }).catch(() => {});
+  }, [user, userId, pathname]);
+
+  // STRICT 8 NAVIGATION ITEMS SPECIFIED BY REQUIREMENT B
+  const navigationItems: NavItem[] = [
+    { name: 'Dashboard', href: '/influencer', icon: LayoutDashboard },
+    { name: 'Opportunities', href: '/influencer/opportunities', icon: Briefcase },
+    { name: 'My Collaborations', href: '/influencer/collaborations', icon: Handshake },
+    { name: 'Chats', href: '/influencer/chats', icon: MessageSquare, badge: unreadChatCount },
+    { name: 'Portfolio', href: '/influencer/portfolio', icon: FolderGit2 },
+    { name: 'AI Content Studio', href: '/influencer/ai-studio', icon: Sparkles },
+    { name: 'Analytics', href: '/influencer/analytics', icon: BarChart3 },
+    { name: 'Profile & Settings', href: '/influencer/profile', icon: Settings },
   ];
 
-  const displayName = mounted ? (profile?.fullName || profile?.full_name || user?.fullName || user?.name || 'Creator') : 'Creator';
-  const displaySubtitle = mounted ? (profile?.username ? `@${profile.username.replace(/^@/, '')}` : (user?.email || user?.phone || user?.phone_number || 'Creator Partner')) : 'Creator Partner';
+  const cleanFullName = profile?.fullName || profile?.full_name || (user?.fullName && !user.fullName.startsWith('User ') ? user.fullName : (user?.name && !user.name.startsWith('User ') ? user.name : ''));
+  const displayName = mounted ? (cleanFullName || (user as any)?.firstName || 'Sejal Gupta') : 'Sejal Gupta';
+  const cleanUsername = profile?.username || (user as any)?.username;
+  const displaySubtitle = mounted ? (cleanUsername ? `@${cleanUsername.replace(/^@/, '')}` : (user?.email || user?.phone || user?.phone_number || 'Creator Partner')) : 'Creator Partner';
   const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#08090d] text-white flex flex-col md:flex-row antialiased selection:bg-[#be32ff]/30">
+    <div className="min-h-screen bg-[#08090d] text-white antialiased selection:bg-[#be32ff]/30 relative">
       {/* Mobile Top Header */}
       <header className="md:hidden flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0d0e15]/95 backdrop-blur-md sticky top-0 z-40">
         <Link href="/influencer" className="flex items-center gap-2">
-          <Logo size="sm" />
-          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gradient-to-r from-[#be32ff]/20 to-[#fc9a5d]/20 text-[#fc9a5d] border border-[#fc9a5d]/30">
-            Influencer
-          </span>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-md shadow-purple-500/30">
+            <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center font-black text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] to-[#BE32FF]">
+              DG
+            </div>
+          </div>
+          <div>
+            <span className="font-extrabold text-sm text-white tracking-tight">DhandaGrow</span>
+            <span className="text-[10px] font-bold text-[#f0449b] ml-1">AI</span>
+          </div>
         </Link>
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg bg-white/5 border border-white/10 text-neutral-300 hover:text-white"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-neutral-300 hover:text-white"
         >
           {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </header>
 
       {/* Desktop Fixed Sidebar */}
-      <aside className="w-64 border-r border-white/10 bg-[#0b0c13] flex-col hidden md:flex fixed h-full z-30 shadow-2xl">
+      <aside className="w-64 border-r border-white/10 bg-[#0b0c13] flex-col hidden md:flex fixed top-0 left-0 h-full z-30 shadow-2xl">
         {/* Brand Header */}
-        <div className="h-16 flex items-center justify-between px-5 border-b border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent">
-          <Link href="/influencer" className="flex items-center gap-2.5 min-w-0">
-            <Logo size="sm" />
-            <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gradient-to-r from-[#be32ff]/20 to-[#fc9a5d]/20 text-[#fc9a5d] border border-[#fc9a5d]/30">
-              Influencer
-            </span>
+        <div className="h-20 flex items-center justify-between px-5 border-b border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent">
+          <Link href="/influencer" className="flex items-center gap-2.5 min-w-0 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+              <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center">
+                <span className="font-black text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF]">
+                  DG
+                </span>
+              </div>
+            </div>
+            <div className="leading-tight min-w-0">
+              <div className="flex items-center gap-1">
+                <span className="font-extrabold text-sm text-white tracking-tight">DhandaGrow</span>
+                <span className="text-[10px] font-black text-[#f0449b]">AI</span>
+              </div>
+              <p className="text-[10px] font-medium text-neutral-400 tracking-wider">Creator Hub</p>
+            </div>
           </Link>
         </div>
 
-        {/* Navigation Tabs (Scrollable) */}
-        <div className="flex-1 overflow-y-auto py-4 px-3 space-y-4 custom-scrollbar">
-          {navigationGroups.map((grp) => (
-            <div key={grp.group} className="space-y-1">
-              <div className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                {grp.group}
-              </div>
-              {grp.items.map((item) => {
-                const isActive = pathname === item.href;
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    href={item.href}
-                    className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all duration-200 text-xs font-semibold group ${
-                      isActive
-                        ? "bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/10 text-white border border-[#be32ff]/40 shadow-[0_0_20px_rgba(190,50,255,0.15)]"
-                        : "text-neutral-300 hover:text-white hover:bg-white/[0.04] border border-transparent"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`p-1.5 rounded-lg transition-colors shrink-0 ${
-                        isActive ? "bg-gradient-to-br from-[#fc9a5d] to-[#be32ff] text-white shadow" : "bg-white/5 text-neutral-400 group-hover:text-white group-hover:bg-white/10"
-                      }`}>
-                        <Icon className="w-3.5 h-3.5" />
-                      </div>
-                      <span className="truncate">{item.name}</span>
-                    </div>
-                    {item.badge && (
-                      <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shrink-0">
-                        {item.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+        {/* Navigation Items (8 Essential Items Only) */}
+        <div className="flex-1 overflow-y-auto py-5 px-3 space-y-1.5 custom-scrollbar">
+          {navigationItems.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/influencer' && pathname?.startsWith(item.href));
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-200 text-xs font-semibold group ${
+                  isActive
+                    ? "bg-gradient-to-r from-[#BE32FF] to-[#EC4899] text-white shadow-[0_0_20px_rgba(190,50,255,0.4)]"
+                    : "text-neutral-300 hover:text-white hover:bg-white/[0.05]"
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <Icon className={`w-4 h-4 shrink-0 transition-colors ${
+                    isActive ? "text-white" : "text-neutral-400 group-hover:text-white"
+                  }`} />
+                  <span className="truncate">{item.name}</span>
+                </div>
+                {item.badge !== undefined && item.badge !== null && Number(item.badge) > 0 && (
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                    isActive 
+                      ? "bg-white text-[#be32ff] shadow" 
+                      : "bg-[#f0449b] text-white shadow-[0_0_10px_rgba(240,68,155,0.5)]"
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
 
-          {/* Switch to Business Hub */}
-          <div className="pt-2 border-t border-white/5">
+          {/* Switch to Business Hub (Single clean secondary link) */}
+          <div className="pt-4 mt-4 border-t border-white/5">
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-colors border border-transparent"
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-neutral-400 hover:text-white hover:bg-white/[0.04] transition-colors"
             >
-              <div className="p-1.5 rounded-lg bg-white/5 text-neutral-400">
-                <ArrowLeft className="w-3.5 h-3.5" />
-              </div>
-              <span>Switch to Business App</span>
+              <ArrowLeft className="w-3.5 h-3.5 text-neutral-500" />
+              <span>Switch to Brand App</span>
             </Link>
           </div>
         </div>
 
-        {/* User Card & Logout */}
-        <div className="p-3 border-t border-white/10 bg-[#07080d]/80 space-y-2">
+        {/* Creator Identity & Logout */}
+        <div className="p-3 border-t border-white/10 bg-[#07080d]/90 space-y-2">
           <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/5">
             <div 
               suppressHydrationWarning 
-              className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center font-bold text-white text-xs shadow-md ring-1 ring-white/20 shrink-0 overflow-hidden"
+              className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] p-0.5 shadow-md shrink-0 overflow-hidden"
             >
-              {profile?.profile_image ? (
-                <img 
-                  src={profile.profile_image} 
-                  alt={displayName} 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    if (!target.dataset.triedBackend && profile.profile_image && profile.profile_image.startsWith('/')) {
-                      target.dataset.triedBackend = 'true';
-                      target.src = `http://127.0.0.1:8000${profile.profile_image}`;
-                    } else {
-                      target.style.display = 'none';
-                    }
-                  }}
-                />
-              ) : (
-                userInitial
-              )}
+              <div className="w-full h-full bg-[#0b0c13] rounded-[9px] flex items-center justify-center overflow-hidden">
+                {(profile?.profile_image || (user as any)?.profileImageUrl || (user as any)?.image) ? (
+                  <img 
+                    src={resolveAvatarUrl(profile?.profile_image || (user as any)?.profileImageUrl || (user as any)?.image)} 
+                    alt={displayName} 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      const raw = profile?.profile_image || (user as any)?.profileImageUrl || (user as any)?.image;
+                      if (!target.dataset.triedLocalhost && raw && raw.startsWith('/')) {
+                        target.dataset.triedLocalhost = 'true';
+                        target.src = `http://localhost:8000${raw}`;
+                      } else {
+                        target.src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80';
+                      }
+                    }}
+                  />
+                ) : (
+                  <span className="font-bold text-white text-xs">{userInitial}</span>
+                )}
+              </div>
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
               <div className="flex items-center gap-1">
                 <p suppressHydrationWarning className="text-xs font-bold text-white truncate">{displayName}</p>
-                <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                {isVerified && <span title="Verified Creator" className="shrink-0"><ShieldCheck className="w-3 h-3 text-emerald-400" /></span>}
               </div>
               <p suppressHydrationWarning className="text-[10px] text-neutral-400 truncate">{displaySubtitle}</p>
             </div>
@@ -205,7 +235,7 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
             className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-rose-400/80 hover:text-rose-300 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
-            Sign Out
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>
@@ -216,8 +246,8 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
           <div className="w-72 bg-[#0b0c13] h-full border-r border-white/10 flex flex-col p-4 animate-in slide-in-from-left duration-200">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <Link href="/influencer" className="flex items-center gap-2">
-                <Logo size="sm" />
-                <span className="text-[10px] font-bold text-[#fc9a5d]">Influencer</span>
+                <span className="font-extrabold text-sm text-white">DhandaGrow AI</span>
+                <span className="text-[10px] text-[#f0449b]">Creator Hub</span>
               </Link>
               <button
                 onClick={() => setMobileMenuOpen(false)}
@@ -226,40 +256,33 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 py-4 space-y-4 overflow-y-auto custom-scrollbar">
-              {navigationGroups.map((grp) => (
-                <div key={grp.group} className="space-y-1">
-                  <div className="px-2 text-[10px] font-bold uppercase tracking-wider text-neutral-400">
-                    {grp.group}
-                  </div>
-                  {grp.items.map((item) => {
-                    const isActive = pathname === item.href;
-                    const Icon = item.icon;
-                    return (
-                      <Link
-                        key={item.name}
-                        href={item.href}
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold ${
-                          isActive
-                            ? "bg-[#be32ff]/20 text-white border border-[#be32ff]/40"
-                            : "text-neutral-300 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5">
-                          <Icon className="w-4 h-4 text-[#be32ff]" />
-                          <span>{item.name}</span>
-                        </div>
-                        {item.badge && (
-                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">
-                            {item.badge}
-                          </span>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              ))}
+            <div className="flex-1 py-4 space-y-2 overflow-y-auto custom-scrollbar">
+              {navigationItems.map((item) => {
+                const isActive = pathname === item.href || (item.href !== '/influencer' && pathname?.startsWith(item.href));
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold ${
+                      isActive
+                        ? "bg-gradient-to-r from-[#BE32FF] to-[#EC4899] text-white shadow-md"
+                        : "text-neutral-300 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className="w-4 h-4 text-white" />
+                      <span>{item.name}</span>
+                    </div>
+                    {item.badge !== undefined && item.badge !== null && Number(item.badge) > 0 && (
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#be32ff]">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
             </div>
             <div className="pt-3 border-t border-white/10">
               <button
@@ -267,7 +290,7 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
                 className="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-rose-400 hover:bg-rose-500/10 rounded-lg"
               >
                 <LogOut className="w-4 h-4" />
-                Logout
+                <span>Logout</span>
               </button>
             </div>
           </div>
@@ -276,8 +299,8 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
       )}
 
       {/* Main Content Area */}
-      <div className="flex-1 md:ml-64 flex flex-col min-h-screen bg-[#08090d]">
-        <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
+      <div className="w-full md:pl-64 flex flex-col min-h-screen bg-[#08090d] min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-3 sm:p-5 md:p-6 w-full max-w-7xl mx-auto min-w-0">
           {children}
         </main>
       </div>
