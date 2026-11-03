@@ -127,7 +127,7 @@ export function Sidebar() {
   };
 
   const renderNavItems = (onItemClick?: () => void) => (
-    <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+    <nav className="flex-1 space-y-1.5 px-3 py-4 overflow-y-auto scrollbar-none">
       {navigation.map((item: any) => {
         if (item.children) {
           const isOpen = openDropdowns[item.name];
@@ -143,8 +143,8 @@ export function Sidebar() {
                 className={cn(
                   "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   (isChildActive || isParentActive) && !isOpen
-                    ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                    : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                    ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)] rounded-xl"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-xl"
                 )}
               >
                 {item.href ? (
@@ -156,7 +156,7 @@ export function Sidebar() {
                     <item.icon
                       className={cn(
                         "mr-3 h-5 w-5 flex-shrink-0",
-                        (isChildActive || isParentActive) && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                        (isChildActive || isParentActive) && !isOpen ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                       )}
                       aria-hidden="true"
                     />
@@ -207,15 +207,15 @@ export function Sidebar() {
                         className={cn(
                           "group flex items-center px-3 py-2 text-xs font-medium rounded-md transition-colors",
                           isExactActive
-                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white"
-                            : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                            ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)] rounded-xl"
+                            : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-xl"
                         )}
                       >
                         {child.icon && (
                           <child.icon
                             className={cn(
                               "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
-                              isExactActive ? "text-brand-purple" : "opacity-80 group-hover:opacity-100"
+                              isExactActive ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                             )}
                             aria-hidden="true"
                           />
@@ -232,9 +232,7 @@ export function Sidebar() {
 
         const isActive = item.href === "/dashboard" 
           ? pathname === "/dashboard" 
-          : (pathname === item.href || pathname.startsWith(item.href + "/"));
-
-        const isDashboardActive = item.href === "/dashboard" && pathname === "/dashboard";
+          : (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")));
 
         return (
           <Link
@@ -242,26 +240,22 @@ export function Sidebar() {
             href={item.href as string}
             onClick={() => onItemClick && onItemClick()}
             className={cn(
-              "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-              isDashboardActive
-                ? "bg-[#0c1a3b] border border-[#1e3a8a]/70 text-white shadow-[0_4px_16px_rgba(14,35,80,0.4)]"
-                : isActive
-                ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                : "text-text-muted hover:bg-surface-elevated hover:text-white"
+              "group flex items-center px-3.5 py-2.5 text-sm font-medium rounded-xl transition-all",
+              isActive
+                ? "bg-[#0c1633] border border-[#233566] text-white shadow-[0_4px_16px_rgba(10,20,50,0.5)]"
+                : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
             )}
           >
             <item.icon
               className={cn(
                 "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
-                isDashboardActive
+                isActive
                   ? "fill-white text-white"
-                  : isActive
-                  ? "text-brand-purple"
-                  : "text-text-muted group-hover:text-white"
+                  : "text-slate-400 group-hover:text-white"
               )}
               aria-hidden="true"
             />
-            {item.name}
+            <span className="truncate">{item.name}</span>
           </Link>
         );
       })}
@@ -271,8 +265,8 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop & Laptop Sidebar (md+ screens) */}
-      <div className="hidden md:flex h-full w-64 flex-col bg-surface border-r border-border shrink-0">
-        <div className="flex h-16 items-center px-6 border-b border-border min-w-0">
+      <div className="hidden md:flex h-full w-64 flex-col bg-[#081226] border-r border-white/5 shrink-0">
+        <div className="flex h-16 items-center px-6 border-b border-white/5 min-w-0">
           <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
             <Logo size="sm" />
           </Link>
@@ -280,7 +274,7 @@ export function Sidebar() {
 
         {renderNavItems()}
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-white/5">
           <CreditIndicator />
           <button
             onClick={logout}
@@ -302,8 +296,8 @@ export function Sidebar() {
           />
 
           {/* Slide-in Drawer */}
-          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface border-r border-border shadow-2xl z-10 animate-in slide-in-from-left duration-250">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border min-w-0">
+          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-[#081226] border-r border-white/5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+            <div className="flex h-16 items-center justify-between px-6 border-b border-white/5 min-w-0">
               <Link 
                 href="/dashboard" 
                 onClick={() => setSidebarOpen(false)} 
@@ -323,7 +317,7 @@ export function Sidebar() {
 
             {renderNavItems(() => setSidebarOpen(false))}
 
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-white/5">
               <CreditIndicator />
               <button
                 onClick={() => {

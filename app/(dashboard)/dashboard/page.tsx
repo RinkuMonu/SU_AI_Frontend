@@ -128,9 +128,9 @@ export default function DashboardPage() {
       {/* Top Welcome Header with Gradient Name & Billing / Credits Pills */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-normal tracking-tight text-white">
             {greeting},{" "}
-            <span className="bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] bg-clip-text text-transparent font-bold">
+            <span className="bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] bg-clip-text text-transparent font-normal">
               {(
               (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
               (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
