@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Logo } from '@/components/ui/Logo';
+import influencerService, { InfluencerProfile } from '@/services/influencer.service';
 
 export default function InfluencerLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -34,9 +35,16 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  const [profile, setProfile] = useState<InfluencerProfile | null>(null);
+
   useEffect(() => {
     setMounted(true);
-  }, []);
+    influencerService.getMyProfile().then((res) => {
+      if (res?.success && res.data) {
+        setProfile(res.data);
+      }
+    }).catch(() => {});
+  }, [user]);
 
   const navigationGroups = [
     {
@@ -71,11 +79,9 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
     }
   ];
 
-  const userInitial = mounted && user?.name 
-    ? user.name.charAt(0).toUpperCase() 
-    : (mounted && user?.email ? user.email.charAt(0).toUpperCase() : 'C');
-  const userName = mounted && (user?.name || user?.fullName) ? (user.name || user.fullName) : 'Verified Creator';
-  const userEmail = mounted && user?.email ? user.email : 'creator@sevenunique.ai';
+  const displayName = mounted ? (profile?.fullName || profile?.full_name || user?.fullName || user?.name || 'Creator') : 'Creator';
+  const displaySubtitle = mounted ? (profile?.username ? `@${profile.username.replace(/^@/, '')}` : (user?.email || user?.phone || user?.phone_number || 'Creator Partner')) : 'Creator Partner';
+  const userInitial = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="min-h-screen bg-[#08090d] text-white flex flex-col md:flex-row antialiased selection:bg-[#be32ff]/30">
@@ -165,16 +171,33 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
           <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/5">
             <div 
               suppressHydrationWarning 
-              className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center font-bold text-white text-xs shadow-md ring-1 ring-white/20 shrink-0"
+              className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] flex items-center justify-center font-bold text-white text-xs shadow-md ring-1 ring-white/20 shrink-0 overflow-hidden"
             >
-              {userInitial}
+              {profile?.profile_image ? (
+                <img 
+                  src={profile.profile_image} 
+                  alt={displayName} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.triedBackend && profile.profile_image && profile.profile_image.startsWith('/')) {
+                      target.dataset.triedBackend = 'true';
+                      target.src = `http://127.0.0.1:8000${profile.profile_image}`;
+                    } else {
+                      target.style.display = 'none';
+                    }
+                  }}
+                />
+              ) : (
+                userInitial
+              )}
             </div>
             <div className="overflow-hidden flex-1 min-w-0">
               <div className="flex items-center gap-1">
-                <p suppressHydrationWarning className="text-xs font-bold text-white truncate">{userName}</p>
+                <p suppressHydrationWarning className="text-xs font-bold text-white truncate">{displayName}</p>
                 <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
               </div>
-              <p suppressHydrationWarning className="text-[10px] text-neutral-400 truncate">{userEmail}</p>
+              <p suppressHydrationWarning className="text-[10px] text-neutral-400 truncate">{displaySubtitle}</p>
             </div>
           </div>
           <button

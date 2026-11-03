@@ -29,19 +29,9 @@ import {
   Eye
 } from 'lucide-react';
 
-const Instagram = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-  </svg>
-);
-
-const Youtube = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-  </svg>
-);
+import { InstagramIcon, FacebookIcon, LinkedInIcon } from '@/components/social/SocialIcons';
+import { InfluencerSocialConnectionModal } from '@/components/influencer/InfluencerSocialConnectionModal';
+import { influencerSocialService, InfluencerSocialStatus } from '@/services/influencer-social.service';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -99,6 +89,8 @@ export default function InfluencerDashboard() {
   });
   const [opportunities, setOpportunities] = useState<OpportunityItem[]>([]);
   const [directHiringRequests, setDirectHiringRequests] = useState<HiringRequest[]>([]);
+  const [showSocialModal, setShowSocialModal] = useState(false);
+  const [socialStatus, setSocialStatus] = useState<InfluencerSocialStatus | null>(null);
   const [pagination, setPagination] = useState({ page: 1, limit: 6, total: 0, total_pages: 1 });
   
   // UI States
@@ -127,9 +119,10 @@ export default function InfluencerDashboard() {
   const loadProfileAndSummary = useCallback(async () => {
     try {
       setSummaryLoading(true);
-      const [profileRes, summaryRes] = await Promise.allSettled([
+      const [profileRes, summaryRes, socialRes] = await Promise.allSettled([
         influencerService.getMyProfile(),
-        influencerService.getDashboardSummary()
+        influencerService.getDashboardSummary(),
+        influencerSocialService.getStatus()
       ]);
 
       if (profileRes.status === 'fulfilled' && profileRes.value?.success) {
@@ -137,6 +130,9 @@ export default function InfluencerDashboard() {
       }
       if (summaryRes.status === 'fulfilled' && summaryRes.value?.success) {
         setSummary(summaryRes.value.data);
+      }
+      if (socialRes.status === 'fulfilled') {
+        setSocialStatus(socialRes.value);
       }
       try {
         const hiringRes = await marketplaceService.getMyHiringRequests();
@@ -189,6 +185,27 @@ export default function InfluencerDashboard() {
     setMounted(true);
     loadProfileAndSummary();
   }, [loadProfileAndSummary]);
+
+  // Check First-Login Social Connection Modal prompt
+  useEffect(() => {
+    if (typeof window === 'undefined' || isAuthLoading || !user) return;
+    const uid = user.id || (user as any)._id;
+    const storageKey = uid
+      ? `influencer_social_popup_dismissed_${uid}`
+      : 'influencer_social_popup_dismissed';
+    const isDismissed = localStorage.getItem(storageKey) === 'true';
+
+    if (!isDismissed) {
+      influencerSocialService.getStatus().then((statusRes) => {
+        if (statusRes && !statusRes.dismissed_popup && statusRes.total_verified < 3) {
+          setShowSocialModal(true);
+        }
+      }).catch(() => {
+        setShowSocialModal(true);
+      });
+    }
+  }, [user, isAuthLoading]);
+
 
   useEffect(() => {
     loadOpportunities(1);
@@ -276,7 +293,20 @@ export default function InfluencerDashboard() {
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] p-0.5 shadow-xl shadow-purple-500/20">
                 <div className="w-full h-full rounded-[14px] bg-[#0b0c13] flex items-center justify-center overflow-hidden">
                   {profile?.profile_image ? (
-                    <img src={profile.profile_image} alt={displayName} className="w-full h-full object-cover" />
+                    <img 
+                      src={profile.profile_image} 
+                      alt={displayName} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.triedBackend && profile.profile_image && profile.profile_image.startsWith('/')) {
+                          target.dataset.triedBackend = 'true';
+                          target.src = `http://127.0.0.1:8000${profile.profile_image}`;
+                        } else {
+                          target.style.display = 'none';
+                        }
+                      }}
+                    />
                   ) : (
                     <span suppressHydrationWarning className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-tr from-[#fc9a5d] to-[#be32ff] bg-clip-text text-transparent">
                       {displayName.charAt(0).toUpperCase()}
@@ -302,26 +332,63 @@ export default function InfluencerDashboard() {
                 {displayUsername} &bull; <span className="text-neutral-300 font-medium">{profile?.category || 'Fashion & Lifestyle'}</span> &bull; {profile?.location || 'India'}
               </p>
 
-              {/* Social Channels Connection Badges */}
+              {/* Social Channels Connection Badges (Instagram, Facebook, LinkedIn) */}
               <div className="flex flex-wrap items-center gap-2 pt-1.5">
                 <span className="text-[11px] text-neutral-400 font-medium">Platforms:</span>
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
-                  profile?.instagram_url 
-                    ? "bg-pink-500/15 text-pink-300 border-pink-500/30" 
-                    : "bg-white/5 text-neutral-400 border-white/10"
-                }`}>
-                  <Instagram className="w-3 h-3" />
-                  {profile?.instagram_url ? "Instagram Connected" : "Instagram"}
-                </span>
+                
+                {/* Instagram */}
+                {(() => {
+                  const igVerified = Boolean(socialStatus?.platforms?.instagram?.is_verified);
+                  const igHasUrl = Boolean(profile?.instagram_url);
+                  return (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                      igVerified
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : igHasUrl
+                        ? "bg-pink-500/15 text-pink-300 border-pink-500/30"
+                        : "bg-white/5 text-neutral-400 border-white/10"
+                    }`}>
+                      <InstagramIcon className="w-3 h-3" />
+                      {igVerified ? "Instagram Verified" : igHasUrl ? "Instagram Linked" : "Instagram"}
+                    </span>
+                  );
+                })()}
 
-                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
-                  profile?.youtube_url 
-                    ? "bg-red-500/15 text-red-300 border-red-500/30" 
-                    : "bg-white/5 text-neutral-400 border-white/10"
-                }`}>
-                  <Youtube className="w-3 h-3" />
-                  {profile?.youtube_url ? "YouTube Connected" : "YouTube"}
-                </span>
+                {/* Facebook */}
+                {(() => {
+                  const fbVerified = Boolean(socialStatus?.platforms?.facebook?.is_verified);
+                  const fbHasUrl = Boolean(profile?.facebook_url);
+                  return (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                      fbVerified
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : fbHasUrl
+                        ? "bg-blue-500/15 text-blue-300 border-blue-500/30"
+                        : "bg-white/5 text-neutral-400 border-white/10"
+                    }`}>
+                      <FacebookIcon className="w-3 h-3" />
+                      {fbVerified ? "Facebook Verified" : fbHasUrl ? "Facebook Linked" : "Facebook"}
+                    </span>
+                  );
+                })()}
+
+                {/* LinkedIn */}
+                {(() => {
+                  const liVerified = Boolean(socialStatus?.platforms?.linkedin?.is_verified);
+                  const liHasUrl = Boolean(profile?.linkedin_url);
+                  return (
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold border ${
+                      liVerified
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : liHasUrl
+                        ? "bg-sky-500/15 text-sky-300 border-sky-500/30"
+                        : "bg-white/5 text-neutral-400 border-white/10"
+                    }`}>
+                      <LinkedInIcon className="w-3 h-3" />
+                      {liVerified ? "LinkedIn Verified" : liHasUrl ? "LinkedIn Linked" : "LinkedIn"}
+                    </span>
+                  );
+                })()}
 
                 {profile?.follower_count ? (
                   <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
@@ -367,6 +434,49 @@ export default function InfluencerDashboard() {
           </div>
         </div>
       </section>
+
+      {/* ========================================================
+          PART 1B: NON-INTRUSIVE SOCIAL CONNECTION REMINDER BANNER
+         ======================================================== */}
+      {(!socialStatus || socialStatus.total_verified < 3) && (
+        <section className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#170e28] via-[#0d1527] to-[#121422] border border-[#be32ff]/20 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-gradient-to-tr from-[#fc9a5d] to-[#be32ff] text-white shrink-0 shadow-md">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white">
+                  Connect &amp; Verify Your Social Accounts
+                </h3>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#be32ff]/20 text-[#d87aff] border border-[#be32ff]/40">
+                  Recommended
+                </span>
+              </div>
+              <p className="text-xs text-neutral-300 mt-0.5">
+                Brands prioritize creators with authentic, verified audience metrics. Connect Instagram, Facebook, and LinkedIn via OAuth.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
+            <Button
+              onClick={() => setShowSocialModal(true)}
+              size="sm"
+              className="h-9 px-4 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold shadow-md hover:opacity-90 cursor-pointer"
+            >
+              <span>Connect Platforms</span>
+            </Button>
+            <Link
+              href="/influencer/social-accounts"
+              className="h-9 px-3.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10 text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <span>Manage Accounts</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ========================================================
           PART 1A.5: DIRECT BRAND HIRING PROPOSALS & AGREEMENTS
@@ -792,7 +902,7 @@ export default function InfluencerDashboard() {
                     <div className="flex flex-wrap items-center gap-1.5 pt-1">
                       {camp.platforms.map((p, idx) => (
                         <span key={idx} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-medium text-neutral-300 border border-white/5">
-                          {p.toLowerCase().includes('instagram') ? <Instagram className="w-2.5 h-2.5 text-pink-400" /> : <Youtube className="w-2.5 h-2.5 text-red-400" />}
+                          {p.toLowerCase().includes('instagram') ? <InstagramIcon className="w-2.5 h-2.5 text-pink-400" /> : p.toLowerCase().includes('facebook') ? <FacebookIcon className="w-2.5 h-2.5 text-blue-400" /> : <LinkedInIcon className="w-2.5 h-2.5 text-sky-400" />}
                           {p}
                         </span>
                       ))}
@@ -1027,6 +1137,13 @@ export default function InfluencerDashboard() {
           </DialogContent>
         </Dialog>
       )}
+      {/* First-Login Social Connection Popup */}
+      <InfluencerSocialConnectionModal
+        isOpen={showSocialModal}
+        onClose={() => setShowSocialModal(false)}
+        userId={user?.id || (user as any)?._id}
+        onRefreshProfile={loadProfileAndSummary}
+      />
     </div>
   );
 }
