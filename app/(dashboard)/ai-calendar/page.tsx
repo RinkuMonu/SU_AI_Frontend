@@ -15,6 +15,11 @@ import {
   Plus,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
+  Heart,
+  MoreVertical,
+  Pencil,
+  ChevronDown,
   Video,
   Image as ImageIcon,
   Trash2,
@@ -52,38 +57,40 @@ import Link from "next/link";
 
 // ─── Platform Icons ─────────────────────────────────────────────────────────────
 
-const InstagramIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+const InstagramIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="ig-grad-cal" cx="0.3" cy="1" r="1">
-        <stop offset="0%" stopColor="#fdf497" />
-        <stop offset="5%" stopColor="#fdf497" />
-        <stop offset="45%" stopColor="#fd5949" />
-        <stop offset="60%" stopColor="#d6249f" />
-        <stop offset="90%" stopColor="#285AEB" />
-      </radialGradient>
+      <linearGradient id="ig-official-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#ffd600" />
+        <stop offset="25%" stopColor="#ff0100" />
+        <stop offset="50%" stopColor="#d800b9" />
+        <stop offset="100%" stopColor="#7000ff" />
+      </linearGradient>
     </defs>
-    <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig-grad-cal)" />
-    <path
-      d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm5.2-8.4a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"
-      fill="#ffffff"
-    />
+    <rect x="2" y="2" width="20" height="20" rx="5.5" fill="url(#ig-official-gradient)" />
+    <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" fill="none" stroke="#ffffff" strokeWidth="1.6" />
+    <circle cx="12" cy="12" r="3.2" fill="none" stroke="#ffffff" strokeWidth="1.6" />
+    <circle cx="15.8" cy="8.2" r="0.85" fill="#ffffff" />
   </svg>
 );
 
-const FacebookIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+const FacebookIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="12" fill="#1877F2" />
+    <circle cx="12" cy="12" r="11" fill="#1877F2" />
     <path
-      d="M15.117 8.52h-1.808c-.282 0-.603.37-.603.882v1.548h2.411l-.328 2.45h-2.083V20h-2.528v-6.6H8.225v-2.45h1.953V9.395c0-1.895 1.155-2.928 2.85-2.928.812 0 1.512.06 1.716.088v1.965z"
+      d="M13.5 22v-8h2.69l.4-3.13H13.5V8.87c0-.9.25-1.52 1.55-1.52h1.66V4.55c-.29-.04-1.27-.12-2.42-.12-2.4 0-4.04 1.46-4.04 4.15v2.29H7.5V14h2.75v8h3.25z"
       fill="#ffffff"
     />
   </svg>
 );
 
-const LinkedinIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} fill="#0A66C2" xmlns="http://www.w3.org/2000/svg">
-    <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 8.76a1.67 1.67 0 1 0-.01-3.34 1.67 1.67 0 0 0 .01 3.34m1.39 9.74v-8.37H5.07v8.37h2.78z" />
+const LinkedinIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="20" height="20" rx="4.5" fill="#0A66C2" />
+    <path
+      d="M8.2 18.5V9.8H5.3v8.7h2.9zM6.75 8.6c1 0 1.63-.66 1.63-1.5-.02-.85-.63-1.5-1.61-1.5-.98 0-1.63.65-1.63 1.5 0 .84.63 1.5 1.6 1.5h.01zM18.7 18.5v-4.9c0-2.6-1.4-3.8-3.3-3.8-1.5 0-2.2.8-2.6 1.4v-1.2H9.9c.04.8 0 8.5 0 8.5h2.9v-4.7c0-.25.02-.5.1-.7.2-.5.7-1 1.5-1 1 0 1.5.8 1.5 2v4.4h2.8z"
+      fill="#ffffff"
+    />
   </svg>
 );
 
@@ -170,11 +177,13 @@ export default function AICalendarPage() {
   const [viewMode, setViewMode] = useState<"grid" | "agenda">("grid");
 
   // Selection & Modal States
-  const [selectedDay, setSelectedDay] = useState<number | null>(new Date().getDate());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedItem, setSelectedItem] = useState<GeneratedContent | null>(null);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isDayDrawerOpen, setIsDayDrawerOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
+  const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
+  const [activeContentTab, setActiveContentTab] = useState<"all" | "scheduled" | "published" | "draft">("scheduled");
   
   // Quick Schedule Form State
   const [scheduleType, setScheduleType] = useState<"Reel" | "Post">("Post");
@@ -263,11 +272,15 @@ export default function AICalendarPage() {
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  // Monday-based start index (0=Mon, 1=Tue, ..., 6=Sun) matching Image 2
+  const startDayIndex = (new Date(currentYear, currentMonth, 1).getDay() + 6) % 7;
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const paddingDays = Array.from({ length: firstDayOfMonth }, (_, i) => i);
-  const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
+  const prevMonthDaysCount = new Date(currentYear, currentMonth, 0).getDate();
+  const leadingDays = Array.from({ length: startDayIndex }, (_, i) => prevMonthDaysCount - startDayIndex + 1 + i);
+  const totalCells = Math.ceil((startDayIndex + daysInMonth) / 7) * 7;
+  const trailingDaysCount = totalCells - (startDayIndex + daysInMonth);
+  const trailingDays = Array.from({ length: trailingDaysCount }, (_, i) => i + 1);
+  const weekDays = ["Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"];
 
   const handlePrevMonth = () => setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
   const handleNextMonth = () => setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
@@ -670,692 +683,689 @@ export default function AICalendarPage() {
         </div>
       )}
 
-      {/* Top Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-border/40">
+      {/* ──────────────────────────────────────────────────
+          TOP HEADER MATCHING IMAGE 3 GRADIENT & BROAD DESKTOP WIDTH
+         ────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10 max-w-4xl sm:max-w-5xl mx-auto">
         <div className="flex items-center gap-3.5">
-          <div className="p-3 rounded-2xl bg-gradient-to-tr from-brand-purple via-brand-pink to-brand-coral text-white shadow-xl shadow-brand-purple/20 shrink-0">
-            <CalendarDays className="h-7 w-7" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                AI Social Calendar
-              </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-brand-purple/20 text-brand-pink border border-brand-purple/30">
-                Scheduled Posts & Reels
-              </span>
-            </div>
-            <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-              Plan, view, schedule, and auto-publish Posts and Reels across Instagram, Facebook, and LinkedIn.
-            </p>
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLoadSampleContent}
-            disabled={isLoading}
-            className="border-pink-500/30 bg-pink-500/10 hover:bg-pink-500/20 text-pink-300 text-xs h-9 px-3.5 rounded-xl cursor-pointer transition-all"
-            title="Populate calendar with sample trending reels and posts for this month"
+          <Link
+            href="/dashboard"
+            className="w-10 h-10 rounded-full bg-[#181d30] border border-white/10 flex items-center justify-center text-white hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer shrink-0 shadow-sm"
+            title="Back to Dashboard"
           >
-            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-amber-400 animate-pulse" />
-            + Demo Reels & Posts
-          </Button>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsPlanModalOpen(true)}
-            className="border-border bg-surface hover:bg-surface-elevated text-white text-xs h-9 px-3.5 rounded-xl cursor-pointer"
-          >
-            <Wand2 className="w-3.5 h-3.5 mr-1.5 text-brand-pink" />
-            AI 30-Day Plan
-          </Button>
-
-          <Button
-            onClick={() => handleOpenScheduleForDay(selectedDay || new Date().getDate())}
-            className="bg-brand-gradient hover:opacity-95 text-white font-semibold text-xs h-9 px-4 rounded-xl shadow-lg shadow-brand-purple/25 flex items-center gap-1.5 cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Schedule Post / Reel
-          </Button>
+            <ChevronLeft className="w-5 h-5" />
+          </Link>
+          <h1 className="text-2xl sm:text-3xl font-medium tracking-tight whitespace-nowrap">
+            <span className="text-white">Calender & </span>
+            <span
+              className="font-medium bg-clip-text text-transparent"
+              style={{
+                backgroundImage: 'linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)',
+              }}
+            >
+              Plan Content
+            </span>
+          </h1>
         </div>
       </div>
 
-      {/* KPI Stats Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="bg-surface/80 border border-border/60 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-text-muted">Total Scheduled</span>
-            <div className="p-1.5 rounded-lg bg-brand-purple/15 text-brand-pink">
-              <CalendarIcon className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-white mt-1">{totalScheduledMonth}</p>
-          <span className="text-[11px] text-text-muted">in {currentDate.toLocaleDateString("en-US", { month: "short", year: "numeric" })}</span>
-        </div>
-
-        <div className="bg-surface/80 border border-pink-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-pink-300">Scheduled Reels</span>
-            <div className="p-1.5 rounded-lg bg-pink-500/15 text-pink-400">
-              <Video className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-pink-400 mt-1">{reelsScheduledMonth}</p>
-          <span className="text-[11px] text-pink-300/70">Instagram & Meta Reels</span>
-        </div>
-
-        <div className="bg-surface/80 border border-blue-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-blue-300">Scheduled Posts</span>
-            <div className="p-1.5 rounded-lg bg-blue-500/15 text-blue-400">
-              <ImageIcon className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-blue-400 mt-1">{postsScheduledMonth}</p>
-          <span className="text-[11px] text-blue-300/70">Feeds & Carousels</span>
-        </div>
-
-        <div className="bg-surface/80 border border-amber-500/20 rounded-2xl p-4 shadow-sm backdrop-blur-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-amber-300">Upcoming Festivals</span>
-            <div className="p-1.5 rounded-lg bg-amber-500/15 text-amber-400">
-              <PartyPopper className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl font-black text-amber-400 mt-1">{festivalsThisMonth}</p>
-          <span className="text-[11px] text-amber-300/70">Festive occasions</span>
-        </div>
-      </div>
-
-      {/* Main Calendar Card */}
-      <div className="bg-[#11131c] rounded-3xl border border-white/5 shadow-2xl overflow-hidden p-4 sm:p-6 space-y-6">
-        {/* Navigation & Filters Bar */}
-        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          {/* Month Navigation */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 bg-surface border border-border/60 rounded-xl p-1 shadow-sm">
+      {/* ──────────────────────────────────────────────────
+          MAIN BROAD DESKTOP CONTAINER (MAX-W-4XL / MAX-W-5XL MX-AUTO)
+         ────────────────────────────────────────────────── */}
+      <div className="max-w-4xl sm:max-w-5xl mx-auto space-y-6">
+        {/* 1. Broad Desktop Calendar Card matching Image 1 with Image 2 Highlight (#43187d) */}
+        <div className="rounded-3xl bg-[#111528]/95 border border-white/10 p-5 sm:p-7 shadow-2xl backdrop-blur-xl relative">
+          {/* Calendar Card Top Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/5">
+            {/* Month Dropdown Pill */}
+            <div className="relative">
               <button
+                type="button"
+                onClick={() => setIsMonthPickerOpen(!isMonthPickerOpen)}
+                className="inline-flex items-center gap-3 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full bg-[#1c2237] border border-white/10 hover:border-white/20 text-white text-sm sm:text-base font-normal transition-all cursor-pointer shadow-sm"
+              >
+                <CalendarDays className="w-5 h-5 text-slate-300" />
+                <span>{currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</span>
+                <ChevronDown className={`w-4.5 h-4.5 text-slate-400 transition-transform ${isMonthPickerOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* Month & Year Selection Popup */}
+              {isMonthPickerOpen && (
+                <div className="absolute top-full left-0 mt-2 z-40 w-64 bg-[#141829] border border-white/10 rounded-2xl p-3 shadow-2xl animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentDate(new Date(currentYear - 1, currentMonth, 1))}
+                      className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-sm font-bold text-white">{currentYear}</span>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentDate(new Date(currentYear + 1, currentMonth, 1))}
+                      className="p-1 rounded-lg hover:bg-white/10 text-white/70 hover:text-white"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                    ].map((mName, idx) => (
+                      <button
+                        key={mName}
+                        type="button"
+                        onClick={() => {
+                          setCurrentDate(new Date(currentYear, idx, 1));
+                          setIsMonthPickerOpen(false);
+                        }}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-colors ${
+                          idx === currentMonth
+                            ? "bg-[#38156d] text-white border border-[#5b21b6]/60"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
+                        }`}
+                      >
+                        {mName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Prev / Next & Today buttons */}
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
                 onClick={handlePrevMonth}
-                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#1c2237] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
                 title="Previous Month"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
+                type="button"
                 onClick={handleNextMonth}
-                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-xl bg-[#1c2237] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 flex items-center justify-center transition-colors cursor-pointer"
                 title="Next Month"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
+              <button
+                type="button"
+                onClick={handleToday}
+                className="px-2.5 h-8 rounded-xl bg-[#1c2237] border border-white/10 text-white/80 hover:text-white text-xs font-medium transition-colors cursor-pointer ml-1"
+              >
+                Today
+              </button>
             </div>
+          </div>
 
-            <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-              <span>{currentDate.toLocaleDateString("en-US", { month: "long" })}</span>
-              <span className="text-brand-pink">{currentYear}</span>
-            </h2>
+          {/* Weekdays Row: Mon, Tue, Wed, Thur, Fri, Sat, Sun */}
+          <div className="grid grid-cols-7 border-b border-white/5 py-3.5">
+            {weekDays.map((day, idx) => (
+              <div
+                key={day}
+                className={`text-center text-xs sm:text-sm font-normal text-slate-400 ${
+                  idx < 6 ? "border-r border-white/10" : ""
+                }`}
+              >
+                {day}
+              </div>
+            ))}
+          </div>
 
+          {/* Calendar Days Grid with vertical dividers */}
+          <div className="grid grid-cols-7">
+            {/* Leading days from previous month */}
+            {leadingDays.map((prevDay, idx) => (
+              <div
+                key={`lead-${prevDay}-${idx}`}
+                className={`h-11 sm:h-12 flex flex-col items-center justify-center ${
+                  (idx % 7) < 6 ? "border-r border-white/10" : ""
+                }`}
+              >
+                <span className="text-slate-600 text-xs sm:text-sm font-normal select-none">
+                  {prevDay}
+                </span>
+              </div>
+            ))}
+
+            {/* Days of current month */}
+            {days.map((day) => {
+              const dayItems = itemsByDay[day] || [];
+              const dayFestivals = currentMonthFestivals.filter(f => f.date === day);
+              const hasScheduled = dayItems.length > 0;
+              const hasFestival = dayFestivals.length > 0;
+              const isSelected = selectedDay === day;
+              const isToday =
+                new Date().getDate() === day &&
+                new Date().getMonth() === currentMonth &&
+                new Date().getFullYear() === currentYear;
+
+              const cellIndexInWeek = (startDayIndex + day - 1) % 7;
+              const isLastInRow = cellIndexInWeek === 6;
+
+              // Solid deep purple circle only on selected day or if scheduled content exists
+              const showPurpleCircle = isSelected || hasScheduled;
+
+              return (
+                <div
+                  key={`curr-day-${day}`}
+                  onClick={() => handleOpenScheduleForDay(day)}
+                  className={`h-11 sm:h-12 flex flex-col items-center justify-center relative cursor-pointer group transition-colors ${
+                    !isLastInRow ? "border-r border-white/10" : ""
+                  }`}
+                >
+                  {showPurpleCircle ? (
+                    <div
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#43187d] border border-[#5b21b6]/60 text-white flex items-center justify-center text-xs sm:text-sm font-normal shadow-[0_0_14px_rgba(67,24,125,0.7)] transform group-hover:scale-105 transition-all"
+                      title={`Day ${day}: ${dayItems.length} scheduled item(s)`}
+                    >
+                      {day}
+                    </div>
+                  ) : (
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full text-white flex items-center justify-center text-xs sm:text-sm font-normal group-hover:bg-white/10 transition-all">
+                      {day}
+                    </div>
+                  )}
+
+                  {/* Festival indicator dot (shown only if festival filter is active) */}
+                  {hasFestival && filterType === "festivals" && (
+                    <span
+                      className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-0.5 shadow-[0_0_6px_rgba(251,191,36,0.8)]"
+                      title={dayFestivals.map(f => f.name).join(", ")}
+                    />
+                  )}
+                </div>
+              );
+            })}
+
+            {/* Trailing days of next month */}
+            {trailingDays.map((nextDay, idx) => {
+              const totalLeadingAndCurrent = startDayIndex + daysInMonth;
+              const cellIndexInWeek = (totalLeadingAndCurrent + idx) % 7;
+              const isLastInRow = cellIndexInWeek === 6;
+
+              return (
+                <div
+                  key={`trail-${nextDay}-${idx}`}
+                  className={`h-11 sm:h-12 flex flex-col items-center justify-center ${
+                    !isLastInRow ? "border-r border-white/10" : ""
+                  }`}
+                >
+                  <span className="text-slate-600 text-xs sm:text-sm font-normal select-none">
+                    {nextDay}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 2. Content Tabs Bar: All | Scheduled | Published | Draft (matching Image 2 gradient & dark bottom) */}
+        <div className="rounded-2xl bg-[#121628] border border-white/10 p-1.5 flex items-center justify-between gap-1.5">
+          {(["all", "scheduled", "published", "draft"] as const).map((tabKey) => {
+            const isActive = activeContentTab === tabKey;
+            const labelMap: Record<string, string> = {
+              all: "All",
+              scheduled: "Scheduled",
+              published: "Published",
+              draft: "Draft",
+            };
+            return (
+              <button
+                key={tabKey}
+                type="button"
+                onClick={() => setActiveContentTab(tabKey)}
+                className={`flex-1 py-2.5 px-3 sm:px-6 rounded-xl text-xs sm:text-sm font-normal transition-all cursor-pointer text-center ${
+                  isActive
+                    ? "text-white border border-[#5b21b6]/60 shadow-[0_4px_16px_rgba(40,16,80,0.5)]"
+                    : "text-slate-400 hover:text-white hover:bg-white/5"
+                }`}
+                style={
+                  isActive
+                    ? {
+                        background: "linear-gradient(180deg, #38156d 0%, #2c1056 65%, #180830 85%, #0a0314 100%)",
+                      }
+                    : undefined
+                }
+              >
+                {labelMap[tabKey]}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 3. Dynamic Top Banner for Selected Tab */}
+        {activeContentTab === "all" && (
+          // Image 1 Banner: AI Suggests
+          <div className="rounded-2xl p-4 sm:p-4.5 bg-gradient-to-r from-[#21183c] via-[#1c1834] to-[#12162a] border border-purple-500/20 flex items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#be32ff]">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-medium text-white">AI Suggests:</h4>
+                <p className="text-[11px] sm:text-xs text-slate-300">You haven't posted a reel in 3 days.</p>
+              </div>
+            </div>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={handleToday}
-              className="border-white/10 text-white/80 hover:text-white hover:bg-white/5 text-xs h-8 px-2.5 rounded-lg ml-1"
+              onClick={() => handleOpenScheduleForDay(selectedDay || new Date().getDate())}
+              className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white text-xs font-medium px-5 py-2 h-9 rounded-xl shadow-md cursor-pointer shrink-0"
             >
-              Today
+              Create
             </Button>
           </div>
+        )}
 
-          {/* Filter Pills & View Toggles */}
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center bg-surface border border-border/60 rounded-xl p-1 text-xs">
-              <button
-                onClick={() => setFilterType("all")}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-all cursor-pointer ${
-                  filterType === "all" ? "bg-brand-purple text-white shadow-sm" : "text-white/60 hover:text-white"
-                }`}
-              >
-                All ({totalScheduledMonth + festivalsThisMonth})
-              </button>
-              <button
-                onClick={() => setFilterType("reels")}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  filterType === "reels" ? "bg-pink-600 text-white shadow-sm" : "text-white/60 hover:text-white"
-                }`}
-              >
-                <Video className="w-3.5 h-3.5" /> Reels ({reelsScheduledMonth})
-              </button>
-              <button
-                onClick={() => setFilterType("posts")}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  filterType === "posts" ? "bg-blue-600 text-white shadow-sm" : "text-white/60 hover:text-white"
-                }`}
-              >
-                <ImageIcon className="w-3.5 h-3.5" /> Posts ({postsScheduledMonth})
-              </button>
-              <button
-                onClick={() => setFilterType("festivals")}
-                className={`px-3 py-1.5 rounded-lg font-semibold transition-all flex items-center gap-1 cursor-pointer ${
-                  filterType === "festivals" ? "bg-amber-600 text-white shadow-sm" : "text-white/60 hover:text-white"
-                }`}
-              >
-                <PartyPopper className="w-3.5 h-3.5" /> Festivals ({festivalsThisMonth})
-              </button>
-            </div>
-
-            {/* View Switcher: Grid vs Agenda */}
-            <div className="flex items-center bg-surface border border-border/60 rounded-xl p-1 text-xs">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === "grid" ? "bg-white/15 text-white" : "text-white/50 hover:text-white"
-                }`}
-                title="Calendar Grid View"
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode("agenda")}
-                className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                  viewMode === "agenda" ? "bg-white/15 text-white" : "text-white/50 hover:text-white"
-                }`}
-                title="Agenda Feed View"
-              >
-                <List className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* ─── GRID VIEW ───────────────────────────────────────────────────────── */}
-        {viewMode === "grid" ? (
-          <div className="w-full">
-            {/* Weekdays Header */}
-            <div className="grid grid-cols-7 gap-2 mb-2">
-              {weekDays.map(day => (
-                <div
-                  key={day}
-                  className="text-center font-bold text-xs uppercase tracking-wider text-white/40 py-2 border-b border-white/5"
-                >
-                  {day}
-                </div>
-              ))}
-            </div>
-
-            {/* Days Grid */}
-            <div className="grid grid-cols-7 gap-2">
-              {/* Previous Month Padding Days */}
-              {paddingDays.map(day => {
-                const prevDateNum = prevMonthDays - paddingDays.length + day + 1;
-                return (
-                  <div
-                    key={`pad-${day}`}
-                    className="min-h-[115px] sm:min-h-[135px] rounded-2xl bg-white/[0.015] border border-white/5 p-2 flex flex-col justify-between opacity-30 select-none"
-                  >
-                    <span className="text-xs font-semibold text-white/40">{prevDateNum}</span>
-                  </div>
-                );
-              })}
-
-              {/* Current Month Days */}
-              {days.map(day => {
-                const today = new Date();
-                const isToday =
-                  today.getDate() === day &&
-                  today.getMonth() === currentMonth &&
-                  today.getFullYear() === currentYear;
-
-                const isSelected = selectedDay === day;
-
-                // Day festivals
-                const dayFestivals = currentMonthFestivals.filter(f => f.date === day);
-
-                // Day scheduled items
-                let dayItems = itemsByDay[day] || [];
-                if (filterType === "reels") {
-                  dayItems = dayItems.filter(isReelContent);
-                } else if (filterType === "posts") {
-                  dayItems = dayItems.filter(item => !isReelContent(item));
-                }
-
-                const showFestivals = filterType === "all" || filterType === "festivals";
-                const totalDayBadges = dayItems.length + (showFestivals ? dayFestivals.length : 0);
-
-                return (
-                  <div
-                    key={`day-${day}`}
-                    onClick={() => {
-                      setSelectedDay(day);
-                      if (dayItems.length > 0 || dayFestivals.length > 0) {
-                        setIsDayDrawerOpen(true);
-                      }
-                    }}
-                    className={`min-h-[115px] sm:min-h-[135px] rounded-2xl p-2.5 flex flex-col justify-between transition-all duration-200 group relative border cursor-pointer ${
-                      isSelected
-                        ? "bg-brand-purple/10 border-brand-purple/60 shadow-lg shadow-brand-purple/10"
-                        : "bg-surface/50 border-white/5 hover:border-white/20 hover:bg-surface-elevated/70"
-                    }`}
-                  >
-                    {/* Day Number Header */}
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center text-xs font-bold transition-transform ${
-                          isToday
-                            ? "bg-gradient-to-tr from-brand-purple to-brand-pink text-white shadow-md shadow-brand-purple/40 ring-2 ring-brand-purple/30"
-                            : "text-white/80 group-hover:text-white"
-                        }`}
-                      >
-                        {day}
-                      </div>
-
-                      {/* Quick Add Button */}
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          handleOpenScheduleForDay(day);
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1 rounded-lg bg-white/10 hover:bg-brand-purple text-white/70 hover:text-white transition-all transform hover:scale-110"
-                        title="Schedule on this day"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Cell Content: Festivals & Scheduled Posts/Reels */}
-                    <div className="flex-1 space-y-1.5 overflow-hidden">
-                      {/* Festivals Pill */}
-                      {showFestivals &&
-                        dayFestivals.map((fest, idx) => (
-                          <div
-                            key={`fest-${idx}`}
-                            className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-md truncate flex items-center gap-1 shadow-sm"
-                            title={fest.name}
-                          >
-                            <span>{fest.emoji || "🪔"}</span>
-                            <span className="truncate">{fest.name}</span>
-                          </div>
-                        ))}
-
-                      {/* Scheduled Items Preview Cards */}
-                      {filterType !== "festivals" &&
-                        dayItems.slice(0, 2).map((item, idx) => {
-                          const isReel = isReelContent(item);
-                          const timeStr = formatTimeString(item.scheduledAt || item.updatedAt);
-                          const hasMedia = item.media_url || item.imageUrl || item.image_url;
-
-                          return (
-                            <div
-                              key={item._id || idx}
-                              onClick={e => {
-                                e.stopPropagation();
-                                setSelectedItem(item);
-                              }}
-                              className={`p-1.5 rounded-lg border text-left transition-all hover:scale-[1.02] shadow-sm flex items-center gap-1.5 overflow-hidden ${
-                                isReel
-                                  ? "bg-pink-950/40 border-pink-500/40 hover:border-pink-400 text-pink-200"
-                                  : "bg-purple-950/40 border-brand-purple/40 hover:border-brand-purple text-purple-200"
-                              }`}
-                            >
-                              {/* Media Thumbnail or Type Icon */}
-                              {hasMedia ? (
-                                isReel ? (
-                                  <div className="w-6 h-6 rounded bg-pink-900/60 flex items-center justify-center shrink-0 overflow-hidden relative border border-pink-500/30">
-                                    <Video className="w-3 h-3 text-pink-300" />
-                                  </div>
-                                ) : (
-                                  <img
-                                    src={hasMedia}
-                                    alt="thumb"
-                                    className="w-6 h-6 rounded object-cover shrink-0 border border-purple-500/30"
-                                  />
-                                )
-                              ) : (
-                                <div
-                                  className={`w-6 h-6 rounded flex items-center justify-center shrink-0 ${
-                                    isReel ? "bg-pink-600/30 text-pink-300" : "bg-purple-600/30 text-purple-300"
-                                  }`}
-                                >
-                                  {isReel ? <Video className="w-3 h-3" /> : <ImageIcon className="w-3 h-3" />}
-                                </div>
-                              )}
-
-                              {/* Title & Platform */}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[10px] font-semibold truncate leading-tight text-white">
-                                  {item.title || (isReel ? "Reel Video" : "Social Post")}
-                                </p>
-                                <div className="flex items-center gap-1 text-[9px] text-white/50">
-                                  <span className="text-emerald-400 font-medium">●</span>
-                                  <span>{timeStr}</span>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-
-                      {/* "+X More" Indicator */}
-                      {dayItems.length > 2 && (
-                        <div className="text-[10px] font-bold text-brand-pink text-center py-0.5 bg-brand-purple/10 rounded border border-brand-purple/20">
-                          +{dayItems.length - 2} more items
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Bottom Status Indicator */}
-                    {totalDayBadges > 0 && (
-                      <div className="mt-1 flex items-center justify-between text-[9px] text-white/40 pt-1 border-t border-white/5">
-                        <span className="font-medium text-emerald-400 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                          {dayItems.length} active
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          /* ─── AGENDA / TIMELINE VIEW ────────────────────────────────────────── */
-          <div className="space-y-4">
-            {scheduledItemsInMonth.length === 0 ? (
-              <div className="py-16 text-center space-y-3">
-                <CalendarIcon className="w-12 h-12 text-white/20 mx-auto" />
-                <h3 className="text-lg font-bold text-white">No scheduled posts or reels this month</h3>
-                <p className="text-sm text-text-muted max-w-sm mx-auto">
-                  Click below to populate sample posts & reels or create your first scheduled campaign.
-                </p>
-                <Button onClick={handleLoadSampleContent} className="bg-brand-gradient text-white">
-                  <Sparkles className="w-4 h-4 mr-2" /> Load Sample Scheduled Content
-                </Button>
+        {activeContentTab === "scheduled" && (
+          // Image 2 & 5 Banner: 2 Posts are scheduled for today
+          <div className="rounded-2xl p-4 sm:p-4.5 bg-gradient-to-r from-[#1c1736] via-[#16172e] to-[#12162a] border border-purple-500/20 flex items-center justify-between gap-4 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#a855f7]">
+                <RotateCcw className="w-5 h-5" />
               </div>
-            ) : (
-              <div className="space-y-3">
-                {days.map(dayNum => {
-                  const dayItems = itemsByDay[dayNum] || [];
-                  const dayFestivals = currentMonthFestivals.filter(f => f.date === dayNum);
-                  if (dayItems.length === 0 && dayFestivals.length === 0) return null;
-
-                  const dateObj = new Date(currentYear, currentMonth, dayNum);
-                  const isToday =
-                    new Date().getDate() === dayNum &&
-                    new Date().getMonth() === currentMonth &&
-                    new Date().getFullYear() === currentYear;
-
-                  return (
-                    <div
-                      key={`agenda-${dayNum}`}
-                      className="p-4 rounded-2xl bg-surface border border-border/60 hover:border-brand-purple/40 transition-colors"
-                    >
-                      {/* Day Header */}
-                      <div className="flex items-center justify-between pb-3 border-b border-border/40 mb-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center font-black ${
-                              isToday
-                                ? "bg-brand-purple text-white shadow-md shadow-brand-purple/40"
-                                : "bg-surface-elevated text-white border border-border"
-                            }`}
-                          >
-                            <span className="text-xs uppercase leading-none text-white/60">
-                              {dateObj.toLocaleDateString("en-US", { weekday: "short" })}
-                            </span>
-                            <span className="text-sm leading-none mt-0.5">{dayNum}</span>
-                          </div>
-                          <div>
-                            <h4 className="text-base font-bold text-white">
-                              {dateObj.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                            </h4>
-                            <p className="text-xs text-text-muted">
-                              {dayItems.length} scheduled item{dayItems.length === 1 ? "" : "s"}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Festivals on this day */}
-                        {dayFestivals.map((f, i) => (
-                          <span
-                            key={i}
-                            className="bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1.5"
-                          >
-                            <span>{f.emoji || "🪔"}</span> {f.name}
-                          </span>
-                        ))}
-                      </div>
-
-                      {/* Items for this date */}
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        {dayItems.map(item => {
-                          const isReel = isReelContent(item);
-                          const timeStr = formatTimeString(item.scheduledAt || item.updatedAt);
-                          const hasMedia = item.media_url || item.imageUrl || item.image_url;
-
-                          return (
-                            <div
-                              key={item._id}
-                              onClick={() => setSelectedItem(item)}
-                              className="p-3 rounded-xl bg-surface-elevated border border-border hover:border-brand-purple transition-all cursor-pointer flex gap-3 group"
-                            >
-                              {/* Media Thumbnail */}
-                              <div className="w-16 h-16 rounded-lg bg-black/40 overflow-hidden relative shrink-0 border border-border">
-                                {hasMedia ? (
-                                  isReel ? (
-                                    <div className="w-full h-full flex items-center justify-center bg-pink-950/40 text-pink-400">
-                                      <Video className="w-6 h-6" />
-                                    </div>
-                                  ) : (
-                                    <img src={hasMedia} alt="media" className="w-full h-full object-cover" />
-                                  )
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-text-muted">
-                                    <ImageIcon className="w-6 h-6" />
-                                  </div>
-                                )}
-                              </div>
-
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-1 mb-1">
-                                  <span
-                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                      isReel ? "bg-pink-500/20 text-pink-300" : "bg-blue-500/20 text-blue-300"
-                                    }`}
-                                  >
-                                    {isReel ? "🎬 Reel" : "📸 Post"}
-                                  </span>
-                                  <PlatformBadge platform={item.platform} />
-                                </div>
-                                <h5 className="text-sm font-bold text-white truncate group-hover:text-brand-pink transition-colors">
-                                  {item.title}
-                                </h5>
-                                <p className="text-xs text-text-muted flex items-center gap-1 mt-1">
-                                  <Clock className="w-3 h-3 text-emerald-400" />
-                                  <span>{timeStr}</span>
-                                  <span className="text-emerald-400 font-semibold ml-1">● Scheduled</span>
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
+              <div>
+                <h4 className="text-xs sm:text-sm font-medium text-white">
+                  {scheduledItemsInMonth.length || 2} Posts are scheduled for today
+                </h4>
+                <p className="text-[11px] sm:text-xs text-slate-300">Keep your momentum going!</p>
               </div>
-            )}
+            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenScheduleForDay(selectedDay || new Date().getDate())}
+              className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors cursor-pointer"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
-      </div>
 
-      {/* ─── DAY DETAIL DRAWER / POPUP ─────────────────────────────────────────── */}
-      {isDayDrawerOpen && selectedDay && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-          onClick={e => {
-            if (e.target === e.currentTarget) setIsDayDrawerOpen(false);
-          }}
-        >
-          <div className="w-full max-w-2xl bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
-            {/* Header */}
-            <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-surface-elevated">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-brand-gradient text-white flex items-center justify-center font-bold text-lg shadow-md">
-                  {selectedDay}
+        {activeContentTab === "published" && (
+          // Image 3 Banner: Great work! Your content is reaching people
+          <div className="rounded-2xl p-4 sm:p-4.5 bg-gradient-to-r from-[#1e1738] via-[#17192f] to-[#12162a] border border-purple-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#be32ff]">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-medium text-white">Great work!</h4>
+                <p className="text-[11px] sm:text-xs text-slate-300">Your content is reaching people.</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 text-xs font-medium text-white pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+              <span className="flex items-center gap-1.5"><InstagramIcon className="w-4 h-4" /> 14 Post</span>
+              <span className="flex items-center gap-1.5 text-blue-400"><Play className="w-3.5 h-3.5 fill-current" /> 14 Post</span>
+              <span className="flex items-center gap-1.5 text-emerald-400"><Eye className="w-4 h-4" /> 20.9k Total reach</span>
+            </div>
+          </div>
+        )}
+
+        {activeContentTab === "draft" && (
+          // Image 4 Banner: Turn your draft into something great
+          <div className="rounded-2xl p-4 sm:p-4.5 bg-gradient-to-r from-[#1c1736] via-[#16172e] to-[#12162a] border border-purple-500/20 flex items-center gap-3 shadow-lg">
+            <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#a855f7]">
+              <RotateCcw className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-xs sm:text-sm font-medium text-white">Turn your draft into something great.</h4>
+              <p className="text-[11px] sm:text-xs text-slate-300">Refine, edit or generate new content with AI.</p>
+            </div>
+          </div>
+        )}
+
+        {/* 4. Section Header with Optional Date Dropdown */}
+        <div className="flex items-center justify-between pt-1">
+          <h2 className="text-lg sm:text-xl font-medium text-white tracking-tight">
+            {activeContentTab === "all" && "Today"}
+            {activeContentTab === "scheduled" && "Scheduled Content"}
+            {activeContentTab === "published" && "Published Content"}
+            {activeContentTab === "draft" && "Draft Content"}
+          </h2>
+
+          {(activeContentTab === "scheduled" || activeContentTab === "published") && (
+            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-2.5 rounded-full bg-[#141829] border border-white/10 text-sm text-slate-300 hover:text-white cursor-pointer transition-colors shadow-sm">
+              <CalendarDays className="w-4 h-4 text-slate-400" />
+              <span>{activeContentTab === "scheduled" ? "28 Sep 2026" : "28 - 30Sep 2026"}</span>
+              <ChevronDown className="w-4 h-4 text-slate-400" />
+            </div>
+          )}
+        </div>
+
+        {/* 5. Dynamic Content Cards matching Images 1, 2, 3, 4 */}
+        <div className="space-y-3.5">
+          {activeContentTab === "all" && (
+            // Image 1 Cards
+            <>
+              {/* Card 1: Today's Post - Flat 50% / New Winter Collection */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-post.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"; }}
+                  />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">
-                    {new Date(currentYear, currentMonth, selectedDay).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric"
-                    })}
-                  </h3>
-                  <p className="text-xs text-text-muted">
-                    Schedule overview and active campaigns for this day
-                  </p>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#7c3aed] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Today&apos;s Post
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">New Winter Collection</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Instagram</span>
+                    <span>•</span>
+                    <span>Sep 29</span>
+                    <span>•</span>
+                    <span className="text-purple-300">Schedule 3 pm</span>
+                  </div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsDayDrawerOpen(false)}
-                className="rounded-full w-8 h-8 p-0 text-text-muted hover:text-white"
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
 
-            {/* Content List */}
-            <div className="p-5 sm:p-6 max-h-[70vh] overflow-y-auto space-y-4">
-              {/* Festivals on this day */}
-              {currentMonthFestivals.filter(f => f.date === selectedDay).map((fest, idx) => (
+              {/* Card 2: Reel - New Winter Collection */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-reel.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=300&q=80"; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#9333ea] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Reel
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">New Winter Collection</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <FacebookIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Facebook</span>
+                    <span>•</span>
+                    <span>8 Aug</span>
+                    <span>•</span>
+                    <span className="text-slate-300">Draft</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Post - New Winter Collection */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-ai-avatar.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=300&q=80"; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#db2777] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Post
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">New Winter Collection</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Instagram</span>
+                    <span>•</span>
+                    <span>18 Sep</span>
+                    <span>•</span>
+                    <span className="text-emerald-400 font-medium">Published</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeContentTab === "scheduled" && (
+            // Image 2 & 5 Cards
+            <>
+              {/* Card 1: Today's Post - Flat 50% Off */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-post.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#7c3aed] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Today&apos;s Post
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">Flat 50% Off</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Instagram</span>
+                    <span>•</span>
+                    <span>Nov 14</span>
+                    <span>•</span>
+                    <span className="text-purple-300">Schedule 10 am</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Reel - New Winter Collection */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-reel.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=300&q=80"; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#9333ea] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Reel
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">New Winter Collection</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <FacebookIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Facebook</span>
+                    <span>•</span>
+                    <span>8 Oct</span>
+                    <span>•</span>
+                    <span className="text-purple-300">Schedule 2 pm</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 3: Post - New Summer Collection */}
+              <div className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                  <img
+                    src="/images/dashboard/quick-action-ai-avatar.jpg"
+                    alt="thumb"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=300&q=80"; }}
+                  />
+                </div>
+                <div className="flex-1 min-w-0 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="px-3 py-0.5 rounded-full bg-[#db2777] text-white text-[10px] sm:text-[11px] font-medium shadow-sm">
+                      Post
+                    </span>
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                      <button type="button" className="hover:text-white cursor-pointer p-1">
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-sm sm:text-base font-medium text-white truncate">New Summer Collection</h3>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                    <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+                    <span>Instagram</span>
+                    <span>•</span>
+                    <span>28 Sep</span>
+                    <span>•</span>
+                    <span className="text-purple-300">Schedule 12 pm</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeContentTab === "published" && (
+            // Image 3 Cards with Verified Published Badge & Engagement Stats
+            <>
+              {[1, 2, 3, 4].map((itemNum) => (
                 <div
-                  key={idx}
-                  className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-3 text-amber-200"
+                  key={`pub-item-${itemNum}`}
+                  className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group"
                 >
-                  <span className="text-2xl">{fest.emoji || "🪔"}</span>
-                  <div>
-                    <h4 className="text-sm font-bold text-amber-300">{fest.name}</h4>
-                    <p className="text-xs text-amber-200/70">
-                      Festive occasion • Perfect day for festive reels & special promotional campaigns!
-                    </p>
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                    <img
+                      src="/images/dashboard/quick-action-post.jpg"
+                      alt="thumb"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"; }}
+                    />
+                    <span className="absolute top-1.5 left-1.5 p-1 rounded-lg bg-black/60 backdrop-blur-sm">
+                      <InstagramIcon className="w-3 h-3" />
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-0.5 rounded-full bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 text-[10px] sm:text-[11px] font-medium flex items-center gap-1.5 shadow-sm">
+                        <Check className="w-3 h-3 text-emerald-400" /> Published
+                      </span>
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button type="button" className="hover:text-white cursor-pointer p-1">
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                    <h3 className="text-sm sm:text-base font-medium text-white truncate">New Summer Collection</h3>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                      <CalendarDays className="w-3 h-3" />
+                      <span>28 - 30Sep 2026</span>
+                      <span>•</span>
+                      <span>Nov 14</span>
+                    </div>
+                    {/* Engagement Stats: Hearts, Comments, Shares */}
+                    <div className="flex items-center gap-4 pt-1 text-[11px] text-slate-300">
+                      <span className="flex items-center gap-1 text-pink-400 font-medium">
+                        <Heart className="w-3.5 h-3.5 fill-current" /> 914
+                      </span>
+                      <span className="flex items-center gap-1 text-sky-400 font-medium">
+                        <MessageSquare className="w-3.5 h-3.5" /> 45
+                      </span>
+                      <span className="flex items-center gap-1 text-purple-300 font-medium">
+                        <Send className="w-3.5 h-3.5" /> 56
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}
+            </>
+          )}
 
-              {/* Scheduled Posts & Reels */}
-              <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                <Video className="w-4 h-4 text-brand-pink" />
-                Scheduled Posts & Reels ({(itemsByDay[selectedDay] || []).length})
-              </h4>
-
-              {(itemsByDay[selectedDay] || []).length === 0 ? (
-                <div className="py-8 text-center border rounded-xl border-dashed border-border bg-surface-elevated/40">
-                  <p className="text-xs text-text-muted">No posts or reels scheduled on this day yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {(itemsByDay[selectedDay] || []).map(item => {
-                    const isReel = isReelContent(item);
-                    const timeStr = formatTimeString(item.scheduledAt || item.updatedAt);
-                    const hasMedia = item.media_url || item.imageUrl || item.image_url;
-
-                    return (
-                      <div
-                        key={item._id}
-                        className="p-4 rounded-xl bg-surface-elevated border border-border hover:border-brand-purple/50 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-14 h-14 rounded-lg bg-black/40 overflow-hidden relative shrink-0 border border-border">
-                            {hasMedia ? (
-                              isReel ? (
-                                <div className="w-full h-full flex items-center justify-center bg-pink-950/40 text-pink-300">
-                                  <Video className="w-6 h-6" />
-                                </div>
-                              ) : (
-                                <img src={hasMedia} alt="media" className="w-full h-full object-cover" />
-                              )
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-text-muted">
-                                <ImageIcon className="w-6 h-6" />
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                  isReel ? "bg-pink-500/20 text-pink-300" : "bg-blue-500/20 text-blue-300"
-                                }`}
-                              >
-                                {isReel ? "🎬 Reel" : "📸 Post"}
-                              </span>
-                              <PlatformBadge platform={item.platform} />
-                              <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1">
-                                <Clock className="w-3 h-3" /> {timeStr}
-                              </span>
-                            </div>
-                            <h5 className="text-sm font-bold text-white mt-1">{item.title}</h5>
-                            <p className="text-xs text-text-muted line-clamp-1 mt-0.5">{item.caption}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setIsDayDrawerOpen(false);
-                              setSelectedItem(item);
-                            }}
-                            className="h-8 text-xs border-border text-white hover:bg-surface"
-                          >
-                            <Eye className="w-3.5 h-3.5 mr-1" /> View / Edit
-                          </Button>
-                          <Button
-                            size="sm"
-                            onClick={() => handlePublishNow(item)}
-                            disabled={isPublishing}
-                            className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
-                          >
-                            <Send className="w-3 h-3 mr-1" /> Publish Now
-                          </Button>
-                        </div>
+          {activeContentTab === "draft" && (
+            // Image 4 Cards
+            <>
+              {[1, 2, 3].map((draftNum) => (
+                <div
+                  key={`draft-item-${draftNum}`}
+                  className="rounded-2xl bg-[#131728] border border-white/10 hover:border-white/20 p-3 sm:p-4 transition-all flex items-center gap-3.5 sm:gap-4 shadow-sm group"
+                >
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden bg-black/40 shrink-0 border border-white/10 relative">
+                    <img
+                      src="/images/dashboard/quick-action-post.jpg"
+                      alt="thumb"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e: any) => { e.target.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=300&q=80"; }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm sm:text-base font-medium text-white truncate">Flat 50% Off</h3>
+                      <div className="flex items-center gap-2 text-slate-400">
+                        <button type="button" onClick={() => handleOpenScheduleForDay(selectedDay || 4)} className="hover:text-white cursor-pointer p-1">
+                          <Pencil className="w-3.5 h-3.5" />
+                        </button>
+                        <button type="button" className="hover:text-white cursor-pointer p-1">
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </button>
                       </div>
-                    );
-                  })}
+                    </div>
+                    <p className="text-[11px] text-slate-400">Edited Sep 24, • 9:30 PM</p>
+                    <div className="flex items-center gap-2 text-[11px] text-slate-400 pt-0.5">
+                      <InstagramIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span>Instagram</span>
+                      <span>•</span>
+                      <span>0:15</span>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-border flex items-center justify-between bg-surface-elevated">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsDayDrawerOpen(false)}
-                className="text-xs border-border text-text-muted"
-              >
-                Close
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  setIsDayDrawerOpen(false);
-                  handleOpenScheduleForDay(selectedDay);
-                }}
-                className="bg-brand-gradient text-white text-xs font-semibold"
-              >
-                <Plus className="w-3.5 h-3.5 mr-1.5" /> Schedule New on Day {selectedDay}
-              </Button>
-            </div>
-          </div>
+              ))}
+            </>
+          )}
         </div>
-      )}
+
+        
+      </div>
 
       {/* ─── SCHEDULE POST / REEL MODAL ────────────────────────────────────────── */}
       {isScheduleModalOpen && (
@@ -1365,14 +1375,16 @@ export default function AICalendarPage() {
             if (e.target === e.currentTarget) setIsScheduleModalOpen(false);
           }}
         >
-          <div className="w-full max-w-xl bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-surface-elevated">
+          <div className="w-full max-w-xl bg-[#081226] border border-white/10 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
+            <div className="p-5 sm:p-6 border-b border-white/10 flex items-center justify-between bg-[#081226]">
               <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-xl bg-brand-purple/20 text-brand-pink">
-                  <CalendarDays className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full bg-[#38156d] border border-[#5b21b6]/60 flex items-center justify-center text-white shadow-lg shadow-[#38156d]/50 shrink-0">
+                  <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Schedule New Content</h3>
+                  <h3 className="text-lg font-normal text-white">Schedule New Content</h3>
                   <p className="text-xs text-text-muted">Set up a post or reel to auto-publish on the AI calendar</p>
                 </div>
               </div>
@@ -1386,17 +1398,19 @@ export default function AICalendarPage() {
               </Button>
             </div>
 
-            <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+            <div className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto bg-[#081226]">
               {/* Quick Import from Library & Type Switcher */}
               <div>
                 {contents.length > 0 && (
-                  <div className="mb-4 p-3 rounded-xl bg-surface-elevated/80 border border-brand-purple/30">
-                    <Label className="text-[11px] font-bold text-brand-pink mb-1.5 flex items-center justify-between">
-                      <span className="flex items-center gap-1.5"><Sparkles className="w-3.5 h-3.5" /> Quick Autofill from Content Library</span>
-                      <span className="text-[10px] text-text-muted">{contents.length} items available</span>
+                  <div className="mb-4 p-3.5 rounded-xl bg-[#071023] border border-white/10">
+                    <Label className="text-xs font-medium text-purple-300 mb-2 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 fill-[#be32ff] text-[#be32ff]" /> Quick Autofill from Content Library
+                      </span>
+                      <span className="text-[11px] text-text-muted">{contents.length} items available</span>
                     </Label>
                     <select
-                      className="w-full bg-surface border border-border text-white text-xs rounded-lg p-2 focus:ring-1 focus:ring-brand-purple outline-none"
+                      className="w-full bg-[#081226] border border-white/10 text-white text-xs rounded-lg p-2.5 focus:border-[#a855f7] outline-none"
                       onChange={(e) => {
                         const found = contents.find(c => c._id === e.target.value);
                         if (found) {
@@ -1422,102 +1436,107 @@ export default function AICalendarPage() {
                   </div>
                 )}
 
-                <Label className="text-xs text-text-muted uppercase font-bold tracking-wider mb-2 block">
+                <Label className="text-sm font-medium text-slate-200 mb-2.5 block">
                   Select Content Type
                 </Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-3.5">
                   <button
                     type="button"
                     onClick={() => setScheduleType("Post")}
-                    className={`py-3 px-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`h-12 px-4 rounded-xl border text-sm font-medium flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
                       scheduleType === "Post"
-                        ? "bg-blue-600/20 border-blue-500 text-blue-300 shadow-md shadow-blue-500/10"
-                        : "bg-surface-elevated border-border text-white/60 hover:text-white"
+                        ? "bg-gradient-to-r from-[#2F1262] to-[#071023] border-[#a855f7] text-white shadow-lg shadow-[#2F1262]/40"
+                        : "bg-[#071023] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
                     }`}
                   >
-                    <ImageIcon className="w-4 h-4 text-blue-400" />
-                    <span>📸 Social Post</span>
+                    <svg className={`w-5 h-5 ${scheduleType === "Post" ? "text-white fill-white" : "text-slate-400 fill-slate-400"}`} viewBox="0 0 24 24">
+                      <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                    </svg>
+                    <span>Social Post</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setScheduleType("Reel")}
-                    className={`py-3 px-4 rounded-xl border font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                    className={`h-12 px-4 rounded-xl border text-sm font-medium flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
                       scheduleType === "Reel"
-                        ? "bg-pink-600/20 border-pink-500 text-pink-300 shadow-md shadow-pink-500/10"
-                        : "bg-surface-elevated border-border text-white/60 hover:text-white"
+                        ? "bg-gradient-to-r from-[#2F1262] to-[#071023] border-[#a855f7] text-white shadow-lg shadow-[#2F1262]/40"
+                        : "bg-[#071023] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
                     }`}
                   >
-                    <Video className="w-4 h-4 text-pink-400" />
-                    <span>🎬 Instagram Reel</span>
+                    <svg className={`w-5 h-5 ${scheduleType === "Reel" ? "text-white fill-white" : "text-slate-400 fill-slate-400"}`} viewBox="0 0 24 24">
+                      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                    </svg>
+                    <span>Instagram Reel</span>
                   </button>
                 </div>
               </div>
 
               {/* Platform Selector */}
               <div>
-                <Label className="text-xs text-text-muted uppercase font-bold tracking-wider mb-2 block">
+                <Label className="text-sm font-medium text-slate-200 mb-2.5 block">
                   Target Platform
                 </Label>
-                <div className="grid grid-cols-4 gap-2">
-                  {["Instagram", "Facebook", "LinkedIn"].map(plat => (
+                <div className="grid grid-cols-3 gap-3.5">
+                  {[
+                    { id: "Instagram", name: "Instagram", icon: <InstagramIcon className="w-5 h-5" /> },
+                    { id: "Facebook", name: "Facebook", icon: <FacebookIcon className="w-5 h-5" /> },
+                    { id: "LinkedIn", name: "LinkedIn", icon: <LinkedinIcon className="w-5 h-5" /> },
+                  ].map(plat => (
                     <button
-                      key={plat}
+                      key={plat.id}
                       type="button"
-                      onClick={() => setSchedulePlatform(plat)}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
-                        schedulePlatform === plat
-                          ? "bg-brand-purple/20 border-brand-purple text-brand-pink shadow-sm"
-                          : "bg-surface-elevated border-border text-white/60 hover:text-white"
+                      onClick={() => setSchedulePlatform(plat.id)}
+                      className={`py-3.5 px-3 rounded-xl border text-xs font-medium flex flex-col items-center justify-center gap-2 transition-all cursor-pointer ${
+                        schedulePlatform === plat.id
+                          ? "bg-gradient-to-br from-[#2F1262] to-[#071023] border-[#a855f7] text-white shadow-lg shadow-[#2F1262]/40"
+                          : "bg-[#071023] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
                       }`}
                     >
-                      {plat === "Instagram" && <InstagramIcon className="w-5 h-5" />}
-                      {plat === "Facebook" && <FacebookIcon className="w-5 h-5" />}
-                      {plat === "LinkedIn" && <LinkedinIcon className="w-5 h-5" />}
-                      
-                      <span>{plat}</span>
+                      {plat.icon}
+                      <span>{plat.name}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Schedule Date & Time */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3.5">
                 <div>
-                  <Label className="text-xs text-white font-medium mb-1.5 block">Scheduled Date</Label>
+                  <Label className="text-sm font-medium text-slate-200 mb-2.5 block">Scheduled Date</Label>
                   <Input
                     type="date"
                     value={scheduleDate}
                     onChange={e => setScheduleDate(e.target.value)}
-                    className="bg-surface-elevated border-border text-white text-xs h-10"
+                    className="bg-[#071023] border-white/10 text-white text-sm h-12 rounded-xl focus:border-[#a855f7] outline-none"
                   />
                 </div>
                 <div>
-                  <Label className="text-xs text-white font-medium mb-1.5 block">Scheduled Time</Label>
+                  <Label className="text-sm font-medium text-slate-200 mb-2.5 block">Scheduled Time</Label>
                   <Input
                     type="time"
                     value={scheduleTime}
                     onChange={e => setScheduleTime(e.target.value)}
-                    className="bg-surface-elevated border-border text-white text-xs h-10"
+                    className="bg-[#071023] border-white/10 text-white text-sm h-12 rounded-xl focus:border-[#a855f7] outline-none"
                   />
                 </div>
               </div>
 
               {/* Title / Headline */}
               <div>
-                <Label className="text-xs text-white font-medium mb-1.5 block">Post Title / Hook Headline</Label>
+                <Label className="text-sm font-medium text-slate-200 mb-2.5 block">Post Title / Hook Headline</Label>
                 <Input
                   placeholder="e.g. 5 Secrets To Upgrade Your Festive Style 🔥"
                   value={scheduleTitle}
                   onChange={e => setScheduleTitle(e.target.value)}
-                  className="bg-surface-elevated border-border text-white text-sm h-10"
+                  className="bg-[#071023] border-white/10 text-white text-sm h-12 rounded-xl focus:border-[#a855f7] outline-none"
                 />
               </div>
 
               {/* Caption */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <Label className="text-xs text-white font-medium block">Caption Draft</Label>
+                <div className="flex items-center justify-between mb-2.5">
+                  <Label className="text-sm font-medium text-slate-200 block">Caption Draft</Label>
                   <VoiceInputButton
                     onTranscript={(text) => setScheduleCaption(text)}
                     currentValue={scheduleCaption}
@@ -1531,7 +1550,7 @@ export default function AICalendarPage() {
                     placeholder="Write caption or hook story here..."
                     value={scheduleCaption}
                     onChange={e => setScheduleCaption(e.target.value)}
-                    className="w-full bg-surface-elevated border border-border rounded-xl p-3 pb-8 text-white text-xs focus:ring-2 focus:ring-brand-purple outline-none"
+                    className="w-full bg-[#071023] border border-white/10 rounded-xl p-3.5 pb-8 text-white text-sm focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7] outline-none transition-colors"
                   />
                   <div className="absolute right-2 bottom-2">
                     <VoiceInputButton
@@ -1545,32 +1564,36 @@ export default function AICalendarPage() {
 
               {/* Hashtags */}
               <div>
-                <Label className="text-xs text-white font-medium mb-1.5 block">Hashtags</Label>
+                <Label className="text-sm font-medium text-slate-200 mb-2.5 block">Hashtags</Label>
                 <Input
                   placeholder="#reels #fashion #diwalivibes #trend"
                   value={scheduleHashtags}
                   onChange={e => setScheduleHashtags(e.target.value)}
-                  className="bg-surface-elevated border-border text-white text-xs h-9 font-mono"
+                  className="bg-[#071023] border-white/10 text-white text-sm h-12 rounded-xl focus:border-[#a855f7] outline-none font-mono"
                 />
               </div>
 
               {/* Upload Post / Reel & Media Preview */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label className="text-xs text-white font-semibold flex items-center gap-1.5">
+                  <Label className="text-sm font-medium text-slate-200 flex items-center gap-2 mb-2">
                     {scheduleType === "Reel" ? (
                       <>
-                        <Video className="w-3.5 h-3.5 text-pink-400" />
+                        <svg className="w-4 h-4 text-[#be32ff] fill-[#be32ff]" viewBox="0 0 24 24">
+                          <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+                        </svg>
                         <span>Reel Video Content</span>
                       </>
                     ) : (
                       <>
-                        <ImageIcon className="w-3.5 h-3.5 text-brand-purple" />
+                        <svg className="w-4 h-4 text-[#be32ff] fill-[#be32ff]" viewBox="0 0 24 24">
+                          <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+                        </svg>
                         <span>Post Image Content</span>
                       </>
                     )}
                   </Label>
-                  <span className="text-[10px] text-text-muted font-medium">
+                  <span className="text-xs text-text-muted font-normal">
                     {scheduleType === "Reel" ? "MP4, MOV, WebM (Max 60MB)" : "PNG, JPG, WebP (Max 15MB)"}
                   </span>
                 </div>
@@ -1611,18 +1634,18 @@ export default function AICalendarPage() {
                           controls
                           className="w-full h-full object-contain"
                         />
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-pink-500/80 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-purple-600/80 text-white text-[10px] font-medium uppercase tracking-wider shadow">
                           Reel Video
                         </span>
                       </div>
                     ) : (
-                      <div className="relative aspect-video max-h-56 bg-surface-elevated flex items-center justify-center overflow-hidden">
+                      <div className="relative aspect-video max-h-56 bg-[#0d172e] flex items-center justify-center overflow-hidden">
                         <img
                           src={scheduleMediaPreview || scheduleMediaUrl}
                           alt="Scheduled media preview"
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-brand-purple/80 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-[#693780]/90 text-white text-[10px] font-medium uppercase tracking-wider shadow">
                           Post Image
                         </span>
                       </div>
@@ -1639,7 +1662,7 @@ export default function AICalendarPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => scheduleFileInputRef.current?.click()}
-                          className="h-7 text-xs text-brand-pink hover:text-white hover:bg-white/10 cursor-pointer"
+                          className="h-7 text-xs text-purple-300 hover:text-white hover:bg-white/10 cursor-pointer"
                         >
                           <Upload className="w-3 h-3 mr-1" /> Change
                         </Button>
@@ -1657,30 +1680,35 @@ export default function AICalendarPage() {
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    {/* Primary "Upload Post / Reel" or "Add Media" Button */}
+                    {/* Primary Upload Box matching Image 5 Figma spec (#693780 stroke, rgba(177,177,177,0.12) fill, inner shadow, no pink) */}
                     <button
                       type="button"
                       disabled={isUploadingMedia}
                       onClick={() => scheduleFileInputRef.current?.click()}
-                      className="w-full py-4 px-4 rounded-2xl border-2 border-dashed border-brand-purple/40 hover:border-brand-pink/70 bg-gradient-to-br from-brand-purple/10 to-transparent hover:bg-brand-purple/15 transition-all flex flex-col items-center justify-center text-center cursor-pointer group shadow-inner"
+                      style={{
+                        backgroundColor: "rgba(177, 177, 177, 0.12)",
+                        borderColor: "#693780",
+                        boxShadow: "inset 0px 4px 22.3px -2px #693780",
+                      }}
+                      className="w-full py-5 px-4 rounded-xl border border-[#693780] transition-all flex flex-col items-center justify-center text-center cursor-pointer group hover:bg-[#b1b1b1]/15"
                     >
-                      <div className="w-10 h-10 rounded-full bg-brand-purple/20 text-brand-pink flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-md">
-                        <Upload className="w-5 h-5 stroke-[2.2]" />
+                      <div className="w-11 h-11 rounded-full bg-[#693780]/30 border border-[#693780]/50 flex items-center justify-center mb-2.5 text-white shadow-md group-hover:scale-105 transition-transform">
+                        <Upload className="w-5 h-5 text-white stroke-[2.2]" />
                       </div>
-                      <span className="text-xs sm:text-sm font-bold text-white group-hover:text-brand-pink transition-colors">
+                      <span className="text-sm sm:text-base font-normal text-white">
                         Upload {scheduleType === "Reel" ? "Reel Video" : "Post Image"}
                       </span>
-                      <span className="text-[11px] text-text-muted mt-0.5">
+                      <span className="text-xs text-slate-300 mt-1">
                         Click to select media from your device
                       </span>
                     </button>
 
                     {/* Upload Progress Bar */}
                     {isUploadingMedia && (
-                      <div className="p-3 rounded-xl bg-surface-elevated border border-brand-purple/30 space-y-1.5 animate-in fade-in">
+                      <div className="p-3 rounded-xl bg-[#0d172e] border border-purple-500/30 space-y-1.5 animate-in fade-in">
                         <div className="flex items-center justify-between text-xs text-white">
                           <span className="flex items-center gap-1.5">
-                            <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-pink" />
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
                             <span>Uploading {scheduleType}...</span>
                           </span>
                           <span className="font-mono">{mediaUploadProgress}%</span>
@@ -1693,57 +1721,35 @@ export default function AICalendarPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* Or URL input toggle */}
-                    <div className="pt-1">
-                      {!showUrlInput ? (
-                        <button
-                          type="button"
-                          onClick={() => setShowUrlInput(true)}
-                          className="text-[11px] text-brand-purple/90 hover:text-brand-pink underline cursor-pointer"
-                        >
-                          Or enter media URL manually
-                        </button>
-                      ) : (
-                        <div className="space-y-1 pt-1 animate-in fade-in">
-                          <Input
-                            placeholder={scheduleType === "Reel" ? "https://...video.mp4" : "https://...image.jpg"}
-                            value={scheduleMediaUrl}
-                            onChange={e => setScheduleMediaUrl(e.target.value)}
-                            className="bg-surface-elevated border-border text-white text-xs h-8 font-mono"
-                          />
-                          <p className="text-[10px] text-text-muted">
-                            External direct link to image or video.
-                          </p>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-end gap-3 bg-surface-elevated">
+            {/* Modal Actions matching Image 4 & Image 5 */}
+            <div className="p-4 sm:p-6 border-t border-white/10 flex items-center justify-end gap-3.5 bg-[#081226]">
               <Button
                 variant="outline"
                 onClick={() => setIsScheduleModalOpen(false)}
-                className="border-border text-text-muted text-xs h-10"
+                className="border-white/10 bg-[#0e172e] hover:bg-white/10 text-white/80 hover:text-white text-sm sm:text-base font-normal h-12 px-6 rounded-full cursor-pointer transition-all"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSaveScheduledContent}
                 disabled={isSavingSchedule}
-                className="bg-brand-gradient text-white text-xs font-semibold h-10 px-5 shadow-lg shadow-brand-purple/20"
+                style={{
+                  background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)",
+                }}
+                className="text-white text-sm sm:text-base font-normal h-12 px-8 rounded-full shadow-xl shadow-purple-600/30 cursor-pointer hover:opacity-95 transition-all flex items-center gap-2 border-0"
               >
                 {isSavingSchedule ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Scheduling...
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" /> Scheduling...
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="w-4 h-4 mr-2" /> Confirm & Schedule
+                    <CheckCircle2 className="w-5 h-5 stroke-[2.2]" /> Confirm & Schedule
                   </>
                 )}
               </Button>
@@ -1762,7 +1768,7 @@ export default function AICalendarPage() {
         >
           <div className="w-full max-w-xl bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
             {/* Modal Top */}
-            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-surface-elevated">
+            <div className="p-4 sm:p-5 border-b border-border flex items-center justify-between bg-[#0d172e]">
               <div className="flex items-center gap-2.5">
                 <PlatformBadge platform={selectedItem.platform} />
                 <span
@@ -1852,7 +1858,7 @@ export default function AICalendarPage() {
               )}
 
               {/* Scheduled Date Info */}
-              <div className="p-3.5 rounded-xl bg-surface-elevated border border-border text-xs flex items-center justify-between text-text-muted">
+              <div className="p-3.5 rounded-xl bg-[#0d172e] border border-border text-xs flex items-center justify-between text-text-muted">
                 <span className="flex items-center gap-1.5">
                   <CalendarIcon className="w-4 h-4 text-brand-pink" />
                   Scheduled for:
@@ -1872,7 +1878,7 @@ export default function AICalendarPage() {
             </div>
 
             {/* Modal Bottom: Quick Publish / Manage */}
-            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-between gap-3 bg-surface-elevated">
+            <div className="p-4 sm:p-5 border-t border-border flex items-center justify-between gap-3 bg-[#0d172e]">
               <Button
                 variant="outline"
                 size="sm"
@@ -1915,7 +1921,7 @@ export default function AICalendarPage() {
           }}
         >
           <div className="w-full max-w-4xl bg-surface border border-border rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95">
-            <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-surface-elevated">
+            <div className="p-5 sm:p-6 border-b border-border flex items-center justify-between bg-[#0d172e]">
               <div className="flex items-center gap-3">
                 <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-coral text-white shadow-lg">
                   <Wand2 className="w-5 h-5" />
@@ -1944,7 +1950,7 @@ export default function AICalendarPage() {
                   value={planPrompt}
                   onChange={e => setPlanPrompt(e.target.value)}
                   placeholder="e.g. Diwali festive sale and high converting reel scripts for fashion products"
-                  className="bg-surface-elevated border-border text-white text-xs h-11 flex-1"
+                  className="bg-[#0d172e] border-white/10 text-white text-xs h-11 flex-1"
                 />
                 <Button
                   onClick={handleGenerate30DayPlan}
@@ -1979,7 +1985,7 @@ export default function AICalendarPage() {
                       return (
                         <div
                           key={dp.day_number}
-                          className="p-4 rounded-2xl bg-surface-elevated border border-border hover:border-brand-purple/50 transition-all flex flex-col justify-between gap-3 shadow-md"
+                          className="p-4 rounded-2xl bg-[#0d172e] border border-border hover:border-brand-purple/50 transition-all flex flex-col justify-between gap-3 shadow-md"
                         >
                           <div>
                             <div className="flex items-center justify-between mb-2">

@@ -26,6 +26,8 @@ import {
   BookOpen, 
   Award, 
   Sliders, 
+  BadgePercent, 
+  PartyPopper, 
   Check, 
   Type, 
   Palette, 
@@ -88,7 +90,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
   {
     id: "product",
     title: "Product Post",
-    subtitle: "Showcase features, pricing & product photography",
+    subtitle: "Showcase features, pricing & product",
     icon: ShoppingBag,
     defaultObjective: "product_promotion",
     suggestions: ["✨ Luxury Studio Shoot", "💎 Premium Quality", "🔥 Best Seller", "📸 Clean Minimalist"]
@@ -96,41 +98,40 @@ const CONTENT_TYPES: ContentTypeCard[] = [
   {
     id: "offer",
     title: "Offer Post",
-    subtitle: "Flash deals, discounts & seasonal promotional campaigns",
-    icon: Tag,
+    subtitle: "Flash deals, discounts & seasonal pr...",
+    icon: BadgePercent,
     defaultObjective: "sales_conversion",
-    badge: "High Converting",
     suggestions: ["⚡ Flat 40% Off", "⏳ 24h Flash Sale", "🎁 Buy 1 Get 1 Free", "🔥 Special Weekend Deal"]
   },
   {
     id: "festival",
     title: "Festival Post",
-    subtitle: "Cultural greetings, festive celebrations & holiday specials",
-    icon: Sparkles,
+    subtitle: "Cultural greetings, festive celebrations",
+    icon: PartyPopper,
     defaultObjective: "brand_awareness",
     suggestions: ["🪔 Festive Special", "🎉 Grand Celebration", "✨ Festive Sparkle", "🌟 Holiday Greetings"]
   },
   {
     id: "new_arrival",
     title: "New Arrival",
-    subtitle: "Fresh collections, newly launched products & trends",
-    icon: Flame,
+    subtitle: "Fresh collections, newly launched tre...",
+    icon: ShoppingBag,
     defaultObjective: "product_launch",
     suggestions: ["🔥 Just Dropped", "🆕 New Collection", "👑 Limited Edition", "🌟 Trendy & Exclusive"]
   },
   {
     id: "tips_guide",
     title: "Tips & Guide",
-    subtitle: "Styling tips, how-to guides & value-first content",
-    icon: BookOpen,
+    subtitle: "Styling tips, how-to guides & value-first",
+    icon: BadgePercent,
     defaultObjective: "engagement",
     suggestions: ["💡 3 Ways to Style", "👗 How-To Guide", "✨ Maintenance Tips", "📌 Expert Recommendation"]
   },
   {
     id: "brand_story",
     title: "Brand Story",
-    subtitle: "Origin story, craftsmanship, values & behind the scenes",
-    icon: Award,
+    subtitle: "Origin story, craftsmanship, values",
+    icon: PartyPopper,
     defaultObjective: "brand_awareness",
     suggestions: ["🧵 Handcrafted with Care", "🌿 Authentic Quality", "📖 Our Origin Story", "⭐ Made with Passion"]
   }
@@ -578,16 +579,11 @@ export default function AIPostPage() {
       {/* ──────────────────────────────────────────────────
           Page Header with "My Posts" Library Action
          ────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/80 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              AI Post Maker
-            </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold uppercase tracking-wider border border-brand-purple/30">
-              Studio Pro
-            </span>
-          </div>
+          <h1 className="text-2xl sm:text-3xl font-medium text-white tracking-normal">
+            AI Post Maker
+          </h1>
           <p className="mt-1 text-xs sm:text-sm text-text-muted">
             Create scroll-stopping social media posts powered by your Business, Brand Kit &amp; Products.
           </p>
@@ -596,9 +592,9 @@ export default function AIPostPage() {
         {/* My Posts Shortcut Button */}
         <Link
           href="/content-library"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface border border-border hover:border-brand-purple/60 hover:text-white text-text-muted font-medium text-xs sm:text-sm shadow-sm transition-all self-start sm:self-auto cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#071023] border border-white/10 hover:border-purple-500/50 hover:text-white text-slate-300 font-medium text-xs sm:text-sm shadow-sm transition-all self-start sm:self-auto cursor-pointer"
         >
-          <Bookmark className="w-4 h-4 text-brand-purple" />
+          <Bookmark className="w-4 h-4 text-purple-400" />
           <span>My Posts</span>
         </Link>
       </div>
@@ -606,66 +602,61 @@ export default function AIPostPage() {
       {hasInsufficientCredits && <InsufficientCreditsAlert />}
 
       {/* ──────────────────────────────────────────────────
-          Content Type Selection Cards
+          Content Type Selection Cards (Square Shape matching Image 1 & Colors matching Image 3)
          ────────────────────────────────────────────────── */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <label className="text-xs font-bold uppercase tracking-wider text-text-muted">
-            Select Content Type
-          </label>
-          <span className="text-xs text-text-muted">
-            Choose what type of post you want AI to generate
-          </span>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {CONTENT_TYPES.map((type) => {
-            const Icon = type.icon;
-            const isSelected = selectedContentType === type.id;
-            return (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() => handleContentTypeSelect(type.id)}
-                className={`relative p-3.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between group ${
-                  isSelected
-                    ? "bg-[#0f1d3d] border-brand-purple shadow-lg shadow-purple-500/10 ring-1 ring-brand-purple"
-                    : "bg-surface/70 border-border hover:border-border/80 hover:bg-surface"
-                }`}
-              >
-                {type.badge && (
-                  <span className="absolute top-2 right-2 text-[9px] font-extrabold px-1.5 py-0.5 rounded bg-brand-purple text-white uppercase tracking-wider">
-                    {type.badge}
-                  </span>
-                )}
-                <div>
-                  <div
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center mb-2.5 transition-colors ${
-                      isSelected
-                        ? "bg-brand-purple text-white"
-                        : "bg-white/5 text-text-muted group-hover:text-white group-hover:bg-white/10"
-                    }`}
-                  >
-                    <Icon className="w-4 h-4" />
-                  </div>
-                  <h4 className="font-semibold text-white text-xs sm:text-sm tracking-tight mb-0.5">
-                    {type.title}
-                  </h4>
-                  <p className="text-[11px] text-text-muted line-clamp-2 leading-relaxed">
-                    {type.subtitle}
-                  </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {CONTENT_TYPES.map((type) => {
+          const Icon = type.icon;
+          const isSelected = selectedContentType === type.id;
+          return (
+            <button
+              key={type.id}
+              type="button"
+              onClick={() => handleContentTypeSelect(type.id)}
+              style={{
+                background: isSelected
+                  ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                  : "linear-gradient(135deg, #2F1262 0%, #000000 100%)",
+              }}
+              className={`relative p-5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between group min-h-[145px] ${
+                isSelected
+                  ? "border-[#8b5cf6] shadow-xl shadow-[#2F1262]/60 ring-1 ring-[#8b5cf6]/50"
+                  : "border-white/10 hover:border-purple-400/50 hover:shadow-lg hover:shadow-[#2F1262]/30"
+              }`}
+            >
+              <div className="flex items-center justify-between w-full">
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
+                    isSelected
+                      ? "bg-[#38156d] border border-[#5b21b6]/60 text-white shadow-md"
+                      : "bg-black/40 border border-white/10 text-purple-300 group-hover:text-white group-hover:bg-[#38156d]/50"
+                  }`}
+                >
+                  <Icon className="w-5 h-5 text-inherit" />
                 </div>
 
-                {isSelected && (
-                  <div className="mt-2.5 pt-2 border-t border-brand-purple/20 flex items-center gap-1 text-[11px] font-bold text-brand-purple">
-                    <Check className="w-3 h-3" />
-                    <span>Selected</span>
-                  </div>
-                )}
-              </button>
-            );
-          })}
-        </div>
+                <span
+                  className={`px-3.5 py-1 rounded-full text-xs font-normal transition-all ${
+                    isSelected
+                      ? "bg-[#38156d] border border-purple-500/40 text-purple-200"
+                      : "bg-white/10 border border-white/15 text-slate-200 group-hover:border-purple-400/40 group-hover:text-white"
+                  }`}
+                >
+                  {isSelected ? "Selected" : "Select"}
+                </span>
+              </div>
+
+              <div className="mt-4">
+                <h4 className="font-medium text-white text-base sm:text-lg tracking-tight mb-0.5">
+                  {type.title}
+                </h4>
+                <p className="text-xs sm:text-sm text-slate-400 line-clamp-1 leading-relaxed">
+                  {type.subtitle}
+                </p>
+              </div>
+            </button>
+          );
+        })}
       </div>
 
       {/* ──────────────────────────────────────────────────
