@@ -2216,26 +2216,52 @@ Shall I generate your custom website draft now?`;
     }
 
     // 3. Change theme color
-    else if (lower.includes("color") || lower.includes("theme") || lower.includes("background")) {
-      let newColor = "#4F46E5";
+    else if (lower.includes("color") || lower.includes("theme") || lower.includes("background") || lower.includes("rang") || lower.includes("रंग")) {
       const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
-      if (hexMatch) {
-        newColor = hexMatch[0];
-      } else if (lower.includes("blue") || lower.includes("ocean")) newColor = "#0284C7";
-      else if (lower.includes("green") || lower.includes("emerald")) newColor = "#059669";
-      else if (lower.includes("violet") || lower.includes("purple")) newColor = "#7C3AED";
-      else if (lower.includes("rose") || lower.includes("red") || lower.includes("pink")) newColor = "#E11D48";
-      else if (lower.includes("orange") || lower.includes("sunset")) newColor = "#EA580C";
-      else if (lower.includes("dark") || lower.includes("black")) newColor = "#18181B";
-      else if (lower.includes("gold") || lower.includes("amber")) newColor = "#D97706";
+      let detectedColor = hexMatch ? hexMatch[0] : "";
+      let detectedName = "";
+
+      if (!detectedColor) {
+        if (lower.includes("blue") || lower.includes("ocean") || lower.includes("नीला")) { detectedColor = "#0284C7"; detectedName = "Sapphire Blue"; }
+        else if (lower.includes("emerald") || lower.includes("green") || lower.includes("हरा")) { detectedColor = "#059669"; detectedName = "Emerald Green"; }
+        else if (lower.includes("purple") || lower.includes("violet") || lower.includes("बैंगनी")) { detectedColor = "#7C3AED"; detectedName = "Royal Purple"; }
+        else if (lower.includes("red") || lower.includes("rose") || lower.includes("crimson") || lower.includes("लाल")) { detectedColor = "#DC2626"; detectedName = "Crimson Red"; }
+        else if (lower.includes("orange") || lower.includes("sunset") || lower.includes("संतरी") || lower.includes("नारंगी")) { detectedColor = "#EA580C"; detectedName = "Sunset Orange"; }
+        else if (lower.includes("gold") || lower.includes("amber") || lower.includes("yellow") || lower.includes("पीला")) { detectedColor = "#D97706"; detectedName = "Warm Amber"; }
+        else if (lower.includes("black") || lower.includes("dark") || lower.includes("काला")) { detectedColor = "#18181B"; detectedName = "Minimal Dark"; }
+        else if (lower.includes("indigo")) { detectedColor = "#4F46E5"; detectedName = "Modern Indigo"; }
+        else if (lower.includes("teal")) { detectedColor = "#0D9488"; detectedName = "Teal"; }
+        else if (lower.includes("cyan")) { detectedColor = "#06B6D4"; detectedName = "Cyan"; }
+        else if (lower.includes("pink") || lower.includes("गुलाबी")) { detectedColor = "#EC4899"; detectedName = "Pink"; }
+      }
+
+      // If user asks to update/change color without naming a specific color, prompt them with color options!
+      if (!detectedColor) {
+        const askColorMsg: ChatMessage = {
+          id: `ask-color-${Date.now()}`,
+          role: "ai",
+          content: "Which color would you like for your website? You can pick from the curated palettes below or open the custom color picker:",
+          options: [
+            { label: "🔵 Sapphire Blue", action: "set_theme_color", color: "#0284C7", name: "Sapphire Blue" },
+            { label: "🟣 Royal Purple", action: "set_theme_color", color: "#7C3AED", name: "Royal Purple" },
+            { label: "🟠 Sunset Orange", action: "set_theme_color", color: "#EA580C", name: "Sunset Orange" },
+            { label: "🔴 Crimson Red", action: "set_theme_color", color: "#DC2626", name: "Crimson Red" },
+            { label: "🟢 Emerald Green", action: "set_theme_color", color: "#059669", name: "Emerald Green" },
+            { label: "⚫ Minimal Dark", action: "set_theme_color", color: "#18181B", name: "Minimal Dark" },
+            { label: "🎨 Open Color Customizer", action: "open_theme_modal", tab: "colors" }
+          ]
+        };
+        setMessages((prev) => [...prev, askColorMsg]);
+        return;
+      }
 
       if (!updatedSite.theme) updatedSite.theme = {};
-      updatedSite.theme.primary = newColor;
-      updatedSite.theme.secondary = newColor;
+      updatedSite.theme.primary = detectedColor;
+      updatedSite.theme.secondary = detectedColor;
       if (!updatedSite.theme.button_color) {
-        updatedSite.theme.button_color = newColor;
+        updatedSite.theme.button_color = detectedColor;
       }
-      appliedChangeDesc = `Updated the primary theme color to ${newColor}.`;
+      appliedChangeDesc = `Updated the primary theme color to ${detectedName || detectedColor}.`;
     }
 
     // 2. Change hero image
@@ -2351,6 +2377,18 @@ Shall I generate your custom website draft now?`;
       try {
         const editRes = await websiteBuilderService.editWebsite(sessionId, instruction, generatedSiteData);
         if (editRes) {
+          if (editRes.action === "ask_color") {
+            const askMsg: ChatMessage = {
+              id: `color-${Date.now()}`,
+              role: "ai",
+              content: editRes.message,
+              options: editRes.options
+            };
+            setMessages((prev) => [...prev, askMsg]);
+            setLoading(false);
+            return;
+          }
+
           if (editRes.action === "clarification_required" && !force) {
             const conflictMsg: ChatMessage = {
               id: `conflict-${Date.now()}`,
@@ -2530,6 +2568,18 @@ Shall I generate your custom website draft now?`;
   };
 
   const handleOptionSelect = (option: any) => {
+    if (option.action === "set_theme_color" && option.color) {
+      updateWebsiteTheme({ primary: option.color, secondary: option.secondary || option.color }, `Theme Color: ${option.name || option.color}`);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `color-${Date.now()}`,
+          role: "ai",
+          content: `✨ Updated the primary theme color to ${option.name || option.color}. Your live preview on the right has been updated.`
+        }
+      ]);
+      return;
+    }
     if (option.action === "open_theme_modal") {
       setShowThemeModal(true);
       if (option.tab) setThemeActiveTab(option.tab);
@@ -2890,7 +2940,7 @@ Shall I generate your custom website draft now?`;
               ✨ Revise Headline
             </button>
             <button
-              onClick={() => handleSend("Change the primary theme color to emerald green")}
+              onClick={() => handleSend("Update website colors")}
               className="text-[10px] sm:text-[11px] whitespace-nowrap px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded-md border border-white/10 transition cursor-pointer"
             >
               🎨 Update Colors
