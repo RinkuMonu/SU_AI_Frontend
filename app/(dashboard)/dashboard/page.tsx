@@ -190,19 +190,19 @@ export default function DashboardPage() {
         {/* 1. Post Created */}
         <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
           <div className="flex items-start justify-between">
-            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
+            <span className="text-3xl sm:text-4xl font-normal text-[#b18cf8] tracking-tight">
               {postsCount}
             </span>
             <ImageIcon className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
           </div>
-          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Post Created</h3>
+          <h3 className="text-sm sm:text-base font-normal text-white mt-3 leading-tight">Post Created</h3>
           <p className="text-xs text-slate-400 mt-1">In the last 7 days</p>
         </div>
 
         {/* 2. Reel Created */}
         <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
           <div className="flex items-start justify-between">
-            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
+            <span className="text-3xl sm:text-4xl font-normal text-[#b18cf8] tracking-tight">
               {reelsCount}
             </span>
             <svg className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -210,19 +210,19 @@ export default function DashboardPage() {
               <path d="m15.5 10-3 2v-1.5a.5.5 0 0 0-.5-.5h-3.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5H12a.5.5 0 0 0 .5-.5V12l3 2v-4z" fill="currentColor" stroke="none" />
             </svg>
           </div>
-          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Reel Created</h3>
+          <h3 className="text-sm sm:text-base font-normal text-white mt-3 leading-tight">Reel Created</h3>
           <p className="text-xs text-slate-400 mt-1">In the last 7 days</p>
         </div>
 
         {/* 3. AI Generations */}
         <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 group shadow-sm">
           <div className="flex items-start justify-between">
-            <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
+            <span className="text-3xl sm:text-4xl font-normal text-[#b18cf8] tracking-tight">
               {aiGensCount}
             </span>
             <Wand2 className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
           </div>
-          <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">AI Generations</h3>
+          <h3 className="text-sm sm:text-base font-normal text-white mt-3 leading-tight">AI Generations</h3>
           <p className="text-xs text-slate-400 mt-1">Total AI uses this week</p>
         </div>
 
@@ -230,12 +230,12 @@ export default function DashboardPage() {
         <Link href="/analytics" className="block group">
           <div className="relative rounded-2xl p-4 sm:p-5 bg-gradient-to-br from-[#1d103a]/90 via-[#100c24]/95 to-[#071023] border border-[#2F1262]/60 hover:border-[#b18cf8]/50 hover:shadow-[0_8px_25px_rgba(47,18,98,0.35)] hover:-translate-y-1 transition-all duration-300 h-full shadow-sm">
             <div className="flex items-start justify-between">
-              <span className="text-3xl sm:text-4xl font-bold text-[#b18cf8] tracking-tight">
+              <span className="text-3xl sm:text-4xl font-normal text-[#b18cf8] tracking-tight">
                 {marketingScore}/100
               </span>
               <TrendingUp className="w-5 h-5 text-[#b18cf8] mt-0.5 group-hover:scale-110 transition-transform" />
             </div>
-            <h3 className="text-sm sm:text-base font-medium text-white mt-3 leading-tight">Marketing Score</h3>
+            <h3 className="text-sm sm:text-base font-normal text-white mt-3 leading-tight">Marketing Score</h3>
             <p className="text-xs text-slate-400 mt-1 group-hover:text-purple-300 transition-colors">
               View full analytics
             </p>
