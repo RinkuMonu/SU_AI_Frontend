@@ -34,7 +34,9 @@ import {
   Monitor,
   Tablet,
   Smartphone,
-  MessageSquare
+  MessageSquare,
+  X,
+  Type
 } from "lucide-react";
 import {
   websiteBuilderService,
@@ -488,10 +490,15 @@ const generateHtmlFromJSON = (rawData: any): string => {
 
   const bName = escapeHtml(data.business_name || "My Business");
   const bCategory = data.business_category || "Business";
-  const primaryColor = data.theme?.primary || "#4F46E5";
-  const secondaryColor = data.theme?.secondary || "#4338CA";
-  const accentColor = data.theme?.accent || "#EC4899";
-  const fontFamily = data.theme?.font || "Outfit";
+  const theme = data.theme || {};
+  const primaryColor = theme.primary || theme.primary_color || "#4F46E5";
+  const secondaryColor = theme.secondary || theme.secondary_color || "#4338CA";
+  const accentColor = theme.accent || theme.accent_color || "#EC4899";
+  const fontFamily = theme.font || theme.font_family || "Outfit";
+  const buttonColor = theme.button_color || theme.buttonColor || primaryColor;
+  const buttonTextColor = theme.button_text_color || theme.buttonTextColor || "#ffffff";
+  const buttonHoverColor = theme.button_hover || theme.buttonHoverColor || secondaryColor;
+  const buttonRadius = theme.button_radius || theme.buttonRadius || "0.75rem";
 
   // Gather all available sections across all incoming pages
   const allIncomingSections: WebsiteSection[] = [];
@@ -946,9 +953,35 @@ const generateHtmlFromJSON = (rawData: any): string => {
         }
       </script>
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+        
+        :root {
+          --primary-color: ${primaryColor};
+          --secondary-color: ${secondaryColor};
+          --accent-color: ${accentColor};
+          --btn-bg: ${buttonColor};
+          --btn-text: ${buttonTextColor};
+          --btn-hover: ${buttonHoverColor};
+          --btn-radius: ${buttonRadius};
+          --font-family: '${fontFamily}', sans-serif;
+        }
+
         html { scroll-behavior: smooth; }
-        body { font-family: '${fontFamily}', sans-serif; }
+        body { font-family: var(--font-family); }
+        h1, h2, h3, h4, .font-heading { font-family: var(--font-family); }
+
+        /* Button styling overrides */
+        .bg-primary, .site-btn-primary, button.cta-btn, button[type="submit"] {
+          background-color: var(--btn-bg) !important;
+          color: var(--btn-text) !important;
+          border-radius: var(--btn-radius) !important;
+        }
+        .bg-primary:hover, .site-btn-primary:hover, button.cta-btn:hover, button[type="submit"]:hover {
+          background-color: var(--btn-hover) !important;
+          filter: brightness(0.95);
+        }
+        .text-primary { color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       </style>
@@ -1220,6 +1253,63 @@ export default function WebsiteBuilderPage() {
     },
     []
   );
+
+  // Theme & Styling Customizer State
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [themeActiveTab, setThemeActiveTab] = useState<"colors" | "fonts" | "buttons">("colors");
+
+  // Direct Theme Customization Handler
+  const updateWebsiteTheme = useCallback((
+    themeUpdates: Partial<{
+      primary: string;
+      secondary: string;
+      accent: string;
+      font: string;
+      button_color: string;
+      button_text_color: string;
+      button_radius: string;
+    }>,
+    label: string = "Theme Customization"
+  ) => {
+    setGeneratedSiteData((prevSite) => {
+      if (!prevSite) return null;
+      const updated: GeneratedSiteData = JSON.parse(JSON.stringify(prevSite));
+      if (!updated.theme) updated.theme = {};
+      Object.assign(updated.theme, themeUpdates);
+
+      // If primary color changed, also update the SVG logo if it's dynamic
+      if (themeUpdates.primary && (!updated.logo || (typeof updated.logo === "string" && updated.logo.startsWith("data:image/svg+xml")))) {
+        const bCat = updated.business_category || businessContext.businessCategory || "Business";
+        const bName = updated.business_name || businessContext.businessName || "My Business";
+        const newLogo = generateDynamicSvgLogo(bName, bCat, themeUpdates.primary);
+        updated.logo = newLogo;
+        if (updated.pages) {
+          updated.pages.forEach((p: any) => {
+            if (p.sections) {
+              p.sections.forEach((s: any) => {
+                if (s.type === "navbar" || s.type === "footer") {
+                  s.logo = newLogo;
+                }
+              });
+            }
+          });
+        }
+      }
+
+      recordVersion(updated, label);
+      saveStateToStorage(sessionId, businessContext, messages, updated);
+
+      if (sessionId && /^[0-9a-fA-F]{24}$/.test(sessionId)) {
+        websiteBuilderService.editWebsite(sessionId, `Apply ${label}`, updated).catch((e) => {
+          console.warn("Background theme sync error", e);
+        });
+      }
+
+      setCreditDeductionToast(`🎨 Applied ${label}!`);
+      setTimeout(() => setCreditDeductionToast(null), 3000);
+      return updated;
+    });
+  }, [businessContext, sessionId, messages, recordVersion, saveStateToStorage]);
 
   /* -------------------------------------------------------------------------- */
   /*                       SESSION INITIALIZATION & RESTORATION                 */
@@ -2048,19 +2138,85 @@ Shall I generate your custom website draft now?`;
       appliedChangeDesc = `Generated and applied a brand new category-tailored logo for "${bName}". It is now clearly visible in your website header and footer.`;
     }
 
-    // 1. Change theme color
+    // 1. Change Button Styling / Button Colors
+    else if (lower.includes("button") || lower.includes("btn") || lower.includes("बटन")) {
+      if (!updatedSite.theme) updatedSite.theme = {};
+
+      const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
+      let btnBg = hexMatch ? hexMatch[0] : "";
+      if (!btnBg) {
+        if (lower.includes("emerald") || lower.includes("green")) btnBg = "#059669";
+        else if (lower.includes("blue") || lower.includes("ocean")) btnBg = "#0284C7";
+        else if (lower.includes("indigo")) btnBg = "#4F46E5";
+        else if (lower.includes("rose") || lower.includes("red")) btnBg = "#DC2626";
+        else if (lower.includes("orange") || lower.includes("coral")) btnBg = "#EA580C";
+        else if (lower.includes("amber") || lower.includes("gold") || lower.includes("yellow")) btnBg = "#D97706";
+        else if (lower.includes("purple") || lower.includes("violet")) btnBg = "#7C3AED";
+        else if (lower.includes("pink")) btnBg = "#EC4899";
+        else if (lower.includes("black") || lower.includes("dark")) btnBg = "#18181B";
+      }
+      if (btnBg) {
+        updatedSite.theme.button_color = btnBg;
+        updatedSite.theme.buttonColor = btnBg;
+      }
+
+      if (lower.includes("white text") || lower.includes("text white")) {
+        updatedSite.theme.button_text_color = "#ffffff";
+      } else if (lower.includes("dark text") || lower.includes("black text")) {
+        updatedSite.theme.button_text_color = "#111827";
+      }
+
+      if (lower.includes("pill") || lower.includes("capsule") || lower.includes("rounded-full")) {
+        updatedSite.theme.button_radius = "9999px";
+      } else if (lower.includes("square") || lower.includes("sharp")) {
+        updatedSite.theme.button_radius = "0px";
+      } else if (lower.includes("rounded") || lower.includes("soft")) {
+        updatedSite.theme.button_radius = "12px";
+      }
+
+      appliedChangeDesc = "Updated button colors and styling.";
+    }
+
+    // 2. Change Font Theme / Typography
+    else if (lower.includes("font") || lower.includes("typeface") || lower.includes("typography") || lower.includes("फ़ॉन्ट") || lower.includes("फॉन्ट")) {
+      if (!updatedSite.theme) updatedSite.theme = {};
+      let chosenFont = "Outfit";
+      if (lower.includes("poppins")) chosenFont = "Poppins";
+      else if (lower.includes("inter")) chosenFont = "Inter";
+      else if (lower.includes("playfair")) chosenFont = "Playfair Display";
+      else if (lower.includes("montserrat")) chosenFont = "Montserrat";
+      else if (lower.includes("roboto")) chosenFont = "Roboto";
+      else if (lower.includes("jakarta")) chosenFont = "Plus Jakarta Sans";
+      else if (lower.includes("cinzel")) chosenFont = "Cinzel";
+      else if (lower.includes("lato")) chosenFont = "Lato";
+      else if (lower.includes("serif")) chosenFont = "Playfair Display";
+      else if (lower.includes("sans")) chosenFont = "Inter";
+
+      updatedSite.theme.font = chosenFont;
+      updatedSite.theme.font_family = chosenFont;
+      appliedChangeDesc = `Updated the font theme to ${chosenFont}.`;
+    }
+
+    // 3. Change theme color
     else if (lower.includes("color") || lower.includes("theme") || lower.includes("background")) {
       let newColor = "#4F46E5";
-      if (lower.includes("blue")) newColor = "#2563EB";
+      const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
+      if (hexMatch) {
+        newColor = hexMatch[0];
+      } else if (lower.includes("blue") || lower.includes("ocean")) newColor = "#0284C7";
       else if (lower.includes("green") || lower.includes("emerald")) newColor = "#059669";
       else if (lower.includes("violet") || lower.includes("purple")) newColor = "#7C3AED";
       else if (lower.includes("rose") || lower.includes("red") || lower.includes("pink")) newColor = "#E11D48";
+      else if (lower.includes("orange") || lower.includes("sunset")) newColor = "#EA580C";
       else if (lower.includes("dark") || lower.includes("black")) newColor = "#18181B";
       else if (lower.includes("gold") || lower.includes("amber")) newColor = "#D97706";
 
       if (!updatedSite.theme) updatedSite.theme = {};
       updatedSite.theme.primary = newColor;
       updatedSite.theme.secondary = newColor;
+      if (!updatedSite.theme.button_color) {
+        updatedSite.theme.button_color = newColor;
+      }
       appliedChangeDesc = `Updated the primary theme color to ${newColor}.`;
     }
 
@@ -2356,6 +2512,11 @@ Shall I generate your custom website draft now?`;
   };
 
   const handleOptionSelect = (option: any) => {
+    if (option.action === "open_theme_modal") {
+      setShowThemeModal(true);
+      if (option.tab) setThemeActiveTab(option.tab);
+      return;
+    }
     if (option.action === "upload_logo") {
       fileInputRef.current?.click();
       return;
@@ -2965,6 +3126,259 @@ Shall I generate your custom website draft now?`;
             </button>
           </div>
         </div>
+
+        {/* Theme & Styling Customizer Panel */}
+        {showThemeModal && generatedSiteData && (
+          <div className="bg-[#111827] border-b border-purple-500/30 p-3 sm:p-4 text-white z-30 animate-in fade-in slide-in-from-top-2 shadow-2xl">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                    Website Theme & Styling Customizer
+                  </span>
+                </div>
+                {/* Customizer Tabs */}
+                <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+                  <button
+                    onClick={() => setThemeActiveTab("colors")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "colors" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Palette className="w-3 h-3" />
+                    <span>Theme Colors</span>
+                  </button>
+                  <button
+                    onClick={() => setThemeActiveTab("fonts")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "fonts" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Type className="w-3 h-3" />
+                    <span>Font Theme</span>
+                  </button>
+                  <button
+                    onClick={() => setThemeActiveTab("buttons")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "buttons" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <span>🔘 Buttons</span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowThemeModal(false)}
+                  className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* TAB 1: THEME COLORS */}
+              {themeActiveTab === "colors" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Select a curated color palette or pick custom hex colors. Changes reflect immediately on your live website.
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { name: "Indigo Classic", primary: "#4F46E5", secondary: "#4338CA" },
+                      { name: "Ocean Sapphire", primary: "#0284C7", secondary: "#0369A1" },
+                      { name: "Emerald Nature", primary: "#059669", secondary: "#047857" },
+                      { name: "Crimson Rose", primary: "#E11D48", secondary: "#BE123C" },
+                      { name: "Warm Sunset", primary: "#EA580C", secondary: "#C2410C" },
+                      { name: "Royal Violet", primary: "#7C3AED", secondary: "#6D28D9" },
+                      { name: "Amber Gold", primary: "#D97706", secondary: "#B45309" },
+                      { name: "Midnight Slate", primary: "#18181B", secondary: "#09090B" },
+                    ].map((p, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => updateWebsiteTheme({ primary: p.primary, secondary: p.secondary }, `${p.name} Colors`)}
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-left transition cursor-pointer ${
+                          generatedSiteData.theme?.primary === p.primary
+                            ? "bg-purple-600/20 border-purple-500 shadow-xs"
+                            : "bg-white/5 hover:bg-white/10 border-white/10"
+                        }`}
+                      >
+                        <div className="flex items-center -space-x-1 shrink-0">
+                          <span className="w-4 h-4 rounded-full border border-black/30" style={{ backgroundColor: p.primary }} />
+                          <span className="w-4 h-4 rounded-full border border-black/30" style={{ backgroundColor: p.secondary }} />
+                        </div>
+                        <span className="text-xs font-medium text-gray-200 truncate">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-white/10 text-xs">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <span className="text-gray-300 font-medium">Custom Primary Color:</span>
+                      <input
+                        type="color"
+                        value={generatedSiteData.theme?.primary || "#4F46E5"}
+                        onChange={(e) => updateWebsiteTheme({ primary: e.target.value }, "Custom Primary Color")}
+                        className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer"
+                      />
+                      <span className="font-mono text-[11px] text-gray-400">{generatedSiteData.theme?.primary || "#4F46E5"}</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <span className="text-gray-300 font-medium">Custom Secondary Color:</span>
+                      <input
+                        type="color"
+                        value={generatedSiteData.theme?.secondary || "#4338CA"}
+                        onChange={(e) => updateWebsiteTheme({ secondary: e.target.value }, "Custom Secondary Color")}
+                        className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer"
+                      />
+                      <span className="font-mono text-[11px] text-gray-400">{generatedSiteData.theme?.secondary || "#4338CA"}</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: FONT THEME */}
+              {themeActiveTab === "fonts" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Choose the typography font for your website headings and body text.
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { font: "Outfit", tag: "Modern Geometric", style: "font-sans" },
+                      { font: "Poppins", tag: "Friendly & Bold", style: "font-sans font-bold" },
+                      { font: "Inter", tag: "Tech & Corporate", style: "font-sans tracking-tight" },
+                      { font: "Playfair Display", tag: "Luxury Serif", style: "font-serif italic" },
+                      { font: "Montserrat", tag: "Contemporary", style: "font-sans uppercase" },
+                      { font: "Roboto", tag: "Balanced Classic", style: "font-sans" },
+                      { font: "Plus Jakarta Sans", tag: "Clean Modern", style: "font-sans" },
+                      { font: "Cinzel", tag: "Regal Classical", style: "font-serif" },
+                    ].map((f, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => updateWebsiteTheme({ font: f.font }, `${f.font} Font`)}
+                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                          (generatedSiteData.theme?.font || "Outfit") === f.font
+                            ? "bg-purple-600/20 border-purple-500 shadow-xs"
+                            : "bg-white/5 hover:bg-white/10 border-white/10"
+                        }`}
+                      >
+                        <span className={`text-sm text-white ${f.style}`}>{f.font}</span>
+                        <span className="text-[10px] text-gray-400 mt-1">{f.tag}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: BUTTON COLORS & SHAPE */}
+              {themeActiveTab === "buttons" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Customize button background color, button text color, and corner radius across your whole website.
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Button Background Color */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Background</div>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {[
+                          { name: "Theme Primary", color: generatedSiteData.theme?.primary || "#4F46E5" },
+                          { name: "Emerald", color: "#059669" },
+                          { name: "Rose", color: "#E11D48" },
+                          { name: "Coral", color: "#EA580C" },
+                          { name: "Amber", color: "#D97706" },
+                          { name: "Violet", color: "#7C3AED" },
+                          { name: "Dark", color: "#18181B" },
+                        ].map((b, idx) => (
+                          <button
+                            key={idx}
+                            title={b.name}
+                            onClick={() => updateWebsiteTheme({ button_color: b.color }, `Button Color ${b.name}`)}
+                            className="w-6 h-6 rounded-full border border-black/30 hover:scale-110 transition cursor-pointer shrink-0"
+                            style={{ backgroundColor: b.color }}
+                          />
+                        ))}
+                        <label className="flex items-center gap-1 cursor-pointer ml-1">
+                          <input
+                            type="color"
+                            value={generatedSiteData.theme?.button_color || generatedSiteData.theme?.primary || "#4F46E5"}
+                            onChange={(e) => updateWebsiteTheme({ button_color: e.target.value }, "Custom Button Color")}
+                            className="w-6 h-6 rounded border border-white/20 bg-transparent cursor-pointer"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Button Text Color */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Text Color</div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => updateWebsiteTheme({ button_text_color: "#ffffff" }, "White Button Text")}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold border transition cursor-pointer bg-white text-gray-900 ${
+                            (generatedSiteData.theme?.button_text_color || "#ffffff") === "#ffffff" ? "ring-2 ring-purple-400" : "opacity-80"
+                          }`}
+                        >
+                          White Text
+                        </button>
+                        <button
+                          onClick={() => updateWebsiteTheme({ button_text_color: "#111827" }, "Dark Button Text")}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold border border-gray-600 transition cursor-pointer bg-gray-950 text-white ${
+                            generatedSiteData.theme?.button_text_color === "#111827" ? "ring-2 ring-purple-400" : "opacity-80"
+                          }`}
+                        >
+                          Dark Text
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Button Shape */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Corner Shape</div>
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                        {[
+                          { label: "💊 Pill", radius: "9999px" },
+                          { label: "🔲 Soft", radius: "12px" },
+                          { label: "▫️ Subtle", radius: "6px" },
+                          { label: "⬛ Square", radius: "0px" },
+                        ].map((sh, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => updateWebsiteTheme({ button_radius: sh.radius }, `${sh.label} Buttons`)}
+                            className={`py-1 px-2 rounded-md font-medium border text-center transition cursor-pointer ${
+                              (generatedSiteData.theme?.button_radius || "12px") === sh.radius
+                                ? "bg-purple-600/30 border-purple-400 text-purple-200"
+                                : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-300"
+                            }`}
+                          >
+                            {sh.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Button Preview Box */}
+                  <div className="flex items-center justify-between p-2.5 bg-black/40 rounded-xl border border-white/10 mt-1">
+                    <span className="text-xs text-gray-400">Live Button Preview:</span>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: generatedSiteData.theme?.button_color || generatedSiteData.theme?.primary || "#4F46E5",
+                        color: generatedSiteData.theme?.button_text_color || "#ffffff",
+                        borderRadius: generatedSiteData.theme?.button_radius || "12px",
+                      }}
+                      className="px-5 py-2 font-bold text-xs shadow-md transition"
+                    >
+                      Explore Offerings →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Live Website Canvas Area */}
         <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-6 flex items-center justify-center custom-scrollbar bg-[#050505]">
