@@ -135,7 +135,7 @@ const VideoMarketingIcon = ({ className = "w-5 h-5", fill = "currentColor", fill
   </svg>
 );
 
-// 7 Selectable Business Services matching Designer Screenshots (Multi-selection enabled)
+// Selectable Business Services (with Leads, CRM, AI Marketing Agent as Coming Soon)
 export const BUSINESS_SERVICES_OPTIONS = [
   {
     id: "automate_social_media",
@@ -144,6 +144,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: Megaphone,
     iconBg: "bg-[#3B2D54] border border-[#7C3AED]/40",
     iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
+    comingSoon: false,
   },
   {
     id: "marketing_video",
@@ -152,6 +153,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: VideoMarketingIcon,
     iconBg: "bg-[#4E243B] border border-[#EC4899]/40",
     iconColor: "text-[#EC4899] dark:text-[#F472B6]",
+    comingSoon: false,
   },
   {
     id: "fashion_photoshoot",
@@ -160,6 +162,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: HangerIcon,
     iconBg: "bg-[#4A244E] border border-[#C026D3]/40",
     iconColor: "text-[#C026D3] dark:text-[#E879F9]",
+    comingSoon: false,
   },
   {
     id: "product_photoshoot",
@@ -168,6 +171,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: Camera,
     iconBg: "bg-[#523321] border border-[#F97316]/40",
     iconColor: "text-[#F97316] dark:text-[#FB923C]",
+    comingSoon: false,
   },
   {
     id: "ai_website_builder",
@@ -176,14 +180,25 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: Globe,
     iconBg: "bg-[#1A3D33] border border-[#10B981]/40",
     iconColor: "text-[#10B981] dark:text-[#34D399]",
+    comingSoon: false,
   },
   {
-    id: "leads_crm",
-    title: "Leads CRM",
-    desc: "Manage leads and grow your sales",
+    id: "leads",
+    title: "Leads",
+    desc: "Capture and track customer inquiries",
     icon: Users,
     iconBg: "bg-[#2A2F5E] border border-[#6366F1]/40",
     iconColor: "text-[#6366F1] dark:text-[#818CF8]",
+    comingSoon: true,
+  },
+  {
+    id: "crm",
+    title: "CRM",
+    desc: "Manage customer pipeline and sales",
+    icon: Target,
+    iconBg: "bg-[#2A2F5E] border border-[#6366F1]/40",
+    iconColor: "text-[#6366F1] dark:text-[#818CF8]",
+    comingSoon: true,
   },
   {
     id: "ai_marketing_agent",
@@ -192,6 +207,7 @@ export const BUSINESS_SERVICES_OPTIONS = [
     icon: Bot,
     iconBg: "bg-[#3B2D54] border border-[#7C3AED]/40",
     iconColor: "text-[#7C3AED] dark:text-[#A78BFA]",
+    comingSoon: true,
   },
 ];
 
@@ -639,7 +655,7 @@ export default function OnboardingPage() {
   const [isSavingSocialPlatforms, setIsSavingSocialPlatforms] = useState(false);
 
   // ─── First Content Creation & Post Maker Flow State ───
-  const [firstThingChoice, setFirstThingChoice] = useState<"fashion_studio" | "product_studio" | "post_maker" | "reel_maker" | "photoshoot">("fashion_studio");
+  const [firstThingChoice, setFirstThingChoice] = useState<"fashion_studio" | "product_studio" | "post_maker" | "reel_maker" | "photoshoot">("post_maker");
   const [promoPhoto, setPromoPhoto] = useState<string>("");
   const [festivalPhoto, setFestivalPhoto] = useState<string>("");
   const [adPhoto, setAdPhoto] = useState<string>("");
@@ -1191,6 +1207,10 @@ export default function OnboardingPage() {
   };
 
   const handleToggleService = (serviceId: string) => {
+    const srv = BUSINESS_SERVICES_OPTIONS.find((s) => s.id === serviceId);
+    if ((srv as any)?.comingSoon) {
+      return;
+    }
     setSelectedServices((prev) => {
       const exists = prev.includes(serviceId);
       const updated = exists ? prev.filter((id) => id !== serviceId) : [...prev, serviceId];
@@ -3809,20 +3829,36 @@ export default function OnboardingPage() {
     setError("");
     setIsSavingFirstThing(true);
     try {
-      const backendChoice: "post_maker" | "ai_photoshoot" | "reel_maker" =
-        firstThingChoice === "fashion_studio" || firstThingChoice === "product_studio" || (firstThingChoice as any) === "photoshoot"
-          ? "ai_photoshoot"
-          : firstThingChoice === "reel_maker"
-            ? "reel_maker"
-            : "post_maker";
+      if (firstThingChoice === "fashion_studio") {
+        try {
+          sessionStorage.setItem("dhandagrow_photoshoot_active_tab", "avatar");
+          await OnboardingService.saveFirstContentChoice("ai_photoshoot");
+        } catch (_) {}
+        router.push("/ai-photoshoot/avatar");
+        return;
+      }
 
+      if (firstThingChoice === "product_studio") {
+        try {
+          sessionStorage.setItem("dhandagrow_photoshoot_active_tab", "product");
+          await OnboardingService.saveFirstContentChoice("ai_photoshoot");
+        } catch (_) {}
+        router.push("/ai-photoshoot/product");
+        return;
+      }
+
+      if (firstThingChoice === "reel_maker") {
+        // Reel Maker is coming soon: do not allow proceeding
+        return;
+      }
+
+      // Default: proceed with Post Maker flow
       try {
-        await OnboardingService.saveFirstContentChoice(backendChoice);
+        await OnboardingService.saveFirstContentChoice("post_maker");
       } catch (err) {
         console.warn("Notice: Continuing to post selection:", err);
       }
 
-      // User instruction: clicking button on Image 1 directly integrates Image 2 (Pick a photo per post)
       const pickIdx = activeSteps.findIndex((s) => s.id === "post_maker_pick");
       const target = pickIdx !== -1 ? pickIdx : currentStep + 1;
       setCurrentStep(target);
@@ -4880,30 +4916,43 @@ export default function OnboardingPage() {
               </p>
             </div>
 
-            {/* 7 Services Cards: 4 Top Row + 3 Bottom Row (with increased spacing & non-bold text) */}
+            {/* Services Cards: 4 Top Row + 4 Bottom Row (with Coming Soon state) */}
             <div className="space-y-4 sm:space-y-6 my-3 sm:my-4">
               {/* Row 1: Top 4 Cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
                 {BUSINESS_SERVICES_OPTIONS.slice(0, 4).map((srv) => {
-                  const isSelected = selectedServices.includes(srv.id);
+                  const isComingSoon = Boolean((srv as any).comingSoon);
+                  const isSelected = !isComingSoon && selectedServices.includes(srv.id);
                   const IconComp = srv.icon;
                   return (
                     <div
                       key={srv.id}
                       id={`service-card-${srv.id}`}
-                      onClick={() => handleToggleService(srv.id)}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${isSelected
-                          ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
-                          : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
-                        }`}
+                      onClick={() => {
+                        if (!isComingSoon) {
+                          handleToggleService(srv.id);
+                        }
+                      }}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${
+                        isComingSoon
+                          ? "bg-[#0d1424]/70 border-slate-800/60 opacity-60 cursor-not-allowed"
+                          : isSelected
+                            ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 cursor-pointer"
+                            : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36] cursor-pointer"
+                      }`}
                     >
                       <div className="flex items-start justify-between w-full mb-3.5">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg} ${isComingSoon ? "opacity-60" : ""}`}>
                           <IconComp className={`w-5 h-5 ${srv.iconColor}`} fill="currentColor" fillOpacity={0.25} />
                         </div>
+                        {isComingSoon && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/20 text-purple-200 border border-purple-500/30 shadow-xs">
+                            Coming Soon
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1 flex flex-col justify-start">
-                        <h3 className="text-sm sm:text-base font-normal text-white tracking-normal leading-snug">
+                        <h3 className={`text-sm sm:text-base font-normal tracking-normal leading-snug ${isComingSoon ? "text-slate-400" : "text-white"}`}>
                           {srv.title}
                         </h3>
                         <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 leading-snug font-normal line-clamp-2">
@@ -4915,28 +4964,41 @@ export default function OnboardingPage() {
                 })}
               </div>
 
-              {/* Row 2: Bottom 3 Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 md:gap-6 max-w-4xl mx-auto">
+              {/* Row 2: Bottom 4 Cards (Leads, CRM, AI Marketing Agent as Coming Soon) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
                 {BUSINESS_SERVICES_OPTIONS.slice(4).map((srv) => {
-                  const isSelected = selectedServices.includes(srv.id);
+                  const isComingSoon = Boolean((srv as any).comingSoon);
+                  const isSelected = !isComingSoon && selectedServices.includes(srv.id);
                   const IconComp = srv.icon;
                   return (
                     <div
                       key={srv.id}
                       id={`service-card-${srv.id}`}
-                      onClick={() => handleToggleService(srv.id)}
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${isSelected
-                          ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50"
-                          : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36]"
-                        }`}
+                      onClick={() => {
+                        if (!isComingSoon) {
+                          handleToggleService(srv.id);
+                        }
+                      }}
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 flex flex-col justify-start min-h-[150px] sm:min-h-[164px] relative select-none ${
+                        isComingSoon
+                          ? "bg-[#0d1424]/70 border-slate-800/60 opacity-60 cursor-not-allowed"
+                          : isSelected
+                            ? "bg-[#141B34] border-2 border-[#BE32FF] shadow-[0_0_20px_rgba(190,50,255,0.3)] ring-1 ring-[#BE32FF]/50 cursor-pointer"
+                            : "bg-[#10172B] border-slate-800 hover:border-slate-700 hover:bg-[#131C36] cursor-pointer"
+                      }`}
                     >
                       <div className="flex items-start justify-between w-full mb-3.5">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg}`}>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${srv.iconBg} ${isComingSoon ? "opacity-60" : ""}`}>
                           <IconComp className={`w-5 h-5 ${srv.iconColor}`} fill="currentColor" fillOpacity={0.25} />
                         </div>
+                        {isComingSoon && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/20 text-purple-200 border border-purple-500/30 shadow-xs">
+                            Coming Soon
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1 flex flex-col justify-start">
-                        <h3 className="text-sm sm:text-base font-normal text-white tracking-normal leading-snug">
+                        <h3 className={`text-sm sm:text-base font-normal tracking-normal leading-snug ${isComingSoon ? "text-slate-400" : "text-white"}`}>
                           {srv.title}
                         </h3>
                         <p className="text-[11px] sm:text-xs text-slate-400 mt-1.5 leading-snug font-normal line-clamp-2">
@@ -8692,9 +8754,16 @@ export default function OnboardingPage() {
 
             {/* 4 Cards Grid (2x2) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {/* Card 1: Fashion Studio */}
+              {/* Card 1: Fashionist Studio - Redirects to existing Fashionist Studio Dashboard */}
               <div
-                onClick={() => setFirstThingChoice("fashion_studio")}
+                onClick={() => {
+                  setFirstThingChoice("fashion_studio");
+                  try {
+                    sessionStorage.setItem("dhandagrow_photoshoot_active_tab", "avatar");
+                    OnboardingService.saveFirstContentChoice("ai_photoshoot").catch(() => {});
+                  } catch (_) {}
+                  router.push("/ai-photoshoot/avatar");
+                }}
                 className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
                   firstThingChoice === "fashion_studio"
                     ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
@@ -8719,7 +8788,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg font-normal text-white">
-                    Fashion <span className="text-[#fc9a5d]">Studio</span>
+                    Fashionist <span className="text-[#fc9a5d]">Studio</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
                     Models wearing your products.
@@ -8727,9 +8796,16 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Card 2: Product Studio */}
+              {/* Card 2: Product Studio - Redirects to existing Product Studio Dashboard */}
               <div
-                onClick={() => setFirstThingChoice("product_studio")}
+                onClick={() => {
+                  setFirstThingChoice("product_studio");
+                  try {
+                    sessionStorage.setItem("dhandagrow_photoshoot_active_tab", "product");
+                    OnboardingService.saveFirstContentChoice("ai_photoshoot").catch(() => {});
+                  } catch (_) {}
+                  router.push("/ai-photoshoot/product");
+                }}
                 className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
                   firstThingChoice === "product_studio"
                     ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
@@ -8762,7 +8838,7 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Card 3: Post Maker */}
+              {/* Card 3: Post Maker - Existing functionality preserved */}
               <div
                 onClick={() => setFirstThingChoice("post_maker")}
                 className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
@@ -8797,34 +8873,35 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Card 4: Reel Maker */}
+              {/* Card 4: Reel Maker - Coming Soon, cannot be selected */}
               <div
-                onClick={() => setFirstThingChoice("reel_maker")}
-                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
-                  firstThingChoice === "reel_maker"
-                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
-                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
-                }`}
+                className="relative rounded-2xl p-4 sm:p-5 border transition-all flex items-center gap-4 sm:gap-5 select-none opacity-60 cursor-not-allowed border-slate-800/80 bg-[#0e162b]"
+                title="Reel Maker is Coming Soon"
               >
-                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
+                <div className="absolute top-3 right-3 z-10">
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/20 text-purple-200 border border-purple-500/30 shadow-xs">
+                    Coming Soon
+                  </span>
+                </div>
+                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24 opacity-60">
                   <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
                     <img
                       src="/images/raw-selfie-woman.jpg"
                       alt="Reel selfie"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover grayscale"
                     />
                   </div>
                   <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
                     <img
                       src="/images/ai-reel-formats-showcase.jpg"
                       alt="Reel format"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover grayscale"
                     />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-normal text-white">
-                    Reel <span className="text-[#7d36fa]">Maker</span>
+                  <h3 className="text-base sm:text-lg font-normal text-slate-300">
+                    Reel <span className="text-[#7d36fa]/80">Maker</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
                     Ready for instagram and youtube shorts.
