@@ -26,26 +26,27 @@ export function resolvePhotoshootUrl(url?: string | null): string {
     return trimmed;
   }
 
+  // If already relative /uploads or /media, prefer relative path so Next.js proxies cleanly
+  if (trimmed.startsWith("/uploads/") || trimmed.startsWith("/media/")) {
+    return trimmed;
+  }
+
   // Already an absolute HTTP/HTTPS URL
   if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
     return trimmed;
   }
 
   // Relative upload paths
-  const backendBase = (
-    process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000"
-  ).replace(/\/+$/, "");
-
   const cleanPath = trimmed.startsWith("/") ? trimmed : `/${trimmed}`;
-  // Return the direct backend URL to guarantee accessibility across all environments
-  return `${backendBase}${cleanPath}`;
+  return cleanPath;
 }
 
 /**
  * Robust image error handler with multi-stage retry:
- * 1. Try 127.0.0.1:8000 if loaded relatively or via localhost
- * 2. Try localhost:8000
- * 3. Graceful fallback image
+ * 1. Try same-origin relative path /uploads/...
+ * 2. Try direct 127.0.0.1:8000
+ * 3. Try localhost:8000
+ * 4. Graceful fallback image
  */
 export function handlePhotoshootImageError(
   event: React.SyntheticEvent<HTMLImageElement, Event>,
@@ -55,16 +56,32 @@ export function handlePhotoshootImageError(
   const currentSrc = target.src || "";
   const retryCount = Number(target.dataset.retryCount || "0");
 
+  if (currentSrc.startsWith("blob:")) {
+    // Revoked or invalid blob URL from previous session — immediately fallback
+    target.onerror = null;
+    target.src = fallbackUrl;
+    return;
+  }
+
   if (retryCount === 0) {
     target.dataset.retryCount = "1";
-    // If it was a relative path or localhost, try direct 127.0.0.1:8000
+    // Stage 1: Try direct relative path via Next.js proxy
+    if (currentSrc.includes("/uploads/")) {
+      const uploadPath = currentSrc.substring(currentSrc.indexOf("/uploads/"));
+      target.src = uploadPath;
+      return;
+    }
+  } else if (retryCount === 1) {
+    target.dataset.retryCount = "2";
+    // Stage 2: Try direct backend IP
     if (currentSrc.includes("/uploads/")) {
       const uploadPath = currentSrc.substring(currentSrc.indexOf("/uploads/"));
       target.src = `http://127.0.0.1:8000${uploadPath}`;
       return;
     }
-  } else if (retryCount === 1) {
-    target.dataset.retryCount = "2";
+  } else if (retryCount === 2) {
+    target.dataset.retryCount = "3";
+    // Stage 3: Try localhost
     if (currentSrc.includes("/uploads/")) {
       const uploadPath = currentSrc.substring(currentSrc.indexOf("/uploads/"));
       target.src = `http://localhost:8000${uploadPath}`;

@@ -143,7 +143,14 @@ export function Navbar() {
     return "U";
   };
 
-  const initials = getInitials(user?.name || user?.fullName, user?.email);
+  const displayName =
+    user?.name ||
+    user?.fullName ||
+    (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '') ||
+    (user as any)?.businessName ||
+    (user?.email ? user.email.split('@')[0] : 'User');
+
+  const initials = getInitials(displayName, user?.email);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-surface px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
@@ -237,7 +244,7 @@ export function Navbar() {
                   {avatarUrl && !imageError ? (
                     <img 
                       src={avatarUrl} 
-                      alt={user?.name || "User"} 
+                      alt={displayName} 
                       className="h-full w-full object-cover" 
                       onError={() => setImageError(true)}
                     />
@@ -250,7 +257,7 @@ export function Navbar() {
 
               <div className="hidden lg:flex lg:flex-col lg:items-start text-left">
                 <span className="text-sm font-semibold leading-tight text-white group-hover:text-brand-pink transition-colors line-clamp-1 max-w-[150px]">
-                  {user?.name || "User"}
+                  {displayName}
                 </span>
                 <span className="text-[11px] text-text-muted leading-tight font-medium mt-0.5">
                   {isBusiness ? "Business Account" : "Personal Account"}
@@ -285,7 +292,7 @@ export function Navbar() {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-1.5">
                         <p className="text-sm font-bold text-white truncate">
-                          {user?.name || "User"}
+                          {displayName}
                         </p>
                       </div>
                       <p className="text-xs text-text-muted truncate mt-0.5" title={user?.email || ""}>

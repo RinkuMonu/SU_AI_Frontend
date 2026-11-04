@@ -207,7 +207,35 @@ export const authService = {
       const authRes = await api.get('/api/v1/auth/me');
       const rawUser = authRes.data?.data || authRes.data?.user || authRes.data || {};
 
-      let onboardingDone = Boolean(rawUser.onboardingCompleted || rawUser.onboarding_completed);
+      // Also merge profile data from users/me if available to preserve full name & contact details across refresh
+      let userProfile: any = {};
+      try {
+        const uRes = await api.get('/api/v1/users/me');
+        userProfile = uRes.data?.data || uRes.data?.user || uRes.data || {};
+      } catch (_) {}
+
+      const resolvedName =
+        rawUser.name ||
+        userProfile.name ||
+        rawUser.fullName ||
+        userProfile.fullName ||
+        rawUser.full_name ||
+        userProfile.full_name ||
+        (rawUser.first_name ? `${rawUser.first_name} ${rawUser.last_name || ''}`.trim() : '') ||
+        (userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name || ''}`.trim() : '') ||
+        (rawUser.firstName ? `${rawUser.firstName} ${rawUser.lastName || ''}`.trim() : '') ||
+        (userProfile.firstName ? `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : '') ||
+        rawUser.username ||
+        userProfile.username ||
+        '';
+
+      const parts = resolvedName ? resolvedName.split(/\s+/) : [];
+      const resolvedFirst = rawUser.firstName || userProfile.firstName || rawUser.first_name || userProfile.first_name || parts[0] || '';
+      const resolvedLast = rawUser.lastName || userProfile.lastName || rawUser.last_name || userProfile.last_name || parts.slice(1).join(' ') || '';
+      const resolvedPhone = rawUser.phone || userProfile.phone || rawUser.phone_number || userProfile.phone_number || rawUser.contactNumber || userProfile.contactNumber || rawUser.mobile || userProfile.mobile || '';
+      const resolvedEmail = rawUser.email || userProfile.email || '';
+
+      let onboardingDone = Boolean(rawUser.onboardingCompleted || rawUser.onboarding_completed || userProfile.onboardingCompleted);
 
       // Verify business onboarding status using /api/v1/onboarding/status as instructed
       try {
@@ -219,9 +247,9 @@ export const authService = {
         }
       } catch (_) {}
 
-      const profileImg = rawUser.image || rawUser.profileImageUrl || rawUser.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
+      const profileImg = rawUser.image || userProfile.image || rawUser.profileImageUrl || userProfile.profileImageUrl || rawUser.avatar || userProfile.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
 
-      const hasPhone = Boolean((rawUser.phone || rawUser.phone_number || rawUser.mobile || '').trim());
+      const hasPhone = Boolean((resolvedPhone).trim());
       const isOAuth = Boolean(
         rawUser.auth_provider === 'google' ||
         rawUser.provider === 'google' ||
@@ -233,17 +261,22 @@ export const authService = {
         rawUser.provider === 'linkedin' ||
         rawUser.google_id ||
         rawUser.googleId ||
-        (!hasPhone && rawUser.email)
+        (!hasPhone && resolvedEmail)
       );
 
       return {
+        ...userProfile,
         ...rawUser,
-        id: rawUser.id || rawUser._id || '',
-        name: rawUser.name || rawUser.fullName || '',
-        fullName: rawUser.fullName || rawUser.name || '',
-        email: rawUser.email || '',
-        role: rawUser.role || 'user',
-        accountType: rawUser.accountType || 'user',
+        id: rawUser.id || rawUser._id || userProfile.id || userProfile._id || '',
+        name: resolvedName,
+        fullName: resolvedName,
+        firstName: resolvedFirst,
+        lastName: resolvedLast,
+        email: resolvedEmail,
+        contactNumber: resolvedPhone,
+        phone: resolvedPhone,
+        role: rawUser.role || userProfile.role || 'user',
+        accountType: rawUser.accountType || userProfile.accountType || 'user',
         image: profileImg || undefined,
         profileImageUrl: profileImg || undefined,
         phone_verified: isOAuth || !hasPhone ? true : (rawUser.phone_verified ?? true),

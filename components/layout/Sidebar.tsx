@@ -71,7 +71,7 @@ const navigation = [
     name: "Image and Reel Generation", 
     icon: Share2, 
     children: [
-      { name: "Create Reel", href: "/create/reel" },
+      { name: "Create Reel", href: "/create/reel", comingSoon: true },
       { name: "AI Post Maker", href: "/ai-post" },
       { name: "AI Calendar", href: "/ai-calendar" },
     ]
@@ -86,7 +86,7 @@ const navigation = [
   },
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { name: "Influencers", href: "/influencers", icon: Users },
+  { name: "Influencers", href: "/influencers", icon: Users, comingSoon: true },
   { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
@@ -211,6 +211,31 @@ export function Sidebar() {
                 <div className="pl-8 pr-2 space-y-1">
                   {item.children.map((child: any) => {
                     const isExactActive = pathname === child.href;
+
+                    if (child.comingSoon) {
+                      return (
+                        <div
+                          key={child.name}
+                          title={`${child.name} (Coming Soon)`}
+                          aria-disabled="true"
+                          className="group flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
+                        >
+                          <div className="flex items-center min-w-0">
+                            {child.icon && (
+                              <child.icon
+                                className="mr-2 h-3.5 w-3.5 flex-shrink-0 opacity-40"
+                                aria-hidden="true"
+                              />
+                            )}
+                            <span className="truncate">{child.name}</span>
+                          </div>
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 ml-1">
+                            Coming Soon
+                          </span>
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={child.name}
@@ -246,6 +271,29 @@ export function Sidebar() {
         const isActive = item.href === "/dashboard" 
           ? pathname === "/dashboard" 
           : (pathname === item.href || pathname.startsWith(item.href + "/"));
+
+        if ((item as any).comingSoon) {
+          return (
+            <div
+              key={item.name}
+              title={`${item.name} (Coming Soon)`}
+              aria-disabled="true"
+              className="group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
+            >
+              <div className="flex items-center min-w-0">
+                <item.icon
+                  className="mr-3 h-5 w-5 flex-shrink-0 text-text-muted/50"
+                  aria-hidden="true"
+                />
+                <span className="truncate">{item.name}</span>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 ml-2 shadow-xs">
+                Coming Soon
+              </span>
+            </div>
+          );
+        }
+
         return (
           <Link
             key={item.name}

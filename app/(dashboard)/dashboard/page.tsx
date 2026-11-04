@@ -278,13 +278,17 @@ export default function DashboardPage() {
             </div>
           </Link>
 
-          {/* 2. Create Reel Banner */}
-          <Link href="/create/reel" className="block group">
+          {/* 2. Create Reel Banner (Coming Soon) */}
+          <div
+            onClick={(e) => e.preventDefault()}
+            title="Create Reel is coming soon"
+            className="block group opacity-85 cursor-not-allowed select-none"
+          >
             <div
-              className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-pink-500/25 bg-[#0C0E1A]/80 hover:border-pink-400/80 hover:shadow-[0_16px_40px_rgba(244,63,94,0.3)] transition-all duration-300 hover:-translate-y-1.5 backdrop-blur-xl shadow-lg cursor-pointer select-none"
+              className="relative flex flex-col justify-between h-[205px] sm:h-[215px] rounded-2xl overflow-hidden p-5 border border-pink-500/25 bg-[#0C0E1A]/80 backdrop-blur-xl shadow-lg"
             >
               {/* Top Luminous Neon Beam */}
-              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-pink-500 to-transparent opacity-50 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-pink-500/60 to-transparent opacity-50" />
 
               {/* Background Vector Artwork */}
               <div className="absolute inset-0 z-0">
@@ -292,36 +296,43 @@ export default function DashboardPage() {
                   src="/images/vectors/banner-create-reel.svg"
                   alt="Create Reel Vector"
                   fill
-                  className="object-cover object-center group-hover:scale-108 transition-transform duration-700 ease-out"
+                  className="object-cover object-center opacity-70"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/40 via-45% to-transparent transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080B14] via-[#080B14]/60 via-45% to-transparent transition-opacity duration-300" />
               </div>
 
               {/* Top Bar: Pill & Action Disc */}
               <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-pink-500/20 text-pink-200 border border-pink-400/30 shadow-xs">
-                  <Video className="w-3.5 h-3.5 text-pink-300" />
-                  <span>9:16 Video</span>
-                </span>
-                <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:bg-pink-600 group-hover:border-pink-400/60">
-                  <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase backdrop-blur-md bg-pink-500/20 text-pink-200 border border-pink-400/30 shadow-xs">
+                    <Video className="w-3.5 h-3.5 text-pink-300" />
+                    <span>9:16 Video</span>
+                  </span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-500/20 text-amber-300 border border-amber-400/40">
+                    Coming Soon
+                  </span>
+                </div>
+                <div className="w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md bg-white/10 border border-white/20 text-slate-400 shadow-md">
+                  <ArrowRight className="w-4 h-4" />
                 </div>
               </div>
 
               {/* Bottom Content */}
               <div className="relative z-10">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[10px] font-semibold text-pink-300/90 tracking-wide uppercase">⚡ Viral Audio &amp; Hooks</span>
+                  <span className="text-[10px] font-semibold text-pink-300/80 tracking-wide uppercase">⚡ Viral Audio &amp; Hooks</span>
                 </div>
-                <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight group-hover:text-pink-200 transition-colors">
-                  Create Reel
-                </h3>
-                <p className="text-xs text-slate-300 font-medium mt-1 line-clamp-1 leading-snug">
-                  Trending audio, hooks &amp; AI captions
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl sm:text-[22px] font-extrabold text-white tracking-tight leading-tight">
+                    Create Reel
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-1 leading-snug">
+                  Trending audio, hooks &amp; AI captions (Coming Soon)
                 </p>
               </div>
             </div>
-          </Link>
+          </div>
 
           {/* 3. AI Avatar Banner */}
           <Link href="/fashion-ai/photoshoot" className="block group">

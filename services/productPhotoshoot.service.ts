@@ -323,26 +323,70 @@ export class ProductPhotoshootService {
     productCategory?: string;
     useModel: boolean;
     modelId?: string;
+    avatarId?: string;
     selectedStyles: string[];
     customPrompt?: string;
     imageCount?: number;
     workflowMode?: string;
+    productImageUrl?: string;
+    enhancedImageUrl?: string;
   }): Promise<BackendPhotoshootGenerateResponse> {
-    const response = await api.post<BackendPhotoshootGenerateResponse>(
-      `${this.baseRoute}/generate`,
-      {
-        session_id: params.sessionId,
-        selected_enhanced_image_ids: params.selectedEnhancedImageIds,
-        product_category: params.productCategory,
-        use_model: params.useModel,
-        model_id: params.modelId,
-        selected_styles: params.selectedStyles,
-        custom_prompt: params.customPrompt,
-        image_count: params.imageCount ?? 5,
-        workflow_mode: params.workflowMode,
+    const primaryStyle = params.selectedStyles?.[0] || "Commercial Studio";
+    const stylesArray = params.selectedStyles && params.selectedStyles.length > 0
+      ? params.selectedStyles
+      : [primaryStyle];
+
+    const payload: Record<string, any> = {
+      session_id: params.sessionId,
+      sessionId: params.sessionId,
+      selected_enhanced_image_ids: params.selectedEnhancedImageIds,
+      product_category: params.productCategory,
+      use_model: params.useModel,
+      model_id: params.modelId || params.avatarId,
+      modelId: params.modelId || params.avatarId,
+      avatar_id: params.avatarId || params.modelId,
+      avatarId: params.avatarId || params.modelId,
+      selected_styles: stylesArray,
+      style: primaryStyle,
+      style_id: primaryStyle,
+      custom_prompt: params.customPrompt,
+      prompt: params.customPrompt,
+      instructions: params.customPrompt,
+      image_count: params.imageCount ?? 5,
+      workflow_mode: params.workflowMode,
+      product_image: params.productImageUrl,
+      product_image_url: params.productImageUrl,
+      original_image: params.productImageUrl,
+      original_image_url: params.productImageUrl,
+      enhanced_image: params.enhancedImageUrl,
+      enhanced_image_url: params.enhancedImageUrl,
+    };
+
+    try {
+      const response = await api.post<BackendPhotoshootGenerateResponse>(
+        `${this.baseRoute}/generate`,
+        payload
+      );
+      return response.data;
+    } catch (err: any) {
+      // Fallback endpoint if product-photoshoot route returns 404 or 405
+      if (err?.response?.status === 404 || err?.response?.status === 405) {
+        try {
+          const resFallback = await api.post('/api/v1/fashion/photoshoot/generate', payload);
+          const raw = resFallback.data;
+          return {
+            success: true,
+            session_id: params.sessionId,
+            job_id: raw.generation_id || raw.job_id || raw.id || 'job_' + Date.now(),
+            status: 'processing',
+            estimated_time_seconds: 15,
+            message: raw.message || 'Generation started',
+            ...raw,
+          };
+        } catch (_) {}
       }
-    );
-    return response.data;
+      throw err;
+    }
   }
 
   /**

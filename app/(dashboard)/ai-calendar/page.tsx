@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import festivalService, { UpcomingFestival } from "@/services/festival.service";
 import { generateCalendar, DayPlan } from "@/services/calendar.service";
 import { contentService } from "@/services/content.service";
@@ -39,7 +39,10 @@ import {
   List,
   Grid3X3,
   Search,
-  CalendarDays
+  CalendarDays,
+  Upload,
+  FileVideo,
+  Film
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -185,6 +188,13 @@ export default function AICalendarPage() {
   const [scheduleCaption, setScheduleCaption] = useState("");
   const [scheduleHashtags, setScheduleHashtags] = useState("#reels #trending #viral #fyp");
   const [scheduleMediaUrl, setScheduleMediaUrl] = useState("");
+  const [scheduleMediaFile, setScheduleMediaFile] = useState<File | null>(null);
+  const [scheduleMediaPreview, setScheduleMediaPreview] = useState<string | null>(null);
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [mediaUploadProgress, setMediaUploadProgress] = useState(0);
+  const [mediaUploadError, setMediaUploadError] = useState<string | null>(null);
+  const [showUrlInput, setShowUrlInput] = useState(false);
+  const scheduleFileInputRef = useRef<HTMLInputElement>(null);
   const [isSavingSchedule, setIsSavingSchedule] = useState(false);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
@@ -317,6 +327,78 @@ export default function AICalendarPage() {
   };
 
   // Save new scheduled post/reel
+  const handleMediaFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setMediaUploadError(null);
+    const isReel = scheduleType === "Reel";
+
+    if (isReel) {
+      const validVideoTypes = ["video/mp4", "video/quicktime", "video/webm", "video/x-matroska"];
+      if (!validVideoTypes.includes(file.type) && !file.name.match(/\.(mp4|mov|webm|mkv)$/i)) {
+        setMediaUploadError("Please upload a valid video file (MP4, MOV, or WebM) for reels.");
+        return;
+      }
+      if (file.size > 60 * 1024 * 1024) {
+        setMediaUploadError("Video size exceeds 60MB limit. Please select a smaller video.");
+        return;
+      }
+    } else {
+      if (!file.type.startsWith("image/")) {
+        setMediaUploadError("Please upload a valid image file (PNG, JPG, WebP) for posts.");
+        return;
+      }
+      if (file.size > 15 * 1024 * 1024) {
+        setMediaUploadError("Image size exceeds 15MB limit. Please select a smaller image.");
+        return;
+      }
+    }
+
+    setIsUploadingMedia(true);
+    setMediaUploadProgress(15);
+
+    const progressTimer = setInterval(() => {
+      setMediaUploadProgress((prev) => {
+        if (prev >= 90) {
+          clearInterval(progressTimer);
+          return 90;
+        }
+        return prev + 25;
+      });
+    }, 80);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      clearInterval(progressTimer);
+      setMediaUploadProgress(100);
+      setTimeout(() => {
+        const resultUrl = reader.result as string;
+        setScheduleMediaFile(file);
+        setScheduleMediaPreview(resultUrl);
+        setScheduleMediaUrl(resultUrl);
+        setIsUploadingMedia(false);
+        setMediaUploadProgress(0);
+      }, 200);
+    };
+
+    reader.onerror = () => {
+      clearInterval(progressTimer);
+      setIsUploadingMedia(false);
+      setMediaUploadError("Failed to read file. Please try again.");
+    };
+
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveMedia = () => {
+    setScheduleMediaFile(null);
+    setScheduleMediaPreview(null);
+    setScheduleMediaUrl("");
+    setMediaUploadError(null);
+    if (scheduleFileInputRef.current) scheduleFileInputRef.current.value = "";
+  };
+
   const handleSaveScheduledContent = async () => {
     if (!scheduleTitle.trim()) {
       showToast("Please enter a title or headline.", "error");
@@ -371,6 +453,9 @@ export default function AICalendarPage() {
       setScheduleTitle("");
       setScheduleCaption("");
       setScheduleMediaUrl("");
+      setScheduleMediaFile(null);
+      setScheduleMediaPreview(null);
+      setMediaUploadError(null);
     } catch (err: any) {
       console.error("Failed to schedule item:", err);
       showToast("Failed to schedule content. Please try again.", "error");
@@ -1469,20 +1554,172 @@ export default function AICalendarPage() {
                 />
               </div>
 
-              {/* Media URL / Placeholder */}
-              <div>
-                <Label className="text-xs text-white font-medium mb-1.5 block">
-                  Media URL ({scheduleType === "Reel" ? "Video MP4 URL" : "Image URL"})
-                </Label>
-                <Input
-                  placeholder={scheduleType === "Reel" ? "https://...video.mp4" : "https://...image.jpg"}
-                  value={scheduleMediaUrl}
-                  onChange={e => setScheduleMediaUrl(e.target.value)}
-                  className="bg-surface-elevated border-border text-white text-xs h-9 font-mono"
+              {/* Upload Post / Reel & Media Preview */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-white font-semibold flex items-center gap-1.5">
+                    {scheduleType === "Reel" ? (
+                      <>
+                        <Video className="w-3.5 h-3.5 text-pink-400" />
+                        <span>Reel Video Content</span>
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-3.5 h-3.5 text-brand-purple" />
+                        <span>Post Image Content</span>
+                      </>
+                    )}
+                  </Label>
+                  <span className="text-[10px] text-text-muted font-medium">
+                    {scheduleType === "Reel" ? "MP4, MOV, WebM (Max 60MB)" : "PNG, JPG, WebP (Max 15MB)"}
+                  </span>
+                </div>
+
+                {/* Hidden File Input */}
+                <input
+                  type="file"
+                  ref={scheduleFileInputRef}
+                  onChange={handleMediaFileSelected}
+                  accept={scheduleType === "Reel" ? "video/mp4,video/quicktime,video/webm" : "image/*"}
+                  className="hidden"
                 />
-                <p className="text-[11px] text-text-muted mt-1">
-                  Optional. Leave empty to use high-quality default demonstration media.
-                </p>
+
+                {/* Upload Error Banner */}
+                {mediaUploadError && (
+                  <div className="p-2.5 rounded-xl bg-red-950/60 border border-red-500/40 text-red-200 text-xs flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                      <span>{mediaUploadError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMediaUploadError(null)}
+                      className="text-red-300 hover:text-white text-xs cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Media Preview or Upload Action Box */}
+                {scheduleMediaPreview || scheduleMediaUrl ? (
+                  <div className="relative rounded-2xl border border-white/15 bg-black/60 overflow-hidden shadow-lg">
+                    {scheduleType === "Reel" || scheduleMediaPreview?.startsWith("data:video") || scheduleMediaUrl?.endsWith(".mp4") ? (
+                      <div className="relative aspect-video max-h-56 bg-black flex items-center justify-center">
+                        <video
+                          src={scheduleMediaPreview || scheduleMediaUrl}
+                          controls
+                          className="w-full h-full object-contain"
+                        />
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-pink-500/80 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                          Reel Video
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="relative aspect-video max-h-56 bg-surface-elevated flex items-center justify-center overflow-hidden">
+                        <img
+                          src={scheduleMediaPreview || scheduleMediaUrl}
+                          alt="Scheduled media preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-brand-purple/80 text-white text-[10px] font-bold uppercase tracking-wider shadow">
+                          Post Image
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Preview Toolbar */}
+                    <div className="p-2.5 bg-surface/90 border-t border-white/10 flex items-center justify-between">
+                      <span className="text-[11px] text-slate-300 truncate max-w-[200px]">
+                        {scheduleMediaFile?.name || (scheduleMediaUrl.length > 35 ? scheduleMediaUrl.substring(0, 32) + "..." : scheduleMediaUrl)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => scheduleFileInputRef.current?.click()}
+                          className="h-7 text-xs text-brand-pink hover:text-white hover:bg-white/10 cursor-pointer"
+                        >
+                          <Upload className="w-3 h-3 mr-1" /> Change
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleRemoveMedia}
+                          className="h-7 text-xs text-rose-400 hover:text-rose-200 hover:bg-rose-500/10 cursor-pointer"
+                        >
+                          <Trash2 className="w-3 h-3 mr-1" /> Remove
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {/* Primary "Upload Post / Reel" or "Add Media" Button */}
+                    <button
+                      type="button"
+                      disabled={isUploadingMedia}
+                      onClick={() => scheduleFileInputRef.current?.click()}
+                      className="w-full py-4 px-4 rounded-2xl border-2 border-dashed border-brand-purple/40 hover:border-brand-pink/70 bg-gradient-to-br from-brand-purple/10 to-transparent hover:bg-brand-purple/15 transition-all flex flex-col items-center justify-center text-center cursor-pointer group shadow-inner"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-brand-purple/20 text-brand-pink flex items-center justify-center mb-2 group-hover:scale-110 transition-transform shadow-md">
+                        <Upload className="w-5 h-5 stroke-[2.2]" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-white group-hover:text-brand-pink transition-colors">
+                        Upload {scheduleType === "Reel" ? "Reel Video" : "Post Image"}
+                      </span>
+                      <span className="text-[11px] text-text-muted mt-0.5">
+                        Click to select media from your device
+                      </span>
+                    </button>
+
+                    {/* Upload Progress Bar */}
+                    {isUploadingMedia && (
+                      <div className="p-3 rounded-xl bg-surface-elevated border border-brand-purple/30 space-y-1.5 animate-in fade-in">
+                        <div className="flex items-center justify-between text-xs text-white">
+                          <span className="flex items-center gap-1.5">
+                            <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-pink" />
+                            <span>Uploading {scheduleType}...</span>
+                          </span>
+                          <span className="font-mono">{mediaUploadProgress}%</span>
+                        </div>
+                        <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="h-full bg-brand-gradient transition-all duration-200 rounded-full"
+                            style={{ width: `${mediaUploadProgress}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Or URL input toggle */}
+                    <div className="pt-1">
+                      {!showUrlInput ? (
+                        <button
+                          type="button"
+                          onClick={() => setShowUrlInput(true)}
+                          className="text-[11px] text-brand-purple/90 hover:text-brand-pink underline cursor-pointer"
+                        >
+                          Or enter media URL manually
+                        </button>
+                      ) : (
+                        <div className="space-y-1 pt-1 animate-in fade-in">
+                          <Input
+                            placeholder={scheduleType === "Reel" ? "https://...video.mp4" : "https://...image.jpg"}
+                            value={scheduleMediaUrl}
+                            onChange={e => setScheduleMediaUrl(e.target.value)}
+                            className="bg-surface-elevated border-border text-white text-xs h-8 font-mono"
+                          />
+                          <p className="text-[10px] text-text-muted">
+                            External direct link to image or video.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 

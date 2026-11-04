@@ -477,7 +477,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
             sourceImageId: item.source_image_id,
             style: mappedStyle,
             styleName: item.style,
-            originalUrl: state.uploadedImages[0]?.previewUrl || item.url,
+            originalUrl: (item as any).original_url || (item as any).source_image_url || state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl || item.url,
             enhancedUrl: item.url,
             description: `Calibrated ${item.style} lighting with crisp edge fidelity.`,
             aspectRatio: "1:1",
@@ -534,7 +534,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
           sourceImageId: item.source_image_id,
           style,
           styleName: item.style,
-          originalUrl: state.uploadedImages[0]?.previewUrl || item.url,
+          originalUrl: (item as any).original_url || (item as any).source_image_url || state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl || item.url,
           enhancedUrl: item.url,
           description: `Calibrated ${item.style} lighting.`,
           aspectRatio: "1:1",
@@ -694,23 +694,67 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
           ? [preferredVar.id]
           : undefined;
 
+      const productImageUrl = state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl;
+      const enhancedImageUrl = preferredVar?.enhancedUrl || preferredVar?.originalUrl || productImageUrl;
+      const avatarId = isAvatarMode ? state.selectedModelId || undefined : undefined;
+      const selectedStyles = state.selectedStyles && state.selectedStyles.length > 0
+        ? state.selectedStyles
+        : ["Studio Lighting", "Commercial Catalog"];
+
       const genResponse = await productPhotoshootService.generatePhotoshoot({
         sessionId: state.sessionId,
         selectedEnhancedImageIds: targetEnhancedIds,
         productCategory: categoryIdToBackendName(state.productCategory),
         useModel: isAvatarMode,
-        modelId: isAvatarMode ? (state.selectedModelId || undefined) : undefined,
+        modelId: avatarId,
+        avatarId: avatarId,
         workflowMode: isAvatarMode ? "avatar_photoshoot" : "product_photography",
-        selectedStyles: state.selectedStyles,
+        selectedStyles: selectedStyles,
         customPrompt: state.customPrompt,
         imageCount: 5,
+        productImageUrl: productImageUrl,
+        enhancedImageUrl: enhancedImageUrl,
       });
 
-      if (!genResponse.success || !genResponse.job_id) {
-        throw new Error(genResponse.message || "Failed to start photoshoot generation.");
+      // Handle synchronous or direct results in response
+      const directImages =
+        (genResponse as any).results ||
+        (genResponse as any).images ||
+        (genResponse as any).result_images ||
+        (genResponse as any).data?.results ||
+        (genResponse as any).data?.images;
+
+      if (directImages && Array.isArray(directImages) && directImages.length > 0) {
+        const mappedResults: PhotoshootFinalResult[] = directImages.map((r: any, idx: number) => ({
+          id: r.image_id || r.id || `res_${Date.now()}_${idx}`,
+          imageUrl: r.url || r.imageUrl || r.image_url,
+          title: `${state.productName || "Product"} — ${r.style_applied || selectedStyles[0] || "Studio"}`,
+          prompt: state.customPrompt || `Commercial photoshoot in ${r.style_applied || selectedStyles[0] || "Studio"}`,
+          styleName: r.style_applied || selectedStyles[0] || "Studio",
+          modelUsed: isAvatarMode ? avatarId : undefined,
+          resolution: "4K Ultra-HD",
+          selected: true,
+          isSaved: r.is_saved ?? false,
+          createdAt: r.created_at || new Date().toISOString(),
+        }));
+
+        updateState({
+          generationProgress: 100,
+          generationStage: "Photoshoot complete!",
+          isGenerating: false,
+          errorMessage: null,
+          finalResults: mappedResults,
+          selectedResultIds: mappedResults.map((r) => r.id),
+        });
+        isSubmittingGenRef.current = false;
+        return;
       }
 
-      const jobId = genResponse.job_id;
+      const jobId = genResponse.job_id || (genResponse as any).generation_id || (genResponse as any).id || (genResponse as any).data?.job_id;
+
+      if (!jobId) {
+        throw new Error(genResponse.message || "Failed to start photoshoot generation.");
+      }
       updateState({
         activeJobId: jobId,
         generationStage: isAvatarMode
@@ -1356,6 +1400,8 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
               generationProgress={state.generationProgress}
               generationStage={state.generationStage}
               productName={state.productName}
+              errorMessage={state.errorMessage}
+              onRetryGeneration={handleGenerateFinalPhotoshoot}
               onRetryFailedJob={handleRetryFailedJob}
               canRetryJob={state.canRetryJob}
               isRetryingJob={state.isRetryingJob}
