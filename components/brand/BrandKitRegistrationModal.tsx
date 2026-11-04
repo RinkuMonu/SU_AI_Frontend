@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Upload,
+  Mic,
   Sparkles,
   Palette,
   Type,
@@ -71,6 +72,90 @@ export interface BrandKitRegistrationModalProps {
   initialStep?: StepId;
   onStepChange?: (step: StepId) => void;
 }
+
+
+const SUB_CATEGORIES_MAP: Record<string, string[]> = {
+  clothing: [
+    "Men's Wear",
+    "Women's Ethnic & Western",
+    "Kids & Baby Wear",
+    "Footwear & Shoes",
+    "Activewear & Sportswear",
+    "Accessories & Bags",
+  ],
+  jewellery: [
+    "Gold & Diamond Jewellery",
+    "Fashion & Imitation Jewellery",
+    "Silver Articles & Ornaments",
+    "Bridal & Wedding Collection",
+    "Watches & Accessories",
+  ],
+  restaurant: [
+    "Fine Dining & Family Restaurant",
+    "Cafe & Coffee Shop",
+    "Bakery, Cakes & Desserts",
+    "Fast Food & Street Food",
+    "Cloud Kitchen / Delivery Only",
+    "Bar & Lounge",
+  ],
+  salon: [
+    "Unisex Salon & Hair Studio",
+    "Bridal Makeup Studio",
+    "Luxury Spa & Wellness",
+    "Nail & Lash Art Studio",
+    "Skin & Dermatology Care",
+  ],
+  electronics: [
+    "Smartphones & Tablets",
+    "Laptops & Computers",
+    "Home Appliances & TV",
+    "Audio & Headphones",
+    "Smart Gadgets & Wearables",
+  ],
+  grocery: [
+    "Supermarket & Departmental",
+    "Organic & Farm Fresh",
+    "Dairy, Milk & Ice Cream",
+    "Gourmet & Imported Foods",
+  ],
+  fitness: [
+    "Gym & Fitness Center",
+    "Yoga & Meditation Studio",
+    "Crossfit & Strength Training",
+    "Zumba & Dance Fitness",
+    "Sports Club & Academy",
+  ],
+  real_estate: [
+    "Residential Apartments & Flats",
+    "Commercial & Office Spaces",
+    "Luxury Villas & Plots",
+    "Interior Design & Architecture",
+  ],
+  doctor: [
+    "Dental Clinic & Implantology",
+    "Dermatology & Cosmetology",
+    "Eye Care & Opticals",
+    "Pediatrics & Child Care",
+    "Multi-speciality Clinic",
+    "Pharmacy & Diagnostic Lab",
+  ],
+  education: [
+    "Competitive Exam Coaching (JEE/NEET/UPSC)",
+    "K-12 School Tuitions",
+    "Language & Communication Academy",
+    "Skill Development & Tech Bootcamps",
+    "Music & Arts School",
+  ],
+};
+
+const DEFAULT_SUB_CATEGORIES = [
+  "Retail & Consumer Goods",
+  "Premium & Luxury Products",
+  "Budget & Everyday Value",
+  "Custom & Tailored Solutions",
+  "Services & Consultation",
+  "Online & Direct Delivery",
+];
 
 // 10 Curated AI Logo Styles
 export const LOGO_STYLES = [
@@ -148,6 +233,7 @@ export function BrandKitRegistrationModal({
   // SECTION A: Business Basics
   const [businessName, setBusinessName] = useState("");
   const [businessCategory, setBusinessCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
   const [businessDescription, setBusinessDescription] = useState("");
   const [website, setWebsite] = useState("");
   const [tagline, setTagline] = useState("");
@@ -217,6 +303,7 @@ export function BrandKitRegistrationModal({
         business_name: businessName,
         business_description: businessDescription,
         business_category: businessCategory,
+        sub_category: subCategory,
         logo_url: logoUrl,
         primary_color: colors.primary,
         secondary_color: colors.secondary,
@@ -295,6 +382,7 @@ export function BrandKitRegistrationModal({
           if (bk.business_model) setBusinessModel(bk.business_model);
           if (bk.selling_model) setSellingModel(bk.selling_model);
           if (bk.business_category) setBusinessCategory(bk.business_category);
+          if (bk.sub_category) setSubCategory(bk.sub_category);
           const loadedDesc = bk.business_description || bk.brand_description;
           if (loadedDesc && !isDummyDesc(loadedDesc) && !businessDescription) {
             setBusinessDescription(loadedDesc);
@@ -1139,13 +1227,10 @@ export function BrandKitRegistrationModal({
                 </div>
 
                 {/* Business Name */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label htmlFor="modal-business-name" className="text-xs font-semibold text-slate-200">
-                      Business Name <span className="text-brand-pink">*</span>
-                    </label>
-                    <span className="text-[10px] text-text-muted">Used on all branded collateral</span>
-                  </div>
+                <div className="space-y-2.5">
+                  <label htmlFor="modal-business-name" className="text-xs font-semibold text-slate-200 block">
+                    Business Name
+                  </label>
                   <input
                     id="modal-business-name"
                     type="text"
@@ -1154,16 +1239,16 @@ export function BrandKitRegistrationModal({
                       setBusinessName(e.target.value);
                       manuallyEditedFieldsRef.current.add("businessName");
                     }}
-                    placeholder="e.g. Aura Luxe Jewels, Sharma Textiles"
+                    placeholder="Your business name"
                     className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                   />
                 </div>
 
-                {/* Category & Tagline */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="modal-category" className="text-xs font-semibold text-slate-200">
-                      Industry / Category <span className="text-brand-pink">*</span>
+                {/* Business Category & Brand Tagline */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-2.5">
+                    <label htmlFor="modal-category" className="text-xs font-semibold text-slate-200 block">
+                      Business Category
                     </label>
                     <select
                       id="modal-category"
@@ -1174,7 +1259,7 @@ export function BrandKitRegistrationModal({
                       }}
                       className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
-                      <option value="" disabled className="bg-[#080B17] text-slate-400">Select Industry / Category</option>
+                      <option value="" disabled className="bg-[#080B17] text-slate-400">Your category</option>
                       {BUSINESS_CATEGORIES.map((cat) => (
                         <option key={cat.value} value={cat.value} className="bg-[#080B17] text-white">
                           {cat.label}
@@ -1183,9 +1268,9 @@ export function BrandKitRegistrationModal({
                     </select>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label htmlFor="modal-tagline" className="text-xs font-semibold text-slate-200">
-                      Brand Tagline <span className="text-[10px] text-text-muted">(Optional)</span>
+                  <div className="space-y-2.5">
+                    <label htmlFor="modal-tagline" className="text-xs font-semibold text-slate-200 block">
+                      Brand Tagline (optional)
                     </label>
                     <input
                       id="modal-tagline"
@@ -1195,18 +1280,64 @@ export function BrandKitRegistrationModal({
                         setTagline(e.target.value);
                         manuallyEditedFieldsRef.current.add("tagline");
                       }}
-                      placeholder="e.g. Elegance in every diamond"
-                      className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      placeholder="Eg- Elegance in every diamond"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     />
                   </div>
                 </div>
 
-                {/* Website URL with Auto-Fill Feature */}
-                <div className="space-y-2">
+                {/* Business Type & Sub - Category */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                  <div className="space-y-2.5">
+                    <label htmlFor="modal-business-type-step1" className="text-xs font-semibold text-slate-200 block">
+                      Business Type
+                    </label>
+                    <select
+                      id="modal-business-type-step1"
+                      value={businessType}
+                      onChange={(e) => {
+                        setBusinessType(e.target.value);
+                        manuallyEditedFieldsRef.current.add("businessType");
+                      }}
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    >
+                      <option value="" disabled className="bg-[#080B17] text-slate-400">Your business type</option>
+                      {BUSINESS_TYPES.map((type) => (
+                        <option key={type} value={type} className="bg-[#080B17] text-white">
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <label htmlFor="modal-sub-category" className="text-xs font-semibold text-slate-200 block">
+                      Sub - Category
+                    </label>
+                    <select
+                      id="modal-sub-category"
+                      value={subCategory}
+                      onChange={(e) => {
+                        setSubCategory(e.target.value);
+                        manuallyEditedFieldsRef.current.add("subCategory");
+                      }}
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    >
+                      <option value="" disabled className="bg-[#080B17] text-slate-400">Your sub - category</option>
+                      {(SUB_CATEGORIES_MAP[businessCategory] || DEFAULT_SUB_CATEGORIES).map((sub) => (
+                        <option key={sub} value={sub} className="bg-[#080B17] text-white">
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Website URL (Enter URL to auto-fill brand kit) */}
+                <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="modal-website" className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                      <span>Website URL</span>
-                      <span className="text-[10px] font-normal text-text-muted">(Enter URL to auto-fill Brand Kit)</span>
+                    <label htmlFor="modal-website" className="text-xs font-semibold text-slate-200 block">
+                      Website URL (Enter URL to auto-fill brand kit)
                     </label>
                     {websiteAnalysisLoading && (
                       <span className="text-[11px] text-brand-pink flex items-center gap-1.5 font-medium animate-pulse">
@@ -1235,10 +1366,9 @@ export function BrandKitRegistrationModal({
                             handleAnalyzeWebsite(website);
                           }
                         }}
-                        placeholder="https://www.yourbrand.com"
-                        className="w-full h-11 sm:h-12 pl-10 pr-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                        placeholder="Your website"
+                        className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                       />
-                      <ExternalLink className="w-4 h-4 text-slate-400 absolute left-3 top-3.5 pointer-events-none" />
                     </div>
 
                     <button
@@ -1256,7 +1386,7 @@ export function BrandKitRegistrationModal({
                       ) : (
                         <>
                           <Sparkles className="w-3.5 h-3.5 text-[#b18cf8]" />
-                          <span>Auto-Fill</span>
+                          <span>Auto-fill</span>
                         </>
                       )}
                     </button>
@@ -1301,30 +1431,45 @@ export function BrandKitRegistrationModal({
                 </div>
 
                 {/* Business Description */}
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-2.5">
+                  <div className="flex items-center gap-2">
                     <label htmlFor="modal-desc" className="text-xs font-semibold text-slate-200">
-                      Business Description <span className="text-brand-pink">*</span>
+                      Business Description
                     </label>
-                    <span className="text-[10px] text-text-muted">
-                      {businessDescription.length}/500 chars (min 5)
-                    </span>
+                    <button
+                      type="button"
+                      className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-colors cursor-pointer"
+                      title="Voice Input"
+                      onClick={() => {
+                        if (typeof window !== "undefined" && ("webkitSpeechRecognition" in window || "SpeechRecognition" in window)) {
+                          const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+                          const recognition = new SpeechRecognition();
+                          recognition.lang = "en-IN";
+                          recognition.onresult = (event: any) => {
+                            const transcript = event.results[0][0].transcript;
+                            setBusinessDescription((prev) => (prev ? prev + " " + transcript : transcript));
+                          };
+                          recognition.start();
+                        }
+                      }}
+                    >
+                      <Mic className="w-3.5 h-3.5" />
+                    </button>
                   </div>
                   <textarea
                     id="modal-desc"
-                    rows={3}
+                    rows={4}
                     maxLength={500}
                     value={businessDescription}
                     onChange={(e) => {
                       setBusinessDescription(e.target.value);
                       manuallyEditedFieldsRef.current.add("businessDescription");
                     }}
-                    placeholder="Describe what you sell, your target customers, signature products, and brand values..."
+                    placeholder="Your business description"
                     className="w-full p-3.5 sm:p-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
                   />
                 </div>
               </div>
-
 
               {/* Navigation button */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
