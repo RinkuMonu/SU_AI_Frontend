@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  Sparkles, 
-  Heart, 
-  MessageCircle, 
-  Music, 
-  Wand2, 
+import {
+  Sparkles,
+  Heart,
+  MessageCircle,
+  Music,
+  Wand2,
   CheckCircle2,
   Share2,
   Radio,
@@ -133,20 +133,20 @@ const SOCIAL_PLATFORMS: SocialPlatform[] = [
 export function Features() {
   const [activePresetIndex, setActivePresetIndex] = useState<number>(0);
   const [displayedText, setDisplayedText] = useState<string>('');
-  
+
   // Showcase Phase Machine:
   // typing -> tap_button -> generating -> playing -> publishing -> published_popup -> next preset
   const [phase, setPhase] = useState<ShowcasePhase>('typing');
-  
+
   const [generatingProgress, setGeneratingProgress] = useState<number>(0);
   const [generationStage, setGenerationStage] = useState<string>('');
-  
+
   // Published platforms progress
   const [publishedPlatforms, setPublishedPlatforms] = useState<string[]>([]);
   const [publishingProgress, setPublishingProgress] = useState<number>(0);
 
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string>(PRESET_REELS[0].videoUrl);
-  
+
   const videoRef = useRef<HTMLVideoElement | null>(null);
 
   const activePreset = PRESET_REELS[activePresetIndex];
@@ -220,7 +220,7 @@ export function Features() {
 
                   if (videoRef.current) {
                     videoRef.current.currentTime = 0;
-                    videoRef.current.play().catch(() => {});
+                    videoRef.current.play().catch(() => { });
                   }
 
                   // Play video for 6.5 seconds, then transition to Auto-Publishing animation
@@ -295,7 +295,7 @@ export function Features() {
   useEffect(() => {
     if (videoRef.current) {
       if (phase === 'playing' || phase === 'typing') {
-        videoRef.current.play().catch(() => {});
+        videoRef.current.play().catch(() => { });
       }
     }
   }, [currentVideoUrl, phase]);
@@ -303,22 +303,22 @@ export function Features() {
   return (
     <section id="features" className="pt-4 sm:pt-6 lg:pt-8 pb-10 sm:pb-14 bg-gradient-to-b from-[#f9faff] via-white to-[#f8f9fe] border-y border-slate-100 relative overflow-hidden select-none scroll-mt-20">
       <div id="ai-reels" className="absolute -top-24 left-0" />
-      
+
       {/* Soft Ambient Glow in White Theme */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/35 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[550px] h-[350px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+
         {/* Main 2-Column Showcase */}
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-          
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
+
           {/* ============================================================
               LEFT COLUMN: Pure White Theme Studio with Auto-Typing
               Pointer events disabled so user cannot edit or trigger redirects
              ============================================================ */}
-          <div className="lg:col-span-7 flex flex-col items-start z-10 pointer-events-none select-none cursor-default pt-1 sm:pt-2">
-            
+          <div className="lg:col-span-7 w-full min-w-0  flex flex-col items-start z-10 pointer-events-none select-none cursor-default pt-1 sm:pt-2">
+
             {/* Top Badge */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-2xs mb-3 sm:mb-4">
               <Sparkles className="w-4 h-4 text-[#FF6B00]" />
@@ -326,9 +326,8 @@ export function Features() {
                 AI Reel Generator & Multi-Channel Publisher
               </span>
             </div>
-
             {/* High-Contrast White Theme Headline */}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 leading-[1.12] mb-3.5 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-3.5 tracking-tight break-words">
               Create & Auto-Publish <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]">
                 High-Converting AI Reels
@@ -336,20 +335,20 @@ export function Features() {
             </h2>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-base text-slate-600 mb-6 sm:mb-7 leading-relaxed font-medium max-w-xl">
+            <p className="text-sm sm:text-sm md:text-base text-slate-600 mb-5 sm:mb-7  leading-relaxed font-medium w-full max-w-xl">
               From clothing brands and business founders to top influencers — watch our AI turn creative prompts into 9:16 vertical reels and auto-publish them across Instagram, Facebook, and LinkedIn.
             </p>
 
             {/* Studio Card (Purely animated autonomous display) */}
-            <div className="w-full max-w-xl bg-white border border-slate-200/90 rounded-3xl p-5 sm:p-6 shadow-[0_12px_40px_rgba(124,58,237,0.06),0_2px_8px_rgba(0,0,0,0.02)] transition-all">
-              
+            <div className="w-full min-w-0 max-w-xl bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_12px_40px_rgba(124,58,237,0.06),0_2px_8px_rgba(0,0,0,0.02)] transition-all">
+
               {/* Studio Card Header */}
               <div className="flex items-center justify-between mb-2.5">
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                   <Wand2 className="w-3.5 h-3.5 text-[#7C3AED]" />
                   Creative Video Prompt
                 </label>
-                
+
                 {/* Active Category Chip */}
                 <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-200/70">
                   {activePreset.category}
@@ -373,11 +372,10 @@ export function Features() {
                   return (
                     <div
                       key={preset.id}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                        isActive
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${isActive
                           ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
                           : 'bg-slate-100 text-slate-600 border border-slate-200/60'
-                      }`}
+                        }`}
                     >
                       <span>{preset.label}</span>
                     </div>
@@ -387,17 +385,16 @@ export function Features() {
 
               {/* Auto-Tapping Generate Button */}
               <div
-                className={`w-full py-3.5 px-6 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 transition-all duration-300 shadow-md ${
-                  phase === 'tap_button'
+                className={`w-full py-3.5 px-6 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 transition-all duration-300 shadow-md ${phase === 'tap_button'
                     ? 'scale-[0.98] ring-4 ring-orange-300 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
                     : phase === 'generating'
-                    ? 'bg-slate-900 text-white shadow-slate-900/10'
-                    : phase === 'publishing'
-                    ? 'bg-blue-600 text-white shadow-blue-500/20'
-                    : phase === 'published_popup'
-                    ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-                    : 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
-                }`}
+                      ? 'bg-slate-900 text-white shadow-slate-900/10'
+                      : phase === 'publishing'
+                        ? 'bg-blue-600 text-white shadow-blue-500/20'
+                        : phase === 'published_popup'
+                          ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                          : 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
+                  }`}
               >
                 {phase === 'generating' ? (
                   <>
@@ -467,16 +464,16 @@ export function Features() {
               Circular Spinner, and Multi-Platform Publishing Animation
              ============================================================ */}
           <div className="lg:col-span-5 flex flex-col items-center justify-start w-full">
-            
+
             {/* Realistic Smartphone Chassis */}
             <div className="relative w-full max-w-[325px] sm:max-w-[340px] bg-slate-900 rounded-[48px] p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.15)] ring-1 ring-slate-800">
-              
+
               {/* Outer Phone Bezel Highlights */}
               <div className="absolute inset-0 rounded-[48px] border-2 border-white/20 pointer-events-none" />
 
               {/* Inner Smartphone Screen */}
               <div className="relative w-full aspect-[9/19] rounded-[40px] overflow-hidden bg-black flex flex-col justify-between">
-                
+
                 {/* 1. Pure 9:16 Vertical Video Element (No split screens, no GIFs) */}
                 <video
                   ref={videoRef}
@@ -485,9 +482,8 @@ export function Features() {
                   muted
                   loop
                   playsInline
-                  className={`w-full h-full object-cover transition-all duration-500 ${
-                    phase === 'generating' ? 'opacity-20 filter blur-[4px]' : 'opacity-100'
-                  }`}
+                  className={`w-full h-full object-cover transition-all duration-500 ${phase === 'generating' ? 'opacity-20 filter blur-[4px]' : 'opacity-100'
+                    }`}
                 />
 
                 {/* 2. Top Screen Bar with Dynamic Island */}
@@ -509,12 +505,12 @@ export function Features() {
                 {/* 3. CIRCULAR SPINNER IN PHONE PREVIEW ("device preview m genarte reel ka circle m ghume") */}
                 {phase === 'generating' && (
                   <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-xs flex flex-col items-center justify-center px-6 text-center animate-fadeIn pointer-events-none">
-                    
+
                     {/* Rotating Circular Progress Ring */}
                     <div className="relative w-28 h-28 flex items-center justify-center mb-5">
                       {/* Ambient Rotating Glow Ring */}
                       <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] blur-lg opacity-40 animate-pulse" />
-                      
+
                       {/* SVG Circle Spinner */}
                       <svg className="w-28 h-28 -rotate-90 animate-[spin_5s_linear_infinite]" viewBox="0 0 100 100">
                         {/* Background Track Circle */}
@@ -572,12 +568,11 @@ export function Features() {
                 )}
 
                 {/* 4. Realistic Instagram Reel HUD Overlay (Visible during 'playing') */}
-                <div className={`absolute inset-x-0 bottom-0 p-3.5 z-20 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end transition-opacity duration-300 pointer-events-none ${
-                  phase === 'playing' ? 'opacity-100' : 'opacity-0'
-                }`}>
-                  
+                <div className={`absolute inset-x-0 bottom-0 p-3.5 z-20 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end transition-opacity duration-300 pointer-events-none ${phase === 'playing' ? 'opacity-100' : 'opacity-0'
+                  }`}>
+
                   <div className="flex items-end justify-between gap-3">
-                    
+
                     {/* Left: Account & Caption */}
                     <div className="flex-1 space-y-1.5 text-left">
                       <div className="flex items-center gap-2">
@@ -649,7 +644,7 @@ export function Features() {
                    ============================================================ */}
                 {phase === 'publishing' && (
                   <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-md flex flex-col justify-between p-5 text-white animate-fadeIn pointer-events-none">
-                    
+
                     {/* Header */}
                     <div className="pt-8 text-center">
                       <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/40 text-blue-300 text-[10px] font-bold uppercase tracking-wider mb-2">
@@ -671,11 +666,10 @@ export function Features() {
                         return (
                           <div
                             key={platform.id}
-                            className={`p-2.5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${
-                              isDone
+                            className={`p-2.5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${isDone
                                 ? 'bg-white/10 border-emerald-500/50 shadow-xs'
                                 : 'bg-white/5 border-white/10'
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-2.5">
                               {/* Brand Icon Badge */}
@@ -689,17 +683,17 @@ export function Features() {
                                 )}
                                 {platform.id === 'facebook' && (
                                   <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                                   </svg>
                                 )}
                                 {platform.id === 'linkedin' && (
                                   <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                                    <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                                   </svg>
                                 )}
                                 {platform.id === 'youtube' && (
                                   <svg className="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
                                   </svg>
                                 )}
                               </div>
@@ -756,10 +750,10 @@ export function Features() {
                    ============================================================ */}
                 {phase === 'published_popup' && (
                   <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center text-white animate-fadeIn pointer-events-none">
-                    
+
                     {/* Celebration Popup Card */}
                     <div className="w-full bg-gradient-to-b from-slate-900/95 to-black/95 border border-emerald-500/40 rounded-3xl p-5 shadow-[0_20px_50px_rgba(16,185,129,0.25)] relative overflow-hidden">
-                      
+
                       {/* Top Emerald Accent Glow */}
                       <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500" />
                       <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-24 h-24 bg-emerald-500/25 blur-2xl rounded-full" />
