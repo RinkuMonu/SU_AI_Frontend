@@ -265,7 +265,7 @@ export default function DashboardPage() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 pt-12 sm:pt-16 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 flex flex-col justify-end">
-                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors leading-snug">
+                <h3 className="text-lg sm:text-xl font-normal text-white group-hover:text-purple-300 transition-colors leading-snug">
                   Post Created
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 mt-0.5 leading-normal">
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 pt-12 sm:pt-16 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 flex flex-col justify-end">
-                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors leading-snug">
+                <h3 className="text-lg sm:text-xl font-normal text-white group-hover:text-purple-300 transition-colors leading-snug">
                   Reel Created
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-300 mt-0.5 leading-normal">
@@ -305,7 +305,7 @@ export default function DashboardPage() {
                 className="object-cover object-[center_top] scale-110 group-hover:scale-115 transition-transform duration-500"
               />
               <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5 pt-12 sm:pt-16 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-10 flex flex-col justify-end">
-                <h3 className="text-base sm:text-lg font-bold text-white group-hover:text-purple-300 transition-colors leading-snug">
+                <h3 className="text-lg sm:text-xl font-normal text-white group-hover:text-purple-300 transition-colors leading-snug">
                   AI Avatar
                 </h3>
                 <p className="text-xs sm:text-sm text-pink-200/90 mt-0.5 leading-normal">
