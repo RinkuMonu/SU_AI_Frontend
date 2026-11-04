@@ -374,7 +374,7 @@ export function AvailablePlansModal({
             >
               {/* Current Plan Badge over Top Right */}
               {isCurrent && (
-                <div className="absolute top-3 right-4 z-20">
+                <div className="absolute top-6 right-32 z-20">
                   <span className="px-3 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r from-[#F43F5E] via-[#FB7185] to-[#F59E0B] shadow-md flex items-center gap-1">
                     <Crown className="w-3.5 h-3.5 fill-current" />
                     <span>Current Plan</span>

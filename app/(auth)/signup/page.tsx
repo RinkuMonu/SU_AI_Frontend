@@ -337,7 +337,7 @@ export default function SignupPage() {
         finalOtp
       );
 
-      const vToken = response.phone_verification_token || response.verification_token || response.token;
+      const vToken = response.phone_verification_token || response.verification_token;
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("phone_verified", "true");

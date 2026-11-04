@@ -99,7 +99,7 @@ function formatFacebookError(rawError: string): string {
 
 export default function FacebookIntegrationPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, isLoading } = useAuth();
 
   const [isUpdating, setIsUpdating] = useState(false);
   const [updated, setUpdated] = useState(false);
@@ -151,6 +151,8 @@ export default function FacebookIntegrationPage() {
   }, []);
 
   useEffect(() => {
+    if (isLoading) return;
+
     // 0. Pre-hydrate immediately from stored credentials so tokens and page are printed INSTANTLY
     const stored = FacebookService.getStoredCredentials();
     if (stored.isExpired) {
@@ -233,8 +235,7 @@ export default function FacebookIntegrationPage() {
 
           // Check if user came from a Facebook Login / Signup flow or is unauthenticated
           const savedAuthMode = typeof window !== "undefined" ? sessionStorage.getItem("facebook_auth_mode") : null;
-          const currentToken = typeof window !== "undefined" ? localStorage.getItem("auth_token") : null;
-          const isAuthAction = Boolean(savedAuthMode) || !currentToken;
+          const isAuthAction = Boolean(savedAuthMode) || !user;
 
           if (isAuthAction && finalUserToken) {
             try {
@@ -242,18 +243,13 @@ export default function FacebookIntegrationPage() {
                 access_token: finalUserToken,
                 accountType: "user",
               });
-              const sessToken = authResult.token;
               const userObj = authResult.user;
 
-              if (sessToken && userObj) {
-                api.defaults.headers.common["Authorization"] = `Bearer ${sessToken}`;
-                localStorage.setItem("auth_token", sessToken);
-
-                login(sessToken, {
+              if (userObj) {
+                login({
                   ...userObj,
                   accountType: userObj?.accountType || "user",
                   role: userObj?.role || "user",
-                  onboardingCompleted: true,
                 });
                 sessionStorage.removeItem("facebook_auth_mode");
               }
@@ -399,7 +395,7 @@ export default function FacebookIntegrationPage() {
     }
 
     loadFacebookStatus();
-  }, []);
+  }, [isLoading, user]);
 
   const handleCopyPageToken = () => {
     if (!fbToken) return;

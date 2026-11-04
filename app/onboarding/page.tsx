@@ -834,8 +834,6 @@ export default function OnboardingPage() {
     // 2. Authoritative backend restoration from persistent storage
     const restoreFromBackend = async () => {
       if (typeof window === "undefined") return;
-      const token = localStorage.getItem("access_token");
-      if (!token) return;
 
       try {
         // Query status, services, presence, business profile, brand kit in parallel
@@ -3151,8 +3149,7 @@ export default function OnboardingPage() {
       setIsActivatingInfluencer(true);
       setError("");
 
-      const stored = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-      let existingUser: any = stored ? JSON.parse(stored) : {};
+      const existingUser: any = (user || {}) as any;
 
       const pendingStr = typeof window !== "undefined" ? sessionStorage.getItem("pending_signup") : null;
       const pending = pendingStr ? JSON.parse(pendingStr) : null;
@@ -3177,11 +3174,9 @@ export default function OnboardingPage() {
           accountType: "influencer",
         };
         const res = await authService.signup(signupPayload);
-        if (res.token && res.user) {
+        if (res.user) {
           const u = { ...res.user, role: "influencer", accountType: "influencer", onboardingCompleted: true };
-          localStorage.setItem("access_token", res.token);
-          localStorage.setItem("user", JSON.stringify(u));
-          login(res.token, u);
+          login(u);
         }
         sessionStorage.removeItem("pending_signup");
       } else {
@@ -3195,11 +3190,7 @@ export default function OnboardingPage() {
           accountType: "influencer",
           onboardingCompleted: true,
         };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        const token = localStorage.getItem("access_token") || "";
-        if (token) {
-          login(token, updatedUser);
-        }
+        login(updatedUser as any);
       }
 
       try {
@@ -3216,6 +3207,14 @@ export default function OnboardingPage() {
       router.push("/onboarding/influencer");
     } catch (err: any) {
       console.error("Failed to activate influencer dashboard:", err);
+      if (user) {
+        login({
+          ...user,
+          role: "influencer",
+          accountType: "influencer",
+          onboardingCompleted: true,
+        });
+      }
       try {
         const u = JSON.parse(localStorage.getItem("user") || "{}");
         u.role = "influencer";
@@ -3328,7 +3327,6 @@ export default function OnboardingPage() {
         }
 
         // User is actively on onboarding flow - do not auto-redirect away
-
         const stored = localStorage.getItem("user");
         const u = stored ? JSON.parse(stored) : user;
         if (u) {
@@ -3774,7 +3772,18 @@ export default function OnboardingPage() {
       // Already on ready screen -> Go to Dashboard or Creator Hub
       try {
         await OnboardingService.completeOnboarding();
-      } catch (_) { }
+        if (user) {
+          login({
+            ...user,
+            onboardingCompleted: true,
+            ...(accountType === "influencer"
+              ? { role: "influencer", accountType: "influencer" }
+              : {}),
+          });
+        }
+      } catch (err) {
+        console.error("Failed to mark onboarding complete:", err);
+      }
       try {
         const stored = localStorage.getItem("user");
         if (stored) {
@@ -4298,10 +4307,8 @@ export default function OnboardingPage() {
             accountType: "user",
           };
           const res = await authService.signup(signupPayload);
-          if (res.token && res.user) {
-            localStorage.setItem("access_token", res.token);
-            localStorage.setItem("user", JSON.stringify(res.user));
-            login(res.token, res.user);
+          if (res.user) {
+            login(res.user);
           }
           sessionStorage.removeItem("pending_signup");
           try {
@@ -4372,11 +4379,9 @@ export default function OnboardingPage() {
             role: "influencer",
           };
           const res = await authService.signup(signupPayload);
-          if (res.token && res.user) {
+          if (res.user) {
             const finalInfUser = { ...res.user, role: "influencer", accountType: "influencer" };
-            localStorage.setItem("access_token", res.token);
-            localStorage.setItem("user", JSON.stringify(finalInfUser));
-            login(res.token, finalInfUser);
+            login(finalInfUser);
           }
           sessionStorage.removeItem("pending_signup");
           try {
@@ -4538,10 +4543,8 @@ export default function OnboardingPage() {
             accountType: "business",
           };
           const res = await authService.signup(signupPayload);
-          if (res.token && res.user) {
-            localStorage.setItem("access_token", res.token);
-            localStorage.setItem("user", JSON.stringify(res.user));
-            login(res.token, res.user);
+          if (res.user) {
+            login(res.user);
           }
           sessionStorage.removeItem("pending_signup");
           try {

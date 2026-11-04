@@ -16,6 +16,7 @@ export interface SignupRequest {
 
 export interface AuthSuccessResponse {
   token?: string;
+  access_token?: string;
   user?: User;
   status?: string;
   message?: string;
@@ -127,7 +128,7 @@ export const authService = {
   /**
    * Sign in using mobile phone number or email and password
    */
-  login: async (phoneOrIdentifier: string, password: string): Promise<{ token: string; user: User }> => {
+  login: async (phoneOrIdentifier: string, password: string): Promise<{ user: User }> => {
     try {
       const cleanId = phoneOrIdentifier.trim();
       const isEmail = cleanId.includes('@');
@@ -146,9 +147,12 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/login', payload);
+      const user = response.data?.data?.user || response.data?.user;
+      if (!user) {
+        throw new Error('Authentication response did not include user data.');
+      }
       return {
-        token: response.data.access_token,
-        user: response.data.user,
+        user,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid mobile number or password.');
@@ -162,7 +166,7 @@ export const authService = {
    * User registration with required email, mobile number, name, and password
    * (No email verification flow)
    */
-  signup: async (data: SignupRequest): Promise<{ token?: string; user?: User; message?: string; detail?: string }> => {
+  signup: async (data: SignupRequest): Promise<{ user?: User; message?: string; detail?: string }> => {
     try {
       const phoneStr = data.phone?.trim() || "";
       const cc = data.countryCode || data.country_code || (phoneStr.startsWith("+") ? undefined : "+91");
@@ -182,10 +186,10 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/signup', payload);
+      const responseData = response.data?.data || response.data;
       return {
-        token: response.data?.access_token || response.data?.token,
-        user: response.data?.user,
-        message: response.data?.detail || response.data?.message || 'Account created successfully.',
+        user: responseData?.user,
+        message: responseData?.detail || responseData?.message || 'Account created successfully.',
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Unable to create account. Please check your details.');
@@ -253,6 +257,10 @@ export const authService = {
     }
   },
 
+  logout: async (): Promise<void> => {
+    await api.post('/api/v1/auth/logout');
+  },
+
   /**
    * Verify 6-digit Mobile OTP
    */
@@ -291,11 +299,10 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/verify-otp', payload);
-      const resData = response.data;
-      const vToken = resData?.phone_verification_token || resData?.verification_token || resData?.access_token || resData?.token;
+      const resData = response.data?.data || response.data;
+      const vToken = resData?.phone_verification_token || resData?.verification_token;
 
       return {
-        token: resData?.access_token || resData?.token,
         user: resData?.user,
         status: resData?.status || 'success',
         message: resData?.detail || resData?.message || 'Mobile OTP verified successfully.',
@@ -459,7 +466,8 @@ export const authService = {
     phone_verification_token?: string;
     verification_token?: string;
   }): Promise<{
-    token: string;
+    token?: string;
+    access_token?: string;
     user: User;
     message?: string;
     exists?: boolean;
@@ -499,15 +507,10 @@ export const authService = {
       const response = await api.post(endpoint, payload);
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Google authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -537,7 +540,6 @@ export const authService = {
       );
 
       return {
-        token,
         user: normalizedUser,
         message: raw?.message || data?.message,
         exists: isExisting,
@@ -566,7 +568,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/facebook/signup' : '/api/v1/auth/facebook/login';
       const response = await api.post(endpoint, {
@@ -577,15 +579,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Facebook authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -603,7 +600,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -625,7 +621,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/instagram/signup' : '/api/v1/auth/instagram/login';
       const response = await api.post(endpoint, {
@@ -636,15 +632,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Instagram authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -662,7 +653,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -686,7 +676,7 @@ export const authService = {
     redirect_uri?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/linkedin/signup' : '/api/v1/auth/linkedin/login';
       const response = await api.post(endpoint, {
@@ -698,15 +688,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('LinkedIn authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -727,7 +712,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {

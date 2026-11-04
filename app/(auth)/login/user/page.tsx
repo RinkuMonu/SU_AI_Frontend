@@ -427,16 +427,16 @@ export default function LoginPage() {
         finalOtp
       );
 
-      const token = response.token;
+      const token = (response as any).token || (response as any).access_token || "";
       const user = response.user;
 
-      if (token && user) {
-        login(token, user);
-
+      if (user) {
         let isDone = Boolean(user.onboardingCompleted);
         try {
-          const statusDone = await OnboardingService.isCompleted(token);
-          if (statusDone) isDone = true;
+          if (token) {
+            const statusDone = await OnboardingService.isCompleted(token);
+            if (statusDone) isDone = true;
+          }
         } catch (_) {}
 
         const finalUser = {
@@ -445,12 +445,12 @@ export default function LoginPage() {
           onboardingCompleted: isDone,
         };
 
-        login(token, finalUser);
+        login(finalUser);
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("onboarding_step");
           sessionStorage.removeItem("show_onboarding_plan");
         }
-        navigateAfterAuth(finalUser, router, response.dashboard_route);
+        navigateAfterAuth(finalUser, router, (response as any).dashboard_route);
       } else {
         throw new Error(response.message || "OTP verification did not return session.");
       }
@@ -624,10 +624,10 @@ export default function LoginPage() {
             verification_token: preservedToken,
           });
 
-          const token = res.token;
+          const token = (res as any).token || (res as any).access_token || "";
           const userObj = res.user;
 
-          if (token && userObj) {
+          if (userObj) {
             const isExistingUser = Boolean(res.exists || res.is_existing_user || res.user_exists);
 
             if (isSignup && isExistingUser) {
@@ -662,7 +662,7 @@ export default function LoginPage() {
               phone_verified: true,
               onboardingCompleted: isDone,
             };
-            login(token, finalUser);
+            login(finalUser);
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");

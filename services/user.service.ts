@@ -76,14 +76,6 @@ export const userService = {
     try {
       const response = await api.patch('/api/v1/users/me', data);
       const updated = response.data?.data || response.data;
-      
-      // Keep localStorage user in sync
-      if (typeof window !== 'undefined' && updated) {
-        const stored = localStorage.getItem('user');
-        const prev = stored ? JSON.parse(stored) : {};
-        const merged = { ...prev, ...updated };
-        localStorage.setItem('user', JSON.stringify(merged));
-      }
       return updated;
     } catch (error: any) {
       if (error.response?.data?.detail) {

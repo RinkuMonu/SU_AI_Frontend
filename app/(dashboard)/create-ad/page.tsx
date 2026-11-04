@@ -40,11 +40,10 @@ export default function CreateAdPage() {
     setPublishSuccessMessage(null);
     
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/v1/social/publish-${publishPlatform}/${result?.id}`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
