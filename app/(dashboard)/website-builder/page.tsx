@@ -333,7 +333,23 @@ const getCategorySafeImageQuery = (
     return "trendy boutique clothing store contemporary fashion design";
   }
 
-  // 5. DEFAULT / OTHER
+  // 5. SERVERS / CLOUD HOSTING / IT
+  if (c.includes("server") || c.includes("cloud") || c.includes("host") || c.includes("datacenter") || c.includes("data center") || c.includes("vps")) {
+    if (sectionType === "hero") {
+      return "high tech modern data center server racks glowing blue LED fiber optic enterprise infrastructure";
+    }
+    if (sectionType === "services" || sectionType === "products") {
+      return cleanItem
+        ? `enterprise ${cleanItem} cloud infrastructure server racks hardware high tech`
+        : "dedicated bare metal server racks high speed cloud computing data center";
+    }
+    if (sectionType === "gallery") {
+      return "secure tier 4 data center enterprise network server room blue LED";
+    }
+    return "cloud enterprise server infrastructure network engineer data center";
+  }
+
+  // 6. DEFAULT / OTHER
   return `${businessName || "business"} ${category} ${cleanItem || sectionType} professional storefront`;
 };
 
@@ -386,6 +402,8 @@ const generateDynamicSvgLogo = (
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M30 40 Q50 20 70 40 Q80 60 70 75 Q50 85 30 75 Q20 60 30 40 Z" fill="#ffffff" opacity="0.95" /><circle cx="50" cy="30" r="6" fill="#EF4444" /><text x="50" y="66" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${color}" text-anchor="middle">${initials}</text>`;
   } else if (c.includes("stationery") || c.includes("book") || c.includes("pen")) {
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M22 32 Q50 26 50 72 Q50 26 78 32 V74 Q50 68 50 74 Q50 68 22 74 Z" fill="#ffffff" /><line x1="50" y1="30" x2="50" y2="72" stroke="${color}" stroke-width="3" />`;
+  } else if (c.includes("server") || c.includes("cloud") || c.includes("host") || c.includes("vps") || c.includes("datacenter") || c.includes("data center")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><rect x="22" y="24" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="31" r="2.5" fill="${color}" /><circle cx="38" cy="31" r="2.5" fill="${color}" /><rect x="22" y="43" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="50" r="2.5" fill="${color}" /><circle cx="38" cy="50" r="2.5" fill="${color}" /><rect x="22" y="62" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="69" r="2.5" fill="${color}" /><circle cx="38" cy="69" r="2.5" fill="${color}" />`;
   } else if (c.includes("farm") || c.includes("resort") || c.includes("nature") || c.includes("villa")) {
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><circle cx="70" cy="30" r="12" fill="#FBBF24" /><path d="M30 75 L50 35 L70 75 Z" fill="#ffffff" opacity="0.9" /><rect x="47" y="65" width="6" height="15" fill="#ffffff" />`;
   } else {
