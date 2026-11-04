@@ -190,9 +190,16 @@ function FallingIcon({ url, initialPosition }: IconProps) {
       <group
         ref={groupRef}
         onClick={handleClick}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-              >
+        onPointerOver={(e) => {
+          e.stopPropagation();
+          setHovered(true);
+          if (typeof document !== "undefined") document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHovered(false);
+          if (typeof document !== "undefined") document.body.style.cursor = "auto";
+        }}
+      >
         <primitive object={normalizedScene} />
       </group>
     </RigidBody>
