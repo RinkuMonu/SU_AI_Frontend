@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from "@/components/auth/AuthProvider";
 import { 
-  Menu, 
+  Menu,
+  Search,
   Bell, 
   CheckCircle2, 
   Circle, 
@@ -22,6 +23,7 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { userService } from "@/services/user.service";
+import { businessService } from "@/services/business.service";
 import { useSidebar } from "@/components/layout/SidebarContext";
 
 export function Navbar() {
@@ -105,7 +107,7 @@ export function Navbar() {
 
   const hasUnread = notifications.some(n => n.unread);
 
-  const isBusiness = user?.role === 'business' || user?.accountType === 'business';
+  const isBusiness = user?.role === 'business' || user?.role === 'businessman' || user?.accountType === 'business';
 
   // Resolve avatar URL from all possible backend property names
   const avatarUrl = 
@@ -143,17 +145,26 @@ export function Navbar() {
     return "U";
   };
 
+  const bName =
+    user?.business_name ||
+    user?.businessName ||
+    (user as any)?.company_name ||
+    (typeof window !== "undefined" ? (localStorage.getItem("business_name") || localStorage.getItem("onboarding_business_name")) : null);
+
   const displayName =
+    (isBusiness && bName) ? bName :
+    ((user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
+    (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
+    (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '') ||
+    bName ||
     user?.name ||
     user?.fullName ||
-    (user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : '') ||
-    (user as any)?.businessName ||
-    (user?.email ? user.email.split('@')[0] : 'User');
+    (user?.email ? user.email.split('@')[0] : 'User'));
 
   const initials = getInitials(displayName, user?.email);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-border bg-surface px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-white/5 bg-[#071023] px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
       <button 
         type="button" 
         onClick={toggleSidebar}
@@ -168,13 +179,22 @@ export function Navbar() {
       <div className="h-6 w-px bg-border md:hidden" aria-hidden="true" />
 
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="flex flex-1"></div>
+        <div className="flex flex-1 items-center justify-start pr-2 sm:pr-4">
+          <div className="relative w-full max-w-2xl lg:max-w-3xl xl:max-w-4xl hidden sm:flex items-center">
+            <Search className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search...."
+              className="w-full h-9.5 pl-9 pr-4 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-brand-purple transition-all"
+            />
+          </div>
+        </div>
         <div className="flex items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
-          {/* Notifications Dropdown */}
+          {/* Notifications Button matching Image 1 */}
           <div className="relative" ref={notifDropdownRef}>
             <button 
               type="button" 
-              className="-m-2.5 p-2.5 text-text-muted hover:text-white relative transition-colors focus:outline-none"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 flex items-center justify-center text-white relative transition-all cursor-pointer focus:outline-none shadow-sm"
               onClick={() => {
                 setShowNotifications(!showNotifications);
                 setShowProfileMenu(false);
@@ -182,10 +202,7 @@ export function Navbar() {
               title="Notifications"
             >
               <span className="sr-only">View notifications</span>
-              <Bell className="h-6 w-6" aria-hidden="true" />
-              {hasUnread && (
-                <span className="absolute top-2 right-2.5 flex h-2.5 w-2.5 rounded-full bg-brand-pink border-2 border-surface animate-pulse"></span>
-              )}
+              <Bell className="h-5 w-5 text-white" aria-hidden="true" />
             </button>
             
             {showNotifications && (
@@ -223,10 +240,7 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Separator */}
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-border" aria-hidden="true" />
-
-          {/* Clickable User Profile Dropdown Button */}
+          {/* Clickable User Profile Dropdown Button matching Image 1 */}
           <div className="relative" ref={profileDropdownRef}>
             <button
               type="button"
@@ -234,13 +248,13 @@ export function Navbar() {
                 setShowProfileMenu(!showProfileMenu);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-x-3 p-1 rounded-xl hover:bg-surface-secondary/70 transition-all cursor-pointer group focus:outline-none focus:ring-2 focus:ring-brand-purple/40"
+              className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 sm:py-2 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 transition-all cursor-pointer group focus:outline-none shadow-sm"
               aria-expanded={showProfileMenu}
               aria-haspopup="true"
               id="user-menu-button"
             >
               <div className="relative">
-                <div className="h-9 w-9 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-md border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-white/20 overflow-hidden shrink-0 group-hover:scale-105 transition-transform bg-black flex items-center justify-center">
                   {avatarUrl && !imageError ? (
                     <img 
                       src={avatarUrl} 
@@ -249,24 +263,27 @@ export function Navbar() {
                       onError={() => setImageError(true)}
                     />
                   ) : (
-                    <span>{initials}</span>
+                    <img
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80"
+                      alt={user?.name || "User xyz"}
+                      className="h-full w-full object-cover"
+                    />
                   )}
                 </div>
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
               </div>
 
-              <div className="hidden lg:flex lg:flex-col lg:items-start text-left">
-                <span className="text-sm font-semibold leading-tight text-white group-hover:text-brand-pink transition-colors line-clamp-1 max-w-[150px]">
+              <div className="hidden sm:flex sm:flex-col sm:items-start text-left">
+                <span className="text-sm sm:text-base font-normal leading-tight text-white group-hover:text-purple-300 transition-colors line-clamp-1 max-w-[150px]">
                   {displayName}
                 </span>
-                <span className="text-[11px] text-text-muted leading-tight font-medium mt-0.5">
-                  {isBusiness ? "Business Account" : "Personal Account"}
+                <span className="text-xs text-slate-300 leading-tight font-normal mt-0.5">
+                  Business Profile
                 </span>
               </div>
 
               <ChevronDown 
-                className={`h-4 w-4 text-text-muted group-hover:text-white transition-transform duration-200 hidden lg:block ${
-                  showProfileMenu ? 'rotate-180 text-white' : ''
+                className={`h-4 w-4 sm:h-5 sm:w-5 text-white transition-transform duration-200 stroke-[2.5] hidden sm:block ${
+                  showProfileMenu ? 'rotate-180' : ''
                 }`} 
               />
             </button>

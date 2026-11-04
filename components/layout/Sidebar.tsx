@@ -139,7 +139,7 @@ export function Sidebar() {
   };
 
   const renderNavItems = (onItemClick?: () => void) => (
-    <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+    <nav className="flex-1 space-y-1.5 px-3 py-4 overflow-y-auto scrollbar-none">
       {navigation.map((item: any) => {
         if (item.children) {
           const isOpen = openDropdowns[item.name];
@@ -155,8 +155,8 @@ export function Sidebar() {
                 className={cn(
                   "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   (isChildActive || isParentActive) && !isOpen
-                    ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                    : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                    ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
                 )}
               >
                 {item.href ? (
@@ -168,7 +168,7 @@ export function Sidebar() {
                     <item.icon
                       className={cn(
                         "mr-3 h-5 w-5 flex-shrink-0",
-                        (isChildActive || isParentActive) && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                        (isChildActive || isParentActive) && !isOpen ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                       )}
                       aria-hidden="true"
                     />
@@ -243,17 +243,17 @@ export function Sidebar() {
                         title={child.name}
                         onClick={() => onItemClick && onItemClick()}
                         className={cn(
-                          "group flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors leading-tight",
+                          "group flex items-center px-3 py-2 text-xs font-medium rounded-2xl transition-colors",
                           isExactActive
-                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white font-semibold"
-                            : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                            ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)]"
+                            : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
                         )}
                       >
                         {child.icon && (
                           <child.icon
                             className={cn(
-                              "mr-2 h-3.5 w-3.5 flex-shrink-0",
-                              isExactActive ? "text-brand-purple" : "opacity-80 group-hover:opacity-100"
+                              "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
+                              isExactActive ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                             )}
                             aria-hidden="true"
                           />
@@ -270,7 +270,7 @@ export function Sidebar() {
 
         const isActive = item.href === "/dashboard" 
           ? pathname === "/dashboard" 
-          : (pathname === item.href || pathname.startsWith(item.href + "/"));
+          : (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")));
 
         if ((item as any).comingSoon) {
           return (
@@ -278,11 +278,11 @@ export function Sidebar() {
               key={item.name}
               title={`${item.name} (Coming Soon)`}
               aria-disabled="true"
-              className="group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
+              className="group flex items-center justify-between px-3.5 py-2.5 text-sm font-medium rounded-2xl text-slate-400/60 bg-surface/30 cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
             >
               <div className="flex items-center min-w-0">
                 <item.icon
-                  className="mr-3 h-5 w-5 flex-shrink-0 text-text-muted/50"
+                  className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400/50"
                   aria-hidden="true"
                 />
                 <span className="truncate">{item.name}</span>
@@ -300,20 +300,22 @@ export function Sidebar() {
             href={item.href as string}
             onClick={() => onItemClick && onItemClick()}
             className={cn(
-              "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              "group flex items-center px-3.5 py-2.5 text-sm font-medium rounded-xl transition-all",
               isActive
-                ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
             )}
           >
             <item.icon
               className={cn(
-                "mr-3 h-5 w-5 flex-shrink-0",
-                isActive ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
+                isActive
+                  ? "fill-white text-white"
+                  : "text-slate-400 group-hover:text-white"
               )}
               aria-hidden="true"
             />
-            {item.name}
+            <span className="truncate">{item.name}</span>
           </Link>
         );
       })}
@@ -323,8 +325,8 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop & Laptop Sidebar (md+ screens) */}
-      <div className="hidden md:flex h-full w-64 flex-col bg-surface border-r border-border shrink-0">
-        <div className="flex h-16 items-center px-6 border-b border-border min-w-0">
+      <div className="hidden md:flex h-full w-64 flex-col bg-[#071023] border-r border-white/5 shrink-0">
+        <div className="flex h-16 items-center px-6 border-b border-white/5 min-w-0">
           <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
             <Logo size="sm" />
           </Link>
@@ -332,7 +334,7 @@ export function Sidebar() {
 
         {renderNavItems()}
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-white/5">
           <CreditIndicator />
           <button
             onClick={logout}
@@ -354,8 +356,8 @@ export function Sidebar() {
           />
 
           {/* Slide-in Drawer */}
-          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface border-r border-border shadow-2xl z-10 animate-in slide-in-from-left duration-250">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border min-w-0">
+          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-[#071023] border-r border-white/5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+            <div className="flex h-16 items-center justify-between px-6 border-b border-white/5 min-w-0">
               <Link 
                 href="/dashboard" 
                 onClick={() => setSidebarOpen(false)} 
@@ -375,7 +377,7 @@ export function Sidebar() {
 
             {renderNavItems(() => setSidebarOpen(false))}
 
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-white/5">
               <CreditIndicator />
               <button
                 onClick={() => {
