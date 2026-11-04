@@ -34,7 +34,9 @@ import {
   Monitor,
   Tablet,
   Smartphone,
-  MessageSquare
+  MessageSquare,
+  X,
+  Type
 } from "lucide-react";
 import {
   websiteBuilderService,
@@ -54,6 +56,7 @@ export type OnboardingStep =
   | "step3_design_preference"
   | "step4_template_selection"
   | "step5_industry_questions"
+  | "step5_logo_check"
   | "step6_confirmation"
   | "step7_generated";
 
@@ -65,6 +68,8 @@ export interface BusinessContext {
   selectedTemplateId?: string;
   selectedTemplateName?: string;
   industryDetails?: string;
+  logo?: string;
+  logoStatus?: "uploaded" | "generated" | "available";
   brandColors?: {
     primary: string;
     secondary: string;
@@ -356,6 +361,42 @@ const resolveImageUrl = (
 };
 
 /* -------------------------------------------------------------------------- */
+/*                     DYNAMIC VECTOR SVG LOGO GENERATOR                      */
+/* -------------------------------------------------------------------------- */
+
+const generateDynamicSvgLogo = (
+  businessName: string,
+  category: string = "",
+  primaryColor: string = "#4F46E5"
+): string => {
+  const cleanName = (businessName || "Business").trim();
+  const words = cleanName.split(/\s+/);
+  const initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : cleanName.slice(0, 2).toUpperCase() || "B";
+  const color = primaryColor && primaryColor.startsWith("#") ? primaryColor : "#4F46E5";
+  const c = (category || "").toLowerCase();
+
+  let iconSvg = "";
+  if (c.includes("medical") || c.includes("clinic") || c.includes("pharmacy") || c.includes("chemist") || c.includes("doctor") || c.includes("dawai")) {
+    iconSvg = `<circle cx="50" cy="50" r="46" fill="${color}" /><circle cx="50" cy="50" r="41" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.4" /><path d="M42 26 H58 V42 H74 V58 H58 V74 H42 V58 H26 V42 H42 Z" fill="#ffffff" /><circle cx="50" cy="50" r="6" fill="${color}" />`;
+  } else if (c.includes("gym") || c.includes("fitness") || c.includes("workout") || c.includes("yoga")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><rect x="20" y="44" width="60" height="12" rx="6" fill="#ffffff" /><rect x="14" y="32" width="12" height="36" rx="5" fill="#ffffff" /><rect x="74" y="32" width="12" height="36" rx="5" fill="#ffffff" /><rect x="26" y="37" width="6" height="26" rx="3" fill="#ffffff" opacity="0.85" /><rect x="68" y="37" width="6" height="26" rx="3" fill="#ffffff" opacity="0.85" />`;
+  } else if (c.includes("flower") || c.includes("florist") || c.includes("floral") || c.includes("bloom")) {
+    iconSvg = `<circle cx="50" cy="50" r="46" fill="${color}" /><circle cx="50" cy="34" r="14" fill="#ffffff" opacity="0.9" /><circle cx="66" cy="50" r="14" fill="#ffffff" opacity="0.9" /><circle cx="50" cy="66" r="14" fill="#ffffff" opacity="0.9" /><circle cx="34" cy="50" r="14" fill="#ffffff" opacity="0.9" /><circle cx="50" cy="50" r="11" fill="#FBBF24" />`;
+  } else if (c.includes("sweet") || c.includes("mithai") || c.includes("bakery") || c.includes("cafe") || c.includes("dessert")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M30 40 Q50 20 70 40 Q80 60 70 75 Q50 85 30 75 Q20 60 30 40 Z" fill="#ffffff" opacity="0.95" /><circle cx="50" cy="30" r="6" fill="#EF4444" /><text x="50" y="66" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${color}" text-anchor="middle">${initials}</text>`;
+  } else if (c.includes("stationery") || c.includes("book") || c.includes("pen")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M22 32 Q50 26 50 72 Q50 26 78 32 V74 Q50 68 50 74 Q50 68 22 74 Z" fill="#ffffff" /><line x1="50" y1="30" x2="50" y2="72" stroke="${color}" stroke-width="3" />`;
+  } else if (c.includes("farm") || c.includes("resort") || c.includes("nature") || c.includes("villa")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><circle cx="70" cy="30" r="12" fill="#FBBF24" /><path d="M30 75 L50 35 L70 75 Z" fill="#ffffff" opacity="0.9" /><rect x="47" y="65" width="6" height="15" fill="#ffffff" />`;
+  } else {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><circle cx="50" cy="50" r="38" fill="none" stroke="#ffffff" stroke-width="3" opacity="0.4" /><text x="50" y="61" font-family="Arial, sans-serif" font-size="30" font-weight="bold" fill="#ffffff" text-anchor="middle">${initials}</text>`;
+  }
+
+  const rawSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">${iconSvg}</svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(rawSvg)}`;
+};
+
+/* -------------------------------------------------------------------------- */
 /*                     CATEGORY CONFLICT DETECTOR (REQ 5)                     */
 /* -------------------------------------------------------------------------- */
 
@@ -449,19 +490,195 @@ const generateHtmlFromJSON = (rawData: any): string => {
 
   const bName = escapeHtml(data.business_name || "My Business");
   const bCategory = data.business_category || "Business";
-  const logoUrl = typeof data.logo === "string" ? data.logo : data.logo?.url || null;
-  const primaryColor = data.theme?.primary || "#4F46E5";
-  const secondaryColor = data.theme?.secondary || "#4338CA";
-  const accentColor = data.theme?.accent || "#EC4899";
-  const fontFamily = data.theme?.font || "Outfit";
+  const theme = data.theme || {};
+  const primaryColor = theme.primary || theme.primary_color || "#4F46E5";
+  const secondaryColor = theme.secondary || theme.secondary_color || "#4338CA";
+  const accentColor = theme.accent || theme.accent_color || "#EC4899";
+  const fontFamily = theme.font || theme.font_family || "Outfit";
+  const buttonColor = theme.button_color || theme.buttonColor || primaryColor;
+  const buttonTextColor = theme.button_text_color || theme.buttonTextColor || "#ffffff";
+  const buttonHoverColor = theme.button_hover || theme.buttonHoverColor || secondaryColor;
+  const buttonRadius = theme.button_radius || theme.buttonRadius || "0.75rem";
 
-  let bodyHtml = "";
+  // Gather all available sections across all incoming pages
+  const allIncomingSections: WebsiteSection[] = [];
+  pages.forEach((p: any) => {
+    if (Array.isArray(p.sections)) {
+      allIncomingSections.push(...p.sections);
+    }
+  });
 
-  pages.forEach((page: any) => {
-    if (!page.sections || !Array.isArray(page.sections)) return;
+  const navbarSection = allIncomingSections.find((s: any) => s.type === "navbar");
+  const rawLogo = (typeof data.logo === "string" && data.logo) ? data.logo : data.logo?.url || navbarSection?.logo || null;
+  const logoUrl = rawLogo || generateDynamicSvgLogo(bName, bCategory, primaryColor);
+
+  const existingPageMap = new Map<string, any>();
+  pages.forEach((p: any) => {
+    if (p.name) existingPageMap.set(p.name.toLowerCase(), p);
+  });
+
+  const isRetail = ["shop", "store", "flower", "sweet", "boutique", "bakery", "jewel"].some((w) =>
+    bCategory.toLowerCase().includes(w)
+  );
+  const serviceTabName = isRetail ? "Products" : "Services";
+
+  // Guaranteed 4-page multi-page website model
+  const resolvedPages: { name: string; id: string; sections: WebsiteSection[] }[] = [];
+
+  // 1. HOME PAGE
+  const rawHomePage = existingPageMap.get("home");
+  let homeSections: WebsiteSection[] = [];
+  if (rawHomePage?.sections?.length) {
+    homeSections = rawHomePage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
+  } else {
+    const hero = allIncomingSections.find((s: any) => s.type === "hero") || {
+      type: "hero",
+      title: `${bName}`,
+      subtitle: `Discover unmatched craftsmanship, authentic dedication, and exquisite quality in every detail.`,
+      cta: "Explore Now",
+      secondary_cta: "Our Story"
+    };
+    const features = allIncomingSections.find((s: any) =>
+      ["features", "facilities", "services", "products"].includes(s.type)
+    ) || {
+      type: "features",
+      title: "Signature Highlights",
+      subtitle: `Why customers choose ${bName}`,
+      items: [
+        { title: "Premium Quality", description: `Uncompromising standards across all our ${bCategory} offerings.` },
+        { title: "Personalized Care", description: "Attentive service tailored specifically to your unique needs." },
+        { title: "Trusted Craft", description: "Passionate professionals devoted to exceptional results." }
+      ]
+    };
+    const about = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
+    const contact = allIncomingSections.find((s: any) => s.type === "contact");
+
+    homeSections = [hero, features];
+    if (about) homeSections.push(about);
+    if (contact) homeSections.push(contact);
+  }
+  resolvedPages.push({ name: "Home", id: "home", sections: homeSections });
+
+  // 2. ABOUT PAGE
+  const rawAboutPage = existingPageMap.get("about");
+  let aboutSections: WebsiteSection[] = [];
+  if (rawAboutPage?.sections?.length) {
+    aboutSections = rawAboutPage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
+  } else {
+    const existingAbout = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
+    const aboutStory = existingAbout || {
+      type: "about",
+      title: `Our Story & Mission`,
+      subtitle: `Dedicated to excellence in ${bCategory}`,
+      description: `At ${bName}, our journey is built upon a profound passion for excellence. We believe in delivering genuine value, personal attention, and memorable experiences for every customer who walks through our doors or visits us online.`
+    };
+    const aboutFeatures = {
+      type: "features",
+      title: "Our Guiding Values",
+      subtitle: "The principles that define our craft and customer experience",
+      items: [
+        { title: "Authenticity & Care", description: "Every offering is created and handled with true dedication." },
+        { title: "Customer Focused", description: "Your satisfaction and joy inspire everything we do." },
+        { title: "Continuous Excellence", description: "Constantly refining our standards to bring you the very best." }
+      ]
+    };
+    const existingGallery = allIncomingSections.find((s: any) => ["gallery", "portfolio"].includes(s.type));
+    aboutSections = [aboutStory, aboutFeatures];
+    if (existingGallery) aboutSections.push(existingGallery);
+  }
+  resolvedPages.push({ name: "About", id: "about", sections: aboutSections });
+
+  // 3. SERVICES / PRODUCTS PAGE
+  const rawServicePage =
+    existingPageMap.get("services") ||
+    existingPageMap.get("products") ||
+    existingPageMap.get(serviceTabName.toLowerCase());
+  let serviceSections: WebsiteSection[] = [];
+  if (rawServicePage?.sections?.length) {
+    serviceSections = rawServicePage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
+  } else {
+    const existingProducts = allIncomingSections.find((s: any) =>
+      ["products", "menu", "bouquets", "catalog", "programs", "offerings"].includes(s.type)
+    );
+    const prodSection = existingProducts || {
+      type: "products",
+      title: `Featured ${serviceTabName}`,
+      subtitle: `Explore our specialized ${bCategory} catalog and offerings`,
+      items: [
+        {
+          title: "Signature Selection",
+          description: `Our most beloved, handcrafted ${bCategory} offering.`,
+          price: "Inquire for quote"
+        },
+        {
+          title: "Premium Choice",
+          description: "Elevated quality and bespoke attention to every single detail.",
+          price: "Inquire for quote"
+        },
+        {
+          title: "Custom Tailored Package",
+          description: "Designed specifically according to your personal requirements.",
+          price: "Custom quote"
+        },
+        {
+          title: "Seasonal Special",
+          description: "Freshly curated, timely, and always crafted with the utmost care.",
+          price: "Inquire for quote"
+        }
+      ]
+    };
+    const gallery = allIncomingSections.find((s: any) => ["gallery", "portfolio"].includes(s.type)) || {
+      type: "gallery",
+      title: "Showcase Gallery",
+      subtitle: `A visual glimpse into ${bName}`,
+      items: [
+        { title: "Showcase One" },
+        { title: "Showcase Two" },
+        { title: "Showcase Three" },
+        { title: "Showcase Four" }
+      ]
+    };
+    serviceSections = [prodSection, gallery];
+  }
+  resolvedPages.push({
+    name: serviceTabName,
+    id: serviceTabName.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+    sections: serviceSections
+  });
+
+  // 4. CONTACT PAGE
+  const rawContactPage = existingPageMap.get("contact");
+  let contactSections: WebsiteSection[] = [];
+  if (rawContactPage?.sections?.length) {
+    contactSections = rawContactPage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
+  } else {
+    const existingContact = allIncomingSections.find((s: any) => s.type === "contact");
+    const contactSec = existingContact || {
+      type: "contact",
+      title: "Contact & Inquiries",
+      subtitle: `We are here to assist you. Get in touch with ${bName} today.`,
+      hours: "Monday - Saturday: 9:00 AM - 8:00 PM"
+    };
+    contactSections = [contactSec];
+  }
+  resolvedPages.push({ name: "Contact", id: "contact", sections: contactSections });
+
+  // Navigation tabs derived from guaranteed pages
+  const navTabs = resolvedPages.map((p) => ({
+    name: escapeHtml(p.name),
+    id: p.id
+  }));
+
+  let pagesBodyHtml = "";
+
+  resolvedPages.forEach((page, pIdx) => {
+    let pageSectionsHtml = "";
 
     page.sections.forEach((section: WebsiteSection, idx: number) => {
       const sectionType = (section.type || "section").toLowerCase();
+      // Skip redundant navbar and footer sections in page body
+      if (sectionType === "navbar" || sectionType === "footer") return;
+
       const rawTitle = section.title || section.name || "";
       const sTitle = escapeHtml(rawTitle);
       const sSubtitle = escapeHtml(section.subtitle || "");
@@ -474,35 +691,31 @@ const generateHtmlFromJSON = (rawData: any): string => {
       if (sectionType === "hero") {
         const heroImg = resolveImageUrl(section.image_url, bCategory, "hero", rawTitle, data.business_name, 1200, 700);
 
-        bodyHtml += `
-          <section id="${sectionId}" class="relative bg-white overflow-hidden border-b border-gray-100">
-            <div class="max-w-7xl mx-auto">
-              <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32 pt-12 sm:pt-16 md:pt-20 px-4 sm:px-6 lg:px-8">
-                <main class="mt-6 sm:mt-10 mx-auto max-w-7xl px-2 sm:px-4 lg:px-6">
-                  <div class="text-center lg:text-left">
-                    <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 sm:mb-4 tracking-wider uppercase">${escapeHtml(bCategory)}</span>
-                    <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-tight font-extrabold text-gray-900 leading-tight">
-                      <span class="block text-primary">${sTitle || bName}</span>
-                    </h1>
-                    ${sSubtitle || sDesc ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">${sSubtitle || sDesc}</p>` : ""}
-                    <div class="mt-6 sm:mt-8 flex flex-col sm:flex-row justify-center lg:justify-start gap-3 sm:gap-4">
-                      ${
-                        section.cta
-                          ? `<a href="#contact" class="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl text-white bg-primary hover:bg-secondary transition shadow-lg shadow-primary/25">${escapeHtml(section.cta)}</a>`
-                          : `<a href="#contact" class="w-full sm:w-auto inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 border border-transparent text-sm sm:text-base font-semibold rounded-xl text-white bg-primary hover:bg-secondary transition shadow-lg shadow-primary/25">Explore Now</a>`
-                      }
-                      ${
-                        section.secondary_cta
-                          ? `<a href="#about" class="w-full sm:w-auto inline-flex items-center justify-center px-5 sm:px-6 py-3 sm:py-3.5 border border-gray-200 text-sm sm:text-base font-semibold rounded-xl text-gray-700 bg-white hover:bg-gray-50 transition">${escapeHtml(section.secondary_cta)}</a>`
-                          : ""
-                      }
-                    </div>
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="relative bg-gradient-to-b from-gray-50/70 to-white py-10 sm:py-16 md:py-20 border-b border-gray-100 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-center">
+                <div class="text-center md:text-left">
+                  <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 sm:mb-4 tracking-wider uppercase">${escapeHtml(bCategory)}</span>
+                  <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
+                    <span class="block text-primary">${sTitle || bName}</span>
+                  </h1>
+                  ${sSubtitle || sDesc ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600 leading-relaxed max-w-xl mx-auto md:mx-0">${sSubtitle || sDesc}</p>` : ""}
+                  <div class="mt-6 sm:mt-8 flex flex-wrap justify-center md:justify-start gap-3 sm:gap-4">
+                    <button type="button" onclick="switchWebsitePage('contact')" class="inline-flex items-center justify-center px-5 sm:px-7 py-2.5 sm:py-3 rounded-xl text-white font-semibold bg-primary hover:bg-secondary transition shadow-lg shadow-primary/25 text-xs sm:text-sm cursor-pointer">
+                      ${escapeHtml(section.cta || "Explore Now")}
+                    </button>
+                    ${
+                      section.secondary_cta
+                        ? `<button type="button" onclick="switchWebsitePage('about')" class="inline-flex items-center justify-center px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-semibold border border-gray-200 text-gray-700 bg-white hover:bg-gray-50 transition text-xs sm:text-sm cursor-pointer">${escapeHtml(section.secondary_cta)}</button>`
+                        : ""
+                    }
                   </div>
-                </main>
+                </div>
+                <div class="relative rounded-2xl overflow-hidden shadow-xl border border-gray-100 aspect-video md:aspect-[4/3] bg-gray-100 max-h-96">
+                  <img src="${heroImg}" alt="${sTitle || bName}" class="w-full h-full object-cover transition duration-700 hover:scale-105" loading="eager" />
+                </div>
               </div>
-            </div>
-            <div class="w-full lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 mt-6 lg:mt-0">
-              <img class="h-56 sm:h-72 md:h-88 lg:h-full w-full object-cover shadow-inner" src="${heroImg}" alt="${sTitle || bName}" loading="eager" />
             </div>
           </section>
         `;
@@ -519,7 +732,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
         sectionType === "offerings"
       ) {
         const items = section.items || [];
-        bodyHtml += `
+        pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-gray-50/70 border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="text-center max-w-3xl mx-auto">
@@ -547,7 +760,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
                           </div>
                           <div class="mt-4 sm:mt-5 pt-4 border-t border-gray-50 flex items-center justify-between">
                             ${itemPrice ? `<span class="text-base sm:text-lg font-bold text-primary">${itemPrice}</span>` : `<span></span>`}
-                            <button onclick="alert('Inquiry for: ${itemTitle.replace(/'/g, "\\'")}')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition">Select</button>
+                            <button onclick="alert('Inquiry for: ${itemTitle.replace(/'/g, "\\'")}')" class="px-4 py-2 text-xs font-semibold rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition cursor-pointer">Select</button>
                           </div>
                         </div>
                       </div>
@@ -563,7 +776,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
       // 3. FEATURES / SERVICES / FACILITIES
       else if (sectionType === "features" || sectionType === "services" || sectionType === "facilities") {
         const items = section.items || [];
-        bodyHtml += `
+        pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 md:py-20 bg-white border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="text-center max-w-3xl mx-auto">
@@ -595,7 +808,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
       // 4. GALLERY / PORTFOLIO
       else if (sectionType === "gallery" || sectionType === "portfolio") {
         const items = section.items || [];
-        bodyHtml += `
+        pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-gray-50 border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="text-center max-w-3xl mx-auto">
@@ -628,8 +841,8 @@ const generateHtmlFromJSON = (rawData: any): string => {
       else if (sectionType === "about" || sectionType === "story") {
         const aboutImg = resolveImageUrl(section.image_url, bCategory, "about", "workshop", data.business_name, 800, 600);
 
-        bodyHtml += `
-          <section id="about" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16 items-center">
                 <div>
@@ -657,8 +870,8 @@ const generateHtmlFromJSON = (rawData: any): string => {
         const email = escapeHtml(section.email || data.email || "");
         const hours = escapeHtml(section.hours || data.hours || "");
 
-        bodyHtml += `
-          <section id="contact" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div class="text-center max-w-2xl mx-auto mb-8 sm:mb-12">
                 <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">${sTitle || "Contact & Inquiries"}</h2>
@@ -690,7 +903,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
                     <label class="block text-xs font-semibold text-gray-700 mb-1">How can we help?</label>
                     <textarea rows="3" required placeholder="Tell us what you need..." class="w-full px-3.5 py-2.5 rounded-lg border border-gray-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary"></textarea>
                   </div>
-                  <button type="submit" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-primary hover:bg-secondary transition shadow-md text-sm sm:text-base">Send Inquiry</button>
+                  <button type="submit" class="w-full py-3 px-6 rounded-xl text-white font-semibold bg-primary hover:bg-secondary transition shadow-md text-sm sm:text-base cursor-pointer">Send Inquiry</button>
                 </form>
               </div>
             </div>
@@ -700,7 +913,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
 
       // 7. GENERIC SECTION FALLBACK
       else {
-        bodyHtml += `
+        pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 bg-white border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               ${sTitle ? `<h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">${sTitle}</h2>` : ""}
@@ -710,14 +923,13 @@ const generateHtmlFromJSON = (rawData: any): string => {
         `;
       }
     });
-  });
 
-  const navSections = (pages[0]?.sections || [])
-    .filter((s: any) => s.title && s.type !== "hero")
-    .map((s: any) => ({
-      title: escapeHtml(s.title),
-      id: `section-${s.title.replace(/[^a-zA-Z0-9]/g, "-").toLowerCase()}`
-    }));
+    pagesBodyHtml += `
+      <div id="page-view-${page.id}" class="website-page-view ${pIdx === 0 ? "" : "hidden"}">
+        ${pageSectionsHtml}
+      </div>
+    `;
+  });
 
   return `
     <!DOCTYPE html>
@@ -741,52 +953,119 @@ const generateHtmlFromJSON = (rawData: any): string => {
         }
       </script>
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=Lato:wght@300;400;700&family=Montserrat:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap');
+        
+        :root {
+          --primary-color: ${primaryColor};
+          --secondary-color: ${secondaryColor};
+          --accent-color: ${accentColor};
+          --btn-bg: ${buttonColor};
+          --btn-text: ${buttonTextColor};
+          --btn-hover: ${buttonHoverColor};
+          --btn-radius: ${buttonRadius};
+          --font-family: '${fontFamily}', sans-serif;
+        }
+
         html { scroll-behavior: smooth; }
-        body { font-family: '${fontFamily}', sans-serif; }
+        body { font-family: var(--font-family); }
+        h1, h2, h3, h4, .font-heading { font-family: var(--font-family); }
+
+        /* Button styling overrides */
+        .bg-primary, .site-btn-primary, button.cta-btn, button[type="submit"] {
+          background-color: var(--btn-bg) !important;
+          color: var(--btn-text) !important;
+          border-radius: var(--btn-radius) !important;
+        }
+        .bg-primary:hover, .site-btn-primary:hover, button.cta-btn:hover, button[type="submit"]:hover {
+          background-color: var(--btn-hover) !important;
+          filter: brightness(0.95);
+        }
+        .text-primary { color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       </style>
     </head>
-    <body class="bg-gray-50 text-gray-900 antialiased selection:bg-primary selection:text-white">
+    <body class="bg-gray-50 text-gray-900 antialiased selection:bg-primary selection:text-white min-h-screen flex flex-col justify-between">
+      <!-- Navbar with Desktop Tabs and Mobile Toggle -->
       <nav class="bg-white/95 backdrop-blur-md shadow-xs sticky top-0 z-50 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div class="flex justify-between h-16 sm:h-20 items-center">
-            <div class="flex-shrink-0 flex items-center gap-2 sm:gap-3">
+            <!-- Brand Logo & Name side by side -->
+            <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer shrink-0" onclick="switchWebsitePage('home')">
               ${
                 logoUrl
-                  ? `<img src="${logoUrl}" alt="${bName}" class="h-8 sm:h-10 w-auto object-contain" />`
-                  : `<span class="text-xl sm:text-2xl font-black text-primary tracking-tight">${bName}</span>`
+                  ? `<img src="${logoUrl}" alt="${bName}" class="h-8 sm:h-10 w-auto object-contain rounded-md" />`
+                  : `<div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white font-extrabold text-sm sm:text-base bg-primary shadow-xs">${bName.charAt(0).toUpperCase()}</div>`
               }
+              <span class="text-base sm:text-xl font-extrabold text-gray-900 tracking-tight">${bName}</span>
             </div>
-            <div class="hidden md:flex items-center space-x-6 lg:space-x-8">
-              ${navSections
+
+            <!-- Desktop Navigation Tabs (Hidden on mobile) -->
+            <div class="hidden md:flex items-center space-x-1 lg:space-x-3">
+              ${navTabs
+                .filter((t) => t.id !== "contact")
                 .map(
-                  (nav: any) =>
-                    `<a href="#${nav.id}" class="text-gray-600 hover:text-primary text-xs sm:text-sm font-semibold transition">${nav.title}</a>`
+                  (tab: any, idx: number) =>
+                    `<button type="button" onclick="switchWebsitePage('${tab.id}')" data-nav-id="${tab.id}" class="nav-tab-btn px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition cursor-pointer whitespace-nowrap ${
+                      idx === 0
+                        ? "text-primary bg-primary/10 font-bold"
+                        : "text-gray-600 hover:text-primary hover:bg-gray-50"
+                    }">${tab.name}</button>`
                 )
                 .join("")}
-              <a href="#contact" class="bg-primary text-white px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold hover:bg-secondary transition shadow-md shadow-primary/20 text-xs sm:text-sm">Contact</a>
+              <button type="button" onclick="switchWebsitePage('contact')" data-nav-id="contact" class="nav-tab-btn ml-3 bg-primary text-white px-4 sm:px-5 py-2 rounded-xl font-bold hover:bg-secondary transition shadow-md shadow-primary/20 text-xs sm:text-sm whitespace-nowrap cursor-pointer">
+                Contact
+              </button>
             </div>
-            <div class="md:hidden flex items-center">
-              <a href="#contact" class="bg-primary text-white px-4 py-1.5 rounded-lg font-bold text-xs">Contact</a>
+
+            <!-- Mobile Hamburger Toggle Button (Visible on mobile only) -->
+            <div class="flex items-center md:hidden">
+              <button type="button" id="mobile-menu-btn" onclick="toggleMobileNavbar()" aria-label="Toggle navigation menu" class="p-2 rounded-lg text-gray-700 hover:text-primary hover:bg-gray-100 transition focus:outline-none cursor-pointer">
+                <svg id="hamburger-svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+                <svg id="close-svg" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>
+
+        <!-- Mobile Dropdown Drawer -->
+        <div id="mobile-menu-dropdown" class="hidden md:hidden border-t border-gray-100 bg-white/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-1 shadow-lg">
+          ${navTabs
+            .map(
+              (tab: any, idx: number) =>
+                `<button type="button" onclick="switchWebsitePage('${tab.id}'); toggleMobileNavbar(false);" data-nav-id="${tab.id}" class="nav-tab-btn block w-full text-left px-3.5 py-2.5 rounded-lg text-sm font-semibold transition cursor-pointer ${
+                  idx === 0
+                    ? "text-primary bg-primary/10 font-bold"
+                    : "text-gray-700 hover:text-primary hover:bg-gray-50"
+                }">${tab.name}</button>`
+            )
+            .join("")}
+        </div>
       </nav>
 
-      ${bodyHtml}
+      <main class="flex-1">
+        ${pagesBodyHtml}
+      </main>
 
       <footer class="bg-gray-950 text-gray-400 border-t border-gray-800">
         <div class="max-w-7xl mx-auto py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 text-center sm:text-left">
             <div>
-              <h3 class="text-xl sm:text-2xl font-black text-white mb-2 sm:mb-3">${bName}</h3>
+              <div class="flex items-center gap-2 mb-3 justify-center sm:justify-start">
+                ${logoUrl ? `<img src="${logoUrl}" alt="${bName}" class="h-6 w-auto object-contain" />` : ""}
+                <h3 class="text-xl sm:text-2xl font-black text-white">${bName}</h3>
+              </div>
               <p class="text-xs sm:text-sm leading-relaxed">${escapeHtml(data.tagline || `Quality products and exceptional service tailored to you.`)}</p>
             </div>
             <div>
-              <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">Quick Links</h4>
+              <h4 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">Pages & Links</h4>
               <ul class="space-y-2 text-xs sm:text-sm">
-                ${navSections.slice(0, 4).map((nav: any) => `<li><a href="#${nav.id}" class="hover:text-white transition">${nav.title}</a></li>`).join("")}
-                <li><a href="#contact" class="hover:text-white transition">Contact</a></li>
+                ${navTabs.map((tab: any) => `<li><button type="button" onclick="switchWebsitePage('${tab.id}')" class="hover:text-white transition text-xs sm:text-sm cursor-pointer">${tab.name}</button></li>`).join("")}
               </ul>
             </div>
             <div class="sm:col-span-2 md:col-span-1">
@@ -799,6 +1078,75 @@ const generateHtmlFromJSON = (rawData: any): string => {
           </div>
         </div>
       </footer>
+
+      <script>
+        function toggleMobileNavbar(forcedState) {
+          var menu = document.getElementById('mobile-menu-dropdown');
+          var burger = document.getElementById('hamburger-svg');
+          var close = document.getElementById('close-svg');
+          if (!menu) return;
+          var isOpen = !menu.classList.contains('hidden');
+          var shouldOpen = typeof forcedState === 'boolean' ? forcedState : !isOpen;
+          if (shouldOpen) {
+            menu.classList.remove('hidden');
+            if (burger) burger.classList.add('hidden');
+            if (close) close.classList.remove('hidden');
+          } else {
+            menu.classList.add('hidden');
+            if (burger) burger.classList.remove('hidden');
+            if (close) close.classList.add('hidden');
+          }
+        }
+
+        function switchWebsitePage(targetId) {
+          var cleanId = (targetId || 'home').toLowerCase().replace(/[^a-z0-9]/g, '-');
+          var views = document.querySelectorAll('.website-page-view');
+          var targetView = document.getElementById('page-view-' + cleanId);
+
+          if (!targetView) {
+            targetView = document.querySelector('[id*="page-view-' + cleanId + '"]');
+          }
+
+          if (targetView) {
+            views.forEach(function(v) { v.classList.add('hidden'); });
+            targetView.classList.remove('hidden');
+          } else {
+            // Keep first view visible and scroll to section anchor
+            if (views.length > 0) {
+              views.forEach(function(v, i) {
+                if (i === 0) v.classList.remove('hidden');
+                else v.classList.add('hidden');
+              });
+            }
+            var targetSec = document.getElementById(targetId) || document.getElementById('section-' + cleanId);
+            if (targetSec) {
+              targetSec.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+
+          // Update active state on nav buttons (desktop and mobile)
+          var buttons = document.querySelectorAll('.nav-tab-btn');
+          buttons.forEach(function(btn) {
+            if (btn.getAttribute('data-nav-id') === cleanId) {
+              btn.classList.add('text-primary', 'bg-primary/10', 'font-bold');
+              btn.classList.remove('text-gray-600', 'text-gray-700', 'hover:bg-gray-50');
+            } else {
+              btn.classList.remove('text-primary', 'bg-primary/10', 'font-bold');
+              btn.classList.add('text-gray-600', 'hover:bg-gray-50');
+            }
+          });
+
+          // Close mobile menu if open
+          toggleMobileNavbar(false);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        window.addEventListener('message', function(e) {
+          if (e.data && e.data.action === 'switchPage') {
+            switchWebsitePage(e.data.pageId);
+          }
+        });
+      </script>
     </body>
     </html>
   `;
@@ -833,6 +1181,15 @@ export default function WebsiteBuilderPage() {
 
   // Responsive Device Preview & Viewport State
   const [previewDevice, setPreviewDevice] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [activePreviewPage, setActivePreviewPage] = useState<string>("home");
+
+  const handleSwitchPreviewPage = (pageName: string) => {
+    const cleanId = (pageName || "home").toLowerCase().replace(/[^a-z0-9]/g, "-");
+    setActivePreviewPage(cleanId);
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.postMessage({ action: "switchPage", pageId: cleanId }, "*");
+    }
+  };
   const [activeMobileView, setActiveMobileView] = useState<"chat" | "preview">("chat");
 
   // Business Context State (Requirements 1, 2, 3)
@@ -896,6 +1253,63 @@ export default function WebsiteBuilderPage() {
     },
     []
   );
+
+  // Theme & Styling Customizer State
+  const [showThemeModal, setShowThemeModal] = useState(false);
+  const [themeActiveTab, setThemeActiveTab] = useState<"colors" | "fonts" | "buttons">("colors");
+
+  // Direct Theme Customization Handler
+  const updateWebsiteTheme = useCallback((
+    themeUpdates: Partial<{
+      primary: string;
+      secondary: string;
+      accent: string;
+      font: string;
+      button_color: string;
+      button_text_color: string;
+      button_radius: string;
+    }>,
+    label: string = "Theme Customization"
+  ) => {
+    setGeneratedSiteData((prevSite) => {
+      if (!prevSite) return null;
+      const updated: GeneratedSiteData = JSON.parse(JSON.stringify(prevSite));
+      if (!updated.theme) updated.theme = {};
+      Object.assign(updated.theme, themeUpdates);
+
+      // If primary color changed, also update the SVG logo if it's dynamic
+      if (themeUpdates.primary && (!updated.logo || (typeof updated.logo === "string" && updated.logo.startsWith("data:image/svg+xml")))) {
+        const bCat = updated.business_category || businessContext.businessCategory || "Business";
+        const bName = updated.business_name || businessContext.businessName || "My Business";
+        const newLogo = generateDynamicSvgLogo(bName, bCat, themeUpdates.primary);
+        updated.logo = newLogo;
+        if (updated.pages) {
+          updated.pages.forEach((p: any) => {
+            if (p.sections) {
+              p.sections.forEach((s: any) => {
+                if (s.type === "navbar" || s.type === "footer") {
+                  s.logo = newLogo;
+                }
+              });
+            }
+          });
+        }
+      }
+
+      recordVersion(updated, label);
+      saveStateToStorage(sessionId, businessContext, messages, updated);
+
+      if (sessionId && /^[0-9a-fA-F]{24}$/.test(sessionId)) {
+        websiteBuilderService.editWebsite(sessionId, `Apply ${label}`, updated).catch((e) => {
+          console.warn("Background theme sync error", e);
+        });
+      }
+
+      setCreditDeductionToast(`🎨 Applied ${label}!`);
+      setTimeout(() => setCreditDeductionToast(null), 3000);
+      return updated;
+    });
+  }, [businessContext, sessionId, messages, recordVersion, saveStateToStorage]);
 
   /* -------------------------------------------------------------------------- */
   /*                       SESSION INITIALIZATION & RESTORATION                 */
@@ -1260,11 +1674,98 @@ export default function WebsiteBuilderPage() {
       return;
     }
 
-    // STEP 5: Additional business-specific question -> Got answer -> Step 6 (Summarize & Confirm)
+    // STEP 5: Additional business-specific question -> Got answer -> Step 5b (Ask about logo)
     if (currentStep === "step5_industry_questions") {
       const updatedCtx: BusinessContext = {
         ...businessContext,
         industryDetails: userText,
+        onboardingStep: "step5_logo_check"
+      };
+      setBusinessContext(updatedCtx);
+
+      const bName = updatedCtx.businessName || "your business";
+      const logoQuestion = `Do you already have a logo for "${bName}", or would you like me to auto-generate a custom AI logo for your shop?`;
+
+      const aiReply: ChatMessage = {
+        id: `step-logo-${Date.now()}`,
+        role: "ai",
+        content: logoQuestion,
+        options: [
+          { label: "📁 I Have a Logo (Upload)", action: "upload_logo" },
+          { label: "✨ Auto-Generate AI Logo", action: "generate_logo" },
+          { label: "⚡ Continue with Monogram", action: "monogram_logo" }
+        ]
+      };
+
+      setMessages((prev) => [...prev, aiReply]);
+      saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+      return;
+    }
+
+    // STEP 5b: Logo Check -> Upload or Auto-Generate -> Step 6 (Summarize & Confirm)
+    if (currentStep === "step5_logo_check") {
+      const bName = businessContext.businessName || "My Business";
+      const bCat = businessContext.businessCategory || "Business";
+      const primaryColor = businessContext.brandColors?.primary || "#4F46E5";
+
+      if (actionData?.action === "upload_logo" && actionData?.base64) {
+        const updatedCtx: BusinessContext = {
+          ...businessContext,
+          logo: actionData.base64,
+          logoStatus: "uploaded",
+          onboardingStep: "step6_confirmation"
+        };
+        setBusinessContext(updatedCtx);
+
+        const summaryText = `Here is a summary of your website details:
+• **Business**: ${updatedCtx.businessName || "My Business"} (${updatedCtx.businessCategory || "Business"})
+• **Offerings**: ${updatedCtx.productsServices || "Standard products & services"}
+• **Design Template**: ${updatedCtx.selectedTemplateName || "Modern Pro"}
+• **Logo**: Uploaded Custom Logo
+• **Special Features**: ${updatedCtx.industryDetails || "Standard"}
+
+Shall I generate your custom website draft now?`;
+
+        const aiReply: ChatMessage = {
+          id: `step-6-${Date.now()}`,
+          role: "ai",
+          content: `Your logo for "${bName}" has been uploaded successfully!\n\n${summaryText}`,
+          options: [
+            { label: "🚀 Confirm & Generate Website", action: "confirm_and_generate" },
+            { label: "✏️ Change Details", action: "change_details" }
+          ]
+        };
+
+        setMessages((prev) => [...prev, aiReply]);
+        saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+        return;
+      }
+
+      const hasNegation = ["nahi", "nhi", "no", "not", "dont", "don't", "na", "without"].some((w) => lower.includes(w));
+      const wantsGenerate = hasNegation || ["generate", "bana", "make", "create", "monogram", "skip", "auto", "new", "naya"].some((w) => lower.includes(w)) || actionData?.action === "generate_logo" || actionData?.action === "monogram_logo";
+      const userHasLogo = !wantsGenerate && (["have", "upload", "paas hai", "mera logo", "file", "haan", "yes"].some((w) => lower.includes(w)) || actionData?.action === "upload_logo");
+
+      if (userHasLogo) {
+        fileInputRef.current?.click();
+        const uploadPromptMsg: ChatMessage = {
+          id: `upload-prompt-${Date.now()}`,
+          role: "ai",
+          content: `Please select and upload your logo file for "${bName}":`,
+          options: [
+            { label: "📁 Upload Logo File", action: "upload_logo" },
+            { label: "✨ Auto-Generate AI Logo", action: "generate_logo" }
+          ]
+        };
+        setMessages((prev) => [...prev, uploadPromptMsg]);
+        return;
+      }
+
+      // Auto-generate customized SVG logo
+      const generatedLogo = generateDynamicSvgLogo(bName, bCat, primaryColor);
+      const updatedCtx: BusinessContext = {
+        ...businessContext,
+        logo: generatedLogo,
+        logoStatus: "generated",
         onboardingStep: "step6_confirmation"
       };
       setBusinessContext(updatedCtx);
@@ -1273,14 +1774,15 @@ export default function WebsiteBuilderPage() {
 • **Business**: ${updatedCtx.businessName || "My Business"} (${updatedCtx.businessCategory || "Business"})
 • **Offerings**: ${updatedCtx.productsServices || "Standard products & services"}
 • **Design Template**: ${updatedCtx.selectedTemplateName || "Modern Pro"}
-• **Special Features**: ${userText}
+• **Logo**: AI Generated Custom Logo Ready
+• **Special Features**: ${updatedCtx.industryDetails || "Standard"}
 
 Shall I generate your custom website draft now?`;
 
       const aiReply: ChatMessage = {
         id: `step-6-${Date.now()}`,
         role: "ai",
-        content: summaryText,
+        content: `I've generated a stylish custom logo for "${bName}"!\n\n${summaryText}`,
         options: [
           { label: "🚀 Confirm & Generate Website", action: "confirm_and_generate" },
           { label: "✏️ Change Details", action: "change_details" }
@@ -1532,13 +2034,17 @@ Shall I generate your custom website draft now?`;
       ];
     }
 
+    const sitePrimaryColor = isFlower ? "#E11D48" : isGym ? "#DC2626" : isRestaurant ? "#D97706" : isClothing ? "#7C3AED" : "#4F46E5";
+    const activeLogo = businessContext.logo || generateDynamicSvgLogo(bName, category, sitePrimaryColor);
+
     const generatedSite: GeneratedSiteData = {
       business_name: bName,
       business_category: category,
       template_id: tId,
       template_name: tName,
+      logo: activeLogo,
       theme: {
-        primary: isFlower ? "#E11D48" : isGym ? "#DC2626" : isRestaurant ? "#D97706" : isClothing ? "#7C3AED" : "#4F46E5",
+        primary: sitePrimaryColor,
         secondary: isFlower ? "#BE123C" : isGym ? "#B91C1C" : isRestaurant ? "#B45309" : isClothing ? "#6D28D9" : "#4338CA",
         accent: "#EC4899",
         font: "Outfit"
@@ -1610,19 +2116,107 @@ Shall I generate your custom website draft now?`;
     const updatedSite: GeneratedSiteData = JSON.parse(JSON.stringify(generatedSiteData));
     let appliedChangeDesc = "Updated your website.";
 
-    // 1. Change theme color
-    if (lower.includes("color") || lower.includes("theme") || lower.includes("background")) {
+    // 0. Update or Generate Logo
+    if (lower.includes("logo") || lower.includes("monogram") || lower.includes("لوगो") || lower.includes("लोगो")) {
+      const bCat = updatedSite.business_category || businessContext.businessCategory || "Business";
+      const bName = updatedSite.business_name || businessContext.businessName || "My Business";
+      const primColor = updatedSite.theme?.primary || "#4F46E5";
+      const newLogo = generateDynamicSvgLogo(bName, bCat, primColor);
+
+      updatedSite.logo = newLogo;
+      if (updatedSite.pages) {
+        updatedSite.pages.forEach((p: any) => {
+          if (p.sections) {
+            p.sections.forEach((s: any) => {
+              if (s.type === "navbar" || s.type === "footer") {
+                s.logo = newLogo;
+              }
+            });
+          }
+        });
+      }
+      appliedChangeDesc = `Generated and applied a brand new category-tailored logo for "${bName}". It is now clearly visible in your website header and footer.`;
+    }
+
+    // 1. Change Button Styling / Button Colors
+    else if (lower.includes("button") || lower.includes("btn") || lower.includes("बटन")) {
+      if (!updatedSite.theme) updatedSite.theme = {};
+
+      const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
+      let btnBg = hexMatch ? hexMatch[0] : "";
+      if (!btnBg) {
+        if (lower.includes("emerald") || lower.includes("green")) btnBg = "#059669";
+        else if (lower.includes("blue") || lower.includes("ocean")) btnBg = "#0284C7";
+        else if (lower.includes("indigo")) btnBg = "#4F46E5";
+        else if (lower.includes("rose") || lower.includes("red")) btnBg = "#DC2626";
+        else if (lower.includes("orange") || lower.includes("coral")) btnBg = "#EA580C";
+        else if (lower.includes("amber") || lower.includes("gold") || lower.includes("yellow")) btnBg = "#D97706";
+        else if (lower.includes("purple") || lower.includes("violet")) btnBg = "#7C3AED";
+        else if (lower.includes("pink")) btnBg = "#EC4899";
+        else if (lower.includes("black") || lower.includes("dark")) btnBg = "#18181B";
+      }
+      if (btnBg) {
+        updatedSite.theme.button_color = btnBg;
+        updatedSite.theme.buttonColor = btnBg;
+      }
+
+      if (lower.includes("white text") || lower.includes("text white")) {
+        updatedSite.theme.button_text_color = "#ffffff";
+      } else if (lower.includes("dark text") || lower.includes("black text")) {
+        updatedSite.theme.button_text_color = "#111827";
+      }
+
+      if (lower.includes("pill") || lower.includes("capsule") || lower.includes("rounded-full")) {
+        updatedSite.theme.button_radius = "9999px";
+      } else if (lower.includes("square") || lower.includes("sharp")) {
+        updatedSite.theme.button_radius = "0px";
+      } else if (lower.includes("rounded") || lower.includes("soft")) {
+        updatedSite.theme.button_radius = "12px";
+      }
+
+      appliedChangeDesc = "Updated button colors and styling.";
+    }
+
+    // 2. Change Font Theme / Typography
+    else if (lower.includes("font") || lower.includes("typeface") || lower.includes("typography") || lower.includes("फ़ॉन्ट") || lower.includes("फॉन्ट")) {
+      if (!updatedSite.theme) updatedSite.theme = {};
+      let chosenFont = "Outfit";
+      if (lower.includes("poppins")) chosenFont = "Poppins";
+      else if (lower.includes("inter")) chosenFont = "Inter";
+      else if (lower.includes("playfair")) chosenFont = "Playfair Display";
+      else if (lower.includes("montserrat")) chosenFont = "Montserrat";
+      else if (lower.includes("roboto")) chosenFont = "Roboto";
+      else if (lower.includes("jakarta")) chosenFont = "Plus Jakarta Sans";
+      else if (lower.includes("cinzel")) chosenFont = "Cinzel";
+      else if (lower.includes("lato")) chosenFont = "Lato";
+      else if (lower.includes("serif")) chosenFont = "Playfair Display";
+      else if (lower.includes("sans")) chosenFont = "Inter";
+
+      updatedSite.theme.font = chosenFont;
+      updatedSite.theme.font_family = chosenFont;
+      appliedChangeDesc = `Updated the font theme to ${chosenFont}.`;
+    }
+
+    // 3. Change theme color
+    else if (lower.includes("color") || lower.includes("theme") || lower.includes("background")) {
       let newColor = "#4F46E5";
-      if (lower.includes("blue")) newColor = "#2563EB";
+      const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
+      if (hexMatch) {
+        newColor = hexMatch[0];
+      } else if (lower.includes("blue") || lower.includes("ocean")) newColor = "#0284C7";
       else if (lower.includes("green") || lower.includes("emerald")) newColor = "#059669";
       else if (lower.includes("violet") || lower.includes("purple")) newColor = "#7C3AED";
       else if (lower.includes("rose") || lower.includes("red") || lower.includes("pink")) newColor = "#E11D48";
+      else if (lower.includes("orange") || lower.includes("sunset")) newColor = "#EA580C";
       else if (lower.includes("dark") || lower.includes("black")) newColor = "#18181B";
       else if (lower.includes("gold") || lower.includes("amber")) newColor = "#D97706";
 
       if (!updatedSite.theme) updatedSite.theme = {};
       updatedSite.theme.primary = newColor;
       updatedSite.theme.secondary = newColor;
+      if (!updatedSite.theme.button_color) {
+        updatedSite.theme.button_color = newColor;
+      }
       appliedChangeDesc = `Updated the primary theme color to ${newColor}.`;
     }
 
@@ -1918,6 +2512,11 @@ Shall I generate your custom website draft now?`;
   };
 
   const handleOptionSelect = (option: any) => {
+    if (option.action === "open_theme_modal") {
+      setShowThemeModal(true);
+      if (option.tab) setThemeActiveTab(option.tab);
+      return;
+    }
     if (option.action === "upload_logo") {
       fileInputRef.current?.click();
       return;
@@ -2340,14 +2939,14 @@ Shall I generate your custom website draft now?`;
         }`}
       >
         {/* Preview Toolbar */}
-        <div className="h-14 border-b border-white/10 flex items-center justify-between px-3 sm:px-6 bg-[#0B0F19] shrink-0 gap-2">
+        <div className="h-14 border-b border-white/10 flex items-center justify-between px-2 sm:px-4 md:px-6 bg-[#0B0F19] shrink-0 gap-2 overflow-x-auto no-scrollbar">
           
           {/* Left Toolbar Items: Credits / Badges */}
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
             <span className="text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 bg-teal-500/10 border border-teal-500/30 text-teal-300 rounded-lg font-bold flex items-center gap-1 shrink-0">
               <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-teal-400 shrink-0" />
-              <span className="hidden sm:inline">10 Credits / Generation</span>
-              <span className="sm:hidden">10 Credits</span>
+              <span className="hidden xl:inline">10 Credits / Generation</span>
+              <span className="xl:hidden">10 Credits</span>
             </span>
 
             {isFinalized && (
@@ -2358,42 +2957,64 @@ Shall I generate your custom website draft now?`;
             )}
 
             {creditDeductionToast && (
-              <span className="hidden md:flex text-xs px-2.5 py-1 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-lg font-bold animate-in fade-in items-center gap-1.5 shadow-lg shadow-purple-950/40 truncate">
+              <span className="hidden 2xl:flex text-xs px-2.5 py-1 bg-purple-500/20 border border-purple-500/40 text-purple-200 rounded-lg font-bold animate-in fade-in items-center gap-1.5 shadow-lg shadow-purple-950/40 truncate shrink-0">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span className="truncate">{creditDeductionToast}</span>
               </span>
             )}
           </div>
 
-          {/* Center Toolbar Items: Device Screen Size Switchers */}
-          <div className="hidden sm:flex items-center bg-black/40 p-0.5 rounded-lg border border-white/10">
-            <button
-              onClick={() => setPreviewDevice("desktop")}
-              title="Desktop viewport (100% width)"
-              className={`p-1.5 rounded-md transition ${
-                previewDevice === "desktop" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <Monitor className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setPreviewDevice("tablet")}
-              title="Tablet viewport (768px width)"
-              className={`p-1.5 rounded-md transition ${
-                previewDevice === "tablet" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <Tablet className="w-3.5 h-3.5" />
-            </button>
-            <button
-              onClick={() => setPreviewDevice("mobile")}
-              title="Mobile viewport (375px width)"
-              className={`p-1.5 rounded-md transition ${
-                previewDevice === "mobile" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
-              }`}
-            >
-              <Smartphone className="w-3.5 h-3.5" />
-            </button>
+          {/* Center Toolbar Items: Multi-Page Switcher & Device Screen Size Switchers */}
+          <div className="flex items-center gap-2 shrink-0">
+            {generatedSiteData?.pages && generatedSiteData.pages.length > 1 && (
+              <div className="hidden md:flex items-center bg-black/40 p-0.5 rounded-lg border border-white/10 gap-0.5">
+                {generatedSiteData.pages.map((p: any, idx: number) => {
+                  const pageId = (p.name || `page-${idx + 1}`).toLowerCase().replace(/[^a-z0-9]/g, "-");
+                  const isAct = activePreviewPage === pageId || (!activePreviewPage && idx === 0);
+                  return (
+                    <button
+                      key={p.name || idx}
+                      onClick={() => handleSwitchPreviewPage(p.name)}
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                        isAct ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                      }`}
+                    >
+                      {p.name}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="hidden sm:flex items-center bg-black/40 p-0.5 rounded-lg border border-white/10">
+              <button
+                onClick={() => setPreviewDevice("desktop")}
+                title="Desktop viewport (100% width)"
+                className={`p-1.5 rounded-md transition ${
+                  previewDevice === "desktop" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <Monitor className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setPreviewDevice("tablet")}
+                title="Tablet viewport (768px width)"
+                className={`p-1.5 rounded-md transition ${
+                  previewDevice === "tablet" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <Tablet className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setPreviewDevice("mobile")}
+                title="Mobile viewport (375px width)"
+                className={`p-1.5 rounded-md transition ${
+                  previewDevice === "mobile" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                }`}
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           {/* Right Toolbar Items: Actions, Exports, Fullscreen */}
@@ -2505,6 +3126,259 @@ Shall I generate your custom website draft now?`;
             </button>
           </div>
         </div>
+
+        {/* Theme & Styling Customizer Panel */}
+        {showThemeModal && generatedSiteData && (
+          <div className="bg-[#111827] border-b border-purple-500/30 p-3 sm:p-4 text-white z-30 animate-in fade-in slide-in-from-top-2 shadow-2xl">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-3">
+                <div className="flex items-center gap-2">
+                  <Palette className="w-4 h-4 text-purple-400" />
+                  <span className="text-xs sm:text-sm font-bold text-white tracking-wide">
+                    Website Theme & Styling Customizer
+                  </span>
+                </div>
+                {/* Customizer Tabs */}
+                <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+                  <button
+                    onClick={() => setThemeActiveTab("colors")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "colors" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Palette className="w-3 h-3" />
+                    <span>Theme Colors</span>
+                  </button>
+                  <button
+                    onClick={() => setThemeActiveTab("fonts")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "fonts" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <Type className="w-3 h-3" />
+                    <span>Font Theme</span>
+                  </button>
+                  <button
+                    onClick={() => setThemeActiveTab("buttons")}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-md transition cursor-pointer flex items-center gap-1 ${
+                      themeActiveTab === "buttons" ? "bg-purple-600 text-white shadow-xs" : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    <span>🔘 Buttons</span>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowThemeModal(false)}
+                  className="p-1 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* TAB 1: THEME COLORS */}
+              {themeActiveTab === "colors" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Select a curated color palette or pick custom hex colors. Changes reflect immediately on your live website.
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { name: "Indigo Classic", primary: "#4F46E5", secondary: "#4338CA" },
+                      { name: "Ocean Sapphire", primary: "#0284C7", secondary: "#0369A1" },
+                      { name: "Emerald Nature", primary: "#059669", secondary: "#047857" },
+                      { name: "Crimson Rose", primary: "#E11D48", secondary: "#BE123C" },
+                      { name: "Warm Sunset", primary: "#EA580C", secondary: "#C2410C" },
+                      { name: "Royal Violet", primary: "#7C3AED", secondary: "#6D28D9" },
+                      { name: "Amber Gold", primary: "#D97706", secondary: "#B45309" },
+                      { name: "Midnight Slate", primary: "#18181B", secondary: "#09090B" },
+                    ].map((p, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => updateWebsiteTheme({ primary: p.primary, secondary: p.secondary }, `${p.name} Colors`)}
+                        className={`flex items-center gap-2 p-2 rounded-xl border text-left transition cursor-pointer ${
+                          generatedSiteData.theme?.primary === p.primary
+                            ? "bg-purple-600/20 border-purple-500 shadow-xs"
+                            : "bg-white/5 hover:bg-white/10 border-white/10"
+                        }`}
+                      >
+                        <div className="flex items-center -space-x-1 shrink-0">
+                          <span className="w-4 h-4 rounded-full border border-black/30" style={{ backgroundColor: p.primary }} />
+                          <span className="w-4 h-4 rounded-full border border-black/30" style={{ backgroundColor: p.secondary }} />
+                        </div>
+                        <span className="text-xs font-medium text-gray-200 truncate">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-4 pt-2 border-t border-white/10 text-xs">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <span className="text-gray-300 font-medium">Custom Primary Color:</span>
+                      <input
+                        type="color"
+                        value={generatedSiteData.theme?.primary || "#4F46E5"}
+                        onChange={(e) => updateWebsiteTheme({ primary: e.target.value }, "Custom Primary Color")}
+                        className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer"
+                      />
+                      <span className="font-mono text-[11px] text-gray-400">{generatedSiteData.theme?.primary || "#4F46E5"}</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <span className="text-gray-300 font-medium">Custom Secondary Color:</span>
+                      <input
+                        type="color"
+                        value={generatedSiteData.theme?.secondary || "#4338CA"}
+                        onChange={(e) => updateWebsiteTheme({ secondary: e.target.value }, "Custom Secondary Color")}
+                        className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer"
+                      />
+                      <span className="font-mono text-[11px] text-gray-400">{generatedSiteData.theme?.secondary || "#4338CA"}</span>
+                    </label>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: FONT THEME */}
+              {themeActiveTab === "fonts" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Choose the typography font for your website headings and body text.
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {[
+                      { font: "Outfit", tag: "Modern Geometric", style: "font-sans" },
+                      { font: "Poppins", tag: "Friendly & Bold", style: "font-sans font-bold" },
+                      { font: "Inter", tag: "Tech & Corporate", style: "font-sans tracking-tight" },
+                      { font: "Playfair Display", tag: "Luxury Serif", style: "font-serif italic" },
+                      { font: "Montserrat", tag: "Contemporary", style: "font-sans uppercase" },
+                      { font: "Roboto", tag: "Balanced Classic", style: "font-sans" },
+                      { font: "Plus Jakarta Sans", tag: "Clean Modern", style: "font-sans" },
+                      { font: "Cinzel", tag: "Regal Classical", style: "font-serif" },
+                    ].map((f, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => updateWebsiteTheme({ font: f.font }, `${f.font} Font`)}
+                        className={`p-2.5 rounded-xl border text-left transition cursor-pointer flex flex-col justify-between ${
+                          (generatedSiteData.theme?.font || "Outfit") === f.font
+                            ? "bg-purple-600/20 border-purple-500 shadow-xs"
+                            : "bg-white/5 hover:bg-white/10 border-white/10"
+                        }`}
+                      >
+                        <span className={`text-sm text-white ${f.style}`}>{f.font}</span>
+                        <span className="text-[10px] text-gray-400 mt-1">{f.tag}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: BUTTON COLORS & SHAPE */}
+              {themeActiveTab === "buttons" && (
+                <div className="space-y-3">
+                  <div className="text-xs text-gray-400">
+                    Customize button background color, button text color, and corner radius across your whole website.
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {/* Button Background Color */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Background</div>
+                      <div className="flex flex-wrap gap-1.5 items-center">
+                        {[
+                          { name: "Theme Primary", color: generatedSiteData.theme?.primary || "#4F46E5" },
+                          { name: "Emerald", color: "#059669" },
+                          { name: "Rose", color: "#E11D48" },
+                          { name: "Coral", color: "#EA580C" },
+                          { name: "Amber", color: "#D97706" },
+                          { name: "Violet", color: "#7C3AED" },
+                          { name: "Dark", color: "#18181B" },
+                        ].map((b, idx) => (
+                          <button
+                            key={idx}
+                            title={b.name}
+                            onClick={() => updateWebsiteTheme({ button_color: b.color }, `Button Color ${b.name}`)}
+                            className="w-6 h-6 rounded-full border border-black/30 hover:scale-110 transition cursor-pointer shrink-0"
+                            style={{ backgroundColor: b.color }}
+                          />
+                        ))}
+                        <label className="flex items-center gap-1 cursor-pointer ml-1">
+                          <input
+                            type="color"
+                            value={generatedSiteData.theme?.button_color || generatedSiteData.theme?.primary || "#4F46E5"}
+                            onChange={(e) => updateWebsiteTheme({ button_color: e.target.value }, "Custom Button Color")}
+                            className="w-6 h-6 rounded border border-white/20 bg-transparent cursor-pointer"
+                          />
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Button Text Color */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Text Color</div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => updateWebsiteTheme({ button_text_color: "#ffffff" }, "White Button Text")}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold border transition cursor-pointer bg-white text-gray-900 ${
+                            (generatedSiteData.theme?.button_text_color || "#ffffff") === "#ffffff" ? "ring-2 ring-purple-400" : "opacity-80"
+                          }`}
+                        >
+                          White Text
+                        </button>
+                        <button
+                          onClick={() => updateWebsiteTheme({ button_text_color: "#111827" }, "Dark Button Text")}
+                          className={`flex-1 py-1.5 px-2 rounded-lg text-xs font-bold border border-gray-600 transition cursor-pointer bg-gray-950 text-white ${
+                            generatedSiteData.theme?.button_text_color === "#111827" ? "ring-2 ring-purple-400" : "opacity-80"
+                          }`}
+                        >
+                          Dark Text
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Button Shape */}
+                    <div className="bg-white/5 p-2.5 rounded-xl border border-white/10 space-y-2">
+                      <div className="text-xs font-semibold text-gray-300">Button Corner Shape</div>
+                      <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                        {[
+                          { label: "💊 Pill", radius: "9999px" },
+                          { label: "🔲 Soft", radius: "12px" },
+                          { label: "▫️ Subtle", radius: "6px" },
+                          { label: "⬛ Square", radius: "0px" },
+                        ].map((sh, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => updateWebsiteTheme({ button_radius: sh.radius }, `${sh.label} Buttons`)}
+                            className={`py-1 px-2 rounded-md font-medium border text-center transition cursor-pointer ${
+                              (generatedSiteData.theme?.button_radius || "12px") === sh.radius
+                                ? "bg-purple-600/30 border-purple-400 text-purple-200"
+                                : "bg-white/5 hover:bg-white/10 border-white/10 text-gray-300"
+                            }`}
+                          >
+                            {sh.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Live Button Preview Box */}
+                  <div className="flex items-center justify-between p-2.5 bg-black/40 rounded-xl border border-white/10 mt-1">
+                    <span className="text-xs text-gray-400">Live Button Preview:</span>
+                    <button
+                      type="button"
+                      style={{
+                        backgroundColor: generatedSiteData.theme?.button_color || generatedSiteData.theme?.primary || "#4F46E5",
+                        color: generatedSiteData.theme?.button_text_color || "#ffffff",
+                        borderRadius: generatedSiteData.theme?.button_radius || "12px",
+                      }}
+                      className="px-5 py-2 font-bold text-xs shadow-md transition"
+                    >
+                      Explore Offerings →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Live Website Canvas Area */}
         <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-6 flex items-center justify-center custom-scrollbar bg-[#050505]">

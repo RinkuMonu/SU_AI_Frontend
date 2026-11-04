@@ -71,10 +71,20 @@ export default function PreviewWebsite() {
   const sections = activePage.sections || [];
   const businessName = siteData.business_name || (siteData.business_id && siteData.business_id !== "None" ? siteData.business_id : "My Business");
   const primaryColor = siteData.theme?.primary || "#4f46e5";
+  const buttonColor = siteData.theme?.button_color || primaryColor;
+  const buttonTextColor = siteData.theme?.button_text_color || "#ffffff";
+  const buttonRadius = siteData.theme?.button_radius || "9999px";
+  const fontFamily = siteData.theme?.font_family || siteData.theme?.font || "'Outfit', sans-serif";
   const logoUrl = typeof siteData.logo === "string" ? siteData.logo : siteData.logo?.url || null;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800 font-sans selection:bg-purple-600 selection:text-white">
+    <div
+      className="min-h-screen bg-gray-50 text-gray-800 selection:bg-purple-600 selection:text-white"
+      style={{ fontFamily }}
+    >
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;600;700&family=Outfit:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap');
+      ` }} />
       {/* Header */}
       <header className="w-full py-5 px-8 bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50 flex justify-between items-center shadow-xs">
         <div className="flex items-center gap-3">
@@ -92,7 +102,7 @@ export default function PreviewWebsite() {
             {businessName}
           </h1>
         </div>
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="flex items-center gap-3 sm:gap-6 overflow-x-auto py-1">
           {pages.map((p: any, i: number) => {
             const pageName = p.name || `Page ${i + 1}`;
             const isActive = activePageName.toLowerCase() === pageName.toLowerCase();
@@ -100,7 +110,7 @@ export default function PreviewWebsite() {
               <button
                 key={i}
                 onClick={() => setActivePageName(pageName)}
-                className={`font-semibold text-sm transition-all duration-200 cursor-pointer ${
+                className={`font-semibold text-xs sm:text-sm transition-all duration-200 cursor-pointer whitespace-nowrap ${
                   isActive ? "text-purple-600 border-b-2 border-purple-600 pb-1" : "text-gray-600 hover:text-purple-600"
                 }`}
               >
@@ -110,8 +120,8 @@ export default function PreviewWebsite() {
           })}
           <a
             href="#contact"
-            className="px-5 py-2.5 rounded-xl text-white font-bold text-sm shadow-md transition"
-            style={{ backgroundColor: primaryColor }}
+            className="px-4 sm:px-5 py-1.5 sm:py-2.5 font-bold text-xs sm:text-sm shadow-md transition whitespace-nowrap shrink-0 hover:opacity-90"
+            style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
           >
             Contact
           </a>
@@ -123,6 +133,7 @@ export default function PreviewWebsite() {
         {sections.length > 0 ? (
           sections.map((section: WebsiteSection, index: number) => {
             const sectionType = (section.type || "section").toLowerCase();
+            if (sectionType === "navbar" || sectionType === "footer") return null;
             const sTitle = section.title || section.name || "";
             const sSubtitle = section.subtitle || "";
             const sDesc = section.description || section.content || "";
@@ -152,16 +163,16 @@ export default function PreviewWebsite() {
                       {section.cta ? (
                         <a
                           href="#contact"
-                          className="px-9 py-4 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
-                          style={{ backgroundColor: primaryColor }}
+                          className="px-9 py-4 font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
                         >
                           {section.cta} <ArrowRight size={20} />
                         </a>
                       ) : (
                         <a
                           href="#contact"
-                          className="px-9 py-4 text-white rounded-full font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
-                          style={{ backgroundColor: primaryColor }}
+                          className="px-9 py-4 font-bold text-lg hover:shadow-xl hover:scale-105 transition-all duration-300 flex items-center gap-2"
+                          style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
                         >
                           Explore Offerings <ArrowRight size={20} />
                         </a>
@@ -215,8 +226,8 @@ export default function PreviewWebsite() {
                                 {item.price ? <span className="text-lg font-bold text-purple-600">{item.price}</span> : <span></span>}
                                 <button
                                   onClick={() => alert(`Inquiry submitted for ${itemTitle}`)}
-                                  className="px-4 py-2 text-xs font-semibold rounded-lg text-white transition"
-                                  style={{ backgroundColor: primaryColor }}
+                                  className="px-4 py-2 text-xs font-semibold shadow-xs transition hover:opacity-90 cursor-pointer"
+                                  style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
                                 >
                                   Inquire
                                 </button>
