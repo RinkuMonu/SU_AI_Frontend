@@ -1074,7 +1074,7 @@ export function BrandKitRegistrationModal({
         {/* Dynamic Progress Bar Track */}
         <div className="h-2 sm:h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] rounded-full transition-all duration-500 ease-out"
+            className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 ease-out"
             style={{ width: `${currentProgress.percentage}%` }}
           />
         </div>
@@ -1129,7 +1129,7 @@ export function BrandKitRegistrationModal({
                     <Store className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-normal text-white tracking-widest uppercase">
+                    <h2 className="text-base sm:text-lg font-normal text-white tracking-wide">
                       Business Basics
                     </h2>
                     <p className="text-xs text-slate-400 mt-1">
@@ -1346,7 +1346,7 @@ export function BrandKitRegistrationModal({
                     setFormError(null);
                     setCurrentStep("logo");
                   }}
-                  className="w-full sm:w-auto px-7 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-7 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                 >
                   <span>Continue to Logo Studio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1766,7 +1766,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("identity");
                     }}
-                    className="flex-1 sm:flex-initial px-7 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-7 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1949,7 +1949,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("audience");
                     }}
-                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -2190,7 +2190,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("review");
                     }}
-                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#BE32FF] to-[#F0449B] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-md transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -2390,7 +2390,7 @@ export function BrandKitRegistrationModal({
                   type="button"
                   onClick={handleCompleteSubmission}
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] text-white shadow-[0_0_30px_rgba(240,68,155,0.4)] hover:shadow-[0_0_40px_rgba(240,68,155,0.6)] hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full sm:flex-1 h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white shadow-[0_0_30px_rgba(240,68,155,0.4)] hover:shadow-[0_0_40px_rgba(240,68,155,0.6)] hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>
