@@ -70,6 +70,7 @@ export default function PreviewWebsite() {
   const activePage = pages.find((p: any) => p.name?.toLowerCase() === activePageName.toLowerCase()) || pages[0] || {};
   const sections = activePage.sections || [];
   const businessName = siteData.business_name || (siteData.business_id && siteData.business_id !== "None" ? siteData.business_id : "My Business");
+  const businessCategory = siteData.business_category || "";
   const primaryColor = siteData.theme?.primary || "#4f46e5";
   const buttonColor = siteData.theme?.button_color || primaryColor;
   const buttonTextColor = siteData.theme?.button_text_color || "#ffffff";
@@ -433,10 +434,91 @@ export default function PreviewWebsite() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-12 bg-gray-950 text-gray-400 text-center border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-extrabold text-white text-xl">{businessName}</div>
-          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
+      <footer className="w-full bg-gray-950 text-gray-400 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto py-12 sm:py-16 px-6 sm:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 text-center sm:text-left">
+            {/* Col 1: Brand & Logo */}
+            <div>
+              <div className="flex items-center gap-3 mb-4 justify-center sm:justify-start">
+                {logoUrl ? (
+                  <img src={logoUrl} alt={businessName} className="h-8 w-auto object-contain rounded-md" />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shadow-md"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {businessName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{businessName}</h3>
+              </div>
+              <p className="text-xs sm:text-sm leading-relaxed text-gray-400 max-w-sm mx-auto sm:mx-0">
+                {siteData.tagline || (businessCategory ? `Dedicated to excellence and authentic quality in ${businessCategory}.` : "Quality products and exceptional service tailored to you.")}
+              </p>
+            </div>
+
+            {/* Col 2: Navigation Links */}
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">
+                Pages & Links
+              </h4>
+              <ul className="space-y-2 text-xs sm:text-sm">
+                {pages.map((p: any, i: number) => {
+                  const pName = p.name || `Page ${i + 1}`;
+                  const isActive = activePageName.toLowerCase() === pName.toLowerCase();
+                  return (
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivePageName(pName);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className={`transition cursor-pointer ${
+                          isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"
+                        }`}
+                      >
+                        {pName}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Col 3: About & Inquiries */}
+            <div className="sm:col-span-2 md:col-span-1">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">
+                About & Inquiries
+              </h4>
+              <p className="text-xs sm:text-sm leading-relaxed text-gray-400 mb-4">
+                {businessCategory
+                  ? `${businessName} is your trusted destination for ${businessCategory}. Committed to providing exceptional craftsmanship, personal care, and customer satisfaction.`
+                  : `At ${businessName}, we believe in delivering genuine value and outstanding service for every customer.`}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const contactPage = pages.find((p: any) => p.name?.toLowerCase() === "contact");
+                  if (contactPage) {
+                    setActivePageName(contactPage.name);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  } else {
+                    const el = document.getElementById("contact");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg transition hover:opacity-90 shadow-sm cursor-pointer"
+                style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
+              >
+                Contact & Inquiries
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-900 mt-10 sm:mt-14 pt-6 sm:pt-8 text-center text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} {businessName}. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
