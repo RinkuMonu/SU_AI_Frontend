@@ -70,6 +70,7 @@ export default function PreviewWebsite() {
   const activePage = pages.find((p: any) => p.name?.toLowerCase() === activePageName.toLowerCase()) || pages[0] || {};
   const sections = activePage.sections || [];
   const businessName = siteData.business_name || (siteData.business_id && siteData.business_id !== "None" ? siteData.business_id : "My Business");
+  const businessCategory = siteData.business_category || "";
   const primaryColor = siteData.theme?.primary || "#4f46e5";
   const buttonColor = siteData.theme?.button_color || primaryColor;
   const buttonTextColor = siteData.theme?.button_text_color || "#ffffff";
@@ -271,7 +272,128 @@ export default function PreviewWebsite() {
               );
             }
 
-            // 4. GENERIC SECTION (Features, Services, About, etc.)
+            // 4. STATS / METRICS BAR
+            if (sectionType === "stats" || sectionType === "metrics") {
+              const items = section.items || [];
+              return (
+                <section key={index} className="w-full py-12 px-8 bg-gray-50 border-b border-gray-100">
+                  <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                    {items.map((stat: any, i: number) => (
+                      <div key={i} className="p-6 bg-white rounded-2xl border border-gray-100 shadow-xs">
+                        <div className="text-3xl md:text-4xl font-extrabold mb-1" style={{ color: primaryColor }}>
+                          {stat.value || "100%"}
+                        </div>
+                        <div className="text-sm font-bold text-gray-900">{stat.label || stat.title || "Quality"}</div>
+                        {stat.description && <p className="text-xs text-gray-500 mt-1">{stat.description}</p>}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              );
+            }
+
+            // 5. TESTIMONIALS / REVIEWS
+            if (sectionType === "testimonials" || sectionType === "reviews") {
+              const items = section.items || [];
+              return (
+                <section key={index} className="w-full py-20 px-8 bg-gray-50/70 border-b border-gray-100">
+                  <div className="max-w-6xl mx-auto text-center">
+                    <span className="inline-block px-3 py-1 text-xs font-bold rounded-full mb-3 uppercase tracking-wider bg-purple-100 text-purple-700">
+                      Customer Reviews
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">
+                      {sTitle || "What Our Customers Say"}
+                    </h2>
+                    {sSubtitle && <p className="text-base text-gray-600 mb-12 max-w-2xl mx-auto">{sSubtitle}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left mt-8">
+                      {items.map((item: any, i: number) => {
+                        const stars = "★".repeat(item.rating || 5);
+                        return (
+                          <div key={i} className="flex flex-col justify-between bg-white rounded-2xl shadow-xs border border-gray-100 p-8 space-y-4">
+                            <div>
+                              <div className="text-amber-400 text-lg mb-3">{stars}</div>
+                              <p className="text-gray-700 text-sm leading-relaxed italic">"{item.quote || item.text || item.description}"</p>
+                            </div>
+                            <div className="pt-4 border-t border-gray-100 flex items-center gap-3">
+                              <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm"
+                                style={{ backgroundColor: primaryColor }}
+                              >
+                                {(item.name || "Customer").charAt(0).toUpperCase()}
+                              </div>
+                              <div>
+                                <h4 className="font-bold text-gray-900 text-sm">{item.name || "Client"}</h4>
+                                <p className="text-xs text-gray-500">{item.role || "Verified Client"}</p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
+            // 6. FAQ
+            if (sectionType === "faq" || sectionType === "faqs") {
+              const items = section.items || [];
+              return (
+                <section key={index} className="w-full py-20 px-8 bg-white border-b border-gray-100">
+                  <div className="max-w-5xl mx-auto text-center">
+                    <span className="inline-block px-3 py-1 text-xs font-bold rounded-full mb-3 uppercase tracking-wider bg-purple-100 text-purple-700">
+                      Common Questions
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900 tracking-tight">
+                      {sTitle || "Frequently Asked Questions"}
+                    </h2>
+                    {sSubtitle && <p className="text-base text-gray-600 mb-12 max-w-2xl mx-auto">{sSubtitle}</p>}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left mt-8">
+                      {items.map((item: any, i: number) => (
+                        <div key={i} className="p-6 bg-gray-50/80 rounded-2xl border border-gray-100">
+                          <h3 className="font-bold text-gray-900 text-base mb-2 flex items-start gap-2">
+                            <span style={{ color: primaryColor }} className="font-black">Q.</span>
+                            <span>{item.question || item.title}</span>
+                          </h3>
+                          <p className="text-gray-600 text-sm leading-relaxed pl-5">{item.answer || item.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
+            // 7. CTA BANNER
+            if (sectionType === "cta" || sectionType === "banner") {
+              return (
+                <section
+                  key={index}
+                  className="w-full py-20 px-8 text-center text-white relative overflow-hidden"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  <div className="max-w-4xl mx-auto space-y-6">
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight">{sTitle || `Ready to experience ${businessName}?`}</h2>
+                    {(sSubtitle || sDesc) && (
+                      <p className="text-base md:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">
+                        {sSubtitle || sDesc}
+                      </p>
+                    )}
+                    <div className="pt-4 flex justify-center">
+                      <a
+                        href="#contact"
+                        className="px-8 py-3.5 font-bold text-base shadow-xl hover:opacity-90 transition cursor-pointer"
+                        style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
+                      >
+                        {section.cta || "Get in Touch Today"}
+                      </a>
+                    </div>
+                  </div>
+                </section>
+              );
+            }
+
+            // 8. GENERIC SECTION (Features, Services, About, etc.)
             const items = section.items || [];
             return (
               <section key={index} className={`w-full py-20 px-8 ${index % 2 === 0 ? "bg-white" : "bg-gray-50"}`}>
@@ -312,10 +434,91 @@ export default function PreviewWebsite() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-12 bg-gray-950 text-gray-400 text-center border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-extrabold text-white text-xl">{businessName}</div>
-          <p className="text-sm text-gray-500">&copy; {new Date().getFullYear()} {businessName}. All rights reserved.</p>
+      <footer className="w-full bg-gray-950 text-gray-400 border-t border-gray-800">
+        <div className="max-w-7xl mx-auto py-12 sm:py-16 px-6 sm:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12 text-center sm:text-left">
+            {/* Col 1: Brand & Logo */}
+            <div>
+              <div className="flex items-center gap-3 mb-4 justify-center sm:justify-start">
+                {logoUrl ? (
+                  <img src={logoUrl} alt={businessName} className="h-8 w-auto object-contain rounded-md" />
+                ) : (
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-extrabold text-sm shadow-md"
+                    style={{ backgroundColor: primaryColor }}
+                  >
+                    {businessName.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight">{businessName}</h3>
+              </div>
+              <p className="text-xs sm:text-sm leading-relaxed text-gray-400 max-w-sm mx-auto sm:mx-0">
+                {siteData.tagline || (businessCategory ? `Dedicated to excellence and authentic quality in ${businessCategory}.` : "Quality products and exceptional service tailored to you.")}
+              </p>
+            </div>
+
+            {/* Col 2: Navigation Links */}
+            <div>
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">
+                Pages & Links
+              </h4>
+              <ul className="space-y-2 text-xs sm:text-sm">
+                {pages.map((p: any, i: number) => {
+                  const pName = p.name || `Page ${i + 1}`;
+                  const isActive = activePageName.toLowerCase() === pName.toLowerCase();
+                  return (
+                    <li key={i}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActivePageName(pName);
+                          window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                        className={`transition cursor-pointer ${
+                          isActive ? "text-white font-bold" : "text-gray-400 hover:text-white"
+                        }`}
+                      >
+                        {pName}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* Col 3: About & Inquiries */}
+            <div className="sm:col-span-2 md:col-span-1">
+              <h4 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white mb-3 sm:mb-4">
+                About & Inquiries
+              </h4>
+              <p className="text-xs sm:text-sm leading-relaxed text-gray-400 mb-4">
+                {businessCategory
+                  ? `${businessName} is your trusted destination for ${businessCategory}. Committed to providing exceptional craftsmanship, personal care, and customer satisfaction.`
+                  : `At ${businessName}, we believe in delivering genuine value and outstanding service for every customer.`}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const contactPage = pages.find((p: any) => p.name?.toLowerCase() === "contact");
+                  if (contactPage) {
+                    setActivePageName(contactPage.name);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  } else {
+                    const el = document.getElementById("contact");
+                    if (el) el.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                className="inline-flex items-center justify-center px-4 py-2 text-xs font-bold rounded-lg transition hover:opacity-90 shadow-sm cursor-pointer"
+                style={{ backgroundColor: buttonColor, color: buttonTextColor, borderRadius: buttonRadius }}
+              >
+                Contact & Inquiries
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-900 mt-10 sm:mt-14 pt-6 sm:pt-8 text-center text-xs text-gray-500">
+            &copy; {new Date().getFullYear()} {businessName}. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
