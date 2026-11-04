@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   Upload,
+  Paperclip,
   Mic,
   Sparkles,
   Palette,
@@ -158,24 +159,42 @@ const DEFAULT_SUB_CATEGORIES = [
 ];
 
 // 10 Curated AI Logo Styles
+function StoreGradientIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <defs>
+        <linearGradient id="storeBadgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#fc9a5d" />
+          <stop offset="100%" stopColor="#f0449b" />
+        </linearGradient>
+      </defs>
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" stroke="url(#storeBadgeGrad)" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="url(#storeBadgeGrad)" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" stroke="url(#storeBadgeGrad)" />
+      <path d="M2 7h20" stroke="url(#storeBadgeGrad)" />
+      <path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" stroke="url(#storeBadgeGrad)" />
+    </svg>
+  );
+}
+
 export const LOGO_STYLES = [
   { id: "minimalist_modern", label: "Minimalist Modern", desc: "Clean geometric vector icon & iconic silhouette" },
   { id: "luxury_premium", label: "Premium Luxury", desc: "Regal gold crest, elegant symmetry & boutique luxury" },
-  { id: "geometric_abstract", label: "Geometric & Abstract", desc: "Golden ratio lines, isometric precision & modern mark" },
   { id: "3d_dimensional", label: "3D & Dimensional", desc: "Smooth ceramic & metallic textures with soft ambient depth" },
   { id: "tech_futuristic", label: "Tech & Futuristic", desc: "Cybernetic nodes, electric neon & cutting-edge AI" },
-  { id: "elegant_monogram", label: "Monogram & Typography", desc: "Sophisticated initials with luxury fashion ligatures" },
-  { id: "mascot_illustrated", label: "Mascot & Character", desc: "Friendly expressive character with bold vector outlines" },
   { id: "organic_natural", label: "Organic & Natural", desc: "Botanical leaves, flowing curves & eco-friendly green" },
   { id: "bold_playful", label: "Bold & Playful", desc: "Vibrant pop geometry, energetic curves & creative spirit" },
+  { id: "mascot_illustrated", label: "Mascot & Character", desc: "Friendly expressive character with bold vector outlines" },
+  { id: "geometric_abstract", label: "Geometric & Abstract", desc: "Golden ratio lines, isometric precision & modern mark" },
+  { id: "elegant_monogram", label: "Monogram & Typography", desc: "Sophisticated initials with luxury fashion ligatures" },
   { id: "emblem_badge", label: "Heritage Seal / Badge", desc: "Vintage circular seal, delicate filigree & authentic stamp" },
 ];
 
 export const BRAND_TONES = [
   "Professional & Trustworthy",
   "Luxury & High-End",
-  "Modern & Innovative",
   "Friendly & Approachable",
+  "Modern & Innovative",
   "Bold & Disruptive",
   "Artisanal & Natural",
 ];
@@ -251,7 +270,7 @@ export function BrandKitRegistrationModal({
   // SECTION B: Logo Studio
   const [logoUrl, setLogoUrl] = useState<string>("");
   const [logoUploading, setLogoUploading] = useState(false);
-  const [showAiStudio, setShowAiStudio] = useState(false);
+  const [showAiStudio, setShowAiStudio] = useState(true);
   const [aiPrompt, setAiPrompt] = useState("");
   const [selectedLogoStyle, setSelectedLogoStyle] = useState("minimalist_modern");
   const [transparentBg, setTransparentBg] = useState(false);
@@ -1099,7 +1118,7 @@ export function BrandKitRegistrationModal({
         </div>
       </div>
 
-      {/* STEP TABS / STEPPER */}
+      {/* STEP TABS / STEPPER (Image 2 style) */}
       <div className="grid grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-[#071023] border border-white/10 shrink-0">
         {steps.map((st, idx) => {
           const isActive = currentStep === st.id;
@@ -1109,46 +1128,49 @@ export function BrandKitRegistrationModal({
               key={st.id}
               type="button"
               onClick={() => setCurrentStep(st.id)}
-              className={`flex flex-col sm:flex-row items-center justify-center gap-1.5 py-2.5 sm:py-3 px-2 sm:px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+              className={`flex flex-col sm:flex-row items-center justify-center gap-2 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-normal transition-all ${
                 isActive
-                  ? "bg-gradient-to-b from-[#2F1262] via-[#1c0b3d] to-[#000000] border border-[#4c1d95]/60 text-white shadow-[0_4px_20px_rgba(47,18,98,0.5)] rounded-2xl"
+                  ? "border border-[#5b21b6]/40 text-white shadow-sm"
                   : isDone
                   ? "text-emerald-300 hover:bg-white/5"
                   : "text-slate-400 hover:text-white hover:bg-white/5"
               }`}
-            >
-              <span className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0 ${
+              style={
                 isActive
-                  ? "bg-[#270e54] text-white border border-[#4c1d95]/70 shadow-sm"
-                  : isDone
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                  : "bg-white/10 text-slate-300"
-              }`}>
-                {isDone ? <Check className="w-3 h-3" /> : idx + 1}
+                  ? {
+                      background: "linear-gradient(180deg, #38156d 0%, #2c1056 65%, #180830 85%, #0a0314 100%)",
+                    }
+                  : undefined
+              }
+            >
+              <span
+                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0 ${
+                  isActive
+                    ? "bg-[#43187d] text-white font-normal"
+                    : isDone
+                    ? "bg-emerald-500 text-[#090C19] font-normal"
+                    : "bg-white/10 text-slate-300 font-normal"
+                }`}
+              >
+                {isDone ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : idx + 1}
               </span>
-              <span className="truncate hidden sm:inline">{st.label}</span>
+              <span className="truncate hidden sm:inline font-normal">{st.label}</span>
             </button>
           );
         })}
       </div>
-
       {/* BRAND KIT DYNAMIC COMPLETION INDICATOR */}
-      <div className="p-3.5 sm:p-4.5 rounded-2xl bg-[#090C19] border border-brand-purple/20 space-y-2.5 shrink-0 text-xs sm:text-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+      <div className="py-2.5 px-4 rounded-xl sm:rounded-2xl bg-[#090C19] border border-brand-purple/20 space-y-1.5 shrink-0 text-xs sm:text-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-white flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
-              Brand Kit completion: <span className="text-brand-pink font-extrabold">{currentProgress.percentage}%</span>
-            </span>
-            <span className="text-text-muted">•</span>
-            <span className="text-text-muted">
-              Remaining: <span className="text-slate-300 font-semibold">{currentProgress.remainingPercentage}%</span>
+            <span className="text-sm sm:text-base font-semibold text-white">
+              Brand Kit completion: <span className="text-brand-pink font-bold">{currentProgress.percentage}%</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px]">
-            <span className="text-emerald-400 font-semibold flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm">
+            <span className="text-emerald-400 font-semibold flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
               {currentProgress.completedSections.length} of 4 completed
             </span>
             {currentProgress.pendingSections.length > 0 && (
@@ -1160,10 +1182,13 @@ export function BrandKitRegistrationModal({
         </div>
 
         {/* Dynamic Progress Bar Track */}
-        <div className="h-2 sm:h-2.5 w-full bg-white/10 rounded-full overflow-hidden">
+        <div className="h-1.5 sm:h-2 w-full bg-white/10 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${currentProgress.percentage}%` }}
+            className="h-full rounded-full transition-all duration-500 ease-out"
+            style={{
+              width: `${currentProgress.percentage}%`,
+              background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 50%, #7d36fa 100%)",
+            }}
           />
         </div>
       </div>
@@ -1213,14 +1238,14 @@ export function BrandKitRegistrationModal({
             <div className="space-y-5 animate-in fade-in duration-200">
               <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1122]/90 border border-white/10 shadow-xl space-y-5 sm:space-y-6">
                 <div className="flex items-center gap-3 pb-3 border-b border-white/5">
-                  <div className="w-9 h-9 rounded-xl bg-brand-purple/20 border border-brand-purple/30 flex items-center justify-center text-brand-purple">
-                    <Store className="w-4 h-4" />
+                  <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                    <StoreGradientIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-base sm:text-lg font-normal text-white tracking-wide">
+                    <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">
                       Business Basics
                     </h2>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
                       Tell us about your brand to customize AI-generated marketing content.
                     </p>
                   </div>
@@ -1228,7 +1253,7 @@ export function BrandKitRegistrationModal({
 
                 {/* Business Name */}
                 <div className="space-y-2.5">
-                  <label htmlFor="modal-business-name" className="text-xs font-semibold text-slate-200 block">
+                  <label htmlFor="modal-business-name" className="text-base sm:text-lg font-medium text-slate-200 block">
                     Business Name
                   </label>
                   <input
@@ -1247,7 +1272,7 @@ export function BrandKitRegistrationModal({
                 {/* Business Category & Brand Tagline */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div className="space-y-2.5">
-                    <label htmlFor="modal-category" className="text-xs font-semibold text-slate-200 block">
+                    <label htmlFor="modal-category" className="text-base sm:text-lg font-medium text-slate-200 block">
                       Business Category
                     </label>
                     <select
@@ -1269,8 +1294,8 @@ export function BrandKitRegistrationModal({
                   </div>
 
                   <div className="space-y-2.5">
-                    <label htmlFor="modal-tagline" className="text-xs font-semibold text-slate-200 block">
-                      Brand Tagline (optional)
+                    <label htmlFor="modal-tagline" className="text-base sm:text-lg font-medium text-slate-200 block">
+                      Brand Tagline <span className="text-xs sm:text-sm text-slate-400 font-normal">(optional)</span>
                     </label>
                     <input
                       id="modal-tagline"
@@ -1289,7 +1314,7 @@ export function BrandKitRegistrationModal({
                 {/* Business Type & Sub - Category */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                   <div className="space-y-2.5">
-                    <label htmlFor="modal-business-type-step1" className="text-xs font-semibold text-slate-200 block">
+                    <label htmlFor="modal-business-type-step1" className="text-base sm:text-lg font-medium text-slate-200 block">
                       Business Type
                     </label>
                     <select
@@ -1311,7 +1336,7 @@ export function BrandKitRegistrationModal({
                   </div>
 
                   <div className="space-y-2.5">
-                    <label htmlFor="modal-sub-category" className="text-xs font-semibold text-slate-200 block">
+                    <label htmlFor="modal-sub-category" className="text-base sm:text-lg font-medium text-slate-200 block">
                       Sub - Category
                     </label>
                     <select
@@ -1336,8 +1361,8 @@ export function BrandKitRegistrationModal({
                 {/* Website URL (Enter URL to auto-fill brand kit) */}
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
-                    <label htmlFor="modal-website" className="text-xs font-semibold text-slate-200 block">
-                      Website URL (Enter URL to auto-fill brand kit)
+                    <label htmlFor="modal-website" className="text-base sm:text-lg font-medium text-slate-200 block">
+                      Website URL <span className="text-xs sm:text-sm text-slate-400 font-normal">(Enter URL to auto-fill brand kit)</span>
                     </label>
                     {websiteAnalysisLoading && (
                       <span className="text-[11px] text-brand-pink flex items-center gap-1.5 font-medium animate-pulse">
@@ -1433,7 +1458,7 @@ export function BrandKitRegistrationModal({
                 {/* Business Description */}
                 <div className="space-y-2.5">
                   <div className="flex items-center gap-2">
-                    <label htmlFor="modal-desc" className="text-xs font-semibold text-slate-200">
+                    <label htmlFor="modal-desc" className="text-base sm:text-lg font-medium text-slate-200">
                       Business Description
                     </label>
                     <button
@@ -1491,7 +1516,7 @@ export function BrandKitRegistrationModal({
                     setFormError(null);
                     setCurrentStep("logo");
                   }}
-                  className="w-full sm:w-auto px-7 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-7 h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                 >
                   <span>Continue to Logo Studio</span>
                   <ArrowRight className="w-4 h-4" />
@@ -1507,31 +1532,19 @@ export function BrandKitRegistrationModal({
             <div className="space-y-5 animate-in fade-in duration-200">
               <div className="p-6 sm:p-8 rounded-3xl bg-[#0E1122]/90 border border-white/10 shadow-xl space-y-5">
                 <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-brand-pink/20 border border-brand-pink/30 flex items-center justify-center text-brand-pink">
-                      <Sparkles className="w-4 h-4" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                      <StoreGradientIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-bold text-white tracking-wide uppercase">
-                        Brand Logo Studio
+                      <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">
+                        Business Logo Studio
                       </h2>
-                      <p className="text-[11px] text-text-muted">
+                      <p className="text-xs sm:text-sm text-text-muted mt-0.5">
                         Generate distinctive vector artwork with AI or upload an existing logo.
                       </p>
                     </div>
                   </div>
-
-                  {logoUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setShowDeleteConfirm(true)}
-                      className="text-xs text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors"
-                      title="Remove current logo"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Remove</span>
-                    </button>
-                  )}
                 </div>
 
                 {/* LOGO WORKSPACE & PREVIEW */}
@@ -1541,6 +1554,17 @@ export function BrandKitRegistrationModal({
                     <div className="relative w-40 h-40 sm:w-44 sm:h-44 rounded-2xl bg-[#070913] border-2 border-white/15 flex items-center justify-center overflow-hidden shadow-2xl group">
                       {logoUrl && !logoLoadFailed ? (
                         <>
+                          {/* Top-right direct download button matching Image 2 */}
+                          <a
+                            href={getDisplayLogoUrl(logoUrl)}
+                            download={`${businessName || "brand"}_logo.png`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-all z-20 shadow-md"
+                            title="Download Logo"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                          </a>
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={getDisplayLogoUrl(logoUrl)}
@@ -1606,77 +1630,64 @@ export function BrandKitRegistrationModal({
                     {/* Generate with AI Big CTA */}
                     <button
                       type="button"
-                      onClick={() => setShowAiStudio(!showAiStudio)}
-                      className="w-full h-13 sm:h-14 rounded-2xl bg-gradient-to-r from-[#BE32FF]/20 via-[#F0449B]/20 to-[#FC9A5D]/20 border border-[#F0449B]/50 hover:border-[#F0449B] text-white font-semibold text-sm flex items-center justify-between px-4 transition-all shadow-md group"
+                      onClick={() => {
+                        setShowAiStudio(true);
+                        document.getElementById('ai-logo-customization-studio')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="w-full h-[74px] sm:h-[77px] rounded-[12px] bg-[#B1B1B1]/[0.12] border border-[#693780] shadow-[inset_0_4px_22.3px_-2px_#693780] hover:bg-[#B1B1B1]/[0.16] transition-all flex items-center px-4 sm:px-5 group cursor-pointer text-left"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-r from-[#BE32FF] to-[#F0449B] flex items-center justify-center shadow-md">
-                          <Sparkles className="w-4 h-4 text-white" />
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-full bg-[#272333] border border-white/10 flex items-center justify-center shadow-md shrink-0 group-hover:scale-105 transition-transform">
+                          <Wand2 className="w-5 h-5 text-[#d946ef]" />
                         </div>
                         <div className="text-left">
-                          <span className="block text-xs sm:text-sm font-bold text-white">
+                          <span className="block text-sm sm:text-base font-semibold text-white">
                             Generate Logo with AI
                           </span>
-                          <span className="block text-[10px] text-slate-300">
-                            Custom vector artwork in 10 visual directions
+                          <span className="block text-xs text-slate-300 mt-0.5">
+                            Take action now to improve your marketing score.
                           </span>
                         </div>
                       </div>
-                      <ChevronDown className={`w-4 h-4 text-slate-300 transition-transform ${showAiStudio ? "rotate-180" : ""}`} />
                     </button>
 
-                    {/* Upload File Button */}
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      disabled={logoUploading}
-                      className="w-full h-12 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 text-white font-medium text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99]"
-                    >
-                      {logoUploading ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-brand-purple" />
-                      ) : (
-                        <Upload className="w-4 h-4 text-slate-300" />
-                      )}
-                      <span>{logoUploading ? "Uploading logo..." : "Upload Logo from Computer (PNG, JPG, SVG)"}</span>
-                    </button>
-
-                    {/* Download & Preview Actions if Logo exists */}
-                    {logoUrl && (
-                      <div className="flex gap-2">
-                        <a
-                          href={getDisplayLogoUrl(logoUrl)}
-                          download={`${businessName || "brand"}_logo.png`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
-                        >
-                          <Download className="w-3.5 h-3.5 text-brand-pink" />
-                          <span>Download PNG</span>
-                        </a>
-                        <button
-                          type="button"
-                          onClick={() => setZoomLogoUrl(getDisplayLogoUrl(logoUrl))}
-                          className="flex-1 h-10 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors"
-                        >
-                          <ZoomIn className="w-3.5 h-3.5 text-brand-purple" />
-                          <span>Zoom Preview</span>
-                        </button>
-                      </div>
-                    )}
+                    {/* Upload File Button with Image 2 gradient highlight corner border */}
+                    <div className="w-full p-[1.5px] rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] shadow-[0_2px_12px_rgba(240,68,155,0.25)] hover:shadow-[0_4px_16px_rgba(240,68,155,0.4)] transition-all">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={logoUploading}
+                        className="w-full h-11 sm:h-12 rounded-full bg-[#0E1122] hover:bg-[#13172c] text-white font-medium text-sm flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer"
+                      >
+                        {logoUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
+                            <span>Uploading logo...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Upload Logo</span>
+                            <Paperclip className="w-4 h-4 text-slate-300" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 {/* AI LOGO GENERATION EXPANDABLE STUDIO */}
                 {showAiStudio && (
-                  <div className="mt-4 p-5 rounded-2xl bg-[#090C19] border border-brand-purple/40 space-y-4 animate-in fade-in">
-                    <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                      <div className="flex items-center gap-2">
-                        <Wand2 className="w-4 h-4 text-brand-pink" />
-                        <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                  <div id="ai-logo-customization-studio" className="mt-4 p-5 sm:p-6 rounded-2xl bg-[#090C19] border border-white/10 space-y-5 animate-in fade-in">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                          <StoreGradientIcon className="w-4 h-4" />
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-normal text-white">
                           AI Logo Customization Studio
                         </h3>
                       </div>
-                      <span className="text-[11px] text-text-muted">Powered by AI Vector Engine</span>
+                      <span className="text-xs text-text-muted">Powered by AI Vector Engine</span>
                     </div>
 
                     {/* Logo Feedback / Non-blocking inline notification */}
@@ -1708,11 +1719,11 @@ export function BrandKitRegistrationModal({
                     )}
 
                     {/* 1. Logo Style Selector */}
-                    <div className="space-y-2">
-                      <label className="text-xs font-semibold text-slate-200 block">
+                    <div className="space-y-3">
+                      <label className="text-base sm:text-lg font-normal text-slate-200 block">
                         Select Logo Direction / Style
                       </label>
-                      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                         {LOGO_STYLES.map((st) => {
                           const isSel = selectedLogoStyle === st.id;
                           return (
@@ -1720,18 +1731,20 @@ export function BrandKitRegistrationModal({
                               key={st.id}
                               type="button"
                               onClick={() => setSelectedLogoStyle(st.id)}
-                              className={`p-2.5 rounded-xl text-left transition-all flex flex-col justify-between ${
+                              className={`p-4 sm:p-5 rounded-2xl text-left transition-all flex flex-col justify-between min-h-[125px] sm:min-h-[140px] bg-[#081226] ${
                                 isSel
-                                  ? "bg-gradient-to-tr from-[#BE32FF]/20 to-[#F0449B]/20 border border-[#F0449B] shadow-sm"
-                                  : "bg-[#0E1122] border border-white/10 hover:border-white/20"
+                                  ? "border-2 border-white/40 shadow-md"
+                                  : "border border-white/10 hover:border-white/20"
                               }`}
                             >
-                              <span className={`text-[11px] font-bold block ${isSel ? "text-white" : "text-slate-300"}`}>
-                                {st.label}
-                              </span>
-                              <span className="text-[9px] text-text-muted line-clamp-2 mt-1 leading-snug">
-                                {st.desc}
-                              </span>
+                              <div>
+                                <span className={`text-sm sm:text-base block font-normal ${isSel ? "text-white" : "text-slate-200"}`}>
+                                  {st.label}
+                                </span>
+                                <span className="text-xs sm:text-sm text-slate-400 line-clamp-2 mt-2 leading-relaxed">
+                                  {st.desc}
+                                </span>
+                              </div>
                             </button>
                           );
                         })}
@@ -1739,32 +1752,40 @@ export function BrandKitRegistrationModal({
                     </div>
 
                     {/* 2. Visual Prompt & Guidance */}
-                    <div className="space-y-1.5">
-                      <label htmlFor="ai-prompt-input" className="text-xs font-semibold text-slate-200 block">
-                        Visual Theme or Symbol Preference <span className="text-[10px] text-text-muted">(Optional)</span>
-                      </label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                          <StoreGradientIcon className="w-4 h-4" />
+                        </div>
+                        <label htmlFor="ai-prompt-input" className="text-base sm:text-lg font-normal text-slate-200">
+                          Visual Theme or Symbol Preference <span className="text-xs sm:text-sm text-text-muted">(Optional)</span>
+                        </label>
+                      </div>
                       <input
                         id="ai-prompt-input"
                         type="text"
                         value={aiPrompt}
                         onChange={(e) => setAiPrompt(e.target.value)}
                         placeholder="e.g. Diamond crown emblem, falcon wing, interlocking golden monogram, sleek geometric polygon"
-                        className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                        className="w-full h-12 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple"
                       />
                     </div>
 
                     {/* 3. Color Direction & Options */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-300">Using Palette:</span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.primary }} title={`Primary ${colors.primary}`} />
-                          <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.secondary }} title={`Secondary ${colors.secondary}`} />
-                          <span className="w-4 h-4 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.accent }} title={`Accent ${colors.accent}`} />
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                          <StoreGradientIcon className="w-4 h-4" />
+                        </div>
+                        <span className="text-base sm:text-lg font-normal text-slate-200">Using Palette:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.primary }} title={`Primary ${colors.primary}`} />
+                          <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.secondary }} title={`Secondary ${colors.secondary}`} />
+                          <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.accent }} title={`Accent ${colors.accent}`} />
                         </div>
                       </div>
 
-                      <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer select-none">
+                      <label className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 cursor-pointer select-none">
                         <input
                           type="checkbox"
                           checked={transparentBg}
@@ -1776,12 +1797,12 @@ export function BrandKitRegistrationModal({
                     </div>
 
                     {/* 4. Action Trigger Button */}
-                    <div className="pt-2">
+                    <div className="pt-2 flex justify-center">
                       <button
                         type="button"
                         onClick={() => handleGenerateAiLogo()}
                         disabled={aiGenerating}
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-50 shadow-lg transition-all"
+                        className="w-full max-w-sm sm:max-w-md h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-normal text-sm sm:text-base flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-50 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                       >
                         {aiGenerating ? (
                           <>
@@ -1790,8 +1811,8 @@ export function BrandKitRegistrationModal({
                           </>
                         ) : (
                           <>
-                            <Sparkles className="w-4 h-4" />
-                            <span>Generate AI Logo Now</span>
+                            <span>Generate AI Logo</span>
+                            <ArrowRight className="w-4 h-4" />
                           </>
                         )}
                       </button>
@@ -1911,7 +1932,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("identity");
                     }}
-                    className="flex-1 sm:flex-initial px-7 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-7 h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -1929,68 +1950,65 @@ export function BrandKitRegistrationModal({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* 1. TYPOGRAPHY CARD */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                  <div className="flex items-center justify-between pb-1 border-b border-white/5">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
-                        <Type className="w-4 h-4" />
+                  <div className="space-y-3 pb-3 border-b border-white/5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                        <StoreGradientIcon className="w-4 h-4" />
                       </div>
                       <div>
-                        <h2 className="text-sm font-bold text-white tracking-wide">Brand Typography</h2>
-                        <p className="text-[10px] text-text-muted">Primary font used across posts and titles</p>
+                        <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">Brand Typography</h2>
+                        <p className="text-xs sm:text-sm text-text-muted mt-0.5">Primary font used across posts and titles</p>
                       </div>
                     </div>
 
-                    <select
-                      value={selectedFont}
-                      onChange={(e) => {
-                        setSelectedFont(e.target.value);
-                        manuallyEditedFieldsRef.current.add("font");
-                      }}
-                      className="h-8 px-2.5 rounded-lg border border-white/15 bg-[#0B1020] text-xs text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                    >
-                      {SUPPORTED_FONTS.map((font) => (
-                        <option key={font.name} value={font.name} className="bg-[#0B1020] text-white">
-                          {font.name} ({font.category})
-                        </option>
-                      ))}
-                    </select>
+                    <div className="w-full sm:w-64 pt-0.5">
+                      <select
+                        value={selectedFont}
+                        onChange={(e) => {
+                          setSelectedFont(e.target.value);
+                          manuallyEditedFieldsRef.current.add("font");
+                        }}
+                        className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#0B1020] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      >
+                        {SUPPORTED_FONTS.map((font) => (
+                          <option key={font.name} value={font.name} className="bg-[#0B1020] text-white">
+                            {font.name} ({font.category})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   {/* Typography Specimen Display */}
                   <div className="p-4 rounded-xl bg-[#090C19] border border-white/5 flex items-center justify-around text-center">
                     <div style={{ fontFamily: selectedFont }}>
-                      <span className="text-2xl sm:text-3xl font-bold text-white block">Aa</span>
-                      <span className="text-[10px] text-text-muted mt-1 block">Upper & Lower</span>
+                      <span className="text-2xl sm:text-3xl font-normal text-white block">Aa</span>
+                      <span className="text-xs text-text-muted mt-1 block">Upper & Lower</span>
                     </div>
                     <div style={{ fontFamily: selectedFont }}>
-                      <span className="text-2xl sm:text-3xl font-bold text-white block">Heading</span>
-                      <span className="text-[10px] text-text-muted mt-1 block">{selectedFont}</span>
+                      <span className="text-2xl sm:text-3xl font-normal text-white block">Heading</span>
+                      <span className="text-xs text-text-muted mt-1 block">{selectedFont}</span>
                     </div>
                     <div style={{ fontFamily: selectedFont }}>
-                      <span className="text-2xl sm:text-3xl font-bold text-brand-pink block">123</span>
-                      <span className="text-[10px] text-text-muted mt-1 block">Numerals</span>
+                      <span className="text-2xl sm:text-3xl font-normal text-brand-pink block">123</span>
+                      <span className="text-xs text-text-muted mt-1 block">Numerals</span>
                     </div>
                   </div>
-
-                  {/* Font Description */}
-                  <p className="text-[11px] text-slate-300 italic">
-                    {SUPPORTED_FONTS.find((f) => f.name === selectedFont)?.sample || "Versatile typography"}
-                  </p>
                 </div>
 
                 {/* 2. BRAND PERSONALITY / TONE */}
                 <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                  <div className="flex items-center gap-2.5 pb-1 border-b border-white/5">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
-                      <Sliders className="w-4 h-4 text-brand-coral" />
+                  <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                    <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                      <StoreGradientIcon className="w-4 h-4" />
                     </div>
                     <div>
-                      <h2 className="text-sm font-bold text-white tracking-wide">Brand Personality</h2>
-                      <p className="text-[10px] text-text-muted">Guides caption tone and copywriting</p>
+                      <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">Brand Personality</h2>
+                      <p className="text-xs sm:text-sm text-text-muted mt-0.5">Guides caption tone and copywriting</p>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-3">
                     {BRAND_TONES.map((tone) => {
                       const isSel = selectedTone === tone;
                       return (
@@ -2001,16 +2019,13 @@ export function BrandKitRegistrationModal({
                             setSelectedTone(tone);
                             manuallyEditedFieldsRef.current.add("selectedTone");
                           }}
-                          className={`p-2.5 rounded-xl text-xs font-semibold text-left transition-all ${
+                          className={`h-11 sm:h-12 px-4 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center justify-center text-center ${
                             isSel
-                              ? "bg-gradient-to-r from-[#BE32FF]/20 to-[#F0449B]/20 border border-[#F0449B] text-white shadow-xs"
+                              ? "border-2 border-white/40 bg-[#081226] text-white shadow-md"
                               : "bg-[#080B17] border border-white/10 hover:border-white/20 text-slate-300"
                           }`}
                         >
-                          <div className="flex items-center justify-between">
-                            <span>{tone}</span>
-                            {isSel && <Check className="w-3.5 h-3.5 text-brand-pink" />}
-                          </div>
+                          <span className="truncate">{tone}</span>
                         </button>
                       );
                     })}
@@ -2020,39 +2035,13 @@ export function BrandKitRegistrationModal({
 
               {/* 3. COLOR PALETTE WITH SMART PRESETS & LIVE PICKER */}
               <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-white/5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
-                      <Palette className="w-4 h-4 text-brand-pink" />
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-bold text-white tracking-wide">Brand Color Palette</h2>
-                      <p className="text-[10px] text-text-muted">Used for ads, banners, gradients, and typography accents</p>
-                    </div>
+                <div className="flex items-center gap-3 pb-2 border-b border-white/5">
+                  <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                    <StoreGradientIcon className="w-4 h-4" />
                   </div>
-
-                  {/* Smart Palette Suggestions Chips */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] text-text-muted mr-1">Presets:</span>
-                    {CURATED_COLOR_PRESETS.slice(0, 4).map((preset) => (
-                      <button
-                        key={preset.name}
-                        type="button"
-                        onClick={() => {
-                          setColors({
-                            primary: preset.primary,
-                            secondary: preset.secondary,
-                            accent: preset.accent,
-                          });
-                          manuallyEditedFieldsRef.current.add("colors");
-                        }}
-                        className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] text-slate-300 flex items-center gap-1 transition-colors"
-                        title={preset.name}
-                      >
-                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: preset.primary }} />
-                        <span className="truncate max-w-[80px]">{preset.name.split(" ")[0]}</span>
-                      </button>
-                    ))}
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">Brand Color Palette</h2>
+                    <p className="text-xs sm:text-sm text-text-muted mt-0.5">Used for ads banner, gradients and typography accents</p>
                   </div>
                 </div>
 
@@ -2068,22 +2057,22 @@ export function BrandKitRegistrationModal({
               </div>
 
 
-              {/* Navigation buttons */}
+              {/* Navigation buttons matching Image 2 & Image 4 */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
-                  onClick={() => setCurrentStep("logo")}
-                  className="w-full sm:w-auto px-4 sm:px-5 h-10 sm:h-11 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  onClick={() => setCurrentStep("basics")}
+                  className="w-full sm:w-auto px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Logo</span>
+                  <span>Back to basic</span>
                 </button>
 
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                   <button
                     type="button"
                     onClick={handleSkipToDashboard}
-                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
                   >
                     Skip for Now
                   </button>
@@ -2094,7 +2083,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("audience");
                     }}
-                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-8 h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-medium text-sm sm:text-base flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -2109,22 +2098,27 @@ export function BrandKitRegistrationModal({
           {/* ========================================================================= */}
           {currentStep === "audience" && (
             <div className="space-y-5 animate-in fade-in duration-200">
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-brand-pink">
-                    <Users className="w-4 h-4" />
+              {/* CARD 1: TARGET AUDIENCE DEMOGRAPHICS (Image 1) */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-5">
+                <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                  <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                    <StoreGradientIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white tracking-wide uppercase">
+                    <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">
                       Target Audience Demographics
                     </h2>
-                    <p className="text-[11px] text-text-muted">Specifies who your marketing campaigns should target.</p>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Specifies who your marketing campaigns should target.
+                    </p>
                   </div>
                 </div>
 
-                {/* Age Group Chips */}
-                <div className="space-y-2">
-                  <span className="text-xs font-semibold text-slate-200 block">Target Age Group</span>
+                {/* Target Audience Age Group Chips */}
+                <div className="space-y-2.5">
+                  <span className="text-base sm:text-lg font-normal text-slate-200 block">
+                    Target Audience
+                  </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {AUDIENCE_AGE_GROUPS.map((age) => {
                       const isSelected = selectedAgeGroup === age;
@@ -2133,7 +2127,7 @@ export function BrandKitRegistrationModal({
                           key={age}
                           type="button"
                           onClick={() => setSelectedAgeGroup(age)}
-                          className={`h-11 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center justify-center ${
+                          className={`h-11 sm:h-12 rounded-xl text-sm sm:text-base font-normal transition-all duration-200 flex items-center justify-center ${
                             isSelected
                               ? "p-[1.5px] bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] shadow-[0_0_15px_rgba(240,68,155,0.4)]"
                               : "bg-[#080B17] border border-white/10 hover:border-white/20 text-slate-300"
@@ -2150,17 +2144,17 @@ export function BrandKitRegistrationModal({
                   </div>
                 </div>
 
-                {/* Gender Focus & Customer Type */}
+                {/* Gender Focus & Customer Segment */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label htmlFor="modal-gender" className="text-xs font-semibold text-slate-200">
+                  <div className="space-y-2">
+                    <label htmlFor="modal-gender" className="text-base sm:text-lg font-normal text-slate-200 block">
                       Gender Focus
                     </label>
                     <select
                       id="modal-gender"
                       value={selectedGender}
                       onChange={(e) => setSelectedGender(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
                       {GENDER_OPTIONS.map((opt) => (
                         <option key={opt} value={opt} className="bg-[#080B17] text-white">
@@ -2170,15 +2164,15 @@ export function BrandKitRegistrationModal({
                     </select>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <label htmlFor="modal-customer-type" className="text-xs font-semibold text-slate-200">
+                  <div className="space-y-2">
+                    <label htmlFor="modal-customer-type" className="text-base sm:text-lg font-normal text-slate-200 block">
                       Customer Segment
                     </label>
                     <select
                       id="modal-customer-type"
                       value={selectedCustomerType}
                       onChange={(e) => setSelectedCustomerType(e.target.value)}
-                      className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                     >
                       {CUSTOMER_TYPES.map((type) => (
                         <option key={type} value={type} className="bg-[#080B17] text-white">
@@ -2190,15 +2184,15 @@ export function BrandKitRegistrationModal({
                 </div>
 
                 {/* Location Focus */}
-                <div className="space-y-1.5">
-                  <label htmlFor="modal-loc-focus" className="text-xs font-semibold text-slate-200">
+                <div className="space-y-2">
+                  <label htmlFor="modal-loc-focus" className="text-base sm:text-lg font-normal text-slate-200 block">
                     Location Focus
                   </label>
                   <select
                     id="modal-loc-focus"
                     value={selectedLocationFocus}
                     onChange={(e) => setSelectedLocationFocus(e.target.value)}
-                    className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
                   >
                     {LOCATION_FOCUS_OPTIONS.map((loc) => (
                       <option key={loc} value={loc} className="bg-[#080B17] text-white">
@@ -2209,122 +2203,113 @@ export function BrandKitRegistrationModal({
                 </div>
               </div>
 
-              {/* ADVANCED BUSINESS STRUCTURE (PROGRESSIVE DISCLOSURE) */}
-              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAdvancedBusiness(!showAdvancedBusiness)}
-                  className="w-full flex items-center justify-between text-left"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-300">
-                      <Building className="w-4 h-4 text-brand-purple" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-white tracking-wide">
-                        Business Structure & Legal Details
-                      </h3>
-                      <p className="text-[10px] text-text-muted">Business model, selling model, and registration</p>
-                    </div>
+              {/* CARD 2: BUSINESS STRUCTURE & DETAILS (Image 2) */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-5">
+                <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                  <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                    <StoreGradientIcon className="w-4 h-4" />
                   </div>
-                  {showAdvancedBusiness ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-                </button>
-
-                {showAdvancedBusiness && (
-                  <div className="pt-3 border-t border-white/5 space-y-4 animate-in fade-in">
-                    {/* Business Type & Registration Number */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label htmlFor="modal-business-type" className="text-xs font-semibold text-slate-200">
-                          Business Type
-                        </label>
-                        <select
-                          id="modal-business-type"
-                          value={businessType}
-                          onChange={(e) => setBusinessType(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                        >
-                          {BUSINESS_TYPES.map((type) => (
-                            <option key={type} value={type} className="bg-[#080B17] text-white">
-                              {type}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label htmlFor="modal-reg-num" className="text-xs font-semibold text-slate-200">
-                          Registration Number <span className="text-[10px] text-text-muted">(Optional)</span>
-                        </label>
-                        <input
-                          id="modal-reg-num"
-                          type="text"
-                          value={registrationNumber}
-                          onChange={(e) => setRegistrationNumber(e.target.value)}
-                          placeholder="GSTIN / Udyam / Reg #"
-                          className="w-full h-11 px-3.5 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple uppercase"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Business Model & Selling Model */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label htmlFor="modal-business-model" className="text-xs font-semibold text-slate-200">
-                          Business Model
-                        </label>
-                        <select
-                          id="modal-business-model"
-                          value={businessModel}
-                          onChange={(e) => setBusinessModel(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                        >
-                          {BUSINESS_MODELS.map((model) => (
-                            <option key={model} value={model} className="bg-[#080B17] text-white">
-                              {model}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label htmlFor="modal-selling-model" className="text-xs font-semibold text-slate-200">
-                          Selling Model
-                        </label>
-                        <select
-                          id="modal-selling-model"
-                          value={sellingModel}
-                          onChange={(e) => setSellingModel(e.target.value)}
-                          className="w-full h-11 px-3 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
-                        >
-                          {SELLING_MODELS.map((model) => (
-                            <option key={model} value={model} className="bg-[#080B17] text-white">
-                              {model}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                  <div>
+                    <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">
+                      Target Audience Demographics
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Specifies who your marketing campaigns should target.
+                    </p>
                   </div>
-                )}
+                </div>
+
+                {/* Business Type & Registration Number */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="modal-business-type" className="text-base sm:text-lg font-normal text-slate-200 block">
+                      Business Type
+                    </label>
+                    <select
+                      id="modal-business-type"
+                      value={businessType}
+                      onChange={(e) => setBusinessType(e.target.value)}
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    >
+                      {BUSINESS_TYPES.map((type) => (
+                        <option key={type} value={type} className="bg-[#080B17] text-white">
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="modal-reg-num" className="text-base sm:text-lg font-normal text-slate-200 block">
+                      Registration Number <span className="text-xs sm:text-sm text-text-muted">(Optional)</span>
+                    </label>
+                    <input
+                      id="modal-reg-num"
+                      type="text"
+                      value={registrationNumber}
+                      onChange={(e) => setRegistrationNumber(e.target.value)}
+                      placeholder="Eg- End consumer (Everyday Shoppers)"
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple uppercase"
+                    />
+                  </div>
+                </div>
+
+                {/* Business Model & Selling Model */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label htmlFor="modal-business-model" className="text-base sm:text-lg font-normal text-slate-200 block">
+                      Business Model
+                    </label>
+                    <select
+                      id="modal-business-model"
+                      value={businessModel}
+                      onChange={(e) => setBusinessModel(e.target.value)}
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    >
+                      {BUSINESS_MODELS.map((model) => (
+                        <option key={model} value={model} className="bg-[#080B17] text-white">
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label htmlFor="modal-selling-model" className="text-base sm:text-lg font-normal text-slate-200 block">
+                      Selling Model
+                    </label>
+                    <select
+                      id="modal-selling-model"
+                      value={sellingModel}
+                      onChange={(e) => setSellingModel(e.target.value)}
+                      className="w-full h-11 sm:h-12 px-4 rounded-xl border border-white/15 bg-[#080B17] text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    >
+                      {SELLING_MODELS.map((model) => (
+                        <option key={model} value={model} className="bg-[#080B17] text-white">
+                          {model}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
 
-              {/* Navigation buttons */}
+              {/* Navigation buttons matching Image 2 */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                 <button
                   type="button"
                   onClick={() => setCurrentStep("identity")}
-                  className="w-full sm:w-auto px-5 h-12 rounded-full bg-white/5 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+                  className="w-full sm:w-auto px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Identity</span>
+                  <span>Back to basic</span>
                 </button>
 
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                   <button
                     type="button"
                     onClick={handleSkipToDashboard}
-                    className="flex-1 sm:flex-initial px-4 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer"
+                    className="flex-1 sm:flex-initial px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
                   >
                     Skip for Now
                   </button>
@@ -2335,7 +2320,7 @@ export function BrandKitRegistrationModal({
                       setFormError(null);
                       setCurrentStep("review");
                     }}
-                    className="flex-1 sm:flex-initial px-6 h-12 rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white font-semibold text-sm flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
+                    className="flex-1 sm:flex-initial px-8 h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-medium text-sm sm:text-base flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all cursor-pointer"
                   >
                     <span>Continue</span>
                     <ArrowRight className="w-4 h-4" />
@@ -2350,212 +2335,184 @@ export function BrandKitRegistrationModal({
           {/* ========================================================================= */}
           {currentStep === "review" && (
             <div className="space-y-5 animate-in fade-in duration-200">
+              {/* CARD 1: BRAND SUMMARY CARD (Image 2) */}
               <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-5">
-                <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                    <ShieldCheck className="w-4 h-4" />
+                {/* Header */}
+                <div className="flex items-center gap-3 pb-3 border-b border-white/5">
+                  <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+                    <StoreGradientIcon className="w-4 h-4" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-bold text-white tracking-wide uppercase">
+                    <h2 className="text-xl sm:text-2xl font-normal text-white tracking-wide">
                       Brand Kit Summary & Confirmation
                     </h2>
-                    <p className="text-[11px] text-text-muted">Review your configuration before saving to your profile.</p>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Review your configuration before saving to your profile.
+                    </p>
                   </div>
                 </div>
 
-                {/* INTERACTIVE BRAND CARD SUMMARY */}
-                <div className="p-5 rounded-2xl bg-[#080B17] border border-white/10 space-y-4">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      {/* Logo Preview */}
-                      <div className="w-16 h-16 rounded-xl bg-[#070913] border border-white/15 flex items-center justify-center overflow-hidden shrink-0">
-                        {logoUrl && !logoLoadFailed ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={getDisplayLogoUrl(logoUrl)}
-                            alt="Logo"
-                            className="w-full h-full object-contain p-1"
-                          />
-                        ) : (
-                          <div className="text-sm font-bold text-brand-pink">{initials}</div>
-                        )}
-                      </div>
+                {/* Profile Top Row: Logo, Name/Category, Palette Swatches */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    {/* Logo Preview (Enlarged per Image 4) */}
+                    <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-black border border-white/15 flex items-center justify-center overflow-hidden shrink-0 shadow-lg">
+                      {logoUrl && !logoLoadFailed ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={getDisplayLogoUrl(logoUrl)}
+                          alt="Logo"
+                          className="w-full h-full object-contain p-2"
+                        />
+                      ) : (
+                        <div className="text-xl sm:text-2xl font-medium text-brand-pink">{initials}</div>
+                      )}
+                    </div>
 
+                    <div className="space-y-1.5">
+                      <h3 className="text-lg sm:text-xl font-normal text-white">
+                        {businessName || "User xyz!"}
+                      </h3>
                       <div>
-                        <h3 className="text-base font-bold text-white">
-                          {businessName || "Your Business Name"}
-                        </h3>
-                        {tagline && <p className="text-xs text-text-muted italic">&ldquo;{tagline}&rdquo;</p>}
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-white/10 text-slate-300">
-                            {BUSINESS_CATEGORIES.find((c) => c.value === businessCategory)?.label || businessCategory}
-                          </span>
-                          <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> Ready
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Color Swatches Pill */}
-                    <div className="flex items-center gap-2 p-2 rounded-xl bg-white/5 border border-white/10">
-                      <span className="text-[10px] text-text-muted">Palette:</span>
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md border border-white/20" style={{ backgroundColor: colors.primary }} title={`Primary ${colors.primary}`} />
-                        <span className="w-5 h-5 rounded-md border border-white/20" style={{ backgroundColor: colors.secondary }} title={`Secondary ${colors.secondary}`} />
-                        <span className="w-5 h-5 rounded-md border border-white/20" style={{ backgroundColor: colors.accent }} title={`Accent ${colors.accent}`} />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Summary Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-white/5 text-xs">
-                    <div>
-                      <span className="text-[10px] text-text-muted block">Typography</span>
-                      <span className="font-semibold text-white">{selectedFont}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-text-muted block">Tone & Voice</span>
-                      <span className="font-semibold text-white truncate block">{selectedTone}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-text-muted block">Target Audience</span>
-                      <span className="font-semibold text-white">{selectedAgeGroup} | {selectedGender.split(" ")[0]}</span>
-                    </div>
-                    <div>
-                      <span className="text-[10px] text-text-muted block">Location Focus</span>
-                      <span className="font-semibold text-white truncate block">{selectedLocationFocus.split("(")[0]}</span>
-                    </div>
-                  </div>
-
-                  {/* Business Description in Summary */}
-                  <div className="pt-3 border-t border-white/5 text-xs">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">
-                        Business Description
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setCurrentStep("basics")}
-                        className="text-[10px] text-brand-purple hover:text-brand-pink transition-colors underline"
-                      >
-                        Edit
-                      </button>
-                    </div>
-                    {businessDescription.trim() ? (
-                      <p className="text-slate-300 text-xs leading-relaxed line-clamp-3">
-                        {businessDescription}
-                      </p>
-                    ) : (
-                      <div className="flex items-center justify-between py-1 text-slate-400">
-                        <span className="italic text-[11px] text-slate-400">No description entered yet (Optional - can be added anytime)</span>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentStep("basics")}
-                          className="text-xs text-brand-purple hover:text-brand-pink underline"
-                        >
-                          Add description
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* DYNAMIC PROGRESS BREAKDOWN ON REVIEW */}
-                <div className="p-4 rounded-2xl bg-[#080B17] border border-brand-purple/20 space-y-3">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-white flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-brand-pink" />
-                      Brand Kit completion: <span className="text-brand-pink font-extrabold">{currentProgress.percentage}%</span>
-                    </span>
-                    <span className="text-text-muted">
-                      Remaining: <strong className="text-slate-300">{currentProgress.remainingPercentage}%</strong>
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-xs">
-                    {currentProgress.sections.map((sec) => (
-                      <div key={sec.id} className="p-2.5 rounded-xl bg-white/5 border border-white/5 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 truncate">
-                          {sec.completed ? (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                          ) : (
-                            <Circle className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-                          )}
-                          <span className={`text-[11px] truncate ${sec.completed ? "text-slate-200" : "text-text-muted"}`}>{sec.name}</span>
-                        </div>
-                        <span className={`text-[10px] font-mono ml-1 ${sec.completed ? "text-emerald-400 font-bold" : "text-slate-500"}`}>
-                          {sec.completed ? "Done" : "Pending"}
+                        <span className="text-xs font-normal px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-300 inline-block">
+                          {BUSINESS_CATEGORIES.find((c) => c.value === businessCategory)?.label || businessCategory || "Fashion & Apparel"}
                         </span>
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
+                  {/* Palette Swatches */}
+                  <div className="px-4 py-2 rounded-full bg-white/5 border border-white/10 flex items-center gap-3 shrink-0 self-start sm:self-center">
+                    <span className="text-xs text-slate-400 font-normal">Palette:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.primary }} title={`Primary ${colors.primary}`} />
+                      <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.secondary }} title={`Secondary ${colors.secondary}`} />
+                      <span className="w-6 h-6 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: colors.accent }} title={`Accent ${colors.accent}`} />
+                    </div>
                   </div>
                 </div>
 
-                {/* Account details verified badge */}
-                <div className="p-3 rounded-xl bg-[#080B17]/60 border border-white/5 flex items-center justify-between text-xs text-text-muted">
-                  <span>Linked Account: <strong className="text-slate-200">{user?.email || "User"}</strong></span>
-                  <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                    <Check className="w-3.5 h-3.5" /> Verified Profile
+                {/* 4 Details Columns with divided box and increased font weight (Image 3) */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/10 border border-white/10 rounded-2xl bg-white/[0.02] overflow-hidden text-xs sm:text-sm">
+                  <div className="p-4 sm:p-5 space-y-1.5">
+                    <span className="text-xs sm:text-sm text-slate-400 font-normal block">Typography</span>
+                    <span className="font-semibold text-white text-sm sm:text-base block tracking-wide">{selectedFont || "Montserrat"}</span>
+                  </div>
+                  <div className="p-4 sm:p-5 space-y-1.5">
+                    <span className="text-xs sm:text-sm text-slate-400 font-normal block">Tone & Voice</span>
+                    <span className="font-semibold text-white text-sm sm:text-base truncate block tracking-wide">{selectedTone || "Modern, Professional"}</span>
+                  </div>
+                  <div className="p-4 sm:p-5 space-y-1.5">
+                    <span className="text-xs sm:text-sm text-slate-400 font-normal block">Target Audience</span>
+                    <span className="font-semibold text-white text-sm sm:text-base block tracking-wide">{selectedAgeGroup || "15 - 25"} | {selectedGender ? selectedGender.split(" ")[0] : "Primarily"}</span>
+                  </div>
+                  <div className="p-4 sm:p-5 space-y-1.5">
+                    <span className="text-xs sm:text-sm text-slate-400 font-normal block">Location Focus</span>
+                    <span className="font-semibold text-white text-sm sm:text-base truncate block tracking-wide">{selectedLocationFocus ? selectedLocationFocus.split("(")[0].trim() : "Regional / State-wide"}</span>
+                  </div>
+                </div>
+
+                {/* Business Description */}
+                <div className="pt-3 border-t border-white/5 space-y-1.5">
+                  <span className="text-xs sm:text-sm text-slate-400 font-normal block">
+                    Business Description
+                  </span>
+                  <p className="text-slate-300 text-xs sm:text-sm font-normal leading-relaxed">
+                    {businessDescription.trim() || "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."}
+                  </p>
+                </div>
+              </div>
+
+              {/* CARD 2: BRAND KIT COMPLETION (Image 2) */}
+              <div className="p-5 sm:p-6 rounded-2xl bg-[#0E1122]/90 border border-white/10 shadow-lg space-y-5">
+                {/* Header row: Completion % and Remaining pill */}
+                <div className="flex items-center justify-between">
+                  <span className="text-base sm:text-lg font-normal text-white">
+                    Brand Kit Completion: <span className="text-brand-pink font-normal">{currentProgress.percentage}%</span>
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-slate-400 font-normal">
+                    Remaining : {currentProgress.remainingPercentage}%
+                  </span>
+                </div>
+
+                {/* 5 Milestones row with solid green filled icons (Image 1) */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                  {[
+                    { id: "basics", name: "Basics" },
+                    { id: "logo", name: "Logo Studio" },
+                    { id: "identity", name: "Brand Identity" },
+                    { id: "audience", name: "Audience & Model" },
+                    { id: "review", name: "Review & Save" },
+                  ].map((m) => (
+                    <div key={m.id} className="flex items-center gap-2">
+                      <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
+                        <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-[#090C19] stroke-[3]" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-normal text-white">{m.name}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Linked Account row with green filled verified icon */}
+                <div className="p-3.5 sm:p-4 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-xs sm:text-sm">
+                  <span className="text-slate-300 font-normal">
+                    Linked Account: <span className="text-white font-normal">{user?.email ? user.email.split("@")[0] : "User"}</span>
+                  </span>
+                  <span className="text-emerald-400 font-normal flex items-center gap-2">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center shrink-0 shadow-sm">
+                      <Check className="w-2.5 h-2.5 text-[#090C19] stroke-[3]" />
+                    </div>
+                    Verified Profile
                   </span>
                 </div>
               </div>
 
-              {/* ACTION BUTTONS: SAVE & CONTINUE + DRAFT */}
-              <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
+              {/* ACTION BUTTONS (Matching Image 2 & Image 3) */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setCurrentStep("audience")}
-                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-normal flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  <span>Back to Edit</span>
+                  <span>Back to basic</span>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={handleSkipToDashboard}
-                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer"
-                >
-                  <span>Go to Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                  <button
+                    type="button"
+                    onClick={handleSkipToDashboard}
+                    className="flex-1 sm:flex-initial px-6 h-11 sm:h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs sm:text-sm font-normal transition-colors cursor-pointer"
+                  >
+                    Skip for Now
+                  </button>
 
-                <button
-                  type="button"
-                  onClick={handleSaveDraft}
-                  disabled={isDraftSaving || isSubmitting}
-                  className="w-full sm:w-auto px-6 h-14 rounded-full bg-white/5 hover:bg-white/10 border border-white/15 text-slate-300 hover:text-white text-sm font-semibold flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {isDraftSaving ? <Loader2 className="w-4 h-4 animate-spin text-brand-pink" /> : <Save className="w-4 h-4" />}
-                  <span>Save Draft</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCompleteSubmission}
-                  disabled={isSubmitting}
-                  className="w-full sm:flex-1 h-14 rounded-full font-bold text-sm sm:text-base flex items-center justify-center gap-2 bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white shadow-[0_0_30px_rgba(240,68,155,0.4)] hover:shadow-[0_0_40px_rgba(240,68,155,0.6)] hover:scale-[1.01] active:scale-[0.99] transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Saving Brand Kit...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>{currentProgress.percentage < 100 ? "Save & Complete Brand Kit" : "Complete & Save Brand Kit"}</span>
-                      <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
+                  <button
+                    type="button"
+                    onClick={handleCompleteSubmission}
+                    disabled={isSubmitting}
+                    className="flex-1 sm:flex-initial px-8 h-11 sm:h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] via-[#be32ff] to-[#7d36fa] text-white font-normal text-sm sm:text-base flex items-center justify-center gap-2 hover:opacity-95 shadow-[0_4px_20px_rgba(240,68,155,0.35)] transition-all disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin text-white" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Continue</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </div>
       )}
 
-      {/* LIGHTBOX / ZOOM MODAL */}
+            {/* LIGHTBOX / ZOOM MODAL */}
       {zoomLogoUrl && (
         <div
           className="fixed inset-0 z-60 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in"

@@ -28,6 +28,24 @@ interface LiveColorPickerProps {
 
 type ActiveColorTarget = "primary" | "secondary" | "accent";
 
+function StoreGradientIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <defs>
+        <linearGradient id="liveStoreBadgeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#fc9a5d" />
+          <stop offset="100%" stopColor="#f0449b" />
+        </linearGradient>
+      </defs>
+      <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7" stroke="url(#liveStoreBadgeGrad)" />
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" stroke="url(#liveStoreBadgeGrad)" />
+      <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4" stroke="url(#liveStoreBadgeGrad)" />
+      <path d="M2 7h20" stroke="url(#liveStoreBadgeGrad)" />
+      <path d="M22 7v3a2 2 0 0 1-2 2v0a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12v0a2 2 0 0 1-2-2V7" stroke="url(#liveStoreBadgeGrad)" />
+    </svg>
+  );
+}
+
 export function LiveColorPicker({
   colors,
   onChange,
@@ -96,8 +114,8 @@ export function LiveColorPicker({
 
   return (
     <div className={`space-y-4 ${className}`} ref={panelRef}>
-      {/* 3 Color Swatch Rows matching the reference card */}
-      <div className="grid grid-cols-3 gap-3">
+      {/* 3 Color Swatches matching Image 2 */}
+      <div className="grid grid-cols-3 gap-4 py-2">
         {(
           [
             { key: "primary", label: "Primary", color: colors.primary },
@@ -111,31 +129,28 @@ export function LiveColorPicker({
             <div
               key={key}
               onClick={() => setActiveTarget(isActive ? null : key)}
-              className={`group relative p-3 rounded-xl cursor-pointer border transition-all duration-200 flex flex-col items-center gap-2 ${
-                isActive
-                  ? "bg-white/10 border-brand-purple shadow-[0_0_15px_rgba(190,50,255,0.3)] ring-1 ring-brand-purple"
-                  : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
-              }`}
+              className="group relative p-2 cursor-pointer transition-all duration-200 flex flex-col items-center gap-2"
             >
               {/* Swatch circle */}
               <div
-                className="w-10 h-10 rounded-full border-2 border-white/30 shadow-md transition-transform group-hover:scale-105"
+                className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 transition-transform group-hover:scale-105 ${
+                  isActive ? "border-white shadow-[0_0_20px_rgba(255,255,255,0.3)] scale-105" : "border-white/20"
+                }`}
                 style={{ backgroundColor: color }}
               />
 
               {/* Label & Hex code */}
-              <div className="text-center w-full min-w-0">
-                <span className="text-[11px] font-medium text-text-muted block truncate">
+              <div className="text-center w-full min-w-0 mt-1">
+                <span className="text-sm sm:text-base font-medium text-slate-300 block truncate">
                   {label}
                 </span>
-                <span className="text-xs font-mono font-semibold text-white uppercase tracking-wider block">
+                <span className="text-base sm:text-lg font-mono font-bold text-white uppercase tracking-wider block mt-0.5">
                   {color}
                 </span>
               </div>
 
-              {/* Active indicator dot */}
               {isActive && (
-                <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-brand-pink animate-pulse" />
+                <div className="absolute top-1 right-2 w-2.5 h-2.5 rounded-full bg-brand-pink animate-pulse" />
               )}
             </div>
           );
@@ -236,115 +251,59 @@ export function LiveColorPicker({
         </div>
       )}
 
-      {/* Live Brand Preview Card */}
-      <div className="pt-2">
-        <div className="flex items-center justify-between mb-2">
-          <button
-            type="button"
-            onClick={() => setShowLivePreview(!showLivePreview)}
-            className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 focus:outline-none"
-          >
-            <Eye className="w-3.5 h-3.5 text-brand-pink" />
-            <span>Live Brand Styling Preview</span>
-            <ChevronDown
-              className={`w-3.5 h-3.5 transition-transform ${
-                showLivePreview ? "rotate-180" : ""
-              }`}
-            />
-          </button>
-
-          {/* Gradient angle slider control */}
-          <div className="flex items-center gap-2 text-[11px] text-text-muted">
-            <span>Angle: {gradientAngle}&deg;</span>
-            <input
-              type="range"
-              min="0"
-              max="360"
-              step="15"
-              value={gradientAngle}
-              onChange={(e) => setGradientAngle(Number(e.target.value))}
-              className="w-16 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-brand-pink"
-            />
+      {/* Live Brand Preview Card matching Image 2 & Image 4 */}
+      <div className="pt-3 space-y-3">
+        <div className="flex items-center gap-3 pb-1">
+          <div className="w-9 h-9 rounded-xl bg-[#261720] border border-[#f0449b]/25 flex items-center justify-center shrink-0 shadow-sm">
+            <StoreGradientIcon className="w-4 h-4" />
           </div>
+          <span className="text-base sm:text-lg font-normal text-white">
+            Live brand styling preview
+          </span>
         </div>
 
-        {showLivePreview && (
-          <div
-            className="p-4 rounded-xl border border-white/10 relative overflow-hidden transition-all duration-300 shadow-xl"
-            style={{
-              backgroundColor: "#0B0E1F",
-              borderColor: colors.accent + "40",
-            }}
-          >
-            {/* Ambient background glow from brand colors */}
-            <div
-              className="absolute -top-12 -right-12 w-32 h-32 rounded-full blur-3xl opacity-30 pointer-events-none"
-              style={{ backgroundColor: colors.primary }}
-            />
-            <div
-              className="absolute -bottom-12 -left-12 w-32 h-32 rounded-full blur-3xl opacity-25 pointer-events-none"
-              style={{ backgroundColor: colors.secondary }}
-            />
+        <div
+          className="p-5 sm:p-6 rounded-2xl border border-white/10 relative overflow-hidden transition-all duration-300 shadow-xl bg-[#081226]"
+        >
+          <div className="relative z-10 space-y-3.5">
+            {/* Heading */}
+            <h4
+              className="text-lg sm:text-xl font-normal tracking-tight text-white"
+              style={{ fontFamily: selectedFont }}
+            >
+              Your Brand Heading
+            </h4>
 
-            <div className="relative z-10 space-y-3">
-              {/* Sample Heading in Primary Color with Selected Font */}
-              <div className="flex items-center justify-between">
-                <h4
-                  className="text-base sm:text-lg font-bold tracking-tight transition-colors"
-                  style={{
-                    color: colors.primary,
-                    fontFamily: selectedFont,
-                  }}
-                >
-                  Your Brand Heading
-                </h4>
+            {/* Subheading / Body text */}
+            <p
+              className="text-xs sm:text-sm text-slate-300 leading-relaxed"
+              style={{ fontFamily: selectedFont }}
+            >
+              Consistency across ads, reels and multi-channel campaigns.
+            </p>
 
-                {/* Accent Tag */}
-                <span
-                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full border"
-                  style={{
-                    color: colors.accent,
-                    borderColor: colors.accent + "60",
-                    backgroundColor: colors.accent + "15",
-                  }}
-                >
-                  Accent Highlight
-                </span>
-              </div>
-
-              {/* Sample Subheading / Body text */}
-              <p
-                className="text-xs text-slate-300 leading-relaxed"
-                style={{ fontFamily: selectedFont }}
+            {/* Interactive CTA Button & Full Gradient Line matching Image 4 */}
+            <div className="pt-2 flex items-center gap-4">
+              <button
+                type="button"
+                className="px-5 py-2.5 rounded-full text-xs sm:text-sm font-medium text-white shadow-md transition-transform hover:scale-[1.02] active:scale-95 shrink-0"
+                style={{
+                  background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+                  fontFamily: selectedFont,
+                }}
               >
-                Consistency across ads, reels, and multi-channel campaigns.
-              </p>
+                Brand Gradient CTA
+              </button>
 
-              {/* Interactive CTA Button with dynamic gradient */}
-              <div className="pt-1 flex items-center gap-3">
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-white shadow-md transition-transform hover:scale-[1.02] active:scale-95"
-                  style={{
-                    background: `linear-gradient(${gradientAngle}deg, ${colors.primary} 0%, ${colors.secondary} 55%, ${colors.accent} 100%)`,
-                    fontFamily: selectedFont,
-                  }}
-                >
-                  Brand Gradient CTA
-                </button>
-
-                <div className="flex-1 h-2 rounded-full overflow-hidden border border-white/10 bg-white/5">
-                  <div
-                    className="w-full h-full"
-                    style={{
-                      background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary}, ${colors.accent})`,
-                    }}
-                  />
-                </div>
-              </div>
+              <div
+                className="flex-1 h-1.5 sm:h-2 rounded-full"
+                style={{
+                  background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+                }}
+              />
             </div>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

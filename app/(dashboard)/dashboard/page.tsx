@@ -29,6 +29,25 @@ import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 import { BillingReportModal } from "@/components/dashboard/BillingReportModal";
 
+function ReceiptFilledIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M4 2L6 3.5L8 2L10 3.5L12 2L14 3.5L16 2L18 3.5L20 2V22L18 20.5L16 22L14 20.5L12 22L10 20.5L8 22L6 20.5L4 22V2Z"
+        fill="#a855f7"
+        fillOpacity="0.25"
+        stroke="#c084fc"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line x1="8" y1="8" x2="16" y2="8" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" />
+      <line x1="8" y1="12" x2="16" y2="12" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" />
+      <line x1="8" y1="16" x2="16" y2="16" stroke="#c084fc" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -153,32 +172,34 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5 self-start sm:self-auto flex-wrap">
-          <Button
+        <div className="flex items-center gap-3 self-start sm:self-auto flex-wrap">
+          {/* Billing report pill matching Image 1 */}
+          <button
+            type="button"
             onClick={() => setShowReportModal(true)}
-            variant="outline"
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-white text-xs font-semibold shadow-md backdrop-blur-xl transition-all cursor-pointer hover:border-purple-500/30"
+            className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 text-white text-xs sm:text-sm font-normal shadow-md transition-all cursor-pointer"
             title="View & Download Billing & Payment Report"
           >
-            <FileText className="w-3.5 h-3.5 text-purple-400" />
+            <ReceiptFilledIcon className="w-4 h-4 text-[#c084fc] shrink-0" />
             <span>Billing report</span>
-          </Button>
+          </button>
 
+          {/* Plan - GROWTH | 1331 Credits pill matching Image 1 */}
           <Link
             href="/subscription"
-            className="inline-flex items-center gap-3 px-3.5 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 shadow-md backdrop-blur-xl transition-all group cursor-pointer hover:border-purple-500/30"
+            className="inline-flex items-center gap-3 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 shadow-md transition-all group cursor-pointer text-xs sm:text-sm font-normal"
             title="View Plan Details & Upgrade"
           >
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400">Plan -</span>
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400 uppercase">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
+              <span className="text-white font-normal">Plan -</span>
+              <span className="font-normal uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
                 {creditBalance?.plan === "PRO" ? "GROWTH" : creditBalance?.plan === "BASIC" ? "STARTER" : (creditBalance?.plan || "GROWTH")}
               </span>
             </div>
-            <div className="h-3.5 w-px bg-white/20" />
-            <div className="flex items-center gap-1 text-xs text-[#be32ff] font-bold">
-              <Zap className="w-3.5 h-3.5 fill-[#be32ff]" />
+            <span className="text-slate-500 font-normal">|</span>
+            <div className="flex items-center gap-1.5 text-[#c084fc] font-normal">
+              <Zap className="w-4 h-4 fill-[#c084fc] text-[#c084fc]" />
               <span>{creditBalance ? creditBalance.credits_remaining : 1331} Credits</span>
             </div>
           </Link>

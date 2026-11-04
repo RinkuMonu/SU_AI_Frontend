@@ -175,11 +175,11 @@ export function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
-          {/* Notifications Dropdown */}
+          {/* Notifications Button matching Image 1 */}
           <div className="relative" ref={notifDropdownRef}>
             <button 
               type="button" 
-              className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 flex items-center justify-center text-slate-300 hover:text-white relative transition-all cursor-pointer focus:outline-none"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 flex items-center justify-center text-white relative transition-all cursor-pointer focus:outline-none shadow-sm"
               onClick={() => {
                 setShowNotifications(!showNotifications);
                 setShowProfileMenu(false);
@@ -187,10 +187,7 @@ export function Navbar() {
               title="Notifications"
             >
               <span className="sr-only">View notifications</span>
-              <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-slate-300" aria-hidden="true" />
-              {hasUnread && (
-                <span className="absolute top-2 right-2 flex h-2 w-2 rounded-full bg-brand-pink border border-surface animate-pulse"></span>
-              )}
+              <Bell className="h-5 w-5 text-white" aria-hidden="true" />
             </button>
             
             {showNotifications && (
@@ -228,10 +225,7 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Separator */}
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-border" aria-hidden="true" />
-
-          {/* Clickable User Profile Dropdown Button */}
+          {/* Clickable User Profile Dropdown Button matching Image 1 */}
           <div className="relative" ref={profileDropdownRef}>
             <button
               type="button"
@@ -239,13 +233,13 @@ export function Navbar() {
                 setShowProfileMenu(!showProfileMenu);
                 setShowNotifications(false);
               }}
-              className="flex items-center gap-2.5 pl-1.5 pr-3.5 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-white/20 transition-all cursor-pointer group focus:outline-none"
+              className="flex items-center gap-3 pl-1.5 pr-4 py-1.5 sm:py-2 rounded-full bg-[#181132] hover:bg-[#201742] border border-[#5b21b6]/40 transition-all cursor-pointer group focus:outline-none shadow-sm"
               aria-expanded={showProfileMenu}
               aria-haspopup="true"
               id="user-menu-button"
             >
               <div className="relative">
-                <div className="h-8 w-8 sm:h-8.5 sm:w-8.5 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-xs tracking-wider shadow-sm border border-white/15 overflow-hidden shrink-0 group-hover:scale-105 transition-transform">
+                <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full border border-white/20 overflow-hidden shrink-0 group-hover:scale-105 transition-transform bg-black flex items-center justify-center">
                   {avatarUrl && !imageError ? (
                     <img 
                       src={avatarUrl} 
@@ -254,13 +248,17 @@ export function Navbar() {
                       onError={() => setImageError(true)}
                     />
                   ) : (
-                    <span>{initials}</span>
+                    <img
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80"
+                      alt={user?.name || "User xyz"}
+                      className="h-full w-full object-cover"
+                    />
                   )}
                 </div>
               </div>
 
               <div className="hidden sm:flex sm:flex-col sm:items-start text-left">
-                <span className="text-xs sm:text-sm font-semibold leading-tight text-white group-hover:text-purple-300 transition-colors line-clamp-1 max-w-[130px]">
+                <span className="text-sm sm:text-base font-normal leading-tight text-white group-hover:text-purple-300 transition-colors line-clamp-1 max-w-[150px]">
                   {(
                   (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
                   (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
@@ -269,17 +267,17 @@ export function Navbar() {
                   (typeof window !== "undefined" && (localStorage.getItem("business_name") || localStorage.getItem("onboarding_business_name"))) ||
                   user?.name ||
                   user?.fullName ||
-                  "Member"
+                  "User xyz"
                 )}
                 </span>
-                <span className="text-[10px] text-slate-400 leading-tight font-normal mt-0.5">
-                  {isBusiness ? "Business Profile" : "Personal Profile"}
+                <span className="text-xs text-slate-300 leading-tight font-normal mt-0.5">
+                  Business Profile
                 </span>
               </div>
 
               <ChevronDown 
-                className={`h-3.5 w-3.5 text-slate-400 group-hover:text-white transition-transform duration-200 hidden sm:block ${
-                  showProfileMenu ? 'rotate-180 text-white' : ''
+                className={`h-4 w-4 sm:h-5 sm:w-5 text-white transition-transform duration-200 stroke-[2.5] hidden sm:block ${
+                  showProfileMenu ? 'rotate-180' : ''
                 }`} 
               />
             </button>
