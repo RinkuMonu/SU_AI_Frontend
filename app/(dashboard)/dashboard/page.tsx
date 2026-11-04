@@ -28,6 +28,7 @@ import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
 import { RecentActivityList } from "@/components/dashboard/RecentActivityList";
 import { BillingReportModal } from "@/components/dashboard/BillingReportModal";
+import { DashboardTour } from "@/components/tour/DashboardTour";
 
 function ReceiptFilledIcon({ className = "w-4 h-4" }: { className?: string }) {
   return (
@@ -58,12 +59,14 @@ export default function DashboardPage() {
   const [paymentSuccessMsg, setPaymentSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    analyticsService.getAnalyticsOverview(7)
+    analyticsService
+      .getAnalyticsOverview(7)
       .then(setAnalytics)
       .catch((e) => console.error("Failed to load analytics", e))
       .finally(() => setLoadingAnalytics(false));
 
-    creditService.getCredits()
+    creditService
+      .getCredits()
       .then(setCreditBalance)
       .catch(() => null);
 
@@ -115,6 +118,7 @@ export default function DashboardPage() {
         <div className="absolute top-1/3 -right-24 w-[28rem] h-[28rem] bg-[#be32ff]/10 rounded-full blur-[150px]" />
         <div className="absolute bottom-10 left-1/4 w-80 h-80 bg-[#f0449b]/10 rounded-full blur-[140px]" />
       </div>
+      <DashboardTour />
 
       {paymentSuccessMsg && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 rounded-2xl flex items-center justify-between shadow-lg animate-in slide-in-from-top-2 duration-300">
@@ -122,12 +126,12 @@ export default function DashboardPage() {
             <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
               <CheckCircle2 className="w-5 h-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <p className="font-bold text-sm text-white">Payment Successful!</p>
-              <p className="text-xs text-emerald-300/90">{paymentSuccessMsg}</p>
+              <p className="text-xs text-emerald-300/90 break-words">{paymentSuccessMsg}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link
               href="/subscription?tab=transactions"
               className="text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-md transition-colors"
@@ -350,7 +354,7 @@ export default function DashboardPage() {
 
       {/* Bottom Section: Recent Activity & AI Insights */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-        <div className="col-span-1 lg:col-span-4 min-w-0">
+        <div id="tour-recent-activity" className="col-span-1 lg:col-span-4 min-w-0">
           <RecentActivityList />
         </div>
 

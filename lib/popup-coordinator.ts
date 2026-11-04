@@ -2,7 +2,7 @@
 
 import { normalizeRole } from "./role-routing";
 
-export type ModalType = "plan" | "social" | "brand";
+export type ModalType = "plan" | "social" | "brand" | "tour";
 
 const POPUP_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes between automated reappearances
 const STORAGE_PLAN_DISMISSED = "uzone_plan_modal_dismissed_at";
@@ -76,6 +76,7 @@ export function hasSelectedBusinessServices(user?: any, business?: any): boolean
  * Global active popup state (mutex)
  */
 let memoryActiveModal: ModalType | null = null;
+let memoryPlansEvaluating = false;
 
 export function getActiveModal(): ModalType | null {
   if (typeof window === "undefined") return null;
@@ -93,6 +94,43 @@ export function setActiveModal(modal: ModalType | null): void {
     }
     window.dispatchEvent(new CustomEvent("popup:active_changed", { detail: { activeModal: modal } }));
   }
+}
+
+/**
+ * Tracks if AutomaticPlansModal is actively querying backend API to decide whether to open.
+ */
+export function setPlansEvaluating(evaluating: boolean): void {
+  memoryPlansEvaluating = evaluating;
+}
+
+export function isPlansEvaluating(): boolean {
+  return memoryPlansEvaluating;
+}
+
+/**
+ * Checks if a modal or dialog is currently open in the application.
+ */
+export function isModalOrPopupOpen(): boolean {
+  if (typeof window === "undefined") return false;
+  
+  // If plan modal is actively evaluating on backend
+  if (memoryPlansEvaluating) return true;
+
+  const active = getActiveModal();
+  if (active && active !== "tour") return true;
+
+  // Check DOM for open dialog or modal backdrop
+  const dialog = document.querySelector('[role="dialog"], [data-state="open"][data-dialog]');
+  if (dialog) return true;
+
+  return false;
+}
+
+/**
+ * Checks if the Tour Guide is actively running.
+ */
+export function isTourActive(): boolean {
+  return getActiveModal() === "tour";
 }
 
 /**
@@ -179,7 +217,7 @@ export function isPlanPopupEligible(params: {
   if (isRouteExcludedForPopups(pathname)) return false;
   if (isFormInteractionBusy()) return false;
 
-  // Active modal mutex: do not open if another modal is currently active
+  // Active modal mutex: do not open if another modal or tour is currently active
   const current = getActiveModal();
   if (current !== null && current !== "plan") return false;
 

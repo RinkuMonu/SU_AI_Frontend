@@ -63,54 +63,58 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Brand Kit", href: "/brand", icon: Palette },
-  { name: "AI Content Generation", href: "/content", icon: Sparkles },
+export const navigation = [
+  { id: "tour-nav-dashboard", name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { id: "tour-nav-brand", name: "Brand Kit", href: "/brand", icon: Palette },
+  { id: "tour-nav-content", name: "AI Content Generation", href: "/content", icon: Sparkles },
   { 
+    id: "tour-nav-image-reel",
     name: "Image and Reel Generation", 
     icon: Share2, 
     children: [
-      { name: "Create Reel", href: "/create/reel", comingSoon: true },
-      { name: "AI Post Maker", href: "/ai-post" },
-      { name: "AI Calendar", href: "/ai-calendar" },
+      { id: "tour-nav-create-reel", name: "Create Reel", href: "/create/reel" },
+      { id: "tour-nav-ai-post", name: "AI Post Maker", href: "/ai-post" },
+      { id: "tour-nav-ai-calendar", name: "AI Calendar", href: "/ai-calendar" },
     ]
   },
   { 
+    id: "tour-nav-photoshoot",
     name: "AI Photoshoot Studio", 
     icon: Camera, 
     children: [
-      { name: "AI Avatar Photoshoot", href: "/ai-photoshoot/avatar", icon: UserCheck },
-      { name: "AI Product Photography", href: "/ai-photoshoot/product", icon: Box },
+      { id: "tour-nav-avatar", name: "AI Avatar Photoshoot", href: "/ai-photoshoot/avatar", icon: UserCheck },
+      { id: "tour-nav-product-photo", name: "AI Product Photography", href: "/ai-photoshoot/product", icon: Box },
     ]
   },
-  { name: "Website Builder", href: "/website-builder", icon: Globe },
-  { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { name: "Influencers", href: "/influencers", icon: Users, comingSoon: true },
-  { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
-  { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
+  { id: "tour-nav-website-builder", name: "Website Builder", href: "/website-builder", icon: Globe },
+  { id: "tour-nav-festivals", name: "Festival Engine", href: "/festivals", icon: PartyPopper },
+  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users },
+  { id: "tour-nav-content-library", name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
+  { id: "tour-nav-uni-ai", name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
+    id: "tour-nav-social-platforms",
     name: "Social Platforms",
     icon: Globe,
     children: [
-      { name: "Overview", href: "/social-platforms", icon: Globe },
-      { name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
-      { name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
-      { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
+      { id: "tour-nav-social-overview", name: "Overview", href: "/social-platforms", icon: Globe },
+      { id: "tour-nav-social-instagram", name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
+      { id: "tour-nav-social-facebook", name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
+      { id: "tour-nav-social-linkedin", name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
     ]
   },
-  { name: "Analytics", href: "/analytics", icon: TrendingUp },
+  { id: "tour-nav-analytics", name: "Analytics", href: "/analytics", icon: TrendingUp },
   {
+    id: "tour-nav-billing",
     name: "Billing & Plans",
     icon: Store,
     children: [
-      { name: "Plans", href: "/subscription", icon: Crown },
-      { name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
-      { name: "AI Token & Credit Usage", href: "/subscription/credits", icon: Zap },
+      { id: "tour-nav-billing-plans", name: "Plans", href: "/subscription", icon: Crown },
+      { id: "tour-nav-billing-transactions", name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
+      { id: "tour-nav-billing-credits", name: "AI Token & Credit Usage", href: "/subscription/credits", icon: Zap },
     ],
   },
-  { name: "Support", href: "/support", icon: Headphones },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { id: "tour-nav-support", name: "Support", href: "/support", icon: Headphones },
+  { id: "tour-nav-settings", name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -132,6 +136,9 @@ export function Sidebar() {
     if (pathname.startsWith("/ai-photoshoot")) {
       setOpenDropdowns((prev) => ({ ...prev, "AI Photoshoot Studio": true }));
     }
+    if (["/create/reel", "/ai-post", "/ai-calendar"].some((p) => pathname.startsWith(p))) {
+      setOpenDropdowns((prev) => ({ ...prev, "Image and Reel Generation": true }));
+    }
   }, [pathname]);
 
   const toggleDropdown = (name: string) => {
@@ -148,9 +155,9 @@ export function Sidebar() {
             return pathname === childBasePath || pathname.startsWith(childBasePath + "/");
           });
           const isParentActive = item.href ? pathname === item.href : false;
-          
+
           return (
-            <div key={item.name} className="space-y-1">
+            <div key={item.name} id={item.id} className="space-y-1">
               <div
                 className={cn(
                   "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
@@ -239,6 +246,7 @@ export function Sidebar() {
                     return (
                       <Link
                         key={child.name}
+                        id={child.id}
                         href={child.href}
                         title={child.name}
                         onClick={() => onItemClick && onItemClick()}
@@ -297,6 +305,7 @@ export function Sidebar() {
         return (
           <Link
             key={item.name}
+            id={item.id}
             href={item.href as string}
             onClick={() => onItemClick && onItemClick()}
             className={cn(
