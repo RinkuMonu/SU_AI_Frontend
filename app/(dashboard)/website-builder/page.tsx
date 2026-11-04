@@ -1735,27 +1735,44 @@ export default function WebsiteBuilderPage() {
       if (data.siteId) setSiteId(data.siteId);
       if (data.language) setLanguage(data.language);
 
-      if (data.generatedSiteData) {
-        setGeneratedSiteData(data.generatedSiteData);
-        localStorage.setItem("website_builder_site_data", JSON.stringify(data.generatedSiteData));
+      let siteToUse = data.generatedSiteData;
+      if ((!siteToUse || !siteToUse.pages || siteToUse.pages.length === 0) && data.siteId) {
+        try {
+          const fetchedSite = await websiteBuilderService.getSite(data.siteId);
+          if (fetchedSite && fetchedSite.pages && fetchedSite.pages.length > 0) {
+            siteToUse = fetchedSite;
+          }
+        } catch {}
+      }
+
+      if (siteToUse && siteToUse.pages && siteToUse.pages.length > 0) {
+        setGeneratedSiteData(siteToUse);
+        localStorage.setItem("website_builder_site_data", JSON.stringify(siteToUse));
         setVersionHistory([
           {
             version: 1,
             label: "Restored Draft",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            data: data.generatedSiteData
+            data: siteToUse
           }
         ]);
-        if (data.generatedSiteData.business_name) {
+        if (siteToUse.business_name) {
           setBusinessContext((prev) => ({
             ...prev,
-            businessName: data.generatedSiteData?.business_name,
-            businessCategory: data.generatedSiteData?.business_category,
-            selectedTemplateId: data.generatedSiteData?.template_id,
-            selectedTemplateName: data.generatedSiteData?.template_name,
+            businessName: siteToUse?.business_name,
+            businessCategory: siteToUse?.business_category,
+            selectedTemplateId: siteToUse?.template_id,
+            selectedTemplateName: siteToUse?.template_name,
             onboardingStep: "step7_generated"
           }));
         }
+      } else if (storedSite) {
+        try {
+          const parsed = JSON.parse(storedSite);
+          if (parsed && parsed.pages && parsed.pages.length > 0) {
+            setGeneratedSiteData(parsed);
+          }
+        } catch {}
       }
 
       if (data.messages && data.messages.length > 0) {
