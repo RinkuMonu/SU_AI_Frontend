@@ -294,15 +294,14 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
               {/* Clipped Overlay (Original Image) */}
               <div
-                className="absolute inset-y-0 left-0 overflow-hidden"
-                style={{ width: `${sliderPosition}%` }}
+                className="absolute inset-0 overflow-hidden pointer-events-none"
+                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
               >
                 {(activeVariation?.originalUrl || primaryOriginal) && (activeVariation?.originalUrl || primaryOriginal).trim() ? (
                   <img
                     src={resolvePhotoshootUrl(activeVariation?.originalUrl || primaryOriginal)}
                     alt="Original product"
-                    className="absolute inset-0 w-full h-full object-contain max-w-none p-2"
-                    style={{ width: "100%", height: "100%" }}
+                    className="absolute inset-0 w-full h-full object-contain p-2"
                     onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_PRODUCT)}
                   />
                 ) : null}
