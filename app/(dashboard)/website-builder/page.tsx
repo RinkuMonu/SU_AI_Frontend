@@ -548,33 +548,198 @@ const generateHtmlFromJSON = (rawData: any): string => {
   let homeSections: WebsiteSection[] = [];
   if (rawHomePage?.sections?.length) {
     homeSections = rawHomePage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
-  } else {
-    const hero = allIncomingSections.find((s: any) => s.type === "hero") || {
+  }
+
+  // Ensure hero is present
+  if (!homeSections.some((s) => s.type === "hero")) {
+    const existingHero = allIncomingSections.find((s: any) => s.type === "hero");
+    homeSections.unshift(existingHero || {
       type: "hero",
       title: `${bName}`,
       subtitle: `Discover unmatched craftsmanship, authentic dedication, and exquisite quality in every detail.`,
-      cta: "Explore Now",
+      cta: "Explore Offerings",
       secondary_cta: "Our Story"
-    };
-    const features = allIncomingSections.find((s: any) =>
+    });
+  }
+
+  const catLower = bCategory.toLowerCase();
+
+  // 1. Stats Bar (Metrics)
+  if (!homeSections.some((s) => s.type === "stats" || s.type === "metrics")) {
+    let statsItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      statsItems = [
+        { label: "Uptime SLA", value: "99.99%", description: "Guaranteed high availability" },
+        { label: "Active Deployments", value: "5,000+", description: "Deployed worldwide" },
+        { label: "Port Speeds", value: "10 Gbps", description: "Ultra-low latency uplinks" },
+        { label: "Support", value: "24/7/365", description: "Expert technical assistance" }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      statsItems = [
+        { label: "Fresh Daily Blooms", value: "100%", description: "Handpicked morning blossoms" },
+        { label: "Bouquets Crafted", value: "15,000+", description: "Artistic floral arrangements" },
+        { label: "Express Delivery", value: "Same-Day", description: "Guaranteed on-time arrival" },
+        { label: "Customer Rating", value: "4.9 ★", description: "Top-rated local florist" }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      statsItems = [
+        { label: "Pure Ingredients", value: "100%", description: "Traditional pure desi ghee" },
+        { label: "Signature Delicacies", value: "60+", description: "Traditional & festive treats" },
+        { label: "Happy Customers", value: "25,000+", description: "Spreading sweetness everyday" },
+        { label: "Daily Preparation", value: "Fresh Batch", description: "Crafted fresh every morning" }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      statsItems = [
+        { label: "Certified Medicines", value: "100%", description: "Authentic & quality verified" },
+        { label: "Years of Trust", value: "15+ Years", description: "Dedicated healthcare services" },
+        { label: "Availability", value: "24/7", description: "Ready for urgent prescriptions" },
+        { label: "Families Served", value: "20,000+", description: "Trusted community pharmacy" }
+      ];
+    } else {
+      statsItems = [
+        { label: "Quality Guarantee", value: "100%", description: "Uncompromised excellence" },
+        { label: "Satisfied Clients", value: "10,000+", description: "Delivering lasting value" },
+        { label: "Turnaround Time", value: "Prompt", description: "Fast & dedicated response" },
+        { label: "Customer Rating", value: "4.9 ★", description: "Verified positive reviews" }
+      ];
+    }
+    const heroIndex = homeSections.findIndex((s) => s.type === "hero");
+    homeSections.splice(heroIndex + 1, 0, {
+      type: "stats",
+      title: "Key Highlights",
+      subtitle: `Why customers choose ${bName}`,
+      items: statsItems
+    });
+  }
+
+  // 2. Features / Signature Highlights
+  if (!homeSections.some((s) => ["features", "facilities", "services", "products"].includes(s.type))) {
+    const existingFeatures = allIncomingSections.find((s: any) =>
       ["features", "facilities", "services", "products"].includes(s.type)
-    ) || {
+    );
+    homeSections.push(existingFeatures || {
       type: "features",
       title: "Signature Highlights",
-      subtitle: `Why customers choose ${bName}`,
+      subtitle: `Experience the best of ${bCategory} at ${bName}`,
       items: [
         { title: "Premium Quality", description: `Uncompromising standards across all our ${bCategory} offerings.` },
         { title: "Personalized Care", description: "Attentive service tailored specifically to your unique needs." },
         { title: "Trusted Craft", description: "Passionate professionals devoted to exceptional results." }
       ]
-    };
-    const about = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
-    const contact = allIncomingSections.find((s: any) => s.type === "contact");
-
-    homeSections = [hero, features];
-    if (about) homeSections.push(about);
-    if (contact) homeSections.push(contact);
+    });
   }
+
+  // 3. Brand Story & Craftsmanship preview (About)
+  if (!homeSections.some((s) => ["about", "story"].includes(s.type))) {
+    const existingAbout = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
+    homeSections.push(existingAbout || {
+      type: "about",
+      title: `Welcome to ${bName}`,
+      subtitle: "Devoted to Craftsmanship & Excellence",
+      description: `At ${bName}, our journey is rooted in an unwavering passion for superior quality and genuine customer care. Every single day, we strive to bring you the finest ${bCategory} solutions with uncompromised integrity, warm service, and attention to detail.`
+    });
+  }
+
+  // 4. Testimonials
+  if (!homeSections.some((s) => ["testimonials", "reviews"].includes(s.type))) {
+    let testItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      testItems = [
+        { name: "Vikram Malhotra", role: "CTO, CloudScale", rating: 5, quote: `${bName} delivered incredible stability with zero downtime. Deployment was instant and network speeds exceeded all expectations.` },
+        { name: "Sneha Sen", role: "Lead Systems Architect", rating: 5, quote: "Rock-solid infrastructure and responsive 24/7 technical support. Truly enterprise grade service." },
+        { name: "Rohan Mehra", role: "Startup Founder", rating: 5, quote: `Migrating to ${bName} reduced our latency dramatically. Highly recommended for production workloads.` }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      testItems = [
+        { name: "Pooja Sharma", role: "Verified Customer", rating: 5, quote: `The floral arrangement from ${bName} was breathtaking! Fresh blooms that stayed vibrant for over a week.` },
+        { name: "Amit Verma", role: "Anniversary Order", rating: 5, quote: "Flawless same-day delivery and gorgeous presentation. My wife absolutely loved the bouquet!" },
+        { name: "Kavita Rao", role: "Event Coordinator", rating: 5, quote: `${bName} handled our venue floral decor with such artistry and elegance. Truly spectacular.` }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      testItems = [
+        { name: "Rajesh Gupta", role: "Regular Patron", rating: 5, quote: `Authentic taste, rich aroma of pure ghee, and heavenly sweets. ${bName} is our family's favorite for every celebration.` },
+        { name: "Neha Kapoor", role: "Festival Shopper", rating: 5, quote: "Ordered custom gift boxes for Diwali and every guest called to compliment the extraordinary flavors." },
+        { name: "Manish Joshi", role: "Sweet Lover", rating: 5, quote: `Freshness you can taste in every single bite. The craftsmanship at ${bName} is truly unmatched.` }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      testItems = [
+        { name: "Suresh Singhal", role: "Local Resident", rating: 5, quote: `${bName} is our most trusted pharmacy. They always have genuine medicines in stock and provide caring assistance.` },
+        { name: "Dr. Sunita Nair", role: "Healthcare Professional", rating: 5, quote: "Reliable, hygienic, and extremely helpful staff. Emergency prescriptions are fulfilled promptly without delay." },
+        { name: "Arjun Saxena", role: "Caregiver", rating: 5, quote: `Doorstep delivery and patient guidance from ${bName} have been an absolute blessing for our family.` }
+      ];
+    } else {
+      testItems = [
+        { name: "Priya Sharma", role: "Verified Client", rating: 5, quote: `The experience with ${bName} has been phenomenal. Top quality, attentive staff, and outstanding professionalism.` },
+        { name: "Rahul Verma", role: "Repeat Customer", rating: 5, quote: "Super impressed by their consistency and attention to detail. Would recommend to anyone without hesitation." },
+        { name: "Ananya Patel", role: "Community Member", rating: 5, quote: `Fast, friendly, and dependable every time. ${bName} sets the gold standard in ${bCategory || "service"}.` }
+      ];
+    }
+    homeSections.push({
+      type: "testimonials",
+      title: "What Our Customers Say",
+      subtitle: `Real experiences from people who love ${bName}`,
+      items: testItems
+    });
+  }
+
+  // 5. Frequently Asked Questions
+  if (!homeSections.some((s) => ["faq", "faqs"].includes(s.type))) {
+    let faqItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      faqItems = [
+        { question: "How quickly are dedicated and cloud servers deployed?", answer: "Most standard server instances are provisioned instantly within 5 to 15 minutes following order confirmation." },
+        { question: "Is DDoS protection and firewall security included?", answer: "Yes, automated enterprise multi-layer DDoS mitigation and advanced firewall filtering are standard on all servers." },
+        { question: "Do I receive full root and IPMI / KVM access?", answer: "Absolutely. You get 100% root/administrator access and out-of-band management console control." },
+        { question: "What level of customer and technical support is provided?", answer: "Our dedicated system engineers provide round-the-clock 24/7/365 assistance via ticket and priority chat." }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      faqItems = [
+        { question: "How fresh are your flowers and arrangements?", answer: "We hand-select fresh morning blossoms directly from verified growers every single day to ensure lasting vibrancy." },
+        { question: "Can I place custom orders for specific bouquets or events?", answer: `Yes! ${bName} specializes in custom designed bouquets, festive hampers, and full event floral styling.` },
+        { question: "Do you provide same-day flower delivery?", answer: "Yes, we offer express same-day doorstep delivery for orders placed before our afternoon cutoff." },
+        { question: "How can I keep my flowers fresh for longer?", answer: "Trim stems slightly at an angle, change the vase water every two days, and keep flowers away from direct sunlight." }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      faqItems = [
+        { question: "Are your sweets prepared fresh daily?", answer: "Yes, all our sweets and delicacies are freshly prepared every morning using pure ingredients and traditional recipes." },
+        { question: "Do you accept bulk orders for weddings and festivals?", answer: `Yes, ${bName} provides personalized bulk gift boxes and event catering for weddings, corporate gifts, and festivals.` },
+        { question: "What is the typical shelf life of your offerings?", answer: "Dry and roasted varieties typically last 2 to 3 weeks, while milk-based sweets are best enjoyed within 3 to 5 days." },
+        { question: "Do you offer sugar-free or dietary-conscious options?", answer: "Yes, we craft special sugar-free and dry-fruit-only selections to cater to health-conscious patrons." }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      faqItems = [
+        { question: "Are all medications and health supplies verified and genuine?", answer: "100%. We source strictly from authorized pharmaceutical distributors with verified batch certificates." },
+        { question: "Do you offer prescription fulfillment and consultations?", answer: "Yes, our qualified pharmacists review your prescription carefully and guide you on dosage and instructions." },
+        { question: "Do you provide home delivery for essential medicines?", answer: "Yes, we offer prompt doorstep delivery across our local coverage area for your convenience." },
+        { question: "What are your operating hours for urgent needs?", answer: `${bName} operates extended daily hours and provides on-call emergency healthcare assistance.` }
+      ];
+    } else {
+      faqItems = [
+        { question: `How can I inquire about products or services at ${bName}?`, answer: "You can reach us directly through our Contact form, visit our location, or call our customer service desk." },
+        { question: "Do you provide customized solutions tailored to specific needs?", answer: "Yes! We work closely with each client to provide personalized recommendations and custom packages." },
+        { question: "What is your commitment to quality and satisfaction?", answer: "We back every offering with a 100% satisfaction guarantee, ensuring uncompromised standards." },
+        { question: "What are your standard turnaround or delivery times?", answer: "We prioritize fast, efficient fulfillment and will keep you updated every step of the way." }
+      ];
+    }
+    homeSections.push({
+      type: "faq",
+      title: "Frequently Asked Questions",
+      subtitle: `Helpful answers to common questions about ${bName}`,
+      items: faqItems
+    });
+  }
+
+  // 6. Call to Action Banner
+  if (!homeSections.some((s) => ["cta", "banner"].includes(s.type))) {
+    homeSections.push({
+      type: "cta",
+      title: `Ready to Experience the Best in ${bCategory}?`,
+      subtitle: `Connect with ${bName} today. We are here to deliver exceptional quality, personalized care, and lasting satisfaction.`,
+      cta: "Contact Us Today",
+      secondary_cta: `Explore ${serviceTabName}`
+    });
+  }
+
   resolvedPages.push({ name: "Home", id: "home", sections: homeSections });
 
   // 2. ABOUT PAGE
@@ -729,10 +894,44 @@ const generateHtmlFromJSON = (rawData: any): string => {
                         : ""
                     }
                   </div>
+                  <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-center md:justify-start gap-3 sm:gap-5 text-[11px] sm:text-xs text-gray-500 font-medium">
+                    <span class="flex items-center gap-1"><span class="text-amber-500 font-bold">★</span> 4.9/5 Rating</span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1"><span class="text-emerald-500 font-bold">✓</span> Verified Quality</span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1"><span class="text-primary font-bold">⚡</span> Prompt Service</span>
+                  </div>
                 </div>
                 <div class="relative rounded-2xl overflow-hidden shadow-xl border border-gray-100 aspect-video md:aspect-[4/3] bg-gray-100 max-h-96">
                   <img src="${heroImg}" alt="${sTitle || bName}" class="w-full h-full object-cover transition duration-700 hover:scale-105" loading="eager" />
                 </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 1b. STATS / METRICS BAR
+      else if (sectionType === "stats" || sectionType === "metrics") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-8 sm:py-12 bg-gray-50/80 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                ${items
+                  .map((stat: any) => {
+                    const val = escapeHtml(stat.value || "100%");
+                    const lbl = escapeHtml(stat.label || stat.title || "Quality");
+                    const desc = escapeHtml(stat.description || "");
+                    return `
+                      <div class="p-4 sm:p-6 bg-white rounded-2xl border border-gray-100 text-center shadow-xs hover:border-primary/30 hover:shadow-md transition duration-300">
+                        <div class="text-2xl sm:text-3xl md:text-4xl font-black text-primary tracking-tight">${val}</div>
+                        <div class="mt-1 text-xs sm:text-sm font-bold text-gray-900">${lbl}</div>
+                        ${desc ? `<p class="mt-1 text-[11px] sm:text-xs text-gray-500 leading-snug">${desc}</p>` : ""}
+                      </div>
+                    `;
+                  })
+                  .join("")}
               </div>
             </div>
           </section>
@@ -929,7 +1128,113 @@ const generateHtmlFromJSON = (rawData: any): string => {
         `;
       }
 
-      // 7. GENERIC SECTION FALLBACK
+      // 7. TESTIMONIALS / REVIEWS
+      else if (sectionType === "testimonials" || sectionType === "reviews") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-gray-50/70 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 tracking-wider uppercase">Customer Love</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">${sTitle || "What Our Customers Say"}</h2>
+                ${sSubtitle ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600">${sSubtitle}</p>` : `<p class="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Hear directly from clients who trust ${bName} every day.</p>`}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                ${items
+                  .map((item: any, i: number) => {
+                    const ratingNum = item.rating || 5;
+                    const stars = "★".repeat(ratingNum) + "☆".repeat(Math.max(0, 5 - ratingNum));
+                    const authorName = escapeHtml(item.name || item.author || `Client ${i + 1}`);
+                    const authorRole = escapeHtml(item.role || item.title || "Verified Customer");
+                    const quoteText = escapeHtml(item.quote || item.text || item.description || "Outstanding quality and service!");
+                    const initial = authorName.charAt(0).toUpperCase();
+
+                    return `
+                      <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-xs hover:shadow-xl hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                        <div>
+                          <div class="flex items-center gap-1 text-amber-400 text-sm sm:text-base mb-4 tracking-wider">
+                            ${stars}
+                          </div>
+                          <p class="text-xs sm:text-sm text-gray-700 leading-relaxed italic">"${quoteText}"</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-gray-50 flex items-center gap-3">
+                          <div class="w-10 h-10 rounded-full bg-primary/10 text-primary font-extrabold flex items-center justify-center text-sm shadow-xs">
+                            ${initial}
+                          </div>
+                          <div>
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-900">${authorName}</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-500">${authorRole}</p>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 8. FAQ SECTION
+      else if (sectionType === "faq" || sectionType === "faqs") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 tracking-wider uppercase">Answers & Support</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">${sTitle || "Frequently Asked Questions"}</h2>
+                ${sSubtitle ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600">${sSubtitle}</p>` : `<p class="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Quick answers to common questions about our products and services.</p>`}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
+                ${items
+                  .map((item: any, i: number) => {
+                    const question = escapeHtml(item.question || item.title || `Question ${i + 1}`);
+                    const answer = escapeHtml(item.answer || item.description || item.content || "");
+                    return `
+                      <div class="p-5 sm:p-7 bg-gray-50/80 rounded-2xl border border-gray-100 hover:border-primary/40 hover:bg-white transition duration-200">
+                        <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-start gap-2.5">
+                          <span class="text-primary font-black shrink-0">Q.</span>
+                          <span>${question}</span>
+                        </h3>
+                        ${answer ? `<p class="mt-2.5 text-xs sm:text-sm text-gray-600 leading-relaxed pl-6">${answer}</p>` : ""}
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 9. CTA BANNER
+      else if (sectionType === "cta" || sectionType === "banner") {
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-14 sm:py-20 bg-gradient-to-r from-gray-900 via-primary/95 to-gray-900 text-white relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+              <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-white/10 text-white mb-3 sm:mb-4 tracking-wider uppercase border border-white/20">Get Started</span>
+              <h2 class="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight">${sTitle || `Ready to experience ${bName}?`}</h2>
+              <p class="mt-3 sm:mt-5 text-sm sm:text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                ${sSubtitle || sDesc || `Connect with us today for personalized solutions, orders, or consultations.`}
+              </p>
+              <div class="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+                <button type="button" onclick="switchWebsitePage('contact')" class="inline-flex items-center justify-center px-7 sm:px-9 py-3 sm:py-3.5 rounded-xl font-bold bg-white text-gray-900 hover:bg-gray-100 transition shadow-xl text-xs sm:text-sm cursor-pointer">
+                  ${escapeHtml(section.cta || "Contact Us Today")}
+                </button>
+                ${
+                  section.secondary_cta
+                    ? `<button type="button" onclick="switchWebsitePage('${serviceTabName.toLowerCase().replace(/[^a-z0-9]/g, "-")}')" class="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-bold border border-white/30 text-white hover:bg-white/10 transition text-xs sm:text-sm cursor-pointer">${escapeHtml(section.secondary_cta)}</button>`
+                    : ""
+                }
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 10. GENERIC SECTION FALLBACK
       else {
         pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 bg-white border-b border-gray-100">
@@ -2268,33 +2573,37 @@ Shall I generate your custom website draft now?`;
     else if (lower.includes("hero image") || lower.includes("header image") || lower.includes("cover image")) {
       const heroSection = updatedSite.pages?.[0]?.sections?.find((s: any) => s.type === "hero");
       if (heroSection) {
+        const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
+        const bName = updatedSite.business_name || businessContext.businessName || "My Business";
         heroSection.image_url = resolveImageUrl(
           undefined,
-          updatedSite.business_category || "flower",
+          bCat,
           "hero",
-          `${instruction} fresh daylight`,
-          updatedSite.business_name
+          `${bName} ${bCat} professional photography daylight high resolution`,
+          bName
         );
-        appliedChangeDesc = "Updated the hero image with fresh, category-specific photography.";
+        appliedChangeDesc = `Updated the hero image with fresh photography tailored to ${bName} (${bCat}).`;
       }
     }
 
     // 3. Change product/bouquets images
     else if (lower.includes("image") || lower.includes("photo") || lower.includes("picture")) {
+      const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
+      const bName = updatedSite.business_name || businessContext.businessName || "My Business";
       const prodSection = updatedSite.pages?.[0]?.sections?.find(
-        (s: any) => s.type === "products" || s.type === "bouquets" || s.type === "menu"
+        (s: any) => s.type === "products" || s.type === "bouquets" || s.type === "menu" || s.type === "features"
       );
       if (prodSection?.items) {
         prodSection.items.forEach((item: any, i: number) => {
           item.image_url = resolveImageUrl(
             undefined,
-            updatedSite.business_category || "flower",
-            "products",
-            `${item.title} ${instruction} ${i}`,
-            updatedSite.business_name
+            bCat,
+            prodSection.type,
+            `${item.title} ${bCat} ${i}`,
+            bName
           );
         });
-        appliedChangeDesc = "Replaced section images with new category-matched imagery.";
+        appliedChangeDesc = `Replaced section images with new category-matched imagery for ${bCat}.`;
       }
     }
 
@@ -2308,7 +2617,20 @@ Shall I generate your custom website draft now?`;
       }
     }
 
-    // 5. Add a section (e.g. Gallery)
+    // 5. Expand Homepage Content
+    else if (
+      lower.includes("content") ||
+      lower.includes("homepage") ||
+      lower.includes("home page") ||
+      lower.includes("more") ||
+      lower.includes("richer") ||
+      lower.includes("aur content") ||
+      lower.includes("zyada content")
+    ) {
+      appliedChangeDesc = `Enriched your Homepage with key business metrics, signature highlights, brand story preview, customer reviews, frequently asked questions, and a high-converting call-to-action banner!`;
+    }
+
+    // 6. Add a section (e.g. Gallery)
     else if (lower.includes("gallery") || lower.includes("add")) {
       const existingGallery = updatedSite.pages?.[0]?.sections?.find((s: any) => s.type === "gallery");
       if (!existingGallery) {
@@ -2928,7 +3250,10 @@ Shall I generate your custom website draft now?`;
         {generatedSiteData && (
           <div className="px-3 sm:px-4 py-2 border-t border-white/5 bg-[#0e1422] flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar shrink-0">
             <button
-              onClick={() => handleSend("Change hero image to fresh floral photography")}
+              onClick={() => {
+                const bCat = generatedSiteData?.business_category || businessContext.businessCategory || "business";
+                handleSend(`Change hero image to fresh ${bCat} photography`);
+              }}
               className="text-[10px] sm:text-[11px] whitespace-nowrap px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded-md border border-white/10 transition cursor-pointer"
             >
               🖼️ Change Hero Image
