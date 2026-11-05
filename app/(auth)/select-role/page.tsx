@@ -98,6 +98,7 @@ interface RoleOption {
   features: string[];
   icon: React.ElementType;
   iconBoxStyle: string;
+  comingSoon?: boolean;
 }
 
 const ROLE_OPTIONS: RoleOption[] = [
@@ -130,6 +131,7 @@ const ROLE_OPTIONS: RoleOption[] = [
     ],
     icon: CreatorIcon,
     iconBoxStyle: "bg-purple-950/60 border border-purple-500/20 text-purple-300",
+    comingSoon: true,
   },
 ];
 
@@ -155,20 +157,24 @@ export default function SelectRolePage() {
   useEffect(() => {
     if (user && user.role) {
       const norm = normalizeRole(user.role);
-      if (norm === "businessman" || norm === "influencer") {
+      if (norm === "businessman") {
         setSelectedRole(norm);
       }
     } else if (typeof window !== "undefined") {
       const searchParams = new URLSearchParams(window.location.search);
       const queryRole = searchParams.get("role") || sessionStorage.getItem("selected_role") || localStorage.getItem("selected_role");
       const norm = normalizeRole(queryRole);
-      if (norm === "businessman" || norm === "influencer") {
+      if (norm === "businessman") {
         setSelectedRole(norm);
       }
     }
   }, [user]);
 
   const handleCardClick = (roleId: "businessman" | "influencer") => {
+    const opt = ROLE_OPTIONS.find((o) => o.id === roleId);
+    if (opt?.comingSoon) {
+      return;
+    }
     setSelectedRole(roleId);
     if (errorMessage) setErrorMessage(null);
   };
@@ -177,6 +183,10 @@ export default function SelectRolePage() {
     e: React.KeyboardEvent,
     roleId: "businessman" | "influencer"
   ) => {
+    const opt = ROLE_OPTIONS.find((o) => o.id === roleId);
+    if (opt?.comingSoon) {
+      return;
+    }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       handleCardClick(roleId);
@@ -185,6 +195,12 @@ export default function SelectRolePage() {
 
   const handleContinue = async () => {
     if (!selectedRole || isSubmitting) return;
+
+    const opt = ROLE_OPTIONS.find((o) => o.id === selectedRole);
+    if (opt?.comingSoon) {
+      setErrorMessage("Influencer / Creator accounts are coming soon. Please choose Business to proceed.");
+      return;
+    }
 
     // Protection: Unauthenticated visitors must login first
     if (!user) {
@@ -356,6 +372,7 @@ export default function SelectRolePage() {
         >
           {ROLE_OPTIONS.map((option) => {
             const isSelected = selectedRole === option.id;
+            const isComingSoon = Boolean(option.comingSoon);
             const IconComponent = option.icon;
 
             return (
@@ -363,27 +380,36 @@ export default function SelectRolePage() {
                 key={option.id}
                 role="radio"
                 aria-checked={isSelected}
-                tabIndex={0}
+                aria-disabled={isComingSoon}
+                tabIndex={isComingSoon ? -1 : 0}
                 onClick={() => handleCardClick(option.id)}
                 onKeyDown={(e) => handleKeyDown(e, option.id)}
-                className={`group relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-brand-purple ${isSelected
-                    ? "p-[1.8px] bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] shadow-[0_0_35px_rgba(190,50,255,0.32)] scale-[1.01]"
-                    : "border border-white/10 hover:border-white/20 bg-[#0E1022]/90 hover:bg-[#12152c] hover:scale-[1.005]"
-                  }`}
+                className={`group relative rounded-2xl transition-all duration-300 flex flex-col h-full focus:outline-none ${
+                  isComingSoon
+                    ? "cursor-not-allowed opacity-75 border border-white/10 bg-[#0E1022]/60 hover:border-amber-500/30 select-none"
+                    : isSelected
+                    ? "p-[1.8px] bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] shadow-[0_0_35px_rgba(190,50,255,0.32)] scale-[1.01] cursor-pointer focus:ring-2 focus:ring-brand-purple"
+                    : "border border-white/10 hover:border-white/20 bg-[#0E1022]/90 hover:bg-[#12152c] hover:scale-[1.005] cursor-pointer focus:ring-2 focus:ring-brand-purple"
+                }`}
               >
                 {/* Inner Card Body */}
                 <div
-                  className={`h-full flex-1 rounded-[15px] p-5 sm:p-6 flex flex-col justify-between transition-colors ${isSelected
+                  className={`h-full flex-1 rounded-[15px] p-5 sm:p-6 flex flex-col justify-between transition-colors ${
+                    isComingSoon
+                      ? "bg-transparent"
+                      : isSelected
                       ? "bg-[#111327]"
                       : "bg-transparent"
-                    }`}
+                  }`}
                 >
                   <div className="space-y-2 sm:space-y-2.5">
                     {/* Top Row: Icon + Title + Pill Badge */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0">
                         <div
-                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${option.iconBoxStyle}`}
+                          className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 transition-transform ${
+                            isComingSoon ? "opacity-80" : "group-hover:scale-105"
+                          } ${option.iconBoxStyle}`}
                         >
                           {option.id === "businessman" ? (
                             <StoreIcon className="w-6 h-6" />
@@ -397,11 +423,18 @@ export default function SelectRolePage() {
                       </div>
 
                       {/* Role Pill Badge */}
-                      <span
-                        className={`text-xs font-medium px-3 py-1 rounded-full shrink-0 ${option.badgeStyle}`}
-                      >
-                        {option.badge}
-                      </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span
+                          className={`text-xs font-medium px-3 py-1 rounded-full ${option.badgeStyle}`}
+                        >
+                          {option.badge}
+                        </span>
+                        {isComingSoon && (
+                          <span className="text-[11px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-xs">
+                            Coming Soon
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {/* Role Description */}
@@ -416,7 +449,13 @@ export default function SelectRolePage() {
                           key={idx}
                           className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-200"
                         >
-                          <span className="w-2 h-2 rounded-full bg-[#10b981] shrink-0 mt-1.5 shadow-[0_0_8px_#10b981]" />
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${
+                              isComingSoon
+                                ? "bg-[#10b981]/50 shadow-none"
+                                : "bg-[#10b981] shadow-[0_0_8px_#10b981]"
+                            }`}
+                          />
                           <span className="leading-snug">{feature}</span>
                         </li>
                       ))}
@@ -425,14 +464,29 @@ export default function SelectRolePage() {
 
                   {/* Selection Indicator Footer */}
                   <div className="pt-3 mt-2 flex items-center justify-between">
-                    <span className="text-xs text-slate-400">
-                      {isSelected ? "Role Selected" : "Click to select"}
+                    <span
+                      className={`text-xs ${
+                        isComingSoon
+                          ? "text-amber-300/90 font-semibold"
+                          : isSelected
+                          ? "text-white font-medium"
+                          : "text-slate-400"
+                      }`}
+                    >
+                      {isComingSoon
+                        ? "Coming Soon"
+                        : isSelected
+                        ? "Role Selected"
+                        : "Click to select"}
                     </span>
                     <div
-                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${isSelected
+                      className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                        isComingSoon
+                          ? "border-amber-500/30 bg-amber-500/10 text-amber-300/60"
+                          : isSelected
                           ? "bg-gradient-to-r from-[#BE32FF] to-[#F0449B] border-transparent text-white"
                           : "border-white/20 group-hover:border-white/40"
-                        }`}
+                      }`}
                     >
                       {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
                     </div>
