@@ -150,8 +150,8 @@ export function Testimonials() {
   ];
 
   return (
-    <section 
-      className="pt-5 sm:pt-7 pb-4 sm:pb-5 bg-[#faf9f6] relative z-10 w-full overflow-hidden border-t border-orange-100/60"
+    <section
+      className="w-full max-w-full pt-4 sm:pt-7 pb-5 sm:pb-5 bg-[#faf9f6] relative z-10  overflow-hidden border-t border-orange-100/60"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
@@ -162,7 +162,7 @@ export function Testimonials() {
       <div className="absolute bottom-0 right-10 w-80 h-80 bg-[#7C3AED]/6 blur-[100px] rounded-full pointer-events-none" />
 
       {/* Subtle Background Grid matching brand aesthetic */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none opacity-40"
         style={{
           backgroundImage: `linear-gradient(to right, #f4e8dc 1px, transparent 1px), linear-gradient(to bottom, #f4e8dc 1px, transparent 1px)`,
@@ -170,11 +170,11 @@ export function Testimonials() {
         }}
       />
 
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+      <div className="w-full max-w-[1280px] mx-auto px-3 min-[375px]:px-4 sm:px-6 lg:px-8 relative z-10">
+
         {/* Top Header Row matching the user reference graphics */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-3">
-          
+        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between mb-4 sm:mb-4 gap-3">
+
           {/* Decorative Horizontal Line with Dot (Left) */}
           <div className="hidden sm:flex items-center gap-0 w-16 md:w-28">
             <div className="h-[2.5px] bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] w-full rounded-full" />
@@ -182,12 +182,12 @@ export function Testimonials() {
           </div>
 
           {/* Heading on the Right: Compact "WHAT OUR TEAM SAYS?" Graphic Style */}
-          <div className="flex items-start gap-1.5 sm:gap-2.5 ml-auto">
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 ml-auto w-full sm:w-auto">
             <span className="text-2xl sm:text-3xl md:text-4xl font-serif font-black bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-none select-none">
               &ldquo;
             </span>
             <div className="text-right sm:text-left">
-              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-[26px] font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-[1.1]">
+              <h2 className="text-base min-[375px]:text-lg sm:text-xl md:text-2xl lg:text-[26px] font-black uppercase tracking-tight bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] bg-clip-text text-transparent leading-tight">
                 {activeTab === 'team' ? (
                   <>WHAT OUR<br />TEAM SAYS?</>
                 ) : (
@@ -199,32 +199,30 @@ export function Testimonials() {
         </div>
 
         {/* Tab Switcher: Team (Primary) vs Customer Review (Single clean review) */}
-        <div className="flex items-center justify-center sm:justify-start gap-2 mb-3.5 sm:mb-4">
+        <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-4 sm:mb-4 w-full">
           <button
             onClick={() => {
               setActiveTab('team');
               setCurrentIndex(0);
             }}
-            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'team'
-                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-pink-500/20 scale-102'
-                : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-orange-300 hover:text-slate-900 shadow-xs'
-            }`}
+            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${activeTab === 'team'
+              ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-pink-500/20 scale-102'
+              : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-orange-300 hover:text-slate-900 shadow-xs'
+              }`}
           >
             <Users className="w-3.5 h-3.5" />
             Our Team ({teamMembers.length})
           </button>
-          
+
           <button
             onClick={() => {
               setActiveTab('customer');
               setCurrentIndex(0);
             }}
-            className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${
-              activeTab === 'customer'
-                ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-purple-500/20 scale-102'
-                : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-purple-300 hover:text-slate-900 shadow-xs'
-            }`}
+            className={`px-3 sm:px-4 py-2 sm:py-1.5 rounded-full text-[11px] min-[375px]:text-xs sm:text-[13px] font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer ${activeTab === 'customer'
+              ? 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-md shadow-purple-500/20 scale-102'
+              : 'bg-white/90 text-slate-600 border border-slate-200/80 hover:border-purple-300 hover:text-slate-900 shadow-xs'
+              }`}
           >
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
             Customer Review
@@ -234,7 +232,7 @@ export function Testimonials() {
         {/* TEAM VIEW: 2 Containers per slide with horizontal scroll */}
         {activeTab === 'team' && (
           <div className="relative">
-            
+
             {/* Left Arrow Button */}
             <button
               onClick={handlePrev}
@@ -263,27 +261,27 @@ export function Testimonials() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: direction > 0 ? -40 : 40 }}
                   transition={{ duration: 0.35, ease: 'easeInOut' }}
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-stretch"
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 items-stretch w-full min-w-0"
                 >
                   {currentTeamPair.map((member, idx) => (
                     <div
                       key={`${member.id}-${idx}`}
-                      className="group relative h-full flex"
+                      className="group relative h-full flex w-full min-w-0"
                     >
                       {/* Outer Frame with Exact Logo Theme Gradient (Orange -> Hot Pink -> Purple) */}
-                      <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[22px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl w-full flex">
-                        
+                      <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[20px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl w-full min-w-0 flex">
+
                         {/* Main Clean Light Card Body (Compact height) */}
-                        <div className="bg-[#FFFFFF] rounded-[19px] sm:rounded-[23px] p-4 sm:p-5 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
-                          
+                        <div className="bg-[#FFFFFF] rounded-[18px] sm:rounded-[23px] p-3.5 min-[375px]:p-4 sm:p-5 w-full min-w-0 flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+
                           <div>
                             {/* Top Row: Avatar on Left + Name/Role in Middle + Quote Mark on Right */}
                             <div className="flex items-start gap-3 sm:gap-4 mb-2.5">
-                              
+
                               {/* Circular Avatar with Glowing Logo Theme Gradient Ring */}
                               <div className="relative shrink-0">
                                 <div className="p-[2.5px] sm:p-[3px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-sm group-hover:scale-105 transition-transform duration-300">
-                                  <div className="w-13 h-13 sm:w-15 sm:h-15 md:w-16 md:h-16 rounded-full overflow-hidden bg-slate-100">
+                                  <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full overflow-hidden bg-slate-100">
                                     <Image
                                       src={member.image}
                                       alt={`${member.name} - ${member.role}`}
@@ -297,10 +295,10 @@ export function Testimonials() {
 
                               {/* Name & Role */}
                               <div className="flex-1 min-w-0 pt-0.5">
-                                <h3 className="text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight truncate">
+                                <h3 className="text-sm min-[375px]:text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight break-words">
                                   {member.name}
                                 </h3>
-                                <p className="text-[11px] sm:text-xs font-semibold text-slate-500 mt-0.5 truncate">
+                                <p className="text-[10px] min-[375px]:text-[11px] sm:text-xs font-semibold text-slate-500 mt-1 leading-tight break-words">
                                   {member.role}
                                 </p>
                               </div>
@@ -312,9 +310,9 @@ export function Testimonials() {
                             </div>
 
                             {/* Exact Quotes from User Graphics */}
-                            <div className="space-y-1.5 text-slate-700 italic text-xs sm:text-[13px] leading-relaxed font-normal min-h-[46px] sm:min-h-[50px] flex items-start">
+                            <div className="w-full space-y-1.5 text-slate-700 italic text-[12px] min-[375px]:text-[13px]  sm:text-[13px] leading-relaxed font-normal min-h-[auto] sm:min-h-[50px] flex items-start">
                               {member.paragraphs.map((para, pIdx) => (
-                                <p key={pIdx} className="leading-relaxed">
+                                <p key={pIdx} className="w-full leading-relaxed brak-words">
                                   {para}
                                 </p>
                               ))}
@@ -322,8 +320,8 @@ export function Testimonials() {
                           </div>
 
                           {/* Footer Accent */}
-                          <div className="flex items-center justify-between pt-2 mt-2.5 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 font-medium">
-                            <span className="flex items-center gap-1 text-[#FF6B00] font-bold">
+                          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 mt-2.5 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 font-medium w-full">
+                            <span className="flex items-center gap-1 text-[#FF6B00] font-bold min-w-0">
                               <CheckCircle2 className="w-3 h-3" />
                               DhandaGrow AI Core Team
                             </span>
@@ -353,11 +351,10 @@ export function Testimonials() {
                       setCurrentIndex(dotIdx);
                     }}
                     aria-label={`Go to slide ${dotIdx + 1}`}
-                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                      isActive
-                        ? 'w-8 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-sm'
-                        : 'w-2.5 bg-slate-300 hover:bg-slate-400'
-                    }`}
+                    className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${isActive
+                      ? 'w-8 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-sm'
+                      : 'w-2.5 bg-slate-300 hover:bg-slate-400'
+                      }`}
                   />
                 );
               })}
@@ -368,23 +365,23 @@ export function Testimonials() {
 
         {/* CUSTOMER VIEW: Single Clean Genuine Review (No dummy data/photos) */}
         {activeTab === 'customer' && (
-          <div className="max-w-2xl mx-auto py-2">
+          <div className="w-full max-w-2xl mx-auto py-2">
             <div className="group relative">
-              
+
               {/* Outer Frame with Exact Logo Theme Gradient */}
-              <div className="bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[22px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl">
-                
+              <div className="w-full min-w-0 bg-gradient-to-br from-[#FF6B00] via-[#E11D48] to-[#7C3AED] rounded-[20px] sm:rounded-[26px] p-0 pr-2 pb-2 sm:pr-2.5 sm:pb-2.5 shadow-lg transition-all duration-300 group-hover:shadow-xl">
+
                 {/* Main Clean Card Body */}
-                <div className="bg-[#FFFFFF] rounded-[19px] sm:rounded-[23px] p-4 sm:p-5 w-full flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
-                  
+                <div className="bg-[#FFFFFF] rounded-[18px] sm:rounded-[23px] p-3.5 min-[375px]:p-4 sm:p-5 w-full min-w-0 flex flex-col justify-between relative overflow-hidden border border-slate-100 shadow-xs">
+
                   <div>
                     {/* Top Row: Logo Icon on Left + Name/Business in Middle + Stars/Quote on Right */}
                     <div className="flex items-start gap-3 sm:gap-4 mb-2.5">
-                      
+
                       {/* Circular Avatar with Logo Theme Gradient Ring */}
                       <div className="relative shrink-0">
                         <div className="p-[2.5px] sm:p-[3px] rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] shadow-xs">
-                          <div className="w-13 h-13 sm:w-15 sm:h-15 rounded-full overflow-hidden bg-white p-1.5 flex items-center justify-center">
+                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden bg-white p-1.5 flex items-center justify-center">
                             <Image
                               src={singleCustomerReview.image}
                               alt={singleCustomerReview.name}
@@ -399,10 +396,10 @@ export function Testimonials() {
                       {/* Name & Business */}
                       <div className="flex-1 min-w-0 pt-0.5">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <h3 className="text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight">
+                          <h3 className="text-sm min-[375px]:text-base sm:text-lg font-bold text-[#0f172a] tracking-tight leading-tight break-words">
                             {singleCustomerReview.name}
                           </h3>
-                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200/70 text-[#E11D48]">
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] min-[375px]:text-[10px] font-bold bg-gradient-to-r from-orange-50 to-pink-50 border border-orange-200/70 text-[#E11D48] whitespace-nowrap">
                             Verified Customer
                           </span>
                         </div>
@@ -421,21 +418,21 @@ export function Testimonials() {
                     </div>
 
                     {/* 5-Star Rating Row */}
-                    <div className="flex items-center gap-1 mb-2">
+                    <div className="flex flex-wrap items-center gap-1 mb-2">
                       {[...Array(singleCustomerReview.rating)].map((_, starIdx) => (
                         <Star key={starIdx} className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                       ))}
-                      <span className="text-[11px] font-bold text-amber-600 ml-1">5.0 Star Verified Review</span>
+                      <span className="text-[10px] sm:text-[11px] font-bold text-amber-600 ml-1">5.0 Star Verified Review</span>
                     </div>
 
                     {/* Customer Review Quote */}
-                    <p className="text-slate-700 italic text-xs sm:text-[13.5px] leading-relaxed font-normal">
+                    <p className="w-full text-slate-700 italic text-[12px] min-[375px]:text-[13px] sm:text-[13.5px] leading-relaxed font-normal break-words">
                       {singleCustomerReview.quote}
                     </p>
                   </div>
 
                   {/* Trust Footer */}
-                  <div className="flex items-center justify-between pt-2.5 mt-3 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
+                  <div className="flex flex-wrap items-center justify-between pt-2.5 mt-3 border-t border-slate-100 text-[10px] sm:text-[11px] text-slate-500 font-medium">
                     <span className="flex items-center gap-1.5 text-emerald-600 font-bold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       Verified Business Partner

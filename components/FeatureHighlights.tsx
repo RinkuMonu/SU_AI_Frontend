@@ -155,10 +155,11 @@ const allFeatures = [
 
 export function FeatureHighlights() {
   return (
-    <section className="pt-5 sm:pt-7 pb-4 sm:pb-6 bg-white relative z-10 w-full overflow-hidden">
+    <section className="pt-4 sm:pt-7 pb-3 sm:pb-6 bg-white relative z-10 w-full overflow-hidden">
       {/* Edge gradient fade masks for smooth infinite entrance & exit */}
-      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-20 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-20 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-12 lg:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-20 pointer-events-none" />
+
+      <div className="absolute right-0 top-0 bottom-0 w-6 sm:w-12 lg:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-20 pointer-events-none" />
 
       <div className="w-full flex items-center">
         <div className="feature-marquee-track">
@@ -166,7 +167,7 @@ export function FeatureHighlights() {
           {[1, 2].map((groupNum) => (
             <div
               key={`feature-group-${groupNum}`}
-              className="feature-marquee-group flex items-center gap-4 sm:gap-5 pr-4 sm:pr-5 shrink-0"
+              className="feature-marquee-group flex items-center gap-3 sm:gap-4 lg:gap-5  pr-3 sm:pr-4 lg:pr-5 shrink-0"
               aria-hidden={groupNum > 1 ? 'true' : undefined}
             >
               {allFeatures.map((feature, idx) => {
@@ -175,14 +176,14 @@ export function FeatureHighlights() {
                   <Link
                     key={`feat-${groupNum}-${idx}`}
                     href={feature.route}
-                    className="flex flex-col justify-between w-[170px] sm:w-[195px] h-[128px] sm:h-[138px] bg-white rounded-[20px] border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)] hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 px-3.5 py-3.5 shrink-0 select-none group cursor-pointer"
+                    className="flex flex-col justify-between w-[135px]  sm:w-[170px] md:w-[185px] lg:w-[195px]  h-[112px] sm:h-[125px] md:h-[132px] lg:h-[138px] bg-white rounded-[16px] sm:rounded-[20px] border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.04)] hover:shadow-[0_10px_25px_rgba(0,0,0,0.08)] hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 px-2.5 py-3 sm:px-3.5 sm:py-3.5 shrink-0 select-none group cursor-pointer"
                   >
                     {/* Top Logo / Icon Area */}
                     <div className="flex-1 flex items-center justify-center">
                       <div
-                        className={`w-11 h-11 rounded-[14px] ${feature.colorClass} flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xs`}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11  rounded-[12px] sm:rounded-[14px] ${feature.colorClass} flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xs`}
                       >
-                        <IconComponent className="w-5 h-5" />
+                        <IconComponent className="w-5 h-5 sm:w-5 sm:h-5" />
                       </div>
                     </div>
 
@@ -191,7 +192,7 @@ export function FeatureHighlights() {
 
                     {/* Bottom Title Area */}
                     <div className="text-center px-1">
-                      <span className="text-[12.5px] sm:text-[13px] font-bold text-slate-800 group-hover:text-indigo-600 transition-colors tracking-tight line-clamp-1 block">
+                      <span className="text-[11px] sm:text-[12px] md:text-[13px] font-bold text-slate-800 group-hover:text-indigo-600 transition-colors tracking-tight line-clamp-1 block">
                         {feature.name}
                       </span>
                     </div>

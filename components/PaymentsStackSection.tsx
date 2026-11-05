@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+
 import {
   Zap,
   Sparkles,
@@ -35,15 +36,19 @@ const YoutubeIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 const ThreadsIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12.186 24h-.007c-3.581-.024-6.334-1.222-8.184-3.56C2.234 18.19 1.44 15.064 1.63 11.12 1.88 5.927 5.72 1.832 10.977 1.155c4.717-.61 9.28 1.87 11.077 6.017a.998.998 0 0 1-1.838.784c-1.464-3.38-5.187-5.4-9.034-4.903-4.324.557-7.482 3.923-7.689 8.19-.158 3.255.498 5.82 1.95 7.625 1.492 1.856 3.734 2.809 6.666 2.829h.007c2.65-.018 4.79-.844 6.36-2.455 1.503-1.544 2.302-3.666 2.313-6.136-.015-3.04-.972-5.46-2.766-7.001-1.741-1.494-4.148-2.274-7.155-2.317-3.23.044-5.83 1.05-7.728 2.988-1.802 1.84-2.81 4.475-2.84 7.42-.036 3.513 1.258 6.467 3.743 8.544.757.632.784 1.765.06 2.43-.725.666-1.844.607-2.52-.164C.887 21.688-.535 18.258-.493 14.156c.036-3.486 1.246-6.613 3.407-8.82C5.163 3.018 8.24 1.83 12.062 1.782c3.55.05 6.425.986 8.548 2.782 2.185 1.85 3.35 4.754 3.37 8.397-.014 2.946-.967 5.513-2.756 7.424-1.87 1.996-4.472 3.036-7.731 3.058l-.307.557z" />
-  </svg>
+  <img
+    src="https://cdn.simpleicons.org/threads/808080?utm_source=chatgpt.com"
+    alt="Threads"
+    className={className}
+  />
 );
 
 const SnapchatIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12.065 1.5c-4.14 0-6.84 2.87-6.84 6.72 0 .84.18 1.95.45 2.76-.75.39-1.53.84-2.01 1.62-.42.66-.42 1.47-.03 2.13.48.81 1.41 1.29 2.43 1.53-.06.39-.09.78-.09 1.17 0 .81.24 1.53.69 2.16-1.02.45-2.07 1.05-2.07 2.19 0 1.23 1.56 1.77 3.51 1.83.66.03 1.35-.06 2.04-.24.51-.15.99-.33 1.44-.33.39 0 .81.18 1.29.33.81.24 1.71.36 2.61.36.93 0 1.83-.12 2.64-.36.48-.15.9-.33 1.29-.33.45 0 .93.18 1.44.33.69.18 1.38.27 2.04.24 1.95-.06 3.51-.6 3.51-1.83 0-1.14-1.05-1.74-2.07-2.19.45-.63.69-1.35.69-2.16 0-.39-.03-.78-.09-1.17 1.02-.24 1.95-.72 2.43-1.53.39-.66.39-1.47-.03-2.13-.48-.78-1.26-1.23-2.01-1.62.27-.81.45-1.92.45-2.76 0-3.85-2.7-6.72-6.84-6.72z" />
-  </svg>
+  <img
+    src="https://cdn.simpleicons.org/snapchat/808080?utm_source=chatgpt.com"
+    alt="Snapchat"
+    className={className}
+  />
 );
 const FacebookIcon = ({ className }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -1387,14 +1392,14 @@ export function PaymentsStackSection() {
   };
 
   return (
-    <section className="pt-3 sm:pt-4 pb-3 sm:pb-4 bg-[#faf9f6] relative z-10 w-full transition-colors duration-200">
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <section className="relative z-10 w-full min-w-0 overflow-x-clip  bg-[#faf9f6] pt-3 sm:pt-4 pb-3 sm:pb-4">
+      <div className="  relative z-10 max-w-[1360px] mx-auto w-full px-3 md:px-5 sm:px-6 lg:px-8 ">
 
         {/* Sticky Top Floating Navigation Pill Bar */}
-        <div className="sticky top-20 sm:top-24 z-40 pointer-events-none flex justify-center mb-4 sm:mb-5 py-1 px-2">
+        <div className="sticky top-16 sm:top-20 md:top-24 z-40 pointer-events-none flex justify-center w-full min-w-0 mb-4 sm:mb-5 py-1 px-2 sm:px-2">
           <div
             ref={pillBarRef}
-            className="pointer-events-auto inline-flex items-center p-1 sm:p-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200/90 gap-0.5 sm:gap-1 max-w-full overflow-x-auto scrollbar-hide scroll-smooth"
+            className="pointer-events-auto flex items-center w-fit max-w-full min-w-0 p-1 sm:p-1.5 rounded-full bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200/90 gap-0.5 sm:gap-1  overflow-x-auto overflow-y-hidden scrollbar-hide scroll-smooth"
           >
 
             {sectionsData.map((category, idx) => {
@@ -1420,11 +1425,10 @@ export function PaymentsStackSection() {
                   <button
                     data-tab={category.id}
                     onClick={() => scrollToSection(category.id)}
-                    className={`relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-full text-xs sm:text-[13px] font-semibold transition-all duration-300 cursor-pointer whitespace-nowrap shrink-0 ${
-                      isCurrent
-                        ? 'font-bold shadow-xs'
-                        : 'text-slate-500 hover:text-slate-900'
-                    }`}
+                    className={`relative flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-2 sm:py-1.5 rounded-full text-[11px] sm:text-[13px]  font-semibold transition-all duration-300 cursor-pointer whitespace-nowrap shrink-0 ${isCurrent
+                      ? 'font-bold shadow-xs'
+                      : 'text-slate-500 hover:text-slate-900'
+                      }`}
                     style={{
                       color: isCurrent ? category.themeColor : undefined
                     }}
@@ -1451,17 +1455,17 @@ export function PaymentsStackSection() {
         </div>
 
         {/* Sequential Sections */}
-        <div className="space-y-10 sm:space-y-12">
+        <div className="space-y-8 sm:space-y-10 lg:space-y-12">
           {sectionsData.map((category) => (
             <div
               key={category.id}
               id={`section-${category.id}`}
               className="scroll-mt-28 sm:scroll-mt-32"
             >
-              <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start min-w-0">
 
                 {/* Left Column: Sticky alongside cards */}
-                <div className="lg:col-span-3 lg:sticky lg:top-32 pt-1">
+                <div className="w-full min-w-0 lg:col-span-9 space-y-4 sm:space-y-6 lg:space-y-7">
                   <div
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2.5 shadow-xs"
                     style={{
@@ -1473,10 +1477,10 @@ export function PaymentsStackSection() {
                     <category.icon className="w-3.5 h-3.5" />
                     <span>{category.label}</span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2 leading-tight">
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 mb-2 leading-tight break-words">
                     {category.badge}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-500 mb-3.5 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-500 mb-3.5 leading-relaxed break-words ">
                     {category.description}
                   </p>
 
@@ -1487,7 +1491,7 @@ export function PaymentsStackSection() {
                         <button
                           key={sub.id}
                           onClick={() => scrollToCard(sub.id)}
-                          className="w-full text-left flex items-start gap-2.5 group transition-colors cursor-pointer py-0.5"
+                          className="w-full min-w-0 text-left flex items-start gap-2.5 group transition-colors cursor-pointer py-1"
                         >
                           <div className="relative w-2.5 h-2.5 mt-1.5 shrink-0 flex items-center justify-center">
                             {isSubSelected ? (
@@ -1506,11 +1510,11 @@ export function PaymentsStackSection() {
                             )}
                           </div>
                           <span
-                            className={`text-sm sm:text-base leading-snug transition-colors ${
-                              isSubSelected
+                            className={`min-w-0 text-xs sm:text-sm lg:text-base leading-snug transition-colors break-words
+                               ${isSubSelected
                                 ? 'text-slate-900 font-bold'
                                 : 'text-slate-500 font-medium group-hover:text-slate-800'
-                            }`}
+                              }`}
                           >
                             {sub.navTitle}
                           </span>
@@ -1521,15 +1525,15 @@ export function PaymentsStackSection() {
                 </div>
 
                 {/* Right Column: Content Cards */}
-                <div className="lg:col-span-9 space-y-6 sm:space-y-7 min-w-0">
+                <div className=" w-full min-w-0 lg:col-span-9 space-y-5 sm:space-y-6 lg:space-y-7 ">
                   {category.subItems.map((sub) => (
                     <div
                       key={sub.id}
                       id={`card-${sub.id}`}
-                      className="scroll-mt-28 sm:scroll-mt-32 bg-[#fffdfa] rounded-[24px] sm:rounded-[28px] border border-orange-200/50 shadow-[0_16px_40px_-15px_rgba(0,0,0,0.05)] p-4 sm:p-6 relative overflow-hidden"
+                      className="scroll-mt-24 sm:scroll-mt-28 lg:scroll-mt-32 w-full min-w-0 bg-[#fffdfa] rounded-2xl sm:rounded-[24px] lg:rounded-[28px] border border-orange-200/50 shadow-[0_16px_40px_-15px_rgba(0,0,0,0.05)] p-3 sm:p-4 md:p-5 lg:p-6 relative overflow-hidden"
                     >
                       {/* Main Heading */}
-                      <h4 className="font-serif text-xl sm:text-2xl lg:text-[26px] font-bold text-slate-900 tracking-tight mb-4 leading-tight">
+                      <h4 className="font-serif text-lg sm:text-xl md:text-2xl lg:text-[26px] font-bold text-slate-900 tracking-tight mb-4 leading-tight break-words">
                         {sub.heading}
                       </h4>
 
@@ -1548,8 +1552,9 @@ export function PaymentsStackSection() {
                         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-3">
 
                           {/* 1. Left Input Card */}
-                          <div className="w-full lg:w-[240px] xl:w-[260px] shrink-0 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-md">
-                            <div className="flex items-center justify-between mb-2">
+                          <div className="w-full lg:w-[240px] xl:w-[260px] min-w-0 shrink-0 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 border border-slate-200/80 shadow-md">
+
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                               <span
                                 className="text-[11px] sm:text-xs font-semibold"
                                 style={{ color: category.themeColor }}
@@ -1567,7 +1572,7 @@ export function PaymentsStackSection() {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-2.5 bg-[#faf8f5] border border-slate-100 rounded-xl px-3 py-2.5 mt-2">
+                            <div className="flex items-center gap-2.5 min-w-0 bg-[#faf8f5] border border-slate-100 rounded-xl px-2.5 sm:px-3 py-2.5 mt-2">
                               <div
                                 className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border shadow-2xs"
                                 style={{
@@ -1578,14 +1583,14 @@ export function PaymentsStackSection() {
                               >
                                 <category.icon className="w-4 h-4 shrink-0" />
                               </div>
-                              <span className="text-xs sm:text-sm font-bold text-slate-800 tracking-wide font-mono truncate">
+                              <span className="min-w-0 text-xs sm:text-sm font-bold text-slate-800 tracking-wide font-mono break-words [overflow-wrap:anywhere]">
                                 {sub.inputCard.value}
                               </span>
                             </div>
                           </div>
 
                           {/* 2. Center Connector Network Lines & Glowing Processing Hub */}
-                          <div className="relative flex items-center justify-center my-3 lg:my-0 shrink-0 w-full lg:w-auto px-1">
+                          <div className="relative flex flex-col lg:flex-row items-center justify-center my-2 lg:my-0 shrink-0 w-full lg:w-auto px-1 gap-2 lg:gap-0">
                             {/* Left line connecting Input to Center Hub */}
                             <div className="hidden lg:flex items-center w-10 xl:w-16 h-[2px] bg-gradient-to-r from-slate-200 via-slate-300 to-indigo-200 relative">
                               <div
@@ -1596,7 +1601,7 @@ export function PaymentsStackSection() {
 
                             {/* Center Glowing Hub with Official Social Media Brand Icon */}
                             <div
-                              className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-white scale-100 hover:scale-105 transition-transform p-3 shrink-0 mx-1"
+                              className="relative z-10 w-11 h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-white hover:scale-105 transition-transform p-2.5 sm:p-3 shrink-0 mx-1"
                               style={{
                                 background: category.themeGradient,
                                 boxShadow: `0 8px 24px ${category.themeColor}50`
@@ -1656,8 +1661,9 @@ export function PaymentsStackSection() {
                           </div>
 
                           {/* 3. Right Output / Intelligence Card */}
-                          <div className="w-full lg:flex-1 lg:min-w-[280px] lg:max-w-[380px] bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-lg">
-                            <div className="flex items-center justify-between mb-2.5 gap-2">
+                          <div className="w-full min-w-0 lg:flex-1 lg:min-w-[280px] lg:max-w-[380px] bg-white/95 backdrop-blur-sm rounded-xl sm:rounded-2xl p-3 sm:p-4 lg:p-5 border border-slate-200/80 shadow-lg">
+
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2.5 gap-2 min-w-0">
                               <div className="flex items-center gap-2 min-w-0">
                                 <div
                                   className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
@@ -1673,7 +1679,7 @@ export function PaymentsStackSection() {
                                 </span>
                               </div>
                               <span
-                                className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                                className="text-[10px] sm:text-[11px] font-bold px-2 py-1 rounded-full w-fit max-w-full whitespace-normal break-words"
                                 style={{
                                   backgroundColor: `${category.themeColor}15`,
                                   color: category.themeColor
@@ -1696,12 +1702,13 @@ export function PaymentsStackSection() {
                             {/* Verified Signal Items */}
                             <div className="space-y-2.5">
                               {sub.outputCard.items.map((item, idx) => (
-                                <div key={idx} className="flex items-center justify-between text-xs sm:text-[13px] border-b border-slate-100 pb-2 last:border-none last:pb-0 gap-2">
-                                  <div className="flex items-center gap-2 text-slate-600 font-medium shrink-0">
+                                <div key={idx}
+                                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-xs sm:text-[13px] border-b border-slate-100 pb-2 last:border-none last:pb-0 gap-1.5 sm:gap-2 min-w-0">
+                                  <div className="flex items-center gap-2 text-slate-600 font-medium min-w-0">
                                     {item.icon}
                                     <span>{item.label}</span>
                                   </div>
-                                  <span className="font-semibold text-slate-900 text-right text-xs truncate max-w-[170px] sm:max-w-[200px]" title={item.value}>
+                                  <span className="min-w-0 w-full sm:w-auto font-semibold text-slate-900  text-left sm:text-right text-xs whitespace-normal break-words [overflow-wrap:anywhere]" title={item.value}>
                                     {item.value}
                                   </span>
                                 </div>
@@ -1713,9 +1720,10 @@ export function PaymentsStackSection() {
                       </div>
 
                       {/* Bottom 3 Feature Benefit Badges */}
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 pt-3.5 sm:pt-4 border-t border-slate-200/60">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 pt-3.5 sm:pt-4 border-t border-slate-200/60">
                         {sub.benefits.map((benefit, idx) => (
-                          <div key={idx} className="flex items-start gap-3 group">
+
+                          <div key={idx} className="flex items-start gap-2.5 sm:gap-3 min-w-0 group">
                             <div
                               className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform border"
                               style={{
@@ -1726,10 +1734,10 @@ export function PaymentsStackSection() {
                               {benefit.icon}
                             </div>
                             <div>
-                              <h5 className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5 leading-snug">
+                              <h5 className="text-xs sm:text-sm font-bold text-slate-900 mb-0.5 leading-snug break-words">
                                 {benefit.title}
                               </h5>
-                              <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed font-medium">
+                              <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed font-medium break-words">
                                 {benefit.desc}
                               </p>
                             </div>

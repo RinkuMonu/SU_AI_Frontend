@@ -46,31 +46,31 @@ const stepsData: AutomationStep[] = [
 
 export function Automation() {
   return (
-    <section id="automation" className="pt-5 sm:pt-7 pb-7 sm:pb-9 bg-white relative overflow-hidden border-t border-slate-100 scroll-mt-20">
+    <section id="automation" className=" w-full max-w-full pt-4 sm:pt-7 pb-5 sm:pb-9 bg-white relative overflow-hidden border-t border-slate-100 scroll-mt-20">
       {/* Background Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-100/40 blur-[100px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-100/40 blur-[100px] rounded-full pointer-events-none" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        
+      <div className=" w-full max-w-6xl mx-auto px-3 min-[375px]:px-4 sm:px-6 lg:px-8 relative z-10">
+
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-5 sm:mb-6">
+        <div className="flex flex-col items-center text-center mb-4 sm:mb-6 w-full">
           <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-slate-50 border border-slate-200/80 mb-2 shadow-2xs">
             <Zap className="w-3 h-3 text-amber-500" />
             <span className="text-[11px] font-semibold text-slate-700 tracking-wide">Autopilot Marketing</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-[34px] font-bold text-slate-900 tracking-tight leading-tight">
+          <h2 className="text-xl min-[375px]:text-2xl sm:text-3xl md:text-[34px] font-bold text-slate-900 tracking-tight leading-tight max-w-full px-1">
             Automated from <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]">start to finish</span>.
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-md mx-auto px-2 leading-relaxed">
             Three simple steps to put your digital marketing on autopilot.
           </p>
         </div>
 
         {/* 3 Process Cards Wrapper */}
         <div className="relative max-w-5xl mx-auto">
-          
+
           {/* Continuous Flowing Laser Energy Beams (Desktop) */}
           <div className="hidden md:block pointer-events-none">
             {/* Segment 1: Step 1 to Step 2 */}
@@ -138,16 +138,16 @@ export function Automation() {
           </div>
 
           {/* Cards Grid: Compact height widgets */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-4 lg:gap-5 relative z-20">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 md:gap-4 lg:gap-5 relative z-20 w-full">
             {stepsData.map((step, idx) => (
-              <div 
+              <div
                 key={step.number}
-                className="relative flex flex-col items-center group"
+                className="relative flex flex-col items-center group w-full min-w-0"
               >
                 {/* Mobile Vertical Flow Connector */}
                 {idx > 0 && (
-                  <div className="md:hidden flex flex-col items-center justify-center -mt-3 mb-2 select-none z-10">
-                    <div className="relative w-[2px] h-7 bg-slate-200 rounded-full overflow-hidden">
+                  <div className="md:hidden flex flex-col items-center justify-center -mt-1 mb-2 select-none z-10">
+                    <div className="relative w-[2px] h-6 sm:h-7 bg-slate-200 rounded-full overflow-hidden">
                       <motion.div
                         className="absolute left-0 right-0 h-4 bg-gradient-to-b from-[#FF6B00] to-[#7C3AED] rounded-full"
                         animate={{ top: ['-50%', '120%'] }}
@@ -159,24 +159,24 @@ export function Automation() {
                 )}
 
                 {/* 3D Circular Orb Icon Token with gentle floating animation */}
-                <motion.div 
+                <motion.div
                   animate={{ y: [0, -3.5, 0] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: idx * 0.35 }}
-                  className="w-[54px] h-[54px] rounded-full p-[2px] shadow-lg relative z-30 -mb-5 group-hover:scale-105 transition-transform duration-300 shrink-0 cursor-default"
+                  className=" w-12 h-12  sm:w-[54px] sm:h-[54px] rounded-full p-[2px] shadow-lg relative z-30 -mb-4 sm:-mb-5 group-hover:scale-105 transition-transform duration-300 shrink-0 cursor-default"
                   style={{
                     background: `linear-gradient(135deg, ${step.colorFrom} 0%, ${step.colorTo} 100%)`,
                     boxShadow: `0 6px 16px -2px ${step.glowColor}`
                   }}
                 >
                   {/* Inner orb face */}
-                  <div 
+                  <div
                     className="w-full h-full rounded-full flex items-center justify-center relative overflow-hidden border border-white/40"
                     style={{
                       backgroundColor: step.colorFrom
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-white/30 via-transparent to-black/25" />
-                    <step.icon className="w-5 h-5 text-white relative z-10 stroke-[2] drop-shadow-md" />
+                    <step.icon className="w-4 h-4 sm:w-5 sm:h-5 text-white relative z-10 stroke-[2] drop-shadow-md" />
                   </div>
 
                   {/* Step Number Badge */}
@@ -186,10 +186,10 @@ export function Automation() {
                 </motion.div>
 
                 {/* White Widget Container */}
-                <div className="w-full max-w-[280px] bg-white rounded-xl border border-slate-200/90 pt-6 pb-2.5 px-3 text-center relative overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col items-center">
-                  
+                <div className="w-full max-w-[280px] md:max-w-[280px] bg-white rounded-xl border border-slate-200/90 pt-6 pb-4  px-4 sm:px-3 text-center relative overflow-hidden shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-300 flex flex-col items-center">
+
                   {/* Subtle inner radial glow */}
-                  <div 
+                  <div
                     className="absolute inset-0 pointer-events-none opacity-5 transition-opacity group-hover:opacity-10"
                     style={{
                       background: `radial-gradient(circle at 50% 0%, ${step.colorFrom}, transparent 70%)`
@@ -197,12 +197,12 @@ export function Automation() {
                   />
 
                   {/* Step Title */}
-                  <h3 className="text-xs sm:text-[13.5px] font-bold text-slate-900 mb-0.5 tracking-tight group-hover:text-pink-600 transition-colors">
+                  <h3 className="text-xs sm:text-[13.5px] font-bold text-slate-900 mb-1 tracking-tight leading-tight group-hover:text-pink-600 transition-colors">
                     {step.title}
                   </h3>
 
                   {/* Step Description */}
-                  <p className="text-[10px] sm:text-[10.5px] text-slate-500 leading-tight font-normal max-w-[210px] mx-auto">
+                  <p className=" text-xs sm:text-[10.5px]  text-slate-500 leading-tight font-normal w-full max-w-[260px] mx-auto">
                     {step.description}
                   </p>
                 </div>
