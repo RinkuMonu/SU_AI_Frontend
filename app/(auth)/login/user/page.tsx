@@ -32,7 +32,7 @@ import { OnboardingService } from "@/services/onboarding.service";
 import { FacebookService } from "@/services/facebook.service";
 import api from "@/lib/api";
 import { useAuth } from "@/components/auth/AuthProvider";
-import { needsRoleSelection, getDashboardRouteForRole, normalizeRole } from "@/lib/role-routing";
+import { needsRoleSelection, getDashboardRouteForRole, normalizeRole, mapBackendDashboardRoute } from "@/lib/role-routing";
 import { creatorOnboardingService } from "@/services/creator-onboarding.service";
 import { AuthCenterModal, AuthModalStatus, AuthProviderType } from "@/components/auth/AuthCenterModal";
 import { OtpInput } from "@/components/ui/OtpInput";
@@ -215,7 +215,8 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
   );
 
   if (explicitRoute && explicitRoute !== "/influencer") {
-    router.push(explicitRoute);
+    const targetRoute = mapBackendDashboardRoute(explicitRoute, user?.role);
+    router.push(targetRoute);
     return;
   }
 
@@ -426,7 +427,7 @@ export default function LoginPage() {
     setError("");
 
     const validation = validatePhoneNumber(countryCode, phone);
-    const targetPhone = validation.isValid ? validation.e164 : (countryCode + phone);
+    const targetPhone = (validation.isValid ? validation.e164 : (countryCode + phone)).replace(/\s+/g, "");
 
     try {
       const response = await authService.verifyOtp(
@@ -485,7 +486,7 @@ export default function LoginPage() {
           sessionStorage.removeItem("onboarding_step");
           sessionStorage.removeItem("show_onboarding_plan");
         }
-        navigateAfterAuth(finalUser, router, (response as any).dashboard_route);
+        await navigateAfterAuth(finalUser, router, (response as any).dashboard_route);
       } else {
         throw new Error(response.message || "OTP verification did not return session.");
       }
@@ -536,7 +537,7 @@ export default function LoginPage() {
         sessionStorage.removeItem("onboarding_step");
         sessionStorage.removeItem("show_onboarding_plan");
       }
-      navigateAfterAuth(finalUser, router, pendingDashboardRoute);
+      await navigateAfterAuth(finalUser, router, pendingDashboardRoute);
     } catch (err: any) {
       setDetailsError(err.message || "Failed to save your name. Please try again.");
     } finally {

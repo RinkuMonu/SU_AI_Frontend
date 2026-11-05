@@ -79,9 +79,9 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
           code: 'WHATSAPP_GATEWAY_ERROR'
         };
       }
-      if (lower === 'internal server error' || lower.includes('internal server error') || status === 500) {
+      if (lower === 'internal server error' || lower.includes('internal server error')) {
         return {
-          message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+          message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
           code: 'SERVER_500'
         };
       }
@@ -97,9 +97,9 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
 
   if (typeof error.response?.data === 'string' && error.response.data.trim() && !error.response.data.trim().startsWith('<')) {
     const rawStr = error.response.data.trim();
-    if (rawStr.toLowerCase().includes('internal server error') || status === 500) {
+    if (rawStr.toLowerCase().includes('internal server error')) {
       return {
-        message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+        message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
         code: 'SERVER_500'
       };
     }
@@ -108,7 +108,7 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
 
   if (status === 500) {
     return {
-      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
       code: 'SERVER_500'
     };
   }
@@ -116,7 +116,7 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
   const errMessage = error.message || '';
   if (errMessage.toLowerCase().includes('internal server error')) {
     return {
-      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
       code: 'SERVER_500'
     };
   }
@@ -312,7 +312,7 @@ export const authService = {
       const rawMode = typeof phoneOrObj === 'object' ? phoneOrObj.mode : undefined;
       const rawOtp = otpCode || '';
 
-      const cleanPhone = (rawPhone || '').trim();
+      const cleanPhone = (rawPhone || '').replace(/\s+/g, '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,
@@ -374,7 +374,7 @@ export const authService = {
     const activeChannel: OtpDeliveryChannel = (typeof phoneOrObj === 'object' ? phoneOrObj.channel : channelArg) || 'sms';
 
     try {
-      const cleanPhone = (rawPhone || '').trim();
+      const cleanPhone = (rawPhone || '').replace(/\s+/g, '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,
