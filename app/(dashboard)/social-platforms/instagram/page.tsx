@@ -582,7 +582,7 @@ export default function InstagramIntegrationPage() {
             <CardContent className="p-5 sm:p-6 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
-                  <InstagramIcon className="w-5 h-5" />
+                  <InstagramIcon className="w-7 h-7 shrink-0" />
                   <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">Fast Instagram Connect</h3>
                 </div>
                 <p className="text-sm text-slate-300 font-normal tracking-wide max-w-xl leading-relaxed">
@@ -640,7 +640,7 @@ export default function InstagramIntegrationPage() {
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <InstagramIcon className="h-5 w-5" />
+                <InstagramIcon className="w-7 h-7 shrink-0" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   Instagram Graph API Credentials
                 </CardTitle>

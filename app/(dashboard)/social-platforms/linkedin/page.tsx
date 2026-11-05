@@ -277,7 +277,7 @@ export default function LinkedinIntegrationPage() {
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <ShieldCheck className="h-5 w-5 text-blue-400" />
+                <ShieldCheck className="h-6.5 w-6.5 text-blue-400 shrink-0" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   LinkedIn Connection Status
                 </CardTitle>
@@ -292,7 +292,7 @@ export default function LinkedinIntegrationPage() {
             <div className="p-4 sm:p-5 rounded-xl bg-[#081226] border border-[#1e2a4a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="text-sm sm:text-base font-normal text-white flex items-center gap-2.5 tracking-wide">
-                  <LinkedinIcon className="h-5 w-5 text-[#0A66C2]" />
+                  <LinkedinIcon className="w-7 h-7 shrink-0 text-[#0A66C2]" />
                   {isConnected ? "Account Connected" : "Connect LinkedIn with 1-Click"}
                 </div>
                 <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
@@ -342,7 +342,7 @@ export default function LinkedinIntegrationPage() {
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <LinkedinIcon className="h-5 w-5 text-[#0A66C2]" />
+                <LinkedinIcon className="w-6 h-6 shrink-0 text-[#0A66C2]" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   Advanced: Manual Credentials
                 </CardTitle>
