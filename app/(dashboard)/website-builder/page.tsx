@@ -349,8 +349,173 @@ const getCategorySafeImageQuery = (
     return "cloud enterprise server infrastructure network engineer data center";
   }
 
+  // 5b. STATIONERY / BOOKS
+  if (
+    c.includes("stationery") || c.includes("book") || c.includes("pen") ||
+    c.includes("pencil") || c.includes("diary") || c.includes("paper")
+  ) {
+    if (sectionType === "hero") {
+      return "cozy aesthetic stationery store notebooks pens journal craft supplies warm daylight";
+    }
+    if (sectionType === "products" || sectionType === "catalog") {
+      return cleanItem
+        ? `premium ${cleanItem} stationery books writing journal notebook`
+        : "stationery items books luxury pens and notebooks display";
+    }
+    return "organized aesthetic stationery shop shelves notebook display";
+  }
+
   // 6. DEFAULT / OTHER
   return `${businessName || "business"} ${category} ${cleanItem || sectionType} professional storefront`;
+};
+
+const resolveCuratedUnsplash = (query: string): string => {
+  const q = (query || "").toLowerCase();
+
+  // Makeup & Beauty
+  if (
+    q.includes("makeup") || q.includes("make up") || q.includes("cosmetic") ||
+    q.includes("beauty") || q.includes("lipstick") || q.includes("foundation") ||
+    q.includes("skincare") || q.includes("eyeshadow") || q.includes("mascara") ||
+    q.includes("fifa") || q.includes("glam") || q.includes("facial")
+  ) {
+    if (q.includes("tutorial") || q.includes("workshop") || q.includes("artist") || q.includes("class") || q.includes("lesson")) {
+      return "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("foundation") || q.includes("base") || q.includes("primer") || q.includes("concealer")) {
+      return "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("lipstick") || q.includes("lip") || q.includes("gloss")) {
+      return "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("eye") || q.includes("palette") || q.includes("shadow") || q.includes("mascara")) {
+      return "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("skin") || q.includes("serum") || q.includes("cream") || q.includes("moisturizer")) {
+      return "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("brush") || q.includes("tool") || q.includes("kit")) {
+      return "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Shoes & Footwear
+  if (q.includes("shoe") || q.includes("shoes") || q.includes("sneaker") || q.includes("footwear") || q.includes("boot") || q.includes("heel")) {
+    if (q.includes("sneaker") || q.includes("sport") || q.includes("trainer")) {
+      return "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("formal") || q.includes("leather") || q.includes("oxford")) {
+      return "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("heel") || q.includes("pump") || q.includes("women")) {
+      return "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Stationery & Books
+  if (
+    q.includes("stationery") || q.includes("notebook") || q.includes("pen") ||
+    q.includes("pencil") || q.includes("khushi") || q.includes("diary") ||
+    q.includes("stapler") || q.includes("paper")
+  ) {
+    if (q.includes("notebook") || q.includes("diary") || q.includes("journal")) {
+      return "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("art") || q.includes("color") || q.includes("craft")) {
+      return "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Bakery & Sweets (Strict: not generic shop)
+  if (q.includes("bakery") || q.includes("cake") || q.includes("pastry") || q.includes("mithai") || q.includes("cupcake") || q.includes("dessert") || q.includes("cookie")) {
+    if (q.includes("cake") || q.includes("birthday")) {
+      return "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("mithai") || q.includes("halwa") || q.includes("laddu")) {
+      return "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Clothing & Fashion
+  if (q.includes("cloth") || q.includes("apparel") || q.includes("boutique") || q.includes("fashion") || q.includes("dress") || q.includes("wear")) {
+    return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Restaurant & Food
+  if (q.includes("restaurant") || q.includes("dining") || q.includes("food") || q.includes("cuisine") || q.includes("cafe") || q.includes("coffee") || q.includes("pizza") || q.includes("bistro")) {
+    return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Flowers & Florist
+  if (q.includes("flower") || q.includes("florist") || q.includes("bouquet") || q.includes("rose")) {
+    return "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Electronics & Gadgets
+  if (
+    q.includes("electronic") || q.includes("phone") || q.includes("mobile") ||
+    q.includes("laptop") || q.includes("computer") || q.includes("tv") ||
+    q.includes("audio") || q.includes("headphone") || q.includes("speaker") ||
+    q.includes("camera") || q.includes("gadget") || q.includes("shyam")
+  ) {
+    if (q.includes("phone") || q.includes("mobile") || q.includes("smartphone")) {
+      return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("laptop") || q.includes("computer") || q.includes("pc")) {
+      return "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("tv") || q.includes("television") || q.includes("screen") || q.includes("display")) {
+      return "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("headphone") || q.includes("audio") || q.includes("sound") || q.includes("earbuds")) {
+      return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("camera") || q.includes("dslr") || q.includes("lens")) {
+      return "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Gym & Fitness
+  if (q.includes("gym") || q.includes("fitness") || q.includes("workout") || q.includes("crossfit") || q.includes("training")) {
+    return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Tech, Servers & Cloud
+  if (q.includes("server") || q.includes("cloud") || q.includes("host") || q.includes("datacenter") || q.includes("tech") || q.includes("software")) {
+    return "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Medical & Clinic
+  if (q.includes("medic") || q.includes("clinic") || q.includes("doctor") || q.includes("hospital") || q.includes("pharma") || q.includes("health")) {
+    return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Jewellery & Luxury
+  if (q.includes("jewel") || q.includes("ring") || q.includes("diamond") || q.includes("gold") || q.includes("necklace") || q.includes("watch")) {
+    return "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Automotive
+  if (q.includes("car") || q.includes("auto") || q.includes("garage") || q.includes("mechanic") || q.includes("vehicle")) {
+    return "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Real Estate
+  if (q.includes("real estate") || q.includes("property") || q.includes("apartment") || q.includes("villa") || q.includes("home") || q.includes("interior")) {
+    return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Education
+  if (q.includes("educat") || q.includes("school") || q.includes("coach") || q.includes("course") || q.includes("tutor") || q.includes("book")) {
+    return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85";
+  }
+
+  return "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85";
 };
 
 const resolveImageUrl = (
@@ -365,15 +530,15 @@ const resolveImageUrl = (
   if (explicitUrl && typeof explicitUrl === "string" && explicitUrl.trim() !== "") {
     if (
       !explicitUrl.includes("photo-1551434678-e076c223a692") &&
-      !explicitUrl.includes("source.unsplash.com")
+      !explicitUrl.includes("source.unsplash.com") &&
+      !explicitUrl.includes("pollinations.ai")
     ) {
       return explicitUrl.trim();
     }
   }
 
-  const query = getCategorySafeImageQuery(category, sectionType, itemTitle, businessName);
-  const encoded = encodeURIComponent(query);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&nologo=true`;
+  const query = `${businessName || ""} ${category || ""} ${itemTitle || ""} ${sectionType || ""}`;
+  return resolveCuratedUnsplash(query);
 };
 
 /* -------------------------------------------------------------------------- */
