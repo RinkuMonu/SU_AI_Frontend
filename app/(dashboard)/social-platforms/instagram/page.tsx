@@ -485,303 +485,276 @@ export default function InstagramIntegrationPage() {
   const isActuallyConnected = Boolean(isConnected || (igAccountId && igToken) || igToken);
 
   return (
-    <div className="max-w-4xl space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-yellow-500 via-pink-600 to-purple-600 text-white shadow-lg">
-            <InstagramIcon className="h-8 w-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Instagram Integration</h1>
-            <p className="text-text-muted text-sm mt-0.5">Connect your Instagram Business account to auto-publish Posts and Reels.</p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          {isActuallyConnected ? (
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shadow-sm">
-                <ShieldCheck className="w-4 h-4" /> Connected {igAccountId ? `• ID: ${igAccountId}` : ""}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDisconnect}
-                disabled={isDisconnecting}
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8 px-2.5"
-                title="Disconnect Instagram"
-              >
-                {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              </Button>
-            </div>
-          ) : (
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
-              Not Connected
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Error Alert */}
-      {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start justify-between text-red-400 text-sm animate-in fade-in">
-          <div className="flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
-            <div>
-              <p className="font-semibold text-red-300">Notice</p>
-              <p className="text-red-400/90 text-xs mt-0.5 leading-relaxed">{errorMessage}</p>
-            </div>
-          </div>
-          <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Success Alert */}
-      {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start justify-between text-emerald-400 text-sm animate-in fade-in">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-            <p className="text-emerald-300 text-xs">{successMessage}</p>
-          </div>
-          <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Found Linked Instagram Account from Facebook Page Banner */}
-      {linkedIgFromFacebook && !isActuallyConnected && (
-        <Card className="bg-gradient-to-r from-emerald-950/40 via-purple-950/30 to-surface border-emerald-500/40 shadow-xl overflow-hidden animate-in fade-in">
-          <CardContent className="p-5 sm:p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="space-y-1 text-center md:text-left">
-              <div className="flex items-center justify-center md:justify-start gap-2">
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  Recommended • 1-Click
-                </span>
-                <span className="text-xs text-gray-300 flex items-center gap-1">
-                  <FacebookIcon className="w-3.5 h-3.5" /> From Facebook Page: {linkedIgFromFacebook.pageName || "Active"}
-                </span>
-              </div>
-              <h3 className="text-lg font-bold text-white flex items-center justify-center md:justify-start gap-2">
-                <InstagramIcon className="w-5 h-5" />
-                Linked Instagram Account: @{linkedIgFromFacebook.username || linkedIgFromFacebook.id}
-              </h3>
-              <p className="text-xs text-gray-300 max-w-lg leading-relaxed">
-                We detected that your connected Facebook Page is already linked to this Instagram Business account. Connect it in one click!
-              </p>
-            </div>
-
-            <Button
-              onClick={handleConnectLinkedFromFacebook}
-              disabled={isUpdating}
-              className="w-full md:w-auto px-5 py-5 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all text-sm flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+    <div 
+      style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} 
+      className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-6 min-h-[calc(100vh-64px)] overflow-y-auto animate-in fade-in duration-300"
+    >
+      <div className="max-w-4xl mx-auto w-full space-y-6 pb-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2a4a]">
+          <div className="flex items-center gap-3.5">
+            {/* Instagram logo with #081226 background (Image 2) and actual original Instagram icon */}
+            <div 
+              style={{ backgroundColor: "#081226" }} 
+              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
             >
-              {isUpdating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              <span>Connect @{linkedIgFromFacebook.username || "Instagram"}</span>
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </CardContent>
-        </Card>
-      )}
+              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+                <defs>
+                  <radialGradient id="ig-orig-gradient" cx="30%" cy="107%" r="150%">
+                    <stop offset="0%" stopColor="#fdf497" />
+                    <stop offset="5%" stopColor="#fdf497" />
+                    <stop offset="45%" stopColor="#fd5949" />
+                    <stop offset="60%" stopColor="#d6249f" />
+                    <stop offset="90%" stopColor="#285AEB" />
+                  </radialGradient>
+                </defs>
+                <rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#ig-orig-gradient)" strokeWidth="2" fill="none" />
+                <circle cx="12" cy="12" r="4.5" stroke="url(#ig-orig-gradient)" strokeWidth="2" fill="none" />
+                <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-orig-gradient)" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">Instagram Integration</h1>
+              <p className="text-slate-400 text-sm mt-1 font-normal tracking-wide">Connect your Instagram Business account to auto-publish Posts and Reels.</p>
+            </div>
+          </div>
 
-      {/* Primary Connect / Connected Management Card */}
-      {isActuallyConnected ? (
-        <Card className="bg-gradient-to-r from-emerald-950/30 via-surface to-surface border-emerald-500/30 shadow-xl overflow-hidden relative">
-          <CardContent className="p-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                  <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-                    <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-bold text-white">Instagram Account Connected</h3>
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {isActuallyConnected ? (
+              <div className="flex items-center gap-2">
+                <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-normal shadow-sm">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Connected {igAccountId ? `• ID: ${igAccountId}` : ""}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnect}
+                  disabled={isDisconnecting}
+                  className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8 px-3 rounded-xl cursor-pointer"
+                  title="Disconnect Instagram"
+                >
+                  {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                </Button>
+              </div>
+            ) : (
+              <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1c2333] border border-[#2a354c] text-slate-300 text-xs font-normal">
+                Not Connected
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start justify-between text-red-400 text-xs sm:text-sm animate-in fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
+              <div>
+                <p className="font-normal text-red-300">Notice</p>
+                <p className="text-red-400/90 text-xs sm:text-sm mt-0.5 leading-relaxed">{errorMessage}</p>
+              </div>
+            </div>
+            <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Success Alert */}
+        {successMessage && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start justify-between text-emerald-400 text-xs sm:text-sm animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+              <p className="text-emerald-300 text-xs sm:text-sm">{successMessage}</p>
+            </div>
+            <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Primary Connect / Connected Management Card */}
+        {isActuallyConnected ? (
+          <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="text-lg font-normal text-white tracking-wide">Instagram Account Connected</h3>
+                      <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-normal bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                        Saved & Active
+                        Saved &amp; Active
                       </span>
                     </div>
-                    <p className="text-xs text-gray-300 mt-0.5">
-                      Your Instagram Business account is active and ready for automated social media posting.
-                    </p>
                   </div>
+                  <p className="text-sm text-slate-300 font-normal tracking-wide pl-11">
+                    Your Instagram Business account is active and ready for automated social media posting.
+                  </p>
+                  {igAccountId && (
+                    <div className="pt-1.5 pl-11">
+                      <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-[#081226] border border-[#1e2a4a] text-xs font-mono text-emerald-400">
+                        <UserCheck className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="text-xs text-slate-400 font-sans">ACCOUNT ID:</span>
+                        {igAccountId}
+                      </span>
+                    </div>
+                  )}
                 </div>
 
-                {igAccountId && (
-                  <div className="flex items-center gap-2 text-xs text-gray-300 bg-surface-elevated/70 border border-border/80 px-3 py-1.5 rounded-lg w-fit">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-gray-400 font-semibold uppercase text-[10px] tracking-wider">Account ID:</span>
-                    <span className="font-mono text-emerald-400 font-medium">{igAccountId}</span>
-                  </div>
-                )}
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2.5 shrink-0">
                 <Button
                   variant="outline"
                   onClick={handleDisconnect}
                   disabled={isDisconnecting}
-                  className="border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-300 text-xs h-9 px-4 rounded-xl flex items-center justify-center gap-2 transition-all font-medium cursor-pointer"
+                  className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs sm:text-sm h-9 px-4 rounded-xl flex items-center gap-2 shrink-0 self-start sm:self-center cursor-pointer"
                 >
-                  {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                  Disconnect Account
+                  {isDisconnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  <span>Disconnect Account</span>
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        /* Fast Instagram Connect Card */
-        <Card className="bg-gradient-to-r from-purple-950/40 via-pink-950/30 to-surface border-pink-500/30 shadow-xl overflow-hidden relative">
-          <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-1.5 text-center md:text-left">
-              <h3 className="text-xl font-bold text-white flex items-center justify-center md:justify-start gap-2">
-                <InstagramIcon className="w-5 h-5" /> Fast Instagram Connect
-              </h3>
-              <p className="text-sm text-gray-300 max-w-md leading-relaxed">
-                Connect your Instagram account to automatically authorize graph permissions and enable 1-click publishing for AI posts and reels.
-              </p>
-            </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-5 sm:p-6 space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2.5">
+                  <InstagramIcon className="w-5 h-5" />
+                  <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">Fast Instagram Connect</h3>
+                </div>
+                <p className="text-sm text-slate-300 font-normal tracking-wide max-w-xl leading-relaxed">
+                  Connect your Instagram account to automatically authorize graph permissions and enable 1-click publishing for AI posts and reels.
+                </p>
+              </div>
 
-            <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full md:w-auto shrink-0">
-              {/* Option 1: Official Instagram Connect (Meta Graph API) */}
-              <Button
-                onClick={handleInstagramLogin}
-                disabled={isLoggingIn || isConnectingFb}
-                className="px-6 py-5 bg-gradient-to-r from-pink-600 via-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl shadow-lg shadow-pink-600/25 transition-all text-sm flex items-center justify-center gap-2.5 cursor-pointer"
-                title="Connect your Instagram Business account via official Meta authorization"
-              >
-                {isLoggingIn ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Connecting to Meta...
-                  </>
-                ) : (
-                  <>
-                    <InstagramIcon className="h-4 w-4" />
-                    Connect Instagram Account
-                  </>
-                )}
-              </Button>
+              <div className="flex items-center gap-3 flex-wrap pt-1">
+                <Button
+                  onClick={handleInstagramLogin}
+                  disabled={isLoggingIn || isConnectingFb}
+                  className="h-10 px-4 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  title="Connect directly via Instagram Basic Display &amp; Graph API"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      <InstagramIcon className="h-4 w-4" />
+                      Connect Instagram Account
+                    </>
+                  )}
+                </Button>
 
-              {/* Option 2: Connect via Facebook Page */}
-              <Button
-                variant="outline"
-                onClick={handleConnectViaFacebook}
-                disabled={isConnectingFb || isLoggingIn}
-                className="px-4 py-5 border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
-                title="Authorize via Facebook Page permissions"
-              >
-                {isConnectingFb ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  <>
-                    <FacebookIcon className="h-4 w-4" />
-                    Via Facebook Page
-                  </>
-                )}
-              </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleConnectViaFacebook}
+                  disabled={isLoggingIn || isConnectingFb}
+                  className="h-10 px-4 border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-normal text-sm rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <FacebookIcon className="h-4 w-4" />
+                  Via Facebook Page
+                </Button>
 
-              {/* Option 3: Quick Connect for Testing */}
-              <Button
-                variant="outline"
-                onClick={handleQuickConnect}
-                disabled={isUpdating}
-                className="px-3 py-5 border-gray-600/40 bg-surface-elevated/40 hover:bg-surface-elevated text-gray-300 text-xs font-medium rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                title="Instant connect for testing AI posts and reels"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                Quick Connect
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <Button
+                  variant="outline"
+                  onClick={handleQuickConnect}
+                  disabled={isUpdating}
+                  className="h-10 px-4 border-[#1e2a4a] bg-[#162138] hover:bg-[#1e2d4d] text-slate-300 font-normal text-sm rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  title="Instant connect for testing AI posts and reels"
+                >
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  Quick Connect
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Manual Credentials Card */}
-      <Card className="bg-surface border-border shadow-lg">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <InstagramIcon className="h-5 w-5 text-pink-500" />
-              <CardTitle className="text-white text-base">Instagram Graph API Credentials</CardTitle>
-            </div>
-            <span className="text-xs text-text-muted">Meta Graph API v19.0</span>
-          </div>
-          <CardDescription className="text-xs">
-            Credentials are saved locally in your browser and synchronized with your business account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+        {/* Manual Credentials Card */}
+        <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+          <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
-              <Label className="text-white text-sm font-medium">Instagram Account ID</Label>
-              {igAccountId && (
-                <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Locally Saved
-                </span>
-              )}
+              <div className="flex items-center gap-2.5">
+                <InstagramIcon className="h-5 w-5" />
+                <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
+                  Instagram Graph API Credentials
+                </CardTitle>
+              </div>
+              <span className="text-xs text-slate-400 font-normal">Meta Graph API v19.0</span>
             </div>
-            <Input 
-              placeholder="e.g. 178414..." 
-              value={igAccountId}
-              onChange={(e) => setIgAccountId(e.target.value)}
-              className="border-border bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none font-mono text-sm"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-white text-sm font-medium">Permanent Access Token</Label>
-              <div className="flex items-center gap-3">
-                {igToken && (
-                  <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
-                    <Check className="w-3 h-3" /> Locally Saved
+            <CardDescription className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+              Credentials are saved locally in your browser and synchronized with your business account.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-5 sm:p-6 space-y-5">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-white text-sm sm:text-base font-normal tracking-wide">Instagram Account ID</Label>
+                {igAccountId && (
+                  <span className="text-xs text-emerald-400 font-normal flex items-center gap-1.5">
+                    <Check className="w-3.5 h-3.5" /> Locally Saved
                   </span>
                 )}
-                <button
-                  type="button"
-                  onClick={() => setShowToken(!showToken)}
-                  className="text-xs text-text-muted hover:text-white flex items-center gap-1 cursor-pointer"
-                >
-                  {showToken ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                  {showToken ? "Hide" : "Show"}
-                </button>
               </div>
-            </div>
-            <div className="relative">
               <Input 
-                type={showToken ? "text" : "password"}
-                placeholder="IGAGZABUPI... or EAAP..." 
-                value={igToken}
-                onChange={(e) => setIgToken(e.target.value)}
-                className="border-border bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none font-mono text-xs pr-10"
+                placeholder="e.g. 178414..." 
+                value={igAccountId}
+                onChange={(e) => setIgAccountId(e.target.value)}
+                className="border-[#1e2a4a] bg-[#081226] text-white focus:ring-2 focus:ring-[#8b5cf6]/50 outline-none text-sm font-normal h-10 px-3.5 rounded-xl"
               />
             </div>
-          </div>
 
-          <Button 
-            onClick={() => handleUpdate()} 
-            disabled={isUpdating || isLoggingIn} 
-            className="w-full bg-brand-gradient hover:opacity-90 text-white transition-opacity font-semibold h-11 cursor-pointer"
-          >
-            {isUpdating ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving Credentials...</>
-            ) : updated ? (
-              <><Check className="mr-2 h-4 w-4" /> Saved Successfully</>
-            ) : (
-              "Save Instagram Settings"
-            )}
-          </Button>
-        </CardContent>
-      </Card>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-white text-sm sm:text-base font-normal tracking-wide">Permanent Access Token</Label>
+                <div className="flex items-center gap-3">
+                  {igToken && (
+                    <span className="text-xs text-emerald-400 font-normal flex items-center gap-1.5">
+                      <Check className="w-3.5 h-3.5" /> Locally Saved
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowToken(!showToken)}
+                    className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {showToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showToken ? "Hide" : "Show"}
+                  </button>
+                </div>
+              </div>
+              <div className="relative">
+                <Input 
+                  type={showToken ? "text" : "password"}
+                  placeholder="IGAGZABUPI... or EAAP..." 
+                  value={igToken}
+                  onChange={(e) => setIgToken(e.target.value)}
+                  className="border-[#1e2a4a] bg-[#081226] text-white focus:ring-2 focus:ring-[#8b5cf6]/50 outline-none text-sm font-normal h-10 px-3.5 pr-11 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={() => handleUpdate()} 
+              disabled={isUpdating || isLoggingIn} 
+              className="w-full bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white transition-all font-normal text-sm sm:text-base tracking-wide h-11 cursor-pointer rounded-xl shadow-[0_0_12px_rgba(138,63,252,0.2)] mt-2"
+            >
+              {isUpdating ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving Credentials...</>
+              ) : updated ? (
+                <><Check className="mr-2 h-4 w-4 text-emerald-300" /> Saved Successfully</>
+              ) : (
+                "Save Instagram Settings"
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

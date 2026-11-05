@@ -175,200 +175,235 @@ export default function SocialPlatformsOverviewPage() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-300">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-6">
-        <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-purple-600 via-pink-600 to-amber-500 text-white shadow-lg">
-              <Globe className="w-7 h-7" />
+    <div 
+      style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} 
+      className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 py-4 h-[calc(100vh-64px)] max-h-[calc(100vh-64px)] overflow-hidden flex flex-col justify-start animate-in fade-in duration-300"
+    >
+      <div className="max-w-6xl mx-auto w-full space-y-3.5 flex-1 flex flex-col justify-start">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#1e2a4a] pb-3 shrink-0">
+          <div>
+            <div className="flex items-center gap-3.5">
+              {/* Restored pink/purple-to-amber gradient logo matching user uploaded image */}
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#8b5cf6]/25 via-[#ec4899]/20 to-[#f59e0b]/15 border border-[#8b5cf6]/40 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(139,92,246,0.3)]">
+                <svg 
+                  className="w-6 h-6 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <defs>
+                    <linearGradient id="globeColorGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#fb923c" />
+                      <stop offset="45%" stopColor="#f43f5e" />
+                      <stop offset="100%" stopColor="#a855f7" />
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="10" stroke="url(#globeColorGrad)" />
+                  <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" stroke="url(#globeColorGrad)" />
+                  <path d="M2 12h20" stroke="url(#globeColorGrad)" />
+                </svg>
+              </div>
+              <div>
+                {/* Non-bold, expanded tracking title */}
+                <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">
+                  Social Media Connectivity
+                </h1>
+                <p className="text-sm text-slate-400 mt-1 font-normal tracking-wide">
+                  Manage your connected accounts, authorization statuses, and auto-publishing permissions.
+                </p>
+              </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsCreateAccountOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-[#0c1630] hover:bg-[#152348] border border-[#1e2a4a] text-sm font-normal text-white flex items-center gap-2 transition-colors cursor-pointer tracking-wide"
+            >
+              <UserPlus className="w-4 h-4 text-blue-400" />
+              <span>Create New Account</span>
+            </button>
+
+            <button
+              onClick={fetchStatuses}
+              disabled={isLoading}
+              className="p-2.5 rounded-xl bg-[#0c1630] hover:bg-[#152348] border border-[#1e2a4a] text-gray-300 hover:text-white transition-colors cursor-pointer"
+              title="Refresh status"
+            >
+              <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
+            </button>
+          </div>
+        </div>
+
+        {/* Onboarding Requirement Status Banner */}
+        <div className="p-3 sm:p-3.5 rounded-xl bg-[#0c1630] border border-[#1e2a4a] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm shrink-0">
+          <div className="flex items-center gap-3.5">
+            {connectionState.hasAtLeastOne ? (
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <AlertCircle className="w-5 h-5" />
+              </div>
+            )}
             <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                Social Media Connectivity
-              </h1>
-              <p className="text-sm text-text-muted mt-1">
-                Manage your connected accounts, authorization statuses, and auto-publishing permissions.
+              {/* Non-bold, expanded banner title */}
+              <h3 className="font-normal text-white text-base tracking-wide">
+                Onboarding Requirement: {connectionState.hasAtLeastOne ? "Complete" : "Action Required"}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-400 mt-0.5 font-normal tracking-wide">
+                {connectionState.hasAtLeastOne
+                  ? `You have connected ${connectionState.connectedCount} of 3 supported platform(s). Content scheduling and automated publishing are unlocked.`
+                  : "Connect at least one platform (Instagram, Facebook, or LinkedIn) to complete business onboarding."}
               </p>
             </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsCreateAccountOpen(true)}
-            className="px-4 py-2 rounded-xl bg-surface-elevated hover:bg-surface border border-border text-sm font-medium text-white flex items-center gap-2 transition-colors"
-          >
-            <UserPlus className="w-4 h-4 text-pink-400" />
-            <span>Create New Account</span>
-          </button>
-
-          <button
-            onClick={fetchStatuses}
-            disabled={isLoading}
-            className="p-2.5 rounded-xl bg-surface-elevated hover:bg-surface border border-border text-gray-300 hover:text-white transition-colors"
-            title="Refresh status"
-          >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-          </button>
-        </div>
-      </div>
-
-      {/* Onboarding Requirement Status Banner */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-surface border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-center gap-3.5">
-          {connectionState.hasAtLeastOne ? (
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-          ) : (
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
-              <AlertCircle className="w-5 h-5" />
-            </div>
-          )}
-          <div>
-            <h3 className="font-bold text-white text-base">
-              Onboarding Requirement: {connectionState.hasAtLeastOne ? "Complete" : "Action Required"}
-            </h3>
-            <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-              {connectionState.hasAtLeastOne
-                ? `You have connected ${connectionState.connectedCount} of 3 supported platform(s). Content scheduling and automated publishing are unlocked.`
-                : "Connect at least one platform (Instagram, Facebook, or LinkedIn) to complete business onboarding."}
-            </p>
-          </div>
-        </div>
-
-        {connectionState.hasAtLeastOne && (
-          <Link
-            href="/subscription"
-            className="px-5 py-2.5 rounded-xl bg-brand-gradient hover:opacity-95 text-white font-semibold text-xs sm:text-sm shadow-md shrink-0 transition-opacity"
-          >
-            Proceed to Billing &rarr;
-          </Link>
-        )}
-      </div>
-
-      {/* Feedback Banners */}
-      {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-sm text-emerald-300 animate-in fade-in">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-          <span>{successMessage}</span>
-        </div>
-      )}
-
-      {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/40 flex items-center gap-3 text-sm text-red-300 animate-in fade-in">
-          <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
-
-      {/* Platforms Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {platforms.map((p) => {
-          const isConnecting = connectingPlatform === p.key;
-          const isDisconnecting = disconnectingPlatform === p.key;
-
-          return (
-            <div
-              key={p.key}
-              className="rounded-2xl bg-surface border border-border p-6 flex flex-col justify-between hover:border-brand-purple/40 transition-all shadow-md group"
+          {connectionState.hasAtLeastOne && (
+            <Link
+              href="/subscription"
+              className="px-5 py-2.5 rounded-xl bg-brand-gradient hover:opacity-95 text-white font-medium text-xs sm:text-sm shadow-md shrink-0 transition-opacity tracking-wide"
             >
-              <div>
-                <div className="flex items-center justify-between">
-                  <div className="shrink-0">{p.icon}</div>
-                  {p.connected ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Connected
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white/5 text-gray-400 border border-white/10">
-                      Not Connected
-                    </span>
-                  )}
-                </div>
+              Proceed to Billing &rarr;
+            </Link>
+          )}
+        </div>
 
-                <div className="mt-4">
-                  <h3 className="text-xl font-bold text-white group-hover:text-pink-400 transition-colors">
-                    {p.name}
-                  </h3>
-                  {p.connected && p.detailsName && (
-                    <p className="text-xs font-mono text-purple-300 mt-0.5 truncate">
-                      @{p.detailsName}
+        {/* Feedback Banners */}
+        {successMessage && (
+          <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/40 flex items-center gap-3 text-sm text-emerald-300 animate-in fade-in">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <span className="font-normal tracking-wide">{successMessage}</span>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="p-4 rounded-xl bg-red-950/40 border border-red-500/40 flex items-center gap-3 text-sm text-red-300 animate-in fade-in">
+            <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />
+            <span className="font-normal tracking-wide">{errorMessage}</span>
+          </div>
+        )}
+
+        {/* Platforms Grid matching Image 4 color code with low glow */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 shrink-0">
+          {platforms.map((p) => {
+            const isConnecting = connectingPlatform === p.key;
+            const isDisconnecting = disconnectingPlatform === p.key;
+
+            return (
+              <div
+                key={p.key}
+                className={`rounded-2xl bg-[#0c1630] p-6 flex flex-col justify-between transition-all group ${
+                  p.connected
+                    ? "border border-[#8b5cf6]/50 shadow-[0_0_14px_rgba(139,92,246,0.18)]"
+                    : "border border-[#1e2a4a] hover:border-[#8b5cf6]/40 hover:shadow-[0_0_12px_rgba(139,92,246,0.12)]"
+                }`}
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="shrink-0">
+                      {p.icon}
+                    </div>
+
+                    {/* Status badge matching Image 4 */}
+                    {p.connected ? (
+                      <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-normal bg-[#3b1154] border border-[#7c25b0]/60 text-purple-200">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-purple-300" />
+                        Connected
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3.5 py-1 rounded-full text-xs font-normal bg-[#1c2333] border border-[#2a354c] text-slate-300">
+                        Not Connected
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-4">
+                    {/* Non-bold title with expanded tracking */}
+                    <h3 className="text-xl font-normal text-white tracking-wide">
+                      {p.name}
+                    </h3>
+                    {p.connected && p.detailsName && (
+                      <p className="text-xs font-mono text-purple-300 mt-0.5 truncate">
+                        @{p.detailsName}
+                      </p>
+                    )}
+                    <p className="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed font-normal tracking-wide">
+                      {p.description}
                     </p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="mt-3 pt-3 border-t border-[#1e2a4a] flex flex-col gap-2">
+                  {p.connected ? (
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={p.manageHref}
+                        className="flex-1 py-2.5 rounded-xl bg-[#162138] hover:bg-[#1e2d4d] text-xs font-normal tracking-wide text-white border border-[#23314f] flex items-center justify-center gap-1.5 transition-colors"
+                      >
+                        <Settings className="w-3.5 h-3.5" />
+                        Settings
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => handleDisconnect(p.key)}
+                        disabled={isDisconnecting}
+                        className="py-2.5 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs font-normal text-red-400 border border-red-500/20 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        title="Disconnect Account"
+                      >
+                        {isDisconnecting ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleConnect(p.key)}
+                        disabled={isConnecting || connectingPlatform !== null}
+                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 active:scale-[0.99] disabled:opacity-50 text-xs font-medium tracking-wide text-white shadow-[0_0_12px_rgba(138,63,252,0.22)] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                      >
+                        {isConnecting ? (
+                          <>
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            <span>Authorizing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <PlusCircle className="w-3.5 h-3.5" />
+                            <span>Connect {p.name}</span>
+                          </>
+                        )}
+                      </button>
+
+                      <Link
+                        href={p.manageHref}
+                        className="text-center text-[11px] text-gray-400 hover:text-white transition-colors"
+                      >
+                        Manual API Credentials &rarr;
+                      </Link>
+                    </div>
                   )}
-                  <p className="text-xs sm:text-sm text-text-muted mt-2 leading-relaxed">
-                    {p.description}
-                  </p>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Action Buttons */}
-              <div className="mt-6 pt-4 border-t border-border flex flex-col gap-2.5">
-                {p.connected ? (
-                  <div className="flex items-center gap-2">
-                    <Link
-                      href={p.manageHref}
-                      className="flex-1 py-2.5 rounded-xl bg-surface-elevated hover:bg-surface text-xs font-semibold text-white border border-border flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <Settings className="w-3.5 h-3.5" />
-                      Settings
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => handleDisconnect(p.key)}
-                      disabled={isDisconnecting}
-                      className="py-2.5 px-3 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-xs font-semibold text-red-400 border border-red-500/20 flex items-center justify-center gap-1.5 transition-colors"
-                      title="Disconnect Account"
-                    >
-                      {isDisconnecting ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      ) : (
-                        <Trash2 className="w-3.5 h-3.5" />
-                      )}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <button
-                      type="button"
-                      onClick={() => handleConnect(p.key)}
-                      disabled={isConnecting || connectingPlatform !== null}
-                      className="w-full py-2.5 rounded-xl bg-brand-gradient hover:opacity-95 active:scale-[0.99] disabled:opacity-50 text-xs font-bold text-white shadow-md flex items-center justify-center gap-1.5 transition-all"
-                    >
-                      {isConnecting ? (
-                        <>
-                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          <span>Authorizing...</span>
-                        </>
-                      ) : (
-                        <>
-                          <PlusCircle className="w-3.5 h-3.5" />
-                          <span>Connect {p.name}</span>
-                        </>
-                      )}
-                    </button>
-
-                    <Link
-                      href={p.manageHref}
-                      className="text-center text-[11px] text-gray-400 hover:text-white transition-colors"
-                    >
-                      Manual API Credentials &rarr;
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {/* Create Account Modal */}
+        <CreateAccountModal
+          isOpen={isCreateAccountOpen}
+          onClose={() => setIsCreateAccountOpen(false)}
+        />
       </div>
-
-      {/* Create Account Modal */}
-      <CreateAccountModal
-        isOpen={isCreateAccountOpen}
-        onClose={() => setIsCreateAccountOpen(false)}
-      />
     </div>
   );
 }

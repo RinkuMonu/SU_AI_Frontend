@@ -2,6 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import { 
+  Bot,
+  Search,
+  Scan,
+  ArrowUp,
   Mic, 
   Plus, 
   MessageSquare, 
@@ -25,6 +29,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import agentService from "@/services/agent.service";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 interface Message {
   id: string;
@@ -60,7 +65,7 @@ function createSession(): ChatSession {
   return {
     id: Date.now().toString(),
     title: "New Chat",
-    messages: [WELCOME_MSG],
+    messages: [],
     createdAt: new Date(),
   };
 }
@@ -163,6 +168,8 @@ function FormattedMessage({ content }: { content: string }) {
 }
 
 export default function UniAIPage() {
+  const { user } = useAuth();
+  const firstName = user?.name ? user.name.split(" ")[0] : "Jhon";
   const [sessions, setSessions] = useState<ChatSession[]>(() => {
     if (typeof window !== "undefined") {
       const saved = localStorage.getItem("uni_ai_sessions");
@@ -190,6 +197,8 @@ export default function UniAIPage() {
   const [mounted, setMounted] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -580,54 +589,77 @@ export default function UniAIPage() {
   if (!mounted) return null;
 
   return (
-    <div className="h-[calc(100vh-64px)] flex bg-[#0a0a14] relative overflow-hidden">
-      {/* ── Sidebar ── */}
+    <div 
+      style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} 
+      className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)] max-w-none h-[calc(100vh-64px)] flex relative overflow-hidden"
+    >
+      {/* ── Sidebar: Image 1 UI with Image 3 #081226 Color Code ── */}
       <div 
-        className={`transition-all duration-300 ease-in-out overflow-hidden bg-[#0f0f1c] border-r border-white/5 flex flex-col shrink-0 ${
+        style={{ backgroundColor: "#081226" }}
+        className={`transition-all duration-300 ease-in-out overflow-hidden border-r border-[#1e2a4a] flex flex-col shrink-0 ${
           sidebarOpen ? "w-64 min-w-[16rem]" : "w-0 min-w-0"
         }`}
       >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-white/5">
+        {/* Sidebar Header matching Image 1: [Bot] UNI AI Assistant / Speaks Hindi & English (font-normal, larger text) */}
+        <div className="p-4 border-b border-[#1e2a4a]">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#2e1363] border border-[#8b5cf6]/50 flex items-center justify-center text-purple-200 shrink-0 shadow-sm">
+              <Bot className="w-5 h-5 text-purple-200" />
+            </div>
+            <div className="min-w-0">
+              <h2 className="text-[17px] sm:text-[18px] font-normal text-white tracking-normal leading-snug truncate">
+                UNI AI Assistant
+              </h2>
+              <p className="text-[13px] text-slate-400 truncate mt-0.5 font-normal">
+                Speaks Hindi &amp; English
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* [+ New chat] Button matching Image 1 */}
+        <div className="p-3 border-b border-[#1e2a4a]">
           <button
+            type="button"
             onClick={startNewChat}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-brand-gradient hover:opacity-90 rounded-xl text-white font-bold text-sm shadow-md transition-all cursor-pointer"
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl bg-transparent hover:bg-white/5 border border-transparent text-white transition-all cursor-pointer group"
           >
-            <Plus size={16} />
-            New Chat
+            <div className="w-9 h-9 rounded-full bg-[#2e1363] border border-[#8b5cf6]/40 flex items-center justify-center text-purple-200 group-hover:border-[#8b5cf6] transition-colors shrink-0">
+              <Plus size={16} />
+            </div>
+            <span className="text-slate-200 group-hover:text-white font-normal text-[15px]">New chat</span>
           </button>
         </div>
 
-        {/* History Label */}
-        <div className="px-4 py-3 text-[11px] font-bold text-text-muted tracking-wider uppercase">
-          Recent Conversations
+        {/* Section Header matching Image 1: History (font-normal, larger text) */}
+        <div className="px-5 pt-5 pb-2 text-[17px] font-normal text-white">
+          History
         </div>
 
-        {/* Session List */}
-        <div className="flex-1 overflow-y-auto px-2 pb-4 space-y-1">
+        {/* Session List matching Image 1: Clean text items (font-normal, larger text) */}
+        <div className="flex-1 overflow-y-auto px-2 pb-4 space-y-0.5 scrollbar-thin">
           {sessions.map((s) => (
             <div
               key={s.id}
               onClick={() => setActiveId(s.id)}
-              className={`flex items-center gap-2.5 p-2.5 rounded-xl cursor-pointer transition-all group ${
+              style={s.id === activeId ? {
+                backgroundColor: "rgba(40, 18, 77, 0.55)",
+              } : {}}
+              className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition-all group ${
                 s.id === activeId 
-                  ? "bg-brand-purple/20 border border-brand-purple/40 text-white" 
-                  : "hover:bg-white/5 border border-transparent text-text-muted hover:text-white"
+                  ? "border border-[#8b5cf6]/40 text-white" 
+                  : "border border-transparent text-slate-300 hover:text-white hover:bg-white/5"
               }`}
             >
-              <MessageSquare size={14} className={s.id === activeId ? "text-brand-purple shrink-0" : "text-text-muted shrink-0"} />
-              <div className="flex-1 overflow-hidden">
-                <div className="text-xs font-semibold truncate">
-                  {s.title}
-                </div>
-                <div className="text-[10px] text-text-muted mt-0.5">{formatTime(s.createdAt)}</div>
-              </div>
+              <span className={`text-[15px] truncate flex-1 pr-2 font-normal ${s.id === activeId ? "text-white" : "text-slate-300"}`}>
+                {s.title}
+              </span>
               <button
                 onClick={(e) => { e.stopPropagation(); deleteSession(s.id); }}
                 className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-1 transition-opacity cursor-pointer shrink-0"
                 title="Delete chat"
               >
-                <Trash2 size={13} />
+                <Trash2 size={13} className="text-slate-400 hover:text-red-400" />
               </button>
             </div>
           ))}
@@ -638,145 +670,295 @@ export default function UniAIPage() {
       <button
         onClick={() => setSidebarOpen((v) => !v)}
         title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
-        className="absolute top-1/2 z-10 -translate-y-1/2 bg-[#1a1a2e] border border-white/10 text-text-muted hover:text-white py-2 px-1 rounded-r-lg transition-all duration-300 cursor-pointer shadow-lg"
-        style={{ left: sidebarOpen ? 256 : 0 }}
+        className="absolute top-1/2 z-10 -translate-y-1/2 border border-[#1e2a4a] text-slate-400 hover:text-white py-2 px-1 rounded-r-lg transition-all duration-300 cursor-pointer shadow-lg"
+        style={{ left: sidebarOpen ? 256 : 0, backgroundColor: "#081226" }}
       >
         {sidebarOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
       </button>
 
-      {/* ── Main Chat Area ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Header */}
-        <div className="p-4 px-6 border-b border-white/5 bg-[#11111a] flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-xl shadow-lg shadow-purple-500/20 shrink-0">
-              🤖
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold text-white leading-tight">UNI AI Assistant</h1>
-                <span className="px-2 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-[10px] font-bold border border-brand-purple/30 flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5 text-amber-400" />
-                  GPT-4.1 Mini
-                </span>
-              </div>
-              <p className="text-xs text-text-muted mt-0.5">Speaks Hindi &amp; Hinglish natively &bull; Marketing &amp; Creative Intelligence</p>
-            </div>
-          </div>
-          <button
-            onClick={startNewChat}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-purple/10 border border-brand-purple/30 hover:bg-brand-purple/20 rounded-xl text-purple-300 text-xs font-semibold cursor-pointer transition-colors"
-          >
-            <Plus size={14} />
-            <span>New Chat</span>
-          </button>
-        </div>
+      {/* ── Main Chat Area: Matching Image 2 with Color Code #081226 ── */}
+      <div 
+        style={{ 
+          backgroundColor: "#081226",
+          backgroundImage: "radial-gradient(ellipse at 50% 35%, rgba(56, 21, 109, 0.45) 0%, #081226 72%)"
+        }} 
+        className="flex-1 flex flex-col overflow-hidden relative"
+      >
+        {/* Render either Fresh Welcome State (Image 2) or Active Chat Messages */}
+        {(() => {
+          const userMessages = activeSession?.messages?.filter((m) => m.id !== "welcome") || [];
+          const isFreshChat = userMessages.length === 0;
 
-        {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {activeSession?.messages.map((msg) => (
-            <div 
-              key={msg.id} 
-              className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
-            >
-              <div
-                className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl shadow-lg transition-all ${
-                  msg.role === "user" 
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-xs" 
-                    : "bg-[#181824] border border-white/5 text-white rounded-bl-xs"
-                }`}
-              >
-                {msg.role === "ai" ? (
-                  <div className="space-y-2">
-                    <FormattedMessage content={msg.content} />
-                    {msg.action && renderDataCard(msg.action, msg.data, msg.id)}
+          if (isFreshChat) {
+            return (
+              <div className="flex-1 flex flex-col justify-between overflow-hidden">
+                {/* Center Welcome Text matching Image 2 (font-normal, larger text) */}
+                <div className="flex-1 flex flex-col items-center justify-center px-4 text-center my-auto">
+                  <p className="text-slate-400 text-base sm:text-lg font-normal tracking-wide mb-1.5">
+                    Hello {firstName},
+                  </p>
+                  <h1 className="text-2xl sm:text-3xl font-normal text-white tracking-normal">
+                    How can i help you today?
+                  </h1>
+                </div>
+
+                {/* Bottom Suggestions Chips & Input Bar matching Image 2 & Image 3 */}
+                <div className="w-full max-w-3xl mx-auto px-4 pb-6 space-y-4">
+                  {/* Suggestion Chips */}
+                  <div className="flex flex-wrap items-center justify-center gap-2.5">
+                    {[
+                      "Diwali sale instagram post",
+                      "Viral Reel Script (0-3s Hook)",
+                      "Festival Campaign Strategy",
+                      "Sales Boost Marketing Advice",
+                      "Catchy Slogans & Taglines",
+                    ].map((promptText) => (
+                      <button
+                        key={promptText}
+                        type="button"
+                        onClick={() => handleSend(promptText)}
+                        className="px-5 py-2.5 rounded-full bg-[#0c1630] hover:bg-[#152348] border border-[#1e2a4a] hover:border-[#8b5cf6]/50 text-slate-300 hover:text-white text-xs sm:text-sm font-normal transition-all cursor-pointer shadow-sm"
+                      >
+                        {promptText}
+                      </button>
+                    ))}
                   </div>
-                ) : (
-                  <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                )}
-              </div>
-            </div>
-          ))}
 
-          {/* Typing Indicator */}
-          {loading && (
-            <div className="flex items-start">
-              <div className="p-4 rounded-2xl bg-[#181824] border border-white/5 text-text-muted text-xs font-semibold flex items-center gap-2.5">
-                <span className="flex gap-1 items-center">
-                  {[0, 1, 2].map((i) => (
-                    <span 
-                      key={i} 
-                      className="w-1.5 h-1.5 rounded-full bg-brand-purple inline-block animate-bounce" 
-                      style={{ animationDelay: `${i * 0.15}s` }} 
+                  {/* Hidden file upload input triggered by Scan button */}
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const promptMsg = `Analyze product image "${file.name}" and generate a high-converting promotional post with hashtags.`;
+                        setInput(promptMsg);
+                        handleSend(promptMsg);
+                      }
+                    }}
+                  />
+
+                  {/* Input Pill Bar matching Image 3 with fully clickable circular buttons */}
+                  <div className="flex items-center gap-2.5 bg-[#0c1630] border border-[#1e2a4a] focus-within:border-[#8b5cf6]/70 rounded-full px-4 py-2.5 shadow-2xl transition-all">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (input.trim()) {
+                          handleSend();
+                        } else {
+                          inputRef.current?.focus();
+                        }
+                      }}
+                      className="text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-1 p-0.5"
+                      title="Search / Focus input"
+                    >
+                      <Search className="w-5 h-5" />
+                    </button>
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                      placeholder="Describe your prompt..."
+                      className="flex-1 bg-transparent border-none text-white placeholder:text-slate-500 outline-none text-base font-normal px-2"
                     />
-                  ))}
-                </span>
-                <span>UNI AI is consulting OpenAI...</span>
-              </div>
-            </div>
-          )}
+                    <div className="flex items-center gap-2 shrink-0 pr-1">
+                      {/* Button 1: Mic */}
+                      <button
+                        type="button"
+                        onClick={startListening}
+                        title={isListening ? "Listening..." : "Click to speak"}
+                        className={`w-9 h-9 rounded-full bg-[#1e2538] hover:bg-[#28324a] active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                          isListening ? "bg-red-500/20 text-red-400 animate-pulse border border-red-500/40" : "text-slate-300 hover:text-white"
+                        }`}
+                      >
+                        <Mic className="w-4 h-4" />
+                      </button>
 
-          {/* Starter Prompts on Fresh Chat */}
-          {activeSession?.messages.length === 1 && !loading && (
-            <div className="pt-4 max-w-2xl mx-auto space-y-3">
-              <p className="text-xs font-bold uppercase tracking-wider text-text-muted text-center flex items-center justify-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                Quick Marketing Suggestions (1-Click Try)
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {STARTER_PROMPTS.map((p, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSend(p.prompt)}
-                    className="p-3 bg-surface-elevated/60 hover:bg-surface-elevated border border-border/80 hover:border-brand-purple/40 rounded-xl text-left transition-all group flex items-start gap-2.5 cursor-pointer shadow-sm"
-                  >
-                    <span className="text-lg shrink-0 group-hover:scale-110 transition-transform">{p.icon}</span>
-                    <div className="flex-1 overflow-hidden">
-                      <div className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors">{p.label}</div>
-                      <div className="text-[11px] text-text-muted truncate mt-0.5">{p.prompt}</div>
+                      {/* Button 2: Document with Plus (Upload / New Template) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.click();
+                          } else {
+                            const templatePrompt = "Analyze latest product & draft a high-converting promotional post";
+                            setInput(templatePrompt);
+                            handleSend(templatePrompt);
+                          }
+                        }}
+                        className="w-9 h-9 rounded-full bg-[#1e2538] hover:bg-[#28324a] active:scale-95 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+                        title="Upload product image / Add prompt"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9" />
+                          <path d="M18 2v6" />
+                          <path d="M15 5h6" />
+                        </svg>
+                      </button>
+
+                      {/* Button 3: Purple Send Paper Plane */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (input.trim()) {
+                            handleSend();
+                          } else {
+                            const defaultMsg = "Diwali sale instagram post create karke do";
+                            setInput(defaultMsg);
+                            handleSend(defaultMsg);
+                          }
+                        }}
+                        className="w-9 h-9 rounded-full bg-[#5225b8] hover:bg-[#6232cf] active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-md shadow-purple-950/40 border border-[#7a49e6]/40"
+                        title="Send message"
+                      >
+                        <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                        </svg>
+                      </button>
                     </div>
-                  </button>
+                  </div>
+                </div>
+              </div>
+            );
+          }
+
+          // Active Conversation Stream
+          return (
+            <div className="flex-1 flex flex-col justify-between overflow-hidden">
+              {/* Message Stream */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+                {userMessages.map((msg) => (
+                  <div 
+                    key={msg.id} 
+                    className={`flex flex-col ${msg.role === "user" ? "items-end" : "items-start"}`}
+                  >
+                    <div
+                      className={`max-w-[85%] sm:max-w-[75%] p-4 rounded-2xl shadow-lg transition-all ${
+                        msg.role === "user" 
+                          ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-br-xs" 
+                          : "bg-[#101935] border border-[#1e2a4a] text-white rounded-bl-xs"
+                      }`}
+                    >
+                      {msg.role === "ai" ? (
+                        <div className="space-y-2">
+                          <FormattedMessage content={msg.content} />
+                          {msg.action && renderDataCard(msg.action, msg.data, msg.id)}
+                        </div>
+                      ) : (
+                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                      )}
+                    </div>
+                  </div>
                 ))}
+
+                {/* Typing Indicator */}
+                {loading && (
+                  <div className="flex items-start">
+                    <div className="p-4 rounded-2xl bg-[#101935] border border-[#1e2a4a] text-slate-400 text-xs font-semibold flex items-center gap-2.5">
+                      <span className="flex gap-1 items-center">
+                        {[0, 1, 2].map((i) => (
+                          <span 
+                            key={i} 
+                            className="w-1.5 h-1.5 rounded-full bg-purple-400 inline-block animate-bounce" 
+                            style={{ animationDelay: `${i * 0.15}s` }} 
+                          />
+                        ))}
+                      </span>
+                      <span>UNI AI is consulting OpenAI...</span>
+                    </div>
+                  </div>
+                )}
+
+                <div ref={endRef} />
+              </div>
+
+              {/* Bottom Input Pill Bar for active stream */}
+              <div className="max-w-3xl mx-auto w-full px-4 pb-6 pt-2">
+                <div className="flex items-center gap-2.5 bg-[#0c1630] border border-[#1e2a4a] focus-within:border-[#8b5cf6]/70 rounded-full px-4 py-2.5 shadow-2xl transition-all">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (input.trim()) {
+                        handleSend();
+                      }
+                    }}
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0 ml-1 p-0.5"
+                    title="Search / Submit"
+                  >
+                    <Search className="w-5 h-5" />
+                  </button>
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
+                    placeholder="Describe your prompt..."
+                    className="flex-1 bg-transparent border-none text-white placeholder:text-slate-500 outline-none text-base font-normal px-2"
+                  />
+                  <div className="flex items-center gap-2 shrink-0 pr-1">
+                      {/* Button 1: Mic */}
+                      <button
+                        type="button"
+                        onClick={startListening}
+                        title={isListening ? "Listening..." : "Click to speak"}
+                        className={`w-9 h-9 rounded-full bg-[#1e2538] hover:bg-[#28324a] active:scale-95 flex items-center justify-center transition-all cursor-pointer shrink-0 ${
+                          isListening ? "bg-red-500/20 text-red-400 animate-pulse border border-red-500/40" : "text-slate-300 hover:text-white"
+                        }`}
+                      >
+                        <Mic className="w-4 h-4" />
+                      </button>
+
+                      {/* Button 2: Document with Plus (Upload / New Template) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.click();
+                          } else {
+                            const templatePrompt = "Analyze latest product & draft a high-converting promotional post";
+                            setInput(templatePrompt);
+                            handleSend(templatePrompt);
+                          }
+                        }}
+                        className="w-9 h-9 rounded-full bg-[#1e2538] hover:bg-[#28324a] active:scale-95 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
+                        title="Upload product image / Add prompt"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9" />
+                          <path d="M18 2v6" />
+                          <path d="M15 5h6" />
+                        </svg>
+                      </button>
+
+                      {/* Button 3: Purple Send Paper Plane */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (input.trim()) {
+                            handleSend();
+                          } else {
+                            const defaultMsg = "Diwali sale instagram post create karke do";
+                            setInput(defaultMsg);
+                            handleSend(defaultMsg);
+                          }
+                        }}
+                        className="w-9 h-9 rounded-full bg-[#5225b8] hover:bg-[#6232cf] active:scale-95 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-md shadow-purple-950/40 border border-[#7a49e6]/40"
+                        title="Send message"
+                      >
+                        <svg className="w-4 h-4 text-white fill-white ml-0.5" viewBox="0 0 24 24">
+                          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                </div>
               </div>
             </div>
-          )}
-
-          <div ref={endRef} />
-        </div>
-
-        {/* Input Bar */}
-        <div className="p-4 px-6 bg-[#11111a] border-t border-white/5">
-          <div className="max-w-4xl mx-auto flex items-center gap-3 bg-surface-elevated/70 border border-white/10 rounded-2xl p-2 px-3 focus-within:border-brand-purple/50 transition-colors shadow-lg">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-              placeholder="Poochiye (e.g. Diwali offers ki strategy batao ya kurta ka post bana do)..."
-              className="flex-1 bg-transparent border-none text-white placeholder-text-muted outline-none text-sm px-2"
-            />
-            <button
-              type="button"
-              onClick={startListening}
-              title={isListening ? "Listening..." : "Voice input (Hindi/English)"}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all cursor-pointer shrink-0 ${
-                isListening 
-                  ? "bg-red-500/20 text-red-400 border border-red-500/40 animate-pulse" 
-                  : "bg-white/5 text-text-muted hover:text-white hover:bg-white/10"
-              }`}
-            >
-              {isListening ? <span className="text-xs font-bold">●</span> : <Mic size={18} />}
-            </button>
-            <button
-              onClick={() => handleSend()}
-              disabled={!input.trim() || loading}
-              className="py-2 px-4 rounded-xl bg-brand-gradient hover:opacity-90 disabled:opacity-40 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:cursor-not-allowed shadow-md shrink-0"
-            >
-              <span>Send</span>
-              <Send size={13} />
-            </button>
-          </div>
-        </div>
+          );
+        })()}
       </div>
     </div>
   );
