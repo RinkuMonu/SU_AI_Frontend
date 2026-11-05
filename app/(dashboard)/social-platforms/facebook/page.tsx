@@ -723,7 +723,7 @@ export default function FacebookIntegrationPage() {
             <CardContent className="p-5 sm:p-6 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
-                  <FacebookIcon className="w-5 h-5 shrink-0" />
+                  <FacebookIcon className="w-7 h-7 shrink-0" />
                   <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">
                     Fast Facebook OAuth Connect
                   </h3>
@@ -837,7 +837,7 @@ export default function FacebookIntegrationPage() {
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Key className="h-5 w-5 text-blue-400" />
+                <Key className="h-6.5 w-6.5 text-blue-400" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   Facebook Credentials &amp; Access Tokens
                 </CardTitle>
