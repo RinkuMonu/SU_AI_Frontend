@@ -183,6 +183,7 @@ export default function AICalendarPage() {
   const [isDayDrawerOpen, setIsDayDrawerOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isMonthPickerOpen, setIsMonthPickerOpen] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [activeContentTab, setActiveContentTab] = useState<"all" | "scheduled" | "published" | "draft">("scheduled");
   
   // Quick Schedule Form State
@@ -713,20 +714,21 @@ export default function AICalendarPage() {
           MAIN BROAD DESKTOP CONTAINER (MAX-W-4XL / MAX-W-5XL MX-AUTO)
          ────────────────────────────────────────────────── */}
       <div className="max-w-4xl sm:max-w-5xl mx-auto space-y-6">
-        {/* 1. Broad Desktop Calendar Card matching Image 1 with Image 2 Highlight (#43187d) */}
-        <div className="rounded-3xl bg-[#111528]/95 border border-white/10 p-5 sm:p-7 shadow-2xl backdrop-blur-xl relative">
+        {/* 1. Broad Desktop Calendar Card: Hidden initially, shown only when calendar button is clicked */}
+        <div className="rounded-3xl bg-[#111528]/95 border border-white/10 p-4 sm:p-6 shadow-2xl backdrop-blur-xl relative transition-all">
           {/* Calendar Card Top Controls */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/5">
-            {/* Month Dropdown Pill */}
+          <div className={`flex flex-wrap items-center justify-between gap-3 ${isCalendarOpen ? "pb-5 border-b border-white/5" : ""}`}>
+            {/* Calendar Button: Clicking toggles full calendar */}
             <div className="relative">
               <button
                 type="button"
-                onClick={() => setIsMonthPickerOpen(!isMonthPickerOpen)}
-                className="inline-flex items-center gap-3 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full bg-[#1c2237] border border-white/10 hover:border-white/20 text-white text-sm sm:text-base font-normal transition-all cursor-pointer shadow-sm"
+                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+                className="inline-flex items-center gap-3 px-6 py-3 sm:px-7 sm:py-3.5 rounded-full bg-[#1c2237] border border-white/10 hover:border-white/20 text-white text-sm sm:text-base font-normal transition-all cursor-pointer shadow-sm group"
+                title={isCalendarOpen ? "Collapse Calendar" : "Expand Full Calendar"}
               >
-                <CalendarDays className="w-5 h-5 text-slate-300" />
+                <CalendarDays className="w-5 h-5 text-slate-300 group-hover:text-purple-300 transition-colors" />
                 <span>{currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}</span>
-                <ChevronDown className={`w-4.5 h-4.5 text-slate-400 transition-transform ${isMonthPickerOpen ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4.5 h-4.5 text-slate-400 transition-transform duration-300 ${isCalendarOpen ? "rotate-180 text-purple-300" : ""}`} />
               </button>
 
               {/* Month & Year Selection Popup */}
@@ -803,8 +805,11 @@ export default function AICalendarPage() {
             </div>
           </div>
 
-          {/* Weekdays Row: Mon, Tue, Wed, Thur, Fri, Sat, Sun */}
-          <div className="grid grid-cols-7 border-b border-white/5 py-3.5">
+          {/* Full Calendar (Weekdays & Days Grid) - Only shown when calendar button is clicked */}
+          {isCalendarOpen && (
+            <div className="animate-in fade-in slide-in-from-top-2 duration-300 pt-1">
+              {/* Weekdays Row: Mon, Tue, Wed, Thur, Fri, Sat, Sun */}
+              <div className="grid grid-cols-7 border-b border-white/5 py-3.5">
             {weekDays.map((day, idx) => (
               <div
                 key={day}
@@ -902,7 +907,9 @@ export default function AICalendarPage() {
                 </div>
               );
             })}
-          </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 2. Content Tabs Bar: All | Scheduled | Published | Draft (matching Image 2 gradient & dark bottom) */}
@@ -1028,11 +1035,16 @@ export default function AICalendarPage() {
           </h2>
 
           {(activeContentTab === "scheduled" || activeContentTab === "published") && (
-            <div className="inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-2.5 rounded-full bg-[#141829] border border-white/10 text-sm text-slate-300 hover:text-white cursor-pointer transition-colors shadow-sm">
+            <button
+              type="button"
+              onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 sm:px-6 sm:py-2.5 rounded-full bg-[#141829] border border-white/10 text-sm text-slate-300 hover:text-white cursor-pointer transition-colors shadow-sm"
+              title="Toggle Calendar"
+            >
               <CalendarDays className="w-4 h-4 text-slate-400" />
               <span>{activeContentTab === "scheduled" ? "28 Sep 2026" : "28 - 30Sep 2026"}</span>
-              <ChevronDown className="w-4 h-4 text-slate-400" />
-            </div>
+              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isCalendarOpen ? "rotate-180" : ""}`} />
+            </button>
           )}
         </div>
 
