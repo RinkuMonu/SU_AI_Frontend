@@ -118,11 +118,24 @@ export default function InstagramIntegrationPage() {
     // 1. Check URL parameters after OAuth redirect
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      tokenFromUrl = params.get('access_token') || params.get('token') || params.get('ig_access_token') || params.get('fb_access_token') || params.get('user_access_token');
-      const isConnectedSuccess = params.get('instagram_connected') === 'true' || params.get('facebook_connected') === 'true';
-      accIdFromUrl = params.get('ig_account_id') || params.get('account_id') || params.get('ig_user_id');
-      const fbPageToken = params.get('fb_access_token');
-      const fbPageId = params.get('fb_page_id');
+      
+      // Prioritize specific Instagram token over generic/JWT tokens
+      const rawTokenParam = params.get('token');
+      const isJwtToken = rawTokenParam && rawTokenParam.startsWith('ey');
+      
+      tokenFromUrl = params.get('ig_access_token') ||
+        params.get('page_access_token') ||
+        params.get('fb_access_token') ||
+        params.get('access_token') ||
+        params.get('user_access_token') ||
+        (!isJwtToken ? rawTokenParam : null);
+
+      accIdFromUrl = params.get('ig_account_id') || params.get('ig_user_id') || params.get('account_id');
+      const isIgExplicit = params.get('instagram_connected') === 'true' || Boolean(accIdFromUrl);
+      const isFbSuccess = params.get('facebook_connected') === 'true';
+      
+      const fbPageToken = params.get('fb_access_token') || params.get('page_access_token');
+      const fbPageId = params.get('fb_page_id') || params.get('page_id');
       if (fbPageToken) {
         FacebookService.saveCredentials({
           pageAccessToken: fbPageToken,
@@ -139,33 +152,41 @@ export default function InstagramIntegrationPage() {
         setIsConnectingFb(false);
       }
       
-      // Token or Success flag in URL
-      if (tokenFromUrl || isConnectedSuccess) {
+      // Token or Instagram explicit connection in URL
+      if (tokenFromUrl || isIgExplicit) {
         const finalToken = tokenFromUrl || stored.accessToken;
         const finalAccId = accIdFromUrl || stored.accountId;
 
         if (finalToken) setIgToken(finalToken);
         if (finalAccId) setIgAccountId(finalAccId);
-        setIsConnected(true);
-        setSuccessMessage("Instagram connected successfully!");
+        
+        if (finalToken || finalAccId) {
+          setIsConnected(true);
+          setSuccessMessage("Instagram connected successfully!");
+        }
         
         // Clean URL to hide token
         window.history.replaceState({}, document.title, window.location.pathname);
         
-        InstagramService.saveInstagramCredentials({
-          accountId: finalAccId || "",
-          accessToken: finalToken || "",
-          syncBackend: true
-        });
+        if (finalToken || finalAccId) {
+          InstagramService.saveInstagramCredentials({
+            accountId: finalAccId || "",
+            accessToken: finalToken || "",
+            syncBackend: true
+          });
 
-        ActivityService.logActivity({
-          title: "Instagram Account Connected",
-          description: `Connected Instagram Professional account (ID: ${finalAccId || "Active"}).`,
-          category: "social",
-          platform: "instagram",
-          status: "Active",
-          actionUrl: "/social-platforms/instagram"
-        });
+          ActivityService.logActivity({
+            title: "Instagram Account Connected",
+            description: `Connected Instagram Professional account (ID: ${finalAccId || "Active"}).`,
+            category: "social",
+            platform: "instagram",
+            status: "Active",
+            actionUrl: "/social-platforms/instagram"
+          });
+        }
+      } else if (isFbSuccess) {
+        // Facebook connected, clean up URL bar
+        window.history.replaceState({}, document.title, window.location.pathname);
       } 
       // If code is returned, exchange it with backend
       else if (codeFromUrl) {
@@ -211,9 +232,28 @@ export default function InstagramIntegrationPage() {
       }
     }
 
-    // 2. Load business details from backend
+    // 2. Load connection details from backend
     async function fetchBusinessData() {
       try {
+        // First check authoritative Instagram connection status
+        try {
+          const statusRes = await api.get('/api/instagram/status');
+          if (statusRes.data && statusRes.data.connected) {
+            const accId = statusRes.data.ig_account_id || statusRes.data.instagram_user_id || "";
+            const tok = statusRes.data.ig_access_token || "";
+            if (accId) {
+              setIgAccountId(accId);
+              localStorage.setItem("ig_account_id", accId);
+            }
+            if (tok) {
+              setIgToken(tok);
+              localStorage.setItem("ig_access_token", tok);
+            }
+            setIsConnected(true);
+          }
+        } catch (_) {}
+
+        // Then check business profile for stored credentials
         const res = await api.get('/api/v1/businesses/me');
         if (res.data) {
           const backendAccountId = res.data.ig_account_id || res.data.instagram_account_id || "";

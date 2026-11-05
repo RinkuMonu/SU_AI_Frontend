@@ -62,6 +62,26 @@ export class InstagramService {
     }
 
     if (syncBackend) {
+      // 1. Save directly into instagram_connections collection via backend save-token endpoint
+      if (accessToken) {
+        try {
+          await api.post("/api/instagram/save-token", {
+            access_token: accessToken,
+            ig_account_id: accountId || undefined,
+          });
+        } catch (saveErr) {
+          try {
+            await api.post("/api/v1/instagram/save-token", {
+              access_token: accessToken,
+              ig_account_id: accountId || undefined,
+            });
+          } catch (v1Err) {
+            console.warn("Notice: /api/instagram/save-token failed:", v1Err);
+          }
+        }
+      }
+
+      // 2. Synchronize business profile fields
       try {
         await api.put("/api/v1/businesses/me", {
           ig_account_id: accountId ?? "",
