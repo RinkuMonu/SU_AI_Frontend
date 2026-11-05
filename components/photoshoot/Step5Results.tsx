@@ -1,4 +1,5 @@
 "use client";
+import { resolveImageUrl } from "@/lib/imageUtils";
 
 import React, { useState } from "react";
 import {
@@ -388,7 +389,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
               <div className="relative aspect-square w-full bg-black/60 overflow-hidden select-none flex items-center justify-center">
                 {item.imageUrl && item.imageUrl.trim() ? (
                   <img
-                    src={item.imageUrl}
+                    src={resolveImageUrl(item.imageUrl, item.prompt || item.title)}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -529,7 +530,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
 
             <div className="py-4 flex items-center justify-center max-h-[75vh] overflow-hidden">
               <img
-                src={lightboxItem.imageUrl}
+                src={resolveImageUrl(lightboxItem.imageUrl, lightboxItem.prompt || lightboxItem.title)}
                 alt={lightboxItem.title}
                 className="max-h-[70vh] w-auto object-contain rounded-xl"
               />
