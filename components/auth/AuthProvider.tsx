@@ -18,15 +18,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('user');
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return null;
-  });
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
@@ -48,6 +40,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       if (typeof window !== 'undefined') {
+        try {
+          const cached = localStorage.getItem('user');
+          if (cached) {
+            setUser(JSON.parse(cached));
+          }
+        } catch (_) {}
         const urlParams = new URLSearchParams(window.location.search);
         const urlToken = urlParams.get('token');
         if (urlToken) {

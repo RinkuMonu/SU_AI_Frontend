@@ -43,7 +43,7 @@ export function Navbar() {
 
   const { user, logout } = useAuth();
   const webHref = '/login/user';
-  const destinationHref = user
+  const destinationHref = (mounted && user)
     ? user.role === 'influencer'
       ? (user.onboardingCompleted ? '/influencer' : '/onboarding/influencer')
       : (user.onboardingCompleted ? '/dashboard' : '/onboarding')
@@ -180,7 +180,7 @@ export function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
           <LanguageSelector align="right" />
-          {user ? (
+          {mounted && user ? (
             <>
               <Button
                 variant="outline"
@@ -290,7 +290,7 @@ export function Navbar() {
             <LanguageSelector align="right" />
           </div>
           <div className="flex flex-col sm:flex-row gap-3 mt-2">
-            {user ? (
+            {mounted && user ? (
               <>
                 <Button variant="outline" className="w-full" asChild>
                   <Link href={destinationHref} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
