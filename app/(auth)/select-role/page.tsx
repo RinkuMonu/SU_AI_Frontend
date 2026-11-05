@@ -144,7 +144,10 @@ export default function SelectRolePage() {
   // Protection: direct unauthenticated visitors to login first
   useEffect(() => {
     if (!isLoading && !user) {
-      router.replace("/login/user");
+      const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+      if (!token) {
+        router.replace("/login/user");
+      }
     }
   }, [user, isLoading, router]);
 
@@ -213,6 +216,13 @@ export default function SelectRolePage() {
         sessionStorage.setItem("selected_role", selectedRole);
         localStorage.setItem("selected_role", selectedRole);
       }
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("selected_role", selectedRole);
+        localStorage.setItem("selected_role", selectedRole);
+        sessionStorage.setItem("signup_role", selectedRole);
+        sessionStorage.removeItem("onboarding_step");
+        sessionStorage.removeItem("show_onboarding_plan");
+      }
       const authoritativeRole = updatedUser?.role || selectedRole;
       if (authoritativeRole === "businessman") {
         if (isCompleted) {
@@ -236,7 +246,7 @@ export default function SelectRolePage() {
         } catch (statusErr) {
           console.warn("Could not check influencer onboarding status, routing to onboarding:", statusErr);
           creatorOnboardingService.clearLocalDraft(updatedUser?.id || (user as any)?.id);
-            router.replace("/onboarding/influencer");
+          router.replace("/onboarding/influencer");
         }
       } else {
         router.replace(getDashboardRouteForRole(authoritativeRole));
@@ -258,7 +268,8 @@ export default function SelectRolePage() {
     }
   };
 
-  if (isLoading) {
+  const hasToken = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  if (isLoading && !hasToken && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#090A15] text-white">
         <div className="flex flex-col items-center gap-3">
@@ -270,15 +281,15 @@ export default function SelectRolePage() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden bg-[#090A15] text-white flex flex-col justify-between selection:bg-brand-purple selection:text-white">
+    <div className="h-screen h-[100dvh] max-h-screen overflow-hidden relative bg-[#090A15] text-white flex flex-col justify-between selection:bg-brand-purple selection:text-white">
       {/* Background radial gradient glow effects matching the reference design */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-gradient-to-b from-[#6B21A8]/25 via-[#BE32FF]/10 to-transparent blur-[120px] pointer-events-none -z-10" />
       <div className="absolute bottom-0 right-1/4 w-[450px] h-[300px] bg-gradient-to-tl from-[#F0449B]/15 via-[#FC9A5D]/10 to-transparent blur-[100px] pointer-events-none -z-10" />
 
       {/* Main Content Container */}
-      <main className="w-full max-w-2xl lg:max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 flex-1 flex flex-col justify-center">
+      <main className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex-1 flex flex-col justify-between overflow-hidden">
         {/* Top Header Bar - Clean navigation, no sign in / sign up buttons */}
-        <header className="flex items-center justify-between mb-6 sm:mb-8">
+        <header className="flex items-center justify-between mb-2 sm:mb-4 shrink-0">
           <button
             type="button"
             onClick={handleBack}
@@ -311,7 +322,7 @@ export default function SelectRolePage() {
         </header>
 
         {/* Title and Subtitle */}
-        <div className="mb-7 sm:mb-9 space-y-2">
+        <div className="mb-3 sm:mb-4 space-y-1 shrink-0">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white leading-tight">
             How will you use{" "}
             <span className="bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] bg-clip-text text-transparent">
@@ -337,11 +348,11 @@ export default function SelectRolePage() {
           </div>
         )}
 
-        {/* Role Cards Grid: Stacked on mobile, 2 columns on larger desktop */}
+        {/* Role Cards Grid: 2 columns on desktop with generous gap & no empty blank space */}
         <div
           role="radiogroup"
           aria-label="How will you use DhandhaGrow AI?"
-          className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-10 items-stretch"
+          className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 my-auto items-stretch"
         >
           {ROLE_OPTIONS.map((option) => {
             const isSelected = selectedRole === option.id;
@@ -355,19 +366,19 @@ export default function SelectRolePage() {
                 tabIndex={0}
                 onClick={() => handleCardClick(option.id)}
                 onKeyDown={(e) => handleKeyDown(e, option.id)}
-                className={`group relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col focus:outline-none focus:ring-2 focus:ring-brand-purple ${isSelected
+                className={`group relative rounded-2xl cursor-pointer transition-all duration-300 flex flex-col h-full focus:outline-none focus:ring-2 focus:ring-brand-purple ${isSelected
                     ? "p-[1.8px] bg-gradient-to-r from-[#BE32FF] via-[#F0449B] to-[#FC9A5D] shadow-[0_0_35px_rgba(190,50,255,0.32)] scale-[1.01]"
-                    : "p-[1px] bg-white/10 hover:bg-white/20 hover:scale-[1.005]"
+                    : "border border-white/10 hover:border-white/20 bg-[#0E1022]/90 hover:bg-[#12152c] hover:scale-[1.005]"
                   }`}
               >
                 {/* Inner Card Body */}
                 <div
-                  className={`flex-1 rounded-[15px] p-5 sm:p-7 flex flex-col justify-between transition-colors ${isSelected
+                  className={`h-full flex-1 rounded-[15px] p-5 sm:p-6 flex flex-col justify-between transition-colors ${isSelected
                       ? "bg-[#111327]"
-                      : "bg-[#0E1022]/90 hover:bg-[#12152c]"
+                      : "bg-transparent"
                     }`}
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-2 sm:space-y-2.5">
                     {/* Top Row: Icon + Title + Pill Badge */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3.5 min-w-0">
@@ -399,7 +410,7 @@ export default function SelectRolePage() {
                     </p>
 
                     {/* Green Bullet Points */}
-                    <ul className="space-y-2.5 pt-1.5">
+                    <ul className="space-y-1.5 pt-1">
                       {option.features.map((feature, idx) => (
                         <li
                           key={idx}
@@ -413,7 +424,7 @@ export default function SelectRolePage() {
                   </div>
 
                   {/* Selection Indicator Footer */}
-                  <div className="pt-5 mt-4 border-t border-white/5 flex items-center justify-between">
+                  <div className="pt-3 mt-2 flex items-center justify-between">
                     <span className="text-xs text-slate-400">
                       {isSelected ? "Role Selected" : "Click to select"}
                     </span>
@@ -438,9 +449,9 @@ export default function SelectRolePage() {
             type="button"
             onClick={handleContinue}
             disabled={!selectedRole || isSubmitting}
-            className={`w-full sm:max-w-md h-14 rounded-full font-semibold text-base sm:text-lg flex items-center justify-center gap-2.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-brand-purple/40 ${!selectedRole || isSubmitting
+            className={`w-full sm:max-w-md h-12 sm:h-13 rounded-full font-semibold text-base flex items-center justify-center gap-2.5 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-brand-purple/40 ${!selectedRole || isSubmitting
                 ? "bg-gradient-to-r from-purple-900/40 via-pink-900/30 to-orange-950/40 text-white/40 cursor-not-allowed border border-white/5"
-                : "bg-gradient-to-r from-[#8B5CF6] via-[#EC4899] to-[#F97316] text-white shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:shadow-[0_0_40px_rgba(236,72,153,0.6)] hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                : "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 text-white shadow-[0_0_30px_rgba(236,72,153,0.4)] hover:shadow-[0_0_40px_rgba(236,72,153,0.6)] hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               }`}
           >
             {isSubmitting ? (
@@ -465,7 +476,7 @@ export default function SelectRolePage() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full text-center py-4 text-xs text-text-muted/60">
+      <footer className="hidden">
         DhandhaGrow AI &copy; {new Date().getFullYear()} &bull; Onboarding Stepper
       </footer>
     </div>

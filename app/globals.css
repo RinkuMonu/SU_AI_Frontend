@@ -399,3 +399,148 @@ html.light select option {
   background-color: #FFFFFF;
   color: #0F172A;
 }
+
+
+/* ==========================================================================
+   Driver.js Custom Dark Neon Theme for DhandaGrow
+   ========================================================================== */
+.dhandagrow-driver-popover.driver-popover {
+  background: #0C1021 !important;
+  color: #F8FAFC !important;
+  border: 1px solid rgba(190, 50, 255, 0.45) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(190, 50, 255, 0.25) !important;
+  padding: 20px 22px !important;
+  max-width: 380px !important;
+  font-family: inherit !important;
+  backdrop-filter: blur(20px) !important;
+  z-index: 1000000000 !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-title {
+  color: #FFFFFF !important;
+  font-size: 16px !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  letter-spacing: -0.01em !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-description {
+  color: #94A3B8 !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  margin-top: 9px !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-close-btn {
+  color: #64748B !important;
+  font-size: 18px !important;
+  transition: color 0.2s ease !important;
+  top: 12px !important;
+  right: 12px !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-close-btn:hover {
+  color: #F43F5E !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-footer {
+  margin-top: 18px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  padding-top: 14px !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-progress-text {
+  color: #E2E8F0 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  background: rgba(190, 50, 255, 0.18) !important;
+  border: 1px solid rgba(190, 50, 255, 0.35) !important;
+  padding: 3px 9px !important;
+  border-radius: 9999px !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-navigation-btns {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-prev-btn,
+.dhandagrow-driver-popover .driver-popover-next-btn {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 7px 15px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-prev-btn {
+  background: rgba(255, 255, 255, 0.07) !important;
+  color: #CBD5E1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-prev-btn:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  color: #FFFFFF !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-next-btn {
+  background: linear-gradient(135deg, #BE32FF 0%, #F0449B 100%) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(190, 50, 255, 0.35) !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-next-btn:hover {
+  opacity: 0.95 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 20px rgba(190, 50, 255, 0.5) !important;
+}
+
+.dhandagrow-driver-popover .driver-popover-arrow-side-left {
+  border-left-color: #0C1021 !important;
+}
+.dhandagrow-driver-popover .driver-popover-arrow-side-right {
+  border-right-color: #0C1021 !important;
+}
+.dhandagrow-driver-popover .driver-popover-arrow-side-top {
+  border-top-color: #0C1021 !important;
+}
+.dhandagrow-driver-popover .driver-popover-arrow-side-bottom {
+  border-bottom-color: #0C1021 !important;
+}
+
+
+/* Mobile Responsive overrides for Driver.js Popover */
+@media (max-width: 640px) {
+  .dhandagrow-driver-popover.driver-popover {
+    max-width: calc(100vw - 28px) !important;
+    min-width: 270px !important;
+    padding: 14px 16px !important;
+    margin: 6px !important;
+    border-radius: 14px !important;
+  }
+  .dhandagrow-driver-popover .driver-popover-title {
+    font-size: 14.5px !important;
+  }
+  .dhandagrow-driver-popover .driver-popover-description {
+    font-size: 12.5px !important;
+    line-height: 1.5 !important;
+  }
+  .dhandagrow-driver-popover .driver-popover-footer {
+    margin-top: 12px !important;
+    padding-top: 10px !important;
+  }
+  .dhandagrow-driver-popover .driver-popover-prev-btn,
+  .dhandagrow-driver-popover .driver-popover-next-btn {
+    padding: 5px 10px !important;
+    font-size: 11px !important;
+  }
+}

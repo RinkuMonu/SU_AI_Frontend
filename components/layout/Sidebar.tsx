@@ -63,54 +63,58 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Brand Kit", href: "/brand", icon: Palette },
-  { name: "AI Content Generation", href: "/content", icon: Sparkles },
+export const navigation = [
+  { id: "tour-nav-dashboard", name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { id: "tour-nav-brand", name: "Brand Kit", href: "/brand", icon: Palette },
+  { id: "tour-nav-content", name: "AI Content Generation", href: "/content", icon: Sparkles },
   { 
+    id: "tour-nav-image-reel",
     name: "Image and Reel Generation", 
     icon: Share2, 
     children: [
-      { name: "Create Reel", href: "/create/reel" },
-      { name: "AI Post Maker", href: "/ai-post" },
-      { name: "AI Calendar", href: "/ai-calendar" },
+      { id: "tour-nav-create-reel", name: "Create Reel", href: "/create/reel" },
+      { id: "tour-nav-ai-post", name: "AI Post Maker", href: "/ai-post" },
+      { id: "tour-nav-ai-calendar", name: "AI Calendar", href: "/ai-calendar" },
     ]
   },
   { 
+    id: "tour-nav-photoshoot",
     name: "AI Photoshoot Studio", 
     icon: Camera, 
     children: [
-      { name: "AI Avatar Photoshoot", href: "/ai-photoshoot/avatar", icon: UserCheck },
-      { name: "AI Product Photography", href: "/ai-photoshoot/product", icon: Box },
+      { id: "tour-nav-avatar", name: "AI Avatar Photoshoot", href: "/ai-photoshoot/avatar", icon: UserCheck },
+      { id: "tour-nav-product-photo", name: "AI Product Photography", href: "/ai-photoshoot/product", icon: Box },
     ]
   },
-  { name: "Website Builder", href: "/website-builder", icon: Globe },
-  { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { name: "Influencers", href: "/influencers", icon: Users },
-  { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
-  { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
+  { id: "tour-nav-website-builder", name: "Website Builder", href: "/website-builder", icon: Globe },
+  { id: "tour-nav-festivals", name: "Festival Engine", href: "/festivals", icon: PartyPopper },
+  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users },
+  { id: "tour-nav-content-library", name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
+  { id: "tour-nav-uni-ai", name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
+    id: "tour-nav-social-platforms",
     name: "Social Platforms",
     icon: Globe,
     children: [
-      { name: "Overview", href: "/social-platforms", icon: Globe },
-      { name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
-      { name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
-      { name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
+      { id: "tour-nav-social-overview", name: "Overview", href: "/social-platforms", icon: Globe },
+      { id: "tour-nav-social-instagram", name: "Instagram", href: "/social-platforms/instagram", icon: InstagramIcon },
+      { id: "tour-nav-social-facebook", name: "Facebook", href: "/social-platforms/facebook", icon: FacebookIcon },
+      { id: "tour-nav-social-linkedin", name: "LinkedIn", href: "/social-platforms/linkedin", icon: LinkedinIcon },
     ]
   },
-  { name: "Analytics", href: "/analytics", icon: TrendingUp },
+  { id: "tour-nav-analytics", name: "Analytics", href: "/analytics", icon: TrendingUp },
   {
+    id: "tour-nav-billing",
     name: "Billing & Plans",
     icon: Store,
     children: [
-      { name: "Plans", href: "/subscription", icon: Crown },
-      { name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
-      { name: "AI Token & Credit Usage", href: "/subscription/credits", icon: Zap },
+      { id: "tour-nav-billing-plans", name: "Plans", href: "/subscription", icon: Crown },
+      { id: "tour-nav-billing-transactions", name: "Transaction & AutoPay Report", href: "/subscription/transactions", icon: FileText },
+      { id: "tour-nav-billing-credits", name: "AI Token & Credit Usage", href: "/subscription/credits", icon: Zap },
     ],
   },
-  { name: "Support", href: "/support", icon: Headphones },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { id: "tour-nav-support", name: "Support", href: "/support", icon: Headphones },
+  { id: "tour-nav-settings", name: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -132,6 +136,9 @@ export function Sidebar() {
     if (pathname.startsWith("/ai-photoshoot")) {
       setOpenDropdowns((prev) => ({ ...prev, "AI Photoshoot Studio": true }));
     }
+    if (["/create/reel", "/ai-post", "/ai-calendar"].some((p) => pathname.startsWith(p))) {
+      setOpenDropdowns((prev) => ({ ...prev, "Image and Reel Generation": true }));
+    }
   }, [pathname]);
 
   const toggleDropdown = (name: string) => {
@@ -139,7 +146,7 @@ export function Sidebar() {
   };
 
   const renderNavItems = (onItemClick?: () => void) => (
-    <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto custom-scrollbar">
+    <nav className="flex-1 space-y-1.5 px-3 py-4 overflow-y-auto scrollbar-none">
       {navigation.map((item: any) => {
         if (item.children) {
           const isOpen = openDropdowns[item.name];
@@ -148,15 +155,15 @@ export function Sidebar() {
             return pathname === childBasePath || pathname.startsWith(childBasePath + "/");
           });
           const isParentActive = item.href ? pathname === item.href : false;
-          
+
           return (
-            <div key={item.name} className="space-y-1">
+            <div key={item.name} id={item.id} className="space-y-1">
               <div
                 className={cn(
                   "group w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   (isChildActive || isParentActive) && !isOpen
-                    ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                    : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                    ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
                 )}
               >
                 {item.href ? (
@@ -168,7 +175,7 @@ export function Sidebar() {
                     <item.icon
                       className={cn(
                         "mr-3 h-5 w-5 flex-shrink-0",
-                        (isChildActive || isParentActive) && !isOpen ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                        (isChildActive || isParentActive) && !isOpen ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                       )}
                       aria-hidden="true"
                     />
@@ -211,24 +218,50 @@ export function Sidebar() {
                 <div className="pl-8 pr-2 space-y-1">
                   {item.children.map((child: any) => {
                     const isExactActive = pathname === child.href;
+
+                    if (child.comingSoon) {
+                      return (
+                        <div
+                          key={child.name}
+                          title={`${child.name} (Coming Soon)`}
+                          aria-disabled="true"
+                          className="group flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
+                        >
+                          <div className="flex items-center min-w-0">
+                            {child.icon && (
+                              <child.icon
+                                className="mr-2 h-3.5 w-3.5 flex-shrink-0 opacity-40"
+                                aria-hidden="true"
+                              />
+                            )}
+                            <span className="truncate">{child.name}</span>
+                          </div>
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 ml-1">
+                            Coming Soon
+                          </span>
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={child.name}
+                        id={child.id}
                         href={child.href}
                         title={child.name}
                         onClick={() => onItemClick && onItemClick()}
                         className={cn(
-                          "group flex items-center px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors leading-tight",
+                          "group flex items-center px-3 py-2 text-xs font-medium rounded-2xl transition-colors",
                           isExactActive
-                            ? "bg-brand-purple/20 border border-brand-purple/40 text-white font-semibold"
-                            : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                            ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)]"
+                            : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
                         )}
                       >
                         {child.icon && (
                           <child.icon
                             className={cn(
-                              "mr-2 h-3.5 w-3.5 flex-shrink-0",
-                              isExactActive ? "text-brand-purple" : "opacity-80 group-hover:opacity-100"
+                              "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
+                              isExactActive ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                             )}
                             aria-hidden="true"
                           />
@@ -245,27 +278,53 @@ export function Sidebar() {
 
         const isActive = item.href === "/dashboard" 
           ? pathname === "/dashboard" 
-          : (pathname === item.href || pathname.startsWith(item.href + "/"));
+          : (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")));
+
+        if ((item as any).comingSoon) {
+          return (
+            <div
+              key={item.name}
+              title={`${item.name} (Coming Soon)`}
+              aria-disabled="true"
+              className="group flex items-center justify-between px-3.5 py-2.5 text-sm font-medium rounded-2xl text-slate-400/60 bg-surface/30 cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
+            >
+              <div className="flex items-center min-w-0">
+                <item.icon
+                  className="mr-3 h-5 w-5 flex-shrink-0 text-slate-400/50"
+                  aria-hidden="true"
+                />
+                <span className="truncate">{item.name}</span>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 shrink-0 ml-2 shadow-xs">
+                Coming Soon
+              </span>
+            </div>
+          );
+        }
+
         return (
           <Link
             key={item.name}
+            id={item.id}
             href={item.href as string}
             onClick={() => onItemClick && onItemClick()}
             className={cn(
-              "group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+              "group flex items-center px-3.5 py-2.5 text-sm font-medium rounded-xl transition-all",
               isActive
-                ? "bg-brand-purple/15 border border-brand-purple/35 text-white"
-                : "text-text-muted hover:bg-surface-elevated hover:text-white"
+                ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)] rounded-2xl"
+                : "text-slate-400 hover:bg-white/[0.04] hover:text-white rounded-2xl"
             )}
           >
             <item.icon
               className={cn(
-                "mr-3 h-5 w-5 flex-shrink-0",
-                isActive ? "text-brand-purple" : "text-text-muted group-hover:text-white"
+                "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
+                isActive
+                  ? "fill-white text-white"
+                  : "text-slate-400 group-hover:text-white"
               )}
               aria-hidden="true"
             />
-            {item.name}
+            <span className="truncate">{item.name}</span>
           </Link>
         );
       })}
@@ -275,8 +334,8 @@ export function Sidebar() {
   return (
     <>
       {/* Desktop & Laptop Sidebar (md+ screens) */}
-      <div className="hidden md:flex h-full w-64 flex-col bg-surface border-r border-border shrink-0">
-        <div className="flex h-16 items-center px-6 border-b border-border min-w-0">
+      <div className="hidden md:flex h-full w-64 flex-col bg-[#071023] border-r border-white/5 shrink-0">
+        <div className="flex h-16 items-center px-6 border-b border-white/5 min-w-0">
           <Link href="/dashboard" className="flex items-center gap-2 overflow-hidden min-w-0 flex-1">
             <Logo size="sm" />
           </Link>
@@ -284,7 +343,7 @@ export function Sidebar() {
 
         {renderNavItems()}
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-white/5">
           <CreditIndicator />
           <button
             onClick={logout}
@@ -306,8 +365,8 @@ export function Sidebar() {
           />
 
           {/* Slide-in Drawer */}
-          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-surface border-r border-border shadow-2xl z-10 animate-in slide-in-from-left duration-250">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border min-w-0">
+          <div className="relative flex flex-col w-72 max-w-[85vw] h-full bg-[#071023] border-r border-white/5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+            <div className="flex h-16 items-center justify-between px-6 border-b border-white/5 min-w-0">
               <Link 
                 href="/dashboard" 
                 onClick={() => setSidebarOpen(false)} 
@@ -327,7 +386,7 @@ export function Sidebar() {
 
             {renderNavItems(() => setSidebarOpen(false))}
 
-            <div className="p-4 border-t border-border">
+            <div className="p-4 border-t border-white/5">
               <CreditIndicator />
               <button
                 onClick={() => {

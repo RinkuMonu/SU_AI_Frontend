@@ -101,7 +101,7 @@ function VerifyPhoneContent() {
     try {
       const response = await authService.verifyOtp({ phone, email }, finalOtp);
 
-      const vToken = response.phone_verification_token || response.verification_token || response.token;
+      const vToken = response.phone_verification_token || response.verification_token;
 
       setSuccessMsg("Phone number verified successfully! Redirecting...");
 
@@ -114,8 +114,8 @@ function VerifyPhoneContent() {
         }
       }
 
-      if (response.token && response.user) {
-        login(response.token, response.user);
+      if (response.user) {
+        login(response.user);
         const destination = getDashboardRouteForRole(response.user.role);
         setTimeout(() => {
           router.replace(destination);

@@ -43,10 +43,10 @@ export default function AdminLoginPage() {
       if (response?.user?.role !== "admin") {
         throw new Error("Unauthorized: Admin privileges required.");
       }
-      if (response?.token && response?.user) {
-        login(response.token, response.user);
+      if (response?.user) {
+        login(response.user);
       } else {
-        throw new Error("Authentication failed: Missing token or user data.");
+        throw new Error("Authentication failed: Missing user data.");
       }
     } catch (err: any) {
       const msg = err.message || "Something went wrong";

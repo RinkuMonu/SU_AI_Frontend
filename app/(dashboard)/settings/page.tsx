@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -43,7 +44,8 @@ function InstagramIcon({ className = "w-4 h-4" }: { className?: string }) {
 }
 
 export default function SettingsPage() {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   // Active tab: 'user' (Personal) or 'business' (Businessman)
   const isDefaultBusiness = user?.role === 'business' || user?.accountType === 'business';
@@ -125,10 +127,12 @@ export default function SettingsPage() {
 
   // Fetch Fresh User Profile from Backend if available
   useEffect(() => {
+    let isMounted = true;
     const fetchUserProfile = async () => {
+      setIsLoadingUser(true);
       try {
         const fresh = await userService.getProfile();
-        if (fresh) {
+        if (fresh && isMounted) {
           if (fresh.firstName) setFirstName(fresh.firstName);
           if (fresh.lastName) setLastName(fresh.lastName);
           if (fresh.email) setEmail(fresh.email);
@@ -137,9 +141,16 @@ export default function SettingsPage() {
             setProfileImage(fresh.image || (fresh as any).profileImageUrl);
           }
         }
-      } catch (_) {}
+      } catch (_) {
+        // If fetch fails, keep cached values from auth context
+      } finally {
+        if (isMounted) setIsLoadingUser(false);
+      }
     };
     fetchUserProfile();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Fetch Business Data from Backend if available
@@ -327,6 +338,10 @@ export default function SettingsPage() {
         image: profileImage || undefined,
         accountType: 'user',
       });
+
+      try {
+        await refreshUser();
+      } catch (_) {}
 
       setUserUpdated(true);
       setIsEditingUser(false);
@@ -519,6 +534,13 @@ export default function SettingsPage() {
       {/* TAB 1: USER DETAILS (First name, Last name, Email, Contact no, Image) */}
       {/* ========================================================= */}
       {activeTab === 'user' && (
+        isLoadingUser ? (
+          <Card className="bg-surface border-border shadow-xl p-12 text-center flex flex-col items-center justify-center min-h-[350px]">
+            <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-3" />
+            <p className="text-white text-sm font-semibold">Loading profile details...</p>
+            <p className="text-text-muted text-xs mt-1">Retrieving your authenticated personal profile from backend.</p>
+          </Card>
+        ) : (
         <Card className="bg-surface border-border shadow-xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
           <div className="absolute top-0 right-0 w-80 h-80 bg-brand-purple/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -790,6 +812,7 @@ export default function SettingsPage() {
             </form>
           </CardContent>
         </Card>
+        )
       )}
 
       {/* ========================================================= */}
@@ -1033,7 +1056,7 @@ export default function SettingsPage() {
                     <Phone className="w-3.5 h-3.5 text-emerald-400" />
                     Business Contact / Phone No.
                   </Label>
-                  <Input
+                  {/* <Input
                     id="businessPhone"
                     type="tel"
                     value={businessPhone}
@@ -1044,7 +1067,26 @@ export default function SettingsPage() {
                       "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
                       !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
                     )}
+                  /> */}
+
+                  <Input 
+                    id="businessPhone" 
+                    type="tel" 
+                    value={businessPhone} 
+                    onChange={(e) => {
+                      const numericValue = e.target.value.replace(/\D/g, "");
+                      if (numericValue.length <= 10) {
+                        setBusinessPhone(numericValue);
+                      }
+                    }} 
+                    placeholder="9876543210" // Cleaned up placeholder to match 10-digit format
+                    disabled={!isEditingBusiness} 
+                    className={cn(
+                      "bg-surface-elevated/70 border-border focus:border-amber-400 transition-all",
+                      !isEditingBusiness && "opacity-85 bg-surface-elevated/35 border-border/50 cursor-not-allowed text-slate-300"
+                    )} 
                   />
+
                 </div>
               </div>
 
@@ -1168,19 +1210,20 @@ export default function SettingsPage() {
                     )}
                   </div>
                 ) : (
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
-                    <Button
-                      type="button"
-                      onClick={() => setIsEditingBusiness(true)}
-                      className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
-                    >
-                      <Pencil className="w-4 h-4" />
-                      <span>Edit Business Details</span>
-                    </Button>
-                    <span className="text-xs text-text-muted flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
-                    </span>
-                  </div>
+                  <div></div>
+                  // <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-border/40">
+                  //   <Button
+                  //     type="button"
+                  //     onClick={() => setIsEditingBusiness(true)}
+                  //     className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
+                  //   >
+                  //     <Pencil className="w-4 h-4" />
+                  //     <span>Edit Business Details</span>
+                  //   </Button>
+                  //   <span className="text-xs text-text-muted flex items-center gap-1.5">
+                  //     <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
+                  //   </span>
+                  // </div>
                 )}
               </div>
             </form>

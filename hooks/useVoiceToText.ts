@@ -28,12 +28,13 @@ export function useVoiceToText({
   const baseTextRef = useRef<string>("");
   const onTranscriptRef = useRef(onTranscript);
   const isStoppingIntentionallyRef = useRef(false);
+  const activeMediaStreamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     onTranscriptRef.current = onTranscript;
   }, [onTranscript]);
 
-  // Check support on mount
+  // Check Web Speech API support on mount
   useEffect(() => {
     if (typeof window !== "undefined") {
       const SpeechRecognition =
@@ -45,6 +46,15 @@ export function useVoiceToText({
 
   const clearError = useCallback(() => {
     setError(null);
+  }, []);
+
+  const releaseMediaStream = useCallback(() => {
+    if (activeMediaStreamRef.current) {
+      try {
+        activeMediaStreamRef.current.getTracks().forEach((track) => track.stop());
+      } catch (_) {}
+      activeMediaStreamRef.current = null;
+    }
   }, []);
 
   const stopListening = useCallback(() => {
@@ -59,12 +69,13 @@ export function useVoiceToText({
       }
       recognitionRef.current = null;
     }
+    releaseMediaStream();
     if (globalStopActiveSession === stopListening) {
       globalStopActiveSession = null;
     }
     setIsListening(false);
     setInterimTranscript("");
-  }, []);
+  }, [releaseMediaStream]);
 
   const startListening = useCallback(
     async (overrideLang?: VoiceLanguage) => {
@@ -73,9 +84,16 @@ export function useVoiceToText({
 
       if (typeof window === "undefined") return;
 
-      if (!window.isSecureContext) {
+      const isLocalHostOrSecure = Boolean(
+        window.isSecureContext ||
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1" ||
+        window.location.protocol === "https:"
+      );
+
+      if (!isLocalHostOrSecure) {
         setError(
-          "Microphone requires a secure connection (HTTPS or http://localhost:3000). Please open via localhost."
+          "Microphone requires a secure connection (HTTPS or http://localhost:3000). Please open via localhost or HTTPS."
         );
         return;
       }
@@ -86,40 +104,15 @@ export function useVoiceToText({
 
       if (!SpeechRecognition) {
         setIsSupported(false);
-        setError("Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.");
+        setError("Speech recognition is not supported in this browser. Please use Google Chrome, Edge, or Safari.");
         return;
       }
 
-      // Explicitly trigger the browser's native microphone permission prompt via getUserMedia
-      if (typeof navigator !== "undefined" && navigator.mediaDevices?.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          // Stop audio tracks immediately so hardware is released for SpeechRecognition
-          stream.getTracks().forEach((track) => track.stop());
-        } catch (mediaErr: any) {
-          console.warn("Microphone getUserMedia error:", mediaErr);
-          if (
-            mediaErr.name === "NotAllowedError" ||
-            mediaErr.name === "PermissionDeniedError" ||
-            mediaErr.message?.includes("Permission denied")
-          ) {
-            setError(
-              "Microphone permission blocked. Please click the site settings / lock icon (🔒) in your browser address bar next to the URL, set Microphone to 'Allow', then click again."
-            );
-            setIsListening(false);
-            return;
-          }
-          if (mediaErr.name === "NotFoundError" || mediaErr.name === "DevicesNotFoundError") {
-            setError("No microphone detected. Please plug in or connect an audio input device.");
-            setIsListening(false);
-            return;
-          }
-        }
-      }
-
-      // Stop any other active voice recognition session first
+      // Stop any other active voice recognition session across the app
       if (globalStopActiveSession && globalStopActiveSession !== stopListening) {
-        globalStopActiveSession();
+        try {
+          globalStopActiveSession();
+        } catch (_) {}
       }
 
       // Snapshot current value as base text so user speech appends seamlessly
@@ -133,8 +126,6 @@ export function useVoiceToText({
         const activeLang = overrideLang || lang;
         recognition.lang = activeLang;
 
-        let accumulatedFinal = "";
-
         recognition.onstart = () => {
           setIsListening(true);
           setError(null);
@@ -142,21 +133,24 @@ export function useVoiceToText({
         };
 
         recognition.onresult = (event: any) => {
+          let finalTranscript = "";
           let currentInterim = "";
 
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
-            const transcript = event.results[i][0].transcript;
-            if (event.results[i].isFinal) {
-              accumulatedFinal += transcript;
+          // Accurately accumulate from index 0 across all results
+          for (let i = 0; i < event.results.length; ++i) {
+            const item = event.results[i];
+            const textPiece = item[0]?.transcript || "";
+            if (item.isFinal) {
+              finalTranscript += textPiece;
             } else {
-              currentInterim += transcript;
+              currentInterim += textPiece;
             }
           }
 
           setInterimTranscript(currentInterim);
 
           const base = baseTextRef.current.trim();
-          const spoken = (accumulatedFinal + (currentInterim ? " " + currentInterim : "")).trim();
+          const spoken = (finalTranscript + (currentInterim ? " " + currentInterim : "")).trim();
 
           let combined = base;
           if (spoken) {
@@ -169,19 +163,18 @@ export function useVoiceToText({
         };
 
         recognition.onerror = (event: any) => {
-          console.warn("Speech recognition error:", event.error);
           if (isStoppingIntentionallyRef.current) return;
 
           switch (event.error) {
             case "not-allowed":
             case "permission-denied":
-              setError("Microphone permission denied. Please allow microphone access in your browser address bar (🔒 icon).");
+              setError("Microphone permission denied. Please click the site settings / lock icon (🔒) in your browser address bar and allow Microphone access.");
               break;
             case "no-speech":
-              // Quiet timeout - do not show scary red error for brief silence
+              // Silence timeout - non-fatal
               break;
             case "audio-capture":
-              setError("No microphone detected. Please check your audio input device.");
+              setError("No microphone detected. Please plug in or connect an audio input device.");
               break;
             case "network":
               setError("Network error connecting to speech recognition service.");
@@ -195,6 +188,7 @@ export function useVoiceToText({
         recognition.onend = () => {
           setIsListening(false);
           setInterimTranscript("");
+          releaseMediaStream();
           if (globalStopActiveSession === stopListening) {
             globalStopActiveSession = null;
           }
@@ -204,11 +198,12 @@ export function useVoiceToText({
         recognition.start();
       } catch (err: any) {
         console.error("Failed to start speech recognition:", err);
-        setError("Could not start microphone. Please try again.");
+        setError("Could not start microphone. Please check browser permissions and try again.");
         setIsListening(false);
+        releaseMediaStream();
       }
     },
-    [currentValue, lang, stopListening]
+    [currentValue, lang, stopListening, releaseMediaStream]
   );
 
   const toggleListening = useCallback(() => {
@@ -239,4 +234,3 @@ export function useVoiceToText({
     toggleListening,
   };
 }
-

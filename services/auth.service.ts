@@ -16,6 +16,7 @@ export interface SignupRequest {
 
 export interface AuthSuccessResponse {
   token?: string;
+  access_token?: string;
   user?: User;
   status?: string;
   message?: string;
@@ -127,7 +128,7 @@ export const authService = {
   /**
    * Sign in using mobile phone number or email and password
    */
-  login: async (phoneOrIdentifier: string, password: string): Promise<{ token: string; user: User }> => {
+  login: async (phoneOrIdentifier: string, password: string): Promise<{ user: User }> => {
     try {
       const cleanId = phoneOrIdentifier.trim();
       const isEmail = cleanId.includes('@');
@@ -146,9 +147,12 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/login', payload);
+      const user = response.data?.data?.user || response.data?.user;
+      if (!user) {
+        throw new Error('Authentication response did not include user data.');
+      }
       return {
-        token: response.data.access_token,
-        user: response.data.user,
+        user,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid mobile number or password.');
@@ -162,7 +166,7 @@ export const authService = {
    * User registration with required email, mobile number, name, and password
    * (No email verification flow)
    */
-  signup: async (data: SignupRequest): Promise<{ token?: string; user?: User; message?: string; detail?: string }> => {
+  signup: async (data: SignupRequest): Promise<{ user?: User; message?: string; detail?: string }> => {
     try {
       const phoneStr = data.phone?.trim() || "";
       const cc = data.countryCode || data.country_code || (phoneStr.startsWith("+") ? undefined : "+91");
@@ -182,10 +186,10 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/signup', payload);
+      const responseData = response.data?.data || response.data;
       return {
-        token: response.data?.access_token || response.data?.token,
-        user: response.data?.user,
-        message: response.data?.detail || response.data?.message || 'Account created successfully.',
+        user: responseData?.user,
+        message: responseData?.detail || responseData?.message || 'Account created successfully.',
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Unable to create account. Please check your details.');
@@ -203,7 +207,35 @@ export const authService = {
       const authRes = await api.get('/api/v1/auth/me');
       const rawUser = authRes.data?.data || authRes.data?.user || authRes.data || {};
 
-      let onboardingDone = Boolean(rawUser.onboardingCompleted || rawUser.onboarding_completed);
+      // Also merge profile data from users/me if available to preserve full name & contact details across refresh
+      let userProfile: any = {};
+      try {
+        const uRes = await api.get('/api/v1/users/me');
+        userProfile = uRes.data?.data || uRes.data?.user || uRes.data || {};
+      } catch (_) {}
+
+      const resolvedName =
+        rawUser.name ||
+        userProfile.name ||
+        rawUser.fullName ||
+        userProfile.fullName ||
+        rawUser.full_name ||
+        userProfile.full_name ||
+        (rawUser.first_name ? `${rawUser.first_name} ${rawUser.last_name || ''}`.trim() : '') ||
+        (userProfile.first_name ? `${userProfile.first_name} ${userProfile.last_name || ''}`.trim() : '') ||
+        (rawUser.firstName ? `${rawUser.firstName} ${rawUser.lastName || ''}`.trim() : '') ||
+        (userProfile.firstName ? `${userProfile.firstName} ${userProfile.lastName || ''}`.trim() : '') ||
+        rawUser.username ||
+        userProfile.username ||
+        '';
+
+      const parts = resolvedName ? resolvedName.split(/\s+/) : [];
+      const resolvedFirst = rawUser.firstName || userProfile.firstName || rawUser.first_name || userProfile.first_name || parts[0] || '';
+      const resolvedLast = rawUser.lastName || userProfile.lastName || rawUser.last_name || userProfile.last_name || parts.slice(1).join(' ') || '';
+      const resolvedPhone = rawUser.phone || userProfile.phone || rawUser.phone_number || userProfile.phone_number || rawUser.contactNumber || userProfile.contactNumber || rawUser.mobile || userProfile.mobile || '';
+      const resolvedEmail = rawUser.email || userProfile.email || '';
+
+      let onboardingDone = Boolean(rawUser.onboardingCompleted || rawUser.onboarding_completed || userProfile.onboardingCompleted);
 
       // Verify business onboarding status using /api/v1/onboarding/status as instructed
       try {
@@ -215,9 +247,9 @@ export const authService = {
         }
       } catch (_) {}
 
-      const profileImg = rawUser.image || rawUser.profileImageUrl || rawUser.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
+      const profileImg = rawUser.image || userProfile.image || rawUser.profileImageUrl || userProfile.profileImageUrl || rawUser.avatar || userProfile.avatar || rawUser.picture || rawUser.photoURL || rawUser.profile_image_url || null;
 
-      const hasPhone = Boolean((rawUser.phone || rawUser.phone_number || rawUser.mobile || '').trim());
+      const hasPhone = Boolean((resolvedPhone).trim());
       const isOAuth = Boolean(
         rawUser.auth_provider === 'google' ||
         rawUser.provider === 'google' ||
@@ -229,17 +261,22 @@ export const authService = {
         rawUser.provider === 'linkedin' ||
         rawUser.google_id ||
         rawUser.googleId ||
-        (!hasPhone && rawUser.email)
+        (!hasPhone && resolvedEmail)
       );
 
       return {
+        ...userProfile,
         ...rawUser,
-        id: rawUser.id || rawUser._id || '',
-        name: rawUser.name || rawUser.fullName || '',
-        fullName: rawUser.fullName || rawUser.name || '',
-        email: rawUser.email || '',
-        role: rawUser.role || 'user',
-        accountType: rawUser.accountType || 'user',
+        id: rawUser.id || rawUser._id || userProfile.id || userProfile._id || '',
+        name: resolvedName,
+        fullName: resolvedName,
+        firstName: resolvedFirst,
+        lastName: resolvedLast,
+        email: resolvedEmail,
+        contactNumber: resolvedPhone,
+        phone: resolvedPhone,
+        role: rawUser.role || userProfile.role || 'user',
+        accountType: rawUser.accountType || userProfile.accountType || 'user',
         image: profileImg || undefined,
         profileImageUrl: profileImg || undefined,
         phone_verified: isOAuth || !hasPhone ? true : (rawUser.phone_verified ?? true),
@@ -251,6 +288,10 @@ export const authService = {
       const { message } = parseErrorDetail(error, 'Failed to fetch user session.');
       throw new Error(message);
     }
+  },
+
+  logout: async (): Promise<void> => {
+    await api.post('/api/v1/auth/logout');
   },
 
   /**
@@ -291,11 +332,10 @@ export const authService = {
       }
 
       const response = await api.post('/api/v1/auth/verify-otp', payload);
-      const resData = response.data;
-      const vToken = resData?.phone_verification_token || resData?.verification_token || resData?.access_token || resData?.token;
+      const resData = response.data?.data || response.data;
+      const vToken = resData?.phone_verification_token || resData?.verification_token;
 
       return {
-        token: resData?.access_token || resData?.token,
         user: resData?.user,
         status: resData?.status || 'success',
         message: resData?.detail || resData?.message || 'Mobile OTP verified successfully.',
@@ -459,7 +499,8 @@ export const authService = {
     phone_verification_token?: string;
     verification_token?: string;
   }): Promise<{
-    token: string;
+    token?: string;
+    access_token?: string;
     user: User;
     message?: string;
     exists?: boolean;
@@ -499,15 +540,10 @@ export const authService = {
       const response = await api.post(endpoint, payload);
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Google authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -537,7 +573,6 @@ export const authService = {
       );
 
       return {
-        token,
         user: normalizedUser,
         message: raw?.message || data?.message,
         exists: isExisting,
@@ -566,7 +601,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/facebook/signup' : '/api/v1/auth/facebook/login';
       const response = await api.post(endpoint, {
@@ -577,15 +612,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Facebook authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -603,7 +633,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -625,7 +654,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/instagram/signup' : '/api/v1/auth/instagram/login';
       const response = await api.post(endpoint, {
@@ -636,15 +665,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('Instagram authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -662,7 +686,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -686,7 +709,7 @@ export const authService = {
     redirect_uri?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ token: string; user: User }> => {
+  }): Promise<{ user: User }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/linkedin/signup' : '/api/v1/auth/linkedin/login';
       const response = await api.post(endpoint, {
@@ -698,15 +721,10 @@ export const authService = {
       });
       const raw = response.data;
       const data = raw?.data || raw;
-      const user = data?.user || raw?.user || {};
-      const token =
-        data?.accessToken ||
-        data?.access_token ||
-        data?.token ||
-        raw?.accessToken ||
-        raw?.access_token ||
-        raw?.token ||
-        '';
+      const user = data?.user || raw?.user;
+      if (!user) {
+        throw new Error('LinkedIn authentication response did not include user data.');
+      }
 
       const normalizedUser: User = {
         ...user,
@@ -727,7 +745,6 @@ export const authService = {
       };
 
       return {
-        token,
         user: normalizedUser,
       };
     } catch (error: any) {

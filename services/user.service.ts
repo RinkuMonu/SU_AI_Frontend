@@ -18,48 +18,61 @@ export interface UpdateUserProfilePayload {
 
 export const userService = {
   getProfile: async (): Promise<User> => {
+    let raw: any = null;
     try {
       const response = await api.get('/api/v1/users/me');
-      const data = response.data?.data || response.data;
-      return data;
-    } catch (error: any) {
-      const detail = error.response?.data?.detail;
-      throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to fetch user profile');
+      raw = response.data?.data || response.data;
+    } catch (_) {
+      try {
+        const authRes = await api.get('/api/v1/auth/me');
+        raw = authRes.data?.data || authRes.data?.user || authRes.data;
+      } catch (err: any) {
+        const detail = err.response?.data?.detail;
+        throw new Error(typeof detail === 'string' ? detail : err.message || 'Failed to fetch user profile');
+      }
     }
+
+    if (!raw) throw new Error('Failed to fetch user profile');
+
+    const resolvedName =
+      raw.name ||
+      raw.fullName ||
+      raw.full_name ||
+      (raw.first_name ? `${raw.first_name} ${raw.last_name || ''}`.trim() : '') ||
+      (raw.firstName ? `${raw.firstName} ${raw.lastName || ''}`.trim() : '') ||
+      raw.username ||
+      '';
+
+    const parts = resolvedName ? resolvedName.split(/\s+/) : [];
+    const resolvedFirst = raw.firstName || raw.first_name || parts[0] || '';
+    const resolvedLast = raw.lastName || raw.last_name || parts.slice(1).join(' ') || '';
+    const resolvedPhone = raw.contactNumber || raw.contact_number || raw.phone || raw.phone_number || raw.mobile || '';
+    const resolvedImage = raw.image || raw.profileImageUrl || raw.profile_image_url || raw.avatar || raw.picture || '';
+
+    return {
+      ...raw,
+      id: raw.id || raw._id || '',
+      name: resolvedName,
+      fullName: resolvedName,
+      firstName: resolvedFirst,
+      lastName: resolvedLast,
+      email: raw.email || '',
+      contactNumber: resolvedPhone,
+      phone: resolvedPhone,
+      image: resolvedImage || undefined,
+      profileImageUrl: resolvedImage || undefined,
+      role: raw.role || 'user',
+      accountType: raw.accountType || raw.role || 'user',
+      businessName: raw.businessName || raw.business_name || '',
+      businessCategory: raw.businessCategory || raw.business_category || raw.category || '',
+    };
   },
 
   getMe: async (): Promise<User> => {
-    try {
-      const response = await api.get('/api/v1/users/me');
-      const data = response.data?.data || response.data;
-      return {
-        ...data,
-        id: data.id || data._id || '',
-        name: data.name || data.fullName || '',
-        email: data.email || '',
-        role: data.role || 'user',
-        accountType: data.accountType || 'user',
-        onboardingCompleted: data.onboardingCompleted ?? false,
-      };
-    } catch (err: any) {
-      // Fallback to auth/me if users/me is not supported
-      try {
-        const response = await api.get('/api/v1/auth/me');
-        const data = response.data?.data || response.data;
-        return {
-          ...data,
-          id: data.id || data._id || '',
-          name: data.name || data.fullName || '',
-          email: data.email || '',
-          role: data.role || 'user',
-          accountType: data.accountType || 'user',
-          onboardingCompleted: data.onboardingCompleted ?? false,
-        };
-      } catch {
-        return null as any;
-      }
-    }
+    return userService.getProfile();
   },
+
+
 
   updateProfile: async (payload: UpdateUserProfilePayload): Promise<User> => {
     try {
@@ -67,6 +80,12 @@ export const userService = {
       const data = response.data?.data || response.data;
       return data;
     } catch (error: any) {
+      if (error?.response?.status === 405 || error?.response?.status === 404) {
+        try {
+          const resPut = await api.put('/api/v1/users/me', payload);
+          return resPut.data?.data || resPut.data;
+        } catch (_) {}
+      }
       const detail = error.response?.data?.detail;
       throw new Error(typeof detail === 'string' ? detail : error.message || 'Failed to update profile');
     }
@@ -76,14 +95,6 @@ export const userService = {
     try {
       const response = await api.patch('/api/v1/users/me', data);
       const updated = response.data?.data || response.data;
-      
-      // Keep localStorage user in sync
-      if (typeof window !== 'undefined' && updated) {
-        const stored = localStorage.getItem('user');
-        const prev = stored ? JSON.parse(stored) : {};
-        const merged = { ...prev, ...updated };
-        localStorage.setItem('user', JSON.stringify(merged));
-      }
       return updated;
     } catch (error: any) {
       if (error.response?.data?.detail) {

@@ -4,11 +4,13 @@ export interface InfluencerProfile {
   id?: string;
   user_id?: string;
   fullName?: string;
+  full_name?: string;
   username?: string;
   email?: string;
   phone?: string;
   bio?: string;
   category?: string;
+  niches?: string[];
   location?: string;
   languages?: string[];
   preferredLanguage?: string;
@@ -24,9 +26,11 @@ export interface InfluencerProfile {
   portfolio?: any[];
   profile_image?: string;
   cover_image?: string;
+  banner_image?: string;
   profile_completion?: number;
   is_social_connected?: boolean;
   connected_platforms?: string[];
+  social_accounts?: any;
   ai_match_score?: number;
   ai_match_explanation?: string;
 }

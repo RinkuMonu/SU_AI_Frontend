@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   UploadCloud, 
+  Camera,
+  SwitchCamera,
+  RotateCcw,
   X, 
   Plus, 
   Image as ImageIcon, 
@@ -77,6 +80,144 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
   const [replacingImageId, setReplacingImageId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Camera Capture State
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [cameraFacingMode, setCameraFacingMode] = useState<"user" | "environment">("environment");
+  const [cameraError, setCameraError] = useState<string | null>(null);
+  const [capturedPreview, setCapturedPreview] = useState<string | null>(null);
+  const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Stop active camera stream
+  const stopCameraStream = () => {
+    if (cameraStreamRef.current) {
+      try {
+        cameraStreamRef.current.getTracks().forEach((track) => track.stop());
+      } catch (_) {}
+      cameraStreamRef.current = null;
+    }
+  };
+
+  // Open device camera with MediaStream
+  const handleStartCamera = async (overrideFacing?: "user" | "environment") => {
+    stopCameraStream();
+    setCameraError(null);
+    setCapturedPreview(null);
+    setCapturedBlob(null);
+    setIsCameraOpen(true);
+
+    const facing = overrideFacing || cameraFacingMode;
+
+    if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+      setCameraError("Camera access is not supported by your browser. Please try another browser.");
+      return;
+    }
+
+    try {
+      const constraints: MediaStreamConstraints = {
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        },
+        audio: false,
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      cameraStreamRef.current = stream;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => {});
+      }
+    } catch (err: any) {
+      console.warn("Camera getUserMedia error:", err);
+      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+        setCameraError("Camera permission blocked. Please allow camera access in your browser address bar (🔒 icon).");
+      } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
+        setCameraError("No camera device found. Please connect a webcam or camera.");
+      } else {
+        setCameraError(err.message || "Could not start camera preview.");
+      }
+    }
+  };
+
+  // Switch between front & rear camera
+  const handleToggleCameraFacing = () => {
+    const nextFacing = cameraFacingMode === "user" ? "environment" : "user";
+    setCameraFacingMode(nextFacing);
+    handleStartCamera(nextFacing);
+  };
+
+  // Capture still photo frame from video element
+  const handleCapturePhoto = () => {
+    if (!videoRef.current) return;
+    const video = videoRef.current;
+
+    const canvas = canvasRef.current || document.createElement("canvas");
+    canvas.width = video.videoWidth || 1280;
+    canvas.height = video.videoHeight || 720;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        setCapturedBlob(blob);
+        const url = URL.createObjectURL(blob);
+        setCapturedPreview(url);
+      },
+      "image/jpeg",
+      0.95
+    );
+  };
+
+  // Retake photo
+  const handleRetakePhoto = () => {
+    if (capturedPreview) {
+      try {
+        URL.revokeObjectURL(capturedPreview);
+      } catch (_) {}
+    }
+    setCapturedPreview(null);
+    setCapturedBlob(null);
+  };
+
+  // Confirm captured photo and send into existing upload workflow
+  const handleConfirmCapturedPhoto = () => {
+    if (!capturedBlob) return;
+    const fileName = `camera_photo_${Date.now()}.jpg`;
+    const file = new File([capturedBlob], fileName, { type: "image/jpeg" });
+    processFiles([file]);
+
+    handleCloseCameraModal();
+  };
+
+  // Close camera modal and release hardware
+  const handleCloseCameraModal = () => {
+    stopCameraStream();
+    if (capturedPreview) {
+      try {
+        URL.revokeObjectURL(capturedPreview);
+      } catch (_) {}
+    }
+    setCapturedPreview(null);
+    setCapturedBlob(null);
+    setIsCameraOpen(false);
+    setCameraError(null);
+  };
+
+  // Clean up camera stream on unmount
+  useEffect(() => {
+    return () => {
+      stopCameraStream();
+    };
+  }, []);
 
   const processFiles = (files: FileList | File[]) => {
     setUploadError(null);
@@ -340,6 +481,27 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
               <span className="text-[#E085FF] font-semibold hover:underline">browse files</span>
             </p>
 
+            {/* Quick Action Buttons: Upload & Take Photo */}
+            <div className="mt-3 flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/15 transition-all cursor-pointer shadow-sm"
+              >
+                <UploadCloud className="w-3.5 h-3.5 text-[#E085FF]" />
+                <span>Upload Photo</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleStartCamera()}
+                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(236,72,153,0.3)] transition-all cursor-pointer"
+              >
+                <Camera className="w-3.5 h-3.5" />
+                <span>Take Photo</span>
+              </button>
+            </div>
+
             <div className="flex items-center gap-3 text-[11px] text-slate-400 mt-3 flex-wrap justify-center">
               <span className="flex items-center gap-1.5">
                 <ImageIcon className="w-3.5 h-3.5 text-slate-400" />
@@ -449,6 +611,126 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+      {/* Hidden canvas for capturing frame */}
+      <canvas ref={canvasRef} className="hidden" />
+
+      {/* CAMERA CAPTURE MODAL */}
+      {isCameraOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
+          <div className="relative w-full max-w-lg bg-[#0c1228] border border-white/15 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            {/* Modal Header */}
+            <div className="p-4 bg-[#101938] border-b border-white/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Camera className="w-4 h-4 text-[#EC4899]" />
+                <h3 className="text-sm font-bold text-white">Take Product Photo</h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleToggleCameraFacing}
+                  title="Switch camera (Front / Rear)"
+                  className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <SwitchCamera className="w-3.5 h-3.5" />
+                  <span className="text-[11px] hidden sm:inline">Flip</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseCameraModal}
+                  className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Camera Viewport or Captured Preview */}
+            <div className="relative flex-1 bg-black flex items-center justify-center min-h-[320px] max-h-[500px] overflow-hidden">
+              {cameraError ? (
+                <div className="p-6 text-center space-y-3 max-w-sm">
+                  <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" />
+                  <h4 className="text-sm font-bold text-white">Camera Access Notice</h4>
+                  <p className="text-xs text-slate-300">{cameraError}</p>
+                  <button
+                    type="button"
+                    onClick={() => handleStartCamera()}
+                    className="px-4 py-2 rounded-xl bg-brand-gradient text-white text-xs font-semibold cursor-pointer shadow-md"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : capturedPreview ? (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <img
+                    src={capturedPreview}
+                    alt="Captured photo preview"
+                    className="max-h-[460px] w-full object-contain"
+                  />
+                  <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-emerald-500/80 text-white text-[10px] font-bold uppercase tracking-wider">
+                    Photo Captured
+                  </span>
+                </div>
+              ) : (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    className="w-full h-full object-cover max-h-[460px]"
+                  />
+                  {/* Subtle viewfinder crosshairs */}
+                  <div className="absolute inset-8 border border-white/25 rounded-2xl pointer-events-none" />
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="p-4 bg-[#101938] border-t border-white/10 flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={handleCloseCameraModal}
+                className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <div className="flex items-center gap-2">
+                {capturedPreview ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={handleRetakePhoto}
+                      className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Retake</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleConfirmCapturedPhoto}
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
+                    >
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>Use This Photo</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={Boolean(cameraError)}
+                    onClick={handleCapturePhoto}
+                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span>Capture Photo</span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

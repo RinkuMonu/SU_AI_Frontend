@@ -1,11 +1,8 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 export const getBaseUrl = () => {
   // Browser context (client-side):
   if (typeof window !== "undefined") {
-    // If the browser is running on localhost or 127.0.0.1, always use relative URLs ("")
-    // This routes all requests through Next.js rewrite proxy to http://127.0.0.1:8000,
-    // completely eliminating Chrome Private Network Access (PNA), CORS preflight, and IPv6 [::1] connection refused issues.
     const isLocalhost =
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1" ||
@@ -35,7 +32,8 @@ export const getBaseUrl = () => {
 
 const api = axios.create({
   baseURL: getBaseUrl(),
-  timeout: 180000, // 3 minutes timeout for heavy AI generation
+  timeout: 180000,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "true",
@@ -75,7 +73,6 @@ api.interceptors.request.use(
       let rawToken: string | null = null;
       if (typeof window !== "undefined") {
         rawToken = localStorage.getItem("access_token") || localStorage.getItem("token");
-        // Clean up malformed tokens in localStorage immediately
         if (rawToken && !sanitizeToken(rawToken)) {
           localStorage.removeItem("access_token");
           localStorage.removeItem("token");
@@ -101,6 +98,13 @@ api.interceptors.request.use(
 
 // Module-level guard to avoid multiple parallel redirect loops on 401
 let isRedirecting = false;
+
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshSession(): Promise<void> {
+  // Backend rotates both access_token and refresh_token cookies.
+  await api.post("/api/v1/auth/refresh", null, { withCredentials: true });
+}
 
 export const isPublicRoute = (path: string): boolean => {
   if (!path) return true;
@@ -135,15 +139,25 @@ export const isPublicRoute = (path: string): boolean => {
   return publicPrefixes.some((prefix) => path.startsWith(prefix));
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// RESPONSE INTERCEPTOR
+// ─────────────────────────────────────────────────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    // Handle 401 Unauthorized globally
+  async (error: AxiosError) => {
+    const config = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean; _refreshRetry?: boolean })
+      | undefined;
+
+    // ─────────────────────────────────────────────────────────────────────
+    // 401 HANDLING
+    // ─────────────────────────────────────────────────────────────────────
     if (error.response?.status === 401 && typeof window !== "undefined") {
-      const url = String(error.config?.url || "");
+      const url = String(config?.url || "");
       const path = window.location.pathname || "/";
 
-      // 1. If this was an explicit login / verification / password attempt, do NOT auto-redirect or clear session
+      // 1. If this was an explicit login / verification / password attempt,
+      //    do NOT auto-redirect or clear session.
       const isAuthAction =
         url.includes("/auth/login") ||
         url.includes("/auth/verify-otp") ||
@@ -154,12 +168,30 @@ api.interceptors.response.use(
         url.includes("/auth/facebook") ||
         url.includes("/auth/instagram") ||
         url.includes("/auth/linkedin") ||
+        url.includes("/auth/refresh") ||
+        url.includes("/auth/logout") ||
         url.includes("/influencer/onboarding");
 
-      // 2. Mark error as handled so global unhandledrejection listener knows not to crash
+      // 2. Mark error as handled so global unhandledrejection listener knows not to crash.
       (error as any).__isHandled401 = true;
 
       if (!isAuthAction) {
+        if (config && !config._refreshRetry) {
+          config._refreshRetry = true;
+          try {
+            if (!refreshPromise) {
+              refreshPromise = refreshSession().finally(() => {
+                refreshPromise = null;
+              });
+            }
+            await refreshPromise;
+            // Cookie was rotated by the backend — retry the original request.
+            return api(config);
+          } catch {
+            // Fall through to the redirect-once logic below.
+          }
+        }
+
         // Clear stale credentials
         try {
           localStorage.removeItem("access_token");
@@ -185,18 +217,17 @@ api.interceptors.response.use(
     }
 
     // Handle transient network errors: if direct backend URL failed (e.g. uvicorn reload or socket reset), retry once
-    const config = error.config as any;
+    const rawConfig = error.config as any;
     if (
       (!error.response || error.code === "ERR_NETWORK" || error.message === "Network Error") &&
-      config &&
-      !config._retry
+      rawConfig &&
+      !rawConfig._retry
     ) {
-      config._retry = true;
-      // If direct backend port failed, fallback to local Next.js proxy rewrite
-      if (typeof window !== "undefined" && config.baseURL && config.baseURL.startsWith("http")) {
-        config.baseURL = "";
+      rawConfig._retry = true;
+      if (typeof window !== "undefined" && rawConfig.baseURL && rawConfig.baseURL.startsWith("http")) {
+        rawConfig.baseURL = "";
       }
-      return new Promise((resolve) => setTimeout(resolve, 800)).then(() => api(config));
+      return new Promise((resolve) => setTimeout(resolve, 800)).then(() => api(rawConfig));
     }
 
     return Promise.reject(error);
@@ -212,7 +243,6 @@ if (typeof window !== "undefined") {
       (reason.isAxiosError || reason.name === "AxiosError" || axios.isAxiosError(reason)) &&
       (reason.response?.status === 401 || reason.status === 401 || reason.__isHandled401)
     ) {
-      // Prevent Next.js Turbopack development overlay from interrupting the user experience
       event.preventDefault();
     }
   });

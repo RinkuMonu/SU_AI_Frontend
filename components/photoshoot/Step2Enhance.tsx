@@ -25,6 +25,12 @@ import {
   ProductCategory
 } from "./types";
 import { ENHANCEMENT_STYLES, PRODUCT_CATEGORIES } from "./data";
+import {
+  resolvePhotoshootUrl,
+  handlePhotoshootImageError,
+  PHOTOSHOOT_FALLBACK_PRODUCT,
+  PHOTOSHOOT_FALLBACK_ENHANCED,
+} from "./photoshootUtils";
 
 interface Step2EnhanceProps {
   uploadedImages: PhotoshootUploadedImage[];
@@ -70,7 +76,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
     enhancedVariations.find((v) => v.id === activeComparisonId) ||
     enhancedVariations[0];
 
-  const primaryOriginal = uploadedImages[0]?.previewUrl || "";
+  const primaryOriginal = uploadedImages[0]?.url || uploadedImages[0]?.previewUrl || "";
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -274,28 +280,29 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
           {/* View Mode 1: Split Slider */}
           {viewMode === "slider" ? (
             <div className="relative aspect-[16/9] sm:aspect-[21/9] max-h-[360px] w-full rounded-xl overflow-hidden select-none bg-black/60 border border-white/10">
-              {activeVariation.enhancedUrl && activeVariation.enhancedUrl.trim() ? (
+              {activeVariation?.enhancedUrl && activeVariation.enhancedUrl.trim() ? (
                 <img
-                  src={activeVariation.enhancedUrl}
+                  src={resolvePhotoshootUrl(activeVariation.enhancedUrl)}
                   alt="Enhanced variation"
                   className="absolute inset-0 w-full h-full object-contain p-2"
+                  onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
                 />
               ) : null}
               <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-brand-purple/90 backdrop-blur-md text-white text-[10px] font-bold shadow">
-                AI Enhanced ({activeVariation.styleName})
+                AI Enhanced ({activeVariation?.styleName || "Calibrated"})
               </div>
 
               {/* Clipped Overlay (Original Image) */}
               <div
-                className="absolute inset-y-0 left-0 overflow-hidden"
-                style={{ width: `${sliderPosition}%` }}
+                className="absolute inset-0 overflow-hidden pointer-events-none"
+                style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
               >
-                {(activeVariation.originalUrl || primaryOriginal) && (activeVariation.originalUrl || primaryOriginal).trim() ? (
+                {(activeVariation?.originalUrl || primaryOriginal) && (activeVariation?.originalUrl || primaryOriginal).trim() ? (
                   <img
-                    src={activeVariation.originalUrl || primaryOriginal}
+                    src={resolvePhotoshootUrl(activeVariation?.originalUrl || primaryOriginal)}
                     alt="Original product"
-                    className="absolute inset-0 w-full h-full object-contain max-w-none p-2"
-                    style={{ width: "100%", height: "100%" }}
+                    className="absolute inset-0 w-full h-full object-contain p-2"
+                    onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_PRODUCT)}
                   />
                 ) : null}
                 <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md text-neutral-300 text-[10px] font-bold shadow border border-white/10">
@@ -331,18 +338,19 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   <span>Original Photo</span>
                   <button
                     type="button"
-                    onClick={() => setLightboxImageUrl(activeVariation.originalUrl || primaryOriginal)}
+                    onClick={() => setLightboxImageUrl(activeVariation?.originalUrl || primaryOriginal)}
                     className="text-neutral-400 hover:text-white"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-black/50 flex items-center justify-center">
-                  {(activeVariation.originalUrl || primaryOriginal) && (activeVariation.originalUrl || primaryOriginal).trim() ? (
+                  {(activeVariation?.originalUrl || primaryOriginal) && (activeVariation?.originalUrl || primaryOriginal).trim() ? (
                     <img
-                      src={activeVariation.originalUrl || primaryOriginal}
+                      src={resolvePhotoshootUrl(activeVariation?.originalUrl || primaryOriginal)}
                       alt="Original"
                       className="w-full h-full object-contain p-2"
+                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_PRODUCT)}
                     />
                   ) : (
                     <ImageIcon className="w-8 h-8 text-neutral-600" />
@@ -352,21 +360,22 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
               <div className="rounded-xl border border-brand-purple/40 bg-brand-purple/5 p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold text-white">
-                  <span className="text-brand-pink font-bold">AI Enhanced ({activeVariation.styleName})</span>
+                  <span className="text-brand-pink font-bold">AI Enhanced ({activeVariation?.styleName || "Calibrated"})</span>
                   <button
                     type="button"
-                    onClick={() => setLightboxImageUrl(activeVariation.enhancedUrl)}
+                    onClick={() => setLightboxImageUrl(activeVariation?.enhancedUrl || null)}
                     className="text-neutral-400 hover:text-white"
                   >
                     <Maximize2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-black/50 flex items-center justify-center">
-                  {activeVariation.enhancedUrl && activeVariation.enhancedUrl.trim() ? (
+                  {activeVariation?.enhancedUrl && activeVariation.enhancedUrl.trim() ? (
                     <img
-                      src={activeVariation.enhancedUrl}
+                      src={resolvePhotoshootUrl(activeVariation.enhancedUrl)}
                       alt="Enhanced"
                       className="w-full h-full object-contain p-2"
+                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
                     />
                   ) : (
                     <Sparkles className="w-8 h-8 text-neutral-600" />
@@ -417,9 +426,10 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                 >
                   {variation.enhancedUrl && variation.enhancedUrl.trim() ? (
                     <img
-                      src={variation.enhancedUrl}
+                      src={resolvePhotoshootUrl(variation.enhancedUrl)}
                       alt={variation.styleName}
                       className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
                     />
                   ) : (
                     <Sparkles className="w-8 h-8 text-neutral-600" />
@@ -526,9 +536,10 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
             </div>
             <div className="py-4 flex items-center justify-center max-h-[75vh] overflow-hidden">
               <img
-                src={lightboxImageUrl}
+                src={resolvePhotoshootUrl(lightboxImageUrl)}
                 alt="Enhanced preview"
                 className="max-h-[70vh] w-auto object-contain rounded-xl"
+                onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
               />
             </div>
           </div>

@@ -4,8 +4,8 @@ import { useEffect } from "react";
 
 /**
  * Security & Stability Shield:
- * Handles global 401 unhandled rejections to prevent development overlays.
- * Inspect button, right-click context menu, and developer tools are fully enabled.
+ * Global handler for unhandled promise rejections and session errors
+ * without blocking developer tools, inspect element, or right-click.
  */
 export function SecurityShield() {
   useEffect(() => {
