@@ -88,7 +88,7 @@ export const navigation = [
   },
   { id: "tour-nav-website-builder", name: "Website Builder", href: "/website-builder", icon: Globe },
   { id: "tour-nav-festivals", name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users },
+  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users, comingSoon: true },
   { id: "tour-nav-content-library", name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { id: "tour-nav-uni-ai", name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
@@ -284,9 +284,10 @@ export function Sidebar() {
           return (
             <div
               key={item.name}
+              id={item.id}
               title={`${item.name} (Coming Soon)`}
               aria-disabled="true"
-              className="group flex items-center justify-between px-3.5 py-2.5 text-sm font-medium rounded-2xl text-slate-400/60 bg-surface/30 cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
+              className="group flex items-center justify-between px-3.5 py-2.5 text-sm font-medium rounded-2xl text-slate-400/60 bg-white/[0.02] cursor-not-allowed select-none opacity-80 border border-dashed border-white/5"
             >
               <div className="flex items-center min-w-0">
                 <item.icon
