@@ -111,6 +111,7 @@ export const isPublicRoute = (path: string): boolean => {
   if (path === "/") return true;
 
   const publicPrefixes = [
+    "/preview",
     "/login",
     "/signup",
     "/onboarding",

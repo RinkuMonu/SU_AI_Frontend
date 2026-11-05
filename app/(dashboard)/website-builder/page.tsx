@@ -53,6 +53,9 @@ import {
 export type OnboardingStep =
   | "step1_category_products"
   | "step2_business_name"
+  | "step3_location_contact"
+  | "step4_specialties"
+  | "step5_design_choice"
   | "step3_design_preference"
   | "step4_template_selection"
   | "step5_industry_questions"
@@ -353,6 +356,140 @@ const getCategorySafeImageQuery = (
   return `${businessName || "business"} ${category} ${cleanItem || sectionType} professional storefront`;
 };
 
+const resolveCuratedUnsplash = (query: string): string => {
+  const q = (query || "").toLowerCase();
+
+  // Makeup & Beauty
+  if (
+    q.includes("makeup") || q.includes("make up") || q.includes("cosmetic") ||
+    q.includes("beauty") || q.includes("lipstick") || q.includes("foundation") ||
+    q.includes("skincare") || q.includes("eyeshadow") || q.includes("mascara") ||
+    q.includes("fifa") || q.includes("glam") || q.includes("facial")
+  ) {
+    if (q.includes("tutorial") || q.includes("workshop") || q.includes("artist") || q.includes("class") || q.includes("lesson")) {
+      return "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("foundation") || q.includes("base") || q.includes("primer") || q.includes("concealer")) {
+      return "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("lipstick") || q.includes("lip") || q.includes("gloss")) {
+      return "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("eye") || q.includes("palette") || q.includes("shadow") || q.includes("mascara")) {
+      return "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("skin") || q.includes("serum") || q.includes("cream") || q.includes("moisturizer")) {
+      return "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("brush") || q.includes("tool") || q.includes("kit")) {
+      return "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Shoes & Footwear
+  if (q.includes("shoe") || q.includes("shoes") || q.includes("sneaker") || q.includes("footwear") || q.includes("boot") || q.includes("heel")) {
+    if (q.includes("sneaker") || q.includes("sport") || q.includes("trainer")) {
+      return "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("formal") || q.includes("leather") || q.includes("oxford")) {
+      return "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("heel") || q.includes("pump") || q.includes("women")) {
+      return "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Bakery & Sweets (Strict: not generic shop)
+  if (q.includes("bakery") || q.includes("cake") || q.includes("pastry") || q.includes("mithai") || q.includes("cupcake") || q.includes("dessert") || q.includes("cookie")) {
+    if (q.includes("cake") || q.includes("birthday")) {
+      return "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("mithai") || q.includes("halwa") || q.includes("laddu")) {
+      return "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Clothing & Fashion
+  if (q.includes("cloth") || q.includes("apparel") || q.includes("boutique") || q.includes("fashion") || q.includes("dress") || q.includes("wear")) {
+    return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Restaurant & Food
+  if (q.includes("restaurant") || q.includes("dining") || q.includes("food") || q.includes("cuisine") || q.includes("cafe") || q.includes("coffee") || q.includes("pizza") || q.includes("bistro")) {
+    return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Flowers & Florist
+  if (q.includes("flower") || q.includes("florist") || q.includes("bouquet") || q.includes("rose")) {
+    return "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Electronics & Gadgets
+  if (
+    q.includes("electronic") || q.includes("phone") || q.includes("mobile") ||
+    q.includes("laptop") || q.includes("computer") || q.includes("tv") ||
+    q.includes("audio") || q.includes("headphone") || q.includes("speaker") ||
+    q.includes("camera") || q.includes("gadget") || q.includes("shyam")
+  ) {
+    if (q.includes("phone") || q.includes("mobile") || q.includes("smartphone")) {
+      return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("laptop") || q.includes("computer") || q.includes("pc")) {
+      return "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("tv") || q.includes("television") || q.includes("screen") || q.includes("display")) {
+      return "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("headphone") || q.includes("audio") || q.includes("sound") || q.includes("earbuds")) {
+      return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("camera") || q.includes("dslr") || q.includes("lens")) {
+      return "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Gym & Fitness
+  if (q.includes("gym") || q.includes("fitness") || q.includes("workout") || q.includes("crossfit") || q.includes("training")) {
+    return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Tech, Servers & Cloud
+  if (q.includes("server") || q.includes("cloud") || q.includes("host") || q.includes("datacenter") || q.includes("tech") || q.includes("software")) {
+    return "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Medical & Clinic
+  if (q.includes("medic") || q.includes("clinic") || q.includes("doctor") || q.includes("hospital") || q.includes("pharma") || q.includes("health")) {
+    return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Jewellery & Luxury
+  if (q.includes("jewel") || q.includes("ring") || q.includes("diamond") || q.includes("gold") || q.includes("necklace") || q.includes("watch")) {
+    return "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Automotive
+  if (q.includes("car") || q.includes("auto") || q.includes("garage") || q.includes("mechanic") || q.includes("vehicle")) {
+    return "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Real Estate
+  if (q.includes("real estate") || q.includes("property") || q.includes("apartment") || q.includes("villa") || q.includes("home") || q.includes("interior")) {
+    return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Education
+  if (q.includes("educat") || q.includes("school") || q.includes("coach") || q.includes("course") || q.includes("tutor") || q.includes("book")) {
+    return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85";
+  }
+
+  return "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85";
+};
+
 const resolveImageUrl = (
   explicitUrl: string | undefined,
   category: string,
@@ -365,15 +502,15 @@ const resolveImageUrl = (
   if (explicitUrl && typeof explicitUrl === "string" && explicitUrl.trim() !== "") {
     if (
       !explicitUrl.includes("photo-1551434678-e076c223a692") &&
-      !explicitUrl.includes("source.unsplash.com")
+      !explicitUrl.includes("source.unsplash.com") &&
+      !explicitUrl.includes("pollinations.ai")
     ) {
       return explicitUrl.trim();
     }
   }
 
-  const query = getCategorySafeImageQuery(category, sectionType, itemTitle, businessName);
-  const encoded = encodeURIComponent(query);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&nologo=true`;
+  const query = `${businessName || ""} ${category || ""} ${itemTitle || ""} ${sectionType || ""}`;
+  return resolveCuratedUnsplash(query);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -487,7 +624,7 @@ const escapeHtml = (unsafe?: string): string => {
     .replace(/'/g, "&#039;");
 };
 
-const generateHtmlFromJSON = (rawData: any): string => {
+const generateHtmlFromJSON = (rawData: any, mode: "desktop" | "tablet" | "mobile" = "desktop"): string => {
   if (!rawData) return "";
 
   let data = rawData;
@@ -1324,8 +1461,8 @@ const generateHtmlFromJSON = (rawData: any): string => {
               <span class="text-base sm:text-xl font-extrabold text-gray-900 tracking-tight">${bName}</span>
             </div>
 
-            <!-- Desktop Navigation Tabs (Hidden on mobile) -->
-            <div class="hidden md:flex items-center space-x-1 lg:space-x-3">
+            <!-- Desktop Navigation Tabs -->
+            <div class="${mode === "mobile" ? "hidden" : mode === "tablet" ? "flex" : "hidden md:flex"} items-center space-x-1 lg:space-x-3">
               ${navTabs
                 .filter((t) => t.id !== "contact")
                 .map(
@@ -1342,8 +1479,8 @@ const generateHtmlFromJSON = (rawData: any): string => {
               </button>
             </div>
 
-            <!-- Mobile Hamburger Toggle Button (Visible on mobile only) -->
-            <div class="flex items-center md:hidden">
+            <!-- Mobile Hamburger Toggle Button -->
+            <div class="${mode === "mobile" ? "flex" : mode === "tablet" ? "hidden" : "flex md:hidden"} items-center">
               <button type="button" id="mobile-menu-btn" onclick="toggleMobileNavbar()" aria-label="Toggle navigation menu" class="p-2 rounded-lg text-gray-700 hover:text-primary hover:bg-gray-100 transition focus:outline-none cursor-pointer">
                 <svg id="hamburger-svg" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -1357,7 +1494,7 @@ const generateHtmlFromJSON = (rawData: any): string => {
         </div>
 
         <!-- Mobile Dropdown Drawer -->
-        <div id="mobile-menu-dropdown" class="hidden md:hidden border-t border-gray-100 bg-white/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-1 shadow-lg">
+        <div id="mobile-menu-dropdown" class="hidden border-t border-gray-100 bg-white/98 backdrop-blur-md px-4 pt-2 pb-4 space-y-1 shadow-lg">
           ${navTabs
             .map(
               (tab: any, idx: number) =>
@@ -1573,6 +1710,14 @@ export default function WebsiteBuilderPage() {
       if (siteData) {
         localStorage.setItem("website_builder_site_data", JSON.stringify(siteData));
       }
+      try {
+        const u = localStorage.getItem("user");
+        if (u) {
+          const parsed = JSON.parse(u);
+          const uid = parsed.id || parsed._id || parsed.userId;
+          if (uid) localStorage.setItem("website_builder_user_id", uid);
+        }
+      } catch (_) {}
     },
     []
   );
@@ -1650,7 +1795,20 @@ export default function WebsiteBuilderPage() {
         setCurrentVersion(1);
         setVersionHistory([]);
 
+        let registeredBizName = "";
+        let registeredBizCategory = "";
+        try {
+          const u = localStorage.getItem("user");
+          if (u) {
+            const parsed = JSON.parse(u);
+            registeredBizName = parsed.business_name || parsed.businessName || parsed.company_name || parsed.brand_name || "";
+            registeredBizCategory = parsed.category || parsed.business_category || parsed.industry || "";
+          }
+        } catch (_) {}
+
         const initialCtx: BusinessContext = {
+          businessName: registeredBizName || undefined,
+          businessCategory: registeredBizCategory || undefined,
           onboardingStep: "step1_category_products"
         };
         setBusinessContext(initialCtx);
@@ -1800,12 +1958,47 @@ export default function WebsiteBuilderPage() {
     isInitializingRef.current = true;
 
     const init = async () => {
+      let currentUserId: string | null = null;
+      let registeredBizName = "";
+      let registeredBizCategory = "";
+      try {
+        const u = localStorage.getItem("user");
+        if (u) {
+          const parsed = JSON.parse(u);
+          currentUserId = parsed.id || parsed._id || parsed.userId || null;
+          registeredBizName = parsed.business_name || parsed.businessName || parsed.company_name || parsed.brand_name || "";
+          registeredBizCategory = parsed.category || parsed.business_category || parsed.industry || "";
+        }
+      } catch (_) {}
+
+      const lastUserId = localStorage.getItem("website_builder_user_id");
+
+      // If sign in occurred or user changed, start fresh with brand new chat
+      if (!lastUserId || (currentUserId && lastUserId !== currentUserId)) {
+        localStorage.removeItem("website_builder_session_id");
+        localStorage.removeItem("website_builder_context");
+        localStorage.removeItem("website_builder_messages");
+        localStorage.removeItem("website_builder_site_data");
+        if (currentUserId) {
+          localStorage.setItem("website_builder_user_id", currentUserId);
+        }
+        await startNewSession("English");
+        return;
+      }
+
       const savedSessionId = localStorage.getItem("website_builder_session_id");
       if (savedSessionId && /^[0-9a-fA-F]{24}$/.test(savedSessionId)) {
         setSessionId(savedSessionId);
         await loadSession(savedSessionId);
       } else {
         await startNewSession("English");
+      }
+      if (registeredBizName) {
+        setBusinessContext((prev) => ({
+          ...prev,
+          businessName: prev.businessName || registeredBizName,
+          businessCategory: prev.businessCategory || registeredBizCategory || "Business"
+        }));
       }
     };
     init();
@@ -1822,28 +2015,21 @@ export default function WebsiteBuilderPage() {
   const handleClear = async () => {
     try {
       setLoading(true);
-      let clearedMessages: ChatMessage[] | null = null;
-      if (sessionId && /^[0-9a-fA-F]{24}$/.test(sessionId)) {
-        const res = await websiteBuilderService.clearSession(sessionId);
-        if (res?.messages && res.messages.length > 0) {
-          clearedMessages = res.messages;
-        }
-      }
-      localStorage.removeItem("website_builder_site_data");
-      localStorage.removeItem("website_builder_context");
-      localStorage.removeItem("website_builder_messages");
+
+      // 1. Immediately reset state in UI so chats & canvas clear right away
       setGeneratedSiteData(null);
       setSiteId(null);
       setIsFinalized(false);
       setVersionHistory([]);
       setCurrentVersion(1);
+      setInput("");
 
       const resetCtx: BusinessContext = {
         onboardingStep: "step1_category_products"
       };
       setBusinessContext(resetCtx);
 
-      const initialMsgs: ChatMessage[] = clearedMessages || [
+      const initialMsgs: ChatMessage[] = [
         {
           id: "welcome-step-1",
           role: "ai",
@@ -1852,10 +2038,45 @@ export default function WebsiteBuilderPage() {
         }
       ];
       setMessages(initialMsgs);
-      saveStateToStorage(sessionId, resetCtx, initialMsgs, null);
       setActiveMobileView("chat");
+
+      // 2. Clear stored items
+      try {
+        localStorage.removeItem("website_builder_site_data");
+        localStorage.removeItem("website_builder_context");
+        localStorage.removeItem("website_builder_messages");
+        localStorage.removeItem("website_builder_session_id");
+        sessionStorage.removeItem("website_builder_site_data");
+        sessionStorage.removeItem("website_builder_context");
+        sessionStorage.removeItem("website_builder_messages");
+        sessionStorage.removeItem("website_builder_session_id");
+      } catch (_) {}
+
+      // 3. Clear session in backend if session exists
+      const oldSessionId = sessionId;
+      if (oldSessionId && /^[0-9a-fA-F]{24}$/.test(oldSessionId)) {
+        try {
+          await websiteBuilderService.clearSession(oldSessionId);
+        } catch (e) {
+          console.warn("Backend clearSession error", e);
+        }
+      }
+
+      // 4. Create fresh session on backend
+      try {
+        const fresh = await websiteBuilderService.startSession(language || "English");
+        if (fresh?.sessionId) {
+          setSessionId(fresh.sessionId);
+          saveStateToStorage(fresh.sessionId, resetCtx, initialMsgs, null);
+          return;
+        }
+      } catch (err) {
+        console.warn("Error creating fresh session on clear", err);
+      }
+
+      saveStateToStorage(null, resetCtx, initialMsgs, null);
     } catch (e) {
-      console.warn("Clear session call error", e);
+      console.error("Clear error", e);
     } finally {
       setLoading(false);
     }
@@ -1905,24 +2126,69 @@ export default function WebsiteBuilderPage() {
       return;
     }
 
-    // STEP 2: Ask business name -> Got answer -> Transition to Step 3
+    // STEP 2: Ask business name -> Got answer -> Transition to Step 3 (Location & Contact)
     if (currentStep === "step2_business_name") {
       const bName = userText.replace(/^(my business name is|it is called|the name is|name:|it's)\s*/i, "").trim();
 
       const updatedCtx: BusinessContext = {
         ...businessContext,
         businessName: bName,
-        onboardingStep: "step3_design_preference"
+        onboardingStep: "step3_location_contact"
       };
       setBusinessContext(updatedCtx);
 
       const aiReply: ChatMessage = {
         id: `step-3-${Date.now()}`,
         role: "ai",
-        content: `Nice to meet you, ${bName}! Would you like me to recommend curated design templates tailored for your ${updatedCtx.businessCategory || "business"}, or build directly?`,
+        content: `Nice to meet you, ${bName}! Where is your business located (city or address), and what phone number or email should customers use to contact you?`
+      };
+
+      setMessages((prev) => [...prev, aiReply]);
+      saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+      return;
+    }
+
+    // STEP 3: Location & Contact -> Got answer -> Transition to Step 4 (Specialties & Unique Features)
+    if (currentStep === "step3_location_contact") {
+      const updatedCtx: BusinessContext = {
+        ...businessContext,
+        location: userText,
+        phone: userText,
+        onboardingStep: "step4_specialties"
+      };
+      setBusinessContext(updatedCtx);
+
+      const bName = updatedCtx.businessName || "your business";
+      const aiReply: ChatMessage = {
+        id: `step-4-${Date.now()}`,
+        role: "ai",
+        content: `Got it! What are some key specialties, special services, or unique features of ${bName} that you would like highlighted on your website?`
+      };
+
+      setMessages((prev) => [...prev, aiReply]);
+      saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+      return;
+    }
+
+    // STEP 4: Specialties -> Transition to Step 5 (Ask Logo)
+    if (currentStep === "step4_specialties") {
+      const bName = businessContext.businessName || "your business";
+
+      const updatedCtx: BusinessContext = {
+        ...businessContext,
+        industryDetails: userText,
+        onboardingStep: "step5_logo_check"
+      };
+      setBusinessContext(updatedCtx);
+
+      const aiReply: ChatMessage = {
+        id: `step-logo-${Date.now()}`,
+        role: "ai",
+        content: `Awesome! Do you have an existing logo for **${bName}**, or would you like me to auto-generate a custom AI logo for you?`,
         options: [
-          { label: "✨ Recommend Designs", action: "recommend_designs" },
-          { label: "⚡ Build Directly", action: "build_directly" }
+          { label: "✨ Auto-Generate AI Logo", action: "generate_logo" },
+          { label: "📁 Upload Logo File", action: "upload_logo" },
+          { label: "⚡ Build Directly with AI Logo", action: "build_directly" }
         ]
       };
 
@@ -1931,9 +2197,76 @@ export default function WebsiteBuilderPage() {
       return;
     }
 
-    // STEP 3: Design Preference ("Recommend Designs" vs "Build Directly") -> Transition to Step 4 or 5
-    if (currentStep === "step3_design_preference") {
-      const wantsTemplates = actionData?.action === "recommend_designs" || lower.includes("recommend") || lower.includes("design") || lower.includes("explore");
+    // STEP 5: LOGO STEP -> Generate / upload logo -> Transition to Step 6 (Summary & Options)
+    if ((currentStep as any) === "step5_logo_check") {
+      const bName = businessContext.businessName || "Business";
+      const bCat = businessContext.businessCategory || "Business";
+      const bProd = businessContext.productsServices || bCat;
+      const bLoc = businessContext.location || "Available upon request";
+      const bSpec = businessContext.industryDetails || "Quality products & attentive service";
+
+      // If direct build was selected
+      if (actionData?.action === "build_directly" || lower.includes("build directly")) {
+        const generatedLogo = businessContext.logo || generateDynamicSvgLogo(bName, bCat);
+        const updatedCtx: BusinessContext = { ...businessContext, logo: generatedLogo, logoStatus: "generated" };
+        setBusinessContext(updatedCtx);
+        await triggerWebsiteGeneration();
+        return;
+      }
+
+      if (actionData?.action === "upload_logo") {
+        fileInputRef.current?.click();
+        const uploadPromptMsg: ChatMessage = {
+          id: `upload-prompt-${Date.now()}`,
+          role: "ai",
+          content: `Please select your logo file for "${bName}":`,
+          options: [
+            { label: "✨ Auto-Generate AI Logo Instead", action: "generate_logo" },
+            { label: "⚡ Build Directly", action: "build_directly" }
+          ]
+        };
+        setMessages((prev) => [...prev, uploadPromptMsg]);
+        return;
+      }
+
+      // Generate dynamic logo
+      const generatedLogo = generateDynamicSvgLogo(bName, bCat);
+      const updatedCtx: BusinessContext = {
+        ...businessContext,
+        logo: generatedLogo,
+        logoStatus: "generated",
+        onboardingStep: "step5_design_choice"
+      };
+      setBusinessContext(updatedCtx);
+
+      const summary = `I have generated a sleek custom logo for **${bName}**! Here is your complete business summary:
+
+• **Business Name:** ${bName}
+• **Category & Products:** ${bCat} (${bProd})
+• **Location & Contact:** ${bLoc}
+• **Specialties & Highlights:** ${bSpec}
+• **Logo:** Custom AI Logo Ready ✨
+
+Would you like me to **Build Directly** or explore curated designs first?`;
+
+      const aiReply: ChatMessage = {
+        id: `step-6-${Date.now()}`,
+        role: "ai",
+        content: summary,
+        options: [
+          { label: "⚡ Build Directly", action: "build_directly" },
+          { label: "✨ Recommend Designs", action: "recommend_designs" }
+        ]
+      };
+
+      setMessages((prev) => [...prev, aiReply]);
+      saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+      return;
+    }
+
+    // STEP 5: Design Choice ("build_directly" vs "recommend_designs")
+    if (currentStep === "step5_design_choice" || currentStep === "step3_design_preference") {
+      const wantsTemplates = actionData?.action === "recommend_designs" || lower.includes("recommend") || lower.includes("design") || lower.includes("template");
 
       if (wantsTemplates) {
         const templates = getTemplatesForCategory(businessContext.businessCategory);
@@ -1946,7 +2279,7 @@ export default function WebsiteBuilderPage() {
         setBusinessContext(updatedCtx);
 
         const aiReply: ChatMessage = {
-          id: `step-4-${Date.now()}`,
+          id: `step-templates-${Date.now()}`,
           role: "ai",
           type: "template_selection",
           content: `Here are 3 handpicked templates designed specifically for a ${businessContext.businessCategory || "business"} like ${businessContext.businessName || "yours"}. Which design do you prefer?`,
@@ -1963,28 +2296,8 @@ export default function WebsiteBuilderPage() {
         saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
         return;
       } else {
-        // Direct build
-        const defaultTemplates = getTemplatesForCategory(businessContext.businessCategory);
-        const autoSelected = defaultTemplates[0];
-
-        const updatedCtx: BusinessContext = {
-          ...businessContext,
-          designPreference: "direct",
-          selectedTemplateId: autoSelected.id,
-          selectedTemplateName: autoSelected.name,
-          onboardingStep: "step5_industry_questions"
-        };
-        setBusinessContext(updatedCtx);
-
-        const q = getIndustrySpecificQuestion(businessContext.businessCategory, businessContext.businessName);
-        const aiReply: ChatMessage = {
-          id: `step-5-${Date.now()}`,
-          role: "ai",
-          content: `Great! We'll use the ${autoSelected.name} layout. ${q}`
-        };
-
-        setMessages((prev) => [...prev, aiReply]);
-        saveStateToStorage(sessionId, updatedCtx, [...messages, { id: `${Date.now()}`, role: "user", content: userText }, aiReply], generatedSiteData);
+        // Direct build!
+        await triggerWebsiteGeneration();
         return;
       }
     }
@@ -2043,8 +2356,8 @@ export default function WebsiteBuilderPage() {
     }
 
     // STEP 5b: Logo Check -> Upload or Auto-Generate -> Step 6 (Summarize & Confirm)
-    if (currentStep === "step5_logo_check") {
-      const bName = businessContext.businessName || "My Business";
+    if ((currentStep as any) === "step5_logo_check") {
+      const bName = businessContext.businessName || "Business";
       const bCat = businessContext.businessCategory || "Business";
       const primaryColor = businessContext.brandColors?.primary || "#4F46E5";
 
@@ -2164,8 +2477,17 @@ Shall I generate your custom website draft now?`;
     setLoading(true);
     setGenerationProgress(["Analyzing business requirements & design preferences"]);
 
-    const category = businessContext.businessCategory || "Business";
-    const bName = businessContext.businessName || "My Business";
+    let savedBizName = "";
+    let savedBizCategory = "";
+    if (typeof window !== "undefined") {
+      try {
+        const u = JSON.parse(localStorage.getItem("user") || "{}");
+        savedBizName = u.business_name || u.businessName || u.company_name || u.brand_name || "";
+        savedBizCategory = u.category || u.business_category || u.industry || "";
+      } catch (_) {}
+    }
+    const bName = businessContext.businessName || savedBizName || "Business";
+    const category = businessContext.businessCategory || savedBizCategory || "Business";
     const tId = businessContext.selectedTemplateId || "floral-elegance";
     const tName = businessContext.selectedTemplateName || "Curated Template";
     const details = businessContext.industryDetails || "";
@@ -2586,42 +2908,47 @@ Shall I generate your custom website draft now?`;
       appliedChangeDesc = `Updated the primary theme color to ${detectedName || detectedColor}.`;
     }
 
-    // 2. Change hero image
-    else if (lower.includes("hero image") || lower.includes("header image") || lower.includes("cover image")) {
-      const heroSection = updatedSite.pages?.[0]?.sections?.find((s: any) => s.type === "hero");
-      if (heroSection) {
-        const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
-        const bName = updatedSite.business_name || businessContext.businessName || "My Business";
-        heroSection.image_url = resolveImageUrl(
-          undefined,
-          bCat,
-          "hero",
-          `${bName} ${bCat} professional photography daylight high resolution`,
-          bName
-        );
-        appliedChangeDesc = `Updated the hero image with fresh photography tailored to ${bName} (${bCat}).`;
-      }
-    }
-
-    // 3. Change product/bouquets images
-    else if (lower.includes("image") || lower.includes("photo") || lower.includes("picture")) {
+    // 2. Change hero and website images
+    else if (lower.includes("image") || lower.includes("photo") || lower.includes("picture") || lower.includes("tasveer")) {
       const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
-      const bName = updatedSite.business_name || businessContext.businessName || "My Business";
-      const prodSection = updatedSite.pages?.[0]?.sections?.find(
-        (s: any) => s.type === "products" || s.type === "bouquets" || s.type === "menu" || s.type === "features"
-      );
-      if (prodSection?.items) {
-        prodSection.items.forEach((item: any, i: number) => {
-          item.image_url = resolveImageUrl(
-            undefined,
-            bCat,
-            prodSection.type,
-            `${item.title} ${bCat} ${i}`,
-            bName
-          );
+      const bName = updatedSite.business_name || businessContext.businessName || "Business";
+
+      if (updatedSite.pages && Array.isArray(updatedSite.pages)) {
+        updatedSite.pages.forEach((p: any) => {
+          if (p.sections && Array.isArray(p.sections)) {
+            p.sections.forEach((s: any, sIdx: number) => {
+              if (s.type === "hero") {
+                s.image_url = resolveImageUrl(
+                  undefined,
+                  bCat,
+                  "hero",
+                  `${bName} ${bCat} showcase photography`,
+                  bName
+                );
+              } else if (s.items && Array.isArray(s.items)) {
+                s.items.forEach((item: any, iIdx: number) => {
+                  item.image_url = resolveImageUrl(
+                    undefined,
+                    bCat,
+                    s.type || "products",
+                    `${item.title || item.name || bCat} ${bCat} ${iIdx}`,
+                    bName
+                  );
+                });
+              } else if (["about", "story", "gallery"].includes(s.type)) {
+                s.image_url = resolveImageUrl(
+                  undefined,
+                  bCat,
+                  s.type,
+                  `about ${bName} ${bCat}`,
+                  bName
+                );
+              }
+            });
+          }
         });
-        appliedChangeDesc = `Replaced section images with new category-matched imagery for ${bCat}.`;
       }
+      appliedChangeDesc = `Updated website photography with fresh high-resolution images tailored to ${bName} (${bCat}).`;
     }
 
     // 4. Update hero title/headline
@@ -2831,7 +3158,7 @@ Shall I generate your custom website draft now?`;
     // Onboarding flow: delegate to backend process_chat
     try {
       if (sessionId && /^[0-9a-fA-F]{24}$/.test(sessionId)) {
-        if (dataPayload?.action === "generate" || dataPayload?.action === "confirm_and_generate") {
+        if (dataPayload?.action === "generate" || dataPayload?.action === "confirm_and_generate" || dataPayload?.action === "build_directly" || textToSend.toLowerCase() === "build directly") {
           setIsGenerating(true);
         }
 
@@ -2899,6 +3226,10 @@ Shall I generate your custom website draft now?`;
       }
     } catch (err: any) {
       console.warn("Website builder sendMessage backend error, using local advance fallback:", err);
+      if (dataPayload?.action === "build_directly" || textToSend.toLowerCase().includes("build directly")) {
+        await triggerWebsiteGeneration();
+        return;
+      }
       await advanceOnboarding(textToSend, dataPayload);
     } finally {
       setIsGenerating(false);
@@ -3137,10 +3468,7 @@ Shall I generate your custom website draft now?`;
               Clear
             </button>
             <button
-              onClick={() => {
-                handleClear();
-                startNewSession(language || "English");
-              }}
+              onClick={handleClear}
               title="Start brand new project"
               className="text-xs px-2 sm:px-2.5 py-1 sm:py-1.5 bg-purple-600 hover:bg-purple-700 rounded-md text-white font-medium transition cursor-pointer"
             >
@@ -3180,6 +3508,35 @@ Shall I generate your custom website draft now?`;
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                 </div>
+
+                {/* Live Website Link Card in Chat */}
+                {(msg.data?.generation_complete || (msg.role === "ai" && msg.content?.includes("has been generated"))) && (
+                  <div className="mt-2.5 p-2.5 sm:p-3 bg-emerald-950/40 border border-emerald-500/40 rounded-xl flex items-center justify-between gap-2.5 w-full">
+                    <div className="flex items-center gap-2">
+                      <div className="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-300 shrink-0">
+                        <Globe className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <span className="text-xs font-semibold text-emerald-200">Website Ready</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (generatedSiteData) {
+                          try {
+                            localStorage.setItem("website_builder_site_data", JSON.stringify(generatedSiteData));
+                          } catch (_) {}
+                        }
+                        const targetId = siteId || "preview";
+                        window.open(`/preview/${targetId}`, "_blank");
+                      }}
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
+                    >
+                      <Globe className="w-3 h-3" />
+                      <span>Live View</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </button>
+                  </div>
+                )}
 
                 {/* Brand Kit Logo Creation Banner */}
                 {msg.data?.brand_kit_required && (
@@ -3471,18 +3828,25 @@ Shall I generate your custom website draft now?`;
               </div>
             )}
 
-            {/* Live View link */}
-            {siteId && (
-              <a
-                href={`/preview/${siteId}`}
-                target="_blank"
-                rel="noreferrer"
-                className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition cursor-pointer"
-                title="Open live preview in new tab"
+            {/* Live Website View Button */}
+            {(generatedSiteData || siteId) && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (generatedSiteData) {
+                    try {
+                      localStorage.setItem("website_builder_site_data", JSON.stringify(generatedSiteData));
+                    } catch (_) {}
+                  }
+                  const targetId = siteId || "preview";
+                  window.open(`/preview/${targetId}`, "_blank");
+                }}
+                className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-semibold text-emerald-300 hover:text-white bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 rounded-lg transition shadow-sm cursor-pointer"
+                title="Open live website in new tab"
               >
-                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
-                <span className="hidden md:inline">Live View</span>
-              </a>
+                <Globe className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Live View</span>
+              </button>
             )}
 
             {/* Export PDF */}
@@ -3811,7 +4175,7 @@ Shall I generate your custom website draft now?`;
 
               <iframe
                 ref={iframeRef}
-                srcDoc={generateHtmlFromJSON(generatedSiteData)}
+                srcDoc={generateHtmlFromJSON(generatedSiteData, previewDevice)}
                 className="w-full flex-1 bg-white border-0"
                 title="Website Live Preview"
               />

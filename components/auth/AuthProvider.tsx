@@ -52,6 +52,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const urlToken = urlParams.get('token');
         if (urlToken) {
           localStorage.setItem('access_token', urlToken);
+          // New sign in via URL token - clear website builder caches so chats start fresh
+          const wbKeys = [
+            'website_builder_session_id',
+            'website_builder_site_data',
+            'website_builder_context',
+            'website_builder_messages',
+            'website_builder_user_id',
+          ];
+          wbKeys.forEach((k) => {
+            try {
+              localStorage.removeItem(k);
+              sessionStorage.removeItem(k);
+            } catch (_) {}
+          });
         }
       }
       try {
@@ -232,6 +246,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (finalUser && typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(finalUser));
     }
+
+    // Always clear website builder caches on new sign in so chats look brand new
+    if (typeof window !== 'undefined') {
+      const wbKeys = [
+        'website_builder_session_id',
+        'website_builder_site_data',
+        'website_builder_context',
+        'website_builder_messages',
+        'website_builder_user_id',
+      ];
+      wbKeys.forEach((k) => {
+        try {
+          localStorage.removeItem(k);
+          sessionStorage.removeItem(k);
+        } catch (_) {}
+      });
+    }
+
     setUser(finalUser);
   };
 
@@ -268,6 +300,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       'show_onboarding_plan',
       'onboarding_initial_restored',
       'user_active_modal',
+      'website_builder_session_id',
+      'website_builder_site_data',
+      'website_builder_context',
+      'website_builder_messages',
+      'website_builder_user_id',
     ];
     keysToClear.forEach((k) => {
       try {
