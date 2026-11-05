@@ -426,7 +426,14 @@ export default function SignupPage() {
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-      const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
+      const isLocalhost = typeof window !== "undefined" && (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      );
+      // In local dev, use localhost:3000/login/user so the session returns to localhost
+      const redirectUri = isLocalhost
+        ? `${origin}/login/user`
+        : (process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || `${origin}/login/user`);
       const clientId =
         (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
         "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
@@ -437,6 +444,7 @@ export default function SignupPage() {
       const effectiveCc = customCountryCode || countryCode;
 
       if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_redirect_uri", redirectUri);
         sessionStorage.setItem("google_auth_mode", "signup");
         if (effectivePhone && effectivePhone.trim()) {
           const validation = validatePhoneNumber(effectiveCc, effectivePhone);

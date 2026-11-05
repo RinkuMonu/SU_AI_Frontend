@@ -128,7 +128,7 @@ export const authService = {
   /**
    * Sign in using mobile phone number or email and password
    */
-  login: async (phoneOrIdentifier: string, password: string): Promise<{ user: User }> => {
+  login: async (phoneOrIdentifier: string, password: string): Promise<{ user: User; token?: string; access_token?: string; accessToken?: string }> => {
     try {
       const cleanId = phoneOrIdentifier.trim();
       const isEmail = cleanId.includes('@');
@@ -501,6 +501,7 @@ export const authService = {
   }): Promise<{
     token?: string;
     access_token?: string;
+    accessToken?: string;
     user: User;
     message?: string;
     exists?: boolean;
@@ -572,7 +573,26 @@ export const authService = {
         data?.user_exists
       );
 
+      const token =
+        raw?.access_token ||
+        data?.access_token ||
+        raw?.token ||
+        data?.token ||
+        raw?.accessToken ||
+        data?.accessToken;
+
+      if (token && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('access_token', token);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          api.defaults.headers.common['token'] = token;
+        } catch (_) {}
+      }
+
       return {
+        token,
+        access_token: token,
+        accessToken: token,
         user: normalizedUser,
         message: raw?.message || data?.message,
         exists: isExisting,
@@ -601,7 +621,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ user: User }> => {
+  }): Promise<{ user: User; token?: string; access_token?: string; accessToken?: string }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/facebook/signup' : '/api/v1/auth/facebook/login';
       const response = await api.post(endpoint, {
@@ -632,7 +652,26 @@ export const authService = {
         onboarding_step: user.onboarding_step ?? 1,
       };
 
+      const token =
+        raw?.access_token ||
+        data?.access_token ||
+        raw?.token ||
+        data?.token ||
+        raw?.accessToken ||
+        data?.accessToken;
+
+      if (token && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('access_token', token);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          api.defaults.headers.common['token'] = token;
+        } catch (_) {}
+      }
+
       return {
+        token,
+        access_token: token,
+        accessToken: token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -654,7 +693,7 @@ export const authService = {
     code?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ user: User }> => {
+  }): Promise<{ user: User; token?: string; access_token?: string; accessToken?: string }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/instagram/signup' : '/api/v1/auth/instagram/login';
       const response = await api.post(endpoint, {
@@ -685,7 +724,26 @@ export const authService = {
         onboarding_step: user.onboarding_step ?? 1,
       };
 
+      const token =
+        raw?.access_token ||
+        data?.access_token ||
+        raw?.token ||
+        data?.token ||
+        raw?.accessToken ||
+        data?.accessToken;
+
+      if (token && typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('access_token', token);
+          api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          api.defaults.headers.common['token'] = token;
+        } catch (_) {}
+      }
+
       return {
+        token,
+        access_token: token,
+        accessToken: token,
         user: normalizedUser,
       };
     } catch (error: any) {
@@ -709,7 +767,7 @@ export const authService = {
     redirect_uri?: string;
     accountType?: string;
     mode?: 'login' | 'signup';
-  }): Promise<{ user: User }> => {
+  }): Promise<{ user: User; token?: string; access_token?: string; accessToken?: string }> => {
     try {
       const endpoint = mode === 'signup' ? '/api/v1/auth/linkedin/signup' : '/api/v1/auth/linkedin/login';
       const response = await api.post(endpoint, {

@@ -96,11 +96,35 @@ export default function GeneratedPostCard({
     setPublishErrorMessage(null);
     
     try {
-      const endpoint = `/api/v1/${publishPlatform}/publish-image`;
-      await api.post(endpoint, {
-        image_url: currentImage || post.image_url || post.media_url,
-        caption: `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim(),
-      });
+      const imgUrl = currentImage || post.image_url || post.media_url;
+      const fullCaption = `${post.caption || ''}\n\n${(post.hashtags || []).join(' ')}`.trim();
+      const payload = {
+        image_url: imgUrl,
+        imageUrl: imgUrl,
+        caption: fullCaption,
+        content_id: (post as any)._id || post.id,
+      };
+
+      // Try multiple backend endpoints with resilient fallback
+      let published = false;
+      const endpoints = [
+        `/api/v1/${publishPlatform}/publish-image`,
+        `/api/${publishPlatform}/publish-image`,
+        `/api/v1/social/publish-${publishPlatform}`,
+        `/api/${publishPlatform}/publish`,
+      ];
+      let lastErr: any = null;
+      for (const ep of endpoints) {
+        try {
+          await api.post(ep, payload);
+          published = true;
+          break;
+        } catch (e: any) {
+          lastErr = e;
+        }
+      }
+      if (!published) throw lastErr;
+
       setPublishSuccessMessage(`Successfully Published to ${publishPlatform.charAt(0).toUpperCase() + publishPlatform.slice(1)}!`);
       setTimeout(() => setPublishSuccessMessage(null), 5000);
     } catch (err: any) {

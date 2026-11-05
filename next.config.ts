@@ -15,9 +15,11 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_GOOGLE_CLIENT_ID:
       process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
       "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com",
+    NEXT_PUBLIC_FACEBOOK_APP_ID:
+      process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || "1590258016168448",
     NEXT_PUBLIC_GOOGLE_REDIRECT_URI:
       process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
-      "https://api.dhandagrow.com/api/v1/auth/google/callback",
+      "https://dhandagrow.com/login/user",
     NEXT_PUBLIC_API_URL:
       (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000").replace(/^http:\/\/localhost(?=[:/]|$)/i, "http://127.0.0.1"),
   },

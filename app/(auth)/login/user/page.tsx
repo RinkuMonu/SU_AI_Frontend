@@ -516,7 +516,14 @@ export default function LoginPage() {
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-      const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
+      const isLocalhost = typeof window !== "undefined" && (
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1"
+      );
+      // In local dev, use localhost:3000/login/user so the session returns to localhost
+      const redirectUri = isLocalhost
+        ? `${origin}/login/user`
+        : (process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || `${origin}/login/user`);
       const clientId =
         (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
         "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
@@ -524,6 +531,7 @@ export default function LoginPage() {
       const state = "login_" + Math.random().toString(36).substring(7);
 
       if (typeof window !== "undefined") {
+        sessionStorage.setItem("google_redirect_uri", redirectUri);
         sessionStorage.setItem("google_auth_mode", "login");
         if (phone.trim()) {
           const validation = validatePhoneNumber(countryCode, phone);
@@ -561,6 +569,8 @@ export default function LoginPage() {
     }
   };
 
+
+
   // ─────────────────────────────────────────────────────────────────────────────
   // 2. PRESERVED OAUTH CALLBACK LISTENER (Google, Facebook, Instagram, LinkedIn)
   // ─────────────────────────────────────────────────────────────────────────────
@@ -579,7 +589,193 @@ export default function LoginPage() {
       return;
     }
 
+    const providerParam = searchParams.get("provider");
+    const isFacebook =
+      providerParam === "facebook" ||
+      searchParams.get("facebook_connected") === "true" ||
+      stateParam.startsWith("facebook") ||
+      hashParams.has("facebook");
+
+    const isInstagram =
+      providerParam === "instagram" ||
+      searchParams.get("instagram_connected") === "true" ||
+      stateParam.startsWith("instagram") ||
+      hashParams.has("instagram");
+
+    const directToken =
+      searchParams.get("token") ||
+      searchParams.get("access_token") ||
+      hashParams.get("access_token") ||
+      hashParams.get("token");
+
+    // Case A: Direct session token from backend callback redirect
+    if (directToken && (isFacebook || isInstagram || searchParams.has("token"))) {
+      const targetProvider: AuthProviderType = isInstagram ? "Instagram" : (isFacebook ? "Facebook" : "General");
+      setSocialLoading(targetProvider);
+      setAuthModal({
+        open: true,
+        status: "analyzing",
+        provider: targetProvider,
+        title: `Connecting with ${targetProvider}`,
+        message: `Finalizing your ${targetProvider} login...`,
+      });
+
+      const handleTokenCallback = async () => {
+        try {
+          if (typeof window !== "undefined") {
+            localStorage.setItem("access_token", directToken);
+            api.defaults.headers.common["Authorization"] = `Bearer ${directToken}`;
+            api.defaults.headers.common["token"] = directToken;
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+          if (typeof document !== "undefined") {
+            document.cookie = `access_token=${directToken}; path=/; max-age=604800; SameSite=Lax`;
+          }
+
+          const freshUser = await authService.getCurrentUser();
+          if (freshUser) {
+            let isDone = Boolean(freshUser.onboardingCompleted);
+            try {
+              const statusDone = await OnboardingService.isCompleted(directToken);
+              if (statusDone) isDone = true;
+            } catch (_) {}
+
+            const finalUser = {
+              ...freshUser,
+              auth_provider: isInstagram ? "instagram" : (isFacebook ? "facebook" : "oauth"),
+              phone_verified: true,
+              onboardingCompleted: isDone,
+            };
+
+            login(directToken, finalUser);
+
+            setAuthModal({
+              open: true,
+              status: "success",
+              provider: targetProvider,
+              title: "Connected Successfully",
+              message: "Welcome to DhandaGrow! Taking you to your dashboard...",
+            });
+
+            setTimeout(() => {
+              navigateAfterAuth(finalUser, router);
+            }, 350);
+          } else {
+            throw new Error("Unable to retrieve user session details.");
+          }
+        } catch (err: any) {
+          console.warn(`${targetProvider} token callback error:`, err);
+          setError(err?.message || `Failed to sign in with ${targetProvider}.`);
+          setSocialLoading(null);
+          setAuthModal(null);
+        }
+      };
+
+      handleTokenCallback();
+      return;
+    }
+
     if (code) {
+      if (isFacebook) {
+        const processFacebookCode = async () => {
+          setSocialLoading("Facebook");
+          setAuthModal({
+            open: true,
+            status: "analyzing",
+            provider: "Facebook",
+            title: "Connecting with Facebook",
+            message: "Verifying your Facebook account...",
+          });
+          try {
+            const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+            const res = await authService.facebookLogin({
+              code,
+              accountType: "business",
+              mode: "login",
+            });
+            const token = res.token || res.access_token || res.accessToken || "";
+            const userObj = res.user;
+            if (userObj) {
+              if (token) {
+                localStorage.setItem("access_token", token);
+                api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                api.defaults.headers.common["token"] = token;
+                document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+                login(token, userObj);
+              } else {
+                login(userObj);
+              }
+              setAuthModal({
+                open: true,
+                status: "success",
+                provider: "Facebook",
+                title: "Connected Successfully",
+                message: "Welcome! Taking you to your dashboard...",
+              });
+              setTimeout(() => {
+                navigateAfterAuth(userObj, router);
+              }, 350);
+            }
+          } catch (err: any) {
+            console.warn("Facebook code exchange error:", err);
+            setError(err?.message || "Failed to sign in with Facebook.");
+            setSocialLoading(null);
+            setAuthModal(null);
+          }
+        };
+        processFacebookCode();
+        return;
+      }
+
+      if (isInstagram) {
+        const processInstagramCode = async () => {
+          setSocialLoading("Instagram");
+          setAuthModal({
+            open: true,
+            status: "analyzing",
+            provider: "Instagram",
+            title: "Connecting with Instagram",
+            message: "Verifying your Instagram account...",
+          });
+          try {
+            const res = await authService.instagramLogin({
+              code,
+              accountType: "business",
+              mode: "login",
+            });
+            const token = res.token || res.access_token || res.accessToken || "";
+            const userObj = res.user;
+            if (userObj) {
+              if (token) {
+                localStorage.setItem("access_token", token);
+                api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                api.defaults.headers.common["token"] = token;
+                document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+                login(token, userObj);
+              } else {
+                login(userObj);
+              }
+              setAuthModal({
+                open: true,
+                status: "success",
+                provider: "Instagram",
+                title: "Connected Successfully",
+                message: "Welcome! Taking you to your dashboard...",
+              });
+              setTimeout(() => {
+                navigateAfterAuth(userObj, router);
+              }, 350);
+            }
+          } catch (err: any) {
+            console.warn("Instagram code exchange error:", err);
+            setError(err?.message || "Failed to sign in with Instagram.");
+            setSocialLoading(null);
+            setAuthModal(null);
+          }
+        };
+        processInstagramCode();
+        return;
+      }
       if (
         inFlightGoogleCode === code ||
         sessionStorage.getItem(`google_code_processed_${code}`)
@@ -593,12 +789,23 @@ export default function LoginPage() {
       } catch (_) {}
 
       const processGoogleCode = async () => {
-        const savedMode = sessionStorage.getItem("google_auth_mode");
-        const preservedPhone = sessionStorage.getItem("google_auth_phone") || undefined;
-        const preservedCc = sessionStorage.getItem("google_auth_country_code") || undefined;
+        const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+        const isLocalhost = typeof window !== "undefined" && (
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1"
+        );
+        const urlRedirectUri = searchParams.get("redirect_uri");
+        const savedRedirectUri = typeof window !== "undefined" ? sessionStorage.getItem("google_redirect_uri") : null;
+        const defaultRedirectUri = isLocalhost
+          ? `${origin}/login/user`
+          : (process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || `${origin}/login/user`);
+        const redirectUri = urlRedirectUri || savedRedirectUri || defaultRedirectUri;
+
+        const savedMode = typeof window !== "undefined" ? sessionStorage.getItem("google_auth_mode") : null;
+        const preservedPhone = (typeof window !== "undefined" ? sessionStorage.getItem("google_auth_phone") : null) || undefined;
+        const preservedCc = (typeof window !== "undefined" ? sessionStorage.getItem("google_auth_country_code") : null) || undefined;
         const preservedToken =
-          sessionStorage.getItem("google_auth_verification_token") ||
-          sessionStorage.getItem("phone_verification_token") ||
+          (typeof window !== "undefined" ? (sessionStorage.getItem("google_auth_verification_token") || sessionStorage.getItem("phone_verification_token")) : null) ||
           undefined;
         const isSignup = stateParam.startsWith("signup") || savedMode === "signup";
         const mode = isSignup ? "signup" : "login";
@@ -613,7 +820,6 @@ export default function LoginPage() {
         });
 
         try {
-          const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
           const res = await authService.googleLogin({
             code,
             redirect_uri: redirectUri,
@@ -624,30 +830,20 @@ export default function LoginPage() {
             verification_token: preservedToken,
           });
 
-          const token = (res as any).token || (res as any).access_token || "";
+          const token = (res as any).token || (res as any).access_token || (res as any).accessToken || "";
           const userObj = res.user;
 
           if (userObj) {
-            const isExistingUser = Boolean(res.exists || res.is_existing_user || res.user_exists);
-
-            if (isSignup && isExistingUser) {
-              const existingMsg = "This email is already registered. Please log in instead.";
-              setError(existingMsg);
-              setAuthModal({
-                open: true,
-                status: "error",
-                provider: "Google",
-                title: "Email Already Registered",
-                message: existingMsg,
-                actionText: "Log In",
-                actionHref: "/login/user",
-              });
-              sessionStorage.removeItem("google_auth_mode");
-              sessionStorage.removeItem("google_auth_phone");
-              sessionStorage.removeItem("google_auth_country_code");
-              sessionStorage.removeItem("google_auth_verification_token");
-              sessionStorage.removeItem("phone_verification_token");
-              return;
+            // Persist token in localStorage, headers, and cookie
+            if (token) {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("access_token", token);
+                api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+                api.defaults.headers.common["token"] = token;
+              }
+              if (typeof document !== "undefined") {
+                document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+              }
             }
 
             let isDone = Boolean(userObj.onboardingCompleted);
@@ -662,14 +858,32 @@ export default function LoginPage() {
               phone_verified: true,
               onboardingCompleted: isDone,
             };
-            login(finalUser);
+
+            // Call login with both token and user to ensure AuthProvider sets session
+            if (token) {
+              login(token, finalUser);
+            } else {
+              login(finalUser);
+            }
+
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
             sessionStorage.removeItem("google_auth_verification_token");
             sessionStorage.removeItem("phone_verification_token");
+            sessionStorage.removeItem("google_redirect_uri");
 
-            navigateAfterAuth(finalUser, router);
+            setAuthModal({
+              open: true,
+              status: "success",
+              provider: "Google",
+              title: "Connected Successfully",
+              message: "Welcome to DhandaGrow! Taking you to your dashboard...",
+            });
+
+            setTimeout(() => {
+              navigateAfterAuth(finalUser, router);
+            }, 350);
           } else {
             throw new Error(res.message || "Google authentication did not return session token.");
           }

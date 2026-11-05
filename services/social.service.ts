@@ -31,13 +31,53 @@ export const socialService = {
   // Social Publishing
   // ──────────────────────────────────────────────
 
-  async publishToInstagram(contentId: string): Promise<any> {
-    const res = await api.post(`/api/v1/social/publish-instagram/${contentId}`);
+  async publishToInstagram(
+    contentIdOrPayload: string | { caption?: string; image_url?: string; imageUrl?: string; content_id?: string; contentId?: string }
+  ): Promise<any> {
+    if (typeof contentIdOrPayload === 'string') {
+      const res = await api.post(`/api/v1/social/publish-instagram/${contentIdOrPayload}`);
+      return res.data;
+    }
+    const payload = {
+      ...contentIdOrPayload,
+      image_url: contentIdOrPayload.image_url || contentIdOrPayload.imageUrl,
+      content_id: contentIdOrPayload.content_id || contentIdOrPayload.contentId,
+    };
+    let res: any;
+    try {
+      res = await api.post('/api/v1/instagram/publish-image', payload);
+    } catch {
+      try {
+        res = await api.post('/api/instagram/publish-image', payload);
+      } catch {
+        res = await api.post('/api/v1/social/publish-instagram', payload);
+      }
+    }
     return res.data;
   },
 
-  async publishToFacebook(contentId: string): Promise<any> {
-    const res = await api.post(`/api/v1/social/publish-facebook/${contentId}`);
+  async publishToFacebook(
+    contentIdOrPayload: string | { caption?: string; image_url?: string; imageUrl?: string; content_id?: string; contentId?: string }
+  ): Promise<any> {
+    if (typeof contentIdOrPayload === 'string') {
+      const res = await api.post(`/api/v1/social/publish-facebook/${contentIdOrPayload}`);
+      return res.data;
+    }
+    const payload = {
+      ...contentIdOrPayload,
+      image_url: contentIdOrPayload.image_url || contentIdOrPayload.imageUrl,
+      content_id: contentIdOrPayload.content_id || contentIdOrPayload.contentId,
+    };
+    let res: any;
+    try {
+      res = await api.post('/api/v1/facebook/publish-image', payload);
+    } catch {
+      try {
+        res = await api.post('/api/facebook/publish-image', payload);
+      } catch {
+        res = await api.post('/api/v1/social/publish-facebook', payload);
+      }
+    }
     return res.data;
   },
 
@@ -100,13 +140,19 @@ export const socialService = {
    * Requests official OAuth initiation authorization URL from backend.
    */
   async getConnectUrl(platform: 'instagram' | 'facebook' | 'linkedin'): Promise<string> {
+    // Build frontend_url so backend redirects back to the correct social-platforms page
+    const frontendUrl = typeof window !== 'undefined'
+      ? `${window.location.origin}/social-platforms/${platform}`
+      : '';
+    const qsParam = frontendUrl ? `?frontend_url=${encodeURIComponent(frontendUrl)}` : '';
+
     let endpoint = `/api/v1/social/connect/${platform}`;
     if (platform === 'instagram') {
-      endpoint = '/api/instagram/connect';
+      endpoint = `/api/instagram/connect${qsParam}`;
     } else if (platform === 'facebook') {
-      endpoint = '/api/v1/facebook/connect';
+      endpoint = `/api/v1/facebook/connect${qsParam}`;
     } else if (platform === 'linkedin') {
-      endpoint = '/api/v1/linkedin/connect';
+      endpoint = `/api/v1/linkedin/connect${qsParam}`;
     }
 
     try {
@@ -117,7 +163,7 @@ export const socialService = {
       }
     } catch (e) {
       // Fallback to social connect endpoint
-      const fallbackRes = await api.get(`/api/v1/social/connect/${platform}`);
+      const fallbackRes = await api.get(`/api/v1/social/connect/${platform}${qsParam}`);
       const authUrl = fallbackRes.data?.authorization_url || fallbackRes.data?.url || fallbackRes.data?.auth_url;
       if (authUrl) {
         return authUrl;
