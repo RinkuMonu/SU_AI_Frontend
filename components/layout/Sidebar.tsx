@@ -72,7 +72,7 @@ export const navigation = [
     name: "Image and Reel Generation", 
     icon: Share2, 
     children: [
-      { id: "tour-nav-create-reel", name: "Create Reel", href: "/create/reel" },
+      { id: "tour-nav-create-reel", name: "Create Reel", href: "/create/reel", comingSoon: true },
       { id: "tour-nav-ai-post", name: "AI Post Maker", href: "/ai-post" },
       { id: "tour-nav-ai-calendar", name: "AI Calendar", href: "/ai-calendar" },
     ]
@@ -225,7 +225,7 @@ export function Sidebar() {
                           key={child.name}
                           title={`${child.name} (Coming Soon)`}
                           aria-disabled="true"
-                          className="group flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
+                          className="group flex items-center justify-between px-3 py-2 text-xs font-medium rounded-2xl text-slate-400/60 bg-white/[0.02] cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
                         >
                           <div className="flex items-center min-w-0">
                             {child.icon && (
