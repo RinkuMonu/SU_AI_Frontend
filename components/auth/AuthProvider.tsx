@@ -220,6 +220,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = userDataOrToken;
       if (typeof window !== 'undefined') {
         localStorage.setItem('access_token', token);
+        localStorage.setItem('token', token);
       }
       if (typeof document !== 'undefined') {
         document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
@@ -227,6 +228,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       finalUser = maybeUserData || ({} as User);
     } else {
       finalUser = userDataOrToken;
+      const token = (finalUser as any).token || (finalUser as any).access_token;
+      if (token && typeof window !== 'undefined') {
+        localStorage.setItem('access_token', token);
+        localStorage.setItem('token', token);
+      }
+      if (token && typeof document !== 'undefined') {
+        document.cookie = `access_token=${token}; path=/; max-age=604800; SameSite=Lax`;
+      }
     }
 
     if (finalUser && typeof window !== 'undefined') {
@@ -249,6 +258,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     const wasAdmin = user?.role === 'admin';
     const keysToClear = [
+      'access_token',
+      'token',
+      'auth_token',
+      'user',
+      'current_user',
+      'user_data',
+      'business_name',
+      'onboarding_business_name',
+      'phone_verification_token',
+      'verification_token',
+      'creator_onboarding_draft',
+      'creator_onboarding_step',
+      'creator_onboarding_data',
       'business_selected_services',
       'selected_services',
       'business_online_presence',
@@ -275,14 +297,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         sessionStorage.removeItem(k);
       } catch (_) {}
     });
+
+    // Also purge all creator onboarding draft keys matching prefix
+    try {
+      if (typeof window !== 'undefined') {
+        Object.keys(localStorage).forEach((k) => {
+          if (k.startsWith('creator_onboarding_') || k.startsWith('onboarding_')) {
+            localStorage.removeItem(k);
+          }
+        });
+        sessionStorage.clear();
+      }
+    } catch (_) {}
+
     if (typeof document !== 'undefined') {
-      document.cookie = `access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
+      document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax';
     }
+
     try {
       await authService.logout();
     } catch (_) {}
+
     setUser(null);
-    router.replace(wasAdmin ? '/login/admin' : '/login/user');
+    const targetUrl = wasAdmin ? '/login/admin' : '/login/user';
+    if (typeof window !== 'undefined') {
+      window.location.href = targetUrl;
+    } else {
+      router.replace(targetUrl);
+    }
   };
 
   return (

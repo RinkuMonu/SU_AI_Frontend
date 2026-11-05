@@ -18,6 +18,8 @@ export interface AuthSuccessResponse {
   token?: string;
   access_token?: string;
   user?: User;
+  is_new_user?: boolean;
+  isNewUser?: boolean;
   status?: string;
   message?: string;
   requiresOtp?: boolean;
@@ -334,15 +336,19 @@ export const authService = {
       const response = await api.post('/api/v1/auth/verify-otp', payload);
       const resData = response.data?.data || response.data;
       const vToken = resData?.phone_verification_token || resData?.verification_token;
+      const authToken = resData?.access_token || resData?.token || resData?.accessToken;
 
       return {
         user: resData?.user,
+        is_new_user: Boolean(resData?.is_new_user ?? resData?.isNewUser),
         status: resData?.status || 'success',
         message: resData?.detail || resData?.message || 'Mobile OTP verified successfully.',
         verification_token: vToken,
         phone_verification_token: vToken,
         requires_role_selection: resData?.requires_role_selection,
         dashboard_route: resData?.dashboard_route,
+        token: authToken,
+        access_token: authToken,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid or expired OTP. Please try again.');

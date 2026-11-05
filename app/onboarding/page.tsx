@@ -59,7 +59,8 @@ import {
   Bot,
   Video,
   Zap,
-  TrendingUp
+  TrendingUp,
+  LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -352,7 +353,7 @@ export const SOCIAL_PLATFORM_OPTIONS = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { user, login } = useAuth();
+  const { user, login, logout } = useAuth();
 
   useEffect(() => {
     if (user?.role === "influencer") {
@@ -377,7 +378,10 @@ export default function OnboardingPage() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const comingSoonIds = new Set(BUSINESS_SERVICES_OPTIONS.filter((s: any) => s.comingSoon).map((s: any) => s.id));
+            return parsed.filter((id: string) => !comingSoonIds.has(id));
+          }
         } catch (_) { }
       }
     }
@@ -1227,7 +1231,9 @@ export default function OnboardingPage() {
   };
 
   const handleServicesContinue = async () => {
-    if (!selectedServices || selectedServices.length === 0) {
+    const comingSoonIds = new Set(BUSINESS_SERVICES_OPTIONS.filter((s: any) => s.comingSoon).map((s: any) => s.id));
+    const validServices = selectedServices.filter((id) => !comingSoonIds.has(id));
+    if (!validServices || validServices.length === 0) {
       setServicesError("Please select at least one service for your business to continue.");
       return;
     }
@@ -1566,6 +1572,25 @@ export default function OnboardingPage() {
       });
 
       if (result) {
+        if (result.business_name && result.business_name.trim()) {
+          const bClean = result.business_name.trim();
+          if (typeof window !== "undefined") {
+            localStorage.setItem("business_name", bClean);
+            localStorage.setItem("onboarding_business_name", bClean);
+            sessionStorage.setItem("business_name", bClean);
+          }
+          businessService.updateBusiness({
+            name: bClean,
+            businessName: bClean,
+            website: formattedUrl,
+            category: result.category || undefined,
+          }).catch(() => null);
+          userService.updateProfile({
+            business_name: bClean,
+            businessName: bClean,
+          }).catch(() => null);
+        }
+
         setBusinessDetails((prev) => ({
           ...prev,
           business_name: result.business_name || prev.business_name,
@@ -1769,6 +1794,7 @@ export default function OnboardingPage() {
       // Persist to Business API
       await businessService.updateBusiness({
         name: businessDetails.business_name.trim(),
+        businessName: businessDetails.business_name.trim(),
         category: businessDetails.category,
         industry: businessDetails.category,
         businessType: businessDetails.primary_business_type || businessDetails.business_types[0],
@@ -1777,6 +1803,14 @@ export default function OnboardingPage() {
         website: websiteUrl || undefined,
         logoUrl: businessDetails.logo_url || undefined,
       });
+
+      // Also persist to User Profile API so user.business_name stays synced
+      try {
+        await userService.updateProfile({
+          business_name: businessDetails.business_name.trim(),
+          businessName: businessDetails.business_name.trim(),
+        });
+      } catch (_) {}
 
       // Persist to Brand Kit API
       await updateBrandKit({
@@ -4734,6 +4768,19 @@ export default function OnboardingPage() {
     } bg-[#081226] text-[#ededf2] flex flex-col justify-between relative selection:bg-[#be32ff]/30 ${
       ["website_photos", "maps_photos", "photos"].includes(currentStepObj.id) ? "overflow-y-auto" : "overflow-hidden"
     }`}>
+      {/* Top right Logout / Exit to Login button */}
+      <div className="absolute top-3 right-3 sm:top-4 sm:right-6 z-50 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={logout}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-rose-500/15 border border-white/10 hover:border-rose-500/30 text-xs font-medium text-slate-300 hover:text-rose-300 transition-all cursor-pointer backdrop-blur-md shadow-sm"
+          title="Log out and return to mobile login"
+        >
+          <LogOut className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Log Out</span>
+        </button>
+      </div>
+
       {/* Background ambient lighting matching DhandaGrow dark navy & gradient accent theme (hidden on get_started & business_services for exact #081226 background) */}
       {!["get_started", "business_services", "presence", "website_url", "analyzing_site", "photos", "website_photos", "first_thing", "post_maker_pick", "post_maker_ready", "none_details", "none_brand_kit"].includes(currentStepObj.id) && (
         <>

@@ -156,17 +156,16 @@ export default function DashboardPage() {
             {greeting},{" "}
             <span className="bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] bg-clip-text text-transparent font-normal">
               {(
-              (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
-              (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
               businessProfile?.name ||
               businessProfile?.business_name ||
               businessProfile?.businessName ||
               user?.business_name ||
               user?.businessName ||
+              (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" && user.name.trim()) ||
+              (user?.fullName && !user.fullName.startsWith("User ") && user.fullName.trim() !== "User" && user.fullName.trim()) ||
               (typeof window !== "undefined" && (localStorage.getItem("business_name") || localStorage.getItem("onboarding_business_name"))) ||
-              user?.name ||
-              user?.fullName ||
-              "Member"
+              (user?.name && !user.name.startsWith("User ") && user.name.trim() !== "User" ? user.name : "") ||
+              "Business Owner"
             )}
             </span>
             !

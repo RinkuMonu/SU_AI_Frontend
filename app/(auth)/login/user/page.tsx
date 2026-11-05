@@ -17,8 +17,10 @@ import {
   ShieldCheck,
   RefreshCw,
   Sparkles,
-  Phone
+  Phone,
+  User as UserIcon
 } from "lucide-react";
+import { userService } from "@/services/user.service";
 import { 
   COUNTRY_CODES, 
   validatePhoneNumber, 
@@ -233,8 +235,13 @@ export default function LoginPage() {
   const { theme, toggleTheme } = useTheme();
 
   // Screen flow: "phone" -> "otp"
-  const [step, setStep] = useState<"phone" | "otp" | "get_started">("phone");
+  const [step, setStep] = useState<"phone" | "otp" | "get_started" | "details">("phone");
   const [pendingAuthUser, setPendingAuthUser] = useState<any>(null);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [detailsError, setDetailsError] = useState("");
+  const [isSavingDetails, setIsSavingDetails] = useState(false);
+  const [pendingDashboardRoute, setPendingDashboardRoute] = useState<string | undefined>(undefined);
 
   // Phone input states
   const [countryCode, setCountryCode] = useState("+91");
@@ -430,6 +437,11 @@ export default function LoginPage() {
       const token = (response as any).token || (response as any).access_token || "";
       const user = response.user;
 
+      if (token && typeof window !== "undefined") {
+        localStorage.setItem("access_token", token);
+        localStorage.setItem("token", token);
+      }
+
       if (user) {
         let isDone = Boolean(user.onboardingCompleted);
         try {
@@ -444,6 +456,29 @@ export default function LoginPage() {
           phone_verified: true,
           onboardingCompleted: isDone,
         };
+
+        // Determine if genuinely a new user who needs to provide First Name and Last Name
+        const isPlaceholderName = !user.name || user.name.startsWith("User ") || user.name.trim() === "User";
+        const hasNoFirstOrLastName = (!user.firstName || user.firstName.startsWith("User ")) && !user.lastName;
+        const isGenuinelyNewUser = Boolean(
+          (response as any).is_new_user ||
+          (response as any).isNewUser ||
+          (isPlaceholderName && hasNoFirstOrLastName)
+        );
+
+        if (isGenuinelyNewUser) {
+          if (user.firstName && !user.firstName.startsWith("User ")) {
+            setFirstName(user.firstName);
+          }
+          if (user.lastName) {
+            setLastName(user.lastName);
+          }
+          setPendingAuthUser(finalUser);
+          setPendingDashboardRoute((response as any).dashboard_route);
+          login(finalUser);
+          setStep("details");
+          return;
+        }
 
         login(finalUser);
         if (typeof window !== "undefined") {
@@ -460,6 +495,52 @@ export default function LoginPage() {
     } finally {
       isVerifyingRef.current = false;
       setIsVerifyingOtp(false);
+    }
+  };
+
+  /**
+   * Save First Name & Last Name for a genuinely new user
+   */
+  const handleSaveNewUserDetails = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const cleanFirst = firstName.trim();
+    const cleanLast = lastName.trim();
+
+    if (!cleanFirst || cleanFirst.length < 2) {
+      setDetailsError("Please enter your first name (at least 2 letters).");
+      return;
+    }
+
+    setIsSavingDetails(true);
+    setDetailsError("");
+
+    try {
+      const fullName = cleanLast ? `${cleanFirst} ${cleanLast}` : cleanFirst;
+      const updatedProfile = await userService.updateProfile({
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        name: fullName,
+      });
+
+      const finalUser = {
+        ...(pendingAuthUser || {}),
+        ...updatedProfile,
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        name: fullName,
+        fullName: fullName,
+      };
+
+      login(finalUser);
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("onboarding_step");
+        sessionStorage.removeItem("show_onboarding_plan");
+      }
+      navigateAfterAuth(finalUser, router, pendingDashboardRoute);
+    } catch (err: any) {
+      setDetailsError(err.message || "Failed to save your name. Please try again.");
+    } finally {
+      setIsSavingDetails(false);
     }
   };
 
@@ -1161,6 +1242,86 @@ export default function LoginPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════════════════════════
+              STEP 3: New User Name Collection Screen
+             ═══════════════════════════════════════════════════════════════════════════ */}
+          {step === "details" && (
+            <form onSubmit={handleSaveNewUserDetails} className="space-y-4.5 sm:space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+              <div className="text-center space-y-1.5 pt-1">
+                <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-tr from-[#7d36fa] to-[#fc9a5d] p-0.5 shadow-lg shadow-purple-500/20">
+                  <div className="w-full h-full rounded-full bg-[#0d1017] flex items-center justify-center">
+                    <UserIcon className="w-6 h-6 text-[#BE32FF]" />
+                  </div>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight pt-1">
+                  Complete Your <span className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] bg-clip-text text-transparent">Profile</span>
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-300">
+                  Welcome to DhandaGrow! Please enter your name to finish setting up your account.
+                </p>
+              </div>
+
+              <div className="space-y-3.5 pt-1">
+                <div>
+                  <label htmlFor="first-name" className="block text-xs font-semibold text-slate-300 mb-1.5 text-left">
+                    First Name <span className="text-rose-400">*</span>
+                  </label>
+                  <input
+                    id="first-name"
+                    type="text"
+                    required
+                    value={firstName}
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      if (detailsError) setDetailsError("");
+                    }}
+                    placeholder="e.g. Rahul"
+                    autoFocus
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#10131c] text-white border border-slate-600/70 focus:border-[#8241fd] focus:ring-1 focus:ring-[#8241fd]/40 text-sm placeholder:text-slate-500 transition-all outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="last-name" className="block text-xs font-semibold text-slate-300 mb-1.5 text-left">
+                    Last Name <span className="text-slate-500 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    id="last-name"
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      if (detailsError) setDetailsError("");
+                    }}
+                    placeholder="e.g. Sharma"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#10131c] text-white border border-slate-600/70 focus:border-[#8241fd] focus:ring-1 focus:ring-[#8241fd]/40 text-sm placeholder:text-slate-500 transition-all outline-none"
+                  />
+                </div>
+
+                {detailsError && (
+                  <div className="p-2 text-xs text-rose-400 bg-rose-500/10 border border-rose-500/20 rounded-xl text-center animate-in fade-in">
+                    {detailsError}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                disabled={!firstName.trim() || isSavingDetails}
+                className="w-full h-[46px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] hover:opacity-95 active:scale-[0.99] text-white font-medium text-sm tracking-wide transition-all shadow-md shadow-[#d334d7]/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              >
+                {isSavingDetails ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    <span>Saving Profile...</span>
+                  </>
+                ) : (
+                  <span>Continue &rarr;</span>
+                )}
+              </button>
+            </form>
           )}
 
           </div>
