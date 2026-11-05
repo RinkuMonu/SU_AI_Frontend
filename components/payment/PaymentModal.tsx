@@ -48,7 +48,7 @@ export function PaymentModal({
   const [redirectCountdown, setRedirectCountdown] = useState(4);
   const [verifiedDetails, setVerifiedDetails] = useState<any>(null);
 
-  const orderId = orderData?.order_id || "";
+  const orderId = orderData?.subscription_id || orderData?.order_id || "";
   const paymentUrl = orderData?.payment_url || "";
   const upiUrl = orderData?.upi_url || "";
   const totalAmount = Number(orderData?.amount ?? 0);

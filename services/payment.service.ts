@@ -178,7 +178,7 @@ export const paymentService = {
           e?.response?.data?.detail || e?.message || "Failed to fetch subscription status";
         return {
           order_id: orderId,
-          status: "failed",
+          status: "pending",
           message: detail,
         };
       }

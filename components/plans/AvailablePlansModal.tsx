@@ -24,6 +24,7 @@ import {
   calculatePlanPrice,
   formatCurrencyINR,
   isQualifyingPlanActive,
+  normalizePlanId,
 } from "@/lib/plan-onboarding";
 
 interface AvailablePlansModalProps {
@@ -84,7 +85,7 @@ export function AvailablePlansModal({
 
       // Merge backend prices dynamically without hardcoding
       const updated = AVAILABLE_PLANS.map((def) => {
-        // Match backend plan key (e.g. FREE, STARTER, PRO for Growth, BUSINESS)
+        // Match the frontend plan ID to its authoritative backend plan config.
         const beKey = Object.keys(fetchedPlans).find(
           (k) => k.toUpperCase() === def.id.toUpperCase()
         );
@@ -94,7 +95,6 @@ export function AvailablePlansModal({
           return {
             ...def,
             monthlyPrice: bePlan.price,
-            creditBadge: bePlan.credits ? `${bePlan.credits} Credits` : def.creditBadge,
           };
         }
         return def;
@@ -205,14 +205,8 @@ export function AvailablePlansModal({
         // Paid plan selection: initiate secure payment flow with chosen billing cycle
         const response = await paymentService.createPayment(plan.id, selectedCycle);
 
-        if (response.payment_url) {
-          window.location.href = response.payment_url;
-        } else if (response.order_id) {
-          setActivePaymentOrder(response);
-          setShowPaymentModal(true);
-        } else {
-          throw new Error("No checkout URL received from payment service.");
-        }
+        setActivePaymentOrder(response);
+        setShowPaymentModal(true);
       }
     } catch (err: any) {
       console.error(`Error activating plan ${plan.id}`, err);
@@ -234,7 +228,7 @@ export function AvailablePlansModal({
 
   if (!isOpen) return null;
 
-  const currentActivePlanId = (currentSubscription?.plan_id || "").toUpperCase();
+  const currentActivePlanId = normalizePlanId(currentSubscription?.plan_id);
 
   const modalContent = (
     <div
@@ -374,8 +368,8 @@ export function AvailablePlansModal({
             >
               {/* Current Plan Badge over Top Right */}
               {isCurrent && (
-                <div className="absolute top-6 right-32 z-20">
-                  <span className="px-3 py-1 rounded-full text-[11px] font-bold text-white bg-gradient-to-r from-[#F43F5E] via-[#FB7185] to-[#F59E0B] shadow-md flex items-center gap-1">
+                <div className="absolute top-6 left-24 z-20">
+                  <span className="px-3 py-1 rounded-full text-[12px] font-bold text-white bg-gradient-to-r from-[#F43F5E] via-[#FB7185] to-[#F59E0B] shadow-md flex items-center gap-1">
                     <Crown className="w-3.5 h-3.5 fill-current" />
                     <span>Current Plan</span>
                   </span>
@@ -516,6 +510,7 @@ export function AvailablePlansModal({
         {modalContent}
       </div>
       <PaymentModal
+        key={`${activePaymentOrder?.subscription_id || activePaymentOrder?.order_id || "new"}-${showPaymentModal ? "open" : "closed"}`}
         isOpen={showPaymentModal}
         orderData={activePaymentOrder}
         onClose={() => {

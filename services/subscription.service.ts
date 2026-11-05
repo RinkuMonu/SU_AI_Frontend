@@ -19,7 +19,8 @@ export const subscriptionService = {
         user_id: "user_current",
         plan_id: "FREE",
         status: "active",
-        credits_remaining: 5,
+        credits_remaining: 50,
+        credits_total: 50,
         current_period_start: new Date().toISOString(),
         current_period_end: new Date().toISOString(),
         usage: { posts_created: 0, reels_created: 0 }
@@ -37,11 +38,11 @@ export const subscriptionService = {
       throw new Error("Invalid plans response format");
     } catch (e) {
       return {
-        FREE: { name: "FREE", price: 0, credits: 5, post_limit: 5, reel_limit: 1, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
-        STARTER: { name: "STARTER", price: 799, credits: 100, post_limit: 30, reel_limit: 10, watermark: false, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
-        GROWTH: { name: "GROWTH", price: 2999, credits: 400, post_limit: 100, reel_limit: 30, watermark: false, team_members: 2, custom_branding: true, analytics: true } as PlanConfig,
-        BUSINESS: { name: "BUSINESS", price: 4999, credits: 1000, post_limit: 200, reel_limit: 60, watermark: false, team_members: 5, custom_branding: true, analytics: true } as PlanConfig,
-        INFLUENCER: { name: "INFLUENCER", price: 9999, credits: 2000, post_limit: -1, reel_limit: -1, watermark: false, team_members: 10, custom_branding: true, analytics: true } as PlanConfig
+        FREE: { name: "FREE", price: 0, credits: 50, post_limit: 5, reel_limit: 1, watermark: true, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
+        PRO_STARTER: { name: "PRO", price: 799, credits: 300, post_limit: 30, reel_limit: 10, watermark: false, team_members: 1, custom_branding: false, analytics: false } as PlanConfig,
+        PRO_PLUS: { name: "Pro Plus", price: 2999, credits: 1500, post_limit: 100, reel_limit: 30, watermark: false, team_members: 1, custom_branding: true, analytics: true } as PlanConfig,
+        BUSINESS: { name: "BUSINESS", price: 4999, credits: 2500, post_limit: 200, reel_limit: 60, watermark: false, team_members: 5, custom_branding: true, analytics: true } as PlanConfig,
+        BUSINESS_PREMIUM: { name: "BUSINESS PREMIUM", price: 9999, credits: 5000, post_limit: -1, reel_limit: -1, watermark: false, team_members: 10, custom_branding: true, analytics: true } as PlanConfig
       };
     }
   },

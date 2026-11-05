@@ -23,6 +23,7 @@ import { creditService } from "@/services/credit.service";
 import { businessService } from "@/services/business.service";
 import { AnalyticsData } from "@/types/analytics";
 import { CreditBalance } from "@/types/credits";
+import { normalizePlanId } from "@/lib/plan-onboarding";
 import { AIInsights } from "@/components/ai/AIInsights";
 import { Insight } from "@/types/insights";
 import { TodaysMarketing } from "@/components/dashboard/TodaysMarketing";
@@ -198,7 +199,10 @@ export default function DashboardPage() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
               <span className="text-white font-normal">Plan -</span>
               <span className="font-normal uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
-                {creditBalance?.plan === "PRO" ? "GROWTH" : creditBalance?.plan === "BASIC" ? "STARTER" : (creditBalance?.plan || "GROWTH")}
+                {normalizePlanId(creditBalance?.plan || "Pro Plus")
+                  .replace("PRO_STARTER", "PRO")
+                  .replace("PRO_PLUS", "Pro Plus")
+                  .replace("BUSINESS_PREMIUM", "BUSINESS PREMIUM")}
               </span>
             </div>
             <span className="text-slate-500 font-normal">|</span>

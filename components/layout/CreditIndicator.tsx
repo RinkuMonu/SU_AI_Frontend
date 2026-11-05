@@ -5,6 +5,7 @@ import { Zap, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { creditService } from "@/services/credit.service";
 import { CreditBalance } from "@/types/credits";
+import { normalizePlanId } from "@/lib/plan-onboarding";
 
 export function CreditIndicator() {
   const [balance, setBalance] = useState<CreditBalance | null>(null);
@@ -57,7 +58,14 @@ export function CreditIndicator() {
   if (!balance) return null;
 
   const rawPlan = (balance.plan || "FREE").toUpperCase();
-  const displayPlan = rawPlan === "PRO" ? "GROWTH" : rawPlan === "BASIC" ? "STARTER" : rawPlan;
+  const normalizedPlan = normalizePlanId(rawPlan);
+  const displayPlan = normalizedPlan === "PRO_STARTER"
+    ? "PRO"
+    : normalizedPlan === "PRO_PLUS"
+    ? "Pro Plus"
+    : normalizedPlan === "BUSINESS_PREMIUM"
+    ? "BUSINESS PREMIUM"
+    : normalizedPlan;
 
   return (
     <Link href="/subscription" className="group block mb-2" title="Manage Subscription">
