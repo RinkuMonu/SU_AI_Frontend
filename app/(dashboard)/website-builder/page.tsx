@@ -1724,6 +1724,8 @@ export default function WebsiteBuilderPage() {
       localStorage.setItem("website_builder_messages", JSON.stringify(msgs));
       if (siteData) {
         localStorage.setItem("website_builder_site_data", JSON.stringify(siteData));
+      } else {
+        localStorage.removeItem("website_builder_site_data");
       }
       try {
         const u = localStorage.getItem("user");
@@ -1801,6 +1803,14 @@ export default function WebsiteBuilderPage() {
   const startNewSession = async (lang = "English") => {
     try {
       setLoading(true);
+      setGeneratedSiteData(null);
+      setSiteId(null);
+      setIsFinalized(false);
+      setCurrentVersion(1);
+      setVersionHistory([]);
+      localStorage.removeItem("website_builder_site_data");
+      localStorage.removeItem("website_builder_context");
+
       const data = await websiteBuilderService.startSession(lang);
       if (data?.sessionId) {
         setSessionId(data.sessionId);
@@ -1836,6 +1846,8 @@ export default function WebsiteBuilderPage() {
       console.error("Backend startSession error, using fallback", e);
       const localId = "local-" + Date.now();
       setSessionId(localId);
+      setGeneratedSiteData(null);
+      setSiteId(null);
       const initialCtx: BusinessContext = { onboardingStep: "step1_category_products" };
       setBusinessContext(initialCtx);
       const initialMsg: ChatMessage = {
@@ -1854,39 +1866,8 @@ export default function WebsiteBuilderPage() {
     try {
       setLoading(true);
 
-      const storedCtx = localStorage.getItem("website_builder_context");
-      const storedMsgs = localStorage.getItem("website_builder_messages");
-      const storedSite = localStorage.getItem("website_builder_site_data");
-
-      if (storedCtx) {
-        try {
-          setBusinessContext(JSON.parse(storedCtx));
-        } catch {}
-      }
-
-      if (storedSite) {
-        try {
-          const parsedSite = JSON.parse(storedSite);
-          setGeneratedSiteData(parsedSite);
-          setVersionHistory([
-            {
-              version: 1,
-              label: "Restored Draft",
-              timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-              data: parsedSite
-            }
-          ]);
-        } catch {}
-      }
-
       const data = await websiteBuilderService.getSession(id);
       if (!data) {
-        if (storedMsgs) {
-          try {
-            setMessages(JSON.parse(storedMsgs));
-            return;
-          } catch {}
-        }
         await startNewSession(language || "English");
         return;
       }
@@ -1926,21 +1907,27 @@ export default function WebsiteBuilderPage() {
             onboardingStep: "step7_generated"
           }));
         }
-      } else if (storedSite) {
-        try {
-          const parsed = JSON.parse(storedSite);
-          if (parsed && parsed.pages && parsed.pages.length > 0) {
-            setGeneratedSiteData(parsed);
-          }
-        } catch {}
+      } else {
+        // No website generated yet for this session - keep canvas clear and ready
+        setGeneratedSiteData(null);
+        setSiteId(null);
+        setVersionHistory([]);
+        localStorage.removeItem("website_builder_site_data");
+        if (!data.messages || data.messages.length <= 1) {
+          setBusinessContext({ onboardingStep: "step1_category_products" });
+          localStorage.removeItem("website_builder_context");
+        }
       }
 
       if (data.messages && data.messages.length > 0) {
         setMessages(data.messages);
-      } else if (storedMsgs) {
-        try {
-          setMessages(JSON.parse(storedMsgs));
-        } catch {}
+      } else {
+        const storedMsgs = localStorage.getItem("website_builder_messages");
+        if (storedMsgs) {
+          try {
+            setMessages(JSON.parse(storedMsgs));
+          } catch {}
+        }
       }
     } catch (e) {
       console.warn("Failed to load session from backend, using local cache", e);
@@ -3618,7 +3605,7 @@ Shall I generate your custom website draft now?`;
         </div>
 
         {/* Suggestion Chips When Site Exists */}
-        {generatedSiteData && (
+        {generatedSiteData && businessContext.onboardingStep === "step7_generated" && (
           <div className="px-3 sm:px-4 py-2 border-t border-white/5 bg-[#0e1422] flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar shrink-0">
             <button
               onClick={() => {
@@ -3658,7 +3645,7 @@ Shall I generate your custom website draft now?`;
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={
-                generatedSiteData
+                generatedSiteData && businessContext.onboardingStep === "step7_generated"
                   ? "Describe modifications (e.g. 'Change colors to green')..."
                   : businessContext.onboardingStep === "step1_category_products"
                   ? "Describe business type & offerings..."
