@@ -233,6 +233,54 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
       if (activeSessionId) {
         partialData.sessionId = activeSessionId;
         productPhotoshootService
+          .getSession(activeSessionId)
+          .then((sessData) => {
+            if (sessData?.success && sessData.session) {
+              const sess = sessData.session;
+              const updates: Partial<StudioState> = {};
+              if (sess.original_images && sess.original_images.length > 0) {
+                updates.uploadedImages = sess.original_images.map((o: any, idx: number) => ({
+                  id: o.image_id || `img_${idx}`,
+                  name: o.filename || `product_${idx}.jpg`,
+                  size: o.file_size || 0,
+                  url: o.url,
+                  previewUrl: o.url,
+                  angle: o.angle || "front",
+                  uploadedAt: o.created_at || new Date().toISOString(),
+                  backendImageId: o.image_id,
+                }));
+              }
+              if (sess.enhanced_images && sess.enhanced_images.length > 0) {
+                updates.enhancedVariations = sess.enhanced_images.map((e: any) => {
+                  const styleLower = (e.style || "").toLowerCase();
+                  const mappedStyle: EnhancementStyle = styleLower.includes("luxury")
+                    ? "luxury_cinematic"
+                    : styleLower.includes("marketplace")
+                    ? "marketplace_white"
+                    : "studio_premium";
+                  return {
+                    id: e.image_id,
+                    sourceImageId: e.source_image_id,
+                    style: mappedStyle,
+                    styleName: e.style,
+                    originalUrl: e.original_url || e.source_image_url || sess.original_images?.[0]?.url || e.url,
+                    enhancedUrl: e.url,
+                    description: `Calibrated ${e.style} lighting.`,
+                    aspectRatio: "1:1",
+                  };
+                });
+                updates.selectedEnhancedIds = sess.saved_image_ids?.length
+                  ? sess.saved_image_ids
+                  : (updates.enhancedVariations?.map((v) => v.id) || []);
+              }
+              if (Object.keys(updates).length > 0) {
+                setState((prev) => ({ ...prev, ...updates }));
+              }
+            }
+          })
+          .catch(() => {});
+
+        productPhotoshootService
           .getSessionResults(activeSessionId)
           .then((res) => {
             if (res?.success && res.results && res.results.length > 0) {
@@ -386,6 +434,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
 
     try {
       let activeSessionId = state.sessionId;
+      let activeUploadedImages = state.uploadedImages;
 
       // 1. Upload files to backend if any new local files exist
       const filesToUpload = state.uploadedImages
@@ -406,7 +455,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
           sessionStorage.setItem(sessionKey, activeSessionId);
 
           if (uploadRes.uploaded_images && uploadRes.uploaded_images.length > 0) {
-            const updatedImages = state.uploadedImages.map((img, idx) => {
+            activeUploadedImages = state.uploadedImages.map((img, idx) => {
               const backendImg = uploadRes.uploaded_images[idx];
               return backendImg
                 ? {
@@ -419,7 +468,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
             });
             updateState({
               sessionId: activeSessionId,
-              uploadedImages: updatedImages,
+              uploadedImages: activeUploadedImages,
             });
           } else {
             updateState({ sessionId: activeSessionId });
@@ -468,6 +517,13 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
         console.warn("Backend enhancement notice, using high-fidelity local variations:", enhErr);
       }
 
+      const primaryServerUrl =
+        activeUploadedImages[0]?.url ||
+        activeUploadedImages[0]?.previewUrl ||
+        state.uploadedImages[0]?.url ||
+        state.uploadedImages[0]?.previewUrl ||
+        "";
+
       let variations: EnhancedVariation[] = [];
       if (enhanceRes?.success && enhanceRes.enhanced_images?.length > 0) {
         variations = enhanceRes.enhanced_images.map((item: any) => {
@@ -483,7 +539,7 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
             sourceImageId: item.source_image_id,
             style: mappedStyle,
             styleName: item.style,
-            originalUrl: (item as any).original_url || (item as any).source_image_url || state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl || item.url,
+            originalUrl: item.original_url || item.source_image_url || primaryServerUrl || item.url,
             enhancedUrl: item.url,
             description: `Calibrated ${item.style} lighting with crisp edge fidelity.`,
             aspectRatio: "1:1",
@@ -493,8 +549,8 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
 
       // Safe fallback: if backend returns empty or failed, generate high-fidelity variations directly from uploaded image
       if (variations.length === 0) {
-        const primaryImg = state.uploadedImages[0];
-        const primaryUrl = primaryImg?.url || primaryImg?.previewUrl || "";
+        const primaryImg = activeUploadedImages[0] || state.uploadedImages[0];
+        const primaryUrl = primaryServerUrl || primaryImg?.url || primaryImg?.previewUrl || "";
         const fallbackPresets: { style: EnhancementStyle; name: string }[] = [
           { style: "studio_premium", name: "Studio Premium" },
           { style: "luxury_cinematic", name: "Luxury Cinematic" },
@@ -543,10 +599,16 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
     }
   };
 
-  // Re-run enhancements if user changes style in Step 2
+  // Select active enhancement style in Step 2 without destroying other presets
   const handleEnhancementStyleSelect = async (style: EnhancementStyle) => {
     updateState({ enhancementStyle: style });
     if (!state.sessionId) return;
+
+    const existingVar = state.enhancedVariations.find((v) => v.style === style);
+    if (existingVar) {
+      // Style preset already present; keep all 3 presets intact
+      return;
+    }
 
     const styleInfo = ENHANCEMENT_STYLES.find((s) => s.id === style);
     const styleName = styleInfo?.name || "Studio Premium";
@@ -559,19 +621,25 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
       });
 
       if (res.success && res.enhanced_images?.length > 0) {
-        const newVars: EnhancedVariation[] = res.enhanced_images.map((item) => ({
+        const item = res.enhanced_images[0];
+        const primaryUrl = state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl || item.url;
+        const newVar: EnhancedVariation = {
           id: item.image_id,
           sourceImageId: item.source_image_id,
           style,
           styleName: item.style,
-          originalUrl: (item as any).original_url || (item as any).source_image_url || state.uploadedImages[0]?.url || state.uploadedImages[0]?.previewUrl || item.url,
+          originalUrl: (item as any).original_url || (item as any).source_image_url || primaryUrl,
           enhancedUrl: item.url,
           description: `Calibrated ${item.style} lighting.`,
           aspectRatio: "1:1",
-        }));
+        };
+        const merged = state.enhancedVariations.some((v) => v.id === newVar.id)
+          ? state.enhancedVariations.map((v) => (v.id === newVar.id ? newVar : v))
+          : [...state.enhancedVariations, newVar];
+
         updateState({
-          enhancedVariations: newVars,
-          selectedEnhancedIds: newVars.map((v) => v.id),
+          enhancedVariations: merged,
+          selectedEnhancedIds: Array.from(new Set([...state.selectedEnhancedIds, newVar.id])),
           isEnhancing: false,
         });
       } else {
