@@ -301,33 +301,33 @@ export function Features() {
   }, [currentVideoUrl, phase]);
 
   return (
-    <section id="features" className="pt-4 sm:pt-6 lg:pt-8 pb-10 sm:pb-14 bg-gradient-to-b from-[#f9faff] via-white to-[#f8f9fe] border-y border-slate-100 relative overflow-hidden select-none scroll-mt-20">
+    <section id="features" className="w-full max-w-full pt-5 sm:pt-8 lg:pt-8 pb-6 sm:pb-12 lg:pb-14 bg-gradient-to-b from-[#f9faff] via-white to-[#f8f9fe] border-y border-slate-100 relative overflow-hidden select-none scroll-mt-20">
       <div id="ai-reels" className="absolute -top-24 left-0" />
 
       {/* Soft Ambient Glow in White Theme */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/35 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[550px] h-[350px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className=" w-full max-w-7xl mx-auto px-3  sm:px-6 lg:px-8 relative z-10">
 
         {/* Main 2-Column Showcase */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-10 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-10 lg:gap-12 items-center">
 
           {/* ============================================================
               LEFT COLUMN: Pure White Theme Studio with Auto-Typing
               Pointer events disabled so user cannot edit or trigger redirects
              ============================================================ */}
-          <div className="lg:col-span-7 w-full min-w-0  flex flex-col items-start z-10 pointer-events-none select-none cursor-default pt-1 sm:pt-2">
+          <div className="lg:col-span-7 w-full min-w-0  flex flex-col items-start z-10 pointer-events-none select-none cursor-default pt-0 sm:pt-2">
 
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/90 shadow-2xs mb-3 sm:mb-4">
+            <div className="inline-flex flex-wrap items-center gap-2 max-w-full px-2.5 sm:px-3.5  py-1.5 rounded-full bg-white border border-slate-200/90 shadow-2xs mb-3 sm:mb-4">
               <Sparkles className="w-4 h-4 text-[#FF6B00]" />
               <span className="text-xs sm:text-[13px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]">
                 AI Reel Generator & Multi-Channel Publisher
               </span>
             </div>
             {/* High-Contrast White Theme Headline */}
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-3.5 tracking-tight break-words">
+            <h2 className=" text-[24px] min-[375px]:text-[26px] sm:text-3xl md:text-4xl lg:text-5xl font-black text-slate-900 leading-tight mb-3 tracking-tight break-words">
               Create & Auto-Publish <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]">
                 High-Converting AI Reels
@@ -335,29 +335,30 @@ export function Features() {
             </h2>
 
             {/* Subtitle */}
-            <p className="text-sm sm:text-sm md:text-base text-slate-600 mb-5 sm:mb-7  leading-relaxed font-medium w-full max-w-xl">
+            <p className="text-[13px] min-[375px]:text-sm  md:text-base text-slate-600 mb-5 sm:mb-7  leading-relaxed font-medium w-full max-w-xl">
               From clothing brands and business founders to top influencers — watch our AI turn creative prompts into 9:16 vertical reels and auto-publish them across Instagram, Facebook, and LinkedIn.
             </p>
 
             {/* Studio Card (Purely animated autonomous display) */}
-            <div className="w-full min-w-0 max-w-xl bg-white border border-slate-200/90 rounded-2xl sm:rounded-3xl p-3 sm:p-6 shadow-[0_12px_40px_rgba(124,58,237,0.06),0_2px_8px_rgba(0,0,0,0.02)] transition-all">
+            <div className="w-full min-w-0 max-w-xl bg-white border border-slate-200/90 rounded-xl min-[375px]:rounded-2xl sm:rounded-3xl p-2.5 min-[375px]:p-3  sm:p-5 lg:p-6 shadow-[0_12px_40px_rgba(124,58,237,0.06),0_2px_8px_rgba(0,0,0,0.02)] transition-all">
 
               {/* Studio Card Header */}
-              <div className="flex items-center justify-between mb-2.5">
+              <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center  sm:justify-between mb-3">
+
                 <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                   <Wand2 className="w-3.5 h-3.5 text-[#7C3AED]" />
                   Creative Video Prompt
                 </label>
 
                 {/* Active Category Chip */}
-                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-200/70">
+                <span className="text-[10px] sm:text-[11px] font-bold px-2.5 py-1 rounded-full bg-purple-50 text-[#7C3AED] border border-purple-200/70 max-w-full break-words">
                   {activePreset.category}
                 </span>
               </div>
 
               {/* Auto-Typing Textarea Mockup */}
               <div className="relative mb-4">
-                <div className="w-full min-h-[96px] p-4 bg-slate-50/80 border border-slate-200 rounded-2xl text-slate-900 text-sm font-medium leading-relaxed shadow-inner">
+                <div className="w-full min-h-[96px] p-3 sm:p-4 bg-slate-50/80 border border-slate-200 rounded-xl sm:rounded-2xl text-slate-900 text-sm font-medium leading-relaxed shadow-inner break-words [overflow-wrap:anywhere]">
                   <span>{displayedText}</span>
                   {phase === 'typing' && (
                     <span className="inline-block w-1.5 h-4 ml-1 bg-[#7C3AED] animate-pulse align-middle" />
@@ -366,15 +367,15 @@ export function Features() {
               </div>
 
               {/* Preset Selector Chips */}
-              <div className="flex flex-wrap items-center gap-2 mb-5">
+              <div className="flex flex-wrap items-center gap-2 mb-4 sm:mb-5 w-full">
                 {PRESET_REELS.map((preset, index) => {
                   const isActive = index === activePresetIndex;
                   return (
                     <div
                       key={preset.id}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${isActive
-                          ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
-                          : 'bg-slate-100 text-slate-600 border border-slate-200/60'
+                      className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${isActive
+                        ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
+                        : 'bg-slate-100 text-slate-600 border border-slate-200/60'
                         }`}
                     >
                       <span>{preset.label}</span>
@@ -385,15 +386,15 @@ export function Features() {
 
               {/* Auto-Tapping Generate Button */}
               <div
-                className={`w-full py-3.5 px-6 rounded-2xl font-black text-sm flex items-center justify-center gap-2.5 transition-all duration-300 shadow-md ${phase === 'tap_button'
-                    ? 'scale-[0.98] ring-4 ring-orange-300 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
-                    : phase === 'generating'
-                      ? 'bg-slate-900 text-white shadow-slate-900/10'
-                      : phase === 'publishing'
-                        ? 'bg-blue-600 text-white shadow-blue-500/20'
-                        : phase === 'published_popup'
-                          ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-                          : 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
+                className={`w-full min-h-[48px]  py-3 px-3 sm:px-6 rounded-xl sm:rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 text-center leading-snug transition-all duration-300 shadow-md ${phase === 'tap_button'
+                  ? 'scale-[0.98] ring-4 ring-orange-300 bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
+                  : phase === 'generating'
+                    ? 'bg-slate-900 text-white shadow-slate-900/10'
+                    : phase === 'publishing'
+                      ? 'bg-blue-600 text-white shadow-blue-500/20'
+                      : phase === 'published_popup'
+                        ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                        : 'bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white'
                   }`}
               >
                 {phase === 'generating' ? (
@@ -425,13 +426,14 @@ export function Features() {
               </div>
 
               {/* Live Distribution Status Indicators */}
-              <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+              <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between text-xs font-semibold text-slate-500 min-w-0">
+
                 <span className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${phase === 'published_popup' ? 'bg-emerald-500' : phase === 'publishing' ? 'bg-blue-500 animate-ping' : 'bg-emerald-500 animate-pulse'}`} />
                   {phase === 'publishing' ? '1-Click Multi-Channel Distribution' : phase === 'published_popup' ? 'Live on 4 Major Platforms' : 'Target: ' + activePreset.targetAudience}
                 </span>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">IG</span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">FB</span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">LinkedIn</span>
@@ -442,18 +444,19 @@ export function Features() {
             </div>
 
             {/* Feature Trust Badges */}
-            <div className="grid grid-cols-3 gap-3 w-full max-w-xl mt-5">
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-3 text-center shadow-xs">
-                <p className="text-base sm:text-lg font-black text-slate-900">1080p</p>
-                <p className="text-[11px] font-semibold text-slate-500">60 FPS 9:16 Video</p>
+            <div className="grid grid-cols-1 min-[480px]:grid-cols-3 gap-2 sm:gap-3 w-full max-w-xl mt-5">
+
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-2 sm:p-3 text-center shadow-xs">
+                <p className="text-sm sm:text-base lg:text-lg font-black text-slate-900">1080p</p>
+                <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500">60 FPS 9:16 Video</p>
               </div>
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-3 text-center shadow-xs">
-                <p className="text-base sm:text-lg font-black text-slate-900">Virtual Model</p>
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-2 sm:p-3 text-center shadow-xs">
+                <p className="text-sm sm:text-base lg:text-lg font-black text-slate-900">Virtual Model</p>
                 <p className="text-[11px] font-semibold text-slate-500">Fashion & Founders</p>
               </div>
-              <div className="bg-white border border-slate-200/80 rounded-2xl p-3 text-center shadow-xs">
-                <p className="text-base sm:text-lg font-black text-slate-900">1-Click</p>
-                <p className="text-[11px] font-semibold text-slate-500">Auto-Publish</p>
+              <div className="bg-white border border-slate-200/80 rounded-2xl p-2 sm:p-3 text-center shadow-xs">
+                <p className="text-sm sm:text-base lg:text-lg font-black text-slate-900">1-Click</p>
+                <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500">Auto-Publish</p>
               </div>
             </div>
 
@@ -463,16 +466,16 @@ export function Features() {
               RIGHT COLUMN: Smartphone Mockup with Autonomous Preview,
               Circular Spinner, and Multi-Platform Publishing Animation
              ============================================================ */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-start w-full">
+          <div className="lg:col-span-5 w-full min-w-0 flex flex-col items-center justify-center">
 
             {/* Realistic Smartphone Chassis */}
-            <div className="relative w-full max-w-[325px] sm:max-w-[340px] bg-slate-900 rounded-[48px] p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.15)] ring-1 ring-slate-800">
+            <div className="relative w-full max-w-[240px] min-[375px]:max-w-[260px] sm:max-w-[320px] lg:max-w-[340px] mx-auto bg-slate-900 rounded-[32px] sm:rounded-[48px] p-2 sm:p-2.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.35),0_0_0_1px_rgba(255,255,255,0.15)] ring-1 ring-slate-800">
 
               {/* Outer Phone Bezel Highlights */}
               <div className="absolute inset-0 rounded-[48px] border-2 border-white/20 pointer-events-none" />
 
               {/* Inner Smartphone Screen */}
-              <div className="relative w-full aspect-[9/19] rounded-[40px] overflow-hidden bg-black flex flex-col justify-between">
+              <div className="relative w-full aspect-[9/18] rounded-[26px] sm:rounded-[40px] overflow-hidden bg-black flex flex-col justify-between">
 
                 {/* 1. Pure 9:16 Vertical Video Element (No split screens, no GIFs) */}
                 <video
@@ -507,12 +510,12 @@ export function Features() {
                   <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-xs flex flex-col items-center justify-center px-6 text-center animate-fadeIn pointer-events-none">
 
                     {/* Rotating Circular Progress Ring */}
-                    <div className="relative w-28 h-28 flex items-center justify-center mb-5">
+                    <div className="relative w-20 h-20 sm:w-28 sm:h-28 flex items-center justify-center mb-4 sm:mb-5">
                       {/* Ambient Rotating Glow Ring */}
                       <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#FF6B00] via-[#E11D48] to-[#7C3AED] blur-lg opacity-40 animate-pulse" />
 
                       {/* SVG Circle Spinner */}
-                      <svg className="w-28 h-28 -rotate-90 animate-[spin_5s_linear_infinite]" viewBox="0 0 100 100">
+                      <svg className="w-20 h-20 sm:w-28 sm:h-28 -rotate-90 animate-[spin_5s_linear_infinite]" viewBox="0 0 100 100">
                         {/* Background Track Circle */}
                         <circle
                           cx="50"
@@ -643,7 +646,7 @@ export function Features() {
                     Triggers right after the video finishes playing!
                    ============================================================ */}
                 {phase === 'publishing' && (
-                  <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-md flex flex-col justify-between p-5 text-white animate-fadeIn pointer-events-none">
+                  <div className="absolute inset-0 z-40 bg-black/85 backdrop-blur-md flex flex-col justify-between p-2.5 min-[375px]:p-3 sm:p-5 text-white animate-fadeIn pointer-events-none">
 
                     {/* Header */}
                     <div className="pt-8 text-center">
@@ -660,15 +663,15 @@ export function Features() {
                     </div>
 
                     {/* Social Media Channel Sync List */}
-                    <div className="space-y-2.5 my-auto">
+                    <div className="space-y-2 sm:space-y-2.5 my-auto">
                       {SOCIAL_PLATFORMS.map((platform) => {
                         const isDone = publishedPlatforms.includes(platform.id);
                         return (
                           <div
                             key={platform.id}
-                            className={`p-2.5 rounded-2xl border transition-all duration-300 flex items-center justify-between ${isDone
-                                ? 'bg-white/10 border-emerald-500/50 shadow-xs'
-                                : 'bg-white/5 border-white/10'
+                            className={`p-2 sm:p-2.5 rounded-xl sm:rounded-2xl border transition-all duration-300 flex items-center justify-between gap-2 ${isDone
+                              ? 'bg-white/10 border-emerald-500/50 shadow-xs'
+                              : 'bg-white/5 border-white/10'
                               }`}
                           >
                             <div className="flex items-center gap-2.5">
@@ -749,10 +752,11 @@ export function Features() {
                     Shows celebratory modal with live reach and multi-channel chips!
                    ============================================================ */}
                 {phase === 'published_popup' && (
-                  <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-5 text-center text-white animate-fadeIn pointer-events-none">
+
+                  <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-md flex flex-col items-center justify-center p-2 min-[375px]:p-3 sm:p-5 text-center text-white animate-fadeIn pointer-events-none">
 
                     {/* Celebration Popup Card */}
-                    <div className="w-full bg-gradient-to-b from-slate-900/95 to-black/95 border border-emerald-500/40 rounded-3xl p-5 shadow-[0_20px_50px_rgba(16,185,129,0.25)] relative overflow-hidden">
+                    <div className="w-full bg-gradient-to-b from-slate-900/95 to-black/95 border border-emerald-500/40 rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-[0_20px_50px_rgba(16,185,129,0.25)] relative overflow-hidden">
 
                       {/* Top Emerald Accent Glow */}
                       <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-500" />
