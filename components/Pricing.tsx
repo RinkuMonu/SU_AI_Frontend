@@ -37,8 +37,8 @@ export const LANDING_PLANS: PlanItem[] = [
     tagline: "Explore AI",
     accentColor: "#7C3AED",
     description: "For students, beginners and first-time users.",
-    shortBenefits: "5 credits; limited posts and reels; basic captions; 1 brand profile.",
-    credits: "5 credits",
+    shortBenefits: "50 one-time credits; limited posts and reels; basic captions; 1 brand profile.",
+    credits: "50 one-time credits",
     popular: false,
     pricing: {
       monthly: {
@@ -60,20 +60,20 @@ export const LANDING_PLANS: PlanItem[] = [
     features: [
       "5 AI social media posts/month",
       "1 AI reel/month",
-      "5 AI credits/month",
+      "50 AI credits (one time)",
       "Basic caption generation",
       "1 brand profile"
     ],
     ctaText: "Get Started Free"
   },
   {
-    id: "STARTER",
-    name: "STARTER",
+    id: "PRO_STARTER",
+    name: "PRO",
     tagline: "Create",
     accentColor: "#7C3AED",
-    description: "For shopkeepers, freelancers and small businesses starting online marketing.",
-    shortBenefits: "100 monthly credits; 30 AI posts; 10 AI reels; 1 brand and 1 user.",
-    credits: "100 monthly credits",
+    description: "AI creation, marketing, publishing and business tools.",
+    shortBenefits: "300 monthly credits; 50 one-time signup bonus; AI creation, marketing and publishing tools.",
+    credits: "300 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -82,11 +82,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 2277,
+        price: 2157,
         originalPrice: 2397,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹120 (5% off)"
+        billedText: "Save ₹240 (10% off)"
       },
       yearly: {
         price: 7670,
@@ -97,22 +97,23 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "100 monthly credits",
-      "30 AI posts/month",
-      "10 AI reels/month",
-      "30 AI captions/month",
-      "1 brand and 1 user"
+      "AI Post Maker, Image Generator and Content + Image",
+      "AI Photoshoot, Reel Maker, Avatar, Actor and Photobooth",
+      "AI Advertisement Maker and Marketing Agent",
+      "Social Media Calendar, Indian Festival Engine and AI messaging",
+      "AI Website Builder",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Starter"
+    ctaText: "Choose Pro"
   },
   {
-    id: "GROWTH",
-    name: "GROWTH",
+    id: "PRO_PLUS",
+    name: "Pro Plus",
     tagline: "Market",
     accentColor: "#7C3AED",
-    description: "For creators, D2C brands and growing businesses that want consistent marketing.",
-    shortBenefits: "400 credits; 100 posts; 30 reels; photoshoot/fashion/avatar tools; calendar and scheduling.",
-    credits: "400 monthly credits",
+    description: "Everything in Pro, plus advanced intelligence and business tools.",
+    shortBenefits: "1,500 monthly credits; 50 one-time signup bonus; analytics, CRM and AI intelligence.",
+    credits: "1,500 monthly + 50 signup bonus",
     popular: true,
     pricing: {
       monthly: {
@@ -121,11 +122,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 8547,
+        price: 8097,
         originalPrice: 8997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹450 (5% off)"
+        billedText: "Save ₹900 (10% off)"
       },
       yearly: {
         price: 28790,
@@ -136,22 +137,22 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "400 monthly credits",
-      "100 AI posts/month",
-      "30 AI reels/month",
-      "AI Photoshoot & Avatar tools",
-      "Social media content calendar"
+      "Everything included in Pro",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "1,500 monthly credits",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Growth"
+    ctaText: "Choose Pro Plus"
   },
   {
     id: "BUSINESS",
     name: "BUSINESS",
     tagline: "Automate",
     accentColor: "#7C3AED",
-    description: "For established businesses, marketing teams and agencies.",
-    shortBenefits: "1,000 credits; 200 posts; 60 reels; team members; analytics, CRM and AI messaging tools.",
-    credits: "1,000 monthly credits",
+    description: "Everything in Pro Plus, with the complete business service suite.",
+    shortBenefits: "2,500 monthly credits; 50 one-time signup bonus; complete AI and business intelligence suite.",
+    credits: "2,500 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -160,11 +161,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 14247,
+        price: 13497,
         originalPrice: 14997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹750 (5% off)"
+        billedText: "Save ₹1,500 (10% off)"
       },
       yearly: {
         price: 47990,
@@ -175,22 +176,22 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "1,000 monthly credits",
-      "200 AI posts/month",
-      "60 AI reels/month",
-      "5 team members & CRM",
-      "Instagram DM & Social AI"
+      "Everything included in Pro Plus",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "2,500 monthly credits",
+      "50 signup bonus credits on first paid subscription"
     ],
     ctaText: "Choose Business"
   },
   {
-    id: "INFLUENCER",
-    name: "INFLUENCER",
-    tagline: "Collaborate",
+    id: "BUSINESS_PREMIUM",
+    name: "BUSINESS PREMIUM",
+    tagline: "Premium",
     accentColor: "#7C3AED",
-    description: "For brands and businesses scaling creator partnerships and influencer campaigns.",
-    shortBenefits: "Influencer Suite; creator discovery; pitch generation; collaboration CRM and tracking.",
-    credits: "Influencer Suite",
+    description: "Everything in Business, plus premium services and company brand kit.",
+    shortBenefits: "5,000 monthly credits; 50 one-time signup bonus; premium services and company brand kit.",
+    credits: "5,000 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -199,35 +200,35 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 28497,
+        price: 26997,
         originalPrice: 29997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹1,500 (5% off)"
+        billedText: "Save ₹3,000 (10% off)"
       },
       yearly: {
-        price: 107989,
+        price: 95990,
         originalPrice: 119988,
         period: "/yr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹11,999 (10% off)"
+        billedText: "Save ₹23,998 (20% off)"
       }
     },
     features: [
-      "Influencer Engine & Discovery",
-      "Creator outreach & AI pitch generator",
-      "Inbound application manager",
-      "Campaign CRM & deliverable reviews",
-      "Live campaign ROI analytics"
+      "Everything included in Business",
+      "Premium Influencer Marketing and Customer Support",
+      "Physical Training Provider and 24/7 Website Technical Support",
+      "Company Logo, Visiting Cards, Employee ID Cards, Company Letterhead and Stamp",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Influencer"
+    ctaText: "Choose Business Premium"
   },
 ];
 
 export function Pricing() {
   const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("GROWTH");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
   return (
     <section id="pricing" className="pt-8 pb-10 sm:pt-10 sm:pb-12 relative bg-[#f8f9fe] overflow-hidden border-t border-slate-100">
@@ -277,7 +278,7 @@ export function Pricing() {
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                 billingCycle === "quarterly" ? "bg-white/25 text-white" : "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
               }`}>
-                Save 5%
+                Save 10%
               </span>
             </button>
             <button

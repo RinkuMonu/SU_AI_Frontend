@@ -38,6 +38,7 @@ export type Subscription = {
   plan_id: string;
   status: string;
   credits_remaining: number;
+  credits_total?: number;
   usage: SubscriptionUsage;
   plan_details?: PlanConfig;
   current_period_end?: string;

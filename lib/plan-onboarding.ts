@@ -13,11 +13,11 @@ export interface PlanFeatureItem {
 }
 
 export interface PlanDefinition {
-  id: string; // Backend plan ID (e.g. FREE, STARTER, PRO, BUSINESS, INFLUENCER)
+  id: string; // Backend plan ID
   planBadge: string; // "PLAN 1", "PLAN 2", etc.
   name: string; // "Free", "Starter", "Growth", "Business", "Influencer"
   tagline: string;
-  creditBadge: string; // "5 Credits", "100 Credits", etc.
+  creditBadge: string;
   monthlyPrice: number; // Base price in INR
   highlights: string[]; // 3 main bullet points shown by default
   allFeatures: string[]; // Expanded full feature list
@@ -30,117 +30,115 @@ export const AVAILABLE_PLANS: PlanDefinition[] = [
     planBadge: "PLAN 1",
     name: "Free",
     tagline: "For students, beginners and first timers.",
-    creditBadge: "5 Credits",
+    creditBadge: "50 Credits · one time",
     monthlyPrice: 0,
     highlights: [
       "5 AI social media posts/month",
       "1 AI reel/month",
-      "5 AI credits/month",
+      "50 AI credits (one time)",
     ],
     allFeatures: [
       "Basic AI Caption & Post Generator",
       "1 AI Reel creation per month",
-      "5 monthly AI Credits",
+      "50 one-time AI Credits",
       "1 Connected Social Media Account",
       "Standard Community Support",
       "Watermark on exported media",
     ],
   },
   {
-    id: "STARTER",
-    planBadge: "PLAN 2",
-    name: "Starter",
-    tagline: "For shopkeepers, freelancers and small businesses.",
-    creditBadge: "100 Credits",
+    id: "PRO_STARTER",
+    planBadge: "PLAN 1",
+    name: "Pro",
+    tagline: "AI creation, marketing, publishing and business tools.",
+    creditBadge: "300 monthly + 50 signup bonus",
     monthlyPrice: 799,
     highlights: [
-      "100 monthly credits",
-      "30 AI posts/month",
-      "10 AI reels/month",
+      "300 monthly credits",
+      "50 signup bonus credits (one time)",
+      "AI creation, marketing and publishing tools",
     ],
     allFeatures: [
-      "100 Monthly AI Generation Credits",
-      "30 AI Social Media Posts per month",
-      "10 High-definition AI Reels per month",
-      "No Watermark on exported content",
-      "Automated Instagram & Facebook Auto-publishing",
-      "AI Photoshoot Studio with 10 templates",
-      "Content Calendar Scheduling",
-      "Standard Email & Chat Support",
+      "AI Post Maker, Image Generator and Content + Image",
+      "AI Photoshoot, Reel Maker, Avatar, Actor and Photobooth",
+      "AI Advertisement Maker and Marketing Agent",
+      "Social Media Calendar and Indian Festival Engine",
+      "Instagram DM AI and AI Review Manager",
+      "AI Website Builder",
+      "50 signup bonus credits on first paid subscription",
     ],
   },
   {
-    id: "PRO", // Backend represents Growth as PRO
-    planBadge: "PLAN 3",
-    name: "Growth",
-    tagline: "For creator, D2C brands and growing businesses.",
-    creditBadge: "400 Credits",
+    id: "PRO_PLUS",
+    planBadge: "PLAN 2",
+    name: "Pro Plus",
+    tagline: "Everything in Pro, plus advanced intelligence and business tools.",
+    creditBadge: "1,500 monthly + 50 signup bonus",
     monthlyPrice: 2999,
     isPopular: true,
     highlights: [
-      "400 monthly credits",
-      "100 AI posts/month",
-      "30 AI reels/month",
+      "1,500 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Business analytics, CRM and AI intelligence",
     ],
     allFeatures: [
-      "400 Monthly AI Generation Credits",
-      "100 AI Posts & Carousels per month",
-      "30 Ultra-HD AI Video Reels per month",
-      "AI Human Avatars & Multilingual Voiceovers",
-      "AI Ad Creative Generator with High-ROI CTAs",
-      "Full Social Platform Publishing (IG, FB, LinkedIn)",
-      "Website & Landing Page Builder (1 site)",
-      "Performance Insights & Engagement Analytics",
-      "Priority 24/7 Support",
+      "Everything included in Pro",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "1,500 monthly credits",
+      "50 signup bonus credits on first paid subscription",
     ],
   },
   {
     id: "BUSINESS",
-    planBadge: "PLAN 4",
+    planBadge: "PLAN 3",
     name: "Business",
-    tagline: "For established businesses",
-    creditBadge: "1000 Credits",
+    tagline: "Everything in Pro Plus, with the complete business service suite.",
+    creditBadge: "2,500 monthly + 50 signup bonus",
     monthlyPrice: 4999,
     highlights: [
-      "1000 monthly credits",
-      "200 AI posts/month",
-      "60 AI reels/month",
+      "2,500 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Complete AI creation and business intelligence suite",
     ],
     allFeatures: [
-      "1,000 Monthly AI Generation Credits",
-      "200 AI Posts & Campaigns per month",
-      "60 Production-grade AI Reels per month",
-      "Multi-business Workspace (up to 5 businesses)",
-      "Team Collaboration & Role Permissions (5 seats)",
-      "White-label Content Export & Brand Kit lock",
-      "AI Review Responder & Customer Messaging",
-      "Developer API Access & Webhooks",
-      "Dedicated Account Manager",
+      "Everything included in Pro Plus",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "2,500 monthly credits",
+      "50 signup bonus credits on first paid subscription",
     ],
   },
   {
-    id: "INFLUENCER",
-    planBadge: "PLAN 5",
-    name: "Influencer",
-    tagline: "For brands that want creator partnerships",
-    creditBadge: "Influencer...",
+    id: "BUSINESS_PREMIUM",
+    planBadge: "PLAN 4",
+    name: "Business Premium",
+    tagline: "Everything in Business, plus premium services and company brand kit.",
+    creditBadge: "5,000 monthly + 50 signup bonus",
     monthlyPrice: 9999,
     highlights: [
-      "Influencer discovery & shortlisting",
-      "Creator audience",
-      "Brand collaboration",
+      "5,000 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Premium services and company brand kit",
     ],
     allFeatures: [
-      "Verified Creator Marketplace Direct Access",
-      "Influencer Audience Analytics & Fraud Detection",
-      "Automated Collaboration Contracts & Escrow",
-      "Multi-Creator Campaign Tracking Dashboard",
-      "Custom AI Video Avatar Training for Your Brand",
-      "Unlimited Social Account Integrations",
-      "Enterprise SLA & Dedicated Talent Liaison",
+      "Everything included in Business",
+      "Premium Influencer Marketing and Customer Support",
+      "Physical Training Provider and 24/7 Website Technical Support",
+      "Company Logo, Visiting Cards, Employee ID Cards, Company Letterhead and Stamp",
+      "5,000 monthly credits",
+      "50 signup bonus credits on first paid subscription",
     ],
   },
 ];
+
+export function normalizePlanId(planId: string | null | undefined): string {
+  const normalized = (planId || "").toUpperCase();
+  if (normalized === "STARTER" || normalized === "BASIC") return "PRO_STARTER";
+  if (normalized === "PRO" || normalized === "GROWTH") return "PRO_PLUS";
+  if (normalized === "INFLUENCER") return "BUSINESS_PREMIUM";
+  return normalized;
+}
 
 /**
  * Calculates price based on selected billing cycle:
@@ -176,22 +174,20 @@ export function calculatePlanPrice(
   }
 
   if (cycle === "quarterly") {
-    const discountedPerMonth = Math.round(baseMonthlyPrice * 0.9);
-    const totalQuarterly = discountedPerMonth * 3;
+    const totalQuarterly = Math.round(baseMonthlyPrice * 3 * 0.9);
     return {
       displayPrice: totalQuarterly,
-      perMonthPrice: discountedPerMonth,
+      perMonthPrice: totalQuarterly / 3,
       intervalLabel: "/ quarter",
       savingsPercent: 10,
     };
   }
 
   if (cycle === "yearly") {
-    const discountedPerMonth = Math.round(baseMonthlyPrice * 0.8);
-    const totalYearly = discountedPerMonth * 12;
+    const totalYearly = Math.round(baseMonthlyPrice * 12 * 0.8);
     return {
       displayPrice: totalYearly,
-      perMonthPrice: discountedPerMonth,
+      perMonthPrice: totalYearly / 12,
       intervalLabel: "/ year",
       savingsPercent: 20,
     };
@@ -253,7 +249,7 @@ export function formatCurrencyINR(amount: number): string {
  * Determines whether the user has a confirmed, active qualifying plan from the backend.
  * A plan is considered a qualifying active plan if:
  * 1. The subscription exists with status === "active"
- * 2. It is an active upgraded/paid plan (STARTER, PRO/GROWTH, BUSINESS, INFLUENCER), OR
+ * 2. It is an active upgraded/paid plan, OR
  * 3. An explicit activation timestamp exists on the subscription or business record.
  */
 export function isQualifyingPlanActive(
@@ -268,7 +264,15 @@ export function isQualifyingPlanActive(
   const planId = (subscription.plan_id || "").toUpperCase();
 
   // Any paid plan confirmed active by the backend is a qualifying active plan
-  const paidPlans = ["STARTER", "PRO", "GROWTH", "BUSINESS", "INFLUENCER"];
+  const paidPlans = [
+    "PRO",
+    "PRO_PLUS",
+    "BUSINESS",
+    "BUSINESS_PREMIUM",
+    "STARTER",
+    "GROWTH",
+    "INFLUENCER",
+  ];
   if (paidPlans.includes(planId)) {
     return true;
   }
@@ -333,4 +337,3 @@ export function shouldDisplayPlansModal(params: {
 
   return isEligible;
 }
-

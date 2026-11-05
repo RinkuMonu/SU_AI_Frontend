@@ -12,8 +12,8 @@ export const creditService = {
       }
       return {
         plan: "FREE",
-        credits_total: 5,
-        credits_remaining: 5,
+        credits_total: 50,
+        credits_remaining: 50,
         credits_used: 0
       } as CreditBalance;
     }

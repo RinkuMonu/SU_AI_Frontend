@@ -30,6 +30,7 @@ import {
   calculatePlanPrice,
   calculatePlanPriceWithGST,
   formatCurrencyINR,
+  normalizePlanId,
 } from "@/lib/plan-onboarding";
 import { PaymentModal } from "@/components/payment/PaymentModal";
 
@@ -75,7 +76,6 @@ export default function SubscriptionPage() {
           return {
             ...def,
             monthlyPrice: bePlan.price,
-            creditBadge: bePlan.credits ? `${bePlan.credits} Credits` : def.creditBadge,
           };
         }
         return def;
@@ -253,7 +253,9 @@ export default function SubscriptionPage() {
     );
   }
 
-  const currentPlanId = (subscription.plan_id || "FREE").toUpperCase();
+  const currentPlanId = normalizePlanId(subscription.plan_id || "FREE");
+  const currentPlanName =
+    mergedPlans.find((plan) => plan.id === currentPlanId)?.name || currentPlanId;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
@@ -346,7 +348,7 @@ export default function SubscriptionPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-white uppercase flex items-center gap-2">
-              <span>{currentPlanId}</span>
+              <span>{currentPlanName}</span>
               <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-brand-purple/20 text-purple-300 border border-brand-purple/30">
                 {subscription.status}
               </span>
@@ -369,7 +371,7 @@ export default function SubscriptionPage() {
               <Zap className="h-6 w-6 fill-brand-purple" />
               {subscription.credits_remaining}
               <span className="text-sm text-text-muted font-normal">
-                / {subscription.plan_details?.credits || 0}
+                / {subscription.credits_total ?? subscription.plan_details?.credits ?? 0}
               </span>
             </div>
             <Link
@@ -647,6 +649,7 @@ export default function SubscriptionPage() {
 
       {/* Payment Gateway & QR Code Modal */}
       <PaymentModal
+        key={`${activePaymentOrder?.subscription_id || activePaymentOrder?.order_id || "new"}-${showPaymentModal ? "open" : "closed"}`}
         isOpen={showPaymentModal}
         orderData={activePaymentOrder}
         onClose={() => {

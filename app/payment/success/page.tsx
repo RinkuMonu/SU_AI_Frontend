@@ -7,13 +7,17 @@ import {
   Loader2,
   AlertCircle,
   RefreshCw,
-  Download,
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
 import { paymentService } from "@/services/payment.service";
 import { subscriptionService } from "@/services/subscription.service";
 import { Button } from "@/components/ui/button";
+
+type TransactionDisplayData = {
+  plan_id?: string;
+  amount?: number;
+};
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -26,9 +30,10 @@ function PaymentSuccessContent() {
 
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed" | "cancelled">("loading");
   const [retryCount, setRetryCount] = useState(0);
-  const [transactionData, setTransactionData] = useState<any>(null);
+  const [transactionData, setTransactionData] = useState<TransactionDisplayData | null>(null);
   const [redirectCountdown, setRedirectCountdown] = useState(2);
   const [isVerifyingNow, setIsVerifyingNow] = useState(false);
+  const displayStatus = orderId ? status : "failed";
 
   const isSuccessStatus = (s?: string) => {
     const lower = (s || "").toLowerCase().trim();
@@ -54,11 +59,22 @@ function PaymentSuccessContent() {
     );
   };
 
+  const isFailureStatus = (s?: string) => {
+    const lower = (s || "").toLowerCase().trim();
+    return [
+      "failed",
+      "failure",
+      "rejected",
+      "expired",
+      "terminated",
+      "auth_failed",
+      "authorization_failed",
+      "subscription_failed",
+    ].includes(lower);
+  };
+
   useEffect(() => {
-    if (!orderId) {
-      setStatus("failed");
-      return;
-    }
+    if (!orderId) return;
 
     let isMounted = true;
 
@@ -105,15 +121,18 @@ function PaymentSuccessContent() {
           (verifyRes.status || "").toLowerCase() === "cancelled"
         ) {
           setStatus("cancelled");
+        } else if (isFailureStatus(statusRes.status) || isFailureStatus(verifyRes.status)) {
+          setStatus("failed");
         } else {
-          // If neither recognized as cancelled, retry one more round
-          if (retryCount < 5) {
+          // Unknown provider statuses can be transient; never report failure
+          // unless the provider explicitly returns a terminal failure status.
+          if (retryCount < 30) {
             setStatus("pending");
             setTimeout(() => {
               if (isMounted) setRetryCount((r) => r + 1);
             }, 1000);
           } else {
-            setStatus("failed");
+            setStatus("pending");
           }
         }
       } catch (error) {
@@ -123,7 +142,7 @@ function PaymentSuccessContent() {
             if (isMounted) setRetryCount((r) => r + 1);
           }, 1000);
         } else if (isMounted) {
-          setStatus("failed");
+          setStatus("pending");
         }
       } finally {
         if (isMounted) setIsVerifyingNow(false);
@@ -155,7 +174,7 @@ function PaymentSuccessContent() {
     return () => clearInterval(timer);
   }, [status, router]);
 
-  if (status === "loading") {
+  if (displayStatus === "loading") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
         <Loader2 className="w-12 h-12 text-brand-purple animate-spin" />
@@ -167,7 +186,7 @@ function PaymentSuccessContent() {
     );
   }
 
-  if (status === "pending") {
+  if (displayStatus === "pending") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
         <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -175,7 +194,7 @@ function PaymentSuccessContent() {
         </div>
         <h2 className="text-2xl font-bold text-white tracking-tight">Payment Processing</h2>
         <p className="text-sm text-text-muted max-w-md">
-          Your transaction is currently awaiting confirmation from your bank or UPI provider.
+          We are still checking your transaction with the payment provider. If your account was charged, please do not retry yet.
         </p>
         <div className="text-xs text-purple-300 font-mono flex items-center gap-2">
           <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-400" />
@@ -201,7 +220,7 @@ function PaymentSuccessContent() {
     );
   }
 
-  if (status === "cancelled") {
+  if (displayStatus === "cancelled") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
         <div className="w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
@@ -230,7 +249,7 @@ function PaymentSuccessContent() {
     );
   }
 
-  if (status === "failed") {
+  if (displayStatus === "failed") {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] text-center space-y-4">
         <div className="w-14 h-14 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400">
