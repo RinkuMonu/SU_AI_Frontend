@@ -46,6 +46,21 @@ const resolveCuratedUnsplash = (query: string): string => {
     return "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=85";
   }
 
+  // Stationery & Books
+  if (
+    q.includes("stationery") || q.includes("notebook") || q.includes("pen") ||
+    q.includes("pencil") || q.includes("khushi") || q.includes("diary") ||
+    q.includes("stapler") || q.includes("paper")
+  ) {
+    if (q.includes("notebook") || q.includes("diary") || q.includes("journal")) {
+      return "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("art") || q.includes("color") || q.includes("craft")) {
+      return "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=900&q=85";
+  }
+
   // Bakery & Sweets (Strict: not generic shop)
   if (q.includes("bakery") || q.includes("cake") || q.includes("pastry") || q.includes("mithai") || q.includes("cupcake") || q.includes("dessert") || q.includes("cookie")) {
     if (q.includes("cake") || q.includes("birthday")) {
