@@ -353,16 +353,19 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
       {/* Main Grid: Upload Product Images on Left, Category on Right - Option 3 Spec */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: Product Images (7 cols) */}
-        <section className="lg:col-span-7 bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+        <section style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="lg:col-span-7 border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#A855F7]/25 to-[#EC4899]/25 text-[#EC4899] border border-[#EC4899]/30 flex items-center justify-center shrink-0">
+              <span style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)" }} className="w-8 h-8 rounded-xl border border-[#8b5cf6]/40 text-purple-200 flex items-center justify-center shrink-0 shadow-sm">
                 <ImageIcon className="w-4 h-4" />
               </span>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <h2 
+                style={{ fontSize: "22px", fontFamily: "'Roboto', sans-serif" }}
+                className="font-normal text-white flex items-center gap-2.5 tracking-normal leading-tight"
+              >
                 <span>Upload Product Images</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 font-bold">
+                <span style={{ background: "rgba(47, 18, 98, 0.45)" }} className="text-xs px-3 py-1 rounded-full text-purple-200 border border-[#8b5cf6]/35 font-normal">
                   {uploadedImages.length} / {MAX_IMAGES}
                 </span>
               </h2>
@@ -449,12 +452,12 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
                   key={`empty_${slotIndex}`}
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-xl border border-dashed border-white/20 bg-[#0E1838]/40 hover:border-[#A855F7] hover:bg-[#A855F7]/5 transition-all flex flex-col items-center justify-center cursor-pointer group"
+                  className="aspect-square rounded-2xl border border-dashed border-[#26314c] bg-[#0c1630]/60 hover:border-[#8b5cf6] hover:bg-[#2F1262]/20 transition-all flex flex-col items-center justify-center cursor-pointer group shadow-sm"
                 >
-                  <span className="text-[#EC4899] text-xl font-bold leading-none mb-1 group-hover:scale-110 transition-transform">
+                  <span className="text-purple-400 text-2xl font-normal leading-none mb-1 group-hover:scale-110 group-hover:text-purple-300 transition-all">
                     +
                   </span>
-                  <span className="text-[11px] sm:text-xs font-medium text-slate-300 group-hover:text-white">
+                  <span className="text-[11px] sm:text-xs font-normal text-slate-300 group-hover:text-white">
                     Add Image
                   </span>
                 </button>
@@ -471,34 +474,40 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
-            className={`rounded-2xl border border-dashed border-[#A855F7]/40 bg-[#121133]/60 hover:border-[#EC4899] hover:bg-[#121133]/80 transition-all p-6 flex flex-col items-center justify-center text-center cursor-pointer ${
-              isDragging ? "border-[#EC4899] bg-[#121133]" : ""
+            className={`rounded-3xl border border-dashed border-[#302254] bg-[#0c1630]/70 hover:border-[#8b5cf6] hover:bg-[#0c1630] transition-all p-6 sm:p-7 flex flex-col items-center justify-center text-center cursor-pointer shadow-inner ${
+              isDragging ? "border-[#8b5cf6] bg-[#0c1630]" : ""
             }`}
           >
-            <UploadCloud className="w-9 h-9 text-[#EC4899] mb-2 stroke-[1.5]" />
+            <UploadCloud className="w-10 h-10 text-purple-400 mb-2 stroke-[1.5]" />
             <p className="text-xs sm:text-sm text-slate-200">
               Drag &amp; drop product images here or{" "}
-              <span className="text-[#E085FF] font-semibold hover:underline">browse files</span>
+              <span className="text-purple-300 font-medium hover:underline">browse files</span>
             </p>
 
-            {/* Quick Action Buttons: Upload & Take Photo */}
-            <div className="mt-3 flex items-center gap-2.5" onClick={(e) => e.stopPropagation()}>
+            {/* Quick Action Buttons: Upload & Take Photo matching Image 2 */}
+            <div className="mt-3 flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 border border-white/15 transition-all cursor-pointer shadow-sm"
+                style={{
+                  background: "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(20, 10, 45, 0.25) 100%)",
+                }}
+                className="px-5 py-2.5 rounded-full border border-[#8b5cf6]/35 hover:border-[#8b5cf6]/70 text-purple-100 hover:text-white text-xs font-normal flex items-center gap-2 transition-all cursor-pointer shadow-md"
               >
-                <UploadCloud className="w-3.5 h-3.5 text-[#E085FF]" />
+                <UploadCloud className="w-4 h-4 text-purple-300" />
                 <span>Upload Photo</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => handleStartCamera()}
-                className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold flex items-center gap-1.5 shadow-[0_0_12px_rgba(236,72,153,0.3)] transition-all cursor-pointer"
+                style={{
+                  background: "linear-gradient(135deg, rgba(47, 18, 98, 0.55) 0%, rgba(20, 10, 45, 0.3) 100%)",
+                }}
+                className="px-6 py-2.5 rounded-full border border-[#8b5cf6]/50 hover:border-[#8b5cf6] text-purple-100 hover:text-white text-xs font-normal flex items-center gap-2 shadow-lg shadow-purple-950/40 transition-all cursor-pointer"
               >
-                <Camera className="w-3.5 h-3.5" />
-                <span>Take Photo</span>
+                <Camera className="w-4 h-4 text-purple-200" />
+                <span className="text-purple-100">Take Photo</span>
               </button>
             </div>
 
@@ -522,16 +531,19 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
         </section>
 
         {/* Right Column: Product Category (5 cols) - Option 3 Pixel Match */}
-        <section className="lg:col-span-5 bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl space-y-4">
+        <section style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="lg:col-span-5 border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 shadow-xl space-y-4">
           {/* Header */}
           <div>
             <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#A855F7]/25 to-[#EC4899]/25 text-[#EC4899] border border-[#EC4899]/30 flex items-center justify-center shrink-0">
+              <span style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)" }} className="w-8 h-8 rounded-xl border border-[#8b5cf6]/40 text-purple-200 flex items-center justify-center shrink-0 shadow-sm">
                 <Layers className="w-4 h-4" />
               </span>
-              <h2 className="text-base font-bold text-white flex items-center">
+              <h2 
+                style={{ fontSize: "22px", fontFamily: "'Roboto', sans-serif" }}
+                className="font-normal text-white flex items-center tracking-normal leading-tight"
+              >
                 <span>Product Category</span>
-                <span className="text-[#EC4899] ml-1">*</span>
+                <span className="text-[#a855f7] ml-1.5">*</span>
               </h2>
             </div>
             <p className="text-xs text-text-muted mt-1">
@@ -550,28 +562,47 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
                   key={cat.id}
                   type="button"
                   onClick={() => onCategoryChange(cat.id)}
-                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between ${
+                  style={{
+                    backgroundColor: isSelected ? "#101322" : "#0c1630",
+                    backgroundImage: isSelected
+                      ? "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(13, 15, 27, 0.85) 100%)"
+                      : "none",
+                    boxShadow: isSelected
+                      ? "0 0 10px rgba(139, 92, 246, 0.25)"
+                      : "none",
+                    borderColor: isSelected ? "#8b5cf6" : undefined,
+                  }}
+                  className={`p-3 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex items-center justify-between ${
                     isSelected
-                      ? "bg-[#131E42] border-2 border-[#BE32FF] ring-2 ring-[#BE32FF]/30 text-white shadow-[0_0_15px_rgba(190,50,255,0.25)]"
-                      : "bg-[#0E1838] hover:bg-[#121E45] border-white/10 text-slate-300 hover:text-white"
+                      ? "border-[#8b5cf6] text-purple-100"
+                      : "border-[#26314c] hover:border-slate-400 text-slate-300 hover:text-white"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`p-1.5 rounded-lg shrink-0 ${
-                        isSelected ? "bg-[#BE32FF]/20 text-[#BE32FF]" : "bg-white/5 text-slate-400"
+                      style={{
+                        background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)",
+                      }}
+                      className={`p-2 rounded-xl shrink-0 border transition-all ${
+                        isSelected ? "border-[#8b5cf6] text-purple-200" : "border-[#8b5cf6]/20 text-purple-300"
                       }`}
                     >
-                      <IconComp className="w-4 h-4" />
+                      <IconComp className="w-4 h-4 text-[#c084fc] stroke-[1.8]" />
                     </div>
-                    <span className="text-xs font-semibold truncate leading-tight">
+                    <span className="text-[11px] sm:text-xs font-normal truncate leading-tight">
                       {cat.label}
                     </span>
                   </div>
 
-                  {/* Pink Circle Checkmark Badge for Selected Item - Option 3 Match */}
+                  {/* Circle Checkmark Badge for Selected Item */}
                   {isSelected && (
-                    <span className="w-5 h-5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] text-white flex items-center justify-center shrink-0 shadow-[0_0_8px_rgba(236,72,153,0.5)] ml-2">
+                    <span 
+                      style={{
+                        background: "linear-gradient(135deg, rgba(47, 18, 98, 0.6) 0%, rgba(20, 10, 45, 0.35) 100%)",
+                        boxShadow: "0 0 6px rgba(139, 92, 246, 0.25)",
+                      }}
+                      className="w-5 h-5 rounded-full border border-[#8b5cf6] text-purple-100 flex items-center justify-center shrink-0 ml-1.5"
+                    >
                       <Check className="w-3 h-3 stroke-[3]" />
                     </span>
                   )}
@@ -581,7 +612,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
           </div>
 
           {/* Bottom Info Callout Box - Option 3 Pixel Match */}
-          <div className="bg-[#0E1838]/60 border border-white/10 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-slate-400 mt-4">
+          <div className="bg-[#0c1630] border border-[#26314c] p-3.5 rounded-2xl flex items-start gap-2.5 text-xs text-slate-400 mt-4">
             <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Choose the right category for more accurate lighting, background and product presentation.
@@ -595,7 +626,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="px-6 py-2.5 rounded-xl bg-[#0E1838] hover:bg-[#16234D] border border-white/10 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
+          className="px-6 py-2.5 rounded-full bg-[#0c1630] hover:bg-[#152347] border border-[#26314c] text-slate-300 hover:text-white text-xs font-normal flex items-center gap-2 transition-all cursor-pointer shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
@@ -603,12 +634,14 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
 
         <button
           type="button"
-          disabled={uploadedImages.length === 0}
           onClick={onNext}
-          className="px-7 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center gap-2 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{
+            background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+          }}
+          className="px-9 py-3.5 rounded-full text-white font-medium text-xs sm:text-sm shadow-xl shadow-purple-600/35 hover:opacity-95 flex items-center gap-2 cursor-pointer transition-all"
         >
-          <span>Continue to AI Enhancement</span>
-          <ArrowRight className="w-4 h-4" />
+          <span className="text-white font-medium">Continue to AI Enhancement</span>
+          <ArrowRight className="w-4 h-4 text-white stroke-[2.2]" />
         </button>
       </div>
       {/* Hidden canvas for capturing frame */}
@@ -621,7 +654,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
             {/* Modal Header */}
             <div className="p-4 bg-[#101938] border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Camera className="w-4 h-4 text-[#EC4899]" />
+                <Camera className="w-4 h-4 text-purple-300" />
                 <h3 className="text-sm font-bold text-white">Take Product Photo</h3>
               </div>
               <div className="flex items-center gap-2">
@@ -720,7 +753,7 @@ export const Step1Upload: React.FC<Step1UploadProps> = ({
                     type="button"
                     disabled={Boolean(cameraError)}
                     onClick={handleCapturePhoto}
-                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold flex items-center gap-2 shadow-[0_0_15px_rgba(236,72,153,0.4)] transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    style={{ background: "linear-gradient(135deg, #2F1262 0%, #000000 100%)" }} className="px-6 py-2.5 rounded-full border border-[#8b5cf6] text-purple-100 text-xs font-normal flex items-center gap-2 shadow-lg shadow-purple-950/50 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <Camera className="w-4 h-4" />
                     <span>Capture Photo</span>

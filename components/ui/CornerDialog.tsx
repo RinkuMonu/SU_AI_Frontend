@@ -9,7 +9,7 @@ export interface CornerDialogProps {
   onClose: () => void;
   type?: "error" | "success" | "warning" | "info";
   title?: string;
-  message: string;
+  message: any;
   actionText?: string;
   actionHref?: string;
   onAction?: () => void;
@@ -33,12 +33,26 @@ export function CornerDialog({
   const startTimeRef = useRef<number>(Date.now());
   const remainingTimeRef = useRef<number>(autoCloseDuration);
 
+  // Safe string conversion for message
+  const safeMessage = React.useMemo(() => {
+    if (typeof message === "string") return message;
+    if (Array.isArray(message)) {
+      return message
+        .map((item) => (typeof item === "object" ? item?.msg || item?.message || JSON.stringify(item) : String(item)))
+        .join(", ");
+    }
+    if (message && typeof message === "object") {
+      return message?.msg || message?.message || message?.detail || JSON.stringify(message);
+    }
+    return String(message || "");
+  }, [message]);
+
   // Auto-detect action if not provided
   let effectiveActionText = actionText;
   let effectiveActionHref = actionHref;
 
-  if (!effectiveActionText && !effectiveActionHref && typeof message === "string") {
-    const lower = message.toLowerCase();
+  if (!effectiveActionText && !effectiveActionHref && safeMessage) {
+    const lower = safeMessage.toLowerCase();
     if (lower.includes("instagram")) {
       effectiveActionText = "Connect Instagram";
       effectiveActionHref = "/social-platforms/instagram";
@@ -173,7 +187,7 @@ export function CornerDialog({
             {currentTitle}
           </h4>
           <p className="text-xs text-slate-300 mt-1 leading-relaxed break-words">
-            {message}
+            {safeMessage}
           </p>
 
           {/* Action Link / Button if applicable */}

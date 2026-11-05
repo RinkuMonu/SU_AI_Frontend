@@ -3,7 +3,11 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { 
-  Sparkles, 
+  Sparkles,
+  ArrowRight,
+  Mic, 
+  Search, 
+  Wand2, 
   Settings, 
   RefreshCw, 
   Download, 
@@ -45,6 +49,7 @@ import { InsufficientCreditsAlert } from "@/components/ui/InsufficientCreditsAle
 import { CornerDialog } from "@/components/ui/CornerDialog";
 import { BrandKitToggleCard } from "@/components/brand/BrandKitToggleCard";
 import { VoiceInputButton } from "@/components/ui/VoiceInput";
+import { useVoiceToText } from "@/hooks/useVoiceToText";
 
 import { generatePost } from "@/services/content.service";
 import { FashionService } from "@/services/fashion.service";
@@ -93,7 +98,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Showcase features, pricing & product",
     icon: ShoppingBag,
     defaultObjective: "product_promotion",
-    suggestions: ["✨ Luxury Studio Shoot", "💎 Premium Quality", "🔥 Best Seller", "📸 Clean Minimalist"]
+    suggestions: ["Luxury Studio Shoot", "Premium Quality", "Best Seller", "Clean Minimalist"]
   },
   {
     id: "offer",
@@ -101,7 +106,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Flash deals, discounts & seasonal pr...",
     icon: BadgePercent,
     defaultObjective: "sales_conversion",
-    suggestions: ["⚡ Flat 40% Off", "⏳ 24h Flash Sale", "🎁 Buy 1 Get 1 Free", "🔥 Special Weekend Deal"]
+    suggestions: ["Flat 40% Off", "24h Flash Sale", "Buy 1 Get 1 Free", "Special Weekend Deal"]
   },
   {
     id: "festival",
@@ -109,7 +114,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Cultural greetings, festive celebrations",
     icon: PartyPopper,
     defaultObjective: "brand_awareness",
-    suggestions: ["🪔 Festive Special", "🎉 Grand Celebration", "✨ Festive Sparkle", "🌟 Holiday Greetings"]
+    suggestions: ["Festive Special", "Grand Celebration", "Festive Sparkle", "Holiday Greetings"]
   },
   {
     id: "new_arrival",
@@ -117,7 +122,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Fresh collections, newly launched tre...",
     icon: ShoppingBag,
     defaultObjective: "product_launch",
-    suggestions: ["🔥 Just Dropped", "🆕 New Collection", "👑 Limited Edition", "🌟 Trendy & Exclusive"]
+    suggestions: ["Just Dropped", "New Collection", "Limited Edition", "Trendy & Exclusive"]
   },
   {
     id: "tips_guide",
@@ -125,7 +130,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Styling tips, how-to guides & value-first",
     icon: BadgePercent,
     defaultObjective: "engagement",
-    suggestions: ["💡 3 Ways to Style", "👗 How-To Guide", "✨ Maintenance Tips", "📌 Expert Recommendation"]
+    suggestions: ["3 Ways to Style", "How-To Guide", "Maintenance Tips", "Expert Recommendation"]
   },
   {
     id: "brand_story",
@@ -133,18 +138,25 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     subtitle: "Origin story, craftsmanship, values",
     icon: PartyPopper,
     defaultObjective: "brand_awareness",
-    suggestions: ["🧵 Handcrafted with Care", "🌿 Authentic Quality", "📖 Our Origin Story", "⭐ Made with Passion"]
+    suggestions: [
+      "Handcrafted with Care",
+      "Our origin story",
+      "Handcrafted with Care",
+      "Our origin story",
+      "Our story"
+    ]
   }
 ];
 
 export default function AIPostPage() {
   const { user } = useAuth();
+
   const [products, setProducts] = useState<any[]>([]);
   const [productIds, setProductIds] = useState<string[]>([]);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   // Content Type Selection
-  const [selectedContentType, setSelectedContentType] = useState<string>("product");
+  const [selectedContentType, setSelectedContentType] = useState<string>("brand_story");
   
   // Brand Kit Toggle State (Default true for business accounts)
   const [useBrandKit, setUseBrandKit] = useState<boolean>(() => {
@@ -159,20 +171,27 @@ export default function AIPostPage() {
 
   // Natural Language Intent
   const [creativeInstruction, setCreativeInstruction] = useState("");
+  const [selectedAspectRatio, setSelectedAspectRatio] = useState<"1:1" | "4:5" | "9:16" | "16:9">("1:1");
+  const { isListening, toggleListening } = useVoiceToText({
+    onTranscript: (text) => setCreativeInstruction(text),
+    currentValue: creativeInstruction,
+    defaultLang: "en-IN",
+  });
   
   // Settings
   const [platform, setPlatform] = useState("instagram");
   const [objective, setObjective] = useState("product_promotion");
   const [language, setLanguage] = useState("English");
   const [manualTone, setManualTone] = useState("Luxury & Premium");
+  const [selectedToneId, setSelectedToneId] = useState("luxury_1");
 
   // Step 4: Additional Options
-  const [includeTextOnImage, setIncludeTextOnImage] = useState(true);
-  const [includeOffer, setIncludeOffer] = useState(false);
+  const [includeTextOnImage, setIncludeTextOnImage] = useState(false);
+  const [includeOffer, setIncludeOffer] = useState(true);
   const [offerText, setOfferText] = useState("Flat 30% OFF");
   const [includeLogo, setIncludeLogo] = useState(true);
-  const [generateCaptions, setGenerateCaptions] = useState(true);
-  const [generateHashtags, setGenerateHashtags] = useState(true);
+  const [generateCaptions, setGenerateCaptions] = useState(false);
+  const [generateHashtags, setGenerateHashtags] = useState(false);
 
   // UI State
   const [loading, setLoading] = useState(false);
@@ -201,11 +220,29 @@ export default function AIPostPage() {
     message: "",
   });
 
-  const setPublishErrorMessage = (msg: string | null, title: string = "Publish Failed") => {
+  const setPublishErrorMessage = (msg: any, title: string = "Action Failed") => {
     if (msg) {
-      setErrorDialog({ open: true, title, message: msg });
+      let cleanMessage = "";
+      if (typeof msg === "string") {
+        cleanMessage = msg;
+      } else if (Array.isArray(msg)) {
+        cleanMessage = msg
+          .map((item: any) => {
+            if (typeof item === "object" && item !== null) {
+              const field = Array.isArray(item.loc) ? item.loc[item.loc.length - 1] : "";
+              return item.msg ? (field ? `${field}: ${item.msg}` : item.msg) : JSON.stringify(item);
+            }
+            return String(item);
+          })
+          .join(", ");
+      } else if (typeof msg === "object" && msg !== null) {
+        cleanMessage = msg.msg || msg.message || msg.detail || JSON.stringify(msg);
+      } else {
+        cleanMessage = String(msg);
+      }
+      setErrorDialog({ open: true, title, message: cleanMessage });
     } else {
-      setErrorDialog((prev) => ({ ...prev, open: false }));
+      setErrorDialog((prev) => ({ ...prev, open: false, message: "" }));
     }
   };
 
@@ -279,14 +316,19 @@ export default function AIPostPage() {
 
   const handleSuggestionClick = (suggestion: string) => {
     const text = suggestion.replace(/[^\w\s%]/gi, '').trim();
-    if (creativeInstruction.toLowerCase().includes(text.toLowerCase())) return;
-    setCreativeInstruction(prev => prev ? `${prev}, ${text}` : text);
+    if (creativeInstruction.toLowerCase().includes(text.toLowerCase())) {
+      const regex = new RegExp(`(,\\s*)?${text}`, 'gi');
+      setCreativeInstruction(prev => prev.replace(regex, '').replace(/^,\s*/, '').trim());
+    } else {
+      setCreativeInstruction(prev => prev ? `${prev}, ${text}` : text);
+    }
   };
 
   const handleGenerate = async () => {
-    if (!creativeInstruction.trim() && uploadedImages.length === 0 && productIds.length === 0) {
-      alert("Please describe your post, upload reference photos, or select a product from your catalog.");
-      return;
+    let effectiveInstruction = creativeInstruction.trim();
+    if (!effectiveInstruction && uploadedImages.length === 0 && productIds.length === 0) {
+      effectiveInstruction = activeContentTypeObj.suggestions[0] || "Create an engaging brand post";
+      setCreativeInstruction(effectiveInstruction);
     }
 
     try {
@@ -381,13 +423,8 @@ export default function AIPostPage() {
       if (error?.response?.status === 402 || error?.message?.toLowerCase().includes("credit")) {
         setHasInsufficientCredits(true);
       } else {
-        const detailMsg =
-          error?.response?.data?.detail ||
-          error?.response?.data?.message ||
-          (typeof error?.response?.data === "string" && !error.response.data.includes("<html") ? error.response.data : null) ||
-          error?.message ||
-          "Unable to generate post. Please try again.";
-        setPublishErrorMessage(detailMsg, "Generation Failed");
+        const rawErr = error?.response?.data?.detail || error?.response?.data?.message || error?.message || "Unable to generate post. Please try again.";
+        setPublishErrorMessage(rawErr, "Generation Failed");
       }
     } finally {
       setLoading(false);
@@ -614,22 +651,23 @@ export default function AIPostPage() {
               type="button"
               onClick={() => handleContentTypeSelect(type.id)}
               style={{
-                background: isSelected
-                  ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
-                  : "linear-gradient(135deg, #2F1262 0%, #000000 100%)",
+                backgroundColor: isSelected ? "#101322" : "#131625",
+                backgroundImage: isSelected
+                  ? "linear-gradient(135deg, #16182c 0%, #0d0f1b 100%)"
+                  : "none",
               }}
               className={`relative p-5 rounded-2xl border text-left transition-all duration-200 cursor-pointer flex flex-col justify-between group min-h-[145px] ${
                 isSelected
-                  ? "border-[#8b5cf6] shadow-xl shadow-[#2F1262]/60 ring-1 ring-[#8b5cf6]/50"
-                  : "border-white/10 hover:border-purple-400/50 hover:shadow-lg hover:shadow-[#2F1262]/30"
+                  ? "border-[#8b5cf6] shadow-lg shadow-[#7c3aed]/20 ring-1 ring-[#8b5cf6]/60"
+                  : "border-[#282c3f] hover:border-white/20 hover:bg-[#161a2c]"
               }`}
             >
               <div className="flex items-center justify-between w-full">
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center transition-colors ${
                     isSelected
-                      ? "bg-[#38156d] border border-[#5b21b6]/60 text-white shadow-md"
-                      : "bg-black/40 border border-white/10 text-purple-300 group-hover:text-white group-hover:bg-[#38156d]/50"
+                      ? "bg-[#241445] border border-purple-500/40 text-[#d378fd] shadow-md"
+                      : "bg-[#1b1139] border border-white/5 text-[#d378fd] group-hover:text-white group-hover:bg-[#241445]"
                   }`}
                 >
                   <Icon className="w-5 h-5 text-inherit" />
@@ -638,8 +676,8 @@ export default function AIPostPage() {
                 <span
                   className={`px-3.5 py-1 rounded-full text-xs font-normal transition-all ${
                     isSelected
-                      ? "bg-[#38156d] border border-purple-500/40 text-purple-200"
-                      : "bg-white/10 border border-white/15 text-slate-200 group-hover:border-purple-400/40 group-hover:text-white"
+                      ? "bg-[#3b1154] border border-purple-500/40 text-purple-200"
+                      : "bg-[#222634] border border-white/10 text-slate-300 group-hover:border-white/20 group-hover:text-white"
                   }`}
                 >
                   {isSelected ? "Selected" : "Select"}
@@ -664,11 +702,13 @@ export default function AIPostPage() {
          ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
         
-        {/* ── LEFT COLUMN: Inputs & Generation Settings ── */}
-        <div className="lg:col-span-7 space-y-5">
+        {/* ── LEFT COLUMN: Inputs & Generation Settings matching Image 1 ── */}
+        <div className="lg:col-span-7 space-y-4">
           
-          {/* Prominent Brand Kit Toggle Banner */}
+          {/* Use My Brand Kit Card matching Image 1 */}
           <BrandKitToggleCard
+            compact={true}
+            title="Use my Brand Kit"
             enabled={useBrandKit}
             onChange={handleToggleBrandKit}
             onBrandKitLoaded={(brand, isComplete) => {
@@ -677,668 +717,751 @@ export default function AIPostPage() {
             }}
           />
 
-          {/* ── STEP 1: Upload Product Images ── */}
-          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">1</span>
-                  Upload Product Images
-                </h3>
-                <p className="text-xs text-text-muted mt-0.5">
-                  Upload 1–4 clear product photos. AI Vision will analyze texture, framing &amp; angles.
-                </p>
-              </div>
+          {/* Describe your prompt bar matching Image 1 & 3 */}
+          <div className="space-y-3">
+            <div className="relative rounded-full bg-[#111420] border border-[#232738] px-5 flex items-center gap-3 h-14 shadow-md focus-within:border-purple-500/50 transition-all">
+              <Search className="w-5 h-5 text-slate-400 shrink-0 ml-1" />
+              <input
+                type="text"
+                value={creativeInstruction}
+                onChange={(e) => setCreativeInstruction(e.target.value)}
+                placeholder={isListening ? "Listening... speak now 🎙️" : "Describe your prompt..."}
+                style={{ fontFamily: "'Roboto', sans-serif" }}
+                className="w-full bg-transparent text-white placeholder:text-slate-400 text-sm sm:text-base outline-none px-2"
+              />
 
-              {products.length > 0 && (
+              {/* Hidden File Input for Button 3 */}
+              <input
+                id="ai-post-file-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (!files || files.length === 0) return;
+                  const maxAllowed = 4 - uploadedImages.length;
+                  if (maxAllowed <= 0) {
+                    alert("Maximum 4 reference images allowed");
+                    return;
+                  }
+                  const list = Array.from(files).slice(0, maxAllowed);
+                  list.forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      if (typeof reader.result === "string") {
+                        setUploadedImages((prev) => [...prev, reader.result as string].slice(0, 4));
+                      }
+                    };
+                    reader.readAsDataURL(file);
+                  });
+                  e.target.value = "";
+                }}
+                className="hidden"
+              />
+
+              <div className="flex items-center gap-2.5 shrink-0">
+                {/* Button 1: Microphone (Working Voice to text) */}
                 <button
                   type="button"
-                  onClick={() => setShowCatalogSelector(!showCatalogSelector)}
-                  className="text-xs text-brand-purple hover:underline font-semibold flex items-center gap-1 cursor-pointer shrink-0"
+                  onClick={() => {
+                    if (!isListening) {
+                      toggleListening();
+                    } else {
+                      toggleListening();
+                    }
+                  }}
+                  title={isListening ? "Listening... click to stop" : "Speak to describe prompt"}
+                  className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    isListening
+                      ? "bg-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.6)] animate-pulse border border-rose-400"
+                      : "bg-[#252837] hover:bg-[#323648] text-slate-300 hover:text-white"
+                  }`}
                 >
-                  <Package className="w-3.5 h-3.5" />
-                  <span>{showCatalogSelector ? "Hide Catalog" : "Pick from Catalog"}</span>
+                  <Mic className="w-5 h-5" />
+                  {isListening && (
+                    <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-rose-400 animate-ping" />
+                  )}
                 </button>
-              )}
+
+                {/* Button 2: Scan / Frame Corner Brackets with < > (Opens Aspect & Catalog Studio) */}
+                <button
+                  type="button"
+                  onClick={() => setShowCatalogSelector(true)}
+                  title="Select product or aspect ratio"
+                  className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    productIds.length > 0 || selectedAspectRatio !== "1:1"
+                      ? "bg-[#2f1f4e] border border-[#a855f7] text-[#c084fc] shadow-md shadow-purple-900/40"
+                      : "bg-[#252837] hover:bg-[#323648] text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M4 8V6a2 2 0 0 1 2-2h2" />
+                    <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+                    <path d="M20 16v2a2 2 0 0 1-2 2h-2" />
+                    <path d="M8 20H6a2 2 0 0 1-2-2v-2" />
+                    <polyline points="10 9 7.5 12 10 15" />
+                    <polyline points="14 9 16.5 12 14 15" />
+                  </svg>
+                  {productIds.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
+                      {productIds.length}
+                    </span>
+                  )}
+                </button>
+
+                {/* Button 3: Rectangle with + in top-right corner (Triggers File Picker) */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('ai-post-file-upload');
+                    if (input) input.click();
+                  }}
+                  title="Upload reference photo (Max 4)"
+                  className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer ${
+                    uploadedImages.length > 0
+                      ? "bg-[#2f1f4e] border border-[#a855f7] text-[#c084fc] shadow-md shadow-purple-900/40"
+                      : "bg-[#252837] hover:bg-[#323648] text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h6" />
+                    <path d="M15 5h6" />
+                    <path d="M18 2v6" />
+                  </svg>
+                  {uploadedImages.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center">
+                      {uploadedImages.length}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
 
-            {/* Catalog Selector Dropdown if toggled */}
-            {showCatalogSelector && products.length > 0 && (
-              <div className="p-4 rounded-xl bg-[#0a142c] border border-border/80 space-y-3 animate-in fade-in duration-200">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-white">Select from your uploaded products:</span>
-                  {productIds.length > 0 && (
+            {/* Active Attachments Strip (Thumbnails & Badges) */}
+            {(uploadedImages.length > 0 || productIds.length > 0 || selectedAspectRatio !== "1:1") && (
+              <div className="flex items-center gap-2.5 flex-wrap px-2">
+                {uploadedImages.map((img, idx) => (
+                  <div key={idx} className="relative group w-11 h-11 rounded-xl overflow-hidden border border-purple-500/40 bg-black/40 shadow-sm">
+                    <img src={img} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setUploadedImages((prev) => prev.filter((_, i) => i !== idx))}
+                      title="Remove image"
+                      className="absolute inset-0 bg-black/70 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5 text-red-300" />
+                    </button>
+                  </div>
+                ))}
+
+                {productIds.length > 0 && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#24133d] border border-purple-500/40 text-purple-200 text-xs shadow-sm">
+                    <span>{productIds.length} product{productIds.length > 1 ? "s" : ""} selected</span>
                     <button
                       type="button"
                       onClick={() => setProductIds([])}
-                      className="text-brand-purple hover:underline"
+                      className="text-purple-300 hover:text-white cursor-pointer"
                     >
-                      Clear
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  )}
-                </div>
-                <ProductSelector
-                  products={products}
-                  value={productIds}
-                  onChange={setProductIds}
-                  maxSelection={1}
-                />
-              </div>
-            )}
+                  </div>
+                )}
 
-            {/* Multi Image Uploader */}
-            <MultiImageUploader
-              value={uploadedImages}
-              onChange={setUploadedImages}
-              maxFiles={4}
-            />
-          </section>
-
-          {/* ── STEP 2: Describe Your Post ── */}
-          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-3.5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">2</span>
-                Describe Your Post
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-text-muted font-mono">
-                  {creativeInstruction.length} / 500 chars
-                </span>
-                <VoiceInputButton
-                  onTranscript={(text) => setCreativeInstruction(text)}
-                  currentValue={creativeInstruction}
-                  size="sm"
-                  tooltip="Speak to describe post (English/Hindi)"
-                />
-              </div>
-            </div>
-
-            <div className="relative">
-              <textarea
-                value={creativeInstruction}
-                maxLength={500}
-                onChange={(e) => setCreativeInstruction(e.target.value)}
-                placeholder={`E.g. Create a ${activeContentTypeObj.title.toLowerCase()} highlighting luxury textures, royal festive aesthetic, and rich lighting...`}
-                className="w-full bg-[#0a142c] border border-border rounded-xl p-3.5 pb-9 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[110px] resize-y text-sm leading-relaxed"
-              />
-              <div className="absolute right-3 bottom-3">
-                <VoiceInputButton
-                  onTranscript={(text) => setCreativeInstruction(text)}
-                  currentValue={creativeInstruction}
-                  size="sm"
-                />
-              </div>
-            </div>
-
-            {/* Example prompt suggestion chips */}
-            <div className="space-y-1.5">
-              <div className="text-[11px] text-text-muted font-medium flex items-center gap-1.5">
-                <Sparkles className="w-3 h-3 text-brand-purple" />
-                <span>Quick suggestions for {activeContentTypeObj.title}:</span>
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {activeContentTypeObj.suggestions.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => handleSuggestionClick(s)}
-                    className="px-2.5 py-1 rounded-full border border-border bg-surface text-xs hover:border-brand-purple hover:text-brand-purple transition-colors text-text-muted cursor-pointer"
-                  >
-                    {s}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Note when Brand Kit is active */}
-            {useBrandKit && isBrandKitComplete && (
-              <div className="pt-2 border-t border-border/50 flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/5 px-3 py-2 rounded-xl border border-emerald-500/20">
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
-                <span>
-                  <strong>Brand Kit Active:</strong> Your saved visual style, brand tone (<strong>{loadedBrandKit?.tone || "Professional"}</strong>), and colors will be infused automatically.
-                </span>
-              </div>
-            )}
-          </section>
-
-          {/* ── STEP 3: Choose Settings ── */}
-          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">3</span>
-                  Choose Settings
-                </h3>
-                <p className="text-xs text-text-muted mt-0.5">
-                  {useBrandKit && isBrandKitComplete
-                    ? "Target platform & language (Brand colors & tone locked from Brand Kit)"
-                    : "Configure language, tone, platform, and campaign objective"}
-                </p>
-              </div>
-
-              {useBrandKit && isBrandKitComplete && (
-                <span className="text-[11px] font-semibold text-brand-purple bg-brand-purple/10 px-2 py-0.5 rounded-full border border-brand-purple/20">
-                  Brand Streamlined
-                </span>
-              )}
-            </div>
-
-            {/* Target Platform */}
-            <div>
-              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                Target Platform
-              </label>
-              <PlatformSelector value={platform} onChange={setPlatform} />
-            </div>
-
-            {/* Campaign Objective */}
-            <div>
-              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                Campaign Objective
-              </label>
-              <ObjectiveSelector value={objective} onChange={setObjective} />
-            </div>
-
-            {/* Language Selector */}
-            <div>
-              <label className="block text-xs font-bold text-text-muted uppercase tracking-wider mb-2">
-                Copywriting Language
-              </label>
-              <select 
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-[#0a142c] border border-border rounded-xl p-3 text-sm text-white focus:outline-none focus:border-brand-purple cursor-pointer"
-              >
-                <option value="English">English (Global Luxury &amp; Professional)</option>
-                <option value="Hinglish">🇮🇳 Hinglish (Most Popular for High Conversions)</option>
-                <option value="Hindi">हिंदी (Hindi)</option>
-                <option value="Gujarati">ગુજરાતી (Gujarati)</option>
-                <option value="Marathi">मराठी (Marathi)</option>
-                <option value="Punjabi">ਪੰਜਾਬੀ (Punjabi)</option>
-                <option value="Tamil">தமிழ் (Tamil)</option>
-                <option value="Telugu">తెలుగు (Telugu)</option>
-                <option value="Bengali">বাংলা (Bengali)</option>
-              </select>
-            </div>
-
-            {/* Manual Tone & Visuals when Brand Kit is OFF */}
-            {!useBrandKit && (
-              <div className="pt-3 border-t border-border/60 space-y-3 animate-in fade-in duration-200">
-                <label className="block text-xs font-bold text-text-muted uppercase tracking-wider">
-                  Brand Voice &amp; Tone (Manual)
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {["Luxury & Premium", "Energetic & Fun", "Urgent & Direct", "Warm & Welcoming"].map((t) => (
+                {selectedAspectRatio !== "1:1" && (
+                  <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#16213e] border border-blue-500/40 text-blue-200 text-xs shadow-sm">
+                    <span>Aspect: {selectedAspectRatio}</span>
                     <button
-                      key={t}
                       type="button"
-                      onClick={() => setManualTone(t)}
-                      className={`p-2.5 rounded-xl border text-xs font-semibold text-center transition-all cursor-pointer ${
-                        manualTone === t
-                          ? "bg-brand-purple/20 border-brand-purple text-white ring-1 ring-brand-purple"
-                          : "bg-[#0a142c] border-border text-text-muted hover:text-white"
-                      }`}
+                      onClick={() => setSelectedAspectRatio("1:1")}
+                      className="text-blue-300 hover:text-white cursor-pointer"
                     >
-                      {t}
+                      <X className="w-3.5 h-3.5" />
                     </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </section>
-
-          {/* ── STEP 4: Additional Options ── */}
-          <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 shadow-sm space-y-4">
-            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold flex items-center justify-center">4</span>
-              Additional Options
-            </h3>
-
-            <div className="space-y-3 text-sm">
-              {/* Option 1: Text on Image */}
-              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
-                <div className="space-y-0.5">
-                  <div className="font-semibold text-white flex items-center gap-2">
-                    <Type className="w-4 h-4 text-brand-purple" />
-                    <span>Render Title &amp; Badge Text on Image</span>
-                  </div>
-                  <p className="text-xs text-text-muted">
-                    Overlays catchy campaign headline onto the generated visual
-                  </p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={includeTextOnImage}
-                  onChange={(e) => setIncludeTextOnImage(e.target.checked)}
-                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
-                />
-              </label>
-
-              {/* Option 2: Include Offer / Discount */}
-              <div className="p-3 rounded-xl bg-[#0a142c] border border-border/80 space-y-3">
-                <label className="flex items-center justify-between cursor-pointer">
-                  <div className="space-y-0.5">
-                    <div className="font-semibold text-white flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-amber-400" />
-                      <span>Include Promotional Offer or Discount</span>
-                    </div>
-                    <p className="text-xs text-text-muted">
-                      Highlights a limited-time coupon, sale tag or discount badge
-                    </p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={includeOffer}
-                    onChange={(e) => setIncludeOffer(e.target.checked)}
-                    className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
-                  />
-                </label>
-
-                {includeOffer && (
-                  <div className="pt-2 border-t border-border/50 animate-in fade-in duration-150">
-                    <label className="block text-xs font-semibold text-text-muted mb-1">
-                      Offer Text / Discount Badge
-                    </label>
-                    <input
-                      type="text"
-                      value={offerText}
-                      onChange={(e) => setOfferText(e.target.value)}
-                      placeholder="E.g. Flat 40% OFF or CODE: FESTIVE40"
-                      className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-brand-purple font-semibold text-amber-300"
-                    />
                   </div>
                 )}
               </div>
+            )}
+          </div>
 
-              {/* Option 3: Add Brand Logo */}
-              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
-                <div className="space-y-0.5">
-                  <div className="font-semibold text-white flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4 text-pink-400" />
-                    <span>Overlay Saved Brand Logo</span>
-                  </div>
-                  <p className="text-xs text-text-muted">
-                    {useBrandKit && loadedBrandKit?.logo_url
-                      ? "Automatically watermarks your saved Brand Kit logo in corner"
-                      : "Requires a saved brand logo in your Brand Kit"}
+          {/* Quick suggestions matching Image 2 with #071023 background */}
+          <div
+            style={{ fontFamily: "'Roboto', sans-serif", backgroundColor: "#071023" }}
+            className="rounded-2xl border border-[#232738] p-5 sm:p-6 space-y-4 shadow-sm"
+          >
+            <div className="text-base sm:text-lg font-normal text-slate-200 tracking-wide">
+              Quick suggestions for {activeContentTypeObj.title}:
+            </div>
+            <div className="flex flex-wrap gap-3.5">
+              {activeContentTypeObj.suggestions.map((s, idx) => {
+                const text = s.replace(/[^\w\s%]/gi, '').trim();
+                const isSelected = creativeInstruction.toLowerCase().includes(text.toLowerCase());
+                return (
+                  <button
+                    key={`${s}-${idx}`}
+                    type="button"
+                    onClick={() => handleSuggestionClick(s)}
+                    style={{
+                      background: isSelected
+                        ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                        : "#161a29",
+                    }}
+                    className={`px-8 sm:px-9 py-3 rounded-full border transition-all cursor-pointer font-normal shadow-sm min-w-[170px] text-center ${
+                      isSelected
+                        ? "border-[#8b5cf6] text-purple-100 shadow-md shadow-purple-950/50"
+                        : "border-[#2a3045] text-slate-200 hover:bg-[#1f2438] hover:border-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Choose Setting - unhighlighted border, clean #071023 styling */}
+          <div
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              backgroundColor: "#071023",
+            }}
+            className="rounded-3xl border border-[#232738] p-5 sm:p-6 space-y-5 shadow-sm"
+          >
+            <div>
+              <h3 className="text-xl font-normal text-white">Choose Setting</h3>
+              <p className="text-xs text-slate-300 mt-1">
+                Configure language, tone, platform, and campaign objective
+              </p>
+            </div>
+
+            {/* Target Platform (Image 3) */}
+            <div className="space-y-2.5">
+              <label className="block text-sm font-medium text-slate-200">
+                Target Platform
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { id: "instagram", name: "Instagram photo" },
+                  { id: "instagram_story", name: "Instagram story" },
+                  { id: "facebook", name: "Fackebook" },
+                  { id: "google_business", name: "Google business post" },
+                  { id: "advertisement", name: "Advertisement" },
+                ].map((plat) => {
+                  const isSelected = platform === plat.id;
+                  return (
+                    <button
+                      key={plat.id}
+                      type="button"
+                      onClick={() => setPlatform(plat.id)}
+                      style={{
+                        background: isSelected
+                          ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                          : "#141a2e",
+                      }}
+                      className={`px-6 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-normal whitespace-nowrap transition-all cursor-pointer border shadow-sm ${
+                        isSelected
+                          ? "border-[#8b5cf6] text-purple-100 shadow-md shadow-purple-950/50"
+                          : "border-[#26314c] text-slate-300 hover:border-slate-400 hover:text-white hover:bg-[#1a233c]"
+                      }`}
+                    >
+                      {plat.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Campaign Objective (Image 3) */}
+            <div className="space-y-2.5">
+              <label className="block text-sm font-medium text-slate-200">
+                Campaign Objective
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { id: "product_launch", name: "Product launch" },
+                  { id: "product_promotion", name: "Product promotion" },
+                  { id: "sales_conversion", name: "Sale" },
+                  { id: "brand_awareness", name: "Brand Awareness" },
+                  { id: "festival", name: "Festival" },
+                ].map((obj) => {
+                  const isSelected = objective === obj.id;
+                  return (
+                    <button
+                      key={obj.id}
+                      type="button"
+                      onClick={() => setObjective(obj.id)}
+                      style={{
+                        background: isSelected
+                          ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                          : "#141a2e",
+                      }}
+                      className={`px-6 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-normal whitespace-nowrap transition-all cursor-pointer border shadow-sm ${
+                        isSelected
+                          ? "border-[#8b5cf6] text-purple-100 shadow-md shadow-purple-950/50"
+                          : "border-[#26314c] text-slate-300 hover:border-slate-400 hover:text-white hover:bg-[#1a233c]"
+                      }`}
+                    >
+                      {obj.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Copywrite Language (Image 3) */}
+            <div className="space-y-2.5">
+              <label className="block text-sm font-medium text-slate-200">
+                Copywrite Language
+              </label>
+              <div className="relative">
+                <select
+                  value={language}
+                  onChange={(e) => setLanguage(e.target.value)}
+                  className="w-full h-11 px-5 rounded-full bg-[#181c2d] border border-[#2d3248] text-slate-300 text-xs sm:text-sm appearance-none outline-none focus:border-[#7c3aed] cursor-pointer"
+                >
+                  <option value="English">English</option>
+                  <option value="Hinglish">Hinglish</option>
+                  <option value="Hindi">Hindi (हिंदी)</option>
+                  <option value="Spanish">Spanish (Español)</option>
+                  <option value="French">French (Français)</option>
+                  <option value="German">German (Deutsch)</option>
+                </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                  <ChevronDown className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
+
+            {/* Brand Voice & Tone (Manual) (Image 3) */}
+            <div className="space-y-2.5">
+              <label className="block text-sm font-medium text-slate-200">
+                Brand Voice &amp; Tone (Manual)
+              </label>
+              <div className="flex flex-wrap gap-2.5">
+                {[
+                  { id: "luxury_1", name: "Luxury & Premium" },
+                  { id: "fun_1", name: "Fun & Energetic" },
+                  { id: "energetic_1", name: "Energetic" },
+                  { id: "luxury_2", name: "Luxury & Premium" },
+                  { id: "fun_2", name: "Fun & Energetic" },
+                ].map((tone, idx) => {
+                  const isSelected = selectedToneId === tone.id;
+                  return (
+                    <button
+                      key={`${tone.id}-${idx}`}
+                      type="button"
+                      onClick={() => {
+                        setSelectedToneId(tone.id);
+                        setManualTone(tone.name);
+                      }}
+                      style={{
+                        background: isSelected
+                          ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                          : "#141a2e",
+                      }}
+                      className={`px-6 sm:px-7 py-2.5 rounded-full text-xs sm:text-sm font-normal whitespace-nowrap transition-all cursor-pointer border shadow-sm ${
+                        isSelected
+                          ? "border-[#8b5cf6] text-purple-100 shadow-md shadow-purple-950/50"
+                          : "border-[#26314c] text-slate-300 hover:border-slate-400 hover:text-white hover:bg-[#1a233c]"
+                      }`}
+                    >
+                      {tone.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          </div>
+
+        {/* ── RIGHT COLUMN: Live Generated-Post Preview & Actions matching Image 1 ── */}
+        <div className="lg:col-span-5 sticky top-6 space-y-4">
+          <div className="rounded-3xl bg-[#0e101d] border border-white/10 p-5 sm:p-6 shadow-2xl space-y-4">
+            
+            {/* Header matching Image 1 */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-normal tracking-wide text-white">
+                {loading ? "Generating Post..." : "Generating Post"}
+              </h3>
+              <button
+                type="button"
+                onClick={toggleEdit}
+                className="px-4 py-1.5 rounded-full border border-white/10 bg-[#16182c] text-xs text-slate-300 hover:text-white hover:border-white/20 flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                <span>{isEditing ? "Done" : "Edit"}</span>
+              </button>
+            </div>
+
+            {/* Visual Display matching Image 1 */}
+            <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-black/60 border border-white/5 flex items-center justify-center shadow-inner">
+              {loading ? (
+                <div className="flex flex-col items-center justify-center text-center p-6 space-y-3">
+                  <Loader2 className="w-10 h-10 text-purple-400 animate-spin" />
+                  <p className="text-xs text-purple-200 font-medium">Synthesizing commercial post visual...</p>
+                </div>
+              ) : generatedPost ? (
+                <img
+                  src={resolveImageUrl(
+                    generatedPost.image_url || generatedPost.media_url,
+                    generatedPost.creative_direction || editedHeadline || creativeInstruction
+                  )}
+                  alt="Generated Post"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center p-6 space-y-2">
+                  <Sparkles className="w-10 h-10 text-purple-400/60 mb-1" />
+                  <p className="text-xs text-slate-400">Post visual will appear here</p>
+                </div>
+              )}
+            </div>
+
+            {/* Editable Caption / Headline when Edit is toggled */}
+            {isEditing && (
+              <div className="p-3.5 rounded-xl bg-[#161826] border border-white/10 space-y-3 animate-in fade-in text-xs">
+                <div>
+                  <label className="text-text-muted font-medium block mb-1">Headline</label>
+                  <input
+                    type="text"
+                    value={editedHeadline}
+                    onChange={(e) => setEditedHeadline(e.target.value)}
+                    className="w-full bg-[#11131f] border border-white/10 rounded-lg p-2 text-white outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="text-text-muted font-medium block mb-1">Caption</label>
+                  <textarea
+                    rows={3}
+                    value={editedCaption}
+                    onChange={(e) => setEditedCaption(e.target.value)}
+                    className="w-full bg-[#11131f] border border-white/10 rounded-lg p-2 text-white outline-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Footer Action Buttons matching Image 3 & Image 4 */}
+            <div className="flex items-center gap-3 pt-2">
+              {/* Regenerate button with outer gradient highlight matching Image 4 */}
+              <div className="flex-1 p-[1.5px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] to-[#fc9a5d] shadow-md shadow-purple-950/40">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (generatedPost) {
+                      regenerateImage();
+                    } else {
+                      handleGenerate();
+                    }
+                  }}
+                  disabled={loading || isRegeneratingImage}
+                  className="w-full h-11.5 rounded-full bg-[#12121e] hover:bg-[#1a1a2c] text-white text-sm font-normal flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-4 h-4 ${loading || isRegeneratingImage ? 'animate-spin' : ''}`} />
+                  <span>Regenerate</span>
+                </button>
+              </div>
+
+              {/* Download button with vibrant gradient matching Image 4 & Image 3 */}
+              <button
+                type="button"
+                onClick={handleDownloadImage}
+                style={{
+                  background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+                }}
+                className="flex-1 h-12 rounded-full text-white text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-purple-600/35 hover:opacity-95 transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-white stroke-[2.2]" />
+                <span className="text-white font-medium">Download</span>
+              </button>
+            </div>
+
+            {/* Secondary Save, Schedule, Publish Actions */}
+            {generatedPost && (
+              <div className="pt-3 border-t border-white/10 grid grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={savePost}
+                  className="py-2.5 px-3 rounded-xl bg-[#16182c] border border-white/10 text-xs font-medium text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Save</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={schedulePost}
+                  className="py-2.5 px-3 rounded-xl bg-[#16182c] border border-white/10 text-xs font-medium text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5 text-blue-400" />
+                  <span>Schedule</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowPublishModal(true)}
+                  className="py-2.5 px-3 rounded-xl bg-purple-600/30 border border-purple-500/40 text-xs font-medium text-purple-200 hover:bg-purple-600/50 flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Publish</span>
+                </button>
+              </div>
+            )}
+          </div>
+          {/* ── CARD: Caption & Hashtags matching Image 3 ── */}
+          <div
+            style={{
+              fontFamily: "'Roboto', sans-serif",
+              background: "linear-gradient(135deg, rgba(32, 16, 56, 0.45) 0%, rgba(14, 16, 29, 0.95) 100%)",
+            }}
+            className="rounded-3xl border border-white/10 p-5 sm:p-6 shadow-2xl space-y-4"
+          >
+            {/* Header: Title on left, Regenerate on right */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-normal tracking-wide text-white">
+                Caption &amp; Hashtags
+              </h3>
+              <button
+                type="button"
+                onClick={() => {
+                  if (generatedPost) {
+                    regenerateCaption();
+                  } else {
+                    handleGenerate();
+                  }
+                }}
+                disabled={loading}
+                className="px-3.5 py-1.5 rounded-full border border-white/10 bg-[#16182c] hover:bg-[#20243d] text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
+                <span>Regenerate</span>
+              </button>
+            </div>
+
+            {/* Caption Text with underline style matching Image 3 */}
+            <div className="text-sm text-slate-200 leading-relaxed font-normal">
+              <p className="underline decoration-[#0084ff]/70 decoration-2 underline-offset-4">
+                {editedCaption || generatedPost?.caption || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor li incididunt ut labore et."}
+              </p>
+            </div>
+
+            {/* CTA Badge matching Image 3 */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  const ctas = ["Shop Now", "Claim Offer", "Learn More", "Order Today", "Book Now", "Explore Collection"];
+                  const current = editedCta || "Shop Now";
+                  const nextIdx = (ctas.indexOf(current) + 1) % ctas.length;
+                  setEditedCta(ctas[nextIdx]);
+                }}
+                title="Click to change Call to Action"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#24133d] hover:bg-[#341b57] border border-[#7c3aed] text-xs text-purple-200 shadow-sm transition-all cursor-pointer group"
+              >
+                <span className="group-hover:text-white font-medium">{editedCta || "Shop Now"}</span>
+                <span className="text-purple-400/80">|</span>
+                <span>Link in Bio</span>
+              </button>
+            </div>
+
+            {/* Hashtags matching Image 3 (Blue #00b4d8 color) */}
+            <div className="text-sm text-[#00b4d8] font-normal tracking-wide pt-1">
+              {editedHashtags || "#trending #newlaunch #lifestyle #quality"}
+            </div>
+
+            {/* Footer Actions: Save, Schedule, Publish matching Image 3 */}
+            <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2.5">
+              <button
+                type="button"
+                onClick={savePost}
+                className="flex-1 py-2.5 px-4 rounded-full bg-[#1a1e2e] hover:bg-[#23283c] border border-white/10 text-white text-xs font-normal flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                <span>Save</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={schedulePost}
+                className="flex-1 py-2.5 px-4 rounded-full bg-[#1a1e2e] hover:bg-[#23283c] border border-white/10 text-white text-xs font-normal flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Schedule</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowPublishModal(true)}
+                style={{
+                  background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+                }}
+                className="flex-1 py-2.5 px-5 rounded-full text-white text-xs sm:text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-purple-600/35 hover:opacity-95 transition-all cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5 text-white stroke-[2.2]" />
+                <span className="text-white font-medium">Publish</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+        {/* ── Additional Options matching Image 2 & 3 (Full Width Desktop) ── */}
+        <div
+          style={{ fontFamily: "'Roboto', sans-serif" }}
+          className="rounded-3xl bg-[#0e101d] border border-white/10 p-5 sm:p-7 space-y-4 shadow-sm"
+        >
+          <h3 className="text-xl font-normal text-white tracking-wide">
+            Additional Options
+          </h3>
+
+          <div className="space-y-3">
+            {/* Option 1: Render Title & Badge Text on Image */}
+            <div
+              onClick={() => setIncludeTextOnImage(!includeTextOnImage)}
+              className="flex items-center justify-between p-4 rounded-2xl bg-[#141727] border border-[#232738] hover:border-slate-500 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#2d1b54] border border-[#7c3aed]/40 flex items-center justify-center text-purple-200 font-bold text-base shrink-0">
+                  T
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white group-hover:text-purple-200 transition-colors">
+                    Render Title &amp; Badge Text on Image
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Overlays catchy campaign headline onto the generated visual
                   </p>
                 </div>
-                <input
-                  type="checkbox"
-                  disabled={!loadedBrandKit?.logo_url && useBrandKit}
-                  checked={includeLogo && Boolean(loadedBrandKit?.logo_url || !useBrandKit)}
-                  onChange={(e) => setIncludeLogo(e.target.checked)}
-                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer disabled:opacity-40"
-                />
-              </label>
+              </div>
+              <div
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                  includeTextOnImage
+                    ? "bg-[#7c3aed] text-white shadow-md shadow-purple-900/40"
+                    : "border border-[#3b4259] bg-[#1a1e30]"
+                }`}
+              >
+                {includeTextOnImage && <Check className="w-4 h-4 stroke-[2.5]" />}
+              </div>
+            </div>
 
-              {/* Option 4: Generate Captions & Hashtags */}
-              <label className="flex items-center justify-between p-3 rounded-xl bg-[#0a142c] border border-border/80 hover:border-border cursor-pointer">
-                <div className="space-y-0.5">
-                  <div className="font-semibold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-emerald-400" />
-                    <span>Generate Viral Captions &amp; Hashtags</span>
-                  </div>
-                  <p className="text-xs text-text-muted">
+            {/* Option 2: Include Promotional Offer or Discount */}
+            <div
+              onClick={() => setIncludeOffer(!includeOffer)}
+              className="flex items-center justify-between p-4 rounded-2xl bg-[#141727] border border-[#232738] hover:border-slate-500 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#2d1b54] border border-[#7c3aed]/40 flex items-center justify-center text-purple-200 shrink-0">
+                  <Tag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white group-hover:text-purple-200 transition-colors">
+                    Include Promotional Offer or Discount
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Highlights a limited-time coupon, sale tag or discount badge
+                  </p>
+                </div>
+              </div>
+              <div
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                  includeOffer
+                    ? "bg-[#7c3aed] text-white shadow-md shadow-purple-900/40"
+                    : "border border-[#3b4259] bg-[#1a1e30]"
+                }`}
+              >
+                {includeOffer && <Check className="w-4 h-4 stroke-[2.5]" />}
+              </div>
+            </div>
+
+            {/* Option 3: Overlay Saved Brand Logo */}
+            <div
+              onClick={() => setIncludeLogo(!includeLogo)}
+              className="flex items-center justify-between p-4 rounded-2xl bg-[#141727] border border-[#232738] hover:border-slate-500 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#2d1b54] border border-[#7c3aed]/40 flex items-center justify-center text-purple-200 shrink-0">
+                  <ImageIcon className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white group-hover:text-purple-200 transition-colors">
+                    Overlay Saved Brand Logo
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Requires a saved brand logo in your Brand Kit
+                  </p>
+                </div>
+              </div>
+              <div
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                  includeLogo
+                    ? "bg-[#7c3aed] text-white shadow-md shadow-purple-900/40"
+                    : "border border-[#3b4259] bg-[#1a1e30]"
+                }`}
+              >
+                {includeLogo && <Check className="w-4 h-4 stroke-[2.5]" />}
+              </div>
+            </div>
+
+            {/* Option 4: Generate Viral Captions & Hashtags */}
+            <div
+              onClick={() => {
+                const nextVal = !generateCaptions;
+                setGenerateCaptions(nextVal);
+                setGenerateHashtags(nextVal);
+              }}
+              className="flex items-center justify-between p-4 rounded-2xl bg-[#141727] border border-[#232738] hover:border-slate-500 transition-all cursor-pointer group"
+            >
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-[#2d1b54] border border-[#7c3aed]/40 flex items-center justify-center text-purple-200 shrink-0">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="18" height="14" x="3" y="5" rx="2" ry="2"/>
+                    <path d="M7 15h4M15 15h2M7 11h2M13 11h4"/>
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium text-white group-hover:text-purple-200 transition-colors">
+                    Generate Viral Captions &amp; Hashtags
+                  </h4>
+                  <p className="text-xs text-slate-400 mt-0.5">
                     Synthesizes SEO-optimized captions and trending niche hashtags
                   </p>
                 </div>
-                <input
-                  type="checkbox"
-                  checked={generateCaptions && generateHashtags}
-                  onChange={(e) => {
-                    setGenerateCaptions(e.target.checked);
-                    setGenerateHashtags(e.target.checked);
-                  }}
-                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
-                />
-              </label>
+              </div>
+              <div
+                className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                  generateCaptions
+                    ? "bg-[#7c3aed] text-white shadow-md shadow-purple-900/40"
+                    : "border border-[#3b4259] bg-[#1a1e30]"
+                }`}
+              >
+                {generateCaptions && <Check className="w-4 h-4 stroke-[2.5]" />}
+              </div>
             </div>
-          </section>
+          </div>
+        </div>
 
-          {/* ── GENERATE POST BUTTON ── */}
+        {/* ── Centered Generate Post Button with Arrow Sign matching Image 1, 3 & 4 ── */}
+        <div className="flex justify-center pt-2 pb-8">
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={loading || (!creativeInstruction.trim() && uploadedImages.length === 0 && productIds.length === 0)}
-            className="w-full rounded-2xl bg-brand-gradient text-white px-6 py-4.5 font-bold disabled:opacity-50 hover:opacity-95 transition-all flex items-center justify-center gap-2.5 shadow-xl shadow-purple-600/25 text-base sm:text-lg cursor-pointer transform active:scale-[0.99]"
+            disabled={loading}
+            style={{
+              background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+            }}
+            className="rounded-full text-white px-14 sm:px-20 py-4 font-medium hover:opacity-95 transition-all flex items-center justify-center gap-3 shadow-xl shadow-purple-600/35 text-base sm:text-lg cursor-pointer min-w-[320px] max-w-[440px]"
           >
             {loading ? (
               <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                <span>Generating AI Post via Engine...</span>
+                <Loader2 className="w-5 h-5 animate-spin text-white" />
+                <span className="text-white font-medium">Generating AI Post...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-5 h-5" />
-                <span>Generate AI Post</span>
-                <span className="text-xs font-normal opacity-80 ml-1">
-                  ({useBrandKit && isBrandKitComplete ? "With Brand Kit" : "Standard"})
-                </span>
+                <span className="text-white font-medium">Generate Post</span>
+                <ArrowRight className="w-5 h-5 text-white stroke-[2.2]" />
               </>
             )}
           </button>
         </div>
-
-        {/* ── RIGHT COLUMN: Live Generated-Post Preview & Editing Actions ── */}
-        <div className="lg:col-span-5 sticky top-6 space-y-4">
-          
-          {/* Output / Loading Column */}
-          {loading && (
-            <div className="rounded-2xl bg-surface border border-border p-8 shadow-lg flex flex-col justify-center items-center text-center min-h-[460px]">
-              <Loader2 className="w-12 h-12 text-brand-purple animate-spin mb-6" />
-              <h3 className="text-base font-bold text-white mb-4">
-                Creating Your AI Post...
-              </h3>
-              <div className="space-y-3.5 w-full max-w-sm text-left">
-                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 1 ? 'opacity-100' : 'opacity-40'}`}>
-                  {loadingStep > 1 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : <Loader2 className="w-5 h-5 text-brand-purple animate-spin" />}
-                  <span className="text-white text-xs sm:text-sm">1. Loading business identity &amp; Brand Kit...</span>
-                </div>
-                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 2 ? 'opacity-100' : 'opacity-40'}`}>
-                  {loadingStep > 2 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 2 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-xs sm:text-sm">2. Vision analyzing images &amp; content type...</span>
-                </div>
-                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 3 ? 'opacity-100' : 'opacity-40'}`}>
-                  {loadingStep > 3 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 3 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-xs sm:text-sm">3. Crafting cultural copy &amp; viral hashtags...</span>
-                </div>
-                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 4 ? 'opacity-100' : 'opacity-40'}`}>
-                  {loadingStep > 4 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 4 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-xs sm:text-sm">4. Synthesizing commercial 8K visual poster...</span>
-                </div>
-                <div className={`flex items-center gap-3 transition-opacity ${loadingStep >= 5 ? 'opacity-100' : 'opacity-40'}`}>
-                  {loadingStep > 5 ? <CheckCircle2 className="w-5 h-5 text-green-400" /> : (loadingStep === 5 ? <Loader2 className="w-5 h-5 text-brand-purple animate-spin" /> : <div className="w-5 h-5 border-2 border-border rounded-full" />)}
-                  <span className="text-white text-xs sm:text-sm">5. Packaging post ready for export &amp; publishing...</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !generatedPost && (
-            <div className="rounded-2xl bg-surface/60 border border-border border-dashed p-8 text-center text-text-muted min-h-[460px] flex flex-col justify-center items-center">
-              <div className="w-14 h-14 rounded-2xl bg-brand-purple/10 border border-brand-purple/20 flex items-center justify-center text-brand-purple mb-4">
-                <Sparkles className="w-7 h-7" />
-              </div>
-              <h3 className="text-base font-bold text-white mb-1.5">
-                Live Post Preview
-              </h3>
-              <p className="text-xs text-text-muted max-w-xs leading-relaxed mb-6">
-                Your generated post, visual mockup, copy &amp; hashtags will appear here ready to review, edit, and publish.
-              </p>
-
-              {/* Sample Mockup Frame */}
-              <div className="w-full max-w-xs rounded-xl bg-[#0a142c] border border-border/80 p-3 text-left space-y-2 opacity-60">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-full bg-slate-700" />
-                  <div className="h-3 w-24 bg-slate-700 rounded" />
-                </div>
-                <div className="aspect-square w-full rounded-lg bg-slate-800/60 flex items-center justify-center text-xs text-slate-500">
-                  Post Mockup Preview
-                </div>
-                <div className="h-2 w-full bg-slate-700/60 rounded" />
-                <div className="h-2 w-3/4 bg-slate-700/60 rounded" />
-              </div>
-            </div>
-          )}
-
-          {/* Generated Post Preview */}
-          {!loading && generatedPost && (
-            <div className="rounded-2xl bg-surface border border-border overflow-hidden shadow-xl animate-in fade-in zoom-in-95 duration-200">
-              
-              {/* Header Bar */}
-              <div className="p-3.5 bg-gradient-to-r from-brand-purple/20 to-pink-500/10 border-b border-border flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-brand-purple flex items-center justify-center text-white">
-                    <Sparkles className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                      Generated Post
-                    </h4>
-                    <span className="text-[10px] text-text-muted">
-                      {platform.toUpperCase()} • {activeContentTypeObj.title}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={toggleEdit}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0a142c] hover:bg-[#111e40] border border-border text-xs text-white transition-colors cursor-pointer"
-                  >
-                    {isEditing ? <><Save className="w-3.5 h-3.5" /> Done</> : <><Edit2 className="w-3.5 h-3.5" /> Edit Text</>}
-                  </button>
-                </div>
-              </div>
-
-              {/* Social Media Post Frame */}
-              <div className="p-4 sm:p-5 space-y-4">
-                
-                {/* Brand Account Header */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    {loadedBrandKit?.logo_url ? (
-                      <img
-                        src={loadedBrandKit.logo_url}
-                        alt={effectiveBrandName}
-                        className="w-8 h-8 rounded-full object-cover border border-border"
-                      />
-                    ) : (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-purple to-pink-500 flex items-center justify-center text-white font-bold text-xs">
-                        {effectiveBrandName.charAt(0).toUpperCase()}
-                      </div>
-                    )}
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-bold text-white">{effectiveBrandName}</span>
-                        <CheckCircle2 className="w-3 h-3 text-brand-purple" />
-                      </div>
-                      <span className="text-[10px] text-text-muted">Sponsored • Just now</span>
-                    </div>
-                  </div>
-
-                  <span className="text-text-muted">
-                    {platform === "facebook" ? <FacebookIcon className="w-4 h-4" /> : platform === "linkedin" ? <LinkedinIcon className="w-4 h-4" /> : <InstagramIcon className="w-4 h-4" />}
-                  </span>
-                </div>
-
-                {/* Main Visual Image */}
-                <div className="relative aspect-square rounded-xl overflow-hidden bg-[#0a142c] border border-border group">
-                  {isRegeneratingImage && (
-                    <div className="absolute inset-0 bg-[#0a142c]/85 backdrop-blur-sm flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
-                      <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-2" />
-                      <span className="text-xs font-bold text-purple-200">Generating new visual...</span>
-                    </div>
-                  )}
-
-                  <img 
-                    key={generatedPost.image_url || generatedPost.media_url}
-                    src={resolveImageUrl(
-                      generatedPost.image_url || generatedPost.media_url, 
-                      generatedPost.creative_direction || editedHeadline || creativeInstruction
-                    )} 
-                    alt="AI Generated Post" 
-                    className="w-full h-full object-cover transition-opacity duration-300"
-                    onError={(e) => handleImageError(e, generatedPost.creative_direction || editedHeadline || creativeInstruction)}
-                    onLoad={() => setIsRegeneratingImage(false)}
-                  />
-
-                  {/* Optional Offer / Discount Badge Overlay */}
-                  {includeOffer && offerText && (
-                    <div className="absolute top-3 left-3 bg-amber-500 text-black font-black text-[11px] uppercase tracking-wider px-2.5 py-1 rounded-full shadow-lg">
-                      {offerText}
-                    </div>
-                  )}
-
-                  {/* Brand Logo Watermark Overlay */}
-                  {includeLogo && loadedBrandKit?.logo_url && (
-                    <div className="absolute top-3 right-3 bg-black/50 backdrop-blur-sm p-1 rounded-lg border border-white/20">
-                      <img
-                        src={loadedBrandKit.logo_url}
-                        alt="Logo"
-                        className="w-7 h-7 object-contain"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Image Toolbar */}
-                <div className="flex gap-2">
-                  <button 
-                    type="button"
-                    onClick={regenerateImage} 
-                    disabled={isRegeneratingImage}
-                    className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-xs text-white transition-colors disabled:opacity-60 cursor-pointer font-medium"
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isRegeneratingImage ? "animate-spin text-brand-purple" : ""}`} /> 
-                    <span>{isRegeneratingImage ? "Regenerating..." : "Regenerate Image"}</span>
-                  </button>
-                  <button 
-                    type="button"
-                    onClick={handleDownloadImage} 
-                    title="Download Image" 
-                    className="flex items-center justify-center gap-1.5 px-3 py-2 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-xs text-white transition-colors cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5" />
-                    <span>Download</span>
-                  </button>
-                </div>
-
-                {/* Headline Banner */}
-                {editedHeadline && !isEditing && (
-                  <div className="p-3 bg-brand-purple/15 border border-brand-purple/30 rounded-xl">
-                    <p className="text-[10px] uppercase font-bold text-brand-purple tracking-wider mb-0.5 flex items-center gap-1">
-                      <Sparkles className="w-3 h-3" /> Headline
-                    </p>
-                    <p className="text-sm font-bold text-white leading-snug">{editedHeadline}</p>
-                  </div>
-                )}
-
-                {/* Caption, CTA & Hashtags */}
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <h5 className="text-[11px] uppercase tracking-wider text-text-muted font-bold">
-                      Caption &amp; Copy
-                    </h5>
-                    <button
-                      type="button"
-                      onClick={regenerateCaption}
-                      className="text-[11px] text-brand-purple hover:underline font-semibold flex items-center gap-1 cursor-pointer"
-                    >
-                      <RefreshCw className="w-3 h-3" />
-                      <span>Regenerate Copy</span>
-                    </button>
-                  </div>
-
-                  <div className="p-3.5 rounded-xl bg-[#0a142c] border border-border text-white text-xs sm:text-sm leading-relaxed">
-                    {isEditing ? (
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Headline</label>
-                          <input 
-                            type="text"
-                            value={editedHeadline}
-                            onChange={(e) => setEditedHeadline(e.target.value)}
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white font-bold text-xs focus:outline-none focus:border-brand-purple"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <label className="text-[10px] text-text-muted font-bold block uppercase">Caption</label>
-                            <VoiceInputButton
-                              onTranscript={(text) => setEditedCaption(text)}
-                              currentValue={editedCaption}
-                              size="sm"
-                              tooltip="Dictate caption"
-                            />
-                          </div>
-                          <div className="relative">
-                            <textarea 
-                              value={editedCaption}
-                              onChange={(e) => setEditedCaption(e.target.value)}
-                              className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 pb-8 text-white text-xs focus:outline-none focus:border-brand-purple min-h-[100px] whitespace-pre-line leading-relaxed"
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Call to Action (CTA)</label>
-                          <input 
-                            type="text"
-                            value={editedCta}
-                            onChange={(e) => setEditedCta(e.target.value)}
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-white text-xs font-semibold text-brand-purple focus:outline-none focus:border-brand-purple"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[10px] text-text-muted font-bold block mb-1 uppercase">Hashtags</label>
-                          <input 
-                            type="text"
-                            value={editedHashtags}
-                            onChange={(e) => setEditedHashtags(e.target.value)}
-                            className="w-full bg-[#111e40] border border-border rounded-lg p-2.5 text-blue-400 text-xs focus:outline-none focus:border-brand-purple"
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="whitespace-pre-line text-slate-200">
-                          {editedCaption}
-                        </div>
-                        
-                        {editedCta && (
-                          <div className="mt-3 inline-block px-3 py-1 rounded-full bg-brand-purple/20 text-brand-purple font-bold text-xs border border-brand-purple/30">
-                            {editedCta}
-                          </div>
-                        )}
-                        
-                        {editedHashtags && (
-                          <div className="mt-3 text-xs text-blue-400 font-medium leading-relaxed">
-                            {editedHashtags.split(' ').filter(t => t.trim() !== "").map(tag => (tag.startsWith('#') ? tag : `#${tag}`)).join(' ')}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Actions: Save, Schedule, Publish */}
-                <div className="pt-4 border-t border-border grid grid-cols-3 gap-2.5">
-                  <button 
-                    type="button"
-                    onClick={savePost} 
-                    className="flex items-center justify-center gap-1.5 py-2.5 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <Save className="w-4 h-4 text-emerald-400" />
-                    <span>Save</span>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={schedulePost} 
-                    className="flex items-center justify-center gap-1.5 py-2.5 bg-[#0a142c] hover:bg-[#111e40] border border-border rounded-xl text-white text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <Calendar className="w-4 h-4 text-blue-400" />
-                    <span>Schedule</span>
-                  </button>
-
-                  <button 
-                    type="button"
-                    onClick={() => setShowPublishModal(true)} 
-                    className="flex items-center justify-center gap-1.5 py-2.5 bg-brand-gradient hover:opacity-90 rounded-xl text-white text-xs font-bold transition-opacity shadow-lg shadow-purple-500/20 cursor-pointer"
-                  >
-                    <Send className="w-4 h-4" />
-                    <span>Publish</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* ──────────────────────────────────────────────────
           Publish Platform Selection Modal
@@ -1411,6 +1534,101 @@ export default function AIPostPage() {
                     <span>Publish to LinkedIn</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* ──────────────────────────────────────────────────
+          Catalog & Aspect Ratio Selector Modal (Button 2 in search bar)
+         ────────────────────────────────────────────────── */}
+      {showCatalogSelector && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#0e101d] border border-white/10 rounded-3xl p-6 max-w-2xl w-full shadow-2xl space-y-6 max-h-[85vh] overflow-y-auto">
+            <div className="flex justify-between items-center border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-lg font-medium text-white flex items-center gap-2">
+                  <Sliders className="w-5 h-5 text-purple-400" />
+                  <span>Post Dimensions &amp; Catalog Products</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Choose visual aspect ratio and link products from your store
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCatalogSelector(false)}
+                className="text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Aspect Ratio Options */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-slate-200 block">
+                Select Aspect Ratio
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { ratio: "1:1", label: "Square (1:1)", sub: "Feed posts" },
+                  { ratio: "4:5", label: "Portrait (4:5)", sub: "Instagram feed" },
+                  { ratio: "9:16", label: "Story (9:16)", sub: "Stories & Reels" },
+                  { ratio: "16:9", label: "Landscape (16:9)", sub: "Banner & Web" },
+                ].map((item) => {
+                  const isSelected = selectedAspectRatio === item.ratio;
+                  return (
+                    <button
+                      key={item.ratio}
+                      type="button"
+                      onClick={() => setSelectedAspectRatio(item.ratio as any)}
+                      style={{
+                        background: isSelected
+                          ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)"
+                          : "#141727",
+                      }}
+                      className={`p-3.5 rounded-2xl border text-center transition-all cursor-pointer ${
+                        isSelected
+                          ? "border-[#8b5cf6] text-white shadow-md shadow-purple-950/50"
+                          : "border-[#232738] text-slate-300 hover:border-slate-500 hover:text-white"
+                      }`}
+                    >
+                      <div className="text-sm font-medium">{item.label}</div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">{item.sub}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Product Selector */}
+            <div className="space-y-3">
+              <label className="text-sm font-medium text-slate-200 block">
+                Link Catalog Product (Optional)
+              </label>
+              {products.length > 0 ? (
+                <ProductSelector
+                  products={products}
+                  value={productIds}
+                  onChange={setProductIds}
+                  maxSelection={4}
+                />
+              ) : (
+                <div className="p-6 rounded-2xl bg-[#141727] border border-[#232738] text-center text-slate-400 text-sm">
+                  No products found in catalog. Add products from the Catalog tab.
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setShowCatalogSelector(false)}
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium text-sm hover:opacity-95 transition-all shadow-md cursor-pointer"
+              >
+                Apply &amp; Done
               </button>
             </div>
           </div>

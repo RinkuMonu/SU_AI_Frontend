@@ -83,21 +83,32 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      {/* Header Card - Option 3 Visual Match */}
-      <div className="bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
+      {/* Header Card - Option 3 Visual Match: Bold hataya, 22px Roboto & 4-color gradient button */}
+      <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 shadow-xl">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <Check className="w-4 h-4 stroke-[2.5]" />
+            <span 
+              style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)" }}
+              className="w-8 h-8 rounded-xl border border-[#8b5cf6]/40 text-purple-200 flex items-center justify-center shrink-0 shadow-sm"
+            >
+              <Check className="w-4 h-4 text-[#c084fc] stroke-[2.2]" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Commercial Photoshoot Results</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold">
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h2 
+                  style={{ fontSize: "22px", fontFamily: "'Roboto', sans-serif" }}
+                  className="font-normal text-white tracking-normal leading-tight"
+                >
+                  Commercial Photoshoot Results
+                </h2>
+                <span 
+                  style={{ background: "rgba(47, 18, 98, 0.45)" }}
+                  className="text-xs px-3 py-1 rounded-full text-purple-200 border border-[#8b5cf6]/35 font-normal"
+                >
                   Production Ready
                 </span>
-              </h2>
-              <p className="text-xs text-text-muted mt-0.5">
+              </div>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1 font-normal">
                 High-resolution commercial photos created for {productName || "your product"}. Select, download, or save to library.
               </p>
             </div>
@@ -107,7 +118,7 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
             <button
               type="button"
               onClick={onBackToEdit}
-              className="px-4 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] border border-white/10 text-white text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer shadow-sm"
+              className="px-5 py-2.5 rounded-full bg-[#0c1630] hover:bg-[#152347] border border-[#26314c] text-slate-300 hover:text-white text-xs sm:text-sm font-normal flex items-center gap-2 transition-all cursor-pointer shadow-sm"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Edit Instructions</span>
@@ -116,10 +127,13 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
             <button
               type="button"
               onClick={onStartNewPhotoshoot}
-              className="px-5 py-2 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-xs font-bold text-white shadow-[0_0_15px_rgba(236,72,153,0.35)] flex items-center gap-2 transition-all cursor-pointer"
+              style={{
+                background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+              }}
+              className="px-6 py-2.5 rounded-full text-white font-medium text-sm shadow-lg shadow-purple-600/35 hover:opacity-95 flex items-center justify-center gap-2 transition-all cursor-pointer whitespace-nowrap shrink-0"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>New Photoshoot</span>
+              <Camera className="w-4 h-4 text-white stroke-[2.2]" />
+              <span className="text-white font-medium">New Photoshoot</span>
             </button>
           </div>
         </div>
@@ -213,19 +227,19 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
         </div>
       )}
 
-      {/* Batch Action Toolbar */}
+      {/* Batch Action Toolbar: Size baada kiya & color Image 2 ke anusaar */}
       {results.length > 0 && (
-        <div className="p-4 rounded-2xl bg-[#0B132B] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
+        <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="p-4 sm:p-5 rounded-3xl border border-[#1e2a4a] flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
           {/* Left: Select Controls */}
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <button
               type="button"
               onClick={allSelected ? onDeselectAll : onSelectAll}
-              className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 cursor-pointer"
+              className="text-xs sm:text-sm font-normal text-slate-300 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
             >
               {allSelected ? (
                 <>
-                  <CheckSquare className="w-4 h-4 text-[#E085FF]" />
+                  <CheckSquare className="w-4 h-4 text-purple-300" />
                   <span>Deselect All</span>
                 </>
               ) : (
@@ -236,31 +250,21 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
               )}
             </button>
 
-            <span className="text-xs text-slate-400">
-              <strong className="text-white">{selectedResultIds.length}</strong> of {results.length} selected
+            <span className="text-xs sm:text-sm text-slate-400 font-normal">
+              <span className="text-white font-medium">{selectedResultIds.length}</span> of {results.length} selected
             </span>
           </div>
 
-          {/* Right: Actions */}
-          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
-            <button
-              type="button"
-              disabled={selectedResultIds.length === 0}
-              onClick={onDownloadSelected}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_12px_rgba(236,72,153,0.3)]"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Download Selected ({selectedResultIds.length})</span>
-            </button>
-
+          {/* Right: Actions - 3 buttons size thoda baada & colors */}
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto justify-end">
             {onDownloadZip && (
               <button
                 type="button"
                 onClick={onDownloadZip}
-                className="px-3.5 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] text-white text-xs font-medium transition-all flex items-center gap-1.5 cursor-pointer border border-white/10"
+                className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#0c1630] hover:bg-[#152347] border border-[#26314c] text-slate-200 hover:text-white text-xs sm:text-sm font-normal transition-all flex items-center gap-2 cursor-pointer shadow-sm"
                 title="Download all high-res photos as ZIP"
               >
-                <Download className="w-3.5 h-3.5 text-[#E085FF]" />
+                <Download className="w-4 h-4 text-purple-300" />
                 <span>Download All (ZIP)</span>
               </button>
             )}
@@ -268,9 +272,9 @@ export const Step5Results: React.FC<Step5ResultsProps> = ({
             <button
               type="button"
               onClick={handleSaveWithToast}
-              className="px-4 py-2 rounded-xl bg-[#2D164D] hover:bg-[#3D1E68] text-[#E085FF] text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border border-[#A855F7]/40 shadow-sm"
+              className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#2F1262]/60 hover:bg-[#2F1262] text-purple-200 hover:text-white text-xs sm:text-sm font-normal transition-all flex items-center gap-2 cursor-pointer border border-[#8b5cf6]/40 shadow-sm"
             >
-              <Bookmark className="w-3.5 h-3.5" />
+              <Bookmark className="w-4 h-4" />
               <span>Save to My Gallery</span>
             </button>
           </div>

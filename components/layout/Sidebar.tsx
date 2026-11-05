@@ -87,7 +87,6 @@ const navigation = [
   { name: "Website Builder", href: "/website-builder", icon: Globe },
   { name: "Festival Engine", href: "/festivals", icon: PartyPopper },
   { name: "Influencers", href: "/influencers", icon: Users, comingSoon: true },
-  { name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
     name: "Social Platforms",
@@ -218,12 +217,12 @@ export function Sidebar() {
                           key={child.name}
                           title={`${child.name} (Coming Soon)`}
                           aria-disabled="true"
-                          className="group flex items-center justify-between px-2.5 py-1.5 text-xs font-medium rounded-md text-text-muted/60 bg-surface/30 cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
+                          className="group flex items-center justify-between px-3 py-2 text-sm font-medium rounded-xl text-text-muted/60 bg-surface/30 cursor-not-allowed select-none leading-tight opacity-75 border border-dashed border-white/5"
                         >
                           <div className="flex items-center min-w-0">
                             {child.icon && (
                               <child.icon
-                                className="mr-2 h-3.5 w-3.5 flex-shrink-0 opacity-40"
+                                className="mr-3 h-4 w-4 flex-shrink-0 opacity-40"
                                 aria-hidden="true"
                               />
                             )}
@@ -243,7 +242,7 @@ export function Sidebar() {
                         title={child.name}
                         onClick={() => onItemClick && onItemClick()}
                         className={cn(
-                          "group flex items-center px-3 py-2 text-xs font-medium rounded-2xl transition-colors",
+                          "group flex items-center px-3 py-2 text-sm font-medium rounded-2xl transition-colors",
                           isExactActive
                             ? "bg-gradient-to-b from-[#2F1262] to-[#000000] border border-[#4c1d95]/40 text-white shadow-[0_4px_20px_rgba(47,18,98,0.4)]"
                             : "text-slate-400 hover:bg-white/[0.04] hover:text-white"
@@ -252,7 +251,7 @@ export function Sidebar() {
                         {child.icon && (
                           <child.icon
                             className={cn(
-                              "mr-2.5 h-3.5 w-3.5 flex-shrink-0",
+                              "mr-3 h-4 w-4 flex-shrink-0",
                               isExactActive ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
                             )}
                             aria-hidden="true"

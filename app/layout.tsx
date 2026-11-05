@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Roboto } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -10,6 +10,12 @@ const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
 });
+const roboto = Roboto({
+  variable: "--font-roboto",
+  weight: ["300", "400", "500", "700"],
+  subsets: ["latin"],
+});
+
 
 export const metadata: Metadata = {
   title: "DhandaGrow AI | All-in-One Business Growth Platform",
@@ -28,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground`}>
         <SecurityShield />
         <LanguageProvider>
           <AuthProvider>

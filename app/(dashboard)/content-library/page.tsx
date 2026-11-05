@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { contentService } from '@/services/content.service';
 import { socialService } from '@/services/social.service';
 import { GeneratedContent } from '@/types/content';
@@ -17,6 +18,12 @@ import { Label } from '@/components/ui/label';
 import { InstagramService } from '@/services/instagram.service';
 
 export default function ContentLibraryPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace('/ai-calendar');
+  }, [router]);
+
   const [contents, setContents] = useState<GeneratedContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('All');
