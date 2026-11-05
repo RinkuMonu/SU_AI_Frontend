@@ -215,187 +215,205 @@ export default function LinkedinIntegrationPage() {
   };
 
   return (
-    <div className="max-w-4xl space-y-6 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#0A66C2]/10 border border-[#0A66C2]/20">
-            <LinkedinIcon className="h-7 w-7" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">LinkedIn Integration</h1>
-            <p className="text-neutral-400 text-sm mt-0.5">
-              Connect your personal profile or company page to auto-publish AI posts & articles.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {message && (
-        <div
-          className={`p-3.5 rounded-xl border text-sm flex items-center justify-between ${
-            message.type === "success"
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-              : "bg-red-500/10 border-red-500/30 text-red-300"
-          }`}
-        >
-          <span>{message.text}</span>
-          <button
-            onClick={() => setMessage(null)}
-            className="text-xs text-neutral-400 hover:text-white ml-3"
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* 1-Click Fast Connect Card */}
-      <Card className="bg-[#121318] border-neutral-800 shadow-xl overflow-hidden relative">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0A66C2] via-blue-400 to-[#0A66C2]" />
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <ShieldCheck className="h-5 w-5 text-blue-400" />
-              <CardTitle className="text-white text-lg font-semibold">
-                LinkedIn Connection Status
-              </CardTitle>
+    <div 
+      style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} 
+      className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-6 min-h-[calc(100vh-64px)] overflow-y-auto animate-in fade-in duration-300"
+    >
+      <div className="max-w-4xl mx-auto w-full space-y-6 pb-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2a4a]">
+          <div className="flex items-center gap-3.5">
+            <div 
+              style={{ backgroundColor: "#081226" }} 
+              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
+            >
+              <LinkedinIcon className="w-6 h-6 text-[#0A66C2]" />
             </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">LinkedIn Integration</h1>
+              <p className="text-slate-400 text-sm mt-1 font-normal tracking-wide">
+                Connect your personal profile or company page to auto-publish AI posts &amp; articles.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 self-start sm:self-auto">
             {isLoadingData ? (
-              <Loader2 className="h-4 w-4 text-neutral-400 animate-spin" />
+              <Loader2 className="h-4 w-4 text-slate-400 animate-spin" />
             ) : isConnected ? (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-normal bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-sm">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                 Connected
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-neutral-800 text-neutral-400 border border-neutral-700">
+              <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-normal bg-[#1c2333] border border-[#2a354c] text-slate-300">
                 Not Connected
               </span>
             )}
           </div>
-          <CardDescription className="text-neutral-400">
-            Authorize DhandaGrow AI to publish posts directly to your LinkedIn feed.
-          </CardDescription>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-4 pt-0">
-          <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="text-sm font-medium text-white flex items-center gap-2">
-                <LinkedinIcon className="h-4 w-4" />
-                {isConnected ? "Account Connected" : "Connect LinkedIn with 1-Click"}
-              </div>
-              <p className="text-xs text-neutral-400">
-                {isConnected
-                  ? `Active Author ID: ${authorId}`
-                  : "Sign in with LinkedIn to authorize automatic post publishing."}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {isConnected ? (
-                <Button
-                  onClick={handleDisconnect}
-                  disabled={isDisconnecting}
-                  variant="outline"
-                  className="border-red-900/40 bg-red-950/20 text-red-400 hover:bg-red-950/40 hover:text-red-300 text-xs h-9 px-3.5"
-                >
-                  {isDisconnecting ? (
-                    <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Disconnecting...</>
-                  ) : (
-                    <><Trash2 className="mr-1.5 h-3.5 w-3.5" /> Disconnect</>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleOAuthConnect}
-                  disabled={isConnecting}
-                  className="bg-[#0A66C2] hover:bg-[#004182] text-white text-xs h-9 px-4 font-medium transition-all shadow-md shadow-blue-900/20"
-                >
-                  {isConnecting ? (
-                    <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Connecting...</>
-                  ) : (
-                    <>
-                      <LinkedinIcon className="mr-2 h-4 w-4 fill-white" />
-                      Connect LinkedIn Account
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Advanced / Manual Credentials */}
-      <Card className="bg-[#121318] border-neutral-800 shadow-lg">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <LinkedinIcon className="h-5 w-5" />
-            <CardTitle className="text-white text-base font-medium">Advanced: Manual Credentials</CardTitle>
-          </div>
-          <CardDescription className="text-neutral-400 text-xs">
-            Optionally specify a custom LinkedIn Author URN or long-lived Token.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-neutral-300 text-xs">LinkedIn Author ID (URN)</Label>
-            <Input 
-              placeholder="e.g. urn:li:person:12345678 or urn:li:organization:123456" 
-              value={authorId}
-              onChange={(e) => setAuthorId(e.target.value)}
-              className="border-neutral-800 bg-neutral-900/80 text-white focus:ring-1 focus:ring-blue-500 font-mono text-xs"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-neutral-300 text-xs">Access Token</Label>
-              <button
-                type="button"
-                onClick={() => setShowToken(!showToken)}
-                className="text-[11px] text-neutral-400 hover:text-white flex items-center gap-1"
-              >
-                {showToken ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                {showToken ? "Hide" : "Show"}
-              </button>
-            </div>
-            <Input 
-              type={showToken ? "text" : "password"} 
-              placeholder="AQV..." 
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              className="border-neutral-800 bg-neutral-900/80 text-white focus:ring-1 focus:ring-blue-500 font-mono text-xs"
-            />
-          </div>
-
-          <Button 
-            onClick={handleUpdate} 
-            disabled={isUpdating} 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-opacity text-sm h-10 font-medium"
+        {/* Message Alert */}
+        {message && (
+          <div
+            className={`p-3.5 rounded-xl border text-xs sm:text-sm flex items-center justify-between ${
+              message.type === "success"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                : "bg-red-500/10 border-red-500/30 text-red-300"
+            }`}
           >
-            {isUpdating ? (
-              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
-            ) : updated ? (
-              <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-300" /> Saved</>
-            ) : (
-              "Save LinkedIn Settings"
-            )}
-          </Button>
-
-          <p className="text-[11px] text-neutral-500 text-center">
-            Need developer credentials?{" "}
-            <a 
-              href="https://www.linkedin.com/developers/apps" 
-              target="_blank" 
-              rel="noreferrer"
-              className="text-blue-400 hover:underline inline-flex items-center gap-0.5"
+            <span>{message.text}</span>
+            <button
+              onClick={() => setMessage(null)}
+              className="text-xs text-slate-400 hover:text-white ml-3"
             >
-              LinkedIn Developer Portal <ExternalLink className="h-2.5 w-2.5 ml-0.5" />
-            </a>
-          </p>
-        </CardContent>
-      </Card>
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* 1-Click Fast Connect Card */}
+        <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+          <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <ShieldCheck className="h-5 w-5 text-blue-400" />
+                <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
+                  LinkedIn Connection Status
+                </CardTitle>
+              </div>
+              <CardDescription className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                Authorize to publish posts directly to your LinkedIn feed.
+              </CardDescription>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-5 sm:p-6">
+            <div className="p-4 sm:p-5 rounded-xl bg-[#081226] border border-[#1e2a4a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="text-sm sm:text-base font-normal text-white flex items-center gap-2.5 tracking-wide">
+                  <LinkedinIcon className="h-5 w-5 text-[#0A66C2]" />
+                  {isConnected ? "Account Connected" : "Connect LinkedIn with 1-Click"}
+                </div>
+                <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
+                  {isConnected
+                    ? `Active Author ID: ${authorId}`
+                    : "Sign in with LinkedIn to authorize automatic post publishing."}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                {isConnected ? (
+                  <Button
+                    onClick={handleDisconnect}
+                    disabled={isDisconnecting}
+                    variant="outline"
+                    className="border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 text-xs sm:text-sm h-9 px-4 rounded-xl cursor-pointer"
+                  >
+                    {isDisconnecting ? (
+                      <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Disconnecting...</>
+                    ) : (
+                      <><Trash2 className="mr-1.5 h-4 w-4" /> Disconnect</>
+                    )}
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={handleOAuthConnect}
+                    disabled={isConnecting}
+                    className="bg-[#0A66C2] hover:bg-[#004182] text-white text-xs sm:text-sm h-10 px-4 font-normal rounded-xl transition-all shadow-md cursor-pointer flex items-center gap-2"
+                  >
+                    {isConnecting ? (
+                      <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Connecting...</>
+                    ) : (
+                      <>
+                        <LinkedinIcon className="h-4 w-4 fill-white" />
+                        Connect LinkedIn Account
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Advanced / Manual Credentials Card */}
+        <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+          <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <LinkedinIcon className="h-5 w-5 text-[#0A66C2]" />
+                <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
+                  Advanced: Manual Credentials
+                </CardTitle>
+              </div>
+              <CardDescription className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+                Optionally specify a custom LinkedIn Author URN or long-lived Token.
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="p-5 sm:p-6 space-y-5">
+            <div className="space-y-2">
+              <Label className="text-white font-normal text-sm sm:text-base tracking-wide">LinkedIn Author ID (URN)</Label>
+              <Input 
+                placeholder="e.g. urn:li:person:12345678 or urn:li:organization:123456" 
+                value={authorId}
+                onChange={(e) => setAuthorId(e.target.value)}
+                className="border-[#1e2a4a] bg-[#081226] text-white focus:ring-1 focus:ring-blue-500 font-mono text-sm h-10 px-3.5 rounded-xl"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-white font-normal text-sm sm:text-base tracking-wide">Access Token</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowToken(!showToken)}
+                  className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
+                >
+                  {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showToken ? "Hide" : "Show"}
+                </button>
+              </div>
+              <div className="relative">
+                <Input 
+                  type={showToken ? "text" : "password"} 
+                  placeholder="AQV..." 
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  className="border-[#1e2a4a] bg-[#081226] text-white focus:ring-1 focus:ring-blue-500 font-mono text-sm h-10 px-3.5 pr-11 rounded-xl"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={handleUpdate} 
+              disabled={isUpdating} 
+              className="w-full h-11 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
+            >
+              {isUpdating ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>
+              ) : updated ? (
+                <><CheckCircle2 className="mr-2 h-4 w-4 text-emerald-300" /> Saved</>
+              ) : (
+                "Save LinkedIn Settings"
+              )}
+            </Button>
+
+            <p className="text-xs text-slate-400 text-center font-normal pt-2">
+              Need developer credentials?{" "}
+              <a 
+                href="https://www.linkedin.com/developers/apps" 
+                target="_blank" 
+                rel="noreferrer"
+                className="text-blue-400 hover:underline inline-flex items-center gap-1"
+              >
+                LinkedIn Developer Portal <ExternalLink className="h-3 w-3 ml-0.5" />
+              </a>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

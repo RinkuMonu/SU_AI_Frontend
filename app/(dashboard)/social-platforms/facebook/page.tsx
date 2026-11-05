@@ -625,414 +625,418 @@ export default function FacebookIntegrationPage() {
   const isActuallyConnected = isConnected || Boolean(fbPageId && (fbToken || fbUserToken));
 
   return (
-    <div className="max-w-4xl space-y-6 animate-in fade-in duration-500 mx-auto p-4 md:p-6">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border/50">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-2xl bg-blue-600/15 border border-blue-500/30 shadow-lg shadow-blue-500/20 flex items-center justify-center">
-            <FacebookIcon className="h-9 w-9" />
-          </div>
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-2">
-              Facebook Integration
-            </h1>
-            <p className="text-text-muted text-sm mt-0.5">
-              Connect your Facebook Page with valid Page & User Access Tokens to automate posting.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
-          {isActuallyConnected ? (
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shadow-sm">
-                <ShieldCheck className="w-4 h-4" /> Connected {fbPageName ? `• ${fbPageName}` : ""}
-              </span>
-              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-semibold shadow-sm font-mono">
-                <Clock className="w-3.5 h-3.5 text-blue-400" /> {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleFacebookLogin(true)}
-                disabled={isLoggingIn || isReRequesting}
-                className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10 text-xs h-8 px-2.5 flex items-center gap-1.5"
-                title="Switch to another Facebook account or re-authorize permissions"
-              >
-                {isReRequesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-blue-400" />}
-                <span className="hidden sm:inline">Switch Account</span>
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleDisconnect}
-                disabled={isDisconnecting}
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8 px-2.5"
-                title="Disconnect Facebook"
-              >
-                {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-              </Button>
+    <div 
+      style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} 
+      className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-6 min-h-[calc(100vh-64px)] overflow-y-auto animate-in fade-in duration-300"
+    >
+      <div className="max-w-4xl mx-auto w-full space-y-6 pb-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2a4a]">
+          <div className="flex items-center gap-3.5">
+            <div 
+              style={{ backgroundColor: "#081226" }} 
+              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
+            >
+              <FacebookIcon className="w-6 h-6 text-[#1877F2]" />
             </div>
-          ) : (
-            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
-              Not Connected
-            </span>
-          )}
-        </div>
-      </div>
-
-      {/* Error Alert */}
-      {errorMessage && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start justify-between text-red-400 text-sm animate-in fade-in">
-          <div className="flex items-start gap-2.5">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
             <div>
-              <p className="font-semibold text-red-300">Action Required</p>
-              <p className="text-red-400/90 text-xs mt-0.5 leading-relaxed">{errorMessage}</p>
-            </div>
-          </div>
-          <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Success Alert */}
-      {successMessage && (
-        <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start justify-between text-emerald-400 text-sm animate-in fade-in">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
-            <p className="text-emerald-300 text-xs">{successMessage}</p>
-          </div>
-          <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0">
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {/* Fast Facebook Connect Card (Shown ONLY when NOT logged in/connected) */}
-      {!isActuallyConnected && (
-        /* Fast Facebook Connect Card (Shown ONLY when NOT logged in/connected) */
-        <Card className="bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-surface border-blue-500/30 shadow-xl overflow-hidden relative">
-          <CardContent className="p-6 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-1.5 text-center md:text-left">
-              <h3 className="text-xl font-bold text-white flex items-center justify-center md:justify-start gap-2">
-                <FacebookIcon className="w-5 h-5" /> Fast Facebook OAuth Connect
-              </h3>
-              <p className="text-sm text-gray-300 max-w-lg leading-relaxed">
-                Log in with Facebook to automatically grant permissions (<code className="text-blue-300 font-mono text-xs">pages_show_list</code>, <code className="text-blue-300 font-mono text-xs">public_profile</code>) and retrieve your Facebook Pages securely.
+              <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white flex items-center gap-2">
+                Facebook Integration
+              </h1>
+              <p className="text-slate-400 text-sm mt-1 font-normal tracking-wide">
+                Connect your Facebook Page with valid Page &amp; User Access Tokens to automate posting.
               </p>
             </div>
-
-            <div className="flex flex-col sm:flex-row flex-wrap gap-2.5 w-full md:w-auto shrink-0">
-              <Button
-                onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
-                disabled={isLoggingIn || isReRequesting}
-                className="px-5 py-5 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:opacity-95 text-white font-semibold rounded-xl shadow-lg hover:shadow-blue-500/25 transition-all text-sm flex items-center justify-center gap-2"
-              >
-                {isLoggingIn ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  <>
-                    <FacebookIcon className="h-4 w-4 text-white" />
-                    Login with Facebook
-                  </>
-                )}
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list")}
-                disabled={isLoggingIn || isReRequesting}
-                className="px-4 py-5 border-blue-400/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-semibold rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-                title="Safe connect with basic permissions (public_profile, pages_show_list)"
-              >
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                Safe Connect (Basic Pages)
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={() => handleFacebookLogin(true, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
-                disabled={isLoggingIn || isReRequesting}
-                className="px-4 py-5 border-gray-600/40 bg-surface-elevated/40 hover:bg-surface-elevated text-gray-300 font-medium rounded-xl text-sm flex items-center justify-center gap-2 transition-all"
-                title="Forces Facebook to re-prompt page selection and permissions if you skipped them earlier"
-              >
-                {isReRequesting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Re-requesting...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4 text-blue-400" />
-                    Re-Login for Page Access
-                  </>
-                )}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Discovered Pages Selection Card (if pages found) */}
-      {discoveredPages.length > 0 && (
-        <Card className="bg-surface-elevated/70 border-brand-purple/40 shadow-lg">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Layers className="h-5 w-5 text-brand-purple" />
-              <CardTitle className="text-white text-base">Select Your Facebook Page</CardTitle>
-            </div>
-            <CardDescription className="text-xs text-text-muted">
-              We discovered {discoveredPages.length} Facebook Page(s) linked to your account. Click to select:
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {discoveredPages.map((page) => {
-                const isSelected = fbPageId === page.page_id;
-                return (
-                  <button
-                    key={page.page_id}
-                    type="button"
-                    onClick={() => handleSelectPage(page)}
-                    className={`p-3.5 rounded-xl border text-left transition-all flex items-center justify-between gap-3 ${
-                      isSelected
-                        ? "bg-brand-purple/15 border-brand-purple text-white shadow-md shadow-brand-purple/20"
-                        : "bg-surface border-border hover:border-gray-500 text-gray-300"
-                    }`}
-                  >
-                    <div className="truncate">
-                      <div className="font-semibold text-sm truncate flex items-center gap-1.5">
-                        <FacebookIcon className="w-4 h-4 shrink-0" />
-                        {page.page_name}
-                      </div>
-                      <div className="text-xs font-mono text-gray-400 mt-0.5 truncate">
-                        ID: {page.page_id} {page.category ? `• ${page.category}` : ""}
-                      </div>
-                    </div>
-                    {isSelected ? (
-                      <span className="p-1 rounded-full bg-brand-purple text-white shrink-0">
-                        <Check className="w-3.5 h-3.5" />
-                      </span>
-                    ) : (
-                      <span className="text-xs text-blue-400 hover:underline shrink-0">
-                        Select
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Facebook API Credentials & Tokens Card */}
-      <Card className="bg-surface border-border shadow-xl">
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Key className="h-5 w-5 text-blue-500" />
-              <CardTitle className="text-white text-lg">Facebook Credentials & Access Tokens</CardTitle>
-            </div>
-            <span className="text-xs text-gray-400">Meta Graph API v19.0</span>
           </div>
-          <CardDescription className="text-xs">
-            Manage your User Access Token and Page Access Token separately for full publishing access.
-          </CardDescription>
-        </CardHeader>
-        
-        <CardContent className="space-y-5">
-          {/* 1. User Access Token (NEW FIELD) */}
-          <div className="space-y-2 p-4 rounded-xl bg-surface-elevated/40 border border-border/80">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div>
-                <Label className="text-white font-semibold flex items-center gap-2 text-sm">
-                  User Access Token
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-blue-500/15 text-blue-400 font-mono uppercase">
-                    Personal Token
-                  </span>
-                </Label>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Generated when logging into Facebook or from Meta Graph API Explorer.
-                </p>
-              </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                {fbUserToken && (
-                  <button
-                    type="button"
-                    onClick={handleCopyUserToken}
-                    className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> {copiedUserToken ? "Copied" : "Copy"}
-                  </button>
-                )}
+          <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+            {isActuallyConnected ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-normal shadow-sm">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Connected {fbPageName ? `• ${fbPageName}` : ""}
+                </span>
+                <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-300 text-xs font-normal shadow-sm font-mono">
+                  <Clock className="w-3.5 h-3.5 text-blue-400" /> {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
+                </span>
                 <Button
-                  type="button"
                   variant="outline"
                   size="sm"
-                  onClick={handleFetchPagesFromUserToken}
-                  disabled={isFetchingPages || !fbUserToken.trim()}
-                  className="h-7 text-xs px-2.5 border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 gap-1.5"
-                  title="Extract all Facebook Pages and Page Access Tokens from this User Token"
+                  onClick={() => handleFacebookLogin(true)}
+                  disabled={isLoggingIn || isReRequesting}
+                  className="border-blue-500/30 text-blue-300 hover:bg-blue-500/10 text-xs h-8 px-3 flex items-center gap-1.5 cursor-pointer rounded-lg"
+                  title="Switch to another Facebook account or re-authorize permissions"
                 >
-                  {isFetchingPages ? (
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                  ) : (
-                    <Layers className="w-3 h-3 text-blue-400" />
-                  )}
-                  Fetch Pages & Tokens
+                  {isReRequesting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5 text-blue-400" />}
+                  <span className="hidden sm:inline">Switch Account</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDisconnect}
+                  disabled={isDisconnecting}
+                  className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-xs h-8 px-3 cursor-pointer rounded-lg"
+                  title="Disconnect Facebook"
+                >
+                  {isDisconnecting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                 </Button>
               </div>
-            </div>
-
-            <div className="relative mt-2">
-              <Input
-                type={showUserToken ? "text" : "password"}
-                placeholder="EAA... (Facebook User Access Token)"
-                value={fbUserToken}
-                onChange={(e) => setFbUserToken(e.target.value)}
-                className="pr-10 border-border bg-black/40 text-white font-mono text-xs focus:ring-2 focus:ring-blue-500 outline-none"
-              />
-              <button
-                type="button"
-                onClick={() => setShowUserToken(!showUserToken)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                title={showUserToken ? "Hide token" : "Show token"}
-              >
-                {showUserToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
+            ) : (
+              <span className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1c2333] border border-[#2a354c] text-slate-300 text-xs font-normal">
+                Not Connected
+              </span>
+            )}
           </div>
+        </div>
 
-          {/* 2. Facebook Page ID */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-white font-semibold text-sm">Facebook Page ID</Label>
-              <span className="text-xs text-text-muted">Numeric ID of your Page (e.g. 10435...)</span>
-            </div>
-            <Input 
-              placeholder="e.g. 104358912345678" 
-              value={fbPageId}
-              onChange={(e) => setFbPageId(e.target.value)}
-              className="border-border bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none font-mono text-sm"
-            />
-          </div>
-
-          {/* 3. Page Access Token (Primary Publishing Token) */}
-          <div className="space-y-2 p-4 rounded-xl bg-surface-elevated/40 border border-emerald-500/30">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        {/* Error Alert */}
+        {errorMessage && (
+          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 flex items-start justify-between text-red-400 text-xs sm:text-sm animate-in fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-400" />
               <div>
-                <Label className="text-white font-semibold flex items-center gap-2 text-sm">
-                  Page Access Token
-                  <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-400 font-mono uppercase">
-                    Required for Posts & Photos
-                  </span>
-                </Label>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  The dedicated token required by Facebook Graph API to publish posts directly to your Page.
+                <p className="font-normal text-red-300">Action Required</p>
+                <p className="text-red-400/90 text-xs sm:text-sm mt-0.5 leading-relaxed">{errorMessage}</p>
+              </div>
+            </div>
+            <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Success Alert */}
+        {successMessage && (
+          <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start justify-between text-emerald-400 text-xs sm:text-sm animate-in fade-in">
+            <div className="flex items-center gap-2.5">
+              <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
+              <p className="text-emerald-300 text-xs sm:text-sm">{successMessage}</p>
+            </div>
+            <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0">
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Fast Facebook Connect Card (Spacious & Buttons Below Subtext) */}
+        {!isActuallyConnected && (
+          <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-5 sm:p-6 space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2.5">
+                  <FacebookIcon className="w-5 h-5 shrink-0" />
+                  <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">
+                    Fast Facebook OAuth Connect
+                  </h3>
+                </div>
+                <p className="text-sm text-slate-300 font-normal tracking-wide leading-relaxed max-w-2xl">
+                  Log in with Facebook to automatically grant permissions (<code className="text-blue-300 font-mono text-xs">pages_show_list</code>, <code className="text-blue-300 font-mono text-xs">public_profile</code>) and retrieve your Facebook Pages securely.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                {fbToken && (
-                  <button
-                    type="button"
-                    onClick={handleCopyPageToken}
-                    className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-medium"
-                  >
-                    <Copy className="w-3.5 h-3.5" /> {copiedPageToken ? "Copied" : "Copy"}
-                  </button>
-                )}
-                {!isActuallyConnected && (
+              {/* Buttons placed BELOW sub text with proper spacing */}
+              <div className="flex items-center gap-3 flex-wrap pt-1">
+                <Button
+                  onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
+                  disabled={isLoggingIn || isReRequesting}
+                  className="h-10 px-4 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:opacity-95 text-white font-normal rounded-xl text-sm flex items-center justify-center gap-2 shadow-md cursor-pointer"
+                >
+                  {isLoggingIn ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      <FacebookIcon className="h-4 w-4 text-white" />
+                      Login with Facebook
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => handleFacebookLogin(false, "public_profile,email,pages_show_list")}
+                  disabled={isLoggingIn || isReRequesting}
+                  className="h-10 px-4 border-blue-400/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 font-normal rounded-xl text-sm flex items-center justify-center gap-2 cursor-pointer"
+                  title="Safe connect with basic permissions"
+                >
+                  <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                  Safe Connect (Basic Pages)
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => handleFacebookLogin(true, "public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts")}
+                  disabled={isLoggingIn || isReRequesting}
+                  className="h-10 px-4 border-[#1e2a4a] bg-[#162138] hover:bg-[#1e2d4d] text-slate-300 font-normal rounded-xl text-sm flex items-center justify-center gap-2 cursor-pointer"
+                  title="Forces Facebook permission dialog to reappear"
+                >
+                  <RefreshCw className="w-4 h-4 text-blue-400" />
+                  Re-Login for Page Access
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Discovered Pages Selection Card (if pages found) */}
+        {discoveredPages.length > 0 && (
+          <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+            <CardHeader className="py-3.5 px-5 sm:px-6 border-b border-[#1e2a4a]">
+              <div className="flex items-center gap-2">
+                <Layers className="h-5 w-5 text-blue-400" />
+                <CardTitle className="text-white text-base font-normal">Select Your Facebook Page</CardTitle>
+              </div>
+              <CardDescription className="text-xs text-slate-400 font-normal mt-0.5">
+                We discovered {discoveredPages.length} Facebook Page(s) linked to your account. Click to select:
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="p-4 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {discoveredPages.map((page) => {
+                  const isSelected = fbPageId === page.page_id;
+                  return (
+                    <button
+                      key={page.page_id}
+                      type="button"
+                      onClick={() => handleSelectPage(page)}
+                      className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between gap-3 cursor-pointer ${
+                        isSelected
+                          ? "bg-blue-600/20 border-blue-500 text-white shadow"
+                          : "bg-[#081226] border-[#1e2a4a] hover:border-slate-500 text-slate-300"
+                      }`}
+                    >
+                      <div className="truncate">
+                        <div className="font-normal text-sm truncate flex items-center gap-2">
+                          <FacebookIcon className="w-4 h-4 shrink-0" />
+                          {page.page_name}
+                        </div>
+                        <div className="text-xs font-mono text-slate-400 mt-1 truncate">
+                          ID: {page.page_id} {page.category ? `• ${page.category}` : ""}
+                        </div>
+                      </div>
+                      {isSelected ? (
+                        <span className="p-1 rounded-full bg-blue-500 text-white shrink-0">
+                          <Check className="w-3.5 h-3.5" />
+                        </span>
+                      ) : (
+                        <span className="text-xs text-blue-400 hover:underline shrink-0">
+                          Select
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Facebook API Credentials & Tokens Card (Spacious Layout) */}
+        <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
+          <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <Key className="h-5 w-5 text-blue-400" />
+                <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
+                  Facebook Credentials &amp; Access Tokens
+                </CardTitle>
+              </div>
+              <span className="text-xs text-slate-400 font-normal">Meta Graph API v19.0</span>
+            </div>
+            <CardDescription className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
+              Manage your User Access Token and Page Access Token separately for full publishing access.
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="p-5 sm:p-6 space-y-5">
+            {/* 1. User Access Token */}
+            <div className="space-y-3 p-4 rounded-xl bg-[#081226] border border-[#1e2a4a]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <Label className="text-white font-normal flex items-center gap-2.5 text-sm sm:text-base tracking-wide">
+                    User Access Token
+                    <span className="px-2 py-0.5 rounded text-[11px] bg-blue-500/15 text-blue-400 font-mono uppercase">
+                      Personal Token
+                    </span>
+                  </Label>
+                  <p className="text-xs text-slate-400 font-normal mt-1">
+                    Generated when logging into Facebook or from Meta Graph API Explorer.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {fbUserToken && (
+                    <button
+                      type="button"
+                      onClick={handleCopyUserToken}
+                      className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1 font-normal cursor-pointer"
+                    >
+                      <Copy className="w-3.5 h-3.5" /> {copiedUserToken ? "Copied" : "Copy"}
+                    </button>
+                  )}
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => handleFacebookLogin(true)}
-                    disabled={isLoggingIn || isReRequesting}
-                    className="h-7 text-xs px-2.5 border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 gap-1.5"
-                    title="Re-run Facebook Login to grant page access permissions"
+                    onClick={handleFetchPagesFromUserToken}
+                    disabled={isFetchingPages || !fbUserToken.trim()}
+                    className="h-8 text-xs px-3 border-blue-500/30 bg-blue-500/10 text-blue-300 hover:bg-blue-500/20 gap-1.5 rounded-lg cursor-pointer"
+                    title="Extract all Facebook Pages and Page Access Tokens from this User Token"
                   >
-                    <RefreshCw className="w-3 h-3 text-emerald-400" />
-                    Re-request Page Login
+                    {isFetchingPages ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Layers className="w-3.5 h-3.5 text-blue-400" />
+                    )}
+                    Fetch Pages &amp; Tokens
                   </Button>
+                </div>
+              </div>
+
+              <div className="relative mt-2">
+                <Input
+                  type={showUserToken ? "text" : "password"}
+                  placeholder="EAA... (Facebook User Access Token)"
+                  value={fbUserToken}
+                  onChange={(e) => setFbUserToken(e.target.value)}
+                  className="pr-10 border-[#1e2a4a] bg-[#0c1630] text-white font-mono text-sm h-10 outline-none rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowUserToken(!showUserToken)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  title={showUserToken ? "Hide token" : "Show token"}
+                >
+                  {showUserToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Facebook Page ID */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-white font-normal text-sm sm:text-base tracking-wide">Facebook Page ID</Label>
+                <span className="text-xs text-slate-400 font-normal">Numeric ID of your Page (e.g. 10435...)</span>
+              </div>
+              <Input 
+                placeholder="e.g. 104358912345678" 
+                value={fbPageId}
+                onChange={(e) => setFbPageId(e.target.value)}
+                className="border-[#1e2a4a] bg-[#081226] text-white focus:ring-1 focus:ring-blue-500 outline-none text-sm font-normal h-10 px-3.5 rounded-xl"
+              />
+            </div>
+
+            {/* 3. Page Access Token */}
+            <div className="space-y-3 p-4 rounded-xl bg-[#081226] border border-emerald-500/30">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <Label className="text-white font-normal flex items-center gap-2.5 text-sm sm:text-base tracking-wide">
+                    Page Access Token
+                    <span className="px-2 py-0.5 rounded text-[11px] bg-emerald-500/15 text-emerald-400 font-mono uppercase">
+                      Required for Posts &amp; Photos
+                    </span>
+                  </Label>
+                  <p className="text-xs text-slate-400 font-normal mt-1">
+                    The dedicated token required by Facebook Graph API to publish posts directly to your Page.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  {fbToken && (
+                    <button
+                      type="button"
+                      onClick={handleCopyPageToken}
+                      className="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1 font-normal cursor-pointer"
+                    >
+                      <Copy className="w-3.5 h-3.5" /> {copiedPageToken ? "Copied" : "Copy"}
+                    </button>
+                  )}
+                  {!isActuallyConnected && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleFacebookLogin(true)}
+                      disabled={isLoggingIn || isReRequesting}
+                      className="h-8 text-xs px-3 border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 gap-1.5 rounded-lg cursor-pointer"
+                      title="Re-run Facebook Login to grant page access permissions"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+                      Re-request Page Login
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="relative mt-2">
+                <Input 
+                  type={showPageToken ? "text" : "password"} 
+                  placeholder="EAA... (Dedicated Page Access Token)" 
+                  value={fbToken}
+                  onChange={(e) => setFbToken(e.target.value)}
+                  className="pr-10 border-[#1e2a4a] bg-[#0c1630] text-emerald-300 focus:ring-1 focus:ring-emerald-500 outline-none font-mono text-sm h-10 rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPageToken(!showPageToken)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  title={showPageToken ? "Hide token" : "Show token"}
+                >
+                  {showPageToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
+
+            {isActuallyConnected && (
+              <div className="space-y-2 pt-1">
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs sm:text-sm text-emerald-300">
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    Facebook account is active &amp; credentials are automatically saved.
+                  </span>
+                  <span className="font-mono text-xs text-emerald-400/80">Active</span>
+                </div>
+                <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between text-xs sm:text-sm text-blue-300">
+                  <span className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-400 shrink-0" />
+                    24-Hour Auto-Delete Policy: Tokens are refreshed securely.
+                  </span>
+                  <span className="font-mono text-xs text-blue-400 font-normal">
+                    {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
+                  </span>
+                </div>
+                {tokenPermissionWarning && (
+                  <div className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs sm:text-sm flex items-start gap-2.5 animate-in fade-in">
+                    <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-normal text-amber-300">Missing Publishing Permission</p>
+                      <p className="mt-1 leading-relaxed text-amber-200/90">{tokenPermissionWarning}</p>
+                    </div>
+                  </div>
                 )}
               </div>
-            </div>
-
-            <div className="relative mt-2">
-              <Input 
-                type={showPageToken ? "text" : "password"} 
-                placeholder="EAA... (Dedicated Page Access Token)" 
-                value={fbToken}
-                onChange={(e) => setFbToken(e.target.value)}
-                className="pr-10 border-border bg-black/40 text-emerald-300 focus:ring-2 focus:ring-emerald-500 outline-none font-mono text-xs"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPageToken(!showPageToken)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
-                title={showPageToken ? "Hide token" : "Show token"}
-              >
-                {showPageToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
-            </div>
-          </div>
-
-          {isActuallyConnected && (
-            <div className="space-y-3">
-              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between text-xs text-emerald-300">
-                <span className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  Facebook account is active & credentials are automatically saved.
-                </span>
-                <span className="font-mono text-[11px] text-emerald-400/80">Status: Active</span>
-              </div>
-              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between text-xs text-blue-300">
-                <span className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-400 shrink-0" />
-                  24-Hour Auto-Delete Policy: Access codes and page access tokens are automatically purged after 24 hours.
-                </span>
-                <span className="font-mono text-[11px] text-blue-400 font-semibold">
-                  {remainingTime ? `Expires in ${remainingTime}` : "24h Auto-Expiry"}
-                </span>
-              </div>
-              {tokenPermissionWarning && (
-                <div className="p-3.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-200 text-xs flex items-start gap-2.5 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-amber-300">Missing Publishing Permission</p>
-                    <p className="mt-1 leading-relaxed text-amber-200/90">{tokenPermissionWarning}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Action Button */}
-          <Button 
-            onClick={handleSaveSettings} 
-            disabled={isUpdating} 
-            className="w-full py-6 bg-brand-gradient hover:opacity-90 text-white font-semibold rounded-xl text-base transition-opacity shadow-lg"
-          >
-            {isUpdating ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Saving Facebook Credentials...</>
-            ) : updated ? (
-              <><Check className="mr-2 h-5 w-5 text-emerald-400" /> Settings Saved Successfully!</>
-            ) : isActuallyConnected ? (
-              "Update Facebook Credentials"
-            ) : (
-              "Save Facebook Settings"
             )}
-          </Button>
-        </CardContent>
-      </Card>
+
+            {/* Action Button */}
+            <Button 
+              onClick={handleSaveSettings} 
+              disabled={isUpdating} 
+              className="w-full h-11 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
+            >
+              {isUpdating ? (
+                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving Facebook Credentials...</>
+              ) : updated ? (
+                <><Check className="mr-2 h-4 w-4 text-emerald-400" /> Settings Saved Successfully!</>
+              ) : isActuallyConnected ? (
+                "Update Facebook Credentials"
+              ) : (
+                "Save Facebook Settings"
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
