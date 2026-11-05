@@ -205,6 +205,58 @@ export function BrandKitToggleCard({
     brandKit?.tone ||
     (cachedBrandPrefs?.tones ? cachedBrandPrefs.tones.join(", ") : "Professional");
 
+  if (compact) {
+    return (
+      <div
+        style={{
+          backgroundColor: "rgba(177, 177, 177, 0.12)",
+          borderColor: "#693780",
+          boxShadow: "inset 0px 4px 22.3px -2px #693780",
+          borderRadius: "12px",
+        }}
+        className={`border p-4 sm:p-5 flex items-center justify-between transition-all ${className}`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-11 h-11 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-[#da8aff] shrink-0 shadow-inner">
+            <svg className="w-5 h-5 text-[#da8aff]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 3c0 4.5-3.5 8-8 8 4.5 0 8 3.5 8 8 0-4.5 3.5-8 8-8-4.5 0-8-3.5-8-8z" />
+              <circle cx="6" cy="18" r="1.5" fill="currentColor" stroke="none" />
+              <path d="M19 4v4m-2-2h4" strokeWidth="2" />
+            </svg>
+          </div>
+
+          <div>
+            <h3 className="font-normal text-white text-base sm:text-lg tracking-wide">
+              {title}
+            </h3>
+            <p className="text-xs text-slate-300 mt-1 leading-normal">
+              {description}
+            </p>
+          </div>
+        </div>
+
+        {/* Purple Toggle Switch matching Image 1 */}
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label="Toggle Brand Kit auto-apply"
+          onClick={() => onChange(!enabled)}
+          className={`relative inline-flex h-7 w-13 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+            enabled ? "bg-[#7c3aed]" : "bg-white/10"
+          }`}
+        >
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out ${
+              enabled ? "translate-x-6" : "translate-x-0"
+            }`}
+          />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`rounded-2xl border transition-all duration-300 overflow-hidden ${

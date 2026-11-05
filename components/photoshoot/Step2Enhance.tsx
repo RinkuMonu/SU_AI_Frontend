@@ -16,7 +16,10 @@ import {
   Sliders,
   X,
   Loader2,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Camera,
+  Film,
+  ShoppingBag
 } from "lucide-react";
 import {
   EnhancedVariation,
@@ -81,21 +84,32 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Step Header Card */}
-      <div className="bg-[#0B132B] border border-white/10 rounded-2xl p-5 sm:p-6 shadow-xl">
+      {/* Step Header Card matching Image 3 with #081226 and 30px Roboto */}
+      <div 
+        style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }}
+        className="border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 shadow-xl"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A855F7]/25 to-[#EC4899]/25 text-[#EC4899] border border-[#EC4899]/30 flex items-center justify-center shrink-0">
-              <Wand2 className="w-4 h-4" />
+          <div className="flex items-center gap-3.5">
+            <span 
+              style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)" }}
+              className="w-10 h-10 rounded-2xl border border-[#8b5cf6]/40 text-purple-200 flex items-center justify-center shrink-0 shadow-sm"
+            >
+              <Wand2 className="w-5 h-5 text-[#c084fc] stroke-[1.8]" />
             </span>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <span>Step 2 — AI Product Enhancement</span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 font-bold">
+              <div className="flex items-center gap-3 flex-wrap">
+                <h2 
+                  style={{ fontSize: "22px", fontFamily: "'Roboto', sans-serif" }}
+                  className="font-normal text-white tracking-normal leading-tight"
+                >
+                  Step 2 — AI Product Enhancement
+                </h2>
+                <span style={{ background: "rgba(47, 18, 98, 0.45)" }} className="text-xs px-3 py-1 rounded-full text-purple-200 border border-[#8b5cf6]/35 font-normal">
                   AI Vision Calibrated
                 </span>
-              </h2>
-              <p className="text-xs text-text-muted mt-1">
+              </div>
+              <p className="text-xs sm:text-sm text-slate-400 mt-1">
                 AI analyzes the uploaded images and creates different professional treatments while preserving the original product.
               </p>
             </div>
@@ -105,12 +119,13 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
             type="button"
             onClick={onRegenerateAll}
             disabled={isEnhancing}
-            className="px-4 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] border border-white/10 text-white text-xs font-medium flex items-center gap-2 transition-colors cursor-pointer self-start sm:self-auto disabled:opacity-50 shadow-sm"
+            style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(20, 10, 45, 0.25) 100%)" }}
+            className="px-6 sm:px-7 py-2.5 rounded-full border border-[#8b5cf6]/35 hover:border-[#8b5cf6]/70 text-purple-100 hover:text-white text-xs font-normal flex items-center gap-2 transition-all cursor-pointer self-start sm:self-auto disabled:opacity-50 shadow-md"
           >
             {isEnhancing ? (
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-purple" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-purple-300" />
             ) : (
-              <RotateCcw className="w-3.5 h-3.5 text-brand-pink" />
+              <RotateCcw className="w-3.5 h-3.5 text-purple-300" />
             )}
             <span>Regenerate Looks</span>
           </button>
@@ -158,10 +173,15 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
         )}
       </div>
 
-      {/* 3 Enhancement Style Selector Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+      {/* 3 Enhancement Style Selector Cards with Image 1 Glow & Dark Purple Low Opacity Placeholders */}
+      <div 
+        style={{ fontFamily: "'Roboto', sans-serif" }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-3.5"
+      >
         {ENHANCEMENT_STYLES.map((st) => {
           const isSelected = enhancementStyle === st.id;
+          const StyleIcon = st.id === "studio_premium" ? Camera : st.id === "luxury_cinematic" ? Film : ShoppingBag;
+
           return (
             <button
               key={st.id}
@@ -173,29 +193,64 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   setActiveComparisonId(matching.id);
                 }
               }}
-              className={`relative text-left p-4 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between overflow-hidden group ${
+              style={{
+                backgroundColor: isSelected ? "#101322" : "#081226",
+                backgroundImage: isSelected
+                  ? "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(13, 15, 27, 0.85) 100%)"
+                  : "none",
+                boxShadow: isSelected
+                  ? "0 0 12px rgba(139, 92, 246, 0.25)"
+                  : "none",
+                borderColor: isSelected ? "#8b5cf6" : undefined,
+              }}
+              className={`relative text-left p-5 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col justify-between overflow-hidden group min-h-[160px] ${
                 isSelected
-                  ? "bg-gradient-to-b from-[#181330] to-[#101428] border-brand-purple shadow-xl shadow-brand-purple/20 ring-1 ring-brand-purple/40"
-                  : "bg-[#0e1328]/90 hover:bg-[#121734] border-white/10 hover:border-white/20"
+                  ? "border-[#8b5cf6]"
+                  : "border-[#1e2a4a] hover:border-slate-400 hover:bg-[#0c1630]"
               }`}
             >
-              {/* Top Row: Badge & Radio */}
-              <div className="flex items-center justify-between mb-2.5">
-                <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    isSelected
-                      ? "bg-brand-purple text-white shadow"
-                      : "bg-white/10 text-neutral-300"
-                  }`}
-                >
-                  {st.badge}
-                </span>
+              {/* Top Row: Icon Placeholder + Badge & Radio Checkmark matching Image 1 */}
+              <div className="flex items-center justify-between mb-3 w-full">
+                <div className="flex items-center gap-2.5">
+                  <div
+                    style={{
+                      background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)",
+                    }}
+                    className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${
+                      isSelected
+                        ? "border-[#8b5cf6] text-[#c084fc] shadow-[0_0_12px_rgba(139,92,246,0.35)]"
+                        : "border-[#8b5cf6]/25 text-purple-300 group-hover:text-white"
+                    }`}
+                  >
+                    <StyleIcon className="w-5 h-5 text-inherit stroke-[1.8]" />
+                  </div>
+
+                  <span
+                    style={{
+                      background: isSelected
+                        ? "rgba(47, 18, 98, 0.55)"
+                        : "rgba(20, 26, 46, 0.5)",
+                    }}
+                    className={`text-[11px] font-normal px-2.5 py-0.5 rounded-full border ${
+                      isSelected
+                        ? "border-[#8b5cf6]/50 text-purple-100 shadow-sm"
+                        : "border-[#26314c] text-purple-300"
+                    }`}
+                  >
+                    {st.badge}
+                  </span>
+                </div>
 
                 <div
+                  style={{
+                    background: isSelected
+                      ? "linear-gradient(135deg, rgba(47, 18, 98, 0.6) 0%, rgba(20, 10, 45, 0.35) 100%)"
+                      : "rgba(0,0,0,0.4)",
+                  }}
                   className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
                     isSelected
-                      ? "border-brand-purple bg-brand-purple text-white shadow"
-                      : "border-white/30 bg-black/40"
+                      ? "border-[#8b5cf6] text-purple-100 shadow-[0_0_6px_rgba(139,92,246,0.25)]"
+                      : "border-white/30"
                   }`}
                 >
                   {isSelected && <Check className="w-3 h-3 stroke-[3]" />}
@@ -204,19 +259,19 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
               {/* Title & Description */}
               <div className="space-y-1 mb-3">
-                <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-brand-pink transition-colors">
+                <h3 className="text-sm sm:text-base font-normal text-white group-hover:text-purple-200 transition-colors">
                   {st.name}
                 </h3>
-                <p className="text-[11px] text-brand-purple font-medium">{st.tagline}</p>
-                <p className="text-[11px] text-neutral-400 leading-snug pt-0.5 line-clamp-2">
+                <p className="text-xs text-purple-300 font-normal">{st.tagline}</p>
+                <p className="text-xs text-slate-400 leading-snug pt-0.5 line-clamp-2 font-normal">
                   {st.description}
                 </p>
               </div>
 
               {/* Specs Pill */}
-              <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-[10px] text-neutral-400">
+              <div className="pt-2.5 border-t border-[#1e2a4a] flex items-center justify-between text-[11px] text-slate-400 font-normal">
                 <span>{st.lightingType}</span>
-                <span className="font-semibold text-neutral-300">{st.idealFor.split(",")[0]}</span>
+                <span className="font-normal text-slate-300">{st.idealFor.split(",")[0]}</span>
               </div>
             </button>
           );
@@ -225,13 +280,15 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
       {/* Interactive Before & After Comparison */}
       {activeVariation && (
-        <div className="bg-[#0e1328]/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+        <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-brand-purple" />
-                <span>Original vs. AI Enhanced Inspection</span>
-                <span className="text-[10px] text-brand-pink font-semibold">
+                <span style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(20, 10, 45, 0.25) 100%)" }} className="w-7 h-7 rounded-lg border border-[#8b5cf6]/35 text-purple-200 flex items-center justify-center shrink-0">
+                  <Sliders className="w-4 h-4 text-[#c084fc] stroke-[1.8]" />
+                </span>
+                <span className="font-normal">Original vs. AI Enhanced Inspection</span>
+                <span className="text-xs text-purple-300 font-normal">
                   ({activeVariation.styleName})
                 </span>
               </h3>
@@ -295,7 +352,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_ENHANCED)}
                 />
               ) : null}
-              <div className="absolute top-3 right-3 px-2 py-0.5 rounded bg-brand-purple/90 backdrop-blur-md text-white text-[10px] font-bold shadow">
+              <div style={{ background: "#2F1262" }} className="absolute top-3 right-3 px-2 py-0.5 rounded border border-[#8b5cf6]/40 text-purple-100 text-[10px] font-normal shadow">
                 AI Enhanced ({activeVariation?.styleName || "Calibrated"})
               </div>
 
@@ -367,7 +424,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
               <div className="rounded-xl border border-brand-purple/40 bg-brand-purple/5 p-3 space-y-2">
                 <div className="flex items-center justify-between text-xs font-semibold text-white">
-                  <span className="text-brand-pink font-bold">AI Enhanced ({activeVariation?.styleName || "Calibrated"})</span>
+                  <span className="text-purple-300 font-normal">AI Enhanced ({activeVariation?.styleName || "Calibrated"})</span>
                   <button
                     type="button"
                     onClick={() => setLightboxImageUrl(activeVariation?.enhancedUrl || null)}
@@ -395,13 +452,15 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
       )}
 
       {/* Enhancement Variations Grid */}
-      <div className="bg-[#0e1328]/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+      <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="border border-[#1e2a4a] rounded-3xl p-5 sm:p-6 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-sm font-bold text-white flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-brand-pink" />
-              <span>Select Enhanced Variations</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-neutral-300 font-normal">
+              <span style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.45) 0%, rgba(20, 10, 45, 0.25) 100%)" }} className="w-7 h-7 rounded-lg border border-[#8b5cf6]/35 text-purple-200 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-[#c084fc] stroke-[1.8]" />
+              </span>
+              <span className="font-normal">Select Enhanced Variations</span>
+              <span style={{ background: "#2F1262" }} className="text-xs px-2.5 py-0.5 rounded-full text-purple-200 font-normal border border-[#8b5cf6]/40">
                 {selectedEnhancedIds.length} selected
               </span>
             </h3>
@@ -422,7 +481,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                 key={variation.id}
                 className={`rounded-xl border transition-all overflow-hidden flex flex-col justify-between ${
                   isSelected
-                    ? "bg-[#141228] border-brand-purple shadow-xl shadow-brand-purple/20 ring-1 ring-brand-purple"
+                    ? "bg-[#141228] border-[#8b5cf6] shadow-[0_0_12px_rgba(139,92,246,0.25)]"
                     : "bg-[#090d1f] border-white/10 hover:border-white/20"
                 }`}
               >
@@ -443,7 +502,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   )}
 
                   {isSelected && (
-                    <div className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-brand-purple text-white text-[10px] font-bold shadow-md flex items-center gap-1">
+                    <div style={{ background: "linear-gradient(135deg, #2F1262 0%, #000000 100%)" }} className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full border border-[#8b5cf6] text-purple-100 text-[10px] font-normal shadow-md flex items-center gap-1">
                       <Check className="w-3 h-3 stroke-[3]" />
                       <span>Selected</span>
                     </div>
@@ -480,9 +539,9 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                       type="button"
                       disabled={variation.isRegenerating || isEnhancing}
                       onClick={() => onVariationToggle(variation.id)}
-                      className={`py-1.5 px-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      style={{ background: isSelected ? "linear-gradient(135deg, #2F1262 0%, #000000 100%)" : undefined }} className={`py-1.5 px-2 rounded-lg text-xs font-normal transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
                         isSelected
-                          ? "bg-brand-purple text-white shadow"
+                          ? "text-purple-100 border border-[#8b5cf6] shadow shadow-purple-900/40"
                           : "bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/10"
                       }`}
                     >
@@ -566,12 +625,14 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
         <button
           type="button"
-          disabled={selectedEnhancedIds.length === 0}
           onClick={onNext}
-          className="px-7 py-3 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-xs sm:text-sm shadow-[0_0_20px_rgba(236,72,153,0.4)] flex items-center gap-2 cursor-pointer transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          style={{
+            background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+          }}
+          className="px-9 py-3.5 rounded-full text-white font-medium text-xs sm:text-sm shadow-xl shadow-purple-600/35 hover:opacity-95 flex items-center gap-2 cursor-pointer transition-all"
         >
-          <span>Continue to Choose Style</span>
-          <ArrowRight className="w-4 h-4" />
+          <span className="text-white font-medium">Continue to Choose Style</span>
+          <ArrowRight className="w-4 h-4 text-white stroke-[2.2]" />
         </button>
       </div>
     </div>

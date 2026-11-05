@@ -122,29 +122,42 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      {/* Gallery Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0a0d1a] border border-white/10 rounded-2xl p-5 shadow-xl">
+      {/* Gallery Header: Bold hataya & 22px Roboto */}
+      <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-[#1e2a4a] rounded-3xl p-5 shadow-xl">
         <div>
-          <div className="flex items-center gap-2">
-            <FolderOpen className="w-5 h-5 text-brand-purple" />
-            <h2 className="text-lg font-bold text-white tracking-tight">
-              My Photoshoot Library
-            </h2>
-            <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-pink border border-brand-purple/40">
-              {sessions.length} {sessions.length === 1 ? "Session" : "Sessions"}
+          <div className="flex items-center gap-3">
+            <span 
+              style={{ background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)" }}
+              className="w-8 h-8 rounded-xl border border-[#8b5cf6]/40 text-purple-200 flex items-center justify-center shrink-0 shadow-sm"
+            >
+              <FolderOpen className="w-4 h-4 text-[#c084fc] stroke-[1.8]" />
             </span>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 
+                style={{ fontSize: "22px", fontFamily: "'Roboto', sans-serif" }}
+                className="font-normal text-white tracking-normal leading-tight"
+              >
+                My Photoshoot Library
+              </h2>
+              <span 
+                style={{ background: "rgba(47, 18, 98, 0.45)" }}
+                className="text-xs px-3 py-1 rounded-full text-purple-200 border border-[#8b5cf6]/35 font-normal"
+              >
+                {sessions.length} {sessions.length === 1 ? "Session" : "Sessions"}
+              </span>
+            </div>
           </div>
-          <p className="text-xs text-neutral-400 mt-0.5">
+          <p className="text-xs sm:text-sm text-slate-400 mt-1 font-normal pl-11">
             Access previous product shoots, download saved high-res assets, or generate new looks for your products.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 self-start sm:self-auto">
           <button
             type="button"
             onClick={fetchGallery}
             disabled={loading}
-            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-neutral-300 hover:text-white transition-colors cursor-pointer"
+            className="p-2.5 rounded-full bg-[#0c1630] hover:bg-[#152347] border border-[#26314c] text-slate-300 hover:text-white transition-colors cursor-pointer"
             title="Refresh gallery"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
@@ -153,18 +166,20 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
           <button
             type="button"
             onClick={onStartNew}
-            className="px-4 py-2 rounded-xl bg-brand-gradient hover:opacity-95 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-brand-purple/20"
+            style={{
+              background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+            }}
+            className="px-6 py-2.5 rounded-full text-white text-sm font-medium shadow-lg shadow-purple-600/35 hover:opacity-95 flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
           >
-            <Camera className="w-3.5 h-3.5" />
-            <span>New Photoshoot</span>
+            <Camera className="w-4 h-4 text-white stroke-[2.2]" />
+            <span className="text-white font-medium">New Photoshoot</span>
           </button>
         </div>
       </div>
 
-      {/* Interactive Gallery Filters & Sort Bar */}
-      <div className="bg-[#0b0e1b] border border-white/10 rounded-2xl p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-lg">
-        {/* Category Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+      {/* Category Filter Bar: Full width horizontal scroll, no overlap */}
+      <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="border border-[#1e2a4a] rounded-3xl p-3.5 sm:p-4 shadow-lg">
+        <div className="flex items-center gap-2 overflow-x-auto w-full pb-1 scrollbar-none">
           {[
             { id: "all", label: "All" },
             { id: "Clothing", label: "Clothing" },
@@ -179,56 +194,71 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
               key={cat.id}
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              style={selectedCategory === cat.id ? {
+                background: "linear-gradient(135deg, rgba(47, 18, 98, 0.7) 0%, rgba(20, 10, 45, 0.4) 100%)",
+              } : {}}
+              className={`px-5 sm:px-6 py-2 rounded-full text-xs sm:text-sm font-normal whitespace-nowrap transition-all cursor-pointer ${
                 selectedCategory === cat.id
-                  ? "bg-brand-purple text-white shadow-md shadow-brand-purple/30"
-                  : "bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white border border-white/5"
+                  ? "border border-[#8b5cf6] text-purple-100 shadow-md shadow-purple-950/40"
+                  : "bg-[#0c1630] hover:bg-[#152347] text-slate-300 hover:text-white border border-[#26314c]"
               }`}
             >
               {cat.label}
             </button>
           ))}
         </div>
+      </div>
 
-        {/* Mode & Sort Controls */}
-        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end shrink-0">
-          {/* Mode Selector */}
-          <div className="inline-flex rounded-xl bg-white/5 p-0.5 border border-white/10 text-xs">
-            <button
-              type="button"
-              onClick={() => setModeFilter("all")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                modeFilter === "all" ? "bg-white/15 text-white" : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              onClick={() => setModeFilter("model")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                modeFilter === "model" ? "bg-brand-purple/40 text-brand-pink" : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              Model
-            </button>
-            <button
-              type="button"
-              onClick={() => setModeFilter("product_only")}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                modeFilter === "product_only" ? "bg-blue-500/30 text-blue-300" : "text-neutral-400 hover:text-white"
-              }`}
-            >
-              Product
-            </button>
-          </div>
+      {/* Mode & Sort Toolbar: Placed right above the images cards */}
+      <div style={{ backgroundColor: "#081226", fontFamily: "'Roboto', sans-serif" }} className="border border-[#1e2a4a] rounded-2xl p-2.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        {/* Mode Selector (All, Model, Product) */}
+        <div className="inline-flex rounded-full bg-[#0c1630] p-1 border border-[#26314c] text-xs sm:text-sm font-normal">
+          <button
+            type="button"
+            onClick={() => setModeFilter("all")}
+            style={modeFilter === "all" ? {
+              backgroundColor: "#2F1262",
+            } : {}}
+            className={`px-5 sm:px-6 py-1.5 rounded-full font-normal transition-all cursor-pointer ${
+              modeFilter === "all" ? "border border-[#8b5cf6] text-purple-100 shadow-sm" : "border border-transparent text-slate-400 hover:text-white"
+            }`}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setModeFilter("model")}
+            style={modeFilter === "model" ? {
+              backgroundColor: "#2F1262",
+            } : {}}
+            className={`px-5 sm:px-6 py-1.5 rounded-full font-normal transition-all cursor-pointer ${
+              modeFilter === "model" ? "border border-[#8b5cf6] text-purple-100 shadow-sm" : "border border-transparent text-slate-400 hover:text-white"
+            }`}
+          >
+            Model
+          </button>
+          <button
+            type="button"
+            onClick={() => setModeFilter("product_only")}
+            style={modeFilter === "product_only" ? {
+              backgroundColor: "#2F1262",
+            } : {}}
+            className={`px-5 sm:px-6 py-1.5 rounded-full font-normal transition-all cursor-pointer ${
+              modeFilter === "product_only" ? "border border-[#8b5cf6] text-purple-100 shadow-sm" : "border border-transparent text-slate-400 hover:text-white"
+            }`}
+          >
+            Product
+          </button>
+        </div>
 
-          {/* Sort By Date */}
+        {/* Sort By Date (Newest First / Oldest First) */}
+        <div className="flex items-center gap-2.5 self-end sm:self-auto">
+          <span className="text-xs sm:text-sm text-slate-400 font-normal">Sort:</span>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as "desc" | "asc")}
             aria-label="Sort by date"
-            className="bg-[#121528] border border-white/10 text-neutral-300 rounded-xl px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-brand-purple cursor-pointer"
+            className="bg-[#0c1630] border border-[#26314c] text-slate-300 rounded-full px-5 py-2 text-xs sm:text-sm font-normal focus:outline-none focus:border-[#8b5cf6] cursor-pointer shadow-sm"
           >
             <option value="desc">Newest First</option>
             <option value="asc">Oldest First</option>
@@ -277,9 +307,13 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
           <button
             type="button"
             onClick={onStartNew}
-            className="px-6 py-2.5 rounded-full bg-brand-gradient text-white text-xs font-bold shadow-lg shadow-brand-purple/20 cursor-pointer"
+            style={{
+              background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)",
+            }}
+            className="px-7 py-3 rounded-full text-white text-sm font-medium shadow-lg shadow-purple-600/35 hover:opacity-95 flex items-center justify-center gap-2 mx-auto cursor-pointer transition-all whitespace-nowrap"
           >
-            Start Your First Photoshoot
+            <Camera className="w-4 h-4 text-white stroke-[2.2]" />
+            <span className="text-white font-medium">Start Your First Photoshoot</span>
           </button>
         </div>
       )}
@@ -313,7 +347,7 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
 
                 {/* Top Badges */}
                 <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 flex items-center gap-1">
+                  <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-normal text-white border border-white/10 flex items-center gap-1">
                     {sess.use_model ? (
                       <>
                         <UserCheck className="w-3 h-3 text-brand-pink" />
@@ -327,17 +361,17 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
                     )}
                   </span>
 
-                  <span className="px-2 py-0.5 rounded-md bg-brand-purple/90 backdrop-blur-md text-[10px] font-bold text-white shadow-md">
+                  <span style={{ background: "rgba(47, 18, 98, 0.75)" }} className="px-2.5 py-1 rounded-full backdrop-blur-md text-[10px] font-normal text-purple-200 border border-[#8b5cf6]/40 shadow-sm">
                     {sess.total_generated || 0} Photos
                   </span>
                 </div>
 
                 {/* Bottom Title on Thumbnail */}
                 <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                  <span className="text-xs font-bold text-white block truncate">
+                  <span className="text-sm font-normal text-white block truncate">
                     {sess.title || sess.product_type || "Commercial Photoshoot"}
                   </span>
-                  <span className="text-[10px] text-neutral-300 block truncate">
+                  <span className="text-xs text-purple-300 block truncate mt-0.5 font-normal">
                     {sess.product_category || "General"}
                   </span>
                 </div>
@@ -366,7 +400,7 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onOpenSession(sess.session_id)}
-                    className="py-1.5 px-2.5 rounded-xl bg-brand-purple/20 hover:bg-brand-purple/30 text-brand-pink text-xs font-bold border border-brand-purple/40 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                    className="py-2 px-4 rounded-full bg-[#2F1262]/60 hover:bg-[#2F1262] text-purple-200 hover:text-white text-xs sm:text-sm font-normal border border-[#8b5cf6]/40 flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
                   >
                     <span>View Photos</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -375,10 +409,10 @@ export const PhotoshootGalleryView: React.FC<PhotoshootGalleryViewProps> = ({
                   <button
                     type="button"
                     onClick={() => onReuseProduct(sess.session_id)}
-                    className="py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white text-xs font-semibold border border-white/10 flex items-center justify-center gap-1 transition-all cursor-pointer"
+                    className="py-2 px-4 rounded-full bg-[#0c1630] hover:bg-[#152347] text-slate-300 hover:text-white text-xs sm:text-sm font-normal border border-[#26314c] flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
                     title="Start a new photoshoot using this same product"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-brand-purple" />
+                    <Sparkles className="w-3.5 h-3.5 text-purple-300" />
                     <span>Shoot Again</span>
                   </button>
                 </div>

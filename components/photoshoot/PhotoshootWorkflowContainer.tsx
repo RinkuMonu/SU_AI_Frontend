@@ -1220,17 +1220,25 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
   return (
     <div className="space-y-5 pb-16 max-w-7xl mx-auto px-3 sm:px-6">
       {/* Top Header Row with Navigation & Reset - Option 3 Visual Reference */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
+      <div 
+        style={{ fontFamily: "'Roboto', sans-serif" }}
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2"
+      >
         <div>
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="w-9 h-9 rounded-xl flex items-center justify-center text-white bg-gradient-to-tr from-[#A855F7] to-[#EC4899] shadow-lg shadow-brand-purple/30 shrink-0">
-              {isAvatarMode ? <UserCheck className="w-4 h-4" /> : <Box className="w-4 h-4" />}
+            <span 
+              style={{
+                background: "linear-gradient(135deg, rgba(47, 18, 98, 0.5) 0%, rgba(20, 10, 45, 0.25) 100%)",
+              }}
+              className="w-10 h-10 rounded-2xl flex items-center justify-center text-purple-200 border border-[#8b5cf6]/40 shadow-sm shrink-0"
+            >
+              {isAvatarMode ? <UserCheck className="w-5 h-5 text-purple-200" /> : <Box className="w-5 h-5 text-purple-200" />}
             </span>
-            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-normal text-white tracking-normal">
               {isAvatarMode ? "AI Avatar Photoshoot" : "AI Product Photography"}
             </h1>
 
-            <span className="px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 shadow-sm">
+            <span className="px-3.5 py-1 rounded-full text-[10px] sm:text-[11px] font-normal uppercase tracking-wider bg-[#2F1262]/80 text-purple-200 border border-[#8b5cf6]/40 shadow-sm">
               {isAvatarMode ? "AVATAR STUDIO" : "PRODUCT STUDIO"}
             </span>
           </div>
@@ -1243,17 +1251,20 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
         </div>
 
         {/* Action Buttons: View Gallery & Reset Studio */}
-        <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+        <div className="flex items-center gap-3 self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={() => setActiveView(activeView === "gallery" ? "studio" : "gallery")}
-            className={`px-4 py-2 rounded-xl border text-xs font-medium flex items-center gap-2 transition-all cursor-pointer shadow-sm ${
+            style={{
+              backgroundColor: "#081226",
+            }}
+            className={`px-6 sm:px-7 py-2.5 rounded-full border text-xs sm:text-sm font-normal flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md min-w-[130px] whitespace-nowrap ${
               activeView === "gallery"
-                ? "bg-gradient-to-r from-[#A855F7] to-[#EC4899] text-white border-transparent"
-                : "bg-[#0F1735] hover:bg-[#152047] border-white/10 text-white"
+                ? "border-[#8b5cf6] text-purple-100 shadow-purple-950/50"
+                : "border-[#26314c] hover:border-slate-400 text-slate-200 hover:text-white"
             }`}
           >
-            <FolderOpen className="w-3.5 h-3.5" />
+            <FolderOpen className="w-4 h-4 text-purple-300" />
             <span>{activeView === "gallery" ? "Back to Studio" : "My Gallery"}</span>
           </button>
 
@@ -1261,10 +1272,13 @@ export const PhotoshootWorkflowContainer: React.FC<PhotoshootWorkflowContainerPr
             <button
               type="button"
               onClick={handleResetCurrentStudio}
-              className="px-4 py-2 rounded-xl bg-[#0F1735] hover:bg-[#152047] border border-white/10 text-white text-xs font-medium flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+              style={{
+                backgroundColor: "#081226",
+              }}
+              className="px-6 sm:px-7 py-2.5 rounded-full border border-[#26314c] hover:border-slate-400 text-slate-200 hover:text-white text-xs sm:text-sm font-normal flex items-center justify-center gap-2 transition-all cursor-pointer shadow-md min-w-[110px] whitespace-nowrap"
               title="Reset current studio workflow"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
+              <RefreshCw className="w-4 h-4 text-purple-300" />
               <span>Reset</span>
             </button>
           )}
