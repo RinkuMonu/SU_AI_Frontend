@@ -474,7 +474,7 @@ export default function SettingsPage() {
   const businessInitial = (businessName?.charAt(0) || "B").toUpperCase();
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12">
+    <div style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif" }} className="w-full max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-12 font-roboto">
       {/* Page Header */}
       <div>
         <div className="flex items-center gap-3">
@@ -482,8 +482,8 @@ export default function SettingsPage() {
             <SettingsIcon className="h-5 w-5" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white">Profile Settings</h1>
-            <p className="text-sm text-text-muted mt-0.5">Manage your personal identity, business details, and security.</p>
+            <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">Profile Settings</h1>
+            <p className="text-sm text-text-muted mt-0.5 font-normal tracking-wide">Manage your personal identity, business details, and security.</p>
           </div>
         </div>
       </div>
@@ -494,7 +494,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setActiveTab('user')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-normal tracking-wide transition-all cursor-pointer ${
               activeTab === 'user'
                 ? 'bg-brand-gradient text-white shadow-md'
                 : 'text-text-muted hover:text-white hover:bg-surface-secondary'
@@ -510,7 +510,7 @@ export default function SettingsPage() {
           <button
             type="button"
             onClick={() => setActiveTab('business')}
-            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
+            className={`flex items-center gap-2.5 px-4 py-2 rounded-lg text-sm font-normal tracking-wide transition-all cursor-pointer ${
               activeTab === 'business'
                 ? 'bg-brand-gradient text-white shadow-md'
                 : 'text-text-muted hover:text-white hover:bg-surface-secondary'
@@ -526,7 +526,7 @@ export default function SettingsPage() {
 
         <div className="flex items-center gap-2 px-3 text-xs text-text-muted">
           <span className="inline-block h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Active Role: <strong className="text-white capitalize">{user?.role || 'User'}</strong></span>
+          <span>Active Role: <span className="text-white capitalize font-normal tracking-wide">{user?.role || 'User'}</span></span>
         </div>
       </div>
 
@@ -537,7 +537,7 @@ export default function SettingsPage() {
         isLoadingUser ? (
           <Card className="bg-surface border-border shadow-xl p-12 text-center flex flex-col items-center justify-center min-h-[350px]">
             <Loader2 className="w-8 h-8 text-brand-purple animate-spin mb-3" />
-            <p className="text-white text-sm font-semibold">Loading profile details...</p>
+            <p className="text-white text-sm font-normal tracking-wide">Loading profile details...</p>
             <p className="text-text-muted text-xs mt-1">Retrieving your authenticated personal profile from backend.</p>
           </Card>
         ) : (
@@ -547,18 +547,18 @@ export default function SettingsPage() {
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+                <CardTitle className="text-xl font-normal tracking-wide text-white flex items-center gap-2">
                   <UserIcon className="w-5 h-5 text-brand-purple" />
                   Personal Profile Details
                 </CardTitle>
-                <CardDescription className="text-text-muted mt-1">
+                <CardDescription className="text-text-muted mt-1 font-normal tracking-wide">
                   Update your name, email, contact number, and profile picture.
                 </CardDescription>
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
                 {isEditingUser ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal tracking-wide bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
                     <Pencil className="w-3 h-3" />
                     Editing Mode Active
                   </span>
@@ -566,14 +566,14 @@ export default function SettingsPage() {
                   <Button
                     type="button"
                     onClick={() => setIsEditingUser(true)}
-                    className="bg-brand-gradient hover:opacity-90 text-white font-semibold text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-brand-purple/20 cursor-pointer"
+                    className="bg-brand-gradient hover:opacity-90 text-white font-normal tracking-wide text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-brand-purple/20 cursor-pointer"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                     <span>Edit Profile</span>
                   </Button>
                 )}
 
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-brand-purple/10 text-brand-pink border border-brand-purple/20">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-normal tracking-wide bg-brand-purple/10 text-brand-pink border border-brand-purple/20">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   User Account
                 </span>
@@ -603,7 +603,7 @@ export default function SettingsPage() {
               />
 
               <div className="relative group">
-                <div className="h-24 w-24 rounded-full bg-brand-gradient flex items-center justify-center text-white font-bold text-3xl shadow-lg border-2 border-white/20 overflow-hidden ring-4 ring-brand-purple/20">
+                <div className="h-24 w-24 rounded-full bg-brand-gradient flex items-center justify-center text-white font-normal text-3xl shadow-lg border-2 border-white/20 overflow-hidden ring-4 ring-brand-purple/20">
                   {profileImage ? (
                     <img
                       src={profileImage}
@@ -657,7 +657,7 @@ export default function SettingsPage() {
                 ) : (
                   <div className="flex items-center justify-center sm:justify-start gap-2">
                     <span className="text-xs text-text-muted flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-border/40">
-                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Photo locked in view mode. Click <strong>Edit Profile</strong> to change.
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Photo locked in view mode. Click <span className="text-slate-200 font-normal">Edit Profile</span> to change.
                     </span>
                   </div>
                 )}
@@ -672,7 +672,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* First Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="firstName" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <UserIcon className="w-3.5 h-3.5 text-brand-purple" />
                     First Name <span className="text-rose-400">*</span>
                   </Label>
@@ -692,7 +692,7 @@ export default function SettingsPage() {
 
                 {/* Last Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="lastName" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <UserIcon className="w-3.5 h-3.5 text-brand-purple" />
                     Last Name
                   </Label>
@@ -713,7 +713,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Email Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="userEmail" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="userEmail" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-brand-pink" />
                     Email Address <span className="text-rose-400">*</span>
                   </Label>
@@ -734,7 +734,7 @@ export default function SettingsPage() {
 
                 {/* Contact Number */}
                 <div className="space-y-2">
-                  <Label htmlFor="contactNumber" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="contactNumber" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-emerald-400" />
                     Contact Number
                   </Label>
@@ -760,7 +760,7 @@ export default function SettingsPage() {
                     <Button 
                       type="submit" 
                       disabled={isUpdatingUser}
-                      className="bg-brand-gradient hover:opacity-95 text-white font-semibold shadow-lg shadow-brand-purple/20 px-6 min-w-[150px] cursor-pointer"
+                      className="bg-brand-gradient hover:opacity-95 text-white font-normal tracking-wide shadow-lg shadow-brand-purple/20 px-6 min-w-[150px] cursor-pointer"
                     >
                       {isUpdatingUser ? (
                         <>
@@ -798,13 +798,13 @@ export default function SettingsPage() {
                     <Button
                       type="button"
                       onClick={() => setIsEditingUser(true)}
-                      className="bg-brand-gradient hover:opacity-95 text-white font-semibold shadow-lg shadow-brand-purple/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
+                      className="bg-brand-gradient hover:opacity-95 text-white font-normal tracking-wide shadow-lg shadow-brand-purple/20 px-6 py-2.5 rounded-xl cursor-pointer flex items-center gap-2"
                     >
                       <Pencil className="w-4 h-4" />
                       <span>Edit Profile</span>
                     </Button>
                     <span className="text-xs text-text-muted flex items-center gap-1.5">
-                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Profile</strong> to modify your details.
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <span className="text-slate-200 font-normal">Edit Profile</span> to modify your details.
                     </span>
                   </div>
                 )}
@@ -825,33 +825,35 @@ export default function SettingsPage() {
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
+                <CardTitle className="text-xl font-normal tracking-wide text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-amber-400" />
                   Business Profile Details
                 </CardTitle>
-                <CardDescription className="text-text-muted mt-1">
+                <CardDescription className="text-text-muted mt-1 font-normal tracking-wide">
                   Manage your business identity, industry, contact info, and company logo.
                 </CardDescription>
               </div>
 
               <div className="flex items-center gap-2.5 flex-wrap">
                 {isEditingBusiness ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal tracking-wide bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 animate-pulse">
                     <Pencil className="w-3 h-3" />
                     Editing Mode Active
                   </span>
                 ) : (
-                  <Button
-                    type="button"
-                    onClick={() => setIsEditingBusiness(true)}
-                    className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-90 text-white font-semibold text-xs px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 shadow-md shadow-amber-500/20 cursor-pointer"
-                  >
-                    <Pencil className="w-3.5 h-3.5" />
-                    <span>Edit Business Details</span>
-                  </Button>
+                  <div className="p-[1.5px] rounded-full bg-gradient-to-r from-[#7d36fa] via-[#be32ff] to-[#fc9a5d] shadow-md shadow-purple-950/40">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingBusiness(true)}
+                      className="px-4 py-1.5 rounded-full bg-[#12121e] hover:bg-[#1a1a2c] text-white text-xs font-normal flex items-center gap-1.5 transition-all cursor-pointer"
+                    >
+                      <Pencil className="w-3.5 h-3.5 text-white" />
+                      <span>Edit Business Details</span>
+                    </button>
+                  </div>
                 )}
 
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-normal tracking-wide bg-amber-500/10 text-amber-300 border border-amber-500/20">
                   <Sparkles className="w-3.5 h-3.5" />
                   Businessman Account
                 </span>
@@ -881,7 +883,7 @@ export default function SettingsPage() {
               />
 
               <div className="relative group">
-                <div className="h-24 w-24 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white font-bold text-3xl shadow-lg border-2 border-white/20 overflow-hidden ring-4 ring-amber-500/20">
+                <div className="h-24 w-24 rounded-2xl bg-gradient-to-tr from-amber-500 to-rose-500 flex items-center justify-center text-white font-normal text-3xl shadow-lg border-2 border-white/20 overflow-hidden ring-4 ring-amber-500/20">
                   {businessLogo ? (
                     <img
                       src={businessLogo}
@@ -935,7 +937,7 @@ export default function SettingsPage() {
                 ) : (
                   <div className="flex items-center justify-center sm:justify-start gap-2">
                     <span className="text-xs text-text-muted flex items-center gap-1.5 bg-white/[0.03] px-3 py-1.5 rounded-lg border border-border/40">
-                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Logo locked in view mode. Click <strong>Edit Business Details</strong> to change.
+                      <Lock className="w-3.5 h-3.5 text-text-muted" /> Logo locked in view mode. Click <span className="text-slate-200 font-normal">Edit Business Details</span> to change.
                     </span>
                   </div>
                 )}
@@ -950,7 +952,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Business Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="businessName" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Building2 className="w-3.5 h-3.5 text-amber-400" />
                     Business / Company Name <span className="text-rose-400">*</span>
                   </Label>
@@ -970,7 +972,7 @@ export default function SettingsPage() {
 
                 {/* Business Category */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessCategory" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="businessCategory" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-amber-400" />
                     Business Category / Industry <span className="text-rose-400">*</span>
                   </Label>
@@ -992,7 +994,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Owner First Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="ownerFirstName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="ownerFirstName" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <UserIcon className="w-3.5 h-3.5 text-brand-purple" />
                     Contact Person First Name
                   </Label>
@@ -1011,7 +1013,7 @@ export default function SettingsPage() {
 
                 {/* Owner Last Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="ownerLastName" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="ownerLastName" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <UserIcon className="w-3.5 h-3.5 text-brand-purple" />
                     Contact Person Last Name
                   </Label>
@@ -1032,7 +1034,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Business Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessEmail" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="businessEmail" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-brand-pink" />
                     Business Contact Email
                   </Label>
@@ -1052,7 +1054,7 @@ export default function SettingsPage() {
 
                 {/* Business Phone */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessPhone" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="businessPhone" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-emerald-400" />
                     Business Contact / Phone No.
                   </Label>
@@ -1093,7 +1095,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Website */}
                 <div className="space-y-2">
-                  <Label htmlFor="website" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="website" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <Globe className="w-3.5 h-3.5 text-sky-400" />
                     Website
                   </Label>
@@ -1113,7 +1115,7 @@ export default function SettingsPage() {
 
                 {/* Instagram */}
                 <div className="space-y-2">
-                  <Label htmlFor="instagram" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="instagram" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <InstagramIcon className="w-3.5 h-3.5 text-rose-400" />
                     Instagram Handle
                   </Label>
@@ -1132,7 +1134,7 @@ export default function SettingsPage() {
 
                 {/* Location */}
                 <div className="space-y-2">
-                  <Label htmlFor="location" className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Label htmlFor="location" className="text-xs font-normal tracking-wide text-slate-300 flex items-center gap-1.5">
                     <MapPin className="w-3.5 h-3.5 text-brand-coral" />
                     Location / City
                   </Label>
@@ -1152,7 +1154,7 @@ export default function SettingsPage() {
 
               {/* Business Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-xs font-semibold text-slate-300">
+                <Label htmlFor="description" className="text-xs font-normal tracking-wide text-slate-300">
                   Business Description / Tagline
                 </Label>
                 <textarea
@@ -1176,7 +1178,7 @@ export default function SettingsPage() {
                     <Button 
                       type="submit" 
                       disabled={isUpdatingBusiness}
-                      className="bg-gradient-to-r from-amber-500 to-rose-500 hover:opacity-95 text-white font-semibold shadow-lg shadow-amber-500/20 px-6 min-w-[170px] cursor-pointer"
+                      className="bg-brand-purple hover:bg-brand-purple/90 text-white font-normal tracking-wide shadow-lg shadow-brand-purple/25 px-6 min-w-[170px] rounded-xl cursor-pointer"
                     >
                       {isUpdatingBusiness ? (
                         <>
@@ -1221,7 +1223,7 @@ export default function SettingsPage() {
                   //     <span>Edit Business Details</span>
                   //   </Button>
                   //   <span className="text-xs text-text-muted flex items-center gap-1.5">
-                  //     <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <strong>Edit Business Details</strong> to modify your company info.
+                  //     <Lock className="w-3.5 h-3.5 text-text-muted" /> Locked in view mode. Click <span className="text-slate-200 font-normal">Edit Business Details</span> to modify your company info.
                   //   </span>
                   // </div>
                 )}
@@ -1254,7 +1256,7 @@ export default function SettingsPage() {
 
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="current-password" className="text-xs font-semibold text-slate-300">
+              <Label htmlFor="current-password" className="text-xs font-normal tracking-wide text-slate-300">
                 Current Password
               </Label>
               <div className="relative">
@@ -1278,7 +1280,7 @@ export default function SettingsPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="new-password" className="text-xs font-semibold text-slate-300">
+                <Label htmlFor="new-password" className="text-xs font-normal tracking-wide text-slate-300">
                   New Password
                 </Label>
                 <div className="relative">
@@ -1301,7 +1303,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirm-new-password" className="text-xs font-semibold text-slate-300">
+                <Label htmlFor="confirm-new-password" className="text-xs font-normal tracking-wide text-slate-300">
                   Confirm New Password
                 </Label>
                 <Input 

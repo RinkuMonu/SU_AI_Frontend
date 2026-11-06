@@ -18,9 +18,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api";
 
-const LinkedinIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="#0A66C2" className={className}>
-    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+const LinkedinIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="24" height="24" rx="5" fill="#0A66C2" />
+    <path
+      d="M6.88 8.56H9.84V18H6.88V8.56ZM8.36 3.84C9.31 3.84 10.08 4.61 10.08 5.56C10.08 6.51 9.31 7.28 8.36 7.28C7.41 7.28 6.64 6.51 6.64 5.56C6.64 4.61 7.41 3.84 8.36 3.84ZM11.44 8.56H14.28V9.85H14.32C14.72 9.09 15.7 8.28 17.18 8.28C20.24 8.28 20.8 10.29 20.8 12.91V18H17.84V13.36C17.84 12.25 17.82 10.83 16.29 10.83C14.74 10.83 14.5 12.04 14.5 13.28V18H11.54L11.44 8.56Z"
+      fill="#FFFFFF"
+    />
   </svg>
 );
 
@@ -225,9 +229,9 @@ export default function LinkedinIntegrationPage() {
           <div className="flex items-center gap-3.5">
             <div 
               style={{ backgroundColor: "#081226" }} 
-              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
+              className="w-14 h-14 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-lg"
             >
-              <LinkedinIcon className="w-6 h-6 text-[#0A66C2]" />
+              <LinkedinIcon className="w-10 h-10 shrink-0 drop-shadow-md" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">LinkedIn Integration</h1>
@@ -292,7 +296,7 @@ export default function LinkedinIntegrationPage() {
             <div className="p-4 sm:p-5 rounded-xl bg-[#081226] border border-[#1e2a4a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="text-sm sm:text-base font-normal text-white flex items-center gap-2.5 tracking-wide">
-                  <LinkedinIcon className="w-7 h-7 shrink-0 text-[#0A66C2]" />
+                  <LinkedinIcon className="w-8.5 h-8.5 sm:w-9 sm:h-9 shrink-0 drop-shadow-sm" />
                   {isConnected ? "Account Connected" : "Connect LinkedIn with 1-Click"}
                 </div>
                 <p className="text-xs sm:text-sm text-slate-400 font-normal mt-0.5">
@@ -326,7 +330,7 @@ export default function LinkedinIntegrationPage() {
                       <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Connecting...</>
                     ) : (
                       <>
-                        <LinkedinIcon className="h-4 w-4 fill-white" />
+                        <LinkedinIcon className="h-5 w-5" />
                         Connect LinkedIn Account
                       </>
                     )}
@@ -341,8 +345,8 @@ export default function LinkedinIntegrationPage() {
         <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <LinkedinIcon className="w-6 h-6 shrink-0 text-[#0A66C2]" />
+              <div className="flex items-center gap-3">
+                <LinkedinIcon className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 drop-shadow-sm" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   Advanced: Manual Credentials
                 </CardTitle>
@@ -389,7 +393,8 @@ export default function LinkedinIntegrationPage() {
             <Button 
               onClick={handleUpdate} 
               disabled={isUpdating} 
-              className="w-full h-11 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
+              style={{ background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)" }}
+              className="w-full h-11 hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
             >
               {isUpdating ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>

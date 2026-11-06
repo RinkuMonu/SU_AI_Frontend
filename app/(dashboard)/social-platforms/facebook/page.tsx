@@ -30,12 +30,12 @@ import { OnboardingService } from "@/services/onboarding.service";
 import { ActivityService } from "@/services/activity.service";
 import { useAuth } from "@/components/auth/AuthProvider";
 
-const FacebookIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="12" fill="#1877F2" />
+const FacebookIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="12" fill="#0866FF" />
     <path
-      d="M15.117 8.52h-1.808c-.282 0-.603.37-.603.882v1.548h2.411l-.328 2.45h-2.083V20h-2.528v-6.6H8.225v-2.45h1.953V9.395c0-1.895 1.155-2.928 2.85-2.928.812 0 1.512.06 1.716.088v1.965z"
-      fill="#ffffff"
+      d="M16.6711 15.4688L17.2031 12H13.875V9.75C13.875 8.80008 14.34 7.875 15.8306 7.875H17.3438V4.92188C17.3438 4.92188 15.9701 4.6875 14.6576 4.6875C11.9166 4.6875 10.125 6.34875 10.125 9.35625V12H7.07812V15.4688H10.125V23.8542C10.7441 23.9515 11.3728 24 12 24C12.6272 24 13.2559 23.9515 13.875 23.8542V15.4688H16.6711Z"
+      fill="#FFFFFF"
     />
   </svg>
 );
@@ -635,9 +635,9 @@ export default function FacebookIntegrationPage() {
           <div className="flex items-center gap-3.5">
             <div 
               style={{ backgroundColor: "#081226" }} 
-              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
+              className="w-14 h-14 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-lg"
             >
-              <FacebookIcon className="w-6 h-6 text-[#1877F2]" />
+              <FacebookIcon className="w-10 h-10 shrink-0 drop-shadow-md" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white flex items-center gap-2">
@@ -722,8 +722,8 @@ export default function FacebookIntegrationPage() {
           <Card className="bg-[#0c1630] border-[#1e2a4a] shadow-lg rounded-2xl overflow-hidden">
             <CardContent className="p-5 sm:p-6 space-y-4">
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2.5">
-                  <FacebookIcon className="w-7 h-7 shrink-0" />
+                <div className="flex items-center gap-3">
+                  <FacebookIcon className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 drop-shadow-sm" />
                   <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">
                     Fast Facebook OAuth Connect
                   </h3>
@@ -1022,7 +1022,8 @@ export default function FacebookIntegrationPage() {
             <Button 
               onClick={handleSaveSettings} 
               disabled={isUpdating} 
-              className="w-full h-11 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
+              style={{ background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)" }}
+              className="w-full h-11 hover:opacity-95 text-white font-normal rounded-xl text-sm sm:text-base tracking-wide transition-all shadow-md cursor-pointer mt-2"
             >
               {isUpdating ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving Facebook Credentials...</>

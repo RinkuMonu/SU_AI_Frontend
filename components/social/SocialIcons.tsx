@@ -2,30 +2,34 @@ import React from "react";
 
 export function InstagramIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <radialGradient id="ig-grad-radial" cx="30%" cy="107%" r="150%">
-          <stop offset="0%" stopColor="#fdf497" />
-          <stop offset="5%" stopColor="#fdf497" />
-          <stop offset="45%" stopColor="#fd5949" />
-          <stop offset="60%" stopColor="#d6249f" />
-          <stop offset="90%" stopColor="#285AEB" />
-        </radialGradient>
+        <linearGradient id="ig-official-full-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#feda75" />
+          <stop offset="12%" stopColor="#fa7e1e" />
+          <stop offset="38%" stopColor="#d62976" />
+          <stop offset="68%" stopColor="#962fbf" />
+          <stop offset="100%" stopColor="#4f5bd5" />
+        </linearGradient>
       </defs>
-      <rect width="24" height="24" rx="6" fill="url(#ig-grad-radial)" />
-      <rect x="5.5" y="5.5" width="13" height="13" rx="3.5" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
-      <circle cx="12" cy="12" r="3.2" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
-      <circle cx="15.8" cy="8.2" r="0.9" fill="#FFFFFF" />
+      {/* Colorful Instagram gradient rounded square matching Image 2 */}
+      <rect width="24" height="24" rx="6.5" fill="url(#ig-official-full-grad)" />
+      {/* White Camera outer body */}
+      <rect x="3.8" y="3.8" width="16.4" height="16.4" rx="4.4" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
+      {/* White Camera center lens */}
+      <circle cx="12" cy="12" r="4.1" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
+      {/* White Camera flash dot */}
+      <circle cx="16.6" cy="7.4" r="1.2" fill="#FFFFFF" />
     </svg>
   );
 }
 
 export function FacebookIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
-      <circle cx="12" cy="12" r="12" fill="#1877F2" />
+    <svg viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="12" fill="#0866FF" />
       <path
-        d="M13.5 23.5V13.8H16.8L17.3 9.9H13.5V7.4C13.5 6.3 13.8 5.5 15.4 5.5H17.4V2.05C17.05 2 15.85 1.9 14.45 1.9C11.55 1.9 9.6 3.65 9.6 6.9V9.9H6.4V13.8H9.6V23.5C10.4 23.6 11.2 23.6 12 23.6C12.8 23.6 13.6 23.6 14.4 23.5H13.5Z"
+        d="M16.6711 15.4688L17.2031 12H13.875V9.75C13.875 8.80008 14.34 7.875 15.8306 7.875H17.3438V4.92188C17.3438 4.92188 15.9701 4.6875 14.6576 4.6875C11.9166 4.6875 10.125 6.34875 10.125 9.35625V12H7.07812V15.4688H10.125V23.8542C10.7441 23.9515 11.3728 24 12 24C12.6272 24 13.2559 23.9515 13.875 23.8542V15.4688H16.6711Z"
         fill="#FFFFFF"
       />
     </svg>
@@ -34,14 +38,10 @@ export function FacebookIcon({ className = "w-6 h-6" }: { className?: string }) 
 
 export function LinkedInIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" className={className}>
+    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect width="24" height="24" rx="5" fill="#0A66C2" />
       <path
-        d="M6.5 9H9.3V18H6.5V9ZM7.9 4.5C7 4.5 6.3 5.2 6.3 6.1C6.3 7 7 7.7 7.9 7.7C8.8 7.7 9.5 7 9.5 6.1C9.5 5.2 8.8 4.5 7.9 4.5Z"
-        fill="#FFFFFF"
-      />
-      <path
-        d="M10.8 9H13.5V10.2H13.55C13.95 9.45 14.9 8.65 16.35 8.65C19.35 8.65 19.9 10.6 19.9 13.2V18H17.1V13.6C17.1 12.55 17.05 11.2 15.6 11.2C14.1 11.2 13.9 12.35 13.9 13.5V18H11.1L10.8 9Z"
+        d="M6.88 8.56H9.84V18H6.88V8.56ZM8.36 3.84C9.31 3.84 10.08 4.61 10.08 5.56C10.08 6.51 9.31 7.28 8.36 7.28C7.41 7.28 6.64 6.51 6.64 5.56C6.64 4.61 7.41 3.84 8.36 3.84ZM11.44 8.56H14.28V9.85H14.32C14.72 9.09 15.7 8.28 17.18 8.28C20.24 8.28 20.8 10.29 20.8 12.91V18H17.84V13.36C17.84 12.25 17.82 10.83 16.29 10.83C14.74 10.83 14.5 12.04 14.5 13.28V18H11.54L11.44 8.56Z"
         fill="#FFFFFF"
       />
     </svg>

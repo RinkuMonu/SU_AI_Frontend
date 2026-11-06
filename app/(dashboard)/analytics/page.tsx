@@ -51,12 +51,18 @@ type Range = 7 | 30 | 90;
 
 const COLORS = {
   purple: "#BE32FF",
-  pink: "#F0449B",
-  coral: "#FC9A5D",
-  green: "#10B981",
-  blue: "#3B82F6",
-  yellow: "#FBBF24",
-  cyan: "#06B6D4",
+  violet: "#8B5CF6",
+  royal: "#7C3AED",
+  deep: "#6D28D9",
+  lilac: "#C084FC",
+  amethyst: "#A855F7",
+  // Backward compatibility mapped to distinct monochromatic purple tones:
+  pink: "#BE32FF",     // Electric Violet (Reels)
+  coral: "#C084FC",    // Light Lilac (Photoshoots)
+  green: "#8B5CF6",    // Bright Violet (AI Generations / Images)
+  blue: "#7C3AED",     // Royal Purple (Posts / Captions)
+  yellow: "#6D28D9",   // Deep Violet (Captions)
+  cyan: "#D8B4FE",     // Soft Pastel Lilac
 };
 
 // Custom Tooltip for Trend Area Chart
@@ -178,12 +184,13 @@ export default function AnalyticsPage() {
   // Content distribution data for Pie/Donut Chart
   const contentDistribution = useMemo(() => {
     if (!data?.content) return [];
+    // Monochromatic purple palette with high visual contrast/differentiation
     const items = [
-      { name: "Reels", value: data.content.reels, color: COLORS.pink, icon: Video },
-      { name: "Posts", value: data.content.posts, color: COLORS.purple, icon: ImageIcon },
-      { name: "Photoshoots", value: data.content.photoshoots, color: COLORS.coral, icon: Camera },
-      { name: "Images", value: data.content.images, color: COLORS.green, icon: Sparkles },
-      { name: "Captions", value: data.content.captions, color: COLORS.yellow, icon: Layers },
+      { name: "Reels", value: data.content.reels, color: "#BE32FF", icon: Video },         // Electric Neon Violet
+      { name: "Posts", value: data.content.posts, color: "#6D28D9", icon: ImageIcon },     // Deep Royal Violet
+      { name: "Photoshoots", value: data.content.photoshoots, color: "#C084FC", icon: Camera }, // Light Pastel Lilac
+      { name: "Images", value: data.content.images, color: "#8B5CF6", icon: Sparkles },     // Bright Medium Violet
+      { name: "Captions", value: data.content.captions, color: "#7C3AED", icon: Layers },   // Rich Jewel Purple
     ];
     return items.filter((item) => item.value > 0);
   }, [data?.content]);
@@ -192,11 +199,11 @@ export default function AnalyticsPage() {
   const channelBarData = useMemo(() => {
     if (!data?.content) return [];
     return [
-      { channel: "Reels", count: data.content.reels, fill: COLORS.pink },
-      { channel: "Posts", count: data.content.posts, fill: COLORS.purple },
-      { channel: "Photoshoots", count: data.content.photoshoots, fill: COLORS.coral },
-      { channel: "Images", count: data.content.images, fill: COLORS.green },
-      { channel: "Captions", count: data.content.captions, fill: COLORS.yellow },
+      { channel: "Reels", count: data.content.reels, fill: "#BE32FF" },
+      { channel: "Posts", count: data.content.posts, fill: "#6D28D9" },
+      { channel: "Photoshoots", count: data.content.photoshoots, fill: "#C084FC" },
+      { channel: "Images", count: data.content.images, fill: "#8B5CF6" },
+      { channel: "Captions", count: data.content.captions, fill: "#7C3AED" },
     ];
   }, [data?.content]);
 
@@ -284,96 +291,96 @@ export default function AnalyticsPage() {
           {/* Top Metric Cards Row */}
           <div className="grid gap-3.5 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {/* Reels */}
-            <Card className="bg-gradient-to-br from-surface to-brand-pink/5 border-border hover:border-brand-pink/40 transition-all duration-300 group shadow-sm">
+            <Card className="bg-gradient-to-br from-surface to-[#BE32FF]/5 border-border hover:border-[#BE32FF]/50 transition-all duration-300 group shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Reels</span>
-                  <div className="p-1.5 rounded-lg bg-brand-pink/15 text-brand-pink group-hover:scale-110 transition-transform">
+                  <div className="p-1.5 rounded-lg bg-[#BE32FF]/15 text-[#BE32FF] border border-[#BE32FF]/30 group-hover:scale-110 transition-transform">
                     <Video className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-brand-pink mt-2">
+                <div className="text-2xl sm:text-3xl font-bold text-white mt-2">
                   {data.content.reels}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
                   <span>Short-form Video</span>
-                  <span className="text-brand-pink font-semibold">Active</span>
+                  <span className="text-[#BE32FF] font-semibold">Active</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Posts */}
-            <Card className="bg-gradient-to-br from-surface to-brand-purple/5 border-border hover:border-brand-purple/40 transition-all duration-300 group shadow-sm">
+            <Card className="bg-gradient-to-br from-surface to-[#8B5CF6]/5 border-border hover:border-[#8B5CF6]/50 transition-all duration-300 group shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Posts</span>
-                  <div className="p-1.5 rounded-lg bg-brand-purple/15 text-brand-purple group-hover:scale-110 transition-transform">
+                  <div className="p-1.5 rounded-lg bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/30 group-hover:scale-110 transition-transform">
                     <ImageIcon className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-brand-purple mt-2">
+                <div className="text-2xl sm:text-3xl font-bold text-white mt-2">
                   {data.content.posts}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
                   <span>Social Posts</span>
-                  <span className="text-brand-purple font-semibold">Feed</span>
+                  <span className="text-[#8B5CF6] font-semibold">Feed</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Photoshoots */}
-            <Card className="bg-gradient-to-br from-surface to-brand-coral/5 border-border hover:border-brand-coral/40 transition-all duration-300 group shadow-sm">
+            <Card className="bg-gradient-to-br from-surface to-[#A855F7]/5 border-border hover:border-[#A855F7]/50 transition-all duration-300 group shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Photoshoots</span>
-                  <div className="p-1.5 rounded-lg bg-brand-coral/15 text-brand-coral group-hover:scale-110 transition-transform">
+                  <div className="p-1.5 rounded-lg bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/30 group-hover:scale-110 transition-transform">
                     <Camera className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-brand-coral mt-2">
+                <div className="text-2xl sm:text-3xl font-bold text-white mt-2">
                   {data.content.photoshoots}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
                   <span>AI Studio Shoots</span>
-                  <span className="text-brand-coral font-semibold">Catalog</span>
+                  <span className="text-[#A855F7] font-semibold">Catalog</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* AI Images */}
-            <Card className="bg-gradient-to-br from-surface to-emerald-500/5 border-border hover:border-emerald-500/40 transition-all duration-300 group shadow-sm">
+            <Card className="bg-gradient-to-br from-surface to-[#C084FC]/5 border-border hover:border-[#C084FC]/50 transition-all duration-300 group shadow-sm">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Images</span>
-                  <div className="p-1.5 rounded-lg bg-emerald-500/15 text-emerald-400 group-hover:scale-110 transition-transform">
+                  <div className="p-1.5 rounded-lg bg-[#C084FC]/15 text-[#C084FC] border border-[#C084FC]/30 group-hover:scale-110 transition-transform">
                     <Sparkles className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-emerald-400 mt-2">
+                <div className="text-2xl sm:text-3xl font-bold text-white mt-2">
                   {data.content.images}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
                   <span>Generative Art</span>
-                  <span className="text-emerald-400 font-semibold">Visual</span>
+                  <span className="text-[#C084FC] font-semibold">Visual</span>
                 </div>
               </CardContent>
             </Card>
 
             {/* Captions */}
-            <Card className="bg-gradient-to-br from-surface to-yellow-500/5 border-border hover:border-yellow-500/40 transition-all duration-300 group shadow-sm col-span-2 sm:col-span-1">
+            <Card className="bg-gradient-to-br from-surface to-[#7C3AED]/5 border-border hover:border-[#7C3AED]/50 transition-all duration-300 group shadow-sm col-span-2 sm:col-span-1">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">Captions</span>
-                  <div className="p-1.5 rounded-lg bg-yellow-500/15 text-yellow-400 group-hover:scale-110 transition-transform">
+                  <div className="p-1.5 rounded-lg bg-[#7C3AED]/15 text-[#7C3AED] border border-[#7C3AED]/30 group-hover:scale-110 transition-transform">
                     <Layers className="h-4 w-4" />
                   </div>
                 </div>
-                <div className="text-2xl sm:text-3xl font-bold text-yellow-400 mt-2">
+                <div className="text-2xl sm:text-3xl font-bold text-white mt-2">
                   {data.content.captions}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[11px] text-text-muted">
                   <span>Copy & Tags</span>
-                  <span className="text-yellow-400 font-semibold">Text</span>
+                  <span className="text-[#7C3AED] font-semibold">Text</span>
                 </div>
               </CardContent>
             </Card>
@@ -387,7 +394,7 @@ export default function AnalyticsPage() {
                   <p className="text-xs text-text-muted font-medium">Total AI Computations</p>
                   <div className="text-xl font-bold text-white mt-1">{data.ai_usage.total_generations}</div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-brand-purple/15 text-brand-purple">
+                <div className="p-2.5 rounded-xl bg-[#BE32FF]/15 text-[#BE32FF] border border-[#BE32FF]/25">
                   <Zap className="h-5 w-5" />
                 </div>
               </CardContent>
@@ -397,9 +404,9 @@ export default function AnalyticsPage() {
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-text-muted font-medium">Credits Consumed ({range}d)</p>
-                  <div className="text-xl font-bold text-brand-coral mt-1">{data.ai_usage.credits_used}</div>
+                  <div className="text-xl font-bold text-white mt-1">{data.ai_usage.credits_used}</div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-brand-coral/15 text-brand-coral">
+                <div className="p-2.5 rounded-xl bg-[#A855F7]/15 text-[#A855F7] border border-[#A855F7]/25">
                   <Sparkles className="h-5 w-5" />
                 </div>
               </CardContent>
@@ -409,9 +416,9 @@ export default function AnalyticsPage() {
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-text-muted font-medium">Catalog Products</p>
-                  <div className="text-xl font-bold text-blue-400 mt-1">{data.business.products}</div>
+                  <div className="text-xl font-bold text-white mt-1">{data.business.products}</div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-blue-500/15 text-blue-400">
+                <div className="p-2.5 rounded-xl bg-[#7C3AED]/15 text-[#7C3AED] border border-[#7C3AED]/25">
                   <Package className="h-5 w-5" />
                 </div>
               </CardContent>
@@ -421,16 +428,15 @@ export default function AnalyticsPage() {
               <CardContent className="p-4 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-text-muted font-medium">Content Calendars</p>
-                  <div className="text-xl font-bold text-emerald-400 mt-1">{data.business.calendars}</div>
+                  <div className="text-xl font-bold text-white mt-1">{data.business.calendars}</div>
                 </div>
-                <div className="p-2.5 rounded-xl bg-emerald-500/15 text-emerald-400">
+                <div className="p-2.5 rounded-xl bg-[#C084FC]/15 text-[#C084FC] border border-[#C084FC]/25">
                   <CalendarDays className="h-5 w-5" />
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* ========================================================================= */}
           {/* ⚡ AI DYNAMIC PREDICTIVE GAUGES & VISUAL FORECAST SUITE ⚡ */}
           {/* ========================================================================= */}
           <div className="grid gap-4 md:grid-cols-12">
@@ -441,7 +447,7 @@ export default function AnalyticsPage() {
                   <Gauge className="w-4 h-4 text-brand-purple" />
                   Projected AI Growth
                 </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#8B5CF6]/15 text-[#C084FC] border border-[#8B5CF6]/30">
                   {aiVisual?.forecast.growthFactor || "+24% Surge"}
                 </span>
               </div>
@@ -449,7 +455,7 @@ export default function AnalyticsPage() {
               <div className="flex items-center justify-center my-3 relative">
                 <div className="w-28 h-28 rounded-full border-4 border-white/10 flex items-center justify-center relative">
                   <div
-                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-brand-purple border-r-brand-pink transition-all duration-1000"
+                    className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#BE32FF] border-r-[#8B5CF6] border-b-[#7C3AED]/50 transition-all duration-1000"
                     style={{
                       transform: `rotate(${((aiVisual?.forecast.projectedScore ?? 85) / 100) * 360}deg)`,
                     }}
@@ -465,7 +471,7 @@ export default function AnalyticsPage() {
 
               <div className="flex items-center justify-between text-xs pt-2 border-t border-border">
                 <span className="text-text-muted">Efficiency Rating:</span>
-                <span className="font-bold text-emerald-400">
+                <span className="font-bold text-brand-purple">
                   {aiVisual?.forecast.efficiencyRating || "High Velocity"}
                 </span>
               </div>
@@ -475,7 +481,7 @@ export default function AnalyticsPage() {
             <Card className="md:col-span-8 bg-surface border-border p-5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-brand-pink" />
+                  <Target className="w-4 h-4 text-brand-purple" />
                   Core Marketing Pillars Health Breakdown
                 </span>
                 <span className="text-[11px] text-text-muted">Live 5-Dimension Radar</span>
@@ -484,10 +490,10 @@ export default function AnalyticsPage() {
               <div className="grid sm:grid-cols-2 gap-3 pt-1">
                 {(aiVisual?.pillars || [
                   { pillar: "Content Output", score: data.marketing_score.breakdown.content_activity, maxScore: 25, status: "Active", color: "#BE32FF" },
-                  { pillar: "AI Computation", score: data.marketing_score.breakdown.ai_usage, maxScore: 25, status: "Strong", color: "#10B981" },
-                  { pillar: "Reels Volume", score: data.marketing_score.breakdown.reel_activity, maxScore: 15, status: "High", color: "#F0449B" },
-                  { pillar: "Product Catalog", score: data.marketing_score.breakdown.product_catalogue, maxScore: 20, status: "Growing", color: "#3B82F6" },
-                  { pillar: "Calendar Planning", score: data.marketing_score.breakdown.calendar_usage, maxScore: 15, status: "Standard", color: "#FC9A5D" },
+                  { pillar: "AI Computation", score: data.marketing_score.breakdown.ai_usage, maxScore: 25, status: "Strong", color: "#8B5CF6" },
+                  { pillar: "Reels Volume", score: data.marketing_score.breakdown.reel_activity, maxScore: 15, status: "High", color: "#A855F7" },
+                  { pillar: "Product Catalog", score: data.marketing_score.breakdown.product_catalogue, maxScore: 20, status: "Growing", color: "#7C3AED" },
+                  { pillar: "Calendar Planning", score: data.marketing_score.breakdown.calendar_usage, maxScore: 15, status: "Standard", color: "#C084FC" },
                 ]).map((pil, idx) => {
                   const pct = Math.round((pil.score / pil.maxScore) * 100);
                   return (
@@ -509,12 +515,12 @@ export default function AnalyticsPage() {
                 })}
 
                 {/* Quick Action Navigation */}
-                <div className="p-3 rounded-xl bg-gradient-to-r from-brand-purple/15 to-brand-pink/15 border border-brand-purple/30 flex items-center justify-between">
+                <div className="p-3 rounded-xl bg-gradient-to-r from-[#7C3AED]/15 via-[#8B5CF6]/10 to-[#BE32FF]/15 border border-[#8B5CF6]/30 flex items-center justify-between">
                   <div>
                     <span className="text-[11px] font-bold text-white block">Top Velocity Format</span>
-                    <span className="text-xs text-brand-pink font-semibold">Short-Form Reels (43 Active)</span>
+                    <span className="text-xs text-[#C084FC] font-semibold">Short-Form Reels (43 Active)</span>
                   </div>
-                  <Button size="sm" className="h-7 text-xs bg-brand-pink hover:bg-brand-pink/90 text-white" asChild>
+                  <Button size="sm" className="h-7 text-xs bg-gradient-to-r from-[#7C3AED] via-[#9333EA] to-[#BE32FF] hover:opacity-95 text-white shadow-md shadow-purple-600/30 font-medium cursor-pointer" asChild>
                     <Link href="/create/reel">Launch</Link>
                   </Button>
                 </div>
@@ -555,7 +561,7 @@ export default function AnalyticsPage() {
                     onClick={() => setActiveMetricFilter("reels")}
                     className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                       activeMetricFilter === "reels"
-                        ? "bg-brand-pink text-white shadow-sm"
+                        ? "bg-brand-purple text-white shadow-sm"
                         : "text-text-muted hover:text-white"
                     }`}
                   >
@@ -575,7 +581,7 @@ export default function AnalyticsPage() {
                     onClick={() => setActiveMetricFilter("generations")}
                     className={`px-2.5 py-1 rounded-md font-medium transition-all ${
                       activeMetricFilter === "generations"
-                        ? "bg-emerald-500 text-white shadow-sm"
+                        ? "bg-brand-purple text-white shadow-sm"
                         : "text-text-muted hover:text-white"
                     }`}
                   >
@@ -591,16 +597,16 @@ export default function AnalyticsPage() {
                       <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                         <defs>
                           <linearGradient id="colorGenerations" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={COLORS.green} stopOpacity={0.4} />
-                            <stop offset="95%" stopColor={COLORS.green} stopOpacity={0.0} />
+                            <stop offset="5%" stopColor="#C084FC" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#C084FC" stopOpacity={0.0} />
                           </linearGradient>
                           <linearGradient id="colorReels" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={COLORS.pink} stopOpacity={0.45} />
-                            <stop offset="95%" stopColor={COLORS.pink} stopOpacity={0.0} />
+                            <stop offset="5%" stopColor="#BE32FF" stopOpacity={0.45} />
+                            <stop offset="95%" stopColor="#BE32FF" stopOpacity={0.0} />
                           </linearGradient>
                           <linearGradient id="colorPosts" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={COLORS.purple} stopOpacity={0.45} />
-                            <stop offset="95%" stopColor={COLORS.purple} stopOpacity={0.0} />
+                            <stop offset="5%" stopColor="#7C3AED" stopOpacity={0.45} />
+                            <stop offset="95%" stopColor="#7C3AED" stopOpacity={0.0} />
                           </linearGradient>
                         </defs>
 
@@ -625,7 +631,7 @@ export default function AnalyticsPage() {
                           <Area
                             type="monotone"
                             dataKey="AI Generations"
-                            stroke={COLORS.green}
+                            stroke="#C084FC"
                             strokeWidth={2.5}
                             fillOpacity={1}
                             fill="url(#colorGenerations)"
@@ -636,7 +642,7 @@ export default function AnalyticsPage() {
                           <Area
                             type="monotone"
                             dataKey="Reels"
-                            stroke={COLORS.pink}
+                            stroke="#BE32FF"
                             strokeWidth={2.5}
                             fillOpacity={1}
                             fill="url(#colorReels)"
@@ -647,7 +653,7 @@ export default function AnalyticsPage() {
                           <Area
                             type="monotone"
                             dataKey="Posts"
-                            stroke={COLORS.purple}
+                            stroke="#7C3AED"
                             strokeWidth={2.5}
                             fillOpacity={1}
                             fill="url(#colorPosts)"
@@ -669,7 +675,7 @@ export default function AnalyticsPage() {
             <Card className="lg:col-span-4 bg-surface border-border flex flex-col">
               <CardHeader className="pb-2">
                 <CardTitle className="text-white text-base font-semibold flex items-center gap-2">
-                  <PieChartIcon className="h-4 w-4 text-brand-pink" />
+                  <PieChartIcon className="h-4 w-4 text-brand-purple" />
                   Asset Share Distribution
                 </CardTitle>
                 <CardDescription className="text-text-muted text-xs">
@@ -753,7 +759,7 @@ export default function AnalyticsPage() {
             <Card className="lg:col-span-5 bg-surface border-border">
               <CardHeader className="pb-2">
                 <CardTitle className="text-white text-base font-semibold flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-emerald-400" />
+                  <BarChart3 className="h-4 w-4 text-brand-purple" />
                   Format Production Comparison
                 </CardTitle>
                 <CardDescription className="text-text-muted text-xs">
@@ -776,7 +782,7 @@ export default function AnalyticsPage() {
                               const d = payload[0].payload;
                               return (
                                 <div className="bg-[#0B1630] border border-white/15 px-3 py-1.5 rounded-lg text-xs font-semibold text-white">
-                                  {d.channel}: <span className="text-brand-pink">{d.count} items</span>
+                                  {d.channel}: <span className="text-brand-purple">{d.count} items</span>
                                 </div>
                               );
                             }
@@ -800,7 +806,7 @@ export default function AnalyticsPage() {
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div>
                   <CardTitle className="text-white text-base font-semibold flex items-center gap-2">
-                    <Activity className="h-4 w-4 text-brand-coral" />
+                    <Activity className="h-4 w-4 text-brand-purple" />
                     Daily Output Matrix
                   </CardTitle>
                   <CardDescription className="text-text-muted text-xs">
@@ -845,7 +851,7 @@ export default function AnalyticsPage() {
                               </td>
                               <td className="py-2.5 text-center">
                                 {day.reels > 0 ? (
-                                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-pink/15 text-brand-pink">
+                                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-purple/15 text-brand-purple">
                                     {day.reels}
                                   </span>
                                 ) : (
@@ -854,7 +860,7 @@ export default function AnalyticsPage() {
                               </td>
                               <td className="py-2.5 text-center">
                                 {day.ai_generations > 0 ? (
-                                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400">
+                                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-brand-purple/15 text-brand-purple">
                                     {day.ai_generations}
                                   </span>
                                 ) : (

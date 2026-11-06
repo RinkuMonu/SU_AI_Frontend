@@ -405,30 +405,42 @@ export default function SupportPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-16">
+    <div 
+      style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif" }} 
+      className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-16 font-roboto"
+    >
       
       {/* ========================================================================= */}
       {/* 1. TOP HEADER & STREAMLINED 3-TAB NAVIGATOR                              */}
       {/* ========================================================================= */}
       <div className="rounded-3xl border border-border bg-surface p-6 shadow-2xl relative overflow-hidden space-y-5">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-pink/5 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-brand-purple/10 rounded-full blur-3xl pointer-events-none" />
 
         {/* Top Header Information */}
         <div className="flex items-center gap-4 relative z-10">
-          <div className="h-13 w-13 rounded-2xl bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white shadow-xl shadow-brand-purple/25 shrink-0">
+          <div className="h-12 w-12 rounded-xl bg-brand-purple/15 border border-brand-purple/30 text-brand-purple flex items-center justify-center shadow-lg shadow-brand-purple/10 shrink-0">
             <Headphones className="h-6 w-6" />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <h1 
+                style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif", fontWeight: 400 }} 
+                className="text-xl sm:text-2xl font-normal text-white tracking-wide"
+              >
                 Support Center
               </h1>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span 
+                style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif", fontWeight: 400 }} 
+                className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-normal tracking-wide bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+              >
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Support Team Online
               </span>
             </div>
-            <p className="text-xs sm:text-sm text-text-muted mt-1 max-w-2xl">
+            <p 
+              style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif", fontWeight: 400 }} 
+              className="text-xs sm:text-sm text-text-muted mt-1 max-w-2xl font-normal tracking-wide"
+            >
               Direct live chat with support specialists, query submission, and complete conversation history.
             </p>
           </div>
@@ -442,13 +454,18 @@ export default function SupportPage() {
           <button
             type="button"
             onClick={() => setActiveTab("chatroom")}
-            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            style={{
+              fontFamily: "var(--font-roboto), 'Roboto', sans-serif",
+              fontWeight: 400,
+              ...(activeTab === "chatroom" ? { background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)" } : {})
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-normal tracking-wide transition-all duration-200 cursor-pointer ${
               activeTab === "chatroom"
-                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                ? "text-white shadow-lg shadow-purple-600/35 ring-1 ring-white/20"
                 : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
             }`}
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-4 h-4 shrink-0" />
             <span>Live Chatroom</span>
             {activeConversation?.status === "Active" && (
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -458,32 +475,41 @@ export default function SupportPage() {
           <button
             type="button"
             onClick={() => setActiveTab("contact")}
-            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            style={{
+              fontFamily: "var(--font-roboto), 'Roboto', sans-serif",
+              fontWeight: 400,
+              ...(activeTab === "contact" ? { background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)" } : {})
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-normal tracking-wide transition-all duration-200 cursor-pointer ${
               activeTab === "contact"
-                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                ? "text-white shadow-lg shadow-purple-600/35 ring-1 ring-white/20"
                 : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
             }`}
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 shrink-0" />
             <span>Contact Support</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("conversations")}
-            className={`flex items-center gap-2.5 px-4.5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+            style={{
+              fontFamily: "var(--font-roboto), 'Roboto', sans-serif",
+              fontWeight: 400,
+              ...(activeTab === "conversations" ? { background: "linear-gradient(95deg, #7d36fa 0%, #9534fd 18%, #b233fe 36%, #c835ef 52%, #df3dbb 68%, #ee4795 82%, #f76f7b 92%, #fc9a5d 100%)" } : {})
+            }}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-normal tracking-wide transition-all duration-200 cursor-pointer ${
               activeTab === "conversations"
-                ? "bg-brand-gradient text-white shadow-lg shadow-brand-purple/25 ring-1 ring-white/20"
+                ? "text-white shadow-lg shadow-purple-600/35 ring-1 ring-white/20"
                 : "bg-surface-elevated/70 text-text-muted hover:text-white hover:bg-surface-elevated border border-border/70"
             }`}
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-4 h-4 shrink-0" />
             <span>My Conversations</span>
-            <span className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
-              activeTab === "conversations"
-                ? "bg-white/20 text-white"
-                : "bg-white/10 text-text-muted"
-            }`}>
+            <span 
+              style={{ fontFamily: "var(--font-roboto), 'Roboto', sans-serif", fontWeight: 400 }}
+              className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full font-normal tracking-wide ${activeTab === "conversations" ? "bg-white/20 text-white" : "bg-white/10 text-text-muted"}`}
+            >
               {conversations.length}
             </span>
           </button>
@@ -501,11 +527,11 @@ export default function SupportPage() {
             <Card className="bg-surface border-border shadow-xl">
               <CardHeader className="p-4 border-b border-border/60 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+                  <CardTitle className="text-sm font-normal tracking-wide text-white flex items-center gap-2">
                     <MessageSquare className="w-4 h-4 text-brand-purple" />
                     Support Channels
                   </CardTitle>
-                  <CardDescription className="text-[11px] text-text-muted">
+                  <CardDescription className="text-[11px] text-text-muted font-normal tracking-wide">
                     Click to switch active chatroom
                   </CardDescription>
                 </div>
@@ -513,7 +539,7 @@ export default function SupportPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setActiveTab("contact")}
-                  className="text-xs h-7 px-2 border-border text-brand-pink hover:bg-brand-purple/10"
+                  className="text-xs h-7 px-2 border-brand-purple/30 text-brand-purple hover:bg-brand-purple/10 font-normal tracking-wide cursor-pointer"
                 >
                   + New Query
                 </Button>
@@ -534,8 +560,8 @@ export default function SupportPage() {
                       }`}
                     >
                       <div className="flex items-center justify-between text-xs mb-1">
-                        <span className="font-mono font-bold text-[11px] text-brand-pink">{c.id}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold ${
+                        <span className="font-mono font-normal tracking-wide text-[11px] text-brand-purple">{c.id}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-normal tracking-wide ${
                           c.status === "Active" 
                             ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                             : "bg-slate-700/40 text-slate-400 border border-slate-600/30"
@@ -543,11 +569,11 @@ export default function SupportPage() {
                           {c.status}
                         </span>
                       </div>
-                      <h4 className="text-xs font-semibold text-white line-clamp-1">{c.subject}</h4>
-                      <p className="text-[11px] text-text-muted line-clamp-1 mt-0.5">
+                      <h4 className="text-xs font-normal tracking-wide text-white line-clamp-1">{c.subject}</h4>
+                      <p className="text-[11px] text-text-muted line-clamp-1 mt-0.5 font-normal tracking-wide">
                         {lastMsg ? `${lastMsg.sender === "user" ? "You" : "Agent"}: ${lastMsg.text}` : "No messages"}
                       </p>
-                      <span className="text-[10px] text-text-muted/70 block mt-1">{c.lastUpdated}</span>
+                      <span className="text-[10px] text-text-muted/70 block mt-1 font-normal tracking-wide">{c.lastUpdated}</span>
                     </div>
                   );
                 })}
@@ -556,7 +582,7 @@ export default function SupportPage() {
 
             {/* Support Desk Info Pill */}
             <div className="p-4 rounded-2xl bg-surface border border-border text-xs space-y-2">
-              <div className="flex items-center gap-2 text-white font-semibold">
+              <div className="flex items-center gap-2 text-white font-normal tracking-wide">
                 <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>Dedicated Enterprise Care</span>
               </div>
@@ -574,22 +600,22 @@ export default function SupportPage() {
               <div className="p-4 border-b border-border/70 bg-surface-elevated/60 flex items-center justify-between gap-3 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-brand-purple to-brand-pink flex items-center justify-center text-white font-bold text-sm shadow-md">
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-[#9333EA] to-[#BE32FF] flex items-center justify-center text-white font-normal text-sm shadow-md">
                       SK
                     </div>
                     <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-surface" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-sm font-bold text-white">Sarah Kapoor</h3>
-                      <span className="text-[10px] px-2 py-0.2 rounded-full bg-brand-purple/20 text-brand-pink font-semibold border border-brand-purple/30">
+                      <h3 className="text-sm sm:text-base font-normal tracking-wide text-white">Sarah Kapoor</h3>
+                      <span className="text-[10px] px-2 py-0.2 rounded-full bg-brand-purple/20 text-brand-purple font-normal tracking-wide border border-brand-purple/30">
                         Senior Specialist
                       </span>
                     </div>
                     <p className="text-[11px] text-text-muted mt-0.5 flex items-center gap-1.5">
-                      <span>Ref: <strong className="text-white font-mono">{activeConversation?.id}</strong></span>
+                      <span>Ref: <span className="text-white font-mono font-normal tracking-wide">{activeConversation?.id}</span></span>
                       <span>•</span>
-                      <span className="text-slate-300">{activeConversation?.relatedFeature}</span>
+                      <span className="text-slate-300 font-normal tracking-wide">{activeConversation?.relatedFeature}</span>
                     </p>
                   </div>
                 </div>
@@ -600,7 +626,7 @@ export default function SupportPage() {
                     <Button
                       size="sm"
                       onClick={() => setShowResolveModal(true)}
-                      className="bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-semibold h-8 px-3 rounded-lg shadow-md cursor-pointer"
+                      className="bg-emerald-600/90 hover:bg-emerald-500 text-white text-xs font-normal tracking-wide h-8 px-3 rounded-lg shadow-md cursor-pointer"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
                       Mark Resolved
@@ -644,15 +670,15 @@ export default function SupportPage() {
                       className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                     >
                       <div className="flex items-center gap-1.5 text-[11px] text-text-muted mb-1 px-1">
-                        <span className="font-semibold text-slate-300">{msg.senderName}</span>
+                        <span className="font-normal tracking-wide text-slate-300">{msg.senderName}</span>
                         <span>•</span>
                         <span>{msg.timestamp}</span>
                       </div>
 
                       <div
-                        className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                        className={`max-w-[85%] sm:max-w-[70%] p-3.5 rounded-2xl text-xs sm:text-sm leading-relaxed font-normal tracking-wide ${
                           isUser
-                            ? "bg-brand-gradient text-white rounded-br-xs shadow-md"
+                            ? "bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] text-white rounded-br-xs shadow-md shadow-purple-500/20"
                             : "bg-surface-elevated text-slate-100 border border-border/80 rounded-bl-xs shadow-sm"
                         }`}
                       >
@@ -689,11 +715,11 @@ export default function SupportPage() {
                 {isAgentTyping && (
                   <div className="flex items-center gap-2 text-xs text-text-muted p-2.5 bg-surface-elevated/60 border border-border rounded-xl w-fit">
                     <div className="flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-pink animate-bounce" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-pink animate-bounce [animation-delay:0.2s]" />
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-pink animate-bounce [animation-delay:0.4s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-purple animate-bounce" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-purple animate-bounce [animation-delay:0.2s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-purple animate-bounce [animation-delay:0.4s]" />
                     </div>
-                    <span className="text-[11px] text-slate-300 font-medium">Sarah is typing a response...</span>
+                    <span className="text-[11px] text-slate-300 font-normal tracking-wide">Sarah is typing a response...</span>
                   </div>
                 )}
 
@@ -771,7 +797,7 @@ export default function SupportPage() {
                   <Button
                     type="submit"
                     disabled={!messageInput.trim() && !attachedImage}
-                    className="h-11 px-5 bg-brand-gradient hover:opacity-95 text-white rounded-xl shadow-md cursor-pointer shrink-0 font-semibold text-xs"
+                    className="h-11 px-5 bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] hover:opacity-90 text-white rounded-xl shadow-md shadow-purple-500/25 cursor-pointer shrink-0 font-normal tracking-wide text-xs transition-opacity"
                   >
                     <Send className="w-4 h-4 mr-1.5" />
                     Send
@@ -791,15 +817,15 @@ export default function SupportPage() {
           <CardHeader className="border-b border-border/60 pb-5">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-bold text-white flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-brand-pink" />
+                <CardTitle className="text-xl font-normal tracking-wide text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-brand-purple" />
                   Contact Support
                 </CardTitle>
                 <CardDescription className="text-xs text-text-muted mt-1">
                   Submit your query directly to our support desk. A dedicated live chatroom will be created for you automatically.
                 </CardDescription>
               </div>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-brand-purple/15 text-brand-pink border border-brand-purple/30 font-semibold">
+              <span className="text-xs px-2.5 py-1 rounded-full bg-brand-purple/15 text-brand-purple border border-brand-purple/30 font-normal tracking-wide">
                 Direct Dispatch
               </span>
             </div>
@@ -816,7 +842,7 @@ export default function SupportPage() {
             <form onSubmit={handleContactSubmit} className="space-y-5">
               {/* Query Subject */}
               <div className="space-y-2">
-                <Label htmlFor="contactSubject" className="text-xs font-semibold text-slate-200">
+                <Label htmlFor="contactSubject" className="text-xs font-normal tracking-wide text-slate-200">
                   Query Subject <span className="text-rose-400">*</span>
                 </Label>
                 <Input
@@ -831,7 +857,7 @@ export default function SupportPage() {
 
               {/* Related Feature */}
               <div className="space-y-2">
-                <Label htmlFor="contactFeature" className="text-xs font-semibold text-slate-200">
+                <Label htmlFor="contactFeature" className="text-xs font-normal tracking-wide text-slate-200">
                   Related Feature <span className="text-rose-400">*</span>
                 </Label>
                 <select
@@ -856,7 +882,7 @@ export default function SupportPage() {
               {/* Problem Description */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="contactDescription" className="text-xs font-semibold text-slate-200">
+                  <Label htmlFor="contactDescription" className="text-xs font-normal tracking-wide text-slate-200">
                     Problem Description <span className="text-rose-400">*</span>
                   </Label>
                   <VoiceInputButton
@@ -888,8 +914,8 @@ export default function SupportPage() {
 
               {/* Screenshot / File Attachment */}
               <div className="space-y-2">
-                <Label className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                  <Paperclip className="w-3.5 h-3.5 text-brand-pink" />
+                <Label className="text-xs font-normal tracking-wide text-slate-200 flex items-center gap-1.5">
+                  <Paperclip className="w-3.5 h-3.5 text-brand-purple" />
                   Screenshot / Image Attachment (Optional)
                 </Label>
                 <div className="p-4 rounded-xl border-2 border-dashed border-border bg-surface-elevated/40 text-center">
@@ -947,7 +973,7 @@ export default function SupportPage() {
                 <Button
                   type="submit"
                   disabled={isSubmittingContact}
-                  className="bg-brand-gradient hover:opacity-95 text-white font-bold h-11 px-8 rounded-xl shadow-lg shadow-brand-purple/25 cursor-pointer"
+                  className="bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] hover:opacity-90 text-white font-normal tracking-wide h-11 px-8 rounded-xl shadow-lg shadow-brand-purple/30 cursor-pointer transition-opacity"
                 >
                   {isSubmittingContact ? (
                     <>Sending Message...</>
@@ -971,7 +997,7 @@ export default function SupportPage() {
         <div className="space-y-6 animate-in fade-in duration-300 max-w-5xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
+              <h2 className="text-xl font-normal tracking-wide text-white flex items-center gap-2">
                 <RotateCcw className="w-5 h-5 text-brand-purple" />
                 My Conversations ({conversations.length})
               </h2>
@@ -983,7 +1009,7 @@ export default function SupportPage() {
             <Button
               size="sm"
               onClick={() => setActiveTab("contact")}
-              className="bg-brand-gradient text-white text-xs font-semibold h-9 rounded-xl shadow-md"
+              className="bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] hover:opacity-90 text-white text-xs font-normal tracking-wide h-9 px-4 rounded-xl shadow-md shadow-brand-purple/25 cursor-pointer transition-opacity"
             >
               + Submit New Query
             </Button>
@@ -1034,13 +1060,13 @@ export default function SupportPage() {
                     <CardContent className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="space-y-1.5 flex-1">
                         <div className="flex items-center gap-2.5 flex-wrap">
-                          <span className="font-mono font-bold text-xs bg-brand-purple/10 text-brand-pink border border-brand-purple/20 px-2 py-0.5 rounded-md">
+                          <span className="font-mono font-normal tracking-wide text-xs bg-brand-purple/10 text-brand-purple border border-brand-purple/20 px-2 py-0.5 rounded-md">
                             {conv.id}
                           </span>
-                          <h4 className="text-sm font-bold text-white group-hover:text-brand-pink transition-colors">
+                          <h4 className="text-sm font-normal tracking-wide text-white group-hover:text-brand-purple transition-colors">
                             {conv.subject}
                           </h4>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-normal tracking-wide ${
                             conv.status === "Active"
                               ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
                               : "bg-slate-700/40 text-slate-400 border border-slate-600/30"
@@ -1084,7 +1110,7 @@ export default function SupportPage() {
                             setActiveChatId(conv.id);
                             setActiveTab("chatroom");
                           }}
-                          className="bg-brand-gradient text-white text-xs font-semibold h-9 px-4 rounded-xl shadow-md gap-1.5 cursor-pointer"
+                          className="bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] hover:opacity-90 text-white text-xs font-normal tracking-wide h-9 px-4 rounded-xl shadow-md shadow-brand-purple/25 gap-1.5 cursor-pointer transition-opacity"
                         >
                           <MessageSquare className="w-3.5 h-3.5" /> Open in Chatroom
                         </Button>
@@ -1103,7 +1129,7 @@ export default function SupportPage() {
                 <Button
                   size="sm"
                   onClick={() => setActiveTab("contact")}
-                  className="mt-4 bg-brand-gradient text-white text-xs"
+                  className="mt-4 bg-gradient-to-r from-[#9333EA] via-[#BE32FF] to-[#7D36FA] text-white text-xs font-normal tracking-wide shadow-md shadow-purple-500/25"
                 >
                   Start a Conversation
                 </Button>

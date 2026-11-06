@@ -29,31 +29,34 @@ import { InstagramService } from "@/services/instagram.service";
 import { FacebookService } from "@/services/facebook.service";
 import { ActivityService } from "@/services/activity.service";
 
-const InstagramIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
+const InstagramIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="ig-grad-icon" cx="0.3" cy="1" r="1">
-        <stop offset="0%" stopColor="#fdf497" />
-        <stop offset="5%" stopColor="#fdf497" />
-        <stop offset="45%" stopColor="#fd5949" />
-        <stop offset="60%" stopColor="#d6249f" />
-        <stop offset="90%" stopColor="#285AEB" />
-      </radialGradient>
+      <linearGradient id="ig-official-full-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0%" stopColor="#feda75" />
+        <stop offset="12%" stopColor="#fa7e1e" />
+        <stop offset="38%" stopColor="#d62976" />
+        <stop offset="68%" stopColor="#962fbf" />
+        <stop offset="100%" stopColor="#4f5bd5" />
+      </linearGradient>
     </defs>
-    <rect x="2" y="2" width="20" height="20" rx="5" fill="url(#ig-grad-icon)" />
-    <path
-      d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zm5.2-8.4a1.2 1.2 0 1 1-2.4 0 1.2 1.2 0 0 1 2.4 0z"
-      fill="#ffffff"
-    />
+    {/* Colorful Instagram gradient rounded square matching Image 2 */}
+    <rect width="24" height="24" rx="6.5" fill="url(#ig-official-full-grad)" />
+    {/* White Camera outer body */}
+    <rect x="3.8" y="3.8" width="16.4" height="16.4" rx="4.4" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
+    {/* White Camera center lens */}
+    <circle cx="12" cy="12" r="4.1" stroke="#FFFFFF" strokeWidth="1.8" fill="none" />
+    {/* White Camera flash dot */}
+    <circle cx="16.6" cy="7.4" r="1.2" fill="#FFFFFF" />
   </svg>
 );
 
-const FacebookIcon = ({ className = "h-5 w-5" }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" className={className} xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="12" fill="#1877F2" />
+const FacebookIcon = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="12" r="12" fill="#0866FF" />
     <path
-      d="M15.117 8.52h-1.808c-.282 0-.603.37-.603.882v1.548h2.411l-.328 2.45h-2.083V20h-2.528v-6.6H8.225v-2.45h1.953V9.395c0-1.895 1.155-2.928 2.85-2.928.812 0 1.512.06 1.716.088v1.965z"
-      fill="#ffffff"
+      d="M16.6711 15.4688L17.2031 12H13.875V9.75C13.875 8.80008 14.34 7.875 15.8306 7.875H17.3438V4.92188C17.3438 4.92188 15.9701 4.6875 14.6576 4.6875C11.9166 4.6875 10.125 6.34875 10.125 9.35625V12H7.07812V15.4688H10.125V23.8542C10.7441 23.9515 11.3728 24 12 24C12.6272 24 13.2559 23.9515 13.875 23.8542V15.4688H16.6711Z"
+      fill="#FFFFFF"
     />
   </svg>
 );
@@ -453,25 +456,12 @@ export default function InstagramIntegrationPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1e2a4a]">
           <div className="flex items-center gap-3.5">
-            {/* Instagram logo with #081226 background (Image 2) and actual original Instagram icon */}
+            {/* Instagram logo with #081226 background and larger original Instagram icon (Image 2) */}
             <div 
               style={{ backgroundColor: "#081226" }} 
-              className="w-12 h-12 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-md"
+              className="w-14 h-14 rounded-2xl border border-[#1e2a4a] flex items-center justify-center shrink-0 shadow-lg"
             >
-              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-                <defs>
-                  <radialGradient id="ig-orig-gradient" cx="30%" cy="107%" r="150%">
-                    <stop offset="0%" stopColor="#fdf497" />
-                    <stop offset="5%" stopColor="#fdf497" />
-                    <stop offset="45%" stopColor="#fd5949" />
-                    <stop offset="60%" stopColor="#d6249f" />
-                    <stop offset="90%" stopColor="#285AEB" />
-                  </radialGradient>
-                </defs>
-                <rect x="2" y="2" width="20" height="20" rx="6" stroke="url(#ig-orig-gradient)" strokeWidth="2" fill="none" />
-                <circle cx="12" cy="12" r="4.5" stroke="url(#ig-orig-gradient)" strokeWidth="2" fill="none" />
-                <circle cx="17.5" cy="6.5" r="1.2" fill="url(#ig-orig-gradient)" />
-              </svg>
+              <InstagramIcon className="w-10 h-10 shrink-0 drop-shadow-md" />
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-normal tracking-wide text-white">Instagram Integration</h1>
@@ -582,7 +572,7 @@ export default function InstagramIntegrationPage() {
             <CardContent className="p-5 sm:p-6 space-y-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2.5">
-                  <InstagramIcon className="w-7 h-7 shrink-0" />
+                  <InstagramIcon className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 drop-shadow-sm" />
                   <h3 className="text-lg sm:text-xl font-normal text-white tracking-wide">Fast Instagram Connect</h3>
                 </div>
                 <p className="text-sm text-slate-300 font-normal tracking-wide max-w-xl leading-relaxed">
@@ -594,7 +584,8 @@ export default function InstagramIntegrationPage() {
                 <Button
                   onClick={handleInstagramLogin}
                   disabled={isLoggingIn || isConnectingFb}
-                  className="h-10 px-4 bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white font-normal text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  style={{ background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)" }}
+                  className="h-10 px-4 hover:opacity-95 text-white font-normal text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
                   title="Connect directly via Instagram Basic Display &amp; Graph API"
                 >
                   {isLoggingIn ? (
@@ -604,7 +595,7 @@ export default function InstagramIntegrationPage() {
                     </>
                   ) : (
                     <>
-                      <InstagramIcon className="h-4 w-4" />
+                      <InstagramIcon className="h-5 w-5" />
                       Connect Instagram Account
                     </>
                   )}
@@ -640,7 +631,7 @@ export default function InstagramIntegrationPage() {
           <CardHeader className="py-4 px-5 sm:px-6 border-b border-[#1e2a4a]/60">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <InstagramIcon className="w-7 h-7 shrink-0" />
+                <InstagramIcon className="w-9 h-9 sm:w-10 sm:h-10 shrink-0 drop-shadow-sm" />
                 <CardTitle className="text-white text-lg sm:text-xl font-normal tracking-wide">
                   Instagram Graph API Credentials
                 </CardTitle>
@@ -702,7 +693,8 @@ export default function InstagramIntegrationPage() {
             <Button 
               onClick={() => handleUpdate()} 
               disabled={isUpdating || isLoggingIn} 
-              className="w-full bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 text-white transition-all font-normal text-sm sm:text-base tracking-wide h-11 cursor-pointer rounded-xl shadow-[0_0_12px_rgba(138,63,252,0.2)] mt-2"
+              style={{ background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)" }}
+              className="w-full hover:opacity-95 text-white transition-all font-normal text-sm sm:text-base tracking-wide h-11 cursor-pointer rounded-xl shadow-[0_0_15px_rgba(190,50,255,0.25)] mt-2"
             >
               {isUpdating ? (
                 <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving Credentials...</>

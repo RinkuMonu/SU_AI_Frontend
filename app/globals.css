@@ -400,3 +400,12 @@ html.light select option {
   background-color: #FFFFFF;
   color: #0F172A;
 }
+
+
+.font-roboto, [data-font="roboto"] {
+  font-family: var(--font-roboto), 'Roboto', sans-serif !important;
+}
+
+.font-roboto * {
+  font-family: inherit;
+}

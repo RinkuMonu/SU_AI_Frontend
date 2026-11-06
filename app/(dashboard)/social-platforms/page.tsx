@@ -369,7 +369,8 @@ export default function SocialPlatformsOverviewPage() {
                         type="button"
                         onClick={() => handleConnect(p.key)}
                         disabled={isConnecting || connectingPlatform !== null}
-                        className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#ff7a59] via-[#e244b2] to-[#8a3ffc] hover:opacity-95 active:scale-[0.99] disabled:opacity-50 text-xs font-medium tracking-wide text-white shadow-[0_0_12px_rgba(138,63,252,0.22)] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                        style={{ background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 33%, #be32ff 66%, #7d36fa 100%)" }}
+                        className="w-full py-2.5 rounded-xl hover:opacity-95 active:scale-[0.99] disabled:opacity-50 text-xs font-medium tracking-wide text-white shadow-[0_0_12px_rgba(190,50,255,0.25)] flex items-center justify-center gap-1.5 transition-all cursor-pointer"
                       >
                         {isConnecting ? (
                           <>
