@@ -160,8 +160,18 @@ export const reelService = {
   // Reel Generation & Status Management
   // ──────────────────────────────────────────────
   async generateReel(request: GenerateReelRequest): Promise<ReelGenerationResponse> {
-    const response = await api.post("/api/v1/content/generate-reel", request);
-    return response.data;
+    try {
+      const response = await api.post("/api/v1/content/generate-reel", request);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("credit-update"));
+      }
+      return response.data;
+    } catch (err: any) {
+      if (err?.response?.status === 402 && typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("insufficient-credits", { detail: { action: "ai_reel" } }));
+      }
+      throw err;
+    }
   },
 
   async getReelStatus(jobId: string): Promise<ReelJobStatus> {

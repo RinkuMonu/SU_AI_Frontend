@@ -1456,7 +1456,7 @@ export default function AIPostPage() {
               </>
             ) : (
               <>
-                <span className="text-white font-medium">Generate Post</span>
+                <span className="text-white font-medium">Generate Post (3 Credits)</span>
                 <ArrowRight className="w-5 h-5 text-white stroke-[2.2]" />
               </>
             )}

@@ -111,6 +111,21 @@ export function AutomaticPlansModal() {
     }
   }, []);
 
+  // Listen for insufficient credits to prompt user to upgrade plan
+  useEffect(() => {
+    const handleInsufficientCredits = () => {
+      setActiveModal("plan");
+      setIsOpen(true);
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("insufficient-credits", handleInsufficientCredits);
+      return () => {
+        window.removeEventListener("insufficient-credits", handleInsufficientCredits);
+      };
+    }
+  }, []);
+
   /**
    * Handles user decline or close action.
    * Records cooldown timestamp to prevent nuisance re-popping on every route change.

@@ -86,7 +86,15 @@ export const contentService = {
         logo_url: request.logo_url,
         include_logo: request.include_logo,
       });
+
+      // Instantly update credits across all dashboards
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("credit-update"));
+      }
     } catch (error: any) {
+      if (error?.response?.status === 402 && typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("insufficient-credits", { detail: { action: "ai_post" } }));
+      }
       const serverDetail = error?.response?.data?.detail || error?.response?.data?.message;
       if (serverDetail) {
         const msg = typeof serverDetail === "string" ? serverDetail : JSON.stringify(serverDetail);

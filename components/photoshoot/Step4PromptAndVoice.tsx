@@ -385,7 +385,7 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
             </>
           ) : (
             <>
-              <span>Generate photoshoot</span>
+              <span>Generate photoshoot (2 Credits)</span>
               <ArrowRight className="w-4 h-4 text-white stroke-[2.2]" />
             </>
           )}

@@ -1837,7 +1837,7 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                 ) : (
                   <>
                     <Sparkles className="w-4 h-4" />
-                    <span>Generate Reel</span>
+                    <span>Generate Reel (5 Credits)</span>
                   </>
                 )}
               </button>

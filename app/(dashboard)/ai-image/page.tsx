@@ -241,7 +241,7 @@ export default function AIImagePage() {
                 "Generating..."
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" /> Generate Image
+                  <Sparkles className="w-5 h-5" /> Generate Image (4 Credits)
                 </>
               )}
             </button>
