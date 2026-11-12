@@ -45,15 +45,34 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
+                if (typeof MediaDevices !== "undefined" && MediaDevices.prototype) {
+                  try {
+                    Object.defineProperty(MediaDevices.prototype, "getDisplayMedia", {
+                      value: function() {
+                        return Promise.reject(new DOMException("Screen sharing blocked on this platform.", "NotAllowedError"));
+                      },
+                      writable: true,
+                      configurable: true
+                    });
+                  } catch (_) {}
+                }
                 if (navigator.mediaDevices) {
-                  navigator.mediaDevices.getDisplayMedia = function() {
-                    return Promise.reject(new DOMException("Screen sharing blocked on this platform.", "NotAllowedError"));
-                  };
+                  try {
+                    Object.defineProperty(navigator.mediaDevices, "getDisplayMedia", {
+                      value: function() {
+                        return Promise.reject(new DOMException("Screen sharing blocked on this platform.", "NotAllowedError"));
+                      },
+                      writable: true,
+                      configurable: true
+                    });
+                  } catch (_) {}
                 }
                 if (window.HTMLVideoElement && HTMLVideoElement.prototype) {
-                  HTMLVideoElement.prototype.requestPictureInPicture = function() {
-                    return Promise.reject(new DOMException("Picture-in-picture disabled.", "NotAllowedError"));
-                  };
+                  try {
+                    HTMLVideoElement.prototype.requestPictureInPicture = function() {
+                      return Promise.reject(new DOMException("Picture-in-picture disabled.", "NotAllowedError"));
+                    };
+                  } catch (_) {}
                 }
               } catch(_) {}
             `,

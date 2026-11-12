@@ -58,7 +58,7 @@ export function SecurityShield() {
     if (typeof window === "undefined") return;
 
     // ── 1. BLOCK BROWSER SCREEN SHARING APIS (getDisplayMedia) ──────────────────
-    if (navigator.mediaDevices) {
+    try {
       const blockDisplayMedia = async () => {
         triggerScreenShareBlock();
         throw new DOMException(
@@ -67,16 +67,26 @@ export function SecurityShield() {
         );
       };
 
-      try {
-        Object.defineProperty(navigator.mediaDevices, "getDisplayMedia", {
-          value: blockDisplayMedia,
-          writable: false,
-          configurable: false,
-        });
-      } catch (_) {
-        navigator.mediaDevices.getDisplayMedia = blockDisplayMedia as any;
+      if (typeof MediaDevices !== "undefined" && MediaDevices.prototype) {
+        try {
+          Object.defineProperty(MediaDevices.prototype, "getDisplayMedia", {
+            value: blockDisplayMedia,
+            writable: true,
+            configurable: true,
+          });
+        } catch (_) {}
       }
-    }
+
+      if (typeof navigator !== "undefined" && navigator.mediaDevices) {
+        try {
+          Object.defineProperty(navigator.mediaDevices, "getDisplayMedia", {
+            value: blockDisplayMedia,
+            writable: true,
+            configurable: true,
+          });
+        } catch (_) {}
+      }
+    } catch (_) {}
 
     // ── 2. BLOCK WEBRTC SCREEN SHARING TRACKS ────────────────────────────────────
     if (window.RTCPeerConnection) {
