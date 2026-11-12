@@ -82,9 +82,12 @@ export const paymentService = {
     }
 
     // Pass dynamic return URL matching current origin so Cashfree redirects back accurately.
-    // Note: Cashfree Subscriptions API strictly enforces HTTPS for return_url.
+    // For localhost dev, keep http:// to prevent browser ERR_SSL_PROTOCOL_ERROR.
     if (typeof window !== "undefined" && window.location.origin) {
-      const origin = window.location.origin.replace(/^http:\/\//i, "https://");
+      const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const origin = isLocal
+        ? window.location.origin
+        : window.location.origin.replace(/^http:\/\//i, "https://");
       payload.return_url = `${origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
     }
 
