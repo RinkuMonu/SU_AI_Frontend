@@ -40,9 +40,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
-        <Script
+        <script
           id="anti-screenshare-early"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               try {
