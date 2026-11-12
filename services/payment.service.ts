@@ -88,10 +88,10 @@ export const paymentService = {
       const origin = isLocal
         ? window.location.origin
         : window.location.origin.replace(/^http:\/\//i, "https://");
-      payload.return_url = `${origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
+      payload.return_url = `${origin}/payment/success?order_id={order_id}&sub_id={order_id}`;
     }
 
-    // Call official Cashfree Subscriptions & AutoPay endpoint
+    // Call Cashfree Payment Gateway endpoint
     const response = await api.post("/api/v1/payments/subscription/create", payload);
     const data = response.data?.data || response.data;
 
