@@ -25,6 +25,7 @@ import {
   isQualifyingPlanActive,
   normalizePlanId,
 } from "@/lib/plan-onboarding";
+import { launchCashfreeCheckout } from "@/lib/cashfree";
 
 interface AvailablePlansModalProps {
   isOpen: boolean;
@@ -201,20 +202,14 @@ export function AvailablePlansModal({
       } else {
         // Paid plan selection: initiate secure payment flow with chosen billing cycle
         const response = await paymentService.createPayment(plan.id, selectedCycle);
-        const redirectUrl =
-          response.payment_url ||
-          (response.subscription_session_id
-            ? `https://payments.cashfree.com/order/#${response.subscription_session_id}`
-            : response.order_id
-            ? `https://payments.cashfree.com/order/#${response.order_id}`
-            : "");
+        const sessionId = response.payment_session_id || response.subscription_session_id;
 
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
-          return;
-        } else {
-          throw new Error("Unable to obtain payment gateway URL. Please retry.");
-        }
+        await launchCashfreeCheckout({
+          paymentSessionId: sessionId,
+          environment: response.environment || "production",
+          fallbackUrl: response.payment_url,
+        });
+        return;
       }
     } catch (err: any) {
       console.error(`Error activating plan ${plan.id}`, err);

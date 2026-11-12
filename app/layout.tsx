@@ -45,6 +45,16 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               try {
+                // Suppress third-party wasm-bindgen false-positive deprecation warnings
+                if (typeof console !== "undefined" && console.warn) {
+                  const _origWarn = console.warn;
+                  console.warn = function() {
+                    if (arguments.length > 0 && typeof arguments[0] === "string" && arguments[0].indexOf("deprecated parameters for the initialization function") !== -1) {
+                      return;
+                    }
+                    return _origWarn.apply(console, arguments);
+                  };
+                }
                 if (typeof MediaDevices !== "undefined" && MediaDevices.prototype) {
                   try {
                     Object.defineProperty(MediaDevices.prototype, "getDisplayMedia", {

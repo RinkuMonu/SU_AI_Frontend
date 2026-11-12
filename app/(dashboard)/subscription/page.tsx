@@ -32,6 +32,7 @@ import {
   formatCurrencyINR,
   normalizePlanId,
 } from "@/lib/plan-onboarding";
+import { launchCashfreeCheckout } from "@/lib/cashfree";
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -164,20 +165,14 @@ export default function SubscriptionPage() {
         setUpgradeSuccess("Free Plan activated successfully!");
       } else {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
-        const redirectUrl =
-          response.payment_url ||
-          (response.subscription_session_id
-            ? `https://payments.cashfree.com/order/#${response.subscription_session_id}`
-            : response.order_id
-            ? `https://payments.cashfree.com/order/#${response.order_id}`
-            : "");
+        const sessionId = response.payment_session_id || response.subscription_session_id;
 
-        if (redirectUrl) {
-          window.location.href = redirectUrl;
-          return;
-        } else {
-          throw new Error("Unable to obtain payment gateway URL. Please retry.");
-        }
+        await launchCashfreeCheckout({
+          paymentSessionId: sessionId,
+          environment: response.environment || "production",
+          fallbackUrl: response.payment_url,
+        });
+        return;
       }
     } catch (err: any) {
       console.error("Failed to initiate payment", err);

@@ -7,6 +7,8 @@ export interface CreatePaymentResponse {
   order_id: string;
   subscription_id?: string;
   subscription_session_id?: string;
+  payment_session_id?: string;
+  environment?: "production" | "sandbox";
   amount?: number;
   auth_amount?: number;
   recurring_amount?: number;
@@ -107,12 +109,17 @@ export const paymentService = {
       throw new Error(data?.detail || "Invalid response received from Cashfree payment service.");
     }
 
+    const sessionId = data?.payment_session_id || data?.subscription_session_id;
+    const env = ((data?.environment || "production").toLowerCase() === "sandbox" ? "sandbox" : "production") as "production" | "sandbox";
+
     return {
       success: data.success ?? true,
       payment_url: paymentUrl,
       subscription_id: subId,
       order_id: subId,
       subscription_session_id: data.subscription_session_id,
+      payment_session_id: sessionId,
+      environment: env,
       amount: data.recurring_amount ?? data.auth_amount ?? data.amount,
       auth_amount: data.auth_amount,
       recurring_amount: data.recurring_amount,
