@@ -190,21 +190,13 @@ export default function AIImagePage() {
                 tooltip="Speak to type image prompt (English/Hindi)"
               />
             </div>
-            <div className="relative">
+            <div>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="E.g., A minimalist workspace with a coffee cup and a laptop, soft lighting..."
-                className="w-full bg-[#0a142c] border border-border rounded-xl p-4 pb-11 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y"
+                className="w-full bg-[#0a142c] border border-border rounded-xl p-4 text-white placeholder:text-text-muted focus:outline-none focus:border-brand-purple min-h-[120px] resize-y"
               />
-              <div className="absolute right-3 bottom-3">
-                <VoiceInputButton
-                  onTranscript={(text) => setPrompt(text)}
-                  currentValue={prompt}
-                  size="sm"
-                  tooltip="Dictate prompt"
-                />
-              </div>
             </div>
           </section>
 

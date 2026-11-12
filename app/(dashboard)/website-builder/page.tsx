@@ -1471,6 +1471,18 @@ export default function WebsiteBuilderPage() {
     init();
   }, []);
 
+  // Prevent outer dashboard layout scrolling so full-height builder never overflows or cuts off bottom chat bar
+  useEffect(() => {
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      const prevOverflow = mainEl.style.overflow;
+      mainEl.style.overflow = "hidden";
+      return () => {
+        mainEl.style.overflow = prevOverflow;
+      };
+    }
+  }, []);
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
@@ -2661,7 +2673,7 @@ Shall I generate your custom website draft now?`;
   /* -------------------------------------------------------------------------- */
 
   return (
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] w-full bg-[#0B0F19] overflow-hidden text-gray-200">
+    <div className="-my-6 -mx-4 sm:-mx-6 md:-mx-8 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)] max-w-none h-[calc(100vh-64px)] flex flex-col lg:flex-row bg-[#0B0F19] overflow-hidden text-gray-200">
       
       {/* MOBILE / TABLET VIEW SWITCHER BAR (< 1024px) */}
       <div className="lg:hidden flex items-center justify-between px-3 sm:px-4 py-2 bg-[#111827] border-b border-white/10 shrink-0 z-30">
@@ -2887,7 +2899,7 @@ Shall I generate your custom website draft now?`;
         )}
 
         {/* Chat Input Area */}
-        <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0B0F19] shrink-0">
+        <div className="p-3 sm:p-4 pb-3.5 sm:pb-4.5 border-t border-white/10 bg-[#0B0F19] shrink-0 z-20">
           <div className="relative flex items-center">
             <input
               type="text"

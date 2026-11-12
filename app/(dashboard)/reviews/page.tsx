@@ -175,19 +175,12 @@ export default function ReviewsPage() {
                               tooltip="Speak reply (English/Hindi)"
                             />
                           </div>
-                          <div className="relative">
+                          <div>
                             <textarea 
-                              className="w-full min-h-[90px] p-3 pb-8 border border-border rounded-md text-sm bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none resize-none"
+                              className="w-full min-h-[90px] p-3 border border-border rounded-md text-sm bg-surface-elevated text-white focus:ring-2 focus:ring-brand-purple outline-none resize-none"
                               value={aiReplies[reviewId]}
                               onChange={(e) => setAiReplies({...aiReplies, [reviewId]: e.target.value})}
                             />
-                            <div className="absolute right-2 bottom-2">
-                              <VoiceInputButton
-                                onTranscript={(text) => setAiReplies(prev => ({ ...prev, [reviewId]: text }))}
-                                currentValue={aiReplies[reviewId] || ''}
-                                size="sm"
-                              />
-                            </div>
                           </div>
                           <div className="flex gap-2 justify-end">
                             <Button 

@@ -3848,7 +3848,10 @@ export default function OnboardingPage() {
       }
 
       if (firstThingChoice === "reel_maker") {
-        // Reel Maker is coming soon: do not allow proceeding
+        try {
+          await OnboardingService.saveFirstContentChoice("reel_maker");
+        } catch (_) {}
+        router.push("/create/reel");
         return;
       }
 
@@ -8754,7 +8757,7 @@ export default function OnboardingPage() {
 
             {/* 4 Cards Grid (2x2) */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {/* Card 1: Fashionist Studio - Redirects to existing Fashionist Studio Dashboard */}
+              {/* Card 1: Fashion Studio - Redirects to existing Fashion Studio Dashboard */}
               <div
                 onClick={() => {
                   setFirstThingChoice("fashion_studio");
@@ -8770,17 +8773,17 @@ export default function OnboardingPage() {
                     : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
                 }`}
               >
-                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
-                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                <div className="flex items-center shrink-0 gap-1.5 sm:gap-2 py-1 select-none">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden -rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
-                      src="/images/fashion-photoshoot-hero.jpg"
-                      alt="Fashion model"
+                      src="/images/fashion-model-khaki.jpg"
+                      alt="Fashion model 1"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
-                      src="/images/influencer-ootd-post.jpg"
+                      src="/images/fashion-model-purple.jpg"
                       alt="Fashion model 2"
                       className="w-full h-full object-cover"
                     />
@@ -8788,7 +8791,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-base sm:text-lg font-normal text-white">
-                    Fashionist <span className="text-[#fc9a5d]">Studio</span>
+                    Fashion <span className="text-[#fc9a5d]">Studio</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
                     Models wearing your products.
@@ -8812,15 +8815,15 @@ export default function OnboardingPage() {
                     : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
                 }`}
               >
-                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
-                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                <div className="flex items-center shrink-0 gap-1.5 sm:gap-2 py-1 select-none">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden -rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
                       src="/images/product-saffron-serum.jpg"
                       alt="Product bottle"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
                       src="/images/product-kundan-necklace.jpg"
                       alt="Product jewelry"
@@ -8847,15 +8850,15 @@ export default function OnboardingPage() {
                     : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
                 }`}
               >
-                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24">
-                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                <div className="flex items-center shrink-0 gap-1.5 sm:gap-2 py-1 select-none">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden -rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
                       src="/images/ai-poster-mockup.jpg"
                       alt="Burger poster"
                       className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
                       src="/images/diwali-festive-banner.jpg"
                       alt="Festive poster"
@@ -8873,35 +8876,34 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              {/* Card 4: Reel Maker - Coming Soon, cannot be selected */}
+              {/* Card 4: Reel Maker */}
               <div
-                className="relative rounded-2xl p-4 sm:p-5 border transition-all flex items-center gap-4 sm:gap-5 select-none opacity-60 cursor-not-allowed border-slate-800/80 bg-[#0e162b]"
-                title="Reel Maker is Coming Soon"
+                onClick={() => setFirstThingChoice("reel_maker")}
+                className={`relative rounded-2xl p-4 sm:p-5 border transition-all cursor-pointer flex items-center gap-4 sm:gap-5 select-none ${
+                  firstThingChoice === "reel_maker"
+                    ? "border-2 border-[#be32ff] bg-[#121933] shadow-[0_0_24px_rgba(190,50,255,0.25)] ring-1 ring-[#be32ff]/40"
+                    : "border border-slate-800/80 bg-[#0e162b] hover:border-slate-700 hover:bg-[#111c36]"
+                }`}
               >
-                <div className="absolute top-3 right-3 z-10">
-                  <span className="px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-medium bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/20 text-purple-200 border border-purple-500/30 shadow-xs">
-                    Coming Soon
-                  </span>
-                </div>
-                <div className="relative flex items-center shrink-0 w-24 sm:w-28 h-22 sm:h-24 opacity-60">
-                  <div className="absolute left-0 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden -rotate-6 shadow-lg border border-white/10 bg-slate-800">
+                <div className="flex items-center shrink-0 gap-1.5 sm:gap-2 py-1 select-none">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden -rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
                       src="/images/raw-selfie-woman.jpg"
                       alt="Reel selfie"
-                      className="w-full h-full object-cover grayscale"
+                      className="w-full h-full object-cover"
                     />
                   </div>
-                  <div className="absolute left-8 sm:left-9 w-14 sm:w-16 h-20 sm:h-22 rounded-xl overflow-hidden rotate-6 shadow-xl border border-white/10 bg-slate-800">
+                  <div className="w-[50px] sm:w-[58px] h-[74px] sm:h-[84px] rounded-xl overflow-hidden rotate-6 shadow-md border border-white/10 bg-slate-800 shrink-0 transform-gpu transition-transform">
                     <img
-                      src="/images/ai-reel-formats-showcase.jpg"
-                      alt="Reel format"
-                      className="w-full h-full object-cover grayscale"
+                      src="/images/reel-oil-bottle.jpg"
+                      alt="Reel product"
+                      className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-base sm:text-lg font-normal text-slate-300">
-                    Reel <span className="text-[#7d36fa]/80">Maker</span>
+                  <h3 className="text-base sm:text-lg font-normal text-white">
+                    Reel <span className="text-[#be32ff]">Maker</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-400 font-normal mt-1">
                     Ready for instagram and youtube shorts.

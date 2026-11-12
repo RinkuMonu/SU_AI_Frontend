@@ -1388,7 +1388,7 @@ export function PaymentsStackSection() {
 
   return (
     <section className="pt-3 sm:pt-4 pb-3 sm:pb-4 bg-[#faf9f6] relative z-10 w-full transition-colors duration-200">
-      <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-[1520px] 2xl:max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Sticky Top Floating Navigation Pill Bar */}
         <div className="sticky top-20 sm:top-24 z-40 pointer-events-none flex justify-center mb-4 sm:mb-5 py-1 px-2">
@@ -1521,12 +1521,12 @@ export function PaymentsStackSection() {
                 </div>
 
                 {/* Right Column: Content Cards */}
-                <div className="lg:col-span-9 space-y-6 sm:space-y-7 min-w-0">
+                <div className="w-full lg:col-span-9 space-y-6 sm:space-y-7 min-w-0">
                   {category.subItems.map((sub) => (
                     <div
                       key={sub.id}
                       id={`card-${sub.id}`}
-                      className="scroll-mt-28 sm:scroll-mt-32 bg-[#fffdfa] rounded-[24px] sm:rounded-[28px] border border-orange-200/50 shadow-[0_16px_40px_-15px_rgba(0,0,0,0.05)] p-4 sm:p-6 relative overflow-hidden"
+                      className="w-full scroll-mt-28 sm:scroll-mt-32 bg-[#fffdfa] rounded-[24px] sm:rounded-[28px] border border-orange-200/50 shadow-[0_16px_40px_-15px_rgba(0,0,0,0.05)] p-4 sm:p-6 lg:p-7 relative overflow-hidden"
                     >
                       {/* Main Heading */}
                       <h4 className="font-serif text-xl sm:text-2xl lg:text-[26px] font-bold text-slate-900 tracking-tight mb-4 leading-tight">
@@ -1534,7 +1534,7 @@ export function PaymentsStackSection() {
                       </h4>
 
                       {/* Interactive Diagram Canvas */}
-                      <div className="relative rounded-2xl bg-gradient-to-br from-[#fffdfa] via-white to-slate-50/60 border border-slate-200/80 p-3.5 sm:p-5 mb-4 sm:mb-5 overflow-hidden shadow-xs">
+                      <div className="w-full relative rounded-2xl bg-gradient-to-br from-[#fffdfa] via-white to-slate-50/60 border border-slate-200/80 p-3.5 sm:p-5 lg:p-6 mb-4 sm:mb-5 overflow-hidden shadow-xs">
                         {/* Subtle Grid Overlay */}
                         <div
                           className="absolute inset-0 pointer-events-none opacity-30"
@@ -1545,10 +1545,10 @@ export function PaymentsStackSection() {
                         />
 
                         {/* Connecting Diagram: Left Input -> Center Glowing Hub -> Right Intelligence Card */}
-                        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-3">
+                        <div className="w-full relative z-10 flex flex-col lg:flex-row items-center justify-between gap-5 lg:gap-4 xl:gap-6">
 
                           {/* 1. Left Input Card */}
-                          <div className="w-full lg:w-[240px] xl:w-[260px] shrink-0 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-md">
+                          <div className="w-full lg:w-[260px] xl:w-[290px] 2xl:w-[320px] shrink-0 bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-md">
                             <div className="flex items-center justify-between mb-2">
                               <span
                                 className="text-[11px] sm:text-xs font-semibold"
@@ -1585,9 +1585,9 @@ export function PaymentsStackSection() {
                           </div>
 
                           {/* 2. Center Connector Network Lines & Glowing Processing Hub */}
-                          <div className="relative flex items-center justify-center my-3 lg:my-0 shrink-0 w-full lg:w-auto px-1">
+                          <div className="relative flex items-center justify-center my-3 lg:my-0 shrink-0 w-full lg:flex-1 lg:max-w-[140px] xl:max-w-[180px] px-1">
                             {/* Left line connecting Input to Center Hub */}
-                            <div className="hidden lg:flex items-center w-10 xl:w-16 h-[2px] bg-gradient-to-r from-slate-200 via-slate-300 to-indigo-200 relative">
+                            <div className="hidden lg:flex items-center flex-1 h-[2px] bg-gradient-to-r from-slate-200 via-slate-300 to-indigo-200 relative min-w-[20px]">
                               <div
                                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full animate-ping"
                                 style={{ backgroundColor: category.themeColor }}
@@ -1596,7 +1596,7 @@ export function PaymentsStackSection() {
 
                             {/* Center Glowing Hub with Official Social Media Brand Icon */}
                             <div
-                              className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-white scale-100 hover:scale-105 transition-transform p-3 shrink-0 mx-1"
+                              className="relative z-10 w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-lg border-2 border-white scale-100 hover:scale-105 transition-transform p-3 shrink-0 mx-2"
                               style={{
                                 background: category.themeGradient,
                                 boxShadow: `0 8px 24px ${category.themeColor}50`
@@ -1606,7 +1606,7 @@ export function PaymentsStackSection() {
                             </div>
 
                             {/* Right Outgoing Line: STRAIGHT LINE ARROW FROM CENTER TO RIGHT SIDE! */}
-                            <div className="hidden lg:flex items-center w-12 xl:w-20 h-[2px] relative select-none">
+                            <div className="hidden lg:flex items-center flex-1 h-[2px] relative select-none min-w-[24px]">
                               {/* Straight line */}
                               <div
                                 className="w-full h-full rounded-full"
@@ -1656,7 +1656,7 @@ export function PaymentsStackSection() {
                           </div>
 
                           {/* 3. Right Output / Intelligence Card */}
-                          <div className="w-full lg:flex-1 lg:min-w-[280px] lg:max-w-[380px] bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-lg">
+                          <div className="w-full lg:flex-1 lg:min-w-[300px] xl:min-w-[360px] max-w-none bg-white/95 backdrop-blur-sm rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-lg">
                             <div className="flex items-center justify-between mb-2.5 gap-2">
                               <div className="flex items-center gap-2 min-w-0">
                                 <div
@@ -1701,7 +1701,7 @@ export function PaymentsStackSection() {
                                     {item.icon}
                                     <span>{item.label}</span>
                                   </div>
-                                  <span className="font-semibold text-slate-900 text-right text-xs truncate max-w-[170px] sm:max-w-[200px]" title={item.value}>
+                                  <span className="font-semibold text-slate-900 text-right text-xs truncate max-w-[260px] sm:max-w-[340px]" title={item.value}>
                                     {item.value}
                                   </span>
                                 </div>

@@ -30,8 +30,6 @@ import {
   BookOpen, 
   Award, 
   Sliders, 
-  BadgePercent, 
-  PartyPopper, 
   Check, 
   Type, 
   Palette, 
@@ -81,6 +79,217 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const ProductBagIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M8.5 7V5.2a3.5 3.5 0 0 1 7 0V7"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M6.5 7h11a2.5 2.5 0 0 1 2.5 2.5v9.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 19V9.5A2.5 2.5 0 0 1 6.5 7zm2 3.5a1 1 0 0 0-1 1 4.5 4.5 0 0 0 9 0 1 1 0 1 0-2 0 2.5 2.5 0 0 1-5 0 1 1 0 0 0-1-1z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const OfferBadgeIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="m15 9-6 6"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+    <circle cx="9" cy="9" r="1.2" fill="currentColor" />
+    <circle cx="15" cy="15" r="1.2" fill="currentColor" />
+  </svg>
+);
+
+const FestivalPopperIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M3 21L8.5 10l7.5 7.5L3 21z"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M10.5 7C10 4.5 12.5 3 13 1"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+    <path
+      d="M13.5 9.5C14.5 7 16.5 4.5 18 1.5"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+    <path
+      d="M15.5 12C18 10.5 20.5 11 22.5 13"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+const NewArrivalIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M2.5 7.5v12a2 2 0 0 0 2 2h12"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <rect
+      x="6.5"
+      y="1.5"
+      width="16"
+      height="16"
+      rx="3"
+      stroke="currentColor"
+      strokeWidth="2.2"
+    />
+    <polygon
+      points="14.5,5.5 15.6,8.2 18.5,8.4 16.3,10.3 17,13.1 14.5,11.6 12,13.1 12.7,10.3 10.5,8.4 13.4,8.2"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const TipsGuideIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Back sheet */}
+    <path
+      d="M2 7v12.5a2 2 0 0 0 2 2h13.5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Front envelope */}
+    <rect
+      x="5.5"
+      y="7"
+      width="16"
+      height="10"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
+    {/* Crease */}
+    <path
+      d="M6 7l8 5.5 8-5.5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Roof left slope & apex */}
+    <path
+      d="M6 7L13.5 1l2 1.5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Checkmark */}
+    <path
+      d="M11 5.5l2.2 2.2 4-4.2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Right shoulder */}
+    <path
+      d="M19.5 4.8L21.5 7"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const BrandStoryIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {/* Screen */}
+    <rect
+      x="3"
+      y="2.5"
+      width="18"
+      height="13.5"
+      rx="2"
+      stroke="currentColor"
+      strokeWidth="2.2"
+    />
+    {/* Pulse line */}
+    <path
+      d="M6 9.5h3l2 4 2.5-6.5 2 2.5H18"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {/* Base bar */}
+    <line
+      x1="2"
+      y1="20"
+      x2="22"
+      y2="20"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 interface ContentTypeCard {
   id: string;
   title: string;
@@ -89,6 +298,7 @@ interface ContentTypeCard {
   defaultObjective: string;
   badge?: string;
   suggestions: string[];
+  filled?: boolean;
 }
 
 const CONTENT_TYPES: ContentTypeCard[] = [
@@ -96,7 +306,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "product",
     title: "Product Post",
     subtitle: "Showcase features, pricing & product",
-    icon: ShoppingBag,
+    icon: ProductBagIcon,
     defaultObjective: "product_promotion",
     suggestions: ["Luxury Studio Shoot", "Premium Quality", "Best Seller", "Clean Minimalist"]
   },
@@ -104,7 +314,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "offer",
     title: "Offer Post",
     subtitle: "Flash deals, discounts & seasonal pr...",
-    icon: BadgePercent,
+    icon: OfferBadgeIcon,
     defaultObjective: "sales_conversion",
     suggestions: ["Flat 40% Off", "24h Flash Sale", "Buy 1 Get 1 Free", "Special Weekend Deal"]
   },
@@ -112,7 +322,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "festival",
     title: "Festival Post",
     subtitle: "Cultural greetings, festive celebrations",
-    icon: PartyPopper,
+    icon: FestivalPopperIcon,
     defaultObjective: "brand_awareness",
     suggestions: ["Festive Special", "Grand Celebration", "Festive Sparkle", "Holiday Greetings"]
   },
@@ -120,7 +330,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "new_arrival",
     title: "New Arrival",
     subtitle: "Fresh collections, newly launched tre...",
-    icon: ShoppingBag,
+    icon: NewArrivalIcon,
     defaultObjective: "product_launch",
     suggestions: ["Just Dropped", "New Collection", "Limited Edition", "Trendy & Exclusive"]
   },
@@ -128,7 +338,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "tips_guide",
     title: "Tips & Guide",
     subtitle: "Styling tips, how-to guides & value-first",
-    icon: BadgePercent,
+    icon: TipsGuideIcon,
     defaultObjective: "engagement",
     suggestions: ["3 Ways to Style", "How-To Guide", "Maintenance Tips", "Expert Recommendation"]
   },
@@ -136,7 +346,7 @@ const CONTENT_TYPES: ContentTypeCard[] = [
     id: "brand_story",
     title: "Brand Story",
     subtitle: "Origin story, craftsmanship, values",
-    icon: PartyPopper,
+    icon: BrandStoryIcon,
     defaultObjective: "brand_awareness",
     suggestions: [
       "Handcrafted with Care",
@@ -156,7 +366,7 @@ export default function AIPostPage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   // Content Type Selection
-  const [selectedContentType, setSelectedContentType] = useState<string>("brand_story");
+  const [selectedContentType, setSelectedContentType] = useState<string>("product");
   
   // Brand Kit Toggle State (Default true for business accounts)
   const [useBrandKit, setUseBrandKit] = useState<boolean>(() => {
@@ -670,7 +880,7 @@ export default function AIPostPage() {
                       : "bg-[#1b1139] border border-white/5 text-[#d378fd] group-hover:text-white group-hover:bg-[#241445]"
                   }`}
                 >
-                  <Icon className="w-5 h-5 text-inherit" />
+                  <Icon className={`w-6 h-6 text-inherit ${type.filled ? "fill-current" : ""}`} />
                 </div>
 
                 <span
@@ -1237,11 +1447,13 @@ export default function AIPostPage() {
             </div>
 
             {/* Caption Text with underline style matching Image 3 */}
-            <div className="text-sm text-slate-200 leading-relaxed font-normal">
-              <p className="underline decoration-[#0084ff]/70 decoration-2 underline-offset-4">
-                {editedCaption || generatedPost?.caption || "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor li incididunt ut labore et."}
-              </p>
-            </div>
+            {(editedCaption || generatedPost?.caption) ? (
+              <div className="text-sm text-slate-200 leading-relaxed font-normal">
+                <p className="underline decoration-[#0084ff]/70 decoration-2 underline-offset-4">
+                  {editedCaption || generatedPost?.caption}
+                </p>
+              </div>
+            ) : null}
 
             {/* CTA Badge matching Image 3 */}
             <div className="pt-1">

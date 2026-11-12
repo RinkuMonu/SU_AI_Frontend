@@ -1556,22 +1556,13 @@ export default function AICalendarPage() {
                     tooltip="Speak caption (English/Hindi)"
                   />
                 </div>
-                <div className="relative">
-                  <textarea
-                    rows={3}
-                    placeholder="Write caption or hook story here..."
-                    value={scheduleCaption}
-                    onChange={e => setScheduleCaption(e.target.value)}
-                    className="w-full bg-[#071023] border border-white/10 rounded-xl p-3.5 pb-8 text-white text-sm focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7] outline-none transition-colors"
-                  />
-                  <div className="absolute right-2 bottom-2">
-                    <VoiceInputButton
-                      onTranscript={(text) => setScheduleCaption(text)}
-                      currentValue={scheduleCaption}
-                      size="sm"
-                    />
-                  </div>
-                </div>
+                <textarea
+                  rows={3}
+                  placeholder="Write caption or hook story here..."
+                  value={scheduleCaption}
+                  onChange={e => setScheduleCaption(e.target.value)}
+                  className="w-full bg-[#071023] border border-white/10 rounded-xl p-3.5 text-white text-sm focus:border-[#a855f7] focus:ring-1 focus:ring-[#a855f7] outline-none transition-colors"
+                />
               </div>
 
               {/* Hashtags */}

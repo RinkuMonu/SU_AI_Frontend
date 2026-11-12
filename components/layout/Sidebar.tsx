@@ -6,7 +6,6 @@ import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Store,
-  Palette,
   Package,
   Settings,
   LogOut,
@@ -63,9 +62,24 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const BrandKitPaletteIcon = ({ className }: { className?: string }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      fillRule="evenodd"
+      clipRule="evenodd"
+      d="M12 2C6.49 2 2 6.49 2 12c0 4.14 2.76 7.64 6.55 8.7.46.13.9-.22.9-.7v-.75c0-1.38 1.12-2.5 2.5-2.5h2c3.87 0 7-3.13 7-7 0-4.97-4.03-9-9-9zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 8 6.5 8s1.5.67 1.5 1.5S7.33 11 6.5 11zm3-4C8.67 7 8 6.33 8 5.5S8.67 4 9.5 4s1.5.67 1.5 1.5S10.33 7 9.5 7zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 4 14.5 4s1.5.67 1.5 1.5S15.33 7 14.5 7zm3 4c-.83 0-1.5-.67-1.5-1.5S16.67 8 17.5 8s1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"
+    />
+  </svg>
+);
+
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Brand Kit", href: "/brand", icon: Palette },
+  { name: "Brand Kit", href: "/brand", icon: BrandKitPaletteIcon },
   { name: "AI Content Generation", href: "/content", icon: Sparkles },
   { 
     name: "Image and Reel Generation", 
@@ -167,7 +181,9 @@ export function Sidebar() {
                     <item.icon
                       className={cn(
                         "mr-3 h-5 w-5 flex-shrink-0",
-                        (isChildActive || isParentActive) && !isOpen ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
+                        (isChildActive || isParentActive) && !isOpen
+                          ? ((item as any).filled ? "fill-white text-white" : "text-white")
+                          : "text-slate-400 group-hover:text-white"
                       )}
                       aria-hidden="true"
                     />
@@ -252,7 +268,9 @@ export function Sidebar() {
                           <child.icon
                             className={cn(
                               "mr-3 h-4 w-4 flex-shrink-0",
-                              isExactActive ? "fill-white text-white" : "text-slate-400 group-hover:text-white"
+                              isExactActive
+                                ? ((child as any).filled ? "fill-white text-white" : "text-white")
+                                : "text-slate-400 group-hover:text-white"
                             )}
                             aria-hidden="true"
                           />
@@ -309,7 +327,7 @@ export function Sidebar() {
               className={cn(
                 "mr-3 h-5 w-5 flex-shrink-0 transition-colors",
                 isActive
-                  ? "fill-white text-white"
+                  ? ((item as any).filled ? "fill-white text-white" : "text-white")
                   : "text-slate-400 group-hover:text-white"
               )}
               aria-hidden="true"

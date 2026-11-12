@@ -596,10 +596,8 @@ export default function FestivalsPage() {
           style={{
             margin: 0,
             fontSize: 28,
-            fontWeight: 800,
-            background: "linear-gradient(135deg,#f97316,#ec4899,#7c3aed)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
+            fontWeight: 400,
+            color: "#ffffff",
           }}
         >
           🎉 Indian Festival Engine

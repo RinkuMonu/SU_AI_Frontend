@@ -646,15 +646,9 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   placeholder="e.g. Traditional pure silk saree woven with intricate golden zari motifs and regal contrast pallu, perfect for grand weddings and festivals."
-                  className="w-full rounded-xl border border-border bg-surface p-3 pb-8 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
+                  className="w-full rounded-xl border border-border bg-surface p-3 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
                 />
-                <div className="absolute right-2.5 bottom-2.5">
-                  <VoiceInputButton
-                    onTranscript={(text) => setProductDescription(text)}
-                    currentValue={productDescription}
-                    size="sm"
-                  />
-                </div>
+                
               </div>
             </div>
 
@@ -913,15 +907,9 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
                   value={additionalInstructions}
                   onChange={(e) => setAdditionalInstructions(e.target.value)}
                   placeholder="Any special offers, hashtags, emojis, or styling nuances you want AI to include?"
-                  className="w-full rounded-xl border border-border bg-surface p-2.5 pb-8 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
+                  className="w-full rounded-xl border border-border bg-surface p-2.5 text-xs text-white placeholder:text-text-muted/60 focus:outline-none focus:border-brand-purple leading-relaxed"
                 />
-                <div className="absolute right-2 bottom-2">
-                  <VoiceInputButton
-                    onTranscript={(text) => setAdditionalInstructions(text)}
-                    currentValue={additionalInstructions}
-                    size="sm"
-                  />
-                </div>
+                
               </div>
             </div>
           </div>

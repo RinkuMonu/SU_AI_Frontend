@@ -91,20 +91,13 @@ export default function CreateAdPage() {
                 tooltip="Speak ad prompt (English/Hindi)"
               />
             </div>
-            <div className="relative">
+            <div>
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Describe the ad you want to generate in detail..."
-                className="min-h-[200px] w-full rounded-lg border border-border bg-surface-elevated text-white p-4 pb-10 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
+                className="min-h-[200px] w-full rounded-lg border border-border bg-surface-elevated text-white p-4 focus:ring-2 focus:ring-brand-purple outline-none resize-none"
               />
-              <div className="absolute right-3 bottom-3">
-                <VoiceInputButton
-                  onTranscript={(text) => setPrompt(text)}
-                  currentValue={prompt}
-                  size="sm"
-                />
-              </div>
             </div>
           </div>
 

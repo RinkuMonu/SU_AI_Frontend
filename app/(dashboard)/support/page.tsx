@@ -892,7 +892,7 @@ export default function SupportPage() {
                     tooltip="Speak your issue (English/Hindi)"
                   />
                 </div>
-                <div className="relative">
+                <div>
                   <textarea
                     id="contactDescription"
                     rows={5}
@@ -900,15 +900,8 @@ export default function SupportPage() {
                     onChange={(e) => setContactDescription(e.target.value)}
                     placeholder="Describe your question or issue in detail. If there was an error message, please include it..."
                     required
-                    className="w-full rounded-xl border border-border bg-surface-elevated/80 p-3.5 pb-10 text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all"
+                    className="w-full rounded-xl border border-border bg-surface-elevated/80 p-3.5 text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple/40 focus:border-brand-purple transition-all"
                   />
-                  <div className="absolute right-3 bottom-3">
-                    <VoiceInputButton
-                      onTranscript={(text) => setContactDescription(text)}
-                      currentValue={contactDescription}
-                      size="sm"
-                    />
-                  </div>
                 </div>
               </div>
 

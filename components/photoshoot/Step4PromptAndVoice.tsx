@@ -176,16 +176,10 @@ export const Step4PromptAndVoice: React.FC<Step4PromptAndVoiceProps> = ({
                     ? "Create a premium, realistic ecommerce photoshoot. Keep the original product colour, fabric, shape and details accurate. Use soft studio lighting and a clean luxury background."
                     : "Create a commercial product photography shoot. Place product on white marble pedestal with soft morning daylight and clean shadows. Keep packaging details sharp and true to life."
                 }
-                className="w-full rounded-2xl bg-[#071023] border border-[#26314c] p-3.5 pb-10 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/50 resize-none leading-relaxed"
+                className="w-full rounded-2xl bg-[#071023] border border-[#26314c] p-3.5 text-xs sm:text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/50 resize-none leading-relaxed"
               />
 
-              <div className="absolute right-2.5 bottom-2.5">
-                <VoiceInputButton
-                  onTranscript={(text) => onPromptChange(text)}
-                  currentValue={customPrompt}
-                  size="sm"
-                />
-              </div>
+              
             </div>
 
             <p className="text-[11px] text-slate-400 flex items-center gap-1.5 pt-0.5">

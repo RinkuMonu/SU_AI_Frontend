@@ -88,18 +88,9 @@ export const VoicePromptTextarea = forwardRef<
             rows={rows}
             maxLength={maxLength}
             placeholder={placeholder}
-            className={`w-full rounded-xl border border-white/10 bg-[#0a142c] p-3.5 pb-10 text-xs sm:text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:border-[#f0449b] focus:ring-1 focus:ring-[#f0449b]/30 leading-relaxed transition-all ${className}`}
+            className={`w-full rounded-xl border border-white/10 bg-[#0a142c] p-3.5 text-xs sm:text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:border-[#f0449b] focus:ring-1 focus:ring-[#f0449b]/30 leading-relaxed transition-all ${className}`}
             {...rest}
           />
-
-          {/* Bottom right embedded mic & action strip */}
-          <div className="absolute right-2.5 bottom-2.5 flex items-center gap-1.5 pointer-events-auto">
-            <VoiceInputButton
-              onTranscript={handleTranscript}
-              currentValue={currentStr}
-              size="sm"
-            />
-          </div>
         </div>
 
         {helperText && (

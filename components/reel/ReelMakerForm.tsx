@@ -1131,15 +1131,9 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                       value={textPrompt}
                       onChange={(e) => setTextPrompt(e.target.value)}
                       placeholder="Example: A premium cotton men's T-shirt, round neck, available in multiple colours, stylish and comfortable..."
-                      className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071023] p-3 pb-8 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-[#8b5cf6] focus:outline-none resize-none leading-relaxed"
+                      className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#071023] p-3 text-xs text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-[#8b5cf6] focus:outline-none resize-none leading-relaxed"
                     />
-                    <div className="absolute right-2 bottom-2">
-                      <VoiceInputButton
-                        onTranscript={(text) => setTextPrompt(text)}
-                        currentValue={textPrompt}
-                        size="sm"
-                      />
-                    </div>
+                    
                   </div>
 
                   {visualError && (
@@ -1618,15 +1612,9 @@ export function ReelMakerForm({ onGenerate, isLoading }: ReelMakerFormProps) {
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 placeholder="Give specific instructions for the reel, e.g. 'Show product features, highlight discount, use modern and dramatic style, end with a Instagram CTA...'"
-                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#071023] p-3.5 pb-8 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/30 focus:outline-none resize-none leading-relaxed transition-all"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-[#071023] p-3.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-400 focus:border-[#8b5cf6] focus:ring-1 focus:ring-[#8b5cf6]/30 focus:outline-none resize-none leading-relaxed transition-all"
               />
-              <div className="absolute right-2.5 bottom-2.5">
-                <VoiceInputButton
-                  onTranscript={(text) => setCustomPrompt(text)}
-                  currentValue={customPrompt}
-                  size="sm"
-                />
-              </div>
+              
             </div>
           </div>
 

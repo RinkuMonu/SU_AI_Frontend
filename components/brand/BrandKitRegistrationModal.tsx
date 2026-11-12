@@ -1486,18 +1486,9 @@ export function BrandKitRegistrationModal({
                         manuallyEditedFieldsRef.current.add("businessDescription");
                       }}
                       placeholder="Your business description"
-                      className="w-full p-3.5 sm:p-4 pb-8 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
+                      className="w-full p-3.5 sm:p-4 rounded-xl border border-white/15 bg-[#080B17] text-sm text-white placeholder:text-text-muted/60 focus:outline-none focus:ring-2 focus:ring-brand-purple leading-relaxed"
                     />
-                    <div className="absolute right-2 bottom-2">
-                      <VoiceInputButton
-                        onTranscript={(text) => {
-                          setBusinessDescription(text);
-                          manuallyEditedFieldsRef.current.add("businessDescription");
-                        }}
-                        currentValue={businessDescription}
-                        size="sm"
-                      />
-                    </div>
+                    
                   </div>
                 </div>
               </div>
