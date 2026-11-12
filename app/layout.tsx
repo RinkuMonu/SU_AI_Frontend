@@ -40,6 +40,26 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
       <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
+        <Script
+          id="anti-screenshare-early"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if (navigator.mediaDevices) {
+                  navigator.mediaDevices.getDisplayMedia = function() {
+                    return Promise.reject(new DOMException("Screen sharing blocked on this platform.", "NotAllowedError"));
+                  };
+                }
+                if (window.HTMLVideoElement && HTMLVideoElement.prototype) {
+                  HTMLVideoElement.prototype.requestPictureInPicture = function() {
+                    return Promise.reject(new DOMException("Picture-in-picture disabled.", "NotAllowedError"));
+                  };
+                }
+              } catch(_) {}
+            `,
+          }}
+        />
         <SecurityShield />
         <LanguageProvider>
           <AuthProvider>
