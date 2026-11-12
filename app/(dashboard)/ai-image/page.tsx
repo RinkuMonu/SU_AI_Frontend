@@ -155,7 +155,7 @@ export default function AIImagePage() {
 
   return (
     <main className="py-10">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-5xl 2xl:max-w-6xl mx-auto px-4">
         <div className="mb-10 text-center">
           <div className="flex justify-center mb-4">
             <div className="p-4 bg-brand-gradient rounded-full shadow-lg shadow-purple-500/20">

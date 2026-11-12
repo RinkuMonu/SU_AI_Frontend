@@ -823,7 +823,7 @@ export default function AIPostPage() {
   const effectiveBrandName = loadedBrandKit?.business_name || user?.businessName || user?.name || "My Brand";
 
   return (
-    <main className="py-6 sm:py-8 px-3 sm:px-6 max-w-7xl mx-auto space-y-6">
+    <main className="py-6 sm:py-8 px-3 sm:px-6 max-w-[1520px] 2xl:max-w-[1680px] mx-auto space-y-6">
       
       {/* ──────────────────────────────────────────────────
           Page Header with "My Posts" Library Action

@@ -1465,7 +1465,7 @@ export function PaymentsStackSection() {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8 items-start min-w-0">
 
                 {/* Left Column: Sticky alongside cards */}
-                <div className="w-full min-w-0 lg:col-span-9 space-y-4 sm:space-y-6 lg:space-y-7">
+                <div className="w-full min-w-0 lg:col-span-3 lg:sticky lg:top-36 xl:top-40 space-y-4 sm:space-y-6 lg:space-y-7 self-start">
                   <div
                     className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2.5 shadow-xs"
                     style={{

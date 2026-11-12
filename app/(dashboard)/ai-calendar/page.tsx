@@ -711,9 +711,9 @@ export default function AICalendarPage() {
       </div>
 
       {/* ──────────────────────────────────────────────────
-          MAIN BROAD DESKTOP CONTAINER (MAX-W-4XL / MAX-W-5XL MX-AUTO)
+          MAIN BROAD DESKTOP CONTAINER (EXPANDED FOR DESKTOP & FLUID APP)
          ────────────────────────────────────────────────── */}
-      <div className="max-w-4xl sm:max-w-5xl mx-auto space-y-6">
+      <div className="w-full max-w-full mx-auto space-y-6">
         {/* 1. Broad Desktop Calendar Card: Hidden initially, shown only when calendar button is clicked */}
         <div className="rounded-3xl bg-[#111528]/95 border border-white/10 p-4 sm:p-6 shadow-2xl backdrop-blur-xl relative transition-all">
           {/* Calendar Card Top Controls */}
