@@ -21,3 +21,4 @@ declare module "@cashfreepayments/cashfree-js" {
     mode: "production" | "sandbox";
   }): Promise<CashfreeInstance>;
 }
+

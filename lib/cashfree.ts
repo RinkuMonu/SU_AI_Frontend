@@ -21,10 +21,19 @@ export async function launchCashfreeCheckout({
         mode: environment === "production" ? "production" : "sandbox",
       });
 
-      await cashfree.checkout({
-        paymentSessionId,
-        redirectTarget: "_self", // Directly redirects current browser window to Cashfree checkout
-      });
+      if (paymentSessionId.startsWith("sub_session_")) {
+        // Official Cashfree AutoPay & Recurring Subscriptions mandate checkout
+        await cashfree.subscriptionsCheckout({
+          subsSessionId: paymentSessionId,
+          redirectTarget: "_self", // Directly redirects current browser window to Cashfree AutoPay
+        });
+      } else {
+        // Standard Cashfree Order checkout
+        await cashfree.checkout({
+          paymentSessionId,
+          redirectTarget: "_self",
+        });
+      }
       return;
     } catch (err) {
       console.warn("Cashfree JS SDK launch failed, falling back to direct URL:", err);
