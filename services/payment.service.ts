@@ -92,13 +92,24 @@ export const paymentService = {
 
     const subId = data?.subscription_id || data?.order_id || "";
 
-    if (!data?.payment_url && !subId) {
+    // Guarantee payment gateway redirect URL
+    let paymentUrl = data?.payment_url;
+    if (!paymentUrl) {
+      const sessionId = data?.subscription_session_id || data?.payment_session_id;
+      if (sessionId) {
+        paymentUrl = `https://payments.cashfree.com/order/#${sessionId}`;
+      } else if (subId) {
+        paymentUrl = `https://payments.cashfree.com/order/#${subId}`;
+      }
+    }
+
+    if (!paymentUrl && !subId) {
       throw new Error(data?.detail || "Invalid response received from Cashfree payment service.");
     }
 
     return {
       success: data.success ?? true,
-      payment_url: data.payment_url,
+      payment_url: paymentUrl,
       subscription_id: subId,
       order_id: subId,
       subscription_session_id: data.subscription_session_id,

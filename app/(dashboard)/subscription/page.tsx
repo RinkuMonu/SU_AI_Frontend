@@ -32,7 +32,6 @@ import {
   formatCurrencyINR,
   normalizePlanId,
 } from "@/lib/plan-onboarding";
-import { PaymentModal } from "@/components/payment/PaymentModal";
 
 export default function SubscriptionPage() {
   const router = useRouter();
@@ -48,10 +47,6 @@ export default function SubscriptionPage() {
   const [upgradeSuccess, setUpgradeSuccess] = useState<string | null>(null);
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
-
-  // Payment Modal state
-  const [activePaymentOrder, setActivePaymentOrder] = useState<CreatePaymentResponse | null>(null);
-  const [showPaymentModal, setShowPaymentModal] = useState<boolean>(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState<boolean>(false);
 
   const loadData = async () => {
@@ -169,14 +164,19 @@ export default function SubscriptionPage() {
         setUpgradeSuccess("Free Plan activated successfully!");
       } else {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
-        if (response.payment_url) {
-          window.location.href = response.payment_url;
+        const redirectUrl =
+          response.payment_url ||
+          (response.subscription_session_id
+            ? `https://payments.cashfree.com/order/#${response.subscription_session_id}`
+            : response.order_id
+            ? `https://payments.cashfree.com/order/#${response.order_id}`
+            : "");
+
+        if (redirectUrl) {
+          window.location.href = redirectUrl;
           return;
-        } else if (response.order_id) {
-          setActivePaymentOrder(response);
-          setShowPaymentModal(true);
         } else {
-          throw new Error("Invalid payment response received from server.");
+          throw new Error("Unable to obtain payment gateway URL. Please retry.");
         }
       }
     } catch (err: any) {
@@ -647,21 +647,6 @@ export default function SubscriptionPage() {
           })}
         </div>
       </div>
-
-      {/* Payment Gateway & QR Code Modal */}
-      <PaymentModal
-        key={`${activePaymentOrder?.subscription_id || activePaymentOrder?.order_id || "new"}-${showPaymentModal ? "open" : "closed"}`}
-        isOpen={showPaymentModal}
-        orderData={activePaymentOrder}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setActivePaymentOrder(null);
-        }}
-        onSuccess={async (confirmedOrderId) => {
-          await loadData();
-          setUpgradeSuccess(`Payment for order ${confirmedOrderId} verified and plan activated!`);
-        }}
-      />
     </div>
   );
 }
