@@ -77,6 +77,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
 
   const activeVariation =
     enhancedVariations.find((v) => v.id === activeComparisonId) ||
+    enhancedVariations.find((v) => v.style === enhancementStyle) ||
     enhancedVariations[0];
 
   const primaryOriginal = uploadedImages[0]?.url || uploadedImages[0]?.previewUrl || "";
@@ -185,7 +186,13 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
             <button
               key={st.id}
               type="button"
-              onClick={() => onStyleSelect(st.id)}
+              onClick={() => {
+                onStyleSelect(st.id);
+                const matching = enhancedVariations.find((v) => v.style === st.id);
+                if (matching) {
+                  setActiveComparisonId(matching.id);
+                }
+              }}
               style={{
                 backgroundColor: isSelected ? "#101322" : "#081226",
                 backgroundImage: isSelected
@@ -342,7 +349,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                   src={resolvePhotoshootUrl(activeVariation.enhancedUrl)}
                   alt="Enhanced variation"
                   className="absolute inset-0 w-full h-full object-contain p-2"
-                  onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
+                  onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_ENHANCED)}
                 />
               ) : null}
               <div style={{ background: "#2F1262" }} className="absolute top-3 right-3 px-2 py-0.5 rounded border border-[#8b5cf6]/40 text-purple-100 text-[10px] font-normal shadow">
@@ -359,7 +366,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                     src={resolvePhotoshootUrl(activeVariation?.originalUrl || primaryOriginal)}
                     alt="Original product"
                     className="absolute inset-0 w-full h-full object-contain p-2"
-                    onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_PRODUCT)}
+                    onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_PRODUCT)}
                   />
                 ) : null}
                 <div className="absolute top-3 left-3 px-2 py-0.5 rounded bg-black/80 backdrop-blur-md text-neutral-300 text-[10px] font-bold shadow border border-white/10">
@@ -407,7 +414,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                       src={resolvePhotoshootUrl(activeVariation?.originalUrl || primaryOriginal)}
                       alt="Original"
                       className="w-full h-full object-contain p-2"
-                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_PRODUCT)}
+                      onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_PRODUCT)}
                     />
                   ) : (
                     <ImageIcon className="w-8 h-8 text-neutral-600" />
@@ -432,7 +439,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                       src={resolvePhotoshootUrl(activeVariation.enhancedUrl)}
                       alt="Enhanced"
                       className="w-full h-full object-contain p-2"
-                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
+                      onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_ENHANCED)}
                     />
                   ) : (
                     <Sparkles className="w-8 h-8 text-neutral-600" />
@@ -488,7 +495,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                       src={resolvePhotoshootUrl(variation.enhancedUrl)}
                       alt={variation.styleName}
                       className="w-full h-full object-contain p-2 transition-transform duration-300 group-hover:scale-105"
-                      onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
+                      onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_ENHANCED)}
                     />
                   ) : (
                     <Sparkles className="w-8 h-8 text-neutral-600" />
@@ -598,7 +605,7 @@ export const Step2Enhance: React.FC<Step2EnhanceProps> = ({
                 src={resolvePhotoshootUrl(lightboxImageUrl)}
                 alt="Enhanced preview"
                 className="max-h-[70vh] w-auto object-contain rounded-xl"
-                onError={(e) => handlePhotoshootImageError(e, PHOTOSHOOT_FALLBACK_ENHANCED)}
+                onError={(e) => handlePhotoshootImageError(e, primaryOriginal || PHOTOSHOOT_FALLBACK_ENHANCED)}
               />
             </div>
           </div>

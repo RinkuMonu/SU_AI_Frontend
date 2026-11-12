@@ -12,6 +12,7 @@ import {
   setActiveModal,
   getActiveModal,
   isPlanPopupEligible,
+  setPlansEvaluating,
 } from "@/lib/popup-coordinator";
 import { AvailablePlansModal } from "./AvailablePlansModal";
 
@@ -32,12 +33,14 @@ export function AutomaticPlansModal() {
     // 2. Strict Role Check: Businessman only
     const role = normalizeRole(user.role);
     if (role !== "businessman") {
+      setPlansEvaluating(false);
       setIsOpen(false);
       return;
     }
 
     // 3. Preserve temporary session dismissal for this mounted instance
     if (sessionDismissed) {
+      setPlansEvaluating(false);
       setIsOpen(false);
       return;
     }
@@ -49,10 +52,12 @@ export function AutomaticPlansModal() {
         pathname,
       })
     ) {
+      setPlansEvaluating(false);
       setIsOpen(false);
       return;
     }
 
+    setPlansEvaluating(true);
     try {
       const [bizRes, subRes] = await Promise.allSettled([
         businessService.getMyBusiness(),
@@ -75,9 +80,13 @@ export function AutomaticPlansModal() {
         setIsOpen(true);
       } else {
         setIsOpen(false);
+        setActiveModal(null);
       }
     } catch (err) {
       console.warn("Unable to evaluate plans onboarding state", err);
+      setActiveModal(null);
+    } finally {
+      setPlansEvaluating(false);
     }
   }, [user, isLoading, pathname, sessionDismissed]);
 
@@ -102,11 +111,27 @@ export function AutomaticPlansModal() {
     }
   }, []);
 
+  // Listen for insufficient credits to prompt user to upgrade plan
+  useEffect(() => {
+    const handleInsufficientCredits = () => {
+      setActiveModal("plan");
+      setIsOpen(true);
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("insufficient-credits", handleInsufficientCredits);
+      return () => {
+        window.removeEventListener("insufficient-credits", handleInsufficientCredits);
+      };
+    }
+  }, []);
+
   /**
    * Handles user decline or close action.
    * Records cooldown timestamp to prevent nuisance re-popping on every route change.
    */
   const handleDecline = () => {
+    setPlansEvaluating(false);
     recordPlanModalDismissal();
     setActiveModal(null);
     setIsOpen(false);
@@ -117,6 +142,7 @@ export function AutomaticPlansModal() {
    * Called when a plan is successfully activated and verified by the backend.
    */
   const handlePlanActivated = (planId: string) => {
+    setPlansEvaluating(false);
     recordPlanModalDismissal();
     setActiveModal(null);
     setIsOpen(false);
@@ -134,4 +160,3 @@ export function AutomaticPlansModal() {
     />
   );
 }
-

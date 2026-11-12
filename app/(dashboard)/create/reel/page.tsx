@@ -78,8 +78,8 @@ export default function CreateReelPage() {
             <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
               Create Reel
             </h1>
-            <span className="px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/40 text-[#8b5cf6] dark:text-purple-300 text-[11px] font-extrabold uppercase tracking-wider">
-              AI Reel Maker
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[11px] font-extrabold uppercase tracking-wider">
+              Coming Soon
             </span>
           </div>
           <p className="mt-1 text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm flex items-center gap-1.5">

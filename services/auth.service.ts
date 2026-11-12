@@ -18,6 +18,8 @@ export interface AuthSuccessResponse {
   token?: string;
   access_token?: string;
   user?: User;
+  is_new_user?: boolean;
+  isNewUser?: boolean;
   status?: string;
   message?: string;
   requiresOtp?: boolean;
@@ -77,9 +79,9 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
           code: 'WHATSAPP_GATEWAY_ERROR'
         };
       }
-      if (lower === 'internal server error' || lower.includes('internal server error') || status === 500) {
+      if (lower === 'internal server error' || lower.includes('internal server error')) {
         return {
-          message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+          message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
           code: 'SERVER_500'
         };
       }
@@ -95,9 +97,9 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
 
   if (typeof error.response?.data === 'string' && error.response.data.trim() && !error.response.data.trim().startsWith('<')) {
     const rawStr = error.response.data.trim();
-    if (rawStr.toLowerCase().includes('internal server error') || status === 500) {
+    if (rawStr.toLowerCase().includes('internal server error')) {
       return {
-        message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+        message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
         code: 'SERVER_500'
       };
     }
@@ -106,7 +108,7 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
 
   if (status === 500) {
     return {
-      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
       code: 'SERVER_500'
     };
   }
@@ -114,7 +116,7 @@ function parseErrorDetail(error: any, fallbackMessage: string): { message: strin
   const errMessage = error.message || '';
   if (errMessage.toLowerCase().includes('internal server error')) {
     return {
-      message: 'Verification service is temporarily unavailable. Please try again or switch to WhatsApp.',
+      message: 'Verification service encountered a temporary error. Please try again or request a new OTP.',
       code: 'SERVER_500'
     };
   }
@@ -310,7 +312,7 @@ export const authService = {
       const rawMode = typeof phoneOrObj === 'object' ? phoneOrObj.mode : undefined;
       const rawOtp = otpCode || '';
 
-      const cleanPhone = (rawPhone || '').trim();
+      const cleanPhone = (rawPhone || '').replace(/\s+/g, '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,
@@ -334,15 +336,19 @@ export const authService = {
       const response = await api.post('/api/v1/auth/verify-otp', payload);
       const resData = response.data?.data || response.data;
       const vToken = resData?.phone_verification_token || resData?.verification_token;
+      const authToken = resData?.access_token || resData?.token || resData?.accessToken;
 
       return {
         user: resData?.user,
+        is_new_user: Boolean(resData?.is_new_user ?? resData?.isNewUser),
         status: resData?.status || 'success',
         message: resData?.detail || resData?.message || 'Mobile OTP verified successfully.',
         verification_token: vToken,
         phone_verification_token: vToken,
         requires_role_selection: resData?.requires_role_selection,
         dashboard_route: resData?.dashboard_route,
+        token: authToken,
+        access_token: authToken,
       };
     } catch (error: any) {
       const { message, code } = parseErrorDetail(error, 'Invalid or expired OTP. Please try again.');
@@ -368,7 +374,7 @@ export const authService = {
     const activeChannel: OtpDeliveryChannel = (typeof phoneOrObj === 'object' ? phoneOrObj.channel : channelArg) || 'sms';
 
     try {
-      const cleanPhone = (rawPhone || '').trim();
+      const cleanPhone = (rawPhone || '').replace(/\s+/g, '').trim();
       const payload: Record<string, any> = {
         phone_number: cleanPhone,
         phone: cleanPhone,

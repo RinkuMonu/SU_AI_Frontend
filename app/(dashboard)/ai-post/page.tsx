@@ -30,6 +30,8 @@ import {
   BookOpen, 
   Award, 
   Sliders, 
+  BadgePercent, 
+  PartyPopper, 
   Check, 
   Type, 
   Palette, 
@@ -366,7 +368,7 @@ export default function AIPostPage() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
 
   // Content Type Selection
-  const [selectedContentType, setSelectedContentType] = useState<string>("product");
+  const [selectedContentType, setSelectedContentType] = useState<string>("brand_story");
   
   // Brand Kit Toggle State (Default true for business accounts)
   const [useBrandKit, setUseBrandKit] = useState<boolean>(() => {

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Roboto } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -16,6 +16,12 @@ const roboto = Roboto({
   subsets: ["latin"],
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#071023",
+};
 
 export const metadata: Metadata = {
   title: "DhandaGrow AI | All-in-One Business Growth Platform",
@@ -26,7 +32,6 @@ export const metadata: Metadata = {
 };
 const GOOGLE_MAPS_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "AIzaSyCmTCmI8Hn8Du4M3rYzfSdhRVcx1oap59o";
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -34,7 +39,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
         <SecurityShield />
         <LanguageProvider>
           <AuthProvider>

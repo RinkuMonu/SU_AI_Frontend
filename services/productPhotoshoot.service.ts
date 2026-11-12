@@ -367,6 +367,9 @@ export class ProductPhotoshootService {
         `${this.baseRoute}/generate`,
         payload
       );
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("credit-update"));
+      }
       return response.data;
     } catch (err: any) {
       // Fallback endpoint if product-photoshoot route returns 404 or 405
@@ -440,6 +443,9 @@ export class ProductPhotoshootService {
         custom_prompt: params.customPrompt,
       }
     );
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("credit-update"));
+    }
     return response.data;
   }
 

@@ -404,16 +404,24 @@ function InfluencerChatsContent() {
                   >
                     {/* Brand Logo with Online Status */}
                     <div className="relative shrink-0">
-                      <img
-                        src={conv.business_logo}
-                        alt={conv.business_name}
-                        className="w-11 h-11 rounded-full object-cover border border-white/10 shadow-sm"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = 'none';
-                        }}
-                      />
+                      {conv.business_logo ? (
+                        <img
+                          src={conv.business_logo}
+                          alt={conv.business_name}
+                          className="w-11 h-11 rounded-full object-cover border border-white/10 shadow-sm"
+                          onError={(e) => {
+                            const target = e.currentTarget;
+                            target.style.display = 'none';
+                            const fallback = target.nextElementSibling as HTMLElement | null;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
                       {/* Fallback avatar initial if image missing */}
-                      <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 flex items-center justify-center font-black text-sm text-white border border-white/10 hidden [img:hidden+&]:flex">
+                      <div
+                        style={{ display: conv.business_logo ? 'none' : 'flex' }}
+                        className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 items-center justify-center font-black text-sm text-white border border-white/10"
+                      >
                         {conv.business_name.charAt(0)}
                       </div>
 

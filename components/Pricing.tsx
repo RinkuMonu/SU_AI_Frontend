@@ -37,8 +37,8 @@ export const LANDING_PLANS: PlanItem[] = [
     tagline: "Explore AI",
     accentColor: "#7C3AED",
     description: "For students, beginners and first-time users.",
-    shortBenefits: "5 credits; limited posts and reels; basic captions; 1 brand profile.",
-    credits: "5 credits",
+    shortBenefits: "50 one-time credits; limited posts and reels; basic captions; 1 brand profile.",
+    credits: "50 one-time credits",
     popular: false,
     pricing: {
       monthly: {
@@ -60,20 +60,20 @@ export const LANDING_PLANS: PlanItem[] = [
     features: [
       "5 AI social media posts/month",
       "1 AI reel/month",
-      "5 AI credits/month",
+      "50 AI credits (one time)",
       "Basic caption generation",
       "1 brand profile"
     ],
     ctaText: "Get Started Free"
   },
   {
-    id: "STARTER",
-    name: "STARTER",
+    id: "PRO_STARTER",
+    name: "PRO",
     tagline: "Create",
     accentColor: "#7C3AED",
-    description: "For shopkeepers, freelancers and small businesses starting online marketing.",
-    shortBenefits: "100 monthly credits; 30 AI posts; 10 AI reels; 1 brand and 1 user.",
-    credits: "100 monthly credits",
+    description: "AI creation, marketing, publishing and business tools.",
+    shortBenefits: "300 monthly credits; 50 one-time signup bonus; AI creation, marketing and publishing tools.",
+    credits: "300 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -82,11 +82,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 2277,
+        price: 2157,
         originalPrice: 2397,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹120 (5% off)"
+        billedText: "Save ₹240 (10% off)"
       },
       yearly: {
         price: 7670,
@@ -97,22 +97,23 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "100 monthly credits",
-      "30 AI posts/month",
-      "10 AI reels/month",
-      "30 AI captions/month",
-      "1 brand and 1 user"
+      "AI Post Maker, Image Generator and Content + Image",
+      "AI Photoshoot, Reel Maker, Avatar, Actor and Photobooth",
+      "AI Advertisement Maker and Marketing Agent",
+      "Social Media Calendar, Indian Festival Engine and AI messaging",
+      "AI Website Builder",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Starter"
+    ctaText: "Choose Pro"
   },
   {
-    id: "GROWTH",
-    name: "GROWTH",
+    id: "PRO_PLUS",
+    name: "Pro Plus",
     tagline: "Market",
     accentColor: "#7C3AED",
-    description: "For creators, D2C brands and growing businesses that want consistent marketing.",
-    shortBenefits: "400 credits; 100 posts; 30 reels; photoshoot/fashion/avatar tools; calendar and scheduling.",
-    credits: "400 monthly credits",
+    description: "Everything in Pro, plus advanced intelligence and business tools.",
+    shortBenefits: "1,500 monthly credits; 50 one-time signup bonus; analytics, CRM and AI intelligence.",
+    credits: "1,500 monthly + 50 signup bonus",
     popular: true,
     pricing: {
       monthly: {
@@ -121,11 +122,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 8547,
+        price: 8097,
         originalPrice: 8997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹450 (5% off)"
+        billedText: "Save ₹900 (10% off)"
       },
       yearly: {
         price: 28790,
@@ -136,22 +137,22 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "400 monthly credits",
-      "100 AI posts/month",
-      "30 AI reels/month",
-      "AI Photoshoot & Avatar tools",
-      "Social media content calendar"
+      "Everything included in Pro",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "1,500 monthly credits",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Growth"
+    ctaText: "Choose Pro Plus"
   },
   {
     id: "BUSINESS",
     name: "BUSINESS",
     tagline: "Automate",
     accentColor: "#7C3AED",
-    description: "For established businesses, marketing teams and agencies.",
-    shortBenefits: "1,000 credits; 200 posts; 60 reels; team members; analytics, CRM and AI messaging tools.",
-    credits: "1,000 monthly credits",
+    description: "Everything in Pro Plus, with the complete business service suite.",
+    shortBenefits: "2,500 monthly credits; 50 one-time signup bonus; complete AI and business intelligence suite.",
+    credits: "2,500 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -160,11 +161,11 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 14247,
+        price: 13497,
         originalPrice: 14997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹750 (5% off)"
+        billedText: "Save ₹1,500 (10% off)"
       },
       yearly: {
         price: 47990,
@@ -175,22 +176,22 @@ export const LANDING_PLANS: PlanItem[] = [
       }
     },
     features: [
-      "1,000 monthly credits",
-      "200 AI posts/month",
-      "60 AI reels/month",
-      "5 team members & CRM",
-      "Instagram DM & Social AI"
+      "Everything included in Pro Plus",
+      "Business Analytics, Leads CRM and Product Catalogue",
+      "AI Brand Brain and UGC AI",
+      "2,500 monthly credits",
+      "50 signup bonus credits on first paid subscription"
     ],
     ctaText: "Choose Business"
   },
   {
-    id: "INFLUENCER",
-    name: "INFLUENCER",
-    tagline: "Collaborate",
+    id: "BUSINESS_PREMIUM",
+    name: "BUSINESS PREMIUM",
+    tagline: "Premium",
     accentColor: "#7C3AED",
-    description: "For brands and businesses scaling creator partnerships and influencer campaigns.",
-    shortBenefits: "Influencer Suite; creator discovery; pitch generation; collaboration CRM and tracking.",
-    credits: "Influencer Suite",
+    description: "Everything in Business, plus premium services and company brand kit.",
+    shortBenefits: "5,000 monthly credits; 50 one-time signup bonus; premium services and company brand kit.",
+    credits: "5,000 monthly + 50 signup bonus",
     popular: false,
     pricing: {
       monthly: {
@@ -199,100 +200,96 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
-        price: 28497,
+        price: 26997,
         originalPrice: 29997,
         period: "/qtr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹1,500 (5% off)"
+        billedText: "Save ₹3,000 (10% off)"
       },
       yearly: {
-        price: 107989,
+        price: 95990,
         originalPrice: 119988,
         period: "/yr",
         gstText: "+ 18% GST where applicable",
-        billedText: "Save ₹11,999 (10% off)"
+        billedText: "Save ₹23,998 (20% off)"
       }
     },
     features: [
-      "Influencer Engine & Discovery",
-      "Creator outreach & AI pitch generator",
-      "Inbound application manager",
-      "Campaign CRM & deliverable reviews",
-      "Live campaign ROI analytics"
+      "Everything included in Business",
+      "Premium Influencer Marketing and Customer Support",
+      "Physical Training Provider and 24/7 Website Technical Support",
+      "Company Logo, Visiting Cards, Employee ID Cards, Company Letterhead and Stamp",
+      "50 signup bonus credits on first paid subscription"
     ],
-    ctaText: "Choose Influencer"
+    ctaText: "Choose Business Premium"
   },
 ];
 
 export function Pricing() {
   const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("GROWTH");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
   return (
-    <section id="pricing" className="pt-8 pb-10 sm:pt-10 sm:pb-12 relative bg-[#f8f9fe] overflow-hidden border-t border-slate-100">
+    <section id="pricing" className="w-full max-w-full pt-6 pb-8 sm:pt-10 sm:pb-12 relative bg-[#f8f9fe] overflow-hidden border-t border-slate-100">
       {/* Soft ambient background glow effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/40 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
 
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-6 xl:px-4 2xl:px-8 relative z-10">
-        
+      <div className="w-full max-w-[1440px] mx-auto px-3 min-[375px]:px-4 sm:px-6 lg:px-6 xl:px-4 2xl:px-8 relative z-10">
+
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-7 sm:mb-9">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-slate-200/80 mb-2.5 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-xs font-semibold text-slate-700 tracking-wide">Simple, Transparent Pricing</span>
+        <div className="flex flex-col items-center text-center w-full mb-5  sm:mb-9 px-1">
+          <div className="inline-flex items-center justify-center gap-1.5 px-2.5 sm:px-3.5   py-1 rounded-full bg-white border border-slate-200/80 mb-2.5 shadow-2xs max-w-full">
+            <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500 shrink-0" />
+            <span className=" text-[10px] sm:text-xs font-semibold text-slate-700 tracking-wide">Simple, Transparent Pricing</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+          <h2 className="w-full max-w-3xl px-1 text-xl min-[375px]:text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
             Predictable Pricing, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED]">Zero Surprises</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-lg mx-auto font-medium">
+          <p className="text-[11px] min-[375px]:text-xs sm:text-sm text-slate-500 max-w-lg w-full mx-auto font-medium leading-relaxed px-2 ">
             Choose the plan that fits your business stage. Upgrade, downgrade, or cancel anytime.
           </p>
 
           {/* Billing Cycle 3D Pill Toggle */}
-          <div className="inline-flex items-center p-1 rounded-full bg-white border border-slate-200/80 shadow-sm gap-1 mt-4">
+          <div className="flex  items-center justify-between w-full max-w-[360px] min-w-0 p-1 rounded-full bg-white border border-slate-200/80 shadow-sm gap-0.5 mt-4">
             <button
               type="button"
               onClick={() => setBillingCycle("monthly")}
-              className={`px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${
-                billingCycle === "monthly"
-                  ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`flex-1 min-w-0 px-4 sm:px-5 py-2 rounded-full text-[11px] sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${billingCycle === "monthly"
+                ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               Monthly
             </button>
             <button
               type="button"
               onClick={() => setBillingCycle("quarterly")}
-              className={`flex items-center gap-1.5 px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${
-                billingCycle === "quarterly"
-                  ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`flex-1 min-w-0 flex items-center gap-1 px-1.5 sm:px-5 py-2 rounded-full text-[11px] sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${billingCycle === "quarterly"
+                ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               <span>Quarterly</span>
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                 billingCycle === "quarterly" ? "bg-white/25 text-white" : "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
               }`}>
-                Save 5%
+                Save 10%
               </span>
             </button>
             <button
               type="button"
               onClick={() => setBillingCycle("yearly")}
-              className={`flex items-center gap-1.5 px-4 sm:px-5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${
-                billingCycle === "yearly"
-                  ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`flex-1 min-w-0 flex items-center gap-1  px-1.5 sm:px-5 py-2 rounded-full text-[11px] sm:text-[13px] font-bold transition-all duration-200 cursor-pointer ${billingCycle === "yearly"
+                ? "bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#7C3AED] text-white shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+                }`}
             >
               <span>Yearly</span>
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                billingCycle === "yearly" ? "bg-white/25 text-white" : "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
-              }`}>
+              <span className={`text-[9px] sm:text-[10px] font-bold px-1 sm:px-1.5 py-0.5 rounded-full whitespace-nowrap ${billingCycle === "yearly" ? "bg-white/25 text-white" : "bg-emerald-50 text-emerald-700 border border-emerald-200/60"
+                }`}>
                 Save 20%
               </span>
             </button>
@@ -300,7 +297,7 @@ export function Pricing() {
         </div>
 
         {/* 3D Pricing Cards Grid matching user's reference */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-3 2xl:gap-5 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-5 xl:gap-3 2xl:gap-5 items-stretch w-full">
           {LANDING_PLANS.map((plan) => {
             const pricingInfo = plan.pricing[billingCycle];
             const isSelected = selectedPlanId === plan.id;
@@ -315,38 +312,35 @@ export function Pricing() {
                     sessionStorage.setItem('pending_billing', billingCycle);
                   }
                 }}
-                className={`rounded-[32px] sm:rounded-[36px] xl:rounded-[30px] 2xl:rounded-[38px] p-5 sm:p-6 xl:px-3.5 xl:py-6 2xl:px-5 2xl:py-7 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer select-none group ${
-                  isSelected
-                    ? "bg-[#F2EFFE] border-2 border-[#DDD6FE] shadow-[0_16px_38px_rgba(124,58,237,0.15),0_2px_8px_rgba(124,58,237,0.06)] -translate-y-2 z-10"
-                    : "bg-white border border-slate-200/90 shadow-[0_12px_32px_rgba(0,0,0,0.05),0_2px_6px_rgba(0,0,0,0.02)] hover:border-purple-200 hover:shadow-[0_22px_45px_rgba(124,58,237,0.08),0_4px_12px_rgba(124,58,237,0.04)] hover:-translate-y-1.5"
-                }`}
+                className={` w-full min-w-0 rounded-[24px] sm:rounded-[30px] xl:rounded-[30px] 2xl:rounded-[38px] p-4 min-[375px]:p-5 sm:p-6 xl:px-3.5 xl:py-6 2xl:px-5 2xl:py-7 flex flex-col items-center text-center transition-all duration-300 relative cursor-pointer select-none group ${isSelected
+                  ? "bg-[#F2EFFE] border-2 border-[#DDD6FE] shadow-[0_16px_38px_rgba(124,58,237,0.15),0_2px_8px_rgba(124,58,237,0.06)] md:-translate-y-2 z-10"
+                  : "bg-white border border-slate-200/90 shadow-[0_12px_32px_rgba(0,0,0,0.05),0_2px_6px_rgba(0,0,0,0.02)] hover:border-purple-200 hover:shadow-[0_22px_45px_rgba(124,58,237,0.08),0_4px_12px_rgba(124,58,237,0.04)] hover:-translate-y-1.5"
+                  }`}
               >
                 {/* 3D Floating Top Pill Box (Explore AI, Create, Market, Automate, Collaborate) */}
-                <div 
-                  className={`w-[86%] max-w-[165px] py-1.5 sm:py-2 px-3 rounded-xl sm:rounded-2xl bg-white border shadow-[0_4px_12px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center text-xs sm:text-[13px] font-bold tracking-wide transition-all duration-200 group-hover:scale-105 ${
-                    isSelected
-                      ? "border-purple-200/90 text-[#7C3AED]"
-                      : "border-slate-200/90 text-slate-700 group-hover:text-[#7C3AED]"
-                  }`}
+                <div
+                  className={` w-full max-w-[165px] py-1.5 sm:py-2 px-3 rounded-xl sm:rounded-2xl bg-white border shadow-[0_4px_12px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,1)] flex items-center justify-center text-[11px] sm:text-[13px] font-bold tracking-wide transition-all duration-200 group-hover:scale-105 ${isSelected
+                    ? "border-purple-200/90 text-[#7C3AED]"
+                    : "border-slate-200/90 text-slate-700 group-hover:text-[#7C3AED]"
+                    }`}
                 >
                   {plan.tagline}
                 </div>
 
                 {/* Plan Name in signature style */}
-                <h3 
-                  className={`text-2xl sm:text-[26px] xl:text-[22px] 2xl:text-[26px] font-black uppercase tracking-wider mt-4 sm:mt-5 mb-2.5 sm:mb-3 transition-colors ${
-                    isSelected
-                      ? "text-[#7C3AED]"
-                      : "text-slate-900 group-hover:text-[#7C3AED]"
-                  }`}
+                <h3
+                  className={`text-xl min-[375px]:text-2xl sm:text-[26px] xl:text-[22px] 2xl:text-[26px] font-black uppercase tracking-wider mt-4 sm:mt-5 mb-2 sm:mb-3 transition-colors ${isSelected
+                    ? "text-[#7C3AED]"
+                    : "text-slate-900 group-hover:text-[#7C3AED]"
+                    }`}
                 >
                   {plan.name}
                 </h3>
 
                 {/* Price Display: cleanly structured so original price and active price never overflow */}
-                <div className="flex flex-col items-center justify-center min-h-[58px] sm:min-h-[64px] mb-1 w-full">
+                <div className="flex flex-col items-center justify-center min-h-[58px] sm:min-h-[64px] mb-1 w-full min-w-0">
                   {/* Top Row: Strikethrough Original Price & Discount Badge (or placeholder space) */}
-                  <div className="flex items-center justify-center gap-1.5 min-h-[20px] mb-1">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 min-h-[20px] mb-1 max-w-full">
                     {pricingInfo.originalPrice ? (
                       <>
                         <span className="text-slate-400 text-xs sm:text-[13px] line-through font-semibold">
@@ -364,17 +358,16 @@ export function Pricing() {
                   </div>
 
                   {/* Main Active Price Line */}
-                  <div className="flex items-baseline justify-center max-w-full">
+                  <div className="flex flex-wrap items-baseline justify-center gap-x-1 max-w-full">
                     {pricingInfo.pricePrefix && (
                       <span className="text-xs sm:text-sm font-bold text-slate-500 mr-1 shrink-0">
                         {pricingInfo.pricePrefix}
                       </span>
                     )}
-                    <span className={`font-black text-slate-900 tracking-tight leading-none ${
-                      pricingInfo.price >= 100000 
-                        ? "text-2xl sm:text-[28px] xl:text-[25px] 2xl:text-[32px]" 
-                        : "text-3xl sm:text-[34px] xl:text-[28px] 2xl:text-[34px]"
-                    }`}>
+                    <span className={`font-black text-slate-900 tracking-tight leading-none ${pricingInfo.price >= 100000
+                      ? "text-2xl min-[375px]:text-3xl sm:text-[34px] xl:text-[28px] 2xl:text-[34px]"
+                      : "text-xl min-[375px]:text-2xl sm:text-[28px] xl:text-[25px] 2xl:text-[32px]"
+                      }`}>
                       ₹{pricingInfo.price.toLocaleString('en-IN')}
                     </span>
                     {plan.id !== 'FREE' && (
@@ -386,17 +379,17 @@ export function Pricing() {
                 </div>
 
                 {/* GST Text Note */}
-                <p className="text-[11px] sm:text-xs text-slate-400 font-medium mb-4 sm:mb-5">
+                <p className="text-[10px] min-[375px]:text-[11px] sm:text-xs text-slate-400 font-medium  mb-3 sm:mb-5 text-center">
                   {plan.id === 'FREE' ? 'No payment required' : 'Actual plan price'}
                 </p>
 
                 {/* Short Way Benefits */}
-                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed font-normal text-center min-h-[76px] sm:min-h-[84px] flex items-center justify-center px-1 sm:px-2 flex-1">
+                <p className="w-full text-[11px] min-[375px]:text-xs sm:text-[13px]  text-slate-600 leading-relaxed font-normal text-center min-h-[60px] sm:min-h-[84px] flex items-center justify-center px-1 sm:px-2 flex-1">
                   {plan.shortBenefits}
                 </p>
 
                 {/* Sleek Action Button */}
-                <div className="w-full mt-5 pt-1">
+                <div className="w-full mt-4 sm:mt-5 pt-1">
                   <Link
                     href="/login/user"
                     onClick={(e) => {
@@ -407,11 +400,11 @@ export function Pricing() {
                         sessionStorage.setItem('pending_billing', billingCycle);
                       }
                     }}
-                    className={`w-full py-2.5 sm:py-3 rounded-2xl font-bold text-xs sm:text-sm text-center block transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-md active:scale-[0.98] ${
-                      isSelected
+                    className={`w-full min-h-[42px] sm:min-h-[46px] px-2 py-2.5 sm:py-3 rounded-xl rounded-2xl font-bold text-xs sm:text-sm text-center flex items-center justify-center  transition-all duration-200 cursor-pointer shadow-2xs hover:shadow-md active:scale-[0.98]
+                       ${isSelected
                         ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 shadow-indigo-500/25"
                         : "bg-purple-50/80 text-purple-700 hover:bg-[#7C3AED] hover:text-white border border-purple-200/70"
-                    }`}
+                      }`}
                   >
                     {plan.ctaText}
                   </Link>

@@ -1,3 +1,4 @@
+import { getBaseUrl } from '@/lib/api';
 /**
  * Image resolution and fallback utility for SevenUnique AI.
  * Handles ngrok interstitial bypass, relative paths, null/None values, and AI image fallbacks.
@@ -53,11 +54,25 @@ export function resolveImageUrl(
   // Handle relative uploads or backend full URLs with /uploads/
   if (trimmed.includes("/uploads/")) {
     const uploadIndex = trimmed.indexOf("/uploads/");
-    return trimmed.substring(uploadIndex);
+    const rel = trimmed.substring(uploadIndex);
+    try {
+      const base = getBaseUrl();
+      if (base && !base.startsWith("/")) {
+        return `${base}${rel}`;
+      }
+    } catch (_) {}
+    return rel;
   }
 
   if (trimmed.startsWith("uploads/")) {
-    return `/${trimmed}`;
+    const rel = `/${trimmed}`;
+    try {
+      const base = getBaseUrl();
+      if (base && !base.startsWith("/")) {
+        return `${base}${rel}`;
+      }
+    } catch (_) {}
+    return rel;
   }
 
   return trimmed;

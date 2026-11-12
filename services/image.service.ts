@@ -20,6 +20,12 @@ export const imageService = {
   async generateImage(request: GenerateImageRequest): Promise<GenerateImageResponse> {
     try {
       const response = await api.post("/api/v1/ai/image", request);
+      
+      // Notify all dashboards of credit deduction
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("credit-update"));
+      }
+
       if (response.data?.data?.image_url) {
         return {
           ...response.data,
@@ -37,7 +43,14 @@ export const imageService = {
           },
         };
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.response?.status === 402) {
+        // Explicitly propagate insufficient credits so UI prompts user to upgrade plan
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("insufficient-credits", { detail: { action: "ai_image" } }));
+        }
+        throw err;
+      }
       console.warn("Backend image endpoint unavailable, using high-quality AI visual fallback:", err);
     }
 
@@ -55,4 +68,3 @@ export const imageService = {
     };
   },
 };
-

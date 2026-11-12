@@ -12,10 +12,61 @@ export const creditService = {
       }
       return {
         plan: "FREE",
-        credits_total: 5,
-        credits_remaining: 5,
+        credits_total: 50,
+        credits_remaining: 50,
         credits_used: 0
       } as CreditBalance;
+    }
+  },
+
+  async getPricing(): Promise<{
+    feature_pricing: Record<string, number>;
+    plans: Record<string, any>;
+  }> {
+    try {
+      const res = await api.get("/api/v1/credits/pricing");
+      return res.data;
+    } catch {
+      return {
+        feature_pricing: {
+          ai_image: 4,
+          ai_post: 3,
+          ai_caption: 3,
+          ai_reel: 5,
+          ai_photoshoot: 2,
+          website_builder: 2,
+        },
+        plans: {},
+      };
+    }
+  },
+
+  async deductCredits(action: string, description?: string): Promise<{
+    success: boolean;
+    credits_remaining: number;
+    credits_total: number;
+    credits_used: number;
+    cost: number;
+  }> {
+    try {
+      const res = await api.post("/api/v1/credits/deduct", { action, description });
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("credit-update", { detail: res.data }));
+      }
+      return res.data;
+    } catch (err: any) {
+      if (err?.response?.status === 402) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("insufficient-credits", { detail: { action } }));
+        }
+      }
+      throw err;
+    }
+  },
+
+  notifyCreditChange() {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("credit-update"));
     }
   },
 

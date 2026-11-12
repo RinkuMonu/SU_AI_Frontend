@@ -162,8 +162,10 @@ export default function SettingsPage() {
         if (data) {
           setLastSavedBusiness(data);
           if (data.id) setBusinessId(data.id);
-          if (data.name) setBusinessName(data.name);
-          if (data.category) setBusinessCategory(data.category);
+          const bTitle = data.name || (data as any).business_name || (data as any).businessName;
+          if (bTitle) setBusinessName(bTitle);
+          const bCat = data.category || (data as any).business_category || (data as any).industry;
+          if (bCat) setBusinessCategory(bCat);
           if (data.contact_email) setBusinessEmail(data.contact_email);
           if (data.contact_phone) setBusinessPhone(data.contact_phone);
           if (data.website) setWebsite(data.website);
@@ -171,8 +173,15 @@ export default function SettingsPage() {
           if (data.location) setLocation(data.location);
           if (data.description) setDescription(data.description);
         }
+        if ((!data || !data.name) && user) {
+          const uBName = user.business_name || user.businessName || (user.name && !user.name.startsWith("User ") && user.name.trim() !== "User" ? user.name : "");
+          if (uBName) setBusinessName(uBName);
+        }
       } catch (err: any) {
-        // If not found or fresh user, keep defaults from user state
+        if (user) {
+          const uBName = user.business_name || user.businessName || (user.name && !user.name.startsWith("User ") && user.name.trim() !== "User" ? user.name : "");
+          if (uBName) setBusinessName(uBName);
+        }
       } finally {
         setIsLoadingBusiness(false);
       }

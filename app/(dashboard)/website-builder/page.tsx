@@ -333,8 +333,189 @@ const getCategorySafeImageQuery = (
     return "trendy boutique clothing store contemporary fashion design";
   }
 
-  // 5. DEFAULT / OTHER
+  // 5. SERVERS / CLOUD HOSTING / IT
+  if (c.includes("server") || c.includes("cloud") || c.includes("host") || c.includes("datacenter") || c.includes("data center") || c.includes("vps")) {
+    if (sectionType === "hero") {
+      return "high tech modern data center server racks glowing blue LED fiber optic enterprise infrastructure";
+    }
+    if (sectionType === "services" || sectionType === "products") {
+      return cleanItem
+        ? `enterprise ${cleanItem} cloud infrastructure server racks hardware high tech`
+        : "dedicated bare metal server racks high speed cloud computing data center";
+    }
+    if (sectionType === "gallery") {
+      return "secure tier 4 data center enterprise network server room blue LED";
+    }
+    return "cloud enterprise server infrastructure network engineer data center";
+  }
+
+  // 5b. STATIONERY / BOOKS
+  if (
+    c.includes("stationery") || c.includes("book") || c.includes("pen") ||
+    c.includes("pencil") || c.includes("diary") || c.includes("paper")
+  ) {
+    if (sectionType === "hero") {
+      return "cozy aesthetic stationery store notebooks pens journal craft supplies warm daylight";
+    }
+    if (sectionType === "products" || sectionType === "catalog") {
+      return cleanItem
+        ? `premium ${cleanItem} stationery books writing journal notebook`
+        : "stationery items books luxury pens and notebooks display";
+    }
+    return "organized aesthetic stationery shop shelves notebook display";
+  }
+
+  // 6. DEFAULT / OTHER
   return `${businessName || "business"} ${category} ${cleanItem || sectionType} professional storefront`;
+};
+
+const resolveCuratedUnsplash = (query: string): string => {
+  const q = (query || "").toLowerCase();
+
+  // Makeup & Beauty
+  if (
+    q.includes("makeup") || q.includes("make up") || q.includes("cosmetic") ||
+    q.includes("beauty") || q.includes("lipstick") || q.includes("foundation") ||
+    q.includes("skincare") || q.includes("eyeshadow") || q.includes("mascara") ||
+    q.includes("fifa") || q.includes("glam") || q.includes("facial")
+  ) {
+    if (q.includes("tutorial") || q.includes("workshop") || q.includes("artist") || q.includes("class") || q.includes("lesson")) {
+      return "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("foundation") || q.includes("base") || q.includes("primer") || q.includes("concealer")) {
+      return "https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("lipstick") || q.includes("lip") || q.includes("gloss")) {
+      return "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("eye") || q.includes("palette") || q.includes("shadow") || q.includes("mascara")) {
+      return "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("skin") || q.includes("serum") || q.includes("cream") || q.includes("moisturizer")) {
+      return "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("brush") || q.includes("tool") || q.includes("kit")) {
+      return "https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Shoes & Footwear
+  if (q.includes("shoe") || q.includes("shoes") || q.includes("sneaker") || q.includes("footwear") || q.includes("boot") || q.includes("heel")) {
+    if (q.includes("sneaker") || q.includes("sport") || q.includes("trainer")) {
+      return "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("formal") || q.includes("leather") || q.includes("oxford")) {
+      return "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("heel") || q.includes("pump") || q.includes("women")) {
+      return "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Stationery & Books
+  if (
+    q.includes("stationery") || q.includes("notebook") || q.includes("pen") ||
+    q.includes("pencil") || q.includes("khushi") || q.includes("diary") ||
+    q.includes("stapler") || q.includes("paper")
+  ) {
+    if (q.includes("notebook") || q.includes("diary") || q.includes("journal")) {
+      return "https://images.unsplash.com/photo-1516962215378-7fa2e137ae93?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("art") || q.includes("color") || q.includes("craft")) {
+      return "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Bakery & Sweets (Strict: not generic shop)
+  if (q.includes("bakery") || q.includes("cake") || q.includes("pastry") || q.includes("mithai") || q.includes("cupcake") || q.includes("dessert") || q.includes("cookie")) {
+    if (q.includes("cake") || q.includes("birthday")) {
+      return "https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("mithai") || q.includes("halwa") || q.includes("laddu")) {
+      return "https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Clothing & Fashion
+  if (q.includes("cloth") || q.includes("apparel") || q.includes("boutique") || q.includes("fashion") || q.includes("dress") || q.includes("wear")) {
+    return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Restaurant & Food
+  if (q.includes("restaurant") || q.includes("dining") || q.includes("food") || q.includes("cuisine") || q.includes("cafe") || q.includes("coffee") || q.includes("pizza") || q.includes("bistro")) {
+    return "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Flowers & Florist
+  if (q.includes("flower") || q.includes("florist") || q.includes("bouquet") || q.includes("rose")) {
+    return "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Electronics & Gadgets
+  if (
+    q.includes("electronic") || q.includes("phone") || q.includes("mobile") ||
+    q.includes("laptop") || q.includes("computer") || q.includes("tv") ||
+    q.includes("audio") || q.includes("headphone") || q.includes("speaker") ||
+    q.includes("camera") || q.includes("gadget") || q.includes("shyam")
+  ) {
+    if (q.includes("phone") || q.includes("mobile") || q.includes("smartphone")) {
+      return "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("laptop") || q.includes("computer") || q.includes("pc")) {
+      return "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("tv") || q.includes("television") || q.includes("screen") || q.includes("display")) {
+      return "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("headphone") || q.includes("audio") || q.includes("sound") || q.includes("earbuds")) {
+      return "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=85";
+    }
+    if (q.includes("camera") || q.includes("dslr") || q.includes("lens")) {
+      return "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=900&q=85";
+    }
+    return "https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Gym & Fitness
+  if (q.includes("gym") || q.includes("fitness") || q.includes("workout") || q.includes("crossfit") || q.includes("training")) {
+    return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Tech, Servers & Cloud
+  if (q.includes("server") || q.includes("cloud") || q.includes("host") || q.includes("datacenter") || q.includes("tech") || q.includes("software")) {
+    return "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Medical & Clinic
+  if (q.includes("medic") || q.includes("clinic") || q.includes("doctor") || q.includes("hospital") || q.includes("pharma") || q.includes("health")) {
+    return "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Jewellery & Luxury
+  if (q.includes("jewel") || q.includes("ring") || q.includes("diamond") || q.includes("gold") || q.includes("necklace") || q.includes("watch")) {
+    return "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Automotive
+  if (q.includes("car") || q.includes("auto") || q.includes("garage") || q.includes("mechanic") || q.includes("vehicle")) {
+    return "https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Real Estate
+  if (q.includes("real estate") || q.includes("property") || q.includes("apartment") || q.includes("villa") || q.includes("home") || q.includes("interior")) {
+    return "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=85";
+  }
+
+  // Education
+  if (q.includes("educat") || q.includes("school") || q.includes("coach") || q.includes("course") || q.includes("tutor") || q.includes("book")) {
+    return "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=900&q=85";
+  }
+
+  return "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=85";
 };
 
 const resolveImageUrl = (
@@ -349,15 +530,15 @@ const resolveImageUrl = (
   if (explicitUrl && typeof explicitUrl === "string" && explicitUrl.trim() !== "") {
     if (
       !explicitUrl.includes("photo-1551434678-e076c223a692") &&
-      !explicitUrl.includes("source.unsplash.com")
+      !explicitUrl.includes("source.unsplash.com") &&
+      !explicitUrl.includes("pollinations.ai")
     ) {
       return explicitUrl.trim();
     }
   }
 
-  const query = getCategorySafeImageQuery(category, sectionType, itemTitle, businessName);
-  const encoded = encodeURIComponent(query);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=${width}&height=${height}&nologo=true`;
+  const query = `${businessName || ""} ${category || ""} ${itemTitle || ""} ${sectionType || ""}`;
+  return resolveCuratedUnsplash(query);
 };
 
 /* -------------------------------------------------------------------------- */
@@ -386,6 +567,8 @@ const generateDynamicSvgLogo = (
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M30 40 Q50 20 70 40 Q80 60 70 75 Q50 85 30 75 Q20 60 30 40 Z" fill="#ffffff" opacity="0.95" /><circle cx="50" cy="30" r="6" fill="#EF4444" /><text x="50" y="66" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="${color}" text-anchor="middle">${initials}</text>`;
   } else if (c.includes("stationery") || c.includes("book") || c.includes("pen")) {
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><path d="M22 32 Q50 26 50 72 Q50 26 78 32 V74 Q50 68 50 74 Q50 68 22 74 Z" fill="#ffffff" /><line x1="50" y1="30" x2="50" y2="72" stroke="${color}" stroke-width="3" />`;
+  } else if (c.includes("server") || c.includes("cloud") || c.includes("host") || c.includes("vps") || c.includes("datacenter") || c.includes("data center")) {
+    iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><rect x="22" y="24" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="31" r="2.5" fill="${color}" /><circle cx="38" cy="31" r="2.5" fill="${color}" /><rect x="22" y="43" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="50" r="2.5" fill="${color}" /><circle cx="38" cy="50" r="2.5" fill="${color}" /><rect x="22" y="62" width="56" height="14" rx="4" fill="#ffffff" /><circle cx="30" cy="69" r="2.5" fill="${color}" /><circle cx="38" cy="69" r="2.5" fill="${color}" />`;
   } else if (c.includes("farm") || c.includes("resort") || c.includes("nature") || c.includes("villa")) {
     iconSvg = `<rect width="100" height="100" rx="24" fill="${color}" /><circle cx="70" cy="30" r="12" fill="#FBBF24" /><path d="M30 75 L50 35 L70 75 Z" fill="#ffffff" opacity="0.9" /><rect x="47" y="65" width="6" height="15" fill="#ffffff" />`;
   } else {
@@ -530,33 +713,198 @@ const generateHtmlFromJSON = (rawData: any): string => {
   let homeSections: WebsiteSection[] = [];
   if (rawHomePage?.sections?.length) {
     homeSections = rawHomePage.sections.filter((s: any) => s.type !== "navbar" && s.type !== "footer");
-  } else {
-    const hero = allIncomingSections.find((s: any) => s.type === "hero") || {
+  }
+
+  // Ensure hero is present
+  if (!homeSections.some((s) => s.type === "hero")) {
+    const existingHero = allIncomingSections.find((s: any) => s.type === "hero");
+    homeSections.unshift(existingHero || {
       type: "hero",
       title: `${bName}`,
       subtitle: `Discover unmatched craftsmanship, authentic dedication, and exquisite quality in every detail.`,
-      cta: "Explore Now",
+      cta: "Explore Offerings",
       secondary_cta: "Our Story"
-    };
-    const features = allIncomingSections.find((s: any) =>
+    });
+  }
+
+  const catLower = bCategory.toLowerCase();
+
+  // 1. Stats Bar (Metrics)
+  if (!homeSections.some((s) => s.type === "stats" || s.type === "metrics")) {
+    let statsItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      statsItems = [
+        { label: "Uptime SLA", value: "99.99%", description: "Guaranteed high availability" },
+        { label: "Active Deployments", value: "5,000+", description: "Deployed worldwide" },
+        { label: "Port Speeds", value: "10 Gbps", description: "Ultra-low latency uplinks" },
+        { label: "Support", value: "24/7/365", description: "Expert technical assistance" }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      statsItems = [
+        { label: "Fresh Daily Blooms", value: "100%", description: "Handpicked morning blossoms" },
+        { label: "Bouquets Crafted", value: "15,000+", description: "Artistic floral arrangements" },
+        { label: "Express Delivery", value: "Same-Day", description: "Guaranteed on-time arrival" },
+        { label: "Customer Rating", value: "4.9 ★", description: "Top-rated local florist" }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      statsItems = [
+        { label: "Pure Ingredients", value: "100%", description: "Traditional pure desi ghee" },
+        { label: "Signature Delicacies", value: "60+", description: "Traditional & festive treats" },
+        { label: "Happy Customers", value: "25,000+", description: "Spreading sweetness everyday" },
+        { label: "Daily Preparation", value: "Fresh Batch", description: "Crafted fresh every morning" }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      statsItems = [
+        { label: "Certified Medicines", value: "100%", description: "Authentic & quality verified" },
+        { label: "Years of Trust", value: "15+ Years", description: "Dedicated healthcare services" },
+        { label: "Availability", value: "24/7", description: "Ready for urgent prescriptions" },
+        { label: "Families Served", value: "20,000+", description: "Trusted community pharmacy" }
+      ];
+    } else {
+      statsItems = [
+        { label: "Quality Guarantee", value: "100%", description: "Uncompromised excellence" },
+        { label: "Satisfied Clients", value: "10,000+", description: "Delivering lasting value" },
+        { label: "Turnaround Time", value: "Prompt", description: "Fast & dedicated response" },
+        { label: "Customer Rating", value: "4.9 ★", description: "Verified positive reviews" }
+      ];
+    }
+    const heroIndex = homeSections.findIndex((s) => s.type === "hero");
+    homeSections.splice(heroIndex + 1, 0, {
+      type: "stats",
+      title: "Key Highlights",
+      subtitle: `Why customers choose ${bName}`,
+      items: statsItems
+    });
+  }
+
+  // 2. Features / Signature Highlights
+  if (!homeSections.some((s) => ["features", "facilities", "services", "products"].includes(s.type))) {
+    const existingFeatures = allIncomingSections.find((s: any) =>
       ["features", "facilities", "services", "products"].includes(s.type)
-    ) || {
+    );
+    homeSections.push(existingFeatures || {
       type: "features",
       title: "Signature Highlights",
-      subtitle: `Why customers choose ${bName}`,
+      subtitle: `Experience the best of ${bCategory} at ${bName}`,
       items: [
         { title: "Premium Quality", description: `Uncompromising standards across all our ${bCategory} offerings.` },
         { title: "Personalized Care", description: "Attentive service tailored specifically to your unique needs." },
         { title: "Trusted Craft", description: "Passionate professionals devoted to exceptional results." }
       ]
-    };
-    const about = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
-    const contact = allIncomingSections.find((s: any) => s.type === "contact");
-
-    homeSections = [hero, features];
-    if (about) homeSections.push(about);
-    if (contact) homeSections.push(contact);
+    });
   }
+
+  // 3. Brand Story & Craftsmanship preview (About)
+  if (!homeSections.some((s) => ["about", "story"].includes(s.type))) {
+    const existingAbout = allIncomingSections.find((s: any) => ["about", "story"].includes(s.type));
+    homeSections.push(existingAbout || {
+      type: "about",
+      title: `Welcome to ${bName}`,
+      subtitle: "Devoted to Craftsmanship & Excellence",
+      description: `At ${bName}, our journey is rooted in an unwavering passion for superior quality and genuine customer care. Every single day, we strive to bring you the finest ${bCategory} solutions with uncompromised integrity, warm service, and attention to detail.`
+    });
+  }
+
+  // 4. Testimonials
+  if (!homeSections.some((s) => ["testimonials", "reviews"].includes(s.type))) {
+    let testItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      testItems = [
+        { name: "Vikram Malhotra", role: "CTO, CloudScale", rating: 5, quote: `${bName} delivered incredible stability with zero downtime. Deployment was instant and network speeds exceeded all expectations.` },
+        { name: "Sneha Sen", role: "Lead Systems Architect", rating: 5, quote: "Rock-solid infrastructure and responsive 24/7 technical support. Truly enterprise grade service." },
+        { name: "Rohan Mehra", role: "Startup Founder", rating: 5, quote: `Migrating to ${bName} reduced our latency dramatically. Highly recommended for production workloads.` }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      testItems = [
+        { name: "Pooja Sharma", role: "Verified Customer", rating: 5, quote: `The floral arrangement from ${bName} was breathtaking! Fresh blooms that stayed vibrant for over a week.` },
+        { name: "Amit Verma", role: "Anniversary Order", rating: 5, quote: "Flawless same-day delivery and gorgeous presentation. My wife absolutely loved the bouquet!" },
+        { name: "Kavita Rao", role: "Event Coordinator", rating: 5, quote: `${bName} handled our venue floral decor with such artistry and elegance. Truly spectacular.` }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      testItems = [
+        { name: "Rajesh Gupta", role: "Regular Patron", rating: 5, quote: `Authentic taste, rich aroma of pure ghee, and heavenly sweets. ${bName} is our family's favorite for every celebration.` },
+        { name: "Neha Kapoor", role: "Festival Shopper", rating: 5, quote: "Ordered custom gift boxes for Diwali and every guest called to compliment the extraordinary flavors." },
+        { name: "Manish Joshi", role: "Sweet Lover", rating: 5, quote: `Freshness you can taste in every single bite. The craftsmanship at ${bName} is truly unmatched.` }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      testItems = [
+        { name: "Suresh Singhal", role: "Local Resident", rating: 5, quote: `${bName} is our most trusted pharmacy. They always have genuine medicines in stock and provide caring assistance.` },
+        { name: "Dr. Sunita Nair", role: "Healthcare Professional", rating: 5, quote: "Reliable, hygienic, and extremely helpful staff. Emergency prescriptions are fulfilled promptly without delay." },
+        { name: "Arjun Saxena", role: "Caregiver", rating: 5, quote: `Doorstep delivery and patient guidance from ${bName} have been an absolute blessing for our family.` }
+      ];
+    } else {
+      testItems = [
+        { name: "Priya Sharma", role: "Verified Client", rating: 5, quote: `The experience with ${bName} has been phenomenal. Top quality, attentive staff, and outstanding professionalism.` },
+        { name: "Rahul Verma", role: "Repeat Customer", rating: 5, quote: "Super impressed by their consistency and attention to detail. Would recommend to anyone without hesitation." },
+        { name: "Ananya Patel", role: "Community Member", rating: 5, quote: `Fast, friendly, and dependable every time. ${bName} sets the gold standard in ${bCategory || "service"}.` }
+      ];
+    }
+    homeSections.push({
+      type: "testimonials",
+      title: "What Our Customers Say",
+      subtitle: `Real experiences from people who love ${bName}`,
+      items: testItems
+    });
+  }
+
+  // 5. Frequently Asked Questions
+  if (!homeSections.some((s) => ["faq", "faqs"].includes(s.type))) {
+    let faqItems: any[] = [];
+    if (catLower.includes("server") || catLower.includes("cloud") || catLower.includes("host")) {
+      faqItems = [
+        { question: "How quickly are dedicated and cloud servers deployed?", answer: "Most standard server instances are provisioned instantly within 5 to 15 minutes following order confirmation." },
+        { question: "Is DDoS protection and firewall security included?", answer: "Yes, automated enterprise multi-layer DDoS mitigation and advanced firewall filtering are standard on all servers." },
+        { question: "Do I receive full root and IPMI / KVM access?", answer: "Absolutely. You get 100% root/administrator access and out-of-band management console control." },
+        { question: "What level of customer and technical support is provided?", answer: "Our dedicated system engineers provide round-the-clock 24/7/365 assistance via ticket and priority chat." }
+      ];
+    } else if (catLower.includes("flower") || catLower.includes("florist")) {
+      faqItems = [
+        { question: "How fresh are your flowers and arrangements?", answer: "We hand-select fresh morning blossoms directly from verified growers every single day to ensure lasting vibrancy." },
+        { question: "Can I place custom orders for specific bouquets or events?", answer: `Yes! ${bName} specializes in custom designed bouquets, festive hampers, and full event floral styling.` },
+        { question: "Do you provide same-day flower delivery?", answer: "Yes, we offer express same-day doorstep delivery for orders placed before our afternoon cutoff." },
+        { question: "How can I keep my flowers fresh for longer?", answer: "Trim stems slightly at an angle, change the vase water every two days, and keep flowers away from direct sunlight." }
+      ];
+    } else if (catLower.includes("sweet") || catLower.includes("mithai") || catLower.includes("bakery")) {
+      faqItems = [
+        { question: "Are your sweets prepared fresh daily?", answer: "Yes, all our sweets and delicacies are freshly prepared every morning using pure ingredients and traditional recipes." },
+        { question: "Do you accept bulk orders for weddings and festivals?", answer: `Yes, ${bName} provides personalized bulk gift boxes and event catering for weddings, corporate gifts, and festivals.` },
+        { question: "What is the typical shelf life of your offerings?", answer: "Dry and roasted varieties typically last 2 to 3 weeks, while milk-based sweets are best enjoyed within 3 to 5 days." },
+        { question: "Do you offer sugar-free or dietary-conscious options?", answer: "Yes, we craft special sugar-free and dry-fruit-only selections to cater to health-conscious patrons." }
+      ];
+    } else if (catLower.includes("medical") || catLower.includes("clinic") || catLower.includes("pharma")) {
+      faqItems = [
+        { question: "Are all medications and health supplies verified and genuine?", answer: "100%. We source strictly from authorized pharmaceutical distributors with verified batch certificates." },
+        { question: "Do you offer prescription fulfillment and consultations?", answer: "Yes, our qualified pharmacists review your prescription carefully and guide you on dosage and instructions." },
+        { question: "Do you provide home delivery for essential medicines?", answer: "Yes, we offer prompt doorstep delivery across our local coverage area for your convenience." },
+        { question: "What are your operating hours for urgent needs?", answer: `${bName} operates extended daily hours and provides on-call emergency healthcare assistance.` }
+      ];
+    } else {
+      faqItems = [
+        { question: `How can I inquire about products or services at ${bName}?`, answer: "You can reach us directly through our Contact form, visit our location, or call our customer service desk." },
+        { question: "Do you provide customized solutions tailored to specific needs?", answer: "Yes! We work closely with each client to provide personalized recommendations and custom packages." },
+        { question: "What is your commitment to quality and satisfaction?", answer: "We back every offering with a 100% satisfaction guarantee, ensuring uncompromised standards." },
+        { question: "What are your standard turnaround or delivery times?", answer: "We prioritize fast, efficient fulfillment and will keep you updated every step of the way." }
+      ];
+    }
+    homeSections.push({
+      type: "faq",
+      title: "Frequently Asked Questions",
+      subtitle: `Helpful answers to common questions about ${bName}`,
+      items: faqItems
+    });
+  }
+
+  // 6. Call to Action Banner
+  if (!homeSections.some((s) => ["cta", "banner"].includes(s.type))) {
+    homeSections.push({
+      type: "cta",
+      title: `Ready to Experience the Best in ${bCategory}?`,
+      subtitle: `Connect with ${bName} today. We are here to deliver exceptional quality, personalized care, and lasting satisfaction.`,
+      cta: "Contact Us Today",
+      secondary_cta: `Explore ${serviceTabName}`
+    });
+  }
+
   resolvedPages.push({ name: "Home", id: "home", sections: homeSections });
 
   // 2. ABOUT PAGE
@@ -711,10 +1059,44 @@ const generateHtmlFromJSON = (rawData: any): string => {
                         : ""
                     }
                   </div>
+                  <div class="mt-6 pt-4 border-t border-gray-100 flex items-center justify-center md:justify-start gap-3 sm:gap-5 text-[11px] sm:text-xs text-gray-500 font-medium">
+                    <span class="flex items-center gap-1"><span class="text-amber-500 font-bold">★</span> 4.9/5 Rating</span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1"><span class="text-emerald-500 font-bold">✓</span> Verified Quality</span>
+                    <span>•</span>
+                    <span class="flex items-center gap-1"><span class="text-primary font-bold">⚡</span> Prompt Service</span>
+                  </div>
                 </div>
                 <div class="relative rounded-2xl overflow-hidden shadow-xl border border-gray-100 aspect-video md:aspect-[4/3] bg-gray-100 max-h-96">
                   <img src="${heroImg}" alt="${sTitle || bName}" class="w-full h-full object-cover transition duration-700 hover:scale-105" loading="eager" />
                 </div>
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 1b. STATS / METRICS BAR
+      else if (sectionType === "stats" || sectionType === "metrics") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-8 sm:py-12 bg-gray-50/80 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+                ${items
+                  .map((stat: any) => {
+                    const val = escapeHtml(stat.value || "100%");
+                    const lbl = escapeHtml(stat.label || stat.title || "Quality");
+                    const desc = escapeHtml(stat.description || "");
+                    return `
+                      <div class="p-4 sm:p-6 bg-white rounded-2xl border border-gray-100 text-center shadow-xs hover:border-primary/30 hover:shadow-md transition duration-300">
+                        <div class="text-2xl sm:text-3xl md:text-4xl font-black text-primary tracking-tight">${val}</div>
+                        <div class="mt-1 text-xs sm:text-sm font-bold text-gray-900">${lbl}</div>
+                        ${desc ? `<p class="mt-1 text-[11px] sm:text-xs text-gray-500 leading-snug">${desc}</p>` : ""}
+                      </div>
+                    `;
+                  })
+                  .join("")}
               </div>
             </div>
           </section>
@@ -911,7 +1293,113 @@ const generateHtmlFromJSON = (rawData: any): string => {
         `;
       }
 
-      // 7. GENERIC SECTION FALLBACK
+      // 7. TESTIMONIALS / REVIEWS
+      else if (sectionType === "testimonials" || sectionType === "reviews") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-gray-50/70 border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 tracking-wider uppercase">Customer Love</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">${sTitle || "What Our Customers Say"}</h2>
+                ${sSubtitle ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600">${sSubtitle}</p>` : `<p class="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Hear directly from clients who trust ${bName} every day.</p>`}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                ${items
+                  .map((item: any, i: number) => {
+                    const ratingNum = item.rating || 5;
+                    const stars = "★".repeat(ratingNum) + "☆".repeat(Math.max(0, 5 - ratingNum));
+                    const authorName = escapeHtml(item.name || item.author || `Client ${i + 1}`);
+                    const authorRole = escapeHtml(item.role || item.title || "Verified Customer");
+                    const quoteText = escapeHtml(item.quote || item.text || item.description || "Outstanding quality and service!");
+                    const initial = authorName.charAt(0).toUpperCase();
+
+                    return `
+                      <div class="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-xs hover:shadow-xl hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                        <div>
+                          <div class="flex items-center gap-1 text-amber-400 text-sm sm:text-base mb-4 tracking-wider">
+                            ${stars}
+                          </div>
+                          <p class="text-xs sm:text-sm text-gray-700 leading-relaxed italic">"${quoteText}"</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-gray-50 flex items-center gap-3">
+                          <div class="w-10 h-10 rounded-full bg-primary/10 text-primary font-extrabold flex items-center justify-center text-sm shadow-xs">
+                            ${initial}
+                          </div>
+                          <div>
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-900">${authorName}</h4>
+                            <p class="text-[11px] sm:text-xs text-gray-500">${authorRole}</p>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 8. FAQ SECTION
+      else if (sectionType === "faq" || sectionType === "faqs") {
+        const items = section.items || [];
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-12 sm:py-16 md:py-24 bg-white border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+                <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-primary/10 text-primary mb-3 tracking-wider uppercase">Answers & Support</span>
+                <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">${sTitle || "Frequently Asked Questions"}</h2>
+                ${sSubtitle ? `<p class="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg text-gray-600">${sSubtitle}</p>` : `<p class="mt-3 sm:mt-4 text-sm sm:text-base text-gray-600">Quick answers to common questions about our products and services.</p>`}
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 max-w-5xl mx-auto">
+                ${items
+                  .map((item: any, i: number) => {
+                    const question = escapeHtml(item.question || item.title || `Question ${i + 1}`);
+                    const answer = escapeHtml(item.answer || item.description || item.content || "");
+                    return `
+                      <div class="p-5 sm:p-7 bg-gray-50/80 rounded-2xl border border-gray-100 hover:border-primary/40 hover:bg-white transition duration-200">
+                        <h3 class="text-sm sm:text-base font-bold text-gray-900 flex items-start gap-2.5">
+                          <span class="text-primary font-black shrink-0">Q.</span>
+                          <span>${question}</span>
+                        </h3>
+                        ${answer ? `<p class="mt-2.5 text-xs sm:text-sm text-gray-600 leading-relaxed pl-6">${answer}</p>` : ""}
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 9. CTA BANNER
+      else if (sectionType === "cta" || sectionType === "banner") {
+        pageSectionsHtml += `
+          <section id="${sectionId}" class="py-14 sm:py-20 bg-gradient-to-r from-gray-900 via-primary/95 to-gray-900 text-white relative overflow-hidden">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+              <span class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-white/10 text-white mb-3 sm:mb-4 tracking-wider uppercase border border-white/20">Get Started</span>
+              <h2 class="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight">${sTitle || `Ready to experience ${bName}?`}</h2>
+              <p class="mt-3 sm:mt-5 text-sm sm:text-base md:text-lg text-gray-200 max-w-2xl mx-auto leading-relaxed">
+                ${sSubtitle || sDesc || `Connect with us today for personalized solutions, orders, or consultations.`}
+              </p>
+              <div class="mt-8 flex flex-wrap justify-center gap-3 sm:gap-4">
+                <button type="button" onclick="switchWebsitePage('contact')" class="inline-flex items-center justify-center px-7 sm:px-9 py-3 sm:py-3.5 rounded-xl font-bold bg-white text-gray-900 hover:bg-gray-100 transition shadow-xl text-xs sm:text-sm cursor-pointer">
+                  ${escapeHtml(section.cta || "Contact Us Today")}
+                </button>
+                ${
+                  section.secondary_cta
+                    ? `<button type="button" onclick="switchWebsitePage('${serviceTabName.toLowerCase().replace(/[^a-z0-9]/g, "-")}')" class="inline-flex items-center justify-center px-6 sm:px-8 py-3 sm:py-3.5 rounded-xl font-bold border border-white/30 text-white hover:bg-white/10 transition text-xs sm:text-sm cursor-pointer">${escapeHtml(section.secondary_cta)}</button>`
+                    : ""
+                }
+              </div>
+            </div>
+          </section>
+        `;
+      }
+
+      // 10. GENERIC SECTION FALLBACK
       else {
         pageSectionsHtml += `
           <section id="${sectionId}" class="py-12 sm:py-16 bg-white border-b border-gray-100">
@@ -1412,27 +1900,44 @@ export default function WebsiteBuilderPage() {
       if (data.siteId) setSiteId(data.siteId);
       if (data.language) setLanguage(data.language);
 
-      if (data.generatedSiteData) {
-        setGeneratedSiteData(data.generatedSiteData);
-        localStorage.setItem("website_builder_site_data", JSON.stringify(data.generatedSiteData));
+      let siteToUse = data.generatedSiteData;
+      if ((!siteToUse || !siteToUse.pages || siteToUse.pages.length === 0) && data.siteId) {
+        try {
+          const fetchedSite = await websiteBuilderService.getSite(data.siteId);
+          if (fetchedSite && fetchedSite.pages && fetchedSite.pages.length > 0) {
+            siteToUse = fetchedSite;
+          }
+        } catch {}
+      }
+
+      if (siteToUse && siteToUse.pages && siteToUse.pages.length > 0) {
+        setGeneratedSiteData(siteToUse);
+        localStorage.setItem("website_builder_site_data", JSON.stringify(siteToUse));
         setVersionHistory([
           {
             version: 1,
             label: "Restored Draft",
             timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-            data: data.generatedSiteData
+            data: siteToUse
           }
         ]);
-        if (data.generatedSiteData.business_name) {
+        if (siteToUse.business_name) {
           setBusinessContext((prev) => ({
             ...prev,
-            businessName: data.generatedSiteData?.business_name,
-            businessCategory: data.generatedSiteData?.business_category,
-            selectedTemplateId: data.generatedSiteData?.template_id,
-            selectedTemplateName: data.generatedSiteData?.template_name,
+            businessName: siteToUse?.business_name,
+            businessCategory: siteToUse?.business_category,
+            selectedTemplateId: siteToUse?.template_id,
+            selectedTemplateName: siteToUse?.template_name,
             onboardingStep: "step7_generated"
           }));
         }
+      } else if (storedSite) {
+        try {
+          const parsed = JSON.parse(storedSite);
+          if (parsed && parsed.pages && parsed.pages.length > 0) {
+            setGeneratedSiteData(parsed);
+          }
+        } catch {}
       }
 
       if (data.messages && data.messages.length > 0) {
@@ -2210,59 +2715,89 @@ Shall I generate your custom website draft now?`;
     }
 
     // 3. Change theme color
-    else if (lower.includes("color") || lower.includes("theme") || lower.includes("background")) {
-      let newColor = "#4F46E5";
+    else if (lower.includes("color") || lower.includes("theme") || lower.includes("background") || lower.includes("rang") || lower.includes("रंग")) {
       const hexMatch = instruction.match(/#(?:[0-9a-fA-F]{3}){1,2}\b/);
-      if (hexMatch) {
-        newColor = hexMatch[0];
-      } else if (lower.includes("blue") || lower.includes("ocean")) newColor = "#0284C7";
-      else if (lower.includes("green") || lower.includes("emerald")) newColor = "#059669";
-      else if (lower.includes("violet") || lower.includes("purple")) newColor = "#7C3AED";
-      else if (lower.includes("rose") || lower.includes("red") || lower.includes("pink")) newColor = "#E11D48";
-      else if (lower.includes("orange") || lower.includes("sunset")) newColor = "#EA580C";
-      else if (lower.includes("dark") || lower.includes("black")) newColor = "#18181B";
-      else if (lower.includes("gold") || lower.includes("amber")) newColor = "#D97706";
+      let detectedColor = hexMatch ? hexMatch[0] : "";
+      let detectedName = "";
+
+      if (!detectedColor) {
+        if (lower.includes("blue") || lower.includes("ocean") || lower.includes("नीला")) { detectedColor = "#0284C7"; detectedName = "Sapphire Blue"; }
+        else if (lower.includes("emerald") || lower.includes("green") || lower.includes("हरा")) { detectedColor = "#059669"; detectedName = "Emerald Green"; }
+        else if (lower.includes("purple") || lower.includes("violet") || lower.includes("बैंगनी")) { detectedColor = "#7C3AED"; detectedName = "Royal Purple"; }
+        else if (lower.includes("red") || lower.includes("rose") || lower.includes("crimson") || lower.includes("लाल")) { detectedColor = "#DC2626"; detectedName = "Crimson Red"; }
+        else if (lower.includes("orange") || lower.includes("sunset") || lower.includes("संतरी") || lower.includes("नारंगी")) { detectedColor = "#EA580C"; detectedName = "Sunset Orange"; }
+        else if (lower.includes("gold") || lower.includes("amber") || lower.includes("yellow") || lower.includes("पीला")) { detectedColor = "#D97706"; detectedName = "Warm Amber"; }
+        else if (lower.includes("black") || lower.includes("dark") || lower.includes("काला")) { detectedColor = "#18181B"; detectedName = "Minimal Dark"; }
+        else if (lower.includes("indigo")) { detectedColor = "#4F46E5"; detectedName = "Modern Indigo"; }
+        else if (lower.includes("teal")) { detectedColor = "#0D9488"; detectedName = "Teal"; }
+        else if (lower.includes("cyan")) { detectedColor = "#06B6D4"; detectedName = "Cyan"; }
+        else if (lower.includes("pink") || lower.includes("गुलाबी")) { detectedColor = "#EC4899"; detectedName = "Pink"; }
+      }
+
+      // If user asks to update/change color without naming a specific color, prompt them with color options!
+      if (!detectedColor) {
+        const askColorMsg: ChatMessage = {
+          id: `ask-color-${Date.now()}`,
+          role: "ai",
+          content: "Which color would you like for your website? You can pick from the curated palettes below or open the custom color picker:",
+          options: [
+            { label: "🔵 Sapphire Blue", action: "set_theme_color", color: "#0284C7", name: "Sapphire Blue" },
+            { label: "🟣 Royal Purple", action: "set_theme_color", color: "#7C3AED", name: "Royal Purple" },
+            { label: "🟠 Sunset Orange", action: "set_theme_color", color: "#EA580C", name: "Sunset Orange" },
+            { label: "🔴 Crimson Red", action: "set_theme_color", color: "#DC2626", name: "Crimson Red" },
+            { label: "🟢 Emerald Green", action: "set_theme_color", color: "#059669", name: "Emerald Green" },
+            { label: "⚫ Minimal Dark", action: "set_theme_color", color: "#18181B", name: "Minimal Dark" },
+            { label: "🎨 Open Color Customizer", action: "open_theme_modal", tab: "colors" }
+          ]
+        };
+        setMessages((prev) => [...prev, askColorMsg]);
+        return;
+      }
 
       if (!updatedSite.theme) updatedSite.theme = {};
-      updatedSite.theme.primary = newColor;
-      updatedSite.theme.secondary = newColor;
+      updatedSite.theme.primary = detectedColor;
+      updatedSite.theme.secondary = detectedColor;
       if (!updatedSite.theme.button_color) {
-        updatedSite.theme.button_color = newColor;
+        updatedSite.theme.button_color = detectedColor;
       }
-      appliedChangeDesc = `Updated the primary theme color to ${newColor}.`;
+      appliedChangeDesc = `Updated the primary theme color to ${detectedName || detectedColor}.`;
     }
 
     // 2. Change hero image
     else if (lower.includes("hero image") || lower.includes("header image") || lower.includes("cover image")) {
       const heroSection = updatedSite.pages?.[0]?.sections?.find((s: any) => s.type === "hero");
       if (heroSection) {
+        const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
+        const bName = updatedSite.business_name || businessContext.businessName || "My Business";
         heroSection.image_url = resolveImageUrl(
           undefined,
-          updatedSite.business_category || "flower",
+          bCat,
           "hero",
-          `${instruction} fresh daylight`,
-          updatedSite.business_name
+          `${bName} ${bCat} professional photography daylight high resolution`,
+          bName
         );
-        appliedChangeDesc = "Updated the hero image with fresh, category-specific photography.";
+        appliedChangeDesc = `Updated the hero image with fresh photography tailored to ${bName} (${bCat}).`;
       }
     }
 
     // 3. Change product/bouquets images
     else if (lower.includes("image") || lower.includes("photo") || lower.includes("picture")) {
+      const bCat = updatedSite.business_category || businessContext.businessCategory || "business";
+      const bName = updatedSite.business_name || businessContext.businessName || "My Business";
       const prodSection = updatedSite.pages?.[0]?.sections?.find(
-        (s: any) => s.type === "products" || s.type === "bouquets" || s.type === "menu"
+        (s: any) => s.type === "products" || s.type === "bouquets" || s.type === "menu" || s.type === "features"
       );
       if (prodSection?.items) {
         prodSection.items.forEach((item: any, i: number) => {
           item.image_url = resolveImageUrl(
             undefined,
-            updatedSite.business_category || "flower",
-            "products",
-            `${item.title} ${instruction} ${i}`,
-            updatedSite.business_name
+            bCat,
+            prodSection.type,
+            `${item.title} ${bCat} ${i}`,
+            bName
           );
         });
-        appliedChangeDesc = "Replaced section images with new category-matched imagery.";
+        appliedChangeDesc = `Replaced section images with new category-matched imagery for ${bCat}.`;
       }
     }
 
@@ -2276,7 +2811,20 @@ Shall I generate your custom website draft now?`;
       }
     }
 
-    // 5. Add a section (e.g. Gallery)
+    // 5. Expand Homepage Content
+    else if (
+      lower.includes("content") ||
+      lower.includes("homepage") ||
+      lower.includes("home page") ||
+      lower.includes("more") ||
+      lower.includes("richer") ||
+      lower.includes("aur content") ||
+      lower.includes("zyada content")
+    ) {
+      appliedChangeDesc = `Enriched your Homepage with key business metrics, signature highlights, brand story preview, customer reviews, frequently asked questions, and a high-converting call-to-action banner!`;
+    }
+
+    // 6. Add a section (e.g. Gallery)
     else if (lower.includes("gallery") || lower.includes("add")) {
       const existingGallery = updatedSite.pages?.[0]?.sections?.find((s: any) => s.type === "gallery");
       if (!existingGallery) {
@@ -2345,6 +2893,18 @@ Shall I generate your custom website draft now?`;
       try {
         const editRes = await websiteBuilderService.editWebsite(sessionId, instruction, generatedSiteData);
         if (editRes) {
+          if (editRes.action === "ask_color") {
+            const askMsg: ChatMessage = {
+              id: `color-${Date.now()}`,
+              role: "ai",
+              content: editRes.message,
+              options: editRes.options
+            };
+            setMessages((prev) => [...prev, askMsg]);
+            setLoading(false);
+            return;
+          }
+
           if (editRes.action === "clarification_required" && !force) {
             const conflictMsg: ChatMessage = {
               id: `conflict-${Date.now()}`,
@@ -2524,6 +3084,18 @@ Shall I generate your custom website draft now?`;
   };
 
   const handleOptionSelect = (option: any) => {
+    if (option.action === "set_theme_color" && option.color) {
+      updateWebsiteTheme({ primary: option.color, secondary: option.secondary || option.color }, `Theme Color: ${option.name || option.color}`);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `color-${Date.now()}`,
+          role: "ai",
+          content: `✨ Updated the primary theme color to ${option.name || option.color}. Your live preview on the right has been updated.`
+        }
+      ]);
+      return;
+    }
     if (option.action === "open_theme_modal") {
       setShowThemeModal(true);
       if (option.tab) setThemeActiveTab(option.tab);
@@ -2872,7 +3444,10 @@ Shall I generate your custom website draft now?`;
         {generatedSiteData && (
           <div className="px-3 sm:px-4 py-2 border-t border-white/5 bg-[#0e1422] flex gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar shrink-0">
             <button
-              onClick={() => handleSend("Change hero image to fresh floral photography")}
+              onClick={() => {
+                const bCat = generatedSiteData?.business_category || businessContext.businessCategory || "business";
+                handleSend(`Change hero image to fresh ${bCat} photography`);
+              }}
               className="text-[10px] sm:text-[11px] whitespace-nowrap px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded-md border border-white/10 transition cursor-pointer"
             >
               🖼️ Change Hero Image
@@ -2884,7 +3459,7 @@ Shall I generate your custom website draft now?`;
               ✨ Revise Headline
             </button>
             <button
-              onClick={() => handleSend("Change the primary theme color to emerald green")}
+              onClick={() => handleSend("Update website colors")}
               className="text-[10px] sm:text-[11px] whitespace-nowrap px-2.5 py-1 bg-white/5 hover:bg-white/10 text-gray-300 rounded-md border border-white/10 transition cursor-pointer"
             >
               🎨 Update Colors

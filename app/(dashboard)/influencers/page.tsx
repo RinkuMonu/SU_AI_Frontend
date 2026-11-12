@@ -1423,6 +1423,9 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
             <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-purple/20 text-brand-purple border border-brand-purple/30 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" /> Verified Marketplace
             </span>
+            <span className="px-2.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[11px] font-extrabold uppercase tracking-wider">
+              Coming Soon
+            </span>
             <span className="text-xs text-white/50">Real Creators & Protected Escrow</span>
           </div>
           <h1 className="text-3xl font-extrabold text-white mt-1">

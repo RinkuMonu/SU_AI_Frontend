@@ -292,29 +292,11 @@ export function Footer() {
       <div className="bg-[#1C1E32] text-slate-300 py-5 text-xs sm:text-sm">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col xl:flex-row justify-between items-center gap-4">
           <div className="text-center xl:text-left text-slate-400 text-xs sm:text-sm">
-            <span>&copy; 2026 DhandaGrow AI. All rights reserved.</span>
+            <span>&copy; 2026</span>
             <span className="hidden sm:inline mx-2 text-slate-600">&bull;</span>
             <span className="block sm:inline text-slate-300">
               DhandaGrow is powered by <strong className="text-white font-medium">Seven Unique Private Limited</strong>.
             </span>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-5 gap-y-2 text-slate-300">
-            <Link href="/legal/privacy-policy" className="hover:text-white transition-colors whitespace-nowrap">Privacy Policy</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
-            <Link href="/legal/terms-of-service" className="hover:text-white transition-colors whitespace-nowrap">Terms of Service</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
-            <Link href="/sitemap" className="hover:text-white transition-colors whitespace-nowrap">Sitemap</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
-            <Link href="/legal/cookie-policy" className="hover:text-white transition-colors whitespace-nowrap">Cookie Policy</Link>
-            <span className="w-1 h-1 rounded-full bg-slate-600 shrink-0"></span>
-            <Link href="/legal/refund-policy" className="hover:text-white transition-colors whitespace-nowrap">Refund Policy</Link>
-          </div>
-
-          <div className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors text-slate-300">
-            <Globe2 size={16} />
-            <span>English</span>
-            <ChevronDown size={14} />
           </div>
         </div>
       </div>

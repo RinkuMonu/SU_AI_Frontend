@@ -109,6 +109,7 @@ export interface EditWebsiteResponse {
   target?: string;
   changes?: Record<string, any>;
   message: string;
+  options?: any[];
   updated_state: any;
 }
 

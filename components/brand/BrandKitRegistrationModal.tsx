@@ -45,6 +45,7 @@ import {
   generateBrandLogo,
 } from "@/services/brand.service";
 import { businessService } from "@/services/business.service";
+import { userService } from "@/services/user.service";
 import { BrandKit, BrandCreate, AILogoVariationItem } from "@/types/brand";
 import { Business } from "@/types";
 import { LiveColorPicker, ColorScheme } from "./LiveColorPicker";
@@ -552,6 +553,19 @@ export function BrandKitRegistrationModal({
 
       // 1. Business Name
       if (data.business_name) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("business_name", data.business_name);
+          localStorage.setItem("onboarding_business_name", data.business_name);
+        }
+        businessService.updateBusiness({
+          name: data.business_name,
+          businessName: data.business_name,
+        }).catch(() => null);
+        userService.updateProfile({
+          business_name: data.business_name,
+          businessName: data.business_name,
+        }).catch(() => null);
+
         if (forceOverwrite || !businessName.trim() || !manuallyEditedFieldsRef.current.has("businessName")) {
           setBusinessName(data.business_name);
           filledCount++;

@@ -19,12 +19,14 @@ import {
   Phone, 
   Mail,
   ShieldCheck,
-  Headphones
+  Headphones,
+  Compass
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { userService } from "@/services/user.service";
 import { businessService } from "@/services/business.service";
 import { useSidebar } from "@/components/layout/SidebarContext";
+import { isMobileViewport, startDashboardTour } from "@/components/tour/DashboardTour";
 
 export function Navbar() {
   const { user, logout, updateUser } = useAuth();
@@ -190,7 +192,19 @@ export function Navbar() {
           </div>
         </div>
         <div className="flex items-center gap-x-3 sm:gap-x-4 lg:gap-x-6">
-          {/* Notifications Button matching Image 1 */}
+          {!isMobileViewport() && (
+            <button
+              type="button"
+              onClick={() => startDashboardTour()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/25 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              title="Launch Interactive Tour Guide"
+            >
+              <Compass className="w-3.5 h-3.5 text-purple-400" />
+              <span className="hidden sm:inline">Tour Guide</span>
+            </button>
+          )}
+
+          {/* Notifications Dropdown */}
           <div className="relative" ref={notifDropdownRef}>
             <button 
               type="button" 
@@ -206,7 +220,7 @@ export function Navbar() {
             </button>
             
             {showNotifications && (
-              <div className="absolute right-0 mt-2 w-80 origin-top-right rounded-xl bg-surface-elevated py-1 shadow-2xl border border-border ring-1 ring-black/20 focus:outline-none animate-in fade-in slide-in-from-top-2 z-50">
+              <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-xl bg-surface-elevated py-1 shadow-2xl border border-border ring-1 ring-black/20 focus:outline-none animate-in fade-in slide-in-from-top-2 z-50">
                 <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-white/[0.02]">
                   <h3 className="text-sm font-semibold text-white">Notifications</h3>
                   <button className="text-xs text-brand-coral hover:text-brand-pink font-medium transition-colors" onClick={markAllAsRead}>
@@ -290,7 +304,7 @@ export function Navbar() {
 
             {/* Profile Dropdown Menu */}
             {showProfileMenu && (
-              <div className="absolute right-0 mt-2.5 w-72 origin-top-right rounded-2xl bg-surface-elevated shadow-2xl border border-border ring-1 ring-black/40 focus:outline-none animate-in fade-in slide-in-from-top-2 z-50 overflow-hidden divide-y divide-border">
+              <div className="absolute right-0 mt-2.5 w-72 max-w-[calc(100vw-2rem)] origin-top-right rounded-2xl bg-surface-elevated shadow-2xl border border-border ring-1 ring-black/40 focus:outline-none animate-in fade-in slide-in-from-top-2 z-50 overflow-hidden divide-y divide-border">
                 {/* User Header Summary */}
                 <div className="p-4 bg-gradient-to-b from-white/[0.04] to-transparent">
                   <div className="flex items-center gap-3">
@@ -347,6 +361,23 @@ export function Navbar() {
 
                 {/* Navigation Items */}
                 <div className="py-1.5 px-1.5 space-y-0.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowProfileMenu(false);
+                      startDashboardTour();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-200 hover:text-white hover:bg-surface-secondary transition-colors group cursor-pointer text-left"
+                  >
+                    <div className="h-8 w-8 rounded-lg bg-surface flex items-center justify-center text-text-muted group-hover:text-purple-400 group-hover:bg-purple-500/15 transition-colors border border-border/50">
+                      <Compass className="w-4 h-4" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-medium text-white">Dashboard Tour</span>
+                      <span className="text-[11px] text-text-muted">Interactive walkthrough guide</span>
+                    </div>
+                  </button>
+
                   <Link
                     href="/settings"
                     onClick={() => setShowProfileMenu(false)}

@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Check } from "lucide-react";
+import { Check, LogOut } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Logo } from "@/components/ui/Logo";
 
 interface CreatorStepperProps {
@@ -15,6 +16,7 @@ export const CreatorStepper: React.FC<CreatorStepperProps> = ({
   onStepClick,
   canNavigateToStep,
 }) => {
+  const { logout } = useAuth();
   const steps = [1, 2, 3, 4, 5, 6, 7];
 
   return (
@@ -25,19 +27,31 @@ export const CreatorStepper: React.FC<CreatorStepperProps> = ({
           <Logo size="default" variant="horizontal" theme="dark" />
         </div>
 
-        {currentStep === 1 ? (
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 shadow-sm">
-            Creator Onboarding
-          </span>
-        ) : currentStep <= 6 ? (
-          <span className="text-xs sm:text-sm font-semibold text-slate-300">
-            Step <span className="text-white font-bold">{currentStep}</span> of 7
-          </span>
-        ) : (
-          <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-            Account Ready
-          </span>
-        )}
+        <div className="flex items-center gap-2.5 sm:gap-3">
+          {currentStep === 1 ? (
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-[#2D164D] text-[#E085FF] border border-[#A855F7]/40 shadow-sm">
+              Creator Onboarding
+            </span>
+          ) : currentStep <= 6 ? (
+            <span className="text-xs sm:text-sm font-semibold text-slate-300">
+              Step <span className="text-white font-bold">{currentStep}</span> of 7
+            </span>
+          ) : (
+            <span className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              Account Ready
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={logout}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-rose-500/10 border border-white/10 hover:border-rose-500/30 text-xs font-medium text-slate-300 hover:text-rose-400 transition-colors cursor-pointer"
+            title="Log out and return to mobile login"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Log Out</span>
+          </button>
+        </div>
       </div>
 
       {/* 7-Step Horizontal Stepper (shown for steps 2 to 6) */}

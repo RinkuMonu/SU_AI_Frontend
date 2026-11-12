@@ -7,8 +7,10 @@ import {
   Menu,
   X,
   ChevronDown,
-  Building2
+  Building2,
+  LogOut
 } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { featuresMenu } from '@/data/features';
@@ -39,7 +41,13 @@ export function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const { user, logout } = useAuth();
   const webHref = '/login/user';
+  const destinationHref = (mounted && user)
+    ? user.role === 'influencer'
+      ? (user.onboardingCompleted ? '/influencer' : '/onboarding/influencer')
+      : (user.onboardingCompleted ? '/dashboard' : '/onboarding')
+    : '/login/user';
 
   const isLightNav = isLightPage || isScrolled;
 
@@ -172,19 +180,51 @@ export function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center gap-3">
           <LanguageSelector align="right" />
-          <Button
-            variant="outline"
-            size="sm"
-            asChild
-            className={cn(
-              'hidden lg:flex transition-all',
-              isLightNav
-                ? 'border-slate-300 text-slate-800 bg-slate-50/50 hover:bg-slate-100 hover:text-slate-950'
-                : 'border-white/20 text-white bg-white/5 hover:bg-white/10'
-            )}
-          >
-            <Link href={webHref}>Use on Web</Link>
-          </Button>
+          {mounted && user ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                asChild
+                className={cn(
+                  'hidden lg:flex transition-all',
+                  isLightNav
+                    ? 'border-slate-300 text-slate-800 bg-slate-50/50 hover:bg-slate-100 hover:text-slate-950'
+                    : 'border-white/20 text-white bg-white/5 hover:bg-white/10'
+                )}
+              >
+                <Link href={destinationHref}>Dashboard</Link>
+              </Button>
+              <button
+                type="button"
+                onClick={logout}
+                className={cn(
+                  'hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all border cursor-pointer',
+                  isLightNav
+                    ? 'border-slate-200 text-slate-700 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200'
+                    : 'border-white/15 text-slate-300 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30'
+                )}
+                title="Log out from your account"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Log Out</span>
+              </button>
+            </>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              className={cn(
+                'hidden lg:flex transition-all',
+                isLightNav
+                  ? 'border-slate-300 text-slate-800 bg-slate-50/50 hover:bg-slate-100 hover:text-slate-950'
+                  : 'border-white/20 text-white bg-white/5 hover:bg-white/10'
+              )}
+            >
+              <Link href={webHref}>Use on Web</Link>
+            </Button>
+          )}
           <Button variant="default" size="sm" asChild>
             <Link href="/download">Get the App</Link>
           </Button>
@@ -250,9 +290,28 @@ export function Navbar() {
             <LanguageSelector align="right" />
           </div>
           <div className="flex flex-col sm:flex-row gap-3 mt-2">
-            <Button variant="outline" className="w-full" asChild>
-              <Link href={webHref} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
-            </Button>
+            {mounted && user ? (
+              <>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link href={destinationHref} onClick={() => setIsMobileMenuOpen(false)}>Dashboard</Link>
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    logout();
+                  }}
+                  className="w-full h-10 rounded-full border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 font-semibold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </button>
+              </>
+            ) : (
+              <Button variant="outline" className="w-full" asChild>
+                <Link href={webHref} onClick={() => setIsMobileMenuOpen(false)}>Use on Web</Link>
+              </Button>
+            )}
             <Button variant="default" className="w-full" asChild>
               <Link href="/download" onClick={() => setIsMobileMenuOpen(false)}>Get the App</Link>
             </Button>

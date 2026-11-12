@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Share2, CheckCircle2, AlertTriangle } from "lucide-react";
 
 import { GeneratedPost } from "@/types/content";
+import { imageService } from "@/services/image.service";
 
 interface Props {
   post: GeneratedPost;
@@ -161,16 +162,33 @@ export default function GeneratedPostCard({
             )}
             
             <button
-              onClick={() => {
+              onClick={async () => {
                 setIsGeneratingImage(true);
-                // Use Pollinations AI (free, no-key text-to-image API) with the generated creative direction!
-                const prompt = post.creative_direction || `A high quality commercial photo for ${post.headline}`;
-                setCurrentImage(`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=1080&nologo=true&seed=${Math.floor(Math.random() * 10000)}`);
+                setPublishErrorMessage(null);
+                try {
+                  const prompt = post.creative_direction || `A high quality commercial photo for ${post.headline}`;
+                  const res = await imageService.generateImage({
+                    prompt,
+                    product_id: (post as any)._id || post.id,
+                  });
+                  if (res?.data?.image_url) {
+                    setCurrentImage(res.data.image_url);
+                  }
+                } catch (err: any) {
+                  const detail = err.response?.data?.detail || err.message || "Failed to generate image.";
+                  setPublishErrorMessage(`❌ Image generation error: ${detail}`);
+                  setIsGeneratingImage(false);
+                }
               }}
-              className="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-indigo-600 shadow-lg px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all active:scale-95 flex items-center gap-2 cursor-pointer z-20"
+              disabled={isGeneratingImage}
+              className="absolute bottom-4 right-4 bg-white/90 backdrop-blur text-indigo-600 shadow-lg px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-600 hover:text-white transition-all active:scale-95 flex items-center gap-2 cursor-pointer z-20 disabled:opacity-60"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-              Generate AI Image
+              {isGeneratingImage ? (
+                <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+              ) : (
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              )}
+              <span>{isGeneratingImage ? "Generating AI Image..." : "Generate AI Image (4 Credits)"}</span>
             </button>
           </div>
 
