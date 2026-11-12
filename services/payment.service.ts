@@ -79,9 +79,11 @@ export const paymentService = {
       payload.customer_phone = customerPhone;
     }
 
-    // Pass dynamic return URL matching current origin so Cashfree redirects back accurately
+    // Pass dynamic return URL matching current origin so Cashfree redirects back accurately.
+    // Note: Cashfree Subscriptions API strictly enforces HTTPS for return_url.
     if (typeof window !== "undefined" && window.location.origin) {
-      payload.return_url = `${window.location.origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
+      const origin = window.location.origin.replace(/^http:\/\//i, "https://");
+      payload.return_url = `${origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
     }
 
     // Call official Cashfree Subscriptions & AutoPay endpoint

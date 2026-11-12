@@ -205,8 +205,15 @@ export function AvailablePlansModal({
         // Paid plan selection: initiate secure payment flow with chosen billing cycle
         const response = await paymentService.createPayment(plan.id, selectedCycle);
 
-        setActivePaymentOrder(response);
-        setShowPaymentModal(true);
+        if (response.payment_url) {
+          window.location.href = response.payment_url;
+          return;
+        }
+
+        if (response.order_id) {
+          setActivePaymentOrder(response);
+          setShowPaymentModal(true);
+        }
       }
     } catch (err: any) {
       console.error(`Error activating plan ${plan.id}`, err);

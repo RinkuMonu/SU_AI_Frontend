@@ -171,6 +171,7 @@ export default function SubscriptionPage() {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
         if (response.payment_url) {
           window.location.href = response.payment_url;
+          return;
         } else if (response.order_id) {
           setActivePaymentOrder(response);
           setShowPaymentModal(true);
