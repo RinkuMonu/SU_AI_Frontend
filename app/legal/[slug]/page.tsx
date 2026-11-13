@@ -199,7 +199,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
                 >
                   <div className="flex items-baseline gap-3 mb-4 border-b border-white/5 pb-3">
                     <span className="font-mono text-sm sm:text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">
-                      § {String(secNumber).padStart(2, '0')}
+                      {String(secNumber).padStart(2, '0')}.
                     </span>
                     <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight group-hover:text-pink-300 transition-colors">
                       {section.title}
@@ -212,7 +212,93 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
                     </div>
                   )}
 
-                  {section.items && section.items.length > 0 && (
+                  {/* Section 2 Plans Table for Credit Policy */}
+                  {policy.slug === 'credit-policy' && secNumber === 2 && (
+                    <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02]">
+                      <table className="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-white/5 text-slate-300 font-semibold">
+                            <th className="py-3 px-4">Plan</th>
+                            <th className="py-3 px-4">Subscription charge</th>
+                            <th className="py-3 px-4">Monthly credits</th>
+                            <th className="py-3 px-4">Signup bonus</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-slate-200">
+                          <tr>
+                            <td className="py-3 px-4 font-bold text-white">Pro</td>
+                            <td className="py-3 px-4 text-orange-400 font-medium">₹799 / month</td>
+                            <td className="py-3 px-4 font-bold">300</td>
+                            <td className="py-3 px-4 text-emerald-400 font-medium">50 credits once</td>
+                          </tr>
+                          <tr>
+                            <td className="py-3 px-4 font-bold text-white">Pro+</td>
+                            <td className="py-3 px-4 text-orange-400 font-medium">₹2,999 / month</td>
+                            <td className="py-3 px-4 font-bold">1,500</td>
+                            <td className="py-3 px-4 text-emerald-400 font-medium">50 credits once</td>
+                          </tr>
+                          <tr>
+                            <td className="py-3 px-4 font-bold text-white">Business</td>
+                            <td className="py-3 px-4 text-orange-400 font-medium">₹4,999 / month</td>
+                            <td className="py-3 px-4 font-bold">2,500</td>
+                            <td className="py-3 px-4 text-emerald-400 font-medium">50 credits once</td>
+                          </tr>
+                          <tr>
+                            <td className="py-3 px-4 font-bold text-white">Business Premium</td>
+                            <td className="py-3 px-4 text-orange-400 font-medium">₹9,999 / month</td>
+                            <td className="py-3 px-4 font-bold">2,500</td>
+                            <td className="py-3 px-4 text-emerald-400 font-medium">50 credits once</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {/* Section 3 Service-Wise Charges Table for Credit Policy */}
+                  {policy.slug === 'credit-policy' && secNumber === 3 && (
+                    <div className="mt-4 overflow-x-auto rounded-xl border border-white/10 bg-white/[0.02]">
+                      <table className="w-full text-left text-xs sm:text-sm">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-white/5 text-slate-300 font-semibold">
+                            <th className="py-3 px-4">AI service</th>
+                            <th className="py-3 px-4">Credit charge</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5 text-slate-200">
+                          {[
+                            { name: "AI Post Maker / Content Create", rate: "3 credits per generation" },
+                            { name: "AI Image Generator", rate: "4 credits per generation" },
+                            { name: "AI Content + Image", rate: "3 credits per generation" },
+                            { name: "AI Photoshop", rate: "2 credits per generation" },
+                            { name: "AI Reel Maker", rate: "5 credits per generation" },
+                            { name: "AI Website Builder", rate: "2 credits per billable AI action" },
+                            { name: "AI Advertisement Maker", rate: "3 credits per generation*" },
+                            { name: "AI Marketing Agent", rate: "5 credits per task*" },
+                            { name: "Social Media Calendar", rate: "5 credits per calendar*" },
+                            { name: "Indian Festival Engine", rate: "3 credits per campaign*" },
+                            { name: "Instagram DM AI", rate: "1 credit per short AI reply*" },
+                            { name: "AI Review Manager", rate: "1 credit per short AI reply*" },
+                            { name: "AI Brand Brain", rate: "5 credits per task*" },
+                            { name: "UNI AI", rate: "3 credits per response*" },
+                            { name: "Business Analytics", rate: "0–2 credits per AI report*" },
+                            { name: "Leads CRM / Product Catalogue", rate: "0–2 credits per AI action*" },
+                            { name: "AI Photoshoot / AI Avatar & Actor", rate: "To be configured before activation" },
+                          ].map((row, rIdx) => (
+                            <tr key={rIdx} className="hover:bg-white/[0.03]">
+                              <td className="py-2.5 px-4 font-medium text-slate-200">{row.name}</td>
+                              <td className="py-2.5 px-4 font-mono font-bold text-pink-400">{row.rate}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                      <div className="p-3 text-[11px] text-slate-400 border-t border-white/10 bg-white/[0.01]">
+                        *Asterisked charges are initial suggested settings and must be confirmed by DhandaGrow AI before being enabled for customers. The displayed credit cost must be shown before the customer starts a chargeable action. Normal CRM/catalogue record management is not charged unless an AI feature is used.
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Render standard items for non-table sections or non-credit-policy */}
+                  {!(policy.slug === 'credit-policy' && (secNumber === 2 || secNumber === 3)) && section.items && section.items.length > 0 && (
                     <ul className="space-y-2.5 mt-4 text-slate-300 text-sm sm:text-base">
                       {section.items.map((item, itemIndex) => (
                         <li key={itemIndex} className="flex items-start gap-3 leading-relaxed">

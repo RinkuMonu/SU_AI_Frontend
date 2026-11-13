@@ -892,6 +892,133 @@ export const legalData: LegalData = {
           }
         ]
       }
+    },
+    {
+      title: "Credit Policy",
+      slug: "credit-policy",
+      lastUpdated: "05 November 2026",
+      website: "https://dhandagrow.com",
+      poweredBy: "Sevenunique Tech Solutions Pvt. Ltd.",
+      company: {
+        name: "Sevenunique Tech Solutions Private Limited",
+        address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
+        email: "support@dhandagrow.com",
+        mobile: "+91-8741886688"
+      },
+      publicationNote: "Policy Version: 1.0 | Effective date: 05 November 2026. This policy governs how AI subscription credits are granted, used, deducted, renewed, and expired across all DhandaGrow AI features.",
+      content: {
+        introduction: "This policy explains how DhandaGrow AI subscription credits are granted, used, deducted, renewed and expired. It applies to customers using eligible AI features under an active paid subscription powered by Sevenunique Tech Solutions Pvt. Ltd.",
+        sections: [
+          {
+            number: 1,
+            title: "Purpose",
+            content: "This policy explains how DhandaGrow AI subscription credits are granted, used, deducted, renewed and expired. It applies to customers using eligible AI features under an active paid subscription."
+          },
+          {
+            number: 2,
+            title: "Subscription Plans and Monthly Credits",
+            content: "Monthly credits are added after successful payment verification. The signup bonus is a one-time promotional grant for an eligible customer and is not repeated at renewal.",
+            items: [
+              "Pro Plan: ₹799 / month | 300 Monthly credits | 50 credits signup bonus (one-time)",
+              "Pro+ Plan: ₹2,999 / month | 1,500 Monthly credits | 50 credits signup bonus (one-time)",
+              "Business Plan: ₹4,999 / month | 2,500 Monthly credits | 50 credits signup bonus (one-time)",
+              "Business Premium Plan: ₹9,999 / month | 2,500 Monthly credits | 50 credits signup bonus (one-time)"
+            ]
+          },
+          {
+            number: 3,
+            title: "Service-Wise Credit Charges",
+            content: "The applicable credit amount is deducted when an AI service successfully delivers the result. Below is the full service-wise credit consumption schedule:",
+            items: [
+              "AI Post Maker / Content Create: 3 credits per generation",
+              "AI Image Generator: 4 credits per generation",
+              "AI Content + Image: 3 credits per generation",
+              "AI Photoshop: 2 credits per generation",
+              "AI Reel Maker: 5 credits per generation",
+              "AI Website Builder: 2 credits per billable AI action",
+              "AI Advertisement Maker: 3 credits per generation*",
+              "AI Marketing Agent: 5 credits per task*",
+              "Social Media Calendar: 5 credits per calendar*",
+              "Indian Festival Engine: 3 credits per campaign*",
+              "Instagram DM AI: 1 credit per short AI reply*",
+              "AI Review Manager: 1 credit per short AI reply*",
+              "AI Brand Brain: 5 credits per task*",
+              "UNI AI: 3 credits per response*",
+              "Business Analytics: 0–2 credits per AI report*",
+              "Leads CRM / Product Catalogue: 0–2 credits per AI action*",
+              "AI Photoshoot / AI Avatar & Actor: To be configured before activation",
+              "* Note: Asterisked charges are initial suggested settings and must be confirmed by DhandaGrow AI before being enabled for customers. The displayed credit cost must be shown before the customer starts a chargeable action. Normal CRM/catalogue record management is not charged unless an AI feature is used."
+            ]
+          },
+          {
+            number: 4,
+            title: "How Credits Are Used",
+            content: "All eligible AI features operate under strict, transparent usage guardrails:",
+            items: [
+              "Shared credit balance: All eligible AI features draw from the customer's shared available credit balance for their active plan. Credits are not separate quotas for each service.",
+              "Deduction: The applicable credit amount is reserved when a generation/task starts and finally deducted when the service successfully delivers the result.",
+              "Failed requests: If a request fails and no usable result is delivered, the reserved credits should be released or returned. If a partial result is delivered or a provider has completed a chargeable operation, the request may be reviewed under the published service rules.",
+              "Spend order: Use signup bonus credits first, followed by the current subscription's monthly credits. The system must track each credit bucket separately.",
+              "No cash value: Credits are usage units only. They cannot be withdrawn, transferred, exchanged for cash or used as a payment balance.",
+              "Non-transferable: Credits belong to the subscribed customer account and cannot be transferred to another account."
+            ]
+          },
+          {
+            number: 5,
+            title: "Expiry and Renewal",
+            content: "Monthly subscription credits are valid for the applicable subscription period and expire at the next renewal. Unused monthly credits do not roll over. Signup bonus credits expire at the customer's first subscription renewal. A fresh monthly allocation is granted only after the renewal payment is successfully verified."
+          },
+          {
+            number: 6,
+            title: "Payment Failure, Cancellation and Plan Changes",
+            content: "Rules governing billing interruptions, upgrades, downgrades, and cancellations:",
+            items: [
+              "Failed or pending payment: No new monthly credits are granted until payment is confirmed successful.",
+              "Cancellation: If a customer cancels renewal, access to paid plan features and remaining credits continues until the already-paid subscription period ends, subject to the subscription terms.",
+              "Upgrade or downgrade: The applicable new plan, credit allocation and effective date must be displayed to the customer before confirmation. The system must not silently duplicate monthly credits. The business must configure whether a mid-cycle upgrade is immediate with prorated payment or takes effect at the next renewal.",
+              "Refunds: If a subscription payment is refunded, related unused credits and plan entitlements may be reversed in accordance with the refund decision and applicable law. Any reversal must be recorded in the account ledger."
+            ]
+          },
+          {
+            number: 7,
+            title: "Premium Services in Business Premium Plan",
+            content: "The ₹9,999 Business Premium plan includes the following service entitlements in addition to the platform features of lower plans:\n\n• Influencer Marketing service\n• 24/7 Customer Support\n• Physical Training Provider\n• 24/7 Website Technical Support for the Website Builder\n• Company brand kit: company logo, visiting cards for up to 10 employees, employee ID cards for up to 10 employees, company letterhead and company stamp\n\nThese are service entitlements, not AI credits. Their scope, delivery timelines, support channels, response-time commitments, training location/session limits, print specifications, revisions, shipping and any third-party or extra charges must be clearly confirmed in the plan terms or service request before fulfilment."
+          },
+          {
+            number: 8,
+            title: "Customer Visibility and Dashboard Transparency",
+            content: "The customer dashboard should show:",
+            items: [
+              "Current subscription plan and renewal date",
+              "Monthly credits granted, credits used and available balance",
+              "Signup bonus balance and its expiry date",
+              "Credit charge before each AI generation or billable action",
+              "Credit usage history with date, service name and credits deducted",
+              "Premium service request and fulfilment status, where applicable"
+            ]
+          },
+          {
+            number: 9,
+            title: "Developer Implementation Requirements",
+            content: "Technical standards enforced by the platform for credit ledger security and integrity:",
+            items: [
+              "Grant plan credits only after server-side payment verification (including Cashfree webhook verification).",
+              "Grant the 50-credit signup bonus only once per eligible customer after the first successful paid subscription.",
+              "Keep separate monthly and signup-bonus credit buckets with grant date and expiry date.",
+              "Calculate and validate credit charges on the backend; never trust a credit amount sent by the frontend.",
+              "Use atomic balance updates and idempotency keys to prevent duplicate grants or overspending.",
+              "Maintain an immutable credit ledger for grants, reservations, deductions, returns, expiry and admin adjustments.",
+              "Do not activate any service with a TBD credit charge until its final charge is configured.",
+              "Keep premium human-service tracking separate from the AI credit ledger."
+            ]
+          },
+          {
+            number: 10,
+            title: "Important Note",
+            content: "DhandaGrow AI may update service credit charges, included features or plan terms. Any change affecting a customer's active subscription should be communicated clearly and applied prospectively, subject to applicable law and the customer's subscription terms.\n\nThis policy should be reviewed by the business/legal team before being published as binding customer terms."
+          }
+        ]
+      }
     }
   ]
 };

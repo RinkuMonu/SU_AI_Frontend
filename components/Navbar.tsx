@@ -169,7 +169,7 @@ export function Navbar() {
           <Link href="/#blog" className={cn('text-sm font-medium transition-colors', textColorClass)}>
             Blog
           </Link>
-          <Link href="/#pricing" className={cn('text-sm font-medium transition-colors', textColorClass)}>
+          <Link href="/pricing" className={cn('text-sm font-medium transition-colors', textColorClass)}>
             Pricing
           </Link>
           <Link href="/#contact" className={cn('text-sm font-medium transition-colors', textColorClass)}>
@@ -282,7 +282,7 @@ export function Navbar() {
           </div>
 
           <Link href="/#blog" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg  font-medium text-white/90 hover:text-white transition-colors">Blog</Link>
-          <Link href="/#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors">Pricing</Link>
+          <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors">Pricing</Link>
           <Link href="/#contact" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors">Contact</Link>
 
           <div className="flex items-center justify-between py-2 border-t border-white/10">

@@ -36,6 +36,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { subscriptionService } from "@/services/subscription.service";
 import { paymentService } from "@/services/payment.service";
+import { generateReceiptPdf } from "@/lib/receipt-generator";
 
 export interface PaymentTransaction {
   id: string;
@@ -463,164 +464,10 @@ export default function TransactionReportPage() {
   const handleDownloadReceipt = async (tx: PaymentTransaction) => {
     try {
       setIsDownloadingReceipt(tx.order_id || tx.id);
-      const { default: jsPDF } = await import("jspdf");
-
-      const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
-      const width = doc.internal.pageSize.getWidth();
-
-      // Header Banner
-      doc.setFillColor(15, 16, 21);
-      doc.rect(0, 0, width, 110, "F");
-
-      // Company Branding
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(22);
-      doc.setTextColor(240, 68, 155);
-      doc.text("DhandaGrow AI", 45, 48);
-
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(180, 180, 190);
-      doc.text("Finunique Small Private Limited", 45, 66);
-      doc.text("Official Billing & Payment Receipt", 45, 80);
-      doc.text("Support: care@dhandagrow.com | www.dhandagrow.com", 45, 94);
-
-      // Receipt Title & Badge on Right
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-      doc.text("TAX INVOICE / RECEIPT", width - 45, 48, { align: "right" });
-
-      const isSuccess = tx.status === "success";
-      const statusLabel = isSuccess ? "PAID" : (tx.status || "PENDING").toUpperCase();
-
-      doc.setFillColor(isSuccess ? 16 : 220, isSuccess ? 149 : 38, isSuccess ? 106 : 38);
-      doc.roundedRect(width - 125, 62, 80, 22, 3, 3, "F");
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(255, 255, 255);
-      doc.text(statusLabel, width - 85, 76, { align: "center" });
-
-      // Meta Info Grid
-      doc.setDrawColor(225, 225, 235);
-      doc.line(45, 130, width - 45, 130);
-
-      // Left Column: Customer details
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      doc.setTextColor(40, 40, 50);
-      doc.text("BILLED TO:", 45, 150);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9.5);
-      doc.setTextColor(70, 70, 80);
-      doc.text(`Name: ${user?.name || user?.full_name || "Valued Customer"}`, 45, 168);
-      doc.text(`Email: ${user?.email || "N/A"}`, 45, 184);
-      doc.text(`Phone: ${user?.phone || user?.phone_number || "N/A"}`, 45, 200);
-
-      // Right Column: Invoice & Transaction details
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(10);
-      doc.setTextColor(40, 40, 50);
-      doc.text("TRANSACTION DETAILS:", width - 240, 150);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(70, 70, 80);
-      doc.text(`Transaction ID: ${tx.order_id || tx.id}`, width - 240, 168);
-      doc.text(`Gateway Ref: ${tx.provider_reference || tx.external_transaction_id || tx.order_id}`, width - 240, 184);
-      const formattedDate = tx.created_at ? format(new Date(tx.created_at), "dd MMM yyyy, hh:mm:ss a") : "Recent";
-      doc.text(`Date & Time: ${formattedDate}`, width - 240, 200);
-      doc.text(`Payment Mode: ${getPaymentMode(tx)}`, width - 240, 216);
-
-      // Itemized Table
-      const tableTop = 250;
-      doc.setFillColor(242, 242, 248);
-      doc.rect(45, tableTop, width - 90, 26, "F");
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 70);
-      doc.text("ITEM DESCRIPTION", 55, tableTop + 17);
-      doc.text("BILLING CYCLE", 280, tableTop + 17);
-      doc.text("AI CREDITS", 380, tableTop + 17);
-      doc.text("AMOUNT (INR)", width - 55, tableTop + 17, { align: "right" });
-
-      // Table Row
-      const rowTop = tableTop + 36;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9.5);
-      doc.setTextColor(40, 40, 50);
-      doc.text(`${tx.plan_name || tx.plan_id || "Subscription Plan"}`, 55, rowTop);
-      doc.text(`${tx.billing_cycle || "Monthly"}`, 280, rowTop);
-      doc.text(`${tx.purchased_credits || "Plan Standard"}`, 380, rowTop);
-      doc.setFont("helvetica", "bold");
-      doc.text(`₹${(tx.amount || 0).toFixed(2)}`, width - 55, rowTop, { align: "right" });
-
-      doc.setDrawColor(230, 230, 240);
-      doc.line(45, rowTop + 15, width - 45, rowTop + 15);
-
-      // Calculations / Breakdown
-      const baseAmount = tx.base_amount || (tx.amount ? Math.round((tx.amount / 1.18) * 100) / 100 : 0);
-      const gstAmount = tx.gst_amount || (tx.amount ? Math.round((tx.amount - baseAmount) * 100) / 100 : 0);
-
-      const calcTop = rowTop + 35;
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.setTextColor(80, 80, 90);
-      doc.text("Subtotal (Base Amount):", width - 200, calcTop);
-      doc.text(`₹${baseAmount.toFixed(2)}`, width - 55, calcTop, { align: "right" });
-
-      doc.text("GST (18% Integrated):", width - 200, calcTop + 16);
-      doc.text(`₹${gstAmount.toFixed(2)}`, width - 55, calcTop + 16, { align: "right" });
-
-      doc.setDrawColor(200, 200, 215);
-      doc.line(width - 200, calcTop + 24, width - 45, calcTop + 24);
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.setTextColor(20, 20, 30);
-      doc.text("Total Paid:", width - 200, calcTop + 40);
-      doc.text(`₹${(tx.amount || 0).toFixed(2)}`, width - 55, calcTop + 40, { align: "right" });
-
-      // Verification seal / Security Note
-      const sealTop = 450;
-      doc.setFillColor(248, 248, 252);
-      doc.roundedRect(45, sealTop, width - 90, 70, 6, 6, "F");
-
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(110, 44, 180);
-      doc.text("AUTHENTICATION & SECURITY VERIFICATION", 58, sealTop + 22);
-
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8.5);
-      doc.setTextColor(90, 90, 100);
-      doc.text(
-        `This is a digitally generated and verified payment receipt issued by Finunique PayIn Gateway for DhandaGrow AI.\nPayment Provider: ${getPaymentGateway(
-          tx
-        )} | Reference: ${tx.provider_reference || tx.order_id}\nSensitive payment credentials (CVV, PIN, full card numbers) are never stored or printed.`,
-        58,
-        sealTop + 38
-      );
-
-      // Terms & Footer
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 160);
-      doc.text(
-        "Terms & Conditions apply. Subscriptions are billed per selected tier. For billing inquiries, contact billing@dhandagrow.com.",
-        width / 2,
-        doc.internal.pageSize.getHeight() - 40,
-        { align: "center" }
-      );
-      doc.text(
-        "© " + new Date().getFullYear() + " Finunique Small Private Limited. All rights reserved.",
-        width / 2,
-        doc.internal.pageSize.getHeight() - 26,
-        { align: "center" }
-      );
-
-      doc.save(`Receipt_${tx.order_id || tx.id}.pdf`);
+      await generateReceiptPdf({
+        ...tx,
+        user,
+      });
     } catch (err) {
       console.error("Receipt generation failed:", err);
     } finally {
