@@ -9,10 +9,14 @@ import {
   RefreshCw,
   ArrowRight,
   ShieldCheck,
+  Download,
+  FileText,
 } from "lucide-react";
 import { paymentService } from "@/services/payment.service";
 import { subscriptionService } from "@/services/subscription.service";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { generateReceiptPdf, formatINR } from "@/lib/receipt-generator";
 
 type TransactionDisplayData = {
   plan_id?: string;
@@ -22,6 +26,7 @@ type TransactionDisplayData = {
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useAuth();
   const orderId =
     searchParams.get("order_id") ||
     searchParams.get("orderId") ||
@@ -31,7 +36,9 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<"loading" | "success" | "pending" | "failed" | "cancelled">("loading");
   const [retryCount, setRetryCount] = useState(0);
   const [transactionData, setTransactionData] = useState<TransactionDisplayData | null>(null);
-  const [redirectCountdown, setRedirectCountdown] = useState(2);
+  const [redirectCountdown, setRedirectCountdown] = useState(15);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [isVerifyingNow, setIsVerifyingNow] = useState(false);
   const displayStatus = orderId ? status : "failed";
 
@@ -158,7 +165,7 @@ function PaymentSuccessContent() {
 
   // Auto-redirect to dashboard when payment is verified
   useEffect(() => {
-    if (status !== "success") return;
+    if (status !== "success" || isPaused || isDownloading) return;
 
     const timer = setInterval(() => {
       setRedirectCountdown((prev) => {
@@ -172,7 +179,27 @@ function PaymentSuccessContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [status, router]);
+  }, [status, isPaused, isDownloading, router]);
+
+  const handleDownloadReceipt = async () => {
+    try {
+      setIsDownloading(true);
+      setIsPaused(true);
+      await generateReceiptPdf({
+        order_id: orderId || undefined,
+        plan_id: transactionData?.plan_id,
+        amount: transactionData?.amount,
+        status: "success",
+        payment_gateway: "Cashfree Subscriptions",
+        payment_mode: "AutoPay Mandate",
+        user,
+      });
+    } catch (err) {
+      console.error("Receipt generation failed:", err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   if (displayStatus === "loading") {
     return (
@@ -291,7 +318,7 @@ function PaymentSuccessContent() {
       </div>
 
       {/* Transaction Confirmation Report Card */}
-      <div className="w-full max-w-md bg-white/[0.03] border border-white/10 rounded-2xl p-5 text-left space-y-3 text-xs mt-2">
+      <div className="w-full max-w-md bg-white/[0.04] border border-white/10 rounded-2xl p-5 text-left space-y-3 text-xs mt-2 shadow-xl backdrop-blur-sm">
         <div className="flex justify-between items-center text-text-muted pb-2 border-b border-white/5">
           <span>Order ID</span>
           <span className="font-mono text-white font-semibold">{orderId}</span>
@@ -304,12 +331,16 @@ function PaymentSuccessContent() {
         )}
         {transactionData?.amount && (
           <div className="flex justify-between items-center text-text-muted">
-            <span>Amount Paid</span>
-            <span className="text-white font-bold text-sm">₹{Number(transactionData.amount).toFixed(2)}</span>
+            <span>Total Amount Paid</span>
+            <span className="text-white font-bold text-sm">{formatINR(transactionData.amount)}</span>
           </div>
         )}
         <div className="flex justify-between items-center text-text-muted">
-          <span>Status</span>
+          <span>Payment Gateway</span>
+          <span className="text-slate-300 font-medium">Cashfree AutoPay</span>
+        </div>
+        <div className="flex justify-between items-center text-text-muted pt-1 border-t border-white/5">
+          <span>Verification Status</span>
           <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold uppercase text-[10px] flex items-center gap-1">
             <ShieldCheck className="w-3 h-3" />
             Verified &amp; Active
@@ -317,12 +348,37 @@ function PaymentSuccessContent() {
         </div>
       </div>
 
-      <div className="text-xs text-text-muted flex items-center gap-2 pt-2">
-        <Loader2 className="w-4 h-4 animate-spin text-brand-purple" />
-        <span>Automatically redirecting to dashboard in {redirectCountdown}s...</span>
+      {/* Primary Action: Download Official Tax Invoice (PDF) */}
+      <div className="w-full max-w-md pt-2">
+        <Button
+          onClick={handleDownloadReceipt}
+          disabled={isDownloading}
+          className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold py-3 rounded-2xl shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+        >
+          {isDownloading ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Generating Official Receipt...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span>Download Official Tax Invoice (PDF)</span>
+            </>
+          )}
+        </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full max-w-md">
+      <div className="text-xs text-text-muted flex items-center gap-2 pt-1">
+        <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-purple" />
+        <span>
+          {isPaused
+            ? "Auto-redirect paused while viewing receipt."
+            : `Automatically redirecting to dashboard in ${redirectCountdown}s...`}
+        </span>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-3 mt-3 w-full max-w-md">
         <Button
           onClick={() => router.push("/dashboard?payment=success")}
           className="flex-1 bg-brand-gradient text-white hover:opacity-90 font-bold cursor-pointer"
@@ -335,7 +391,7 @@ function PaymentSuccessContent() {
           variant="outline"
           className="border-border text-white hover:bg-surface-elevated cursor-pointer"
         >
-          View Transaction Report
+          View All Transactions
         </Button>
       </div>
     </div>
