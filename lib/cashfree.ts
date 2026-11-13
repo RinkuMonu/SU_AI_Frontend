@@ -15,6 +15,20 @@ export async function launchCashfreeCheckout({
   environment = "production",
   fallbackUrl,
 }: CashfreeCheckoutOptions): Promise<void> {
+  // If running on localhost / 127.0.0.1 in production mode, Cashfree JS SDK blocks
+  // with "http://localhost:3000/ is not enabled or approved. Please whitelist your domain..."
+  // because Cashfree does not whitelist localhost in the production dashboard.
+  // Directly redirecting to Cashfree's official hosted checkout URL bypasses the SDK domain block!
+  const isLocalhost =
+    typeof window !== "undefined" &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1");
+
+  if (isLocalhost && environment === "production" && fallbackUrl) {
+    window.location.href = fallbackUrl;
+    return;
+  }
+
   if (paymentSessionId) {
     try {
       const cashfree = await load({
