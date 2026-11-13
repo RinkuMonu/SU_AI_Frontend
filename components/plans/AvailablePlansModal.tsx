@@ -331,8 +331,8 @@ export function AvailablePlansModal({
             >
               {/* Card Inner Content */}
               <div className="p-4 sm:p-5">
-                {/* Row 1: Badge + Current Plan Tag + Credit Badge */}
-                <div className="flex flex-wrap items-center gap-2 mb-3">
+                {/* Row 1: Badges */}
+                <div className="flex items-center justify-between gap-2 mb-2">
                   <span className="inline-block bg-[#4C1D95]/80 text-[#E9D5FF] text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 sm:py-1 rounded-full uppercase tracking-wider border border-purple-400/20">
                     {plan.planBadge}
                   </span>
@@ -343,16 +343,11 @@ export function AvailablePlansModal({
                       Current Plan
                     </span>
                   )}
-
-                  <span className="ml-auto inline-flex items-center gap-1 bg-purple-900/60 border border-purple-500/30 text-purple-200 text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 sm:py-1 rounded-full shadow-sm">
-                    <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 fill-current" />
-                    <span>{plan.creditBadge}</span>
-                  </span>
                 </div>
 
                 {/* Row 2: Plan Name + Price */}
-                <div className="flex items-end justify-between gap-3">
-                  <div className="min-w-0">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
                     <h3 className="text-lg sm:text-xl font-bold text-white truncate">
                       {plan.name}
                     </h3>
@@ -379,6 +374,12 @@ export function AvailablePlansModal({
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Row 3: Credit Badge (Clean Chip) */}
+                <div className="mt-2.5 inline-flex items-center gap-1.5 bg-purple-900/60 border border-purple-500/30 text-purple-200 text-[10px] sm:text-xs font-semibold px-2.5 py-1 rounded-lg shadow-sm">
+                  <Zap className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-400 fill-current shrink-0" />
+                  <span>{plan.creditBadge}</span>
                 </div>
 
                 {/* Row 3: Feature Highlights — responsive 1-col on mobile, 3-col on sm+ */}
