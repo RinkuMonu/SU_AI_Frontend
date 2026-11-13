@@ -171,7 +171,7 @@ export function Footer() {
                   { title: 'About Us', desc: 'Our mission and story', href: '/about' },
                   { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
                   { title: 'Features', desc: 'Explore all features', href: '/#features' },
-                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/#pricing' },
+                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/pricing' },
                   { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
                   { title: 'Contact Us', desc: 'Get in touch with support', href: '/#contact' },
@@ -195,7 +195,7 @@ export function Footer() {
                   { title: 'How It Works', desc: 'Step-by-step workflow to get started', href: '/#how-it-works' },
                   { title: 'Tutorials & Guides', desc: 'Growth guides & marketing advice', href: '/blog' },
                   { title: 'Mobile App Download', desc: 'Get DhandaGrow on Android & iOS', href: '/download' },
-                  { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans', href: '/#pricing' },
+                  { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans', href: '/pricing' },
                   { title: 'Contact Support', desc: "We're here 24/7 to help", href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
@@ -216,6 +216,7 @@ export function Footer() {
                   { title: 'Terms of Service', desc: 'Our terms and conditions', href: '/legal/terms-of-service' },
                   { title: 'Cookie Policy', desc: 'How we use cookies', href: '/legal/cookie-policy' },
                   { title: 'Refund Policy', desc: 'Refund and cancellation terms', href: '/legal/refund-policy' },
+                  { title: 'Credit Policy', desc: 'AI credit allocation and deduction rules', href: '/legal/credit-policy' },
                   { title: 'Security', desc: 'Your security is our priority', href: '/legal/terms-of-service#section-15' },
                   { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform', href: '/legal/terms-of-service#section-5' },
                 ].map((item, i) => (

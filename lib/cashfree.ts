@@ -1,9 +1,65 @@
-import { load } from "@cashfreepayments/cashfree-js";
-
 export interface CashfreeCheckoutOptions {
   paymentSessionId?: string | null;
   environment?: "production" | "sandbox";
   fallbackUrl?: string | null;
+}
+
+/**
+ * Loads Cashfree JS SDK instance dynamically to prevent Next.js / Turbopack build-time
+ * resolution errors if the npm package isn't installed.
+ */
+async function loadCashfree(mode: "production" | "sandbox"): Promise<any> {
+  if (typeof window === "undefined") return null;
+
+  // 1. Try global window.Cashfree if already loaded via script
+  if ((window as any).Cashfree) {
+    return (window as any).Cashfree({ mode });
+  }
+
+  // 2. Try dynamic import of npm package
+  try {
+    const pkg = await import("@cashfreepayments/cashfree-js");
+    if (pkg && typeof pkg.load === "function") {
+      return await pkg.load({ mode });
+    }
+  } catch {
+    // Dynamic import failed, fallback to CDN script
+  }
+
+  // 3. Fallback: Load official Cashfree SDK v3 via CDN script
+  return new Promise((resolve, reject) => {
+    const scriptId = "cashfree-js-sdk-v3";
+    const existing = document.getElementById(scriptId) as HTMLScriptElement | null;
+    if (existing) {
+      if ((window as any).Cashfree) {
+        resolve((window as any).Cashfree({ mode }));
+      } else {
+        existing.addEventListener("load", () => {
+          if ((window as any).Cashfree) {
+            resolve((window as any).Cashfree({ mode }));
+          } else {
+            reject(new Error("Cashfree SDK failed to initialize"));
+          }
+        });
+        existing.addEventListener("error", reject);
+      }
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = scriptId;
+    script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
+    script.async = true;
+    script.onload = () => {
+      if ((window as any).Cashfree) {
+        resolve((window as any).Cashfree({ mode }));
+      } else {
+        reject(new Error("Cashfree SDK failed to initialize"));
+      }
+    };
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
 }
 
 /**
@@ -17,24 +73,25 @@ export async function launchCashfreeCheckout({
 }: CashfreeCheckoutOptions): Promise<void> {
   if (paymentSessionId) {
     try {
-      const cashfree = await load({
-        mode: environment === "production" ? "production" : "sandbox",
-      });
+      const mode = environment === "production" ? "production" : "sandbox";
+      const cashfree = await loadCashfree(mode);
 
-      if (paymentSessionId.startsWith("sub_session_")) {
-        // Official Cashfree AutoPay & Recurring Subscriptions mandate checkout
-        await cashfree.subscriptionsCheckout({
-          subsSessionId: paymentSessionId,
-          redirectTarget: "_self", // Directly redirects current browser window to Cashfree AutoPay
-        });
-      } else {
-        // Standard Cashfree Order checkout
-        await cashfree.checkout({
-          paymentSessionId,
-          redirectTarget: "_self",
-        });
+      if (cashfree) {
+        if (paymentSessionId.startsWith("sub_session_")) {
+          // Official Cashfree AutoPay & Recurring Subscriptions mandate checkout
+          await cashfree.subscriptionsCheckout({
+            subsSessionId: paymentSessionId,
+            redirectTarget: "_self", // Directly redirects current browser window to Cashfree AutoPay
+          });
+        } else {
+          // Standard Cashfree Order checkout
+          await cashfree.checkout({
+            paymentSessionId,
+            redirectTarget: "_self",
+          });
+        }
+        return;
       }
-      return;
     } catch (err) {
       console.warn("Cashfree JS SDK launch failed, falling back to direct URL:", err);
     }
