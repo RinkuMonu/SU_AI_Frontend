@@ -112,6 +112,11 @@ const nextConfig: NextConfig = {
         destination: '/dashboard',
         permanent: false,
       },
+      {
+        source: '/credit-policy',
+        destination: '/legal/credit-policy',
+        permanent: true,
+      },
     ];
   },
 };

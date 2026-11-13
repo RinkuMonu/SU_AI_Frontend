@@ -30,7 +30,7 @@ const sitemapData = [
       { name: "Home", href: "/", icon: Home },
       { name: "About Us", href: "/about", icon: Info },
       { name: "Features", href: "/#features", icon: Star },
-      { name: "Pricing", href: "/#pricing", icon: CreditCard },
+      { name: "Pricing", href: "/pricing", icon: CreditCard },
       { name: "Blog", href: "/#blog", icon: PenTool },
       { name: "Contact", href: "/#contact", icon: Phone },
     ]
@@ -121,6 +121,7 @@ const sitemapData = [
       { name: "Terms of Service", href: "/legal/terms-of-service", icon: ScrollText },
       { name: "Cookie Policy", href: "/legal/cookie-policy", icon: Lock },
       { name: "Refund Policy", href: "/legal/refund-policy", icon: CheckCircle },
+      { name: "Credit Policy", href: "/legal/credit-policy", icon: CreditCard },
     ]
   },
   {

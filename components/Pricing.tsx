@@ -231,7 +231,7 @@ export function Pricing() {
   const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
   return (
-    <section id="pricing" className="w-full max-w-full pt-6 pb-8 sm:pt-10 sm:pb-12 relative bg-[#f8f9fe] overflow-hidden border-t border-slate-100">
+    <section id="pricing" className="w-full max-w-full pt-6 pb-8 sm:pt-10 sm:pb-12 relative bg-[#f8f9fe] overflow-hidden border-t border-slate-100 scroll-mt-24">
       {/* Soft ambient background glow effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/40 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
@@ -391,7 +391,7 @@ export function Pricing() {
                 {/* Sleek Action Button */}
                 <div className="w-full mt-4 sm:mt-5 pt-1">
                   <Link
-                    href="/login/user"
+                    href={user ? "/subscription" : "/login/user"}
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedPlanId(plan.id);
