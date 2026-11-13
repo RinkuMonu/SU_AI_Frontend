@@ -7,7 +7,7 @@ import Link from 'next/link';
 
 export function Blog() {
   return (
-    <section id="blog" className="w-full max-w-full pt-6 pb-8 sm:pt-9 sm:pb-14 bg-[#f8f9fc] overflow-hidden">
+    <section id="blog" className="w-full max-w-full pt-6 pb-8 sm:pt-9 sm:pb-14 bg-[#f8f9fc] overflow-hidden scroll-mt-24">
       <div className="w-full max-w-7xl mx-auto px-3 min-[375px]:px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center text-center w-full mb-5 sm:mb-8 px-1">
           <h2 className="w-full text-xl min-[375px]:text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 tracking-tight leading-tight mb-1.5 sm:mb-2">

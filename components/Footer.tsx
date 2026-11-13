@@ -40,6 +40,20 @@ export function Footer() {
     }
   };
 
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('/#')) {
+      const targetId = href.replace('/#', '');
+      if (typeof window !== 'undefined' && window.location.pathname === '/') {
+        const el = document.getElementById(targetId);
+        if (el) {
+          e.preventDefault();
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          window.history.pushState(null, '', href);
+        }
+      }
+    }
+  };
+
   return (
     <footer className="font-sans bg-white pb-0 pt-12 border-t border-slate-200">
       {/* 2. Main Footer Links */}
@@ -154,7 +168,7 @@ export function Footer() {
                   { title: 'Indian Festival Engine', desc: 'Ready-to-use festival campaigns', href: '/features/festival-engine' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href={item.href} className="group block">
+                    <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -172,12 +186,12 @@ export function Footer() {
                   { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
                   { title: 'Features', desc: 'Explore all features', href: '/#features' },
                   { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/pricing' },
-                  { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/blog' },
+                  { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/#blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
                   { title: 'Contact Us', desc: 'Get in touch with support', href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href={item.href} className="group block">
+                    <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -193,13 +207,12 @@ export function Footer() {
                   { title: 'Help Center', desc: 'Find answers to your questions', href: '/help' },
                   { title: 'FAQs', desc: 'Frequently asked questions', href: '/help#faqs' },
                   { title: 'How It Works', desc: 'Step-by-step workflow to get started', href: '/#how-it-works' },
-                  { title: 'Tutorials & Guides', desc: 'Growth guides & marketing advice', href: '/blog' },
                   { title: 'Mobile App Download', desc: 'Get DhandaGrow on Android & iOS', href: '/download' },
                   { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans', href: '/pricing' },
                   { title: 'Contact Support', desc: "We're here 24/7 to help", href: '/#contact' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href={item.href} className="group block">
+                    <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
@@ -221,7 +234,7 @@ export function Footer() {
                   { title: 'Acceptable Use Policy', desc: 'Guidelines for using our platform', href: '/legal/terms-of-service#section-5' },
                 ].map((item, i) => (
                   <li key={i}>
-                    <Link href={item.href} className="group block">
+                    <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">
                       <div className="text-slate-600 font-medium text-[14px] group-hover:text-[#D95A2B] transition-colors py-1">{item.title}</div>
                     </Link>
                   </li>
