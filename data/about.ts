@@ -70,7 +70,7 @@ export const companyProfile: CompanyProfile = {
   poweredBy: "Sevenunique Tech Solutions Private Limited",
   website: "https://dhandagrow.com",
   email: "support@dhandagrow.com",
-  phone: "+91-8741886688",
+  phone: "+91 77338 86507",
   address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
   taglines: {
     primary: "Har Dukaan Digital, Har Dhanda Grow.",

@@ -152,8 +152,8 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="text-slate-900 font-bold text-[14px] mb-0.5">Call Us</h4>
-                  <a href="tel:+918741886688" className="text-slate-600 hover:text-purple-600 transition-colors text-[13px] font-medium">
-                    +91-8741886688
+                  <a href="tel:+917733886507" className="text-slate-600 hover:text-purple-600 transition-colors text-[13px] font-medium">
+                    +91 77338 86507
                   </a>
                 </div>
               </div>
