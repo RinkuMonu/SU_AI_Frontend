@@ -55,6 +55,7 @@
 
 :root {
   color-scheme: dark;
+  --font-roboto: 'Roboto', sans-serif;
   --background: #071023;
   --foreground: #FFFFFF;
   

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -8,11 +8,6 @@ import { SecurityShield } from "@/components/security/SecurityShield";
 
 const inter = Inter({
   variable: "--font-inter",
-  subsets: ["latin"],
-});
-const roboto = Roboto({
-  variable: "--font-roboto",
-  weight: ["300", "400", "500", "700"],
   subsets: ["latin"],
 });
 
@@ -39,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
+      <body className={`${inter.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
         <script
           id="anti-screenshare-early"
           dangerouslySetInnerHTML={{
