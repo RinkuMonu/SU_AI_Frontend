@@ -79,7 +79,7 @@ export function Contact() {
           ? err.response.data.detail[0]?.msg
           : null) ||
         err?.response?.data?.message ||
-        'Failed to send message. Please try again or email us directly at support@dhandagrow.com.';
+        'Failed to send message. Please try again or email us directly at help@dhandagrow.com.';
       setStatus('error');
       setFeedbackMessage(serverError);
     } finally {
@@ -139,8 +139,8 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="text-slate-900 font-bold text-[14px] mb-0.5">Email Us</h4>
-                  <a href="mailto:support@dhandagrow.com" className="text-slate-600 hover:text-pink-600 transition-colors text-[13px]">
-                    support@dhandagrow.com
+                  <a href="mailto:help@dhandagrow.com" className="text-slate-600 hover:text-pink-600 transition-colors text-[13px]">
+                    help@dhandagrow.com
                   </a>
                 </div>
               </div>
@@ -152,8 +152,8 @@ export function Contact() {
                 </div>
                 <div>
                   <h4 className="text-slate-900 font-bold text-[14px] mb-0.5">Call Us</h4>
-                  <a href="tel:+918741886688" className="text-slate-600 hover:text-purple-600 transition-colors text-[13px] font-medium">
-                    +91-8741886688
+                  <a href="tel:+917733886507" className="text-slate-600 hover:text-purple-600 transition-colors text-[13px] font-medium">
+                    +91 77338 86507
                   </a>
                 </div>
               </div>

@@ -44,7 +44,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91-8741886688"
+        mobile: "+91-7733886507"
       },
       publicationNote: "Review this policy against your actual data practices, AI providers, cookie settings, retention periods, and applicable legal requirements before publishing.",
       content: {
@@ -58,7 +58,7 @@ export const legalData: LegalData = {
           {
             number: 2,
             title: "Company and Contact Information",
-            content: "Powered by: Sevenunique Tech Solutions Private Limited\nBusiness Address: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688\nWebsite: https://dhandagrow.com\n\nFor privacy questions, personal data requests, or complaints, please contact us using the details above."
+            content: "Powered by: Sevenunique Tech Solutions Private Limited\nBusiness Address: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507\nWebsite: https://dhandagrow.com\n\nFor privacy questions, personal data requests, or complaints, please contact us using the details above."
           },
           {
             number: 3,
@@ -147,7 +147,7 @@ export const legalData: LegalData = {
           {
             number: 16,
             title: "Contact and Grievance Redressal",
-            content: "Sevenunique Tech Solutions Private Limited\nPowered by: DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688\n\nWe will review and respond to privacy requests and grievances in accordance with applicable law."
+            content: "Sevenunique Tech Solutions Private Limited\nPowered by: DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507\n\nWe will review and respond to privacy requests and grievances in accordance with applicable law."
           },
           {
             number: 17,
@@ -191,7 +191,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91 8741886688"
+        mobile: "+91 77338 86507"
       },
       publicationNote: "Review these Terms against your actual product features, pricing, refund policy, subscription flow, and applicable legal requirements before publishing.",
       content: {
@@ -205,7 +205,7 @@ export const legalData: LegalData = {
           {
             number: 2,
             title: "Company Information and Contact",
-            content: "Powered by: Sevenunique Tech Solutions Private Limited\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688\nWebsite: https://dhandagrow.com"
+            content: "Powered by: Sevenunique Tech Solutions Private Limited\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507\nWebsite: https://dhandagrow.com"
           },
           {
             number: 3,
@@ -300,7 +300,7 @@ export const legalData: LegalData = {
           {
             number: 21,
             title: "Contact and Grievances",
-            content: "For questions about these Terms, billing, cancellation, or complaints, contact:\nSevenunique Tech Solutions Private Limited\nPowered by DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688"
+            content: "For questions about these Terms, billing, cancellation, or complaints, contact:\nSevenunique Tech Solutions Private Limited\nPowered by DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507"
           },
           {
             number: 22,
@@ -320,7 +320,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91 8741886688"
+        mobile: "+91 77338 86507"
       },
       publicationNote: "Review these Terms against your actual product features, pricing, refund policy, subscription flow, and applicable legal requirements before publishing.",
       content: {
@@ -334,7 +334,7 @@ export const legalData: LegalData = {
           {
             number: 2,
             title: "Company Information and Contact",
-            content: "Powered by: Sevenunique Tech Solutions Private Limited\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688\nWebsite: https://dhandagrow.com"
+            content: "Powered by: Sevenunique Tech Solutions Private Limited\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507\nWebsite: https://dhandagrow.com"
           },
           {
             number: 3,
@@ -429,7 +429,7 @@ export const legalData: LegalData = {
           {
             number: 21,
             title: "Contact and Grievances",
-            content: "For questions about these Terms, billing, cancellation, or complaints, contact:\nSevenunique Tech Solutions Private Limited\nPowered by DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 8741886688"
+            content: "For questions about these Terms, billing, cancellation, or complaints, contact:\nSevenunique Tech Solutions Private Limited\nPowered by DhandaGrow AI\nAddress: Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India.\nEmail: support@dhandagrow.com\nMobile: +91 77338 86507"
           },
           {
             number: 22,
@@ -449,7 +449,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91 8741886688"
+        mobile: "+91 77338 86507"
       },
       publicationNote: "This Cookie Policy explains how DhandaGrow AI uses cookies and similar technologies on https://dhandagrow.com and related web pages or services. It should be published only after it has been checked against the cookies, analytics tools, advertising pixels and other technologies actually enabled on the website.",
       content: {
@@ -536,7 +536,7 @@ export const legalData: LegalData = {
           {
             number: 14,
             title: "Contact Us",
-            content: "For questions or requests relating to this Cookie Policy, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-8741886688"
+            content: "For questions or requests relating to this Cookie Policy, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-7733886507"
           },
           {
             number: 15,
@@ -556,7 +556,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91 8741886688"
+        mobile: "+91 77338 86507"
       },
       publicationNote: "This Cookie Policy explains how DhandaGrow AI uses cookies and similar technologies on https://dhandagrow.com and related web pages or services.",
       content: {
@@ -643,7 +643,7 @@ export const legalData: LegalData = {
           {
             number: 14,
             title: "Contact Us",
-            content: "For questions or requests relating to this Cookie Policy, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-8741886688"
+            content: "For questions or requests relating to this Cookie Policy, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-7733886507"
           },
           {
             number: 15,
@@ -663,7 +663,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91-8741886688"
+        mobile: "+91-7733886507"
       },
       publicationNote: "Confirm your real refund stance before publishing: whether any first-time subscription refunds are allowed, whether credits are refundable, how free trials convert, how long support takes to respond, and how cancellation works. Display key terms clearly before payment and keep them consistent across pricing, checkout, and gateway configuration.",
       content: {
@@ -763,7 +763,7 @@ export const legalData: LegalData = {
           {
             number: 15,
             title: "Contact Us",
-            content: "For cancellation and refund requests, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-8741886688"
+            content: "For cancellation and refund requests, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-7733886507"
           },
           {
             number: 16,
@@ -783,7 +783,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91-8741886688"
+        mobile: "+91-7733886507"
       },
       publicationNote: "Confirm your real refund stance before publishing: whether any first-time subscription refunds are allowed, whether credits are refundable, how free trials convert, how long support takes to respond, and how cancellation works.",
       content: {
@@ -883,7 +883,7 @@ export const legalData: LegalData = {
           {
             number: 15,
             title: "Contact Us",
-            content: "For cancellation and refund requests, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-8741886688"
+            content: "For cancellation and refund requests, contact:\nSevenunique Tech Solutions Private Limited\nDakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India\nEmail: support@dhandagrow.com\nPhone: +91-7733886507"
           },
           {
             number: 16,
@@ -903,7 +903,7 @@ export const legalData: LegalData = {
         name: "Sevenunique Tech Solutions Private Limited",
         address: "Dakshinpuri - I Shrikishan, Sanganer, Jagatpura, Jaipur, Rajasthan 302017, India",
         email: "support@dhandagrow.com",
-        mobile: "+91-8741886688"
+        mobile: "+91-7733886507"
       },
       publicationNote: "Policy Version: 1.0 | Effective date: 05 November 2026. This policy governs how AI subscription credits are granted, used, deducted, renewed, and expired across all DhandaGrow AI features.",
       content: {
