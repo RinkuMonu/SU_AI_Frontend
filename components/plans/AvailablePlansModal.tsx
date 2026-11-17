@@ -50,6 +50,54 @@ export function AvailablePlansModal({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [pendingPaymentOrder, setPendingPaymentOrder] = useState<string | null>(null);
+  const [paymentFailurePopup, setPaymentFailurePopup] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+  } | null>(null);
+
+  // Reset processing and listen for Back Button / bfcache restoration
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const resetProcessing = () => {
+      setProcessingPlanId(null);
+    };
+
+    const handlePageShow = (e: PageTransitionEvent) => {
+      resetProcessing();
+      const pendingOrder = sessionStorage.getItem("pending_payment_order_id");
+      if (pendingOrder) {
+        sessionStorage.removeItem("pending_payment_order_id");
+        // User pressed back button or cancelled without completing payment
+        setPaymentFailurePopup({
+          open: true,
+          title: "Payment Not Completed",
+          message: "Transaction was not completed. No amount was deducted. You can try again anytime.",
+        });
+      }
+    };
+
+    const handlePopState = () => {
+      resetProcessing();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        setProcessingPlanId((curr) => (curr === "VERIFYING" ? curr : null));
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("popstate", handlePopState);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const loadPlansData = useCallback(async () => {
     setIsLoading(true);
@@ -154,6 +202,7 @@ export function AvailablePlansModal({
     setProcessingPlanId(plan.id);
     setErrorMessage(null);
     setSuccessMessage(null);
+    setPaymentFailurePopup(null);
 
     try {
       if (plan.monthlyPrice === 0 || plan.id === "FREE") {
@@ -165,20 +214,76 @@ export function AvailablePlansModal({
       } else {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
         const sessionId = response.payment_session_id || response.subscription_session_id;
-        await launchCashfreeCheckout({
-          paymentSessionId: sessionId,
-          environment: response.environment || "production",
-          fallbackUrl: response.payment_url,
-        });
+        const orderId = response.order_id || response.subscription_id;
+
+        if (sessionId) {
+          if (typeof window !== "undefined" && orderId) {
+            sessionStorage.setItem("pending_payment_order_id", orderId);
+          }
+
+          const res = await launchCashfreeCheckout({
+            paymentSessionId: sessionId,
+            environment: response.environment || "production",
+            fallbackUrl: response.payment_url,
+            redirectTarget: "_self",
+          });
+
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("pending_payment_order_id");
+          }
+
+          if (res?.status === "CANCELLED") {
+            setPaymentFailurePopup({
+              open: true,
+              title: "Payment Cancelled",
+              message: "Payment was cancelled. No deduction was made from your account. Please try again when ready.",
+            });
+            return;
+          }
+
+          if (res?.status === "FAILED") {
+            setPaymentFailurePopup({
+              open: true,
+              title: "Payment Failed",
+              message: res.error || "Payment was not successful. Please try again or use another payment method.",
+            });
+            return;
+          }
+
+          if (res?.status === "SUCCESS") {
+            if (orderId) {
+              await verifyPaymentOrder(orderId);
+            }
+            return;
+          }
+          return;
+        }
+
+        if (response.payment_url && typeof window !== "undefined") {
+          if (orderId) {
+            sessionStorage.setItem("pending_payment_order_id", orderId);
+          }
+          window.location.href = response.payment_url;
+          return;
+        }
         return;
       }
     } catch (err: any) {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("pending_payment_order_id");
+      }
       console.error(`Error activating plan ${plan.id}`, err);
       const detail =
         err?.response?.data?.detail ||
         err?.message ||
         "Payment initiation failed. Please verify your connection and try again.";
       setErrorMessage(detail);
+      setPaymentFailurePopup({
+        open: true,
+        title: "Payment Initiation Failed",
+        message: detail,
+      });
+    } finally {
       setProcessingPlanId(null);
     }
   };
@@ -477,6 +582,35 @@ export function AvailablePlansModal({
           Skip for now (you can review and upgrade later in Billing & Plans)
         </button>
       </div>
+
+      {/* Payment Failure / Cancelled Popup Dialog */}
+      {paymentFailurePopup?.open && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm bg-[#151124] border border-red-500/30 rounded-2xl p-6 shadow-2xl text-center space-y-4 animate-in zoom-in-95">
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold text-white">
+                {paymentFailurePopup.title}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {paymentFailurePopup.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentFailurePopup(null);
+                setProcessingPlanId(null);
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow-lg transition-all active:scale-98 cursor-pointer"
+            >
+              OK, Try Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 

@@ -5,13 +5,11 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
-  UserPlus,
   Loader2,
   AlertCircle,
   RefreshCw,
   CheckCircle2,
   ExternalLink,
-  ChevronDown,
   Info,
   X,
   Sparkles,
@@ -60,9 +58,6 @@ export function SocialConnectivityModal({
   const [successNotice, setSuccessNotice] = useState<string | null>(null);
   const [infoNotice, setInfoNotice] = useState<string | null>(null);
   const [showRequirementNotice, setShowRequirementNotice] = useState<boolean>(false);
-
-  // Secondary "Create Account" options state
-  const [showCreateAccountOptions, setShowCreateAccountOptions] = useState<boolean>(false);
 
   /**
    * Refreshes the authoritative connection status from the backend.
@@ -210,26 +205,6 @@ export function SocialConnectivityModal({
     }
   };
 
-
-  /**
-   * Handles selection of a platform from the Create Account options.
-   * Redirects user to that platform's official registration page in a new browser tab.
-   * Does NOT mark the account connected (backend remains source of truth).
-   */
-  const handleSelectRegistrationPlatform = (platformKey: SocialPlatformKey) => {
-    const config = PLATFORM_CONFIGS[platformKey];
-    if (!config) return;
-
-    // Open official registration page in a new browser tab
-    window.open(config.officialSignupUrl, "_blank", "noopener,noreferrer");
-
-    // Close the options menu and show clear return guidance
-    setShowCreateAccountOptions(false);
-    setInfoNotice(
-      `Official ${config.name} sign-up opened in a new tab. After creating your account, return here and click 'Connect' above to complete authorization.`
-    );
-  };
-
   /**
    * Handles the primary Continue button.
    * Enabled only when at least 1 account is connected.
@@ -275,28 +250,6 @@ export function SocialConnectivityModal({
   };
 
   if (!isOpen) return null;
-
-  const registrationChoices: {
-    key: SocialPlatformKey;
-    name: string;
-    icon: React.ReactNode;
-  }[] = [
-    {
-      key: "instagram",
-      name: "Instagram",
-      icon: <InstagramIcon className="w-5 h-5 rounded-md" />,
-    },
-    {
-      key: "facebook",
-      name: "Facebook",
-      icon: <FacebookIcon className="w-5 h-5 rounded-full" />,
-    },
-    {
-      key: "linkedin",
-      name: "LinkedIn",
-      icon: <LinkedInIcon className="w-5 h-5 rounded-md" />,
-    },
-  ];
 
   const content = (
     <div
@@ -439,48 +392,6 @@ export function SocialConnectivityModal({
               <span>Continue to Plans</span>
               <ArrowRight className="w-4 h-4" />
             </button>
-
-            {/* Secondary Create Account Button */}
-            <button
-              type="button"
-              onClick={() => setShowCreateAccountOptions((prev) => !prev)}
-              className="w-full py-3 px-6 rounded-full font-semibold text-xs sm:text-sm text-gray-200 bg-[#201738] hover:bg-[#2C204B] active:scale-[0.99] transition-all border border-white/10 shadow-sm flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <UserPlus className="w-4 h-4 text-purple-300" />
-              <span>Don&apos;t have an account? Sign Up</span>
-              <ChevronDown
-                className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${
-                  showCreateAccountOptions ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {/* Three Platform Options for Create Account */}
-            {showCreateAccountOptions && (
-              <div className="p-3 rounded-2xl bg-[#1D1438] border border-white/10 shadow-xl space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                <p className="text-[11px] text-gray-400 px-1 font-medium">
-                  Select a platform to sign up on its official website:
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {registrationChoices.map((choice) => (
-                    <button
-                      key={choice.key}
-                      type="button"
-                      onClick={() => handleSelectRegistrationPlatform(choice.key)}
-                      className="flex flex-col items-center justify-center gap-1.5 p-2 rounded-xl bg-[#281B4B] hover:bg-[#342460] border border-white/5 hover:border-pink-500/30 transition-all text-center cursor-pointer group"
-                    >
-                      <div className="shrink-0 group-hover:scale-105 transition-transform">
-                        {choice.icon}
-                      </div>
-                      <div className="flex items-center gap-1 text-[11px] font-medium text-white group-hover:text-pink-300">
-                        <span>{choice.name}</span>
-                        <ExternalLink className="w-2.5 h-2.5 text-gray-400 group-hover:text-white" />
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             {/* Skip for now */}
             <div className="text-center pt-1">
