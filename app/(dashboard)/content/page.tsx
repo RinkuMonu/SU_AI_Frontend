@@ -47,7 +47,15 @@ function ContentStudioContent() {
       });
     } catch (error: any) {
       console.error("Failed to generate content:", error);
-      if (error?.response?.status === 402 || error?.message?.toLowerCase().includes("credit")) {
+      const errMsg = (error?.message || error?.response?.data?.detail || "").toString();
+      if (
+        error?.response?.status === 402 ||
+        error?.response?.status === 403 ||
+        errMsg.toLowerCase().includes("credit") ||
+        errMsg.includes("USAGE_LIMIT_REACHED") ||
+        errMsg.toLowerCase().includes("monthly limit") ||
+        errMsg.toLowerCase().includes("limit of")
+      ) {
         setHasInsufficientCredits(true);
       } else {
         setErrorMessage(error?.response?.data?.detail || error?.message || "Failed to generate content. Please try again.");

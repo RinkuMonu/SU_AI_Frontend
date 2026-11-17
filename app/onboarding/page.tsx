@@ -673,6 +673,18 @@ export default function OnboardingPage() {
   const [generatedOnboardingPost, setGeneratedOnboardingPost] = useState<GeneratedPost | null>(null);
   const [isPhotoPickerOpen, setIsPhotoPickerOpen] = useState(false);
 
+  // ─── Limit & Credits Reached Dialog State ───
+  const [limitModal, setLimitModal] = useState<{
+    open: boolean;
+    type: "usage_limit" | "insufficient_credits";
+    title: string;
+    subtitle: string;
+    message: string;
+    actionText: string;
+  } | null>(null);
+
+  const [postSuccessToast, setPostSuccessToast] = useState<boolean>(false);
+
   // ─── Default High-Quality Business Photo Assets ───
   const DEFAULT_BUSINESS_PHOTOS = [
     "/images/fashion-photoshoot-hero.jpg",
@@ -3976,6 +3988,7 @@ export default function OnboardingPage() {
   };
 
   const handleGeneratePosts = async () => {
+    if (isGeneratingPosts) return;
     setIsGeneratingPosts(true);
     setGenerationStage("studying");
     setGenerationProgress(20);
@@ -3992,16 +4005,10 @@ export default function OnboardingPage() {
       setGenerationProgress(100);
       await new Promise((r) => setTimeout(r, 600));
 
-      // Stage 2: You just took the first step (Image 2)
-      setGenerationStage("first_step");
-      await new Promise((r) => setTimeout(r, 2600));
-
-      // Stage 3: Your daily posts are being made (Image 3)
-      setGenerationStage("daily_posts");
-
-      // Background post synthesis
+      // Background post synthesis - call API before moving forward so limits/credits errors are caught immediately
+      let res: any = null;
       try {
-        const res = await contentService.generateContent({
+        res = await contentService.generateContent({
           type: "Instagram Post",
           platform: "Instagram",
           language: brandPreferences.language || "English",
@@ -4013,7 +4020,44 @@ export default function OnboardingPage() {
           targetAudience: businessDetails.target_audience || "Customers and clients",
           productImages: [activePhoto],
         });
+      } catch (synthErr: any) {
+        const errMsg = (synthErr?.message || synthErr?.response?.data?.detail || "").toString();
+        const isUsageLimit = errMsg.includes("USAGE_LIMIT_REACHED") || errMsg.toLowerCase().includes("monthly limit") || errMsg.toLowerCase().includes("limit of 5 posts");
+        const isCreditsLimit = errMsg.includes("INSUFFICIENT_CREDITS") || errMsg.toLowerCase().includes("insufficient credit") || synthErr?.response?.status === 402;
 
+        if (isUsageLimit || isCreditsLimit) {
+          setIsGeneratingPosts(false);
+          setLimitModal({
+            open: true,
+            type: isUsageLimit ? "usage_limit" : "insufficient_credits",
+            title: isUsageLimit ? "Monthly Post Limit Reached (5/5)" : "AI Credits Exhausted",
+            subtitle: isUsageLimit
+              ? "You have reached your free monthly limit of 5 AI posts."
+              : "You do not have enough AI credits to create new posts.",
+            message: isUsageLimit
+              ? "Aapne is mahine ki 5 free AI posts use kar li hain. Nayi posts generate karne ke liye Pro plan mein upgrade karein aur unlimited posts, AI reels aur scheduling payein."
+              : "Aapke account ke AI credits khatam ho gaye hain. Naya content generate karne ke liye Pro plan mein upgrade karein aur 300+ monthly credits payein.",
+            actionText: "Upgrade to Pro →",
+          });
+          return;
+        }
+
+        console.warn("Client fallback for generated post:", synthErr);
+        const fallbackPost: GeneratedPost = {
+          product_id: "onboarding_" + Date.now(),
+          platform: "Instagram",
+          objective: "Promotions and Brand Growth",
+          headline: businessName + " Special Launch",
+          caption: "Elevate your business with " + businessName + ". Quality, consistency, and results.",
+          call_to_action: "Visit profile link",
+          hashtags: ["#" + businessName.replace(/[^a-zA-Z0-9]/g, ""), "#BusinessGrowth", "#DhandaGrow"],
+          image_url: activePhoto,
+          media_url: activePhoto,
+        };
+        setGeneratedOnboardingPost(fallbackPost);
+      }
+
+      if (res?.data) {
         const generatedPostData: GeneratedPost = {
           product_id: "onboarding_" + Date.now(),
           platform: "Instagram",
@@ -4029,24 +4073,21 @@ export default function OnboardingPage() {
           creative_direction: "Vibrant high-conversion promotional design with curated brand color accents.",
         };
         setGeneratedOnboardingPost(generatedPostData);
-      } catch (synthErr) {
-        console.warn("Client fallback for generated post:", synthErr);
-        const fallbackPost: GeneratedPost = {
-          product_id: "onboarding_" + Date.now(),
-          platform: "Instagram",
-          objective: "Promotions and Brand Growth",
-          headline: businessName + " Special Launch",
-          caption: "Elevate your business with " + businessName + ". Quality, consistency, and results.",
-          call_to_action: "Visit profile link",
-          hashtags: ["#" + businessName.replace(/[^a-zA-Z0-9]/g, ""), "#BusinessGrowth", "#DhandaGrow"],
-          image_url: activePhoto,
-          media_url: activePhoto,
-        };
-        setGeneratedOnboardingPost(fallbackPost);
+        setPostSuccessToast(true);
+        setTimeout(() => setPostSuccessToast(false), 5000);
       }
+
+      // Stage 2: You just took the first step (Image 2)
+      setGenerationStage("first_step");
+      await new Promise((r) => setTimeout(r, 2600));
+
+      // Stage 3: Your daily posts are being made (Image 3)
+      setGenerationStage("daily_posts");
     } catch (err: any) {
       console.error("Post generation flow error:", err);
       setGenerationStage("daily_posts");
+    } finally {
+      setIsGeneratingPosts(false);
     }
   };
 
@@ -9216,11 +9257,26 @@ export default function OnboardingPage() {
               <div className="pt-3 sm:pt-4 pb-1 flex flex-col items-center">
                 <button
                   type="button"
+                  disabled={isGeneratingPosts}
                   onClick={handleGeneratePosts}
-                  className="w-full max-w-sm sm:max-w-md h-10 sm:h-11 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]" style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
+                  className={`w-full max-w-sm sm:max-w-md h-10 sm:h-11 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all ${
+                    isGeneratingPosts
+                      ? "opacity-75 cursor-not-allowed bg-purple-900/60"
+                      : "cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]"
+                  }`}
+                  style={!isGeneratingPosts ? { background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" } : undefined}
                 >
-                  <span>Create Posts</span>
-                  <ArrowRight className="w-4 h-4 stroke-[2]" />
+                  {isGeneratingPosts ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <span>Creating Posts...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Create Posts</span>
+                      <ArrowRight className="w-4 h-4 stroke-[2]" />
+                    </>
+                  )}
                 </button>
               </div>
             </>
@@ -10204,6 +10260,112 @@ export default function OnboardingPage() {
         onClose={() => setShowPlansModal(false)}
         isModal={true}
       />
+
+      {/* ─── Usage Limit / Credits Exhausted Themed Dialog ─── */}
+      {limitModal?.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl p-6 sm:p-8 bg-gradient-to-b from-[#1c1236] via-[#140b26] to-[#0d0718] border border-purple-500/30 shadow-[0_0_50px_rgba(190,50,255,0.25)] text-center animate-in zoom-in-95 duration-200">
+            {/* Close button */}
+            <button
+              type="button"
+              onClick={() => setLimitModal(null)}
+              className="absolute top-4 right-4 p-2 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Glowing Icon */}
+            <div className="w-16 h-16 mx-auto rounded-2xl flex items-center justify-center mb-4 bg-gradient-to-tr from-[#7d36fa]/20 to-[#f0449b]/20 border border-purple-500/30 shadow-[0_0_30px_rgba(190,50,255,0.3)]">
+              {limitModal.type === "usage_limit" ? (
+                <Lock className="w-8 h-8 text-[#fc9a5d]" />
+              ) : (
+                <Zap className="w-8 h-8 text-[#f0449b]" />
+              )}
+            </div>
+
+            {/* Badge */}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-purple-500/10 text-purple-300 border border-purple-500/25">
+              <Sparkles className="w-3.5 h-3.5 text-[#f0449b]" />
+              <span>{limitModal.type === "usage_limit" ? "Free Limit Reached" : "AI Credits Exhausted"}</span>
+            </div>
+
+            {/* Title & Subtitle */}
+            <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
+              {limitModal.title}
+            </h2>
+            <p className="text-sm font-medium text-purple-200/90 mt-1">
+              {limitModal.subtitle}
+            </p>
+
+            {/* Description */}
+            <p className="text-xs sm:text-sm text-slate-300/80 leading-relaxed mt-3 max-w-md mx-auto">
+              {limitModal.message}
+            </p>
+
+            {/* Feature Perks Box */}
+            <div className="mt-5 p-4 rounded-2xl bg-white/[0.04] border border-white/10 text-left space-y-2.5">
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Unlimited AI Social Media Posts &amp; Captions</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>300 Monthly AI Credits + 50 Bonus Credits</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>AI Reels Generation with Hindi/English voiceover</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-slate-200">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>1-Click Auto-Publish to Instagram, Facebook &amp; LinkedIn</span>
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setLimitModal(null);
+                  setShowPlansModal(true);
+                }}
+                className="w-full sm:flex-1 py-3 px-5 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_4px_25px_rgba(190,50,255,0.4)] hover:opacity-95 active:scale-[0.98]"
+              >
+                <span>{limitModal.actionText}</span>
+                <ArrowRight className="w-4 h-4 stroke-[2]" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setLimitModal(null)}
+                className="w-full sm:w-auto px-5 py-3 rounded-full text-xs font-semibold text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors cursor-pointer"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ─── Post Created Success Toast ─── */}
+      {postSuccessToast && (
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/95 via-purple-950/95 to-[#1c1236]/95 border border-emerald-500/40 shadow-[0_8px_32px_rgba(16,185,129,0.3)] backdrop-blur-xl animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white">Post Created Successfully!</p>
+            <p className="text-[11px] text-emerald-300/80">Aapki AI promotional post generate ho chuki hai.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setPostSuccessToast(false)}
+            className="ml-2 p-1 text-slate-400 hover:text-white cursor-pointer"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Footer (hidden on single-screen steps to ensure zero vertical scroll and zero scrollbars) */}
       {!["get_started", "none_details", "none_brand_kit", "maps_details", "business_details", "business_details_2", "brand_preferences", "brand_services", "presence", "maps_website", "website_connect"].includes(currentStepObj.id) && (

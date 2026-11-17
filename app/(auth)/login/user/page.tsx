@@ -275,6 +275,13 @@ export default function LoginPage() {
           }
         } catch (_) {}
       }
+
+      const reason = searchParams.get("reason");
+      const conflictNotice = sessionStorage.getItem("device_conflict_notice");
+      if (reason === "device_conflict" || conflictNotice) {
+        setError(conflictNotice || "Your session has expired because your account was logged in on another device.");
+        sessionStorage.removeItem("device_conflict_notice");
+      }
     }
   }, []);
 
@@ -581,14 +588,26 @@ export default function LoginPage() {
         }
       }
 
+      const effectiveToken =
+        pendingAuthUser?.access_token ||
+        pendingAuthUser?.token ||
+        (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
+
       const finalUser = {
         ...(pendingAuthUser || {}),
         ...(updatedProfile || {}),
+        token: effectiveToken,
+        access_token: effectiveToken,
         firstName: cleanFirst,
         lastName: cleanLast,
         name: fullName,
         fullName: fullName,
       };
+
+      if (effectiveToken && typeof window !== "undefined") {
+        localStorage.setItem("access_token", effectiveToken);
+        localStorage.setItem("token", effectiveToken);
+      }
 
       login(finalUser);
       if (typeof window !== "undefined") {
@@ -818,6 +837,8 @@ export default function LoginPage() {
 
             const finalUser = {
               ...userObj,
+              token: token || (userObj as any).token || (userObj as any).access_token,
+              access_token: token || (userObj as any).access_token || (userObj as any).token,
               auth_provider: "google",
               phone_verified: true,
               onboardingCompleted: isDone,

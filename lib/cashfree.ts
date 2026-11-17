@@ -151,17 +151,17 @@ export async function launchCashfreeCheckout({
     }
 
     // 2. Direct POST Form Submission Fallback:
-    // Cashfree strictly expects an HTTP POST request to /order/ with form-encoded `payment_session_id`.
+    // Submits the official Cashfree PG v3 sessions checkout form directly to api.cashfree.com
     try {
       const isSub = paymentSessionId.startsWith("sub_session_");
       const actionUrl =
         mode === "production"
           ? isSub
-            ? "https://payments.cashfree.com/subscriptions/"
-            : "https://payments.cashfree.com/order/"
+            ? "https://api.cashfree.com/pg/view/sessions/checkout/subs"
+            : "https://api.cashfree.com/pg/view/sessions/checkout"
           : isSub
-          ? "https://payments-test.cashfree.com/subscriptions/"
-          : "https://payments-test.cashfree.com/order/";
+          ? "https://sandbox.cashfree.com/pg/view/sessions/checkout/subs"
+          : "https://sandbox.cashfree.com/pg/view/sessions/checkout";
 
       const form = document.createElement("form");
       form.method = "POST";
@@ -173,13 +173,15 @@ export async function launchCashfreeCheckout({
             subs_session_id: paymentSessionId,
             form_id: "form_subs_id_atom",
             x_request_id: "x_request_id_form_subs_atom",
-            platform: "c",
+            platform: "c_xx",
+            checkForPayFast: "false",
           }
         : {
             payment_session_id: paymentSessionId,
             form_id: "form_id_atom",
             x_request_id: "x_request_id_form_atom",
-            platform: "c",
+            platform: "c_xx",
+            checkForPayFast: "false",
           };
 
       try {
