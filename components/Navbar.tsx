@@ -64,13 +64,13 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 w-full px-2 py-1.5 sm:px-4 md:px-5 lg:px-8 transition-all duration-300 ',
-        isScrolled ? 'pt-1.5' : 'pt-2 sm:pt-2.5 lg:pt-3'
+        'fixed top-0 left-0 right-0 z-50 w-full px-2 py-1 sm:px-4 md:px-5 lg:px-8 transition-all duration-300 ',
+        isScrolled ? 'pt-1' : 'pt-1.5 sm:pt-2'
       )}
     >
       <div
         className={cn(
-          'w-full max-w-7xl mx-auto flex items-center justify-between rounded-full px-3 py-1.5 sm:px-4 sm:py-2 lg:px-5 transition-all duration-300 relative',
+          'w-full max-w-7xl mx-auto flex items-center justify-between rounded-full px-3 py-1 sm:px-4 sm:py-1.5 lg:px-5 transition-all duration-300 relative',
           pillClass
         )}
       >
@@ -89,7 +89,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-2.5 xl:gap-5">
+        <nav className="hidden lg:flex items-center gap-2 xl:gap-4">
           {/* Features Mega Menu Wrapper */}
           <div className="group relative">
             <Link
