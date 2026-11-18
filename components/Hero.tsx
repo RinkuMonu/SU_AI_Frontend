@@ -31,7 +31,7 @@ export function Hero() {
         <div className="flex flex-col items-start text-left w-full max-w-2xl py-0 relative z-10" >
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-[#535353] bg-[#B1B1B1]/[0.12] backdrop-blur-md mb-2 sm:mb-3 shadow-lg max-w-full">
-            <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
+            <Sparkles className="w-3.5 h-3.5 text-[#FF7E38]" />
             <span className="text-[11px] sm:text-sm text-white font-medium">
               AI-Powered Business Growth Platform</span>
           </div>
@@ -65,19 +65,19 @@ export function Hero() {
           <div className="flex flex-wrap items-start gap-x-4 sm:gap-x-6 gap-y-3 text-[11px] sm:text-sm text-white/80 font-medium w-full ">
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center">
-                <Check className="w-4 h-4 text-[#fc9a5d] stroke-[2.5]" />
+                <Check className="w-4 h-4 text-[#FF7E38] stroke-[2.5]" />
               </div>
               No Credit Card Required
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center">
-                <Check className="w-4 h-4 text-[#fc9a5d] stroke-[2.5]" />
+                <Check className="w-4 h-4 text-[#FF7E38] stroke-[2.5]" />
               </div>
               Setup in Minutes
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center justify-center">
-                <Check className="w-4 h-4 text-[#fc9a5d] stroke-[2.5]" />
+                <Check className="w-4 h-4 text-[#FF7E38] stroke-[2.5]" />
               </div>
               Used by 10,000+ Businesses
             </div>
