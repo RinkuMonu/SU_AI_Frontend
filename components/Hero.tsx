@@ -16,7 +16,7 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative flex flex-col justify-start pt-16 sm:pt-18 lg:pt-20 pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-background isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
