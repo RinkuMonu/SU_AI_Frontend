@@ -721,6 +721,53 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const STORAGE_KEY = "dhandagrow_preferred_lang";
 
+function applyGoogleTranslate(lang: SupportedLanguage) {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+
+  const targetCode = lang === "hinglish" ? "hi" : lang;
+  const hostname = window.location.hostname;
+
+  if (targetCode === "en") {
+    // Clear cookies across all possible domains and paths
+    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${hostname};`;
+    document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${hostname};`;
+
+    const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+    if (select) {
+      select.value = "en";
+      select.dispatchEvent(new Event("change"));
+    }
+    // Clean reload to restore pure English DOM
+    window.location.reload();
+    return;
+  }
+
+  // Set googtrans cookie for target language across paths and hostnames
+  document.cookie = `googtrans=/en/${targetCode}; path=/;`;
+  document.cookie = `googtrans=/en/${targetCode}; path=/; domain=${hostname};`;
+  document.cookie = `googtrans=/en/${targetCode}; path=/; domain=.${hostname};`;
+
+  const select = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+  if (select) {
+    select.value = targetCode;
+    select.dispatchEvent(new Event("change"));
+
+    // Check if DOM translation triggered within 400ms; if not, reload so Google reads the cookie
+    setTimeout(() => {
+      const isTranslated =
+        document.documentElement.classList.contains("translated-ltr") ||
+        document.documentElement.classList.contains("translated-rtl");
+      if (!isTranslated) {
+        window.location.reload();
+      }
+    }, 400);
+  } else {
+    // If widget combo is not in DOM yet, reload with cookie
+    window.location.reload();
+  }
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<SupportedLanguage>("en");
 
@@ -729,6 +776,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
       const saved = localStorage.getItem(STORAGE_KEY) as SupportedLanguage | null;
       if (saved && SUPPORTED_LANGUAGES.some(l => l.code === saved)) {
         setLanguageState(saved);
+        const targetCode = saved === "hinglish" ? "hi" : saved;
+        if (targetCode !== "en") {
+          const hasCookie = document.cookie.includes(`googtrans=/en/${targetCode}`);
+          if (!hasCookie) {
+            const hostname = window.location.hostname;
+            document.cookie = `googtrans=/en/${targetCode}; path=/;`;
+            document.cookie = `googtrans=/en/${targetCode}; path=/; domain=${hostname};`;
+            document.cookie = `googtrans=/en/${targetCode}; path=/; domain=.${hostname};`;
+          }
+        }
       }
     } catch {
       // LocalStorage might be blocked or SSR
@@ -742,6 +799,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // ignore
     }
+    applyGoogleTranslate(lang);
   };
 
   const currentLanguageInfo = 

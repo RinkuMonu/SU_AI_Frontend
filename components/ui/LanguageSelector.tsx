@@ -60,7 +60,7 @@ export function LanguageSelector({
       >
         <span>
           {showLabel && <span className="opacity-80">{t("lang_prefix", "Language:")} </span>}
-          <strong className="font-bold text-neutral-900 dark:text-white">
+          <strong className="font-bold text-neutral-900 dark:text-white notranslate">
             {currentLanguageInfo.shortName}
           </strong>
         </span>
@@ -97,7 +97,7 @@ export function LanguageSelector({
                     : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5"
                 }`}
               >
-                <span>{item.name}</span>
+                <span className="notranslate">{item.name}</span>
                 {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
               </button>
             );

@@ -38,8 +38,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`}>
+    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`} suppressHydrationWarning>
         <script
           id="anti-screenshare-early"
           dangerouslySetInnerHTML={{
@@ -91,9 +91,37 @@ export default function RootLayout({
         <SecurityShield />
         <LanguageProvider>
           <AuthProvider>
-          {children}
-        </AuthProvider>
+            {children}
+          </AuthProvider>
         </LanguageProvider>
+
+        {/* Hidden Google Translate Mount */}
+        <div id="google_translate_element" aria-hidden="true" className="hidden" />
+
+        {/* Google Translate Init Script */}
+        <Script
+          id="google-translate-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              function googleTranslateElementInit() {
+                if (window.google && window.google.translate) {
+                  new window.google.translate.TranslateElement({
+                    pageLanguage: 'en',
+                    includedLanguages: 'en,hi,mr,gu,pa,bn,ta,te,kn,ml',
+                    autoDisplay: false
+                  }, 'google_translate_element');
+                }
+              }
+            `,
+          }}
+        />
+        <Script
+          id="google-translate-script"
+          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+          strategy="afterInteractive"
+        />
+
         <Script
           id="google-maps-sdk"
           src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async`}
