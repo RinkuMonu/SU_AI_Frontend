@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Plus, Sparkles, Check, RotateCcw, Zap } from 'lucide-react';
+import { ArrowRight, Plus, Sparkles, Check, Zap } from 'lucide-react';
 
 const PROMPT_TEXT = 'Launch a festive marketing campaign for our business — 25% discount offer, viral Instagram reels, and customer WhatsApp broadcast.';
 
@@ -45,7 +45,6 @@ export function Automation() {
   const [phase, setPhase] = useState<'typing' | 'clicking' | 'answering' | 'completed'>('typing');
   const [typedChars, setTypedChars] = useState(0);
   const [answerProgress, setAnswerProgress] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
 
   // 1. Typewriter for input prompt
   useEffect(() => {
@@ -94,22 +93,16 @@ export function Automation() {
     }
   }, [phase, answerProgress]);
 
-  // 4. Completed hold pause before restarting loop
+  // 4. Completed phase: automatically restart demo after a brief pause
   useEffect(() => {
-    if (phase !== 'completed' || isPaused) return;
+    if (phase !== 'completed') return;
     const timeout = setTimeout(() => {
       setTypedChars(0);
       setAnswerProgress(0);
       setPhase('typing');
-    }, 6000);
+    }, 3500);
     return () => clearTimeout(timeout);
-  }, [phase, isPaused]);
-
-  const handleManualRestart = () => {
-    setTypedChars(0);
-    setAnswerProgress(0);
-    setPhase('typing');
-  };
+  }, [phase]);
 
   const handleSkipToAnswer = () => {
     setTypedChars(PROMPT_TEXT.length);
@@ -144,11 +137,7 @@ export function Automation() {
         </div>
 
         {/* ================= MAIN INTERACTIVE DEMO CARD WITH BRAND GRADIENT ================= */}
-        <div
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          className="w-full max-w-4xl mx-auto"
-        >
+        <div className="w-full max-w-4xl mx-auto">
           {/* Top Generator Input Box wrapped in DhandaGrow Signature Gradient Outline */}
           <div className="p-[2.5px] rounded-[28px] sm:rounded-[34px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_15px_50px_-10px_rgba(240,68,155,0.25)] relative transition-all duration-300">
             <div className="w-full bg-white rounded-[26px] sm:rounded-[32px] p-5 sm:p-7">
@@ -306,7 +295,7 @@ export function Automation() {
 
                 </div>
 
-                {/* Bottom Status & Replay Bar */}
+                {/* Bottom Status Bar */}
                 {phase === 'completed' && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
@@ -320,15 +309,9 @@ export function Automation() {
                       <span>Consensus Ready • 3 AI strategies generated for DhandaGrow</span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={handleManualRestart}
-                        className="text-slate-600 hover:text-pink-600 font-semibold cursor-pointer flex items-center gap-1"
-                      >
-                        <RotateCcw className="w-3 h-3" />
-                        <span>Replay Demo</span>
-                      </button>
+                    <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                      <span>Live demo auto-looping</span>
                     </div>
                   </motion.div>
                 )}
