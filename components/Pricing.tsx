@@ -260,10 +260,10 @@ export function Pricing() {
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/30 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-100/30 blur-[130px] rounded-full pointer-events-none" />
 
-      <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Section Header */}
-        <div className="flex flex-col items-center text-center w-full mb-8 sm:mb-10">
+        <div className="flex flex-col items-center text-center w-full mb-8 sm:mb-12">
           <div className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-pink-200/90 mb-3 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-[#f0449b] shrink-0" />
             <span className="text-xs font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] tracking-wide">
@@ -271,15 +271,15 @@ export function Pricing() {
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2.5">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2.5">
             Predictable Pricing, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">Zero Surprises</span>
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-slate-500 max-w-lg mx-auto font-medium leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-500 max-w-xl mx-auto font-medium leading-relaxed">
             Choose the plan that fits your business stage. Upgrade, downgrade, or cancel anytime.
           </p>
 
           {/* Plan Selector Tabs with Signature Brand Gradient */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 mt-6">
             {LANDING_PLANS.map((plan) => {
               const isSelected = selectedPlanId === plan.id;
               return (
@@ -287,7 +287,7 @@ export function Pricing() {
                   key={plan.id}
                   type="button"
                   onClick={() => setSelectedPlanId(plan.id)}
-                  className={`px-4 sm:px-5 py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 cursor-pointer flex items-center gap-1.5 ${
                     isSelected
                       ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md shadow-pink-500/25'
                       : 'bg-white text-slate-700 border border-slate-200/90 hover:border-slate-300'
@@ -307,14 +307,14 @@ export function Pricing() {
           </div>
         </div>
 
-        {/* ================= MODERN PRICING CARD WITH DHANDAGROW SIGNATURE GRADIENT ================= */}
-        <div className="p-[2.5px] rounded-[28px] sm:rounded-[36px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_20px_60px_-15px_rgba(240,68,155,0.25)] relative w-full max-w-3xl mx-auto transition-all duration-300">
-          <div className="w-full bg-white rounded-[26px] sm:rounded-[34px] p-6 sm:p-8 md:p-10">
+        {/* ================= MODERN EXPANDED PRICING CARD WITH DHANDAGROW SIGNATURE GRADIENT ================= */}
+        <div className="p-[2.5px] rounded-[28px] sm:rounded-[36px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_20px_60px_-15px_rgba(240,68,155,0.25)] relative w-full max-w-5xl xl:max-w-6xl mx-auto transition-all duration-300">
+          <div className="w-full bg-white rounded-[26px] sm:rounded-[34px] p-6 sm:p-8 md:p-12">
 
             {/* Plan Header Info (Matching Image 2 & 3: Plan Badge, Credit Badge, Title & Tagline) */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-6 border-b border-slate-100">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-6 border-b border-slate-100">
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
                     {activePlan.planBadge}
                   </span>
@@ -324,16 +324,16 @@ export function Pricing() {
                     </span>
                   )}
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
                   {activePlan.name}
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium leading-relaxed">
+                <p className="text-xs sm:text-sm lg:text-base text-slate-500 mt-1 font-medium leading-relaxed max-w-2xl">
                   {activePlan.description}
                 </p>
               </div>
 
               <div className="shrink-0 self-start sm:self-center">
-                <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-2xs">
+                <span className="inline-flex items-center px-4 py-2 rounded-full text-xs sm:text-sm font-bold bg-slate-900 text-white shadow-md">
                   {activePlan.creditBadge}
                 </span>
               </div>
@@ -341,18 +341,18 @@ export function Pricing() {
 
             {/* Top Billing Selector: ALL 3 PERIODS (Monthly, Quarterly, Yearly) */}
             {activePlan.id !== 'FREE' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 w-full">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5 w-full mb-8">
                 {/* 1. Pay Monthly */}
                 <div
                   onClick={() => setBillingCycle('monthly')}
-                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between ${
+                  className={`p-4 sm:p-5 lg:p-6 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between ${
                     billingCycle === 'monthly'
                       ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
                       : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-bold text-slate-900">Pay monthly</span>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm sm:text-base font-bold text-slate-900">Pay monthly</span>
                     <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                       billingCycle === 'monthly' ? 'bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] border-transparent' : 'border-slate-300 bg-white'
                     }`}>
@@ -361,12 +361,12 @@ export function Pricing() {
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
+                      <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
                         ₹{monthlyPricing.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">/mo</span>
+                      <span className="text-xs sm:text-sm font-semibold text-slate-500">/mo</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       ₹{(monthlyPricing.price * 12).toLocaleString('en-IN')} billed yearly
                     </p>
                   </div>
@@ -375,15 +375,15 @@ export function Pricing() {
                 {/* 2. Pay Quarterly (Save 10%) */}
                 <div
                   onClick={() => setBillingCycle('quarterly')}
-                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
+                  className={`p-4 sm:p-5 lg:p-6 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
                     billingCycle === 'quarterly'
                       ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
                       : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2 gap-1">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm font-bold text-slate-900 truncate">Quarterly</span>
+                  <div className="flex items-center justify-between mb-3 gap-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm sm:text-base font-bold text-slate-900 truncate">Quarterly</span>
                       <span className="text-[10px] font-extrabold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-2 py-0.5 rounded-full shadow-2xs shrink-0">
                         10% OFF
                       </span>
@@ -396,17 +396,17 @@ export function Pricing() {
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1.5 flex-wrap">
-                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
+                      <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
                         ₹{quarterlyPricing.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">/qtr</span>
+                      <span className="text-xs sm:text-sm font-semibold text-slate-500">/qtr</span>
                       {quarterlyPricing.originalPrice && (
-                        <span className="text-xs text-slate-400 line-through font-medium">
+                        <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
                           ₹{quarterlyPricing.originalPrice.toLocaleString('en-IN')}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       ₹{Math.round(quarterlyPricing.price / 3).toLocaleString('en-IN')}/mo, billed quarterly
                     </p>
                   </div>
@@ -415,15 +415,15 @@ export function Pricing() {
                 {/* 3. Pay Once a Year (Save 20%) */}
                 <div
                   onClick={() => setBillingCycle('yearly')}
-                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
+                  className={`p-4 sm:p-5 lg:p-6 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
                     billingCycle === 'yearly'
                       ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
                       : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2 gap-1">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm font-bold text-slate-900 truncate">Pay yearly</span>
+                  <div className="flex items-center justify-between mb-3 gap-1">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm sm:text-base font-bold text-slate-900 truncate">Pay yearly</span>
                       <span className="text-[10px] font-extrabold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-2 py-0.5 rounded-full shadow-2xs shrink-0">
                         20% OFF
                       </span>
@@ -436,95 +436,98 @@ export function Pricing() {
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1.5 flex-wrap">
-                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
+                      <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
                         ₹{yearlyPricing.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs font-semibold text-slate-500">/year</span>
+                      <span className="text-xs sm:text-sm font-semibold text-slate-500">/year</span>
                       {yearlyPricing.originalPrice && (
-                        <span className="text-xs text-slate-400 line-through font-medium">
+                        <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
                           ₹{yearlyPricing.originalPrice.toLocaleString('en-IN')}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-1">
+                    <p className="text-xs text-slate-400 mt-1">
                       ₹{Math.round(yearlyPricing.price / 12).toLocaleString('en-IN')}/mo, billed yearly
                     </p>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="p-4 sm:p-5 rounded-2xl border-2 border-pink-400 bg-gradient-to-br from-pink-50/40 via-purple-50/20 to-orange-50/20 w-full flex items-center justify-between">
+              <div className="p-5 sm:p-6 rounded-2xl border-2 border-pink-400 bg-gradient-to-br from-pink-50/40 via-purple-50/20 to-orange-50/20 w-full flex items-center justify-between mb-8">
                 <div>
-                  <span className="text-sm font-bold text-slate-900">Free Starter Tier</span>
+                  <span className="text-base font-bold text-slate-900">Free Starter Tier</span>
                   <div className="flex items-baseline gap-1 mt-1">
-                    <span className="text-2xl sm:text-3xl font-black text-slate-900">₹0</span>
-                    <span className="text-xs sm:text-sm text-slate-500">/forever</span>
+                    <span className="text-3xl font-black text-slate-900">₹0</span>
+                    <span className="text-sm text-slate-500">/forever</span>
                   </div>
                 </div>
-                <span className="text-xs font-semibold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-3.5 py-1.5 rounded-full shadow-2xs">
+                <span className="text-xs sm:text-sm font-semibold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-4 py-2 rounded-full shadow-2xs">
                   No Payment Required
                 </span>
               </div>
             )}
 
             {/* Bonus Banner in Signature Theme */}
-            <div className="w-full p-4 sm:p-4.5 rounded-2xl bg-gradient-to-r from-orange-50/60 via-pink-50/60 to-purple-50/60 border border-pink-200/80 flex items-center gap-3.5 my-6">
-              <div className="w-10 h-10 rounded-xl bg-white border border-pink-200/90 flex items-center justify-center text-[#f0449b] shadow-2xs shrink-0">
-                <Gift className="w-5 h-5 text-[#f0449b]" />
+            <div className="w-full p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-orange-50/70 via-pink-50/60 to-purple-50/60 border border-pink-200/80 flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-xl bg-white border border-pink-200/90 flex items-center justify-center text-[#f0449b] shadow-2xs shrink-0">
+                <Gift className="w-6 h-6 text-[#f0449b]" />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm sm:text-[15px] font-bold text-slate-900 leading-snug">
+                <span className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
                   Get {activePlan.creditBadge}
                 </span>
-                <span className="text-xs sm:text-[13px] text-pink-900/80 font-medium">
+                <span className="text-xs sm:text-sm text-pink-950/80 font-medium mt-0.5">
                   {activePlan.description}
                 </span>
               </div>
             </div>
 
-            {/* KEY HIGHLIGHTS (Matching Image 2 & 3) */}
-            <div className="my-6">
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-3.5">
-                Key Highlights
-              </h4>
-              <div className="space-y-2.5">
-                {activePlan.highlights.map((highlight, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5">
-                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-2xs">
-                      <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+            {/* FEATURES GRID: 2 COLUMNS ON WEB/DESKTOP (Key Highlights & All Features) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 pt-6 border-t border-slate-100">
+              {/* Left Column: KEY HIGHLIGHTS */}
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-800 mb-4">
+                  <span className="text-xs font-black uppercase tracking-wider">Key Highlights</span>
+                </div>
+                <div className="space-y-3">
+                  {activePlan.highlights.map((highlight, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-2xs">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+                      </div>
+                      <span className="text-xs sm:text-sm font-semibold text-slate-800 leading-relaxed">
+                        {highlight}
+                      </span>
                     </div>
-                    <span className="text-xs sm:text-sm font-semibold text-slate-800">
-                      {highlight}
-                    </span>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Column: ALL FEATURES INCLUDED */}
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-50 text-[#f0449b] mb-4 border border-pink-200/60">
+                  <span className="text-xs font-black uppercase tracking-wider">All Features Included</span>
+                </div>
+                <div className="space-y-3">
+                  {activePlan.allFeatures.map((feature, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className="w-5 h-5 rounded-full border border-pink-300 bg-pink-50/70 flex items-center justify-center text-[#f0449b] shrink-0 mt-0.5">
+                        <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs sm:text-sm text-slate-600 font-normal leading-relaxed">
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* ALL FEATURES INCLUDED (Matching Image 2 & 3) */}
-            <div className="my-6 pt-6 border-t border-slate-100">
-              <h4 className="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] mb-3.5">
-                All Features Included
-              </h4>
-              <div className="space-y-2.5">
-                {activePlan.allFeatures.map((feature, idx) => (
-                  <div key={idx} className="flex items-start gap-2.5">
-                    <div className="w-5 h-5 rounded-full border border-pink-300 bg-pink-50/70 flex items-center justify-center text-[#f0449b] shrink-0 mt-0.5">
-                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-                    </div>
-                    <span className="text-xs sm:text-sm text-slate-600 font-normal">
-                      {feature}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Bottom Buy Now Button with DhandaGrow Signature Brand Gradient (Redirection disabled) */}
-            <div className="mt-8 w-full">
+            {/* Bottom Buy Now Button with DhandaGrow Signature Brand Gradient (Centered & Expanded) */}
+            <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col items-center">
               <button
                 type="button"
-                className="w-full py-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                className="w-full max-w-xl py-4 sm:py-4.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
                 {activePlan.id === 'FREE'
                   ? 'Get Started Free'
