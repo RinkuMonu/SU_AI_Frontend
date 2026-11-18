@@ -16,14 +16,14 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-[#2B1E7E] isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <FallingIcons />
       </div>
       {/* Gradient overlays to ensure text readability */}
-      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-background via-background/90  to-transparent  w-[60%] pointer-events-none" />
+      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-[#2B1E7E] via-[#2B1E7E]/90  to-transparent  w-[60%] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center lg:items-center justify-between gap-6 lg:gap-12">
 
