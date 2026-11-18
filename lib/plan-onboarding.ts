@@ -27,7 +27,7 @@ export interface PlanDefinition {
 export const AVAILABLE_PLANS: PlanDefinition[] = [
   {
     id: "FREE",
-    planBadge: "PLAN 1",
+    planBadge: "FREE",
     name: "Free",
     tagline: "For students, beginners and first timers.",
     creditBadge: "50 Credits · one time",
