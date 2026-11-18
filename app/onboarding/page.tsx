@@ -356,14 +356,21 @@ export default function OnboardingPage() {
   const { user, login, logout } = useAuth();
 
   useEffect(() => {
-    if (user?.role === "influencer") {
+    if (!user) return;
+    if (user.role === "influencer") {
       router.replace("/onboarding/influencer");
+      return;
     }
-  }, [user, router]);
-
-  useEffect(() => {
-    if (user?.role === "influencer") {
-      router.replace("/onboarding/influencer");
+    const isCompleted = Boolean(
+      user.onboardingCompleted ||
+      (user as any).onboarding_completed ||
+      (user as any).is_completed ||
+      (user as any).businessName ||
+      (user as any).business_name ||
+      (user as any).onboarding_status === "completed"
+    );
+    if (isCompleted) {
+      router.replace("/dashboard");
     }
   }, [user, router]);
 

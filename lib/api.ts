@@ -197,7 +197,9 @@ api.interceptors.response.use(
           }
         } catch (_) {}
 
-        if (!isRedirecting) {
+        // Never redirect or reload if the user is ALREADY on the login or auth pages
+        const isAlreadyOnAuth = path.startsWith("/login") || path.startsWith("/signup");
+        if (!isAlreadyOnAuth && !isRedirecting) {
           isRedirecting = true;
           setTimeout(() => {
             window.location.replace("/login/user?reason=device_conflict");

@@ -40,18 +40,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // 1. If arrived due to device conflict, clear tokens immediately and NEVER call refreshUser()
+        if (urlParams.get('reason') === 'device_conflict') {
+          try {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          } catch (_) {}
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
+
         try {
           const cached = localStorage.getItem('user');
           if (cached) {
             setUser(JSON.parse(cached));
           }
         } catch (_) {}
-        const urlParams = new URLSearchParams(window.location.search);
+
         const urlToken = urlParams.get('token');
         if (urlToken) {
           localStorage.setItem('access_token', urlToken);
         }
+
+        // 2. If on login or signup page and no token exists at all, do not fire /me
+        const hasToken =
+          Boolean(localStorage.getItem('access_token')) ||
+          Boolean(localStorage.getItem('token')) ||
+          document.cookie.includes('access_token=');
+        const isAuthPage =
+          window.location.pathname.startsWith('/login') ||
+          window.location.pathname.startsWith('/signup');
+
+        if (isAuthPage && !hasToken) {
+          setUser(null);
+          setIsLoading(false);
+          return;
+        }
       }
+
       try {
         await refreshUser();
       } catch (_) {}
@@ -112,7 +142,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // 2. Authenticated users handling
       const role = user.role;
-      const isOnboardingComplete = Boolean(user.onboardingCompleted || (user as any).onboarding_completed);
+      const isOnboardingComplete = Boolean(
+        user.onboardingCompleted ||
+        (user as any).onboarding_completed ||
+        (user as any).is_completed ||
+        (user as any).businessName ||
+        (user as any).business_name ||
+        (user as any).business ||
+        (user as any).onboarding_status === 'completed' ||
+        role === 'admin'
+      );
 
       // 2a: OAuth phone verification requirement
       const userPhone = (user.phone || (user as any).phone_number || (user as any).mobile || '').trim();

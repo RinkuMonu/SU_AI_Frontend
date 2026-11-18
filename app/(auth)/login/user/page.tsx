@@ -212,23 +212,27 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
   const isCompleted = Boolean(
     user?.onboardingCompleted === true ||
     user?.onboarding_completed === true ||
-    user?.is_completed === true
+    user?.is_completed === true ||
+    user?.businessName ||
+    user?.business_name ||
+    user?.onboarding_status === "completed"
   );
 
-  if (explicitRoute && explicitRoute !== "/influencer") {
+  if (isCompleted) {
+    router.replace(getDashboardRouteForRole(user?.role || role));
+    return;
+  }
+
+  if (explicitRoute && explicitRoute !== "/influencer" && !explicitRoute.includes("onboarding") && !explicitRoute.includes("select-role")) {
     const targetRoute = mapBackendDashboardRoute(explicitRoute, user?.role);
     router.replace(targetRoute);
     return;
   }
 
-  if (isCompleted) {
-    router.replace(getDashboardRouteForRole(user?.role));
-  } else {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("show_onboarding_plan", "true");
-    }
-    router.replace("/select-role");
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("show_onboarding_plan", "true");
   }
+  router.replace("/select-role");
 }
 
 export default function LoginPage() {
@@ -275,13 +279,13 @@ export default function LoginPage() {
           }
         } catch (_) {}
       }
+    }
 
-      const reason = searchParams.get("reason");
-      const conflictNotice = sessionStorage.getItem("device_conflict_notice");
-      if (reason === "device_conflict" || conflictNotice) {
-        setError(conflictNotice || "Your session has expired because your account was logged in on another device.");
-        sessionStorage.removeItem("device_conflict_notice");
-      }
+    const reason = searchParams.get("reason");
+    const conflictNotice = sessionStorage.getItem("device_conflict_notice");
+    if (reason === "device_conflict" || conflictNotice) {
+      setError(conflictNotice || "Your session expired because your account was logged in on another device.");
+      sessionStorage.removeItem("device_conflict_notice");
     }
   }, []);
 
@@ -504,6 +508,8 @@ export default function LoginPage() {
 
         const finalUser = {
           ...user,
+          token: token,
+          access_token: token,
           phone_verified: true,
           onboardingCompleted: isDone,
         };
@@ -526,12 +532,12 @@ export default function LoginPage() {
           }
           setPendingAuthUser(finalUser);
           setPendingDashboardRoute((response as any).dashboard_route);
-          login(finalUser);
+          login(token, finalUser);
           setStep("details");
           return;
         }
 
-        login(finalUser);
+        login(token, finalUser);
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("onboarding_step");
           sessionStorage.removeItem("show_onboarding_plan");
@@ -609,7 +615,7 @@ export default function LoginPage() {
         localStorage.setItem("token", effectiveToken);
       }
 
-      login(finalUser);
+      login(effectiveToken, finalUser);
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("onboarding_step");
         sessionStorage.removeItem("show_onboarding_plan");
@@ -843,7 +849,7 @@ export default function LoginPage() {
               phone_verified: true,
               onboardingCompleted: isDone,
             };
-            login(finalUser);
+            login(token, finalUser);
             sessionStorage.removeItem("google_auth_mode");
             sessionStorage.removeItem("google_redirect_uri");
             sessionStorage.removeItem("google_auth_phone");
