@@ -122,6 +122,42 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
+        {/* Google Translate Top Banner Auto-remover */}
+        <Script
+          id="google-translate-remover"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function purgeBanner() {
+                  if (document.body && document.body.style.top && document.body.style.top !== '0px') {
+                    document.body.style.setProperty('top', '0px', 'important');
+                  }
+                  if (document.documentElement && document.documentElement.style.top && document.documentElement.style.top !== '0px') {
+                    document.documentElement.style.setProperty('top', '0px', 'important');
+                  }
+                  var banners = document.querySelectorAll('body > .skiptranslate, iframe.goog-te-banner-frame, iframe[class*="VIpgJd"], .VIpgJd-ZVi9od-ORHb-OEVmcd, iframe[id*=".container"]');
+                  for (var i = 0; i < banners.length; i++) {
+                    banners[i].style.setProperty('display', 'none', 'important');
+                    banners[i].style.setProperty('visibility', 'hidden', 'important');
+                    banners[i].style.setProperty('height', '0px', 'important');
+                    banners[i].style.setProperty('opacity', '0', 'important');
+                  }
+                }
+                if (typeof window !== 'undefined') {
+                  var observer = new MutationObserver(purgeBanner);
+                  if (document.documentElement) {
+                    observer.observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class'] });
+                  }
+                  window.addEventListener('DOMContentLoaded', purgeBanner);
+                  window.addEventListener('load', purgeBanner);
+                  setInterval(purgeBanner, 150);
+                }
+              })();
+            `,
+          }}
+        />
+
         <Script
           id="google-maps-sdk"
           src={`https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async`}
