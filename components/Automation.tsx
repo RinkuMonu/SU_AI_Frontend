@@ -309,10 +309,7 @@ export function Automation() {
                       <span>Consensus Ready • 3 AI strategies generated for DhandaGrow</span>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span>Live demo auto-looping</span>
-                    </div>
+
                   </motion.div>
                 )}
 
