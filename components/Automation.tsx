@@ -2,339 +2,376 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, ArrowRight, RotateCcw, Plus, Check } from 'lucide-react';
+import { ArrowRight, Plus, Sparkles, Check, Download, Layers, Play, Pause, RotateCcw } from 'lucide-react';
 
-// Crisp SVGs for AI Model Badges
-const OpenAIIcon = () => (
-  <svg className="w-5 h-5 shrink-0 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9 6.07 6.07 0 0 0-10.27 2.17 5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07zm-9.02 12.61a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.78-2.76a.79.79 0 0 0 .39-.68v-6.74l2.02 1.17a.07.07 0 0 1 .04.05v5.58a4.5 4.5 0 0 1-4.49 4.5zm-9.66-4.13a4.47 4.47 0 0 1-.53-3.01l.14.09 4.78 2.75a.77.77 0 0 0 .78 0l5.85-3.37v2.33a.08.08 0 0 1-.04.06l-4.84 2.8a4.5 4.5 0 0 1-6.14-1.65zM2.34 7.9a4.49 4.49 0 0 1 2.37-1.98v5.68c0 .28.15.54.39.68l5.81 3.35-2.02 1.17a.08.08 0 0 1-.07 0l-4.83-2.79A4.5 4.5 0 0 1 2.34 7.9zm16.1 3.85-5.84-3.37 2.02-1.16a.08.08 0 0 1 .07 0l4.83 2.79a4.5 4.5 0 0 1-.68 8.1v-5.67a.79.79 0 0 0-.4-.69zm2.01-3.02-.14-.08-4.77-2.79a.78.78 0 0 0-.79 0L9.41 9.23V6.9a.07.07 0 0 1 .03-.06l4.83-2.79a4.5 4.5 0 0 1 6.68 4.66zM8.31 12.86l-2.02-1.16a.08.08 0 0 1-.04-.06V6.07a4.5 4.5 0 0 1 7.38-3.45l-.14.08-4.79 2.76a.79.79 0 0 0-.39.68v6.72z" />
-  </svg>
-);
+const FULL_TEXT = 'Create an 8-slide presentation on photosynthesis for my biology assignment.';
 
-const ClaudeIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#D97706">
-    <path d="M13.5 2H10.5V8.5L6 4L3.8 6.2L8.5 10.5H2V13.5H8.5L4 18L6.2 20.2L10.5 15.5V22H13.5V15.5L18 20L20.2 17.8L15.5 13.5H22V10.5H15.5L20 6L17.8 3.8L13.5 8.5V2Z" />
-  </svg>
-);
-
-const GeminiIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
-    <path
-      d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"
-      fill="url(#gemini-grad-consensus)"
-    />
-    <defs>
-      <linearGradient id="gemini-grad-consensus" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#1BA1E3" />
-        <stop offset="0.5" stopColor="#5B76FB" />
-        <stop offset="1" stopColor="#D96570" />
-      </linearGradient>
-    </defs>
-  </svg>
-);
-
-// Mouse Cursor SVG pointer icon for the animation
-const MouseCursorIcon = () => (
-  <svg className="w-6 h-6 text-slate-900 drop-shadow-md" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M4 2L20 12L13 14L10 21L4 2Z" />
-  </svg>
-);
+const SLIDES = [
+  {
+    num: '01',
+    title: 'Introduction to Photosynthesis',
+    subtitle: 'The biochemical engine converting solar radiation into chemical energy.',
+    tag: 'Core Concept',
+    gradient: 'from-emerald-500 to-teal-600',
+    bullets: ['Equation: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂', 'Chloroplast structure & thylakoid membranes', 'Autotrophic nutrition fundamentals'],
+  },
+  {
+    num: '02',
+    title: 'Light-Dependent Reactions',
+    subtitle: 'Harvesting photons to synthesize ATP and NADPH.',
+    tag: 'Phase 1',
+    gradient: 'from-teal-500 to-cyan-600',
+    bullets: ['Photosystem II & I photon absorption', 'Photolysis of water & oxygen release', 'Proton gradient across thylakoid'],
+  },
+  {
+    num: '03',
+    title: 'The Calvin Cycle (Dark Phase)',
+    subtitle: 'Enzymatic carbon fixation inside the stroma.',
+    tag: 'Phase 2',
+    gradient: 'from-indigo-500 to-purple-600',
+    bullets: ['RuBisCO enzyme catalytic role', 'Reduction of 3-PGA to G3P', 'Regeneration of RuBP molecule'],
+  },
+  {
+    num: '04',
+    title: 'Exam Summary & Key Takeaways',
+    subtitle: 'Crucial definitions, formulas and comparison tables.',
+    tag: 'High Yield',
+    gradient: 'from-emerald-600 to-indigo-600',
+    bullets: ['Limiting factors: light, CO₂, temperature', 'C3 vs C4 vs CAM plant adaptations', 'Model exam questions & answers'],
+  },
+];
 
 export function Automation() {
-  const [viewMode, setViewMode] = useState<'compare' | 'consensus'>('compare');
+  const [phase, setPhase] = useState<'typing' | 'clicking' | 'generating' | 'completed'>('typing');
+  const [typedChars, setTypedChars] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
 
-  // Auto-cycle between Compare and Consensus views every 6 seconds
+  // Typewriter effect
   useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setViewMode((prev) => (prev === 'compare' ? 'consensus' : 'compare'));
-    }, 6500);
-    return () => clearInterval(timer);
-  }, [isPaused]);
+    if (phase !== 'typing') return;
+    if (typedChars < FULL_TEXT.length) {
+      const timeout = setTimeout(() => {
+        setTypedChars((prev) => prev + 1);
+      }, 42);
+      return () => clearTimeout(timeout);
+    } else {
+      // Done typing, move to clicking phase
+      const timeout = setTimeout(() => {
+        setPhase('clicking');
+      }, 600);
+      return () => clearTimeout(timeout);
+    }
+  }, [phase, typedChars]);
+
+  // Click & transition to generating
+  useEffect(() => {
+    if (phase !== 'clicking') return;
+    const timeout = setTimeout(() => {
+      setPhase('generating');
+      setProgress(0);
+    }, 1200);
+    return () => clearTimeout(timeout);
+  }, [phase]);
+
+  // Generating progress bar
+  useEffect(() => {
+    if (phase !== 'generating') return;
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          setPhase('completed');
+          return 100;
+        }
+        return prev + 5;
+      });
+    }, 70);
+    return () => clearInterval(interval);
+  }, [phase]);
+
+  // Completed display pause before restarting loop
+  useEffect(() => {
+    if (phase !== 'completed' || isPaused) return;
+    const timeout = setTimeout(() => {
+      setTypedChars(0);
+      setProgress(0);
+      setPhase('typing');
+    }, 5500);
+    return () => clearTimeout(timeout);
+  }, [phase, isPaused]);
+
+  const handleManualRestart = () => {
+    setTypedChars(0);
+    setProgress(0);
+    setPhase('typing');
+  };
+
+  const handleSkipToResult = () => {
+    setTypedChars(FULL_TEXT.length);
+    setProgress(100);
+    setPhase('completed');
+  };
 
   return (
-    <section id="automation" className="w-full max-w-full pt-10 sm:pt-14 pb-12 sm:pb-16 bg-[#F5FAF7] relative overflow-hidden border-t border-slate-100 scroll-mt-20">
-      {/* Background Subtle Gradient Accents */}
-      <div className="absolute top-0 left-1/3 w-[500px] h-[500px] bg-emerald-100/40 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[450px] h-[450px] bg-teal-100/30 blur-[120px] rounded-full pointer-events-none" />
+    <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-[#F7FAF8] relative overflow-hidden border-t border-slate-100 scroll-mt-20">
+      {/* Background Soft Glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-100/40 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-100/35 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center mb-6 sm:mb-9 w-full">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-emerald-200/80 mb-3 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span className="text-[11.5px] font-semibold text-emerald-800 tracking-wide">Multi-Model Intelligence</span>
-          </div>
-
-          <h2 className="text-2xl min-[375px]:text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight leading-tight">
-            Compare AI answers. <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600">Generate consensus</span>.
+        {/* Section Header as requested in Image 1 */}
+        <div className="flex flex-col items-center text-center mb-8 sm:mb-10 w-full">
+          <h2 className="text-3xl sm:text-4xl md:text-[42px] font-bold text-slate-900 tracking-tight leading-tight">
+            What presentation do you need?
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 mt-2.5 max-w-lg mx-auto leading-relaxed">
-            Run top AI models in parallel, compare their reasoning, and synthesize the ultimate consensus answer in one click.
+          <p className="text-sm sm:text-base md:text-lg text-slate-500 font-normal mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Describe it in a sentence. We draft the outline first, then build the slides.
           </p>
 
-          {/* Mode Switcher Tabs */}
-          <div className="inline-flex items-center p-1 rounded-full bg-white border border-slate-200/80 shadow-xs mt-4">
+          {/* Interactive controls pill */}
+          <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 rounded-full bg-white border border-slate-200/90 text-xs text-slate-500 shadow-2xs">
             <button
               type="button"
-              onClick={() => setViewMode('compare')}
-              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                viewMode === 'compare'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              onClick={() => setIsPaused((prev) => !prev)}
+              className="flex items-center gap-1 hover:text-emerald-700 font-medium cursor-pointer"
             >
-              1. Compare Answers
+              {isPaused ? <Play className="w-3 h-3 text-emerald-600 fill-emerald-600" /> : <Pause className="w-3 h-3 text-amber-600 fill-amber-600" />}
+              <span>{isPaused ? 'Resume Demo' : 'Pause Demo'}</span>
             </button>
+            <span className="text-slate-300">•</span>
             <button
               type="button"
-              onClick={() => setViewMode('consensus')}
-              className={`px-4 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                viewMode === 'consensus'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
+              onClick={handleManualRestart}
+              className="flex items-center gap-1 hover:text-emerald-700 font-medium cursor-pointer"
             >
-              2. Consensus Summary
+              <RotateCcw className="w-3 h-3" />
+              <span>Replay</span>
             </button>
+            {phase !== 'completed' && (
+              <>
+                <span className="text-slate-300">•</span>
+                <button
+                  type="button"
+                  onClick={handleSkipToResult}
+                  className="hover:text-emerald-700 font-medium cursor-pointer"
+                >
+                  Skip to Slides →
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Main Comparison Sandbox Card */}
+        {/* ================= MAIN INTERACTIVE DEMO CARD CONTAINER ================= */}
         <div
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="w-full bg-white rounded-[24px] sm:rounded-[32px] border border-slate-200/90 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] p-5 sm:p-7 md:p-9 relative transition-all duration-300"
+          className="w-full max-w-4xl mx-auto"
         >
+          {/* Top Generator Input Box matching Image 1 */}
+          <div className="w-full bg-white rounded-[26px] sm:rounded-[32px] border-2 border-[#52C595] p-5 sm:p-7 shadow-[0_15px_45px_-12px_rgba(82,197,149,0.22)] relative transition-all duration-300">
 
-          {/* Top User Prompt Bubble */}
-          <div className="flex justify-end w-full mb-5 sm:mb-6">
-            <div className="inline-flex items-center px-4 sm:px-6 py-2.5 rounded-full border border-slate-200/90 bg-white text-slate-800 text-xs sm:text-sm md:text-[15px] font-medium shadow-xs">
-              Explain photosynthesis for my exam
+            {/* Prompt Typewriter Area */}
+            <div className="min-h-[58px] sm:min-h-[68px] flex items-start">
+              <p className="text-[17px] sm:text-[21px] md:text-[23px] font-medium text-slate-900 tracking-tight leading-snug">
+                {FULL_TEXT.slice(0, typedChars)}
+                {/* Blinking Typing Cursor */}
+                <span className="inline-block w-[2.5px] h-5 sm:h-6 bg-slate-900 ml-1 translate-y-0.5 animate-pulse" />
+              </p>
             </div>
+
+            {/* Bottom Controls Row: Pill Badges + Green Action Button */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100/80 mt-4">
+
+              {/* Left Control Pills */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                {/* Plus Button */}
+                <button
+                  type="button"
+                  className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 text-sm font-semibold transition-colors"
+                >
+                  <Plus className="w-4 h-4 stroke-[2.5]" />
+                </button>
+
+                {/* Slides Count */}
+                <span className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
+                  8
+                </span>
+
+                {/* Tone Pill */}
+                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs">
+                  Professional
+                </span>
+
+                {/* Format Pill */}
+                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden min-[480px]:inline-block">
+                  Standard
+                </span>
+
+                {/* Image Style Pill */}
+                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden sm:inline-block">
+                  Stock
+                </span>
+              </div>
+
+              {/* Right Action Button with Animated Click Cursor */}
+              <div className="relative">
+                <motion.button
+                  type="button"
+                  onClick={handleSkipToResult}
+                  animate={phase === 'clicking' ? { scale: [1, 0.9, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.35 }}
+                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#00875A] hover:bg-[#007048] flex items-center justify-center text-white shadow-md shadow-emerald-700/25 cursor-pointer relative"
+                  title="Generate Presentation"
+                >
+                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+
+                  {/* Animated Simulated Cursor moving in clicking phase */}
+                  {phase === 'clicking' && (
+                    <motion.div
+                      initial={{ opacity: 0, x: 24, y: 24 }}
+                      animate={{ opacity: 1, x: 2, y: 4 }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                      className="absolute -bottom-2 -right-1 pointer-events-none select-none z-30"
+                    >
+                      <svg className="w-6 h-6 text-slate-900 drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M4 2L20 12L13 14L10 21L4 2Z" />
+                      </svg>
+                    </motion.div>
+                  )}
+                </motion.button>
+              </div>
+
+            </div>
+
           </div>
 
+          {/* ================= GENERATING & SLIDES PREVIEW VIDEO SEQUENCE ================= */}
           <AnimatePresence mode="wait">
-            {viewMode === 'compare' ? (
-              /* ================= STATE 1: COMPARE ANSWERS (Image 1) ================= */
+            {phase === 'generating' && (
               <motion.div
-                key="compare-view"
-                initial={{ opacity: 0, y: 10 }}
+                key="generating-view"
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="w-full flex flex-col"
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.35 }}
+                className="mt-6 w-full bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm flex flex-col items-center text-center"
               >
-                {/* Subheading */}
-                <div className="text-slate-800 font-semibold text-xs sm:text-sm md:text-[15px] mb-3.5">
-                  Compare answers
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold mb-4">
+                  <Sparkles className="w-4 h-4 text-emerald-600 animate-spin" />
+                  <span>AI Drafting Presentation Outline & Visuals...</span>
                 </div>
 
-                {/* 3 Model Answer Columns */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 lg:gap-5 w-full">
-
-                  {/* Card 1: GPT-5 */}
+                <div className="w-full max-w-md h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
                   <motion.div
-                    whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-emerald-400/50 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs transition-shadow hover:shadow-md"
-                  >
-                    <div>
-                      {/* Model Header */}
-                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                        <OpenAIIcon />
-                        <span className="font-semibold text-slate-900 text-sm sm:text-base">GPT-5</span>
-                      </div>
-                      {/* Answer Body with Highlight */}
-                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
-                        Photosynthesis is how plants turn sunlight, water and carbon{' '}
-                        <mark className="bg-[#E6F4EA] text-slate-900 px-1 py-0.5 rounded font-medium">
-                          dioxide into their own food, releasing oxygen.
-                        </mark>{' '}
-                        It happens in the chloroplasts.
-                      </p>
-                    </div>
-                  </motion.div>
-
-                  {/* Card 2: Claude */}
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-emerald-400/50 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs transition-shadow hover:shadow-md"
-                  >
-                    <div>
-                      {/* Model Header */}
-                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                        <ClaudeIcon />
-                        <span className="font-semibold text-slate-900 text-sm sm:text-base">Claude</span>
-                      </div>
-                      {/* Answer Body with Highlight */}
-                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
-                        Think of a plant as a{' '}
-                        <mark className="bg-[#E6F4EA] text-slate-900 px-1 py-0.5 rounded font-medium">
-                          tiny solar kitchen. Sunlight is the power;
-                        </mark>{' '}
-                        water and carbon dioxide are the ingredients. Out comes glucose, plus oxygen.
-                      </p>
-                    </div>
-                  </motion.div>
-
-                  {/* Card 3: Gemini */}
-                  <motion.div
-                    whileHover={{ y: -2 }}
-                    className="rounded-2xl border border-emerald-400/50 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs transition-shadow hover:shadow-md"
-                  >
-                    <div>
-                      {/* Model Header */}
-                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                        <GeminiIcon />
-                        <span className="font-semibold text-slate-900 text-sm sm:text-base">Gemini</span>
-                      </div>
-                      {/* Answer Body with Highlight */}
-                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
-                        Plants capture light and convert water and carbon dioxide into glucose, releasing{' '}
-                        <mark className="bg-[#E6F4EA] text-slate-900 px-1 py-0.5 rounded font-medium">
-                          oxygen as a by-product —the exact terms a
-                        </mark>{' '}
-                        marker looks for.
-                      </p>
-                    </div>
-                  </motion.div>
-
+                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-[#00875A] rounded-full"
+                    style={{ width: `${progress}%` }}
+                    transition={{ ease: 'linear' }}
+                  />
                 </div>
-
-                {/* Bottom Interactive Button with Animated Cursor Pointer */}
-                <div className="relative flex justify-center mt-7 sm:mt-8 w-full">
-                  <motion.button
-                    type="button"
-                    onClick={() => setViewMode('consensus')}
-                    whileHover={{ scale: 1.03 }}
-                    whileTap={{ scale: 0.97 }}
-                    className="inline-flex items-center gap-2 bg-[#00875A] hover:bg-[#007048] text-white font-semibold text-xs sm:text-sm md:text-[15px] px-6 py-2.5 sm:py-3 rounded-full shadow-md shadow-emerald-700/25 transition-all cursor-pointer relative"
-                  >
-                    <Plus className="w-4 h-4 stroke-[2.5]" />
-                    <span>Generate consensus</span>
-
-                    {/* Animated Mouse Cursor as seen in Image 1 */}
-                    <motion.div
-                      className="absolute -bottom-3 -right-2 pointer-events-none select-none"
-                      animate={{
-                        x: [0, 3, 0],
-                        y: [0, 4, 0],
-                        scale: [1, 0.95, 1],
-                      }}
-                      transition={{
-                        duration: 1.8,
-                        repeat: Infinity,
-                        ease: 'easeInOut',
-                      }}
-                    >
-                      <MouseCursorIcon />
-                    </motion.div>
-                  </motion.button>
-                </div>
-
+                <span className="text-xs font-semibold text-slate-400">
+                  {progress}% Complete • Generating 8 high-res slides with charts & notes
+                </span>
               </motion.div>
-            ) : (
-              /* ================= STATE 2: GENERATE CONSENSUS (Image 2) ================= */
-              <motion.div
-                key="consensus-view"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35, ease: 'easeInOut' }}
-                className="w-full flex flex-col"
-              >
-                {/* Inner Consensus Summary Card */}
-                <div className="w-full rounded-2xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
+            )}
 
-                  {/* Header Title */}
-                  <div className="px-5 sm:px-6 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                    <span className="font-semibold text-slate-800 text-xs sm:text-sm md:text-[15px]">
-                      Summarize • Explain photosynthesis for my exam
+            {phase === 'completed' && (
+              <motion.div
+                key="completed-view"
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.4 }}
+                className="mt-6 w-full bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-lg shadow-emerald-950/5 flex flex-col gap-5"
+              >
+                {/* Result Top Bar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
+                      <Check className="w-4 h-4 stroke-[3]" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
+                        Photosynthesis Biology Assignment (8 Slides)
+                      </h4>
+                      <p className="text-xs text-slate-500">Drafted outline & built slides in 3.4 seconds</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+                      <Layers className="w-3.5 h-3.5" /> 8 Slides
                     </span>
                     <button
                       type="button"
-                      onClick={() => setViewMode('compare')}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-700 cursor-pointer"
+                      onClick={handleManualRestart}
+                      className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span className="hidden sm:inline">Compare Again</span>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Export Deck</span>
                     </button>
                   </div>
-
-                  <div className="p-5 sm:p-6 md:p-7 flex flex-col gap-6">
-
-                    {/* CONSENSUS Block */}
-                    <div>
-                      <div className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-2">
-                        CONSENSUS
-                      </div>
-                      <p className="text-slate-700 text-xs sm:text-sm md:text-[14.5px] leading-relaxed">
-                        All three agree on the core: plants use sunlight, water and carbon dioxide to make their own food, releasing oxygen as a by-product. What changes is the framing —a definition, an analogy, or the exam vocabulary —so pick whichever one lands for you.
-                      </p>
-                    </div>
-
-                    {/* WHERE THEY DIFFER Block */}
-                    <div>
-                      <div className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-3">
-                        WHERE THEY DIFFER
-                      </div>
-
-                      <div className="flex flex-col divide-y divide-slate-100">
-
-                        {/* GPT-5 Row */}
-                        <div className="py-3 flex items-start sm:items-center gap-3">
-                          <div className="flex items-center gap-2 w-24 sm:w-28 shrink-0">
-                            <OpenAIIcon />
-                            <span className="font-semibold text-slate-900 text-xs sm:text-sm">GPT-5</span>
-                          </div>
-                          <span className="text-slate-600 text-xs sm:text-[13.5px] leading-snug">
-                            Straight to the definition —the version you revise from the night before
-                          </span>
-                        </div>
-
-                        {/* Claude Row */}
-                        <div className="py-3 flex items-start sm:items-center gap-3">
-                          <div className="flex items-center gap-2 w-24 sm:w-28 shrink-0">
-                            <ClaudeIcon />
-                            <span className="font-semibold text-slate-900 text-xs sm:text-sm">Claude</span>
-                          </div>
-                          <span className="text-slate-600 text-xs sm:text-[13.5px] leading-snug">
-                            Frames it as a tiny solar-powered kitchen, so the whole process is intuitive
-                          </span>
-                        </div>
-
-                        {/* Gemini Row */}
-                        <div className="py-3 flex items-start sm:items-center gap-3">
-                          <div className="flex items-center gap-2 w-24 sm:w-28 shrink-0">
-                            <GeminiIcon />
-                            <span className="font-semibold text-slate-900 text-xs sm:text-sm">Gemini</span>
-                          </div>
-                          <span className="text-slate-600 text-xs sm:text-[13.5px] leading-snug">
-                            Adds the exact terms a marker looks for: glucose, conversion and oxygen
-                          </span>
-                        </div>
-
-                      </div>
-                    </div>
-
-                  </div>
-
                 </div>
 
-                {/* Back / Repeat Toggle */}
-                <div className="flex justify-center mt-6">
+                {/* 4 Slide Cards Grid representing the generated deck */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 w-full">
+                  {SLIDES.map((slide, idx) => (
+                    <motion.div
+                      key={slide.num}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: idx * 0.1, duration: 0.35 }}
+                      className="rounded-2xl border border-slate-200/90 bg-slate-50/60 p-4 flex flex-col justify-between hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all duration-200 group"
+                    >
+                      <div>
+                        {/* Slide Card Header Badge */}
+                        <div className="flex items-center justify-between mb-2.5">
+                          <span className="text-[11px] font-bold text-slate-400">SLIDE {slide.num}</span>
+                          <span className={`text-[10px] font-semibold text-white px-2 py-0.5 rounded-full bg-gradient-to-r ${slide.gradient}`}>
+                            {slide.tag}
+                          </span>
+                        </div>
+
+                        {/* Title */}
+                        <h5 className="font-bold text-slate-900 text-[13.5px] leading-tight mb-1.5 group-hover:text-emerald-700 transition-colors">
+                          {slide.title}
+                        </h5>
+
+                        {/* Subtitle */}
+                        <p className="text-[11.5px] text-slate-500 leading-snug mb-3 line-clamp-2">
+                          {slide.subtitle}
+                        </p>
+
+                        {/* Bullets */}
+                        <ul className="space-y-1.5 text-[11px] text-slate-600 border-t border-slate-200/60 pt-2.5">
+                          {slide.bullets.map((b, bIdx) => (
+                            <li key={bIdx} className="flex items-start gap-1.5">
+                              <span className="w-1 h-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                              <span className="line-clamp-1">{b}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Looping indicator bar */}
+                <div className="pt-2 flex items-center justify-between text-[11.5px] text-slate-400">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    Live animated demo • Replaying automatically...
+                  </span>
                   <button
                     type="button"
-                    onClick={() => setViewMode('compare')}
-                    className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 transition-colors cursor-pointer py-1.5 px-4 rounded-full hover:bg-slate-100"
+                    onClick={handleManualRestart}
+                    className="text-emerald-700 font-semibold hover:underline cursor-pointer"
                   >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>View original model comparison</span>
+                    Type New Prompt ↺
                   </button>
                 </div>
-
               </motion.div>
             )}
           </AnimatePresence>
