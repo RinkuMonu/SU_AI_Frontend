@@ -15,7 +15,7 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative min-h-[100svh] flex items-center pt-24 sm:pt-28 pb-16 sm:pb-12 overflow-hidden bg-background isolate">
+    <section className="relative min-h-[90svh] lg:min-h-[92svh] flex items-center pt-16 sm:pt-20 lg:pt-22 pb-12 sm:pb-10 overflow-hidden bg-background isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -27,9 +27,9 @@ export function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center lg:items-center justify-between gap-6 lg:gap-12">
 
         {/* Left Content Area */}
-        <div className="flex flex-col items-start text-left w-full max-w-2xl py-2 sm:py-4 relative z-10" >
+        <div className="flex flex-col items-start text-left w-full max-w-2xl py-1 sm:py-2 relative z-10" >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-4 sm:mb-5 shadow-lg max-w-full">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-3 sm:mb-4 shadow-lg max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
             <span className="text-[11px] sm:text-sm text-white/90 font-medium">
               AI-Powered Business Growth Platform</span>
