@@ -33,7 +33,7 @@ const MistralIcon = () => (
 );
 
 const GrokIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#0F172A" strokeWidth="2.2" strokeLinecap="round">
+  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2" strokeLinecap="round">
     <circle cx="12" cy="12" r="8.5" />
     <line x1="7" y1="17" x2="17" y2="7" />
   </svg>
@@ -46,7 +46,7 @@ const NovaIcon = () => (
 );
 
 const OpenAIIcon = () => (
-  <svg className="w-5 h-5 shrink-0 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="w-5 h-5 shrink-0 text-white" viewBox="0 0 24 24" fill="currentColor">
     <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9 6.07 6.07 0 0 0-10.27 2.17 5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07zm-9.02 12.61a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.78-2.76a.79.79 0 0 0 .39-.68v-6.74l2.02 1.17a.07.07 0 0 1 .04.05v5.58a4.5 4.5 0 0 1-4.49 4.5zm-9.66-4.13a4.47 4.47 0 0 1-.53-3.01l.14.09 4.78 2.75a.77.77 0 0 0 .78 0l5.85-3.37v2.33a.08.08 0 0 1-.04.06l-4.84 2.8a4.5 4.5 0 0 1-6.14-1.65zM2.34 7.9a4.49 4.49 0 0 1 2.37-1.98v5.68c0 .28.15.54.39.68l5.81 3.35-2.02 1.17a.08.08 0 0 1-.07 0l-4.83-2.79A4.5 4.5 0 0 1 2.34 7.9zm16.1 3.85-5.84-3.37 2.02-1.16a.08.08 0 0 1 .07 0l4.83 2.79a4.5 4.5 0 0 1-.68 8.1v-5.67a.79.79 0 0 0-.4-.69zm2.01-3.02-.14-.08-4.77-2.79a.78.78 0 0 0-.79 0L9.41 9.23V6.9a.07.07 0 0 1 .03-.06l4.83-2.79a4.5 4.5 0 0 1 6.68 4.66zM8.31 12.86l-2.02-1.16a.08.08 0 0 1-.04-.06V6.07a4.5 4.5 0 0 1 7.38-3.45l-.14.08-4.79 2.76a.79.79 0 0 0-.39.68v6.72z" />
   </svg>
 );
@@ -73,7 +73,7 @@ const WanIcon = () => (
 );
 
 const KlingIcon = () => (
-  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#1E293B" strokeWidth="2.2">
+  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.2">
     <circle cx="8" cy="12" r="4.5" />
     <circle cx="16" cy="12" r="4.5" />
   </svg>
@@ -135,9 +135,9 @@ const row3Models: AIModel[] = [
 function ModelPill({ model }: { model: AIModel }) {
   const Icon = model.icon;
   return (
-    <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-white hover:bg-slate-50 border border-slate-200/90 shadow-sm shrink-0 select-none cursor-pointer transition-transform duration-200 hover:scale-105">
+    <div className="inline-flex items-center gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-[#B1B1B1]/[0.12] hover:bg-[#B1B1B1]/[0.22] border border-[#535353] backdrop-blur-md shadow-sm shrink-0 select-none cursor-pointer transition-all duration-200 hover:scale-105">
       <Icon />
-      <span className="text-[13.5px] sm:text-[14.5px] font-semibold text-slate-800 tracking-tight whitespace-nowrap">
+      <span className="text-[13.5px] sm:text-[14.5px] font-medium text-white tracking-tight whitespace-nowrap">
         {model.name}
       </span>
     </div>
