@@ -489,7 +489,7 @@ export default function SubscriptionPage() {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-3xl p-4 xl:p-5 flex flex-col justify-between transition-all duration-300 ${
+                className={`relative rounded-3xl p-4.5 pt-6 xl:p-5 xl:pt-6 flex flex-col justify-between transition-all duration-300 ${
                   plan.isPopular
                     ? "bg-gradient-to-b from-[#251545] to-[#120B24] border-2 border-[#C026D3] shadow-[0_0_30px_rgba(192,38,211,0.2)]"
                     : isCurrent
@@ -510,16 +510,15 @@ export default function SubscriptionPage() {
                 )}
 
                 <div>
-                  <div className="flex justify-between items-start mb-2.5 gap-1.5">
-                    <div className="min-w-0">
-                      <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
-                        {plan.planBadge || "Plan"}
-                      </span>
-                      <h3 className="text-lg xl:text-xl font-bold text-white mt-0.5 truncate">{plan.name}</h3>
-                    </div>
-                    <span className="bg-white/10 text-white text-[10px] xl:text-[11px] px-2 py-0.5 rounded-full font-medium text-right shrink-0 leading-tight">
-                      {plan.creditBadge}
+                  <div className="mb-3">
+                    <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
+                      {plan.planBadge || "Plan"}
                     </span>
+                    <h3 className="text-xl font-bold text-white mt-0.5">{plan.name}</h3>
+                    <div className="mt-2 inline-flex items-center gap-1.5 bg-white/10 text-white text-[10.5px] xl:text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/10 max-w-full">
+                      <Zap className="w-3 h-3 text-brand-purple fill-brand-purple shrink-0" />
+                      <span className="truncate">{plan.creditBadge}</span>
+                    </div>
                   </div>
 
                   <p className="text-[11.5px] xl:text-xs text-gray-400 min-h-[34px] mb-3 leading-snug line-clamp-2">
