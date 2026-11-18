@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Plus, Sparkles, Check, Play, Pause, RotateCcw, Zap } from 'lucide-react';
+import { ArrowRight, Plus, Sparkles, Check, RotateCcw, Zap } from 'lucide-react';
 
 const PROMPT_TEXT = 'Launch a festive marketing campaign for our business — 25% discount offer, viral Instagram reels, and customer WhatsApp broadcast.';
 
@@ -141,39 +141,6 @@ export function Automation() {
           <p className="text-sm sm:text-base md:text-lg text-slate-500 font-normal mt-2.5 max-w-xl mx-auto leading-relaxed">
             Describe it in a sentence. We compare top AI models to craft the highest-converting strategy, reels, and ads.
           </p>
-
-          {/* Interactive controls pill */}
-          <div className="inline-flex items-center gap-2 mt-4 px-3 py-1 rounded-full bg-white border border-slate-200/90 text-xs text-slate-500 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setIsPaused((prev) => !prev)}
-              className="flex items-center gap-1 hover:text-pink-600 font-medium cursor-pointer"
-            >
-              {isPaused ? <Play className="w-3 h-3 text-[#f0449b] fill-[#f0449b]" /> : <Pause className="w-3 h-3 text-amber-600 fill-amber-600" />}
-              <span>{isPaused ? 'Resume Demo' : 'Pause Demo'}</span>
-            </button>
-            <span className="text-slate-300">•</span>
-            <button
-              type="button"
-              onClick={handleManualRestart}
-              className="flex items-center gap-1 hover:text-pink-600 font-medium cursor-pointer"
-            >
-              <RotateCcw className="w-3 h-3" />
-              <span>Replay</span>
-            </button>
-            {phase !== 'completed' && (
-              <>
-                <span className="text-slate-300">•</span>
-                <button
-                  type="button"
-                  onClick={handleSkipToAnswer}
-                  className="hover:text-pink-600 font-medium cursor-pointer"
-                >
-                  View AI Comparison →
-                </button>
-              </>
-            )}
-          </div>
         </div>
 
         {/* ================= MAIN INTERACTIVE DEMO CARD WITH BRAND GRADIENT ================= */}
