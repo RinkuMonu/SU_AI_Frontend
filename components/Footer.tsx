@@ -262,20 +262,30 @@ export function Footer() {
               </div>
             </Link>
             <div className="flex gap-2 ml-4">
-              <Link href="/download" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
+              <a
+                href="https://play.google.com/store/apps/details?id=com.dhandagrow"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white"
+              >
                 <PlayStoreIcon />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] text-slate-300 font-medium">GET IT ON</span>
                   <span className="text-[11px] font-bold">Google Play</span>
                 </div>
-              </Link>
-              <Link href="/download" className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white">
+              </a>
+              <a
+                href="https://apps.apple.com/app/idcom.dhandagrow"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-10 px-3 bg-black hover:bg-slate-800 transition-colors rounded-lg flex items-center gap-2 text-white"
+              >
                 <AppStoreIcon />
                 <div className="flex flex-col items-start leading-none">
                   <span className="text-[8px] text-slate-300 font-medium">Download on the</span>
                   <span className="text-[11px] font-bold">App Store</span>
                 </div>
-              </Link>
+              </a>
             </div>
           </div>
 
