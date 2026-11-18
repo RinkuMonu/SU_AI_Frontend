@@ -118,11 +118,11 @@ export function Automation() {
   };
 
   return (
-    <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-slate-50/70 relative overflow-hidden border-t border-slate-100 scroll-mt-20">
+    <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-white relative overflow-hidden border-t border-slate-100 scroll-mt-20">
       {/* Background DhandaGrow Brand Theme Glows */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-orange-100/40 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-pink-100/30 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-orange-100/30 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-100/30 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-pink-100/20 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
