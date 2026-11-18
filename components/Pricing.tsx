@@ -527,7 +527,7 @@ export function Pricing() {
             <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col items-center">
               <button
                 type="button"
-                className="w-full max-w-xl py-4 sm:py-4.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+                className="w-full max-w-xl py-4 sm:py-4.5 rounded-full bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
                 {activePlan.id === 'FREE'
                   ? 'Get Started Free'
