@@ -41,12 +41,12 @@ function CheckoutContent() {
   const paramPlan = (searchParams.get("plan") || "PRO_STARTER").toUpperCase().trim();
   const paramCycle = (searchParams.get("cycle") || searchParams.get("billing_cycle") || "monthly").toLowerCase() as BillingCycle;
   const paramAmount = searchParams.get("amount") ? parseFloat(searchParams.get("amount") || "0") : 0;
-  const paramMode = (searchParams.get("mode") || "ALL").toUpperCase() as "ALL" | "AUTOPAY";
+  const paramMode = "AUTOPAY";
 
   // State
   const [selectedPlanId, setSelectedPlanId] = useState<string>(paramPlan);
   const [selectedCycle, setSelectedCycle] = useState<BillingCycle>(paramCycle);
-  const [paymentMode, setPaymentMode] = useState<"ALL" | "AUTOPAY">(paramMode);
+  const [paymentMode, setPaymentMode] = useState<"ALL" | "AUTOPAY">("AUTOPAY");
   const [sessionId, setSessionId] = useState<string>(paramSessionId);
   const [orderId, setOrderId] = useState<string>(paramOrderId);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -225,86 +225,42 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
-            <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl space-y-4">
-              <h4 className="text-sm font-semibold text-white flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-fuchsia-400" />
-                <span>Choose Payment Mode</span>
-              </h4>
+            {/* AutoPay Mandate (Primary Recurring Auto-Debit) */}
+            <div className="p-6 rounded-2xl bg-white/[0.03] border border-fuchsia-500/40 bg-gradient-to-r from-fuchsia-500/10 via-purple-500/5 to-transparent backdrop-blur-xl space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="w-4 h-4 text-fuchsia-400" />
+                  <span className="text-sm font-semibold text-white">Payment Method: AutoPay Mandate</span>
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                  Recommended • Instant Mandate
+                </span>
+              </div>
 
-              {/* Option A: All Payment Methods (Cards + UPI + NetBanking) */}
-              <button
-                type="button"
-                onClick={() => setPaymentMode("ALL")}
-                className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer ${
-                  paymentMode === "ALL"
-                    ? "border-pink-500/60 bg-gradient-to-r from-pink-500/10 to-purple-500/10 shadow-lg shadow-pink-500/5 ring-1 ring-pink-500/40"
-                    : "border-white/10 bg-white/[0.02] hover:border-white/20"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400">
-                      <CreditCard className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-white">Cards, UPI & Net Banking</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 font-bold border border-emerald-500/20">
-                          INSTANT
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        Credit/Debit Cards (Visa, Mastercard, RuPay), Google Pay, PhonePe, Paytm & Net Banking.
-                      </p>
-                    </div>
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C026D3] to-[#9333EA] flex items-center justify-center text-white shrink-0 shadow-md">
+                    <RefreshCw className="w-5 h-5" />
                   </div>
-                  <div
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      paymentMode === "ALL" ? "border-pink-500 bg-pink-500 text-white" : "border-gray-500"
-                    }`}
-                  >
-                    {paymentMode === "ALL" && <Check className="w-3 h-3 stroke-[3]" />}
+                  <div>
+                    <h5 className="font-semibold text-sm text-white">
+                      UPI AutoPay &amp; Bank e-NACH Mandate
+                    </h5>
+                    <p className="text-xs text-gray-300 mt-0.5">
+                      100% automated monthly renewal via Google Pay, PhonePe, Paytm, BHIM, or your Bank Account.
+                    </p>
                   </div>
                 </div>
-              </button>
+              </div>
 
-              {/* Option B: AutoPay Mandate (Recurring Auto-Debit) */}
-              <button
-                type="button"
-                onClick={() => setPaymentMode("AUTOPAY")}
-                className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer ${
-                  paymentMode === "AUTOPAY"
-                    ? "border-fuchsia-500/60 bg-gradient-to-r from-fuchsia-500/10 to-purple-500/10 shadow-lg shadow-fuchsia-500/5 ring-1 ring-fuchsia-500/40"
-                    : "border-white/10 bg-white/[0.02] hover:border-white/20"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-fuchsia-500/10 border border-fuchsia-500/20 flex items-center justify-center text-fuchsia-400">
-                      <RefreshCw className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm text-white">AutoPay Mandate (Recurring)</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 font-bold border border-purple-500/20">
-                          AUTOPAY
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
-                        UPI AutoPay & Bank e-NACH mandate. Automatic monthly renewal with zero interruptions.
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                      paymentMode === "AUTOPAY" ? "border-fuchsia-500 bg-fuchsia-500 text-white" : "border-gray-500"
-                    }`}
-                  >
-                    {paymentMode === "AUTOPAY" && <Check className="w-3 h-3 stroke-[3]" />}
-                  </div>
-                </div>
-              </button>
+              {/* Supported AutoPay Methods */}
+              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Google Pay AutoPay</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">PhonePe AutoPay</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Paytm AutoPay</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">BHIM UPI Mandate</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Bank e-NACH Mandate</span>
+              </div>
             </div>
 
             {/* Supported Payment Logos & Security Badges */}
