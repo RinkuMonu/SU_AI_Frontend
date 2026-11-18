@@ -49,23 +49,23 @@ export function LanguageSelector({
   };
 
   return (
-    <div className={`relative ${className}`} ref={containerRef}>
+    <div className={`relative notranslate ${className}`} ref={containerRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label="Select Language"
-        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#15161b] text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-white/25 transition-all cursor-pointer shadow-xs active:scale-[0.98]"
+        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
       >
         <span>
-          {showLabel && <span className="opacity-80">{t("lang_prefix", "Language:")} </span>}
-          <strong className="font-bold text-neutral-900 dark:text-white">
+          {showLabel && <span className="text-slate-500 font-medium">{t("lang_prefix", "Language:")} </span>}
+          <strong className="font-bold text-slate-900 notranslate">
             {currentLanguageInfo.shortName}
           </strong>
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 ${
+          className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -77,10 +77,10 @@ export function LanguageSelector({
           aria-label="Language options"
           className={`absolute ${
             align === "right" ? "right-0" : "left-0"
-          } mt-2 w-52 max-h-72 overflow-y-auto rounded-2xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#15161b] shadow-2xl py-1.5 z-50 animate-in fade-in zoom-in-95 scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700`}
+          } mt-2 w-52 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)] py-1.5 z-50 animate-in fade-in zoom-in-95 scrollbar-thin scrollbar-thumb-slate-300`}
         >
-          <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase text-neutral-400 dark:text-neutral-500 border-b border-neutral-100 dark:border-white/5 mb-1">
-            Regional & Vernacular (11)
+          <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase text-slate-400 border-b border-slate-100 mb-1">
+            Regional & Vernacular ({supportedLanguages.length})
           </div>
           {supportedLanguages.map((item) => {
             const isSelected = item.code === language;
@@ -93,12 +93,12 @@ export function LanguageSelector({
                 onClick={() => handleSelect(item.code)}
                 className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between transition-colors cursor-pointer ${
                   isSelected
-                    ? "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-bold"
-                    : "text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-white/5"
+                    ? "bg-emerald-50 text-emerald-700 font-bold"
+                    : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
-                <span>{item.name}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />}
+                <span className="notranslate">{item.name}</span>
+                {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
               </button>
             );
           })}

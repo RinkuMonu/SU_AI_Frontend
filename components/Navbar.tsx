@@ -64,13 +64,13 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        'fixed top-0 left-0 right-0 z-50 w-full px-2 py-2 sm:px-4 md:px-5 lg:px-8 transition-all duration-300 ',
-        isScrolled ? 'pt-2 ' : 'pt-3 sm:pt-4 lg:pt-5'
+        'fixed top-0 left-0 right-0 z-50 w-full px-2 py-1 sm:px-4 md:px-5 lg:px-8 transition-all duration-300 ',
+        isScrolled ? 'pt-1' : 'pt-1.5 sm:pt-2'
       )}
     >
       <div
         className={cn(
-          'w-full max-w-7xl mx-auto flex items-center justify-between rounded-full px-3 py-2 sm:px-5  sm:py-3 lg:px-6  transition-all duration-300 relative',
+          'w-full max-w-7xl mx-auto flex items-center justify-between rounded-full px-3 py-1 sm:px-4 sm:py-1.5 lg:px-5 transition-all duration-300 relative',
           pillClass
         )}
       >
@@ -89,12 +89,12 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
+        <nav className="hidden lg:flex items-center gap-2 xl:gap-4">
           {/* Features Mega Menu Wrapper */}
           <div className="group relative">
             <Link
               href="/#features"
-              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-2', textColorClass)}
+              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-1', textColorClass)}
             >
               Features
               <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:-rotate-180 transition-all duration-300" />
@@ -137,7 +137,7 @@ export function Navbar() {
           <div className="group relative">
             <Link
               href="/about"
-              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-2', textColorClass)}
+              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-1', textColorClass)}
             >
               Company
               <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:-rotate-180 transition-all duration-300" />
@@ -166,19 +166,19 @@ export function Navbar() {
             </div>
           </div>
 
-          <Link href="/#blog" className={cn('text-sm font-medium transition-colors', textColorClass)}>
+          <Link href="/#blog" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
             Blog
           </Link>
-          <Link href="/pricing" className={cn('text-sm font-medium transition-colors', textColorClass)}>
+          <Link href="/pricing" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
             Pricing
           </Link>
-          <Link href="/contact" className={cn('text-sm font-medium transition-colors', textColorClass)}>
+          <Link href="/#contact" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
             Contact
           </Link>
         </nav>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden lg:flex items-center gap-2 sm:gap-2.5">
           <LanguageSelector align="right" />
           {mounted && user ? (
             <>

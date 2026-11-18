@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from './ui/button';
 import { Sparkles, ArrowRight, PlayCircle, Check } from 'lucide-react';
+import { AIModelsMarquee } from './AIModelsMarquee';
 
 import { PhoneModel } from './PhoneModel';
 
@@ -15,23 +16,23 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative min-h-[100svh] flex items-center pt-24 sm:pt-28 pb-16 sm:pb-12 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-[#321367] isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <FallingIcons />
       </div>
-      {/* Gradient overlays to ensure text readability */}
-      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-background via-background/90  to-transparent  w-[60%] pointer-events-none" />
+      {/* Soft gradient overlay for text readability */}
+      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-[#321367] via-[#321367]/80  to-transparent  w-[60%] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center lg:items-center justify-between gap-6 lg:gap-12">
 
         {/* Left Content Area */}
-        <div className="flex flex-col items-start text-left w-full max-w-2xl py-2 sm:py-4 relative z-10" >
+        <div className="flex flex-col items-start text-left w-full max-w-2xl py-0 relative z-10" >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-4 sm:mb-5 shadow-lg max-w-full">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-[#535353] bg-[#B1B1B1]/[0.12] backdrop-blur-md mb-2 sm:mb-3 shadow-lg max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
-            <span className="text-[11px] sm:text-sm text-white/90 font-medium">
+            <span className="text-[11px] sm:text-sm text-white font-medium">
               AI-Powered Business Growth Platform</span>
           </div>
 
@@ -54,7 +55,7 @@ export function Hero() {
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-11 sm:h-12 px-6 sm:px-7 bg-black/20 backdrop-blur-md border-white/20 hover:bg-white/10 font-semibold text-white shadow-lg">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-11 sm:h-12 px-6 sm:px-7 bg-[#B1B1B1]/[0.12] hover:bg-[#B1B1B1]/[0.22] border border-[#535353] backdrop-blur-md font-semibold text-white shadow-lg">
               <PlayCircle className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>
@@ -84,9 +85,14 @@ export function Hero() {
         </div>
 
         {/* Right Content Area: 3D Phone Model */}
-        <div className=" w-full lg:w-1/2 h-[260px] sm:h-[340px] lg:h-[440px] flex items-center justify-center relative z-20 pointer-events-none">
+        <div className="hidden lg:flex w-full lg:w-1/2 h-[260px] sm:h-[340px] lg:h-[440px] items-center justify-center relative z-20 pointer-events-none">
           {/* <PhoneModel /> */}
         </div>
+      </div>
+
+      {/* AI Models Marquee - directly on the dark screen below the checkmarks */}
+      <div className="relative z-10 w-full mt-4 sm:mt-6 mb-2 sm:mb-4">
+        <AIModelsMarquee />
       </div>
 
       {/* Bottom Curved Divider */}
