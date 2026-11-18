@@ -148,8 +148,8 @@ export function AIModelsMarquee() {
   return (
     <div className="relative w-full overflow-hidden pt-1 pb-1 sm:pb-2 select-none">
       {/* Side gradient fade masks on the hero background */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 md:w-28 bg-gradient-to-r from-[#281b74] via-[#281b74]/70 to-transparent z-20 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 md:w-28 bg-gradient-to-l from-[#281b74] via-[#281b74]/70 to-transparent z-20 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-8 sm:w-16 md:w-28 bg-gradient-to-r from-[#180f48] via-[#180f48]/70 to-transparent z-20 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 md:w-28 bg-gradient-to-l from-[#180f48] via-[#180f48]/70 to-transparent z-20 pointer-events-none" />
 
       <div className="flex flex-col gap-2.5 sm:gap-3 w-full">
         {/* Row 1: Scrolling Left */}
