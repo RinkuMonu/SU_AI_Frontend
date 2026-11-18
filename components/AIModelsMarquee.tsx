@@ -102,16 +102,6 @@ interface AIModel {
   icon: React.ComponentType;
 }
 
-const row1Models: AIModel[] = [
-  { name: 'Gemini 3.1 Pro', icon: GeminiIcon },
-  { name: 'Mistral Small', icon: MistralIcon },
-  { name: 'Codestral', icon: MistralIcon },
-  { name: 'Grok 4.5', icon: GrokIcon },
-  { name: 'Nova Pro', icon: NovaIcon },
-  { name: 'GPT 5.6 Sol', icon: OpenAIIcon },
-  { name: 'Claude 3.7 Sonnet', icon: ClaudeIcon },
-];
-
 const row2Models: AIModel[] = [
   { name: 'GPT Image 1.5', icon: OpenAIIcon },
   { name: 'Nano Banana 2', icon: BananaIcon },
@@ -152,23 +142,6 @@ export function AIModelsMarquee() {
       <div className="absolute right-0 top-0 bottom-0 w-8 sm:w-16 md:w-28 bg-gradient-to-l from-[#321367] via-[#321367]/80 to-transparent z-20 pointer-events-none" />
 
       <div className="flex flex-col gap-2.5 sm:gap-3 w-full">
-        {/* Row 1: Scrolling Left */}
-        <div className="overflow-hidden flex items-center">
-          <div className="ai-models-marquee-left flex items-center gap-2.5 sm:gap-3">
-            {[1, 2, 3, 4].map((copyIndex) => (
-              <div
-                key={`r1-copy-${copyIndex}`}
-                className="flex items-center gap-2.5 sm:gap-3 shrink-0"
-                aria-hidden={copyIndex > 1 ? 'true' : undefined}
-              >
-                {row1Models.map((m, idx) => (
-                  <ModelPill key={`r1-${copyIndex}-${idx}-${m.name}`} model={m} />
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Row 2: Scrolling Right */}
         <div className="overflow-hidden flex items-center">
           <div className="ai-models-marquee-right flex items-center gap-2.5 sm:gap-3">
