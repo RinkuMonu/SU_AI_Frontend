@@ -212,9 +212,18 @@ export function AvailablePlansModal({
         setSuccessMessage("Free Plan activated successfully!");
         if (onPlanActivated) onPlanActivated("FREE");
       } else {
-        const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, "ALL");
+        const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, "AUTOPAY");
         const sessionId = response.payment_session_id || response.subscription_session_id;
         const orderId = response.order_id || response.subscription_id;
+
+        // If direct Cashfree checkout URL is available, redirect directly without intermediate page
+        if (response.payment_url && response.payment_url.includes("cashfree.com")) {
+          if (typeof window !== "undefined" && orderId) {
+            sessionStorage.setItem("pending_payment_order_id", orderId);
+          }
+          window.location.href = response.payment_url;
+          return;
+        }
 
         if (sessionId) {
           if (typeof window !== "undefined" && orderId) {

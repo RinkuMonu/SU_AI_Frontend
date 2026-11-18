@@ -233,23 +233,32 @@ export default function SubscriptionPage() {
       setUpgradeSuccess(null);
       setPaymentFailurePopup(null);
 
-      // Default to ALL payment methods (Cards, UPI, NetBanking) so Cards are ALWAYS available
-      const selectedMode = mode || "ALL";
+      // Default to AUTOPAY so recurring subscription mandate is created with UPI, Card, and Bank Account
+      const selectedMode = mode || "AUTOPAY";
       const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, selectedMode);
-        const sessionId = response.payment_session_id || response.subscription_session_id;
-        const orderId = response.order_id || response.subscription_id;
+      const sessionId = response.payment_session_id || response.subscription_session_id;
+      const orderId = response.order_id || response.subscription_id;
 
-        if (sessionId) {
-          if (typeof window !== "undefined" && orderId) {
-            sessionStorage.setItem("pending_payment_order_id", orderId);
-          }
+      // If direct Cashfree checkout URL is available, redirect directly without intermediate page
+      if (response.payment_url && response.payment_url.includes("cashfree.com")) {
+        if (typeof window !== "undefined" && orderId) {
+          sessionStorage.setItem("pending_payment_order_id", orderId);
+        }
+        window.location.href = response.payment_url;
+        return;
+      }
 
-          const res = await launchCashfreeCheckout({
-            paymentSessionId: sessionId,
-            environment: response.environment || "production",
-            fallbackUrl: response.payment_url,
-            redirectTarget: "_self",
-          });
+      if (sessionId) {
+        if (typeof window !== "undefined" && orderId) {
+          sessionStorage.setItem("pending_payment_order_id", orderId);
+        }
+
+        const res = await launchCashfreeCheckout({
+          paymentSessionId: sessionId,
+          environment: response.environment || "production",
+          fallbackUrl: response.payment_url,
+          redirectTarget: "_self",
+        });
 
           if (typeof window !== "undefined") {
             sessionStorage.removeItem("pending_payment_order_id");
