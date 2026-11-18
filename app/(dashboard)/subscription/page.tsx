@@ -254,7 +254,7 @@ export default function SubscriptionPage() {
     mergedPlans.find((plan) => plan.id === currentPlanId)?.name || currentPlanId;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 py-6">
+    <div className="max-w-[1650px] w-full mx-auto space-y-8 animate-in fade-in duration-500 py-6 px-2 sm:px-4 lg:px-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -478,8 +478,8 @@ export default function SubscriptionPage() {
           </div>
         </div>
 
-        {/* Plan Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Plan Cards Grid - 5 Columns in Single Line */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 xl:gap-4">
           {mergedPlans.map((plan) => {
             const isCurrent = currentPlanId === plan.id.toUpperCase();
             const priceInfo = calculatePlanPrice(plan.monthlyPrice, selectedCycle);
@@ -489,7 +489,7 @@ export default function SubscriptionPage() {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-3xl p-6 flex flex-col justify-between transition-all duration-300 ${
+                className={`relative rounded-3xl p-4 xl:p-5 flex flex-col justify-between transition-all duration-300 ${
                   plan.isPopular
                     ? "bg-gradient-to-b from-[#251545] to-[#120B24] border-2 border-[#C026D3] shadow-[0_0_30px_rgba(192,38,211,0.2)]"
                     : isCurrent
@@ -499,50 +499,50 @@ export default function SubscriptionPage() {
               >
                 {/* Popular or Current Badge */}
                 {plan.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow-md tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap">
                     Most Popular
                   </div>
                 )}
                 {isCurrent && !plan.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-extrabold uppercase px-3 py-1 rounded-full shadow-md tracking-wider">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap">
                     Current Plan
                   </div>
                 )}
 
                 <div>
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <span className="text-xs font-semibold text-purple-400 uppercase tracking-wider block">
+                  <div className="flex justify-between items-start mb-2.5 gap-1.5">
+                    <div className="min-w-0">
+                      <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
                         {plan.planBadge || "Plan"}
                       </span>
-                      <h3 className="text-xl font-bold text-white mt-0.5">{plan.name}</h3>
+                      <h3 className="text-lg xl:text-xl font-bold text-white mt-0.5 truncate">{plan.name}</h3>
                     </div>
-                    <span className="bg-white/10 text-white text-xs px-2.5 py-1 rounded-full font-medium">
+                    <span className="bg-white/10 text-white text-[10px] xl:text-[11px] px-2 py-0.5 rounded-full font-medium text-right shrink-0 leading-tight">
                       {plan.creditBadge}
                     </span>
                   </div>
 
-                  <p className="text-xs text-gray-400 min-h-[32px] mb-4 leading-relaxed">
+                  <p className="text-[11.5px] xl:text-xs text-gray-400 min-h-[34px] mb-3 leading-snug line-clamp-2">
                     {plan.tagline}
                   </p>
 
                   {/* Pricing (Base Price) */}
-                  <div className="mb-6 pb-4 border-b border-white/10">
+                  <div className="mb-4 pb-3.5 border-b border-white/10">
                     {plan.monthlyPrice === 0 ? (
                       <div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-extrabold text-white">₹0</span>
+                          <span className="text-2xl xl:text-3xl font-extrabold text-white">₹0</span>
                           <span className="text-xs text-gray-400">free forever</span>
                         </div>
-                        <p className="text-[11px] text-gray-400 mt-1">No payment or credit card required.</p>
+                        <p className="text-[11px] text-gray-400 mt-1">No payment or card required.</p>
                       </div>
                     ) : (
                       <div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-3xl font-extrabold text-white">
+                          <span className="text-2xl xl:text-3xl font-extrabold text-white">
                             {formatCurrencyINR(priceInfo.displayPrice)}
                           </span>
-                          <span className="text-xs text-gray-400">
+                          <span className="text-[11px] xl:text-xs text-gray-400">
                             {selectedCycle === "monthly"
                               ? "/month"
                               : selectedCycle === "quarterly"
@@ -566,28 +566,28 @@ export default function SubscriptionPage() {
                   </div>
 
                   {/* Feature Highlights */}
-                  <div className="space-y-2.5 mb-6">
-                    <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">
+                  <div className="space-y-2 mb-4">
+                    <span className="text-[10.5px] font-bold text-gray-400 uppercase tracking-wider block">
                       Key Highlights
                     </span>
                     {plan.highlights.map((highlight, idx) => (
-                      <div key={idx} className="flex items-start gap-2 text-xs text-gray-300">
+                      <div key={idx} className="flex items-start gap-1.5 text-[11.5px] xl:text-xs text-gray-300">
                         <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span>{highlight}</span>
+                        <span className="leading-tight">{highlight}</span>
                       </div>
                     ))}
                   </div>
 
                   {/* Expanded Features */}
                   {isExpanded && (
-                    <div className="space-y-2 mb-6 pt-3 border-t border-white/10 animate-in fade-in duration-200">
-                      <span className="text-[11px] font-bold text-purple-400 uppercase tracking-wider block">
+                    <div className="space-y-1.5 mb-4 pt-3 border-t border-white/10 animate-in fade-in duration-200">
+                      <span className="text-[10.5px] font-bold text-purple-400 uppercase tracking-wider block">
                         All Features Included
                       </span>
                       {plan.allFeatures.map((feat, idx) => (
-                        <div key={idx} className="flex items-start gap-2 text-xs text-gray-300">
+                        <div key={idx} className="flex items-start gap-1.5 text-[11.5px] xl:text-xs text-gray-300">
                           <Check className="w-3.5 h-3.5 text-[#C026D3] shrink-0 mt-0.5" />
-                          <span>{feat}</span>
+                          <span className="leading-tight">{feat}</span>
                         </div>
                       ))}
                     </div>
