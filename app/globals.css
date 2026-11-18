@@ -631,7 +631,7 @@ img, video, canvas, [role="img"] {
 
 /* ==========================================================================
    Google Translate Seamless Integration
-   Hides all Google banners, tooltips, frames, and background highlights
+   Completely removes top banner bar, tooltips, frames, and background highlights
    ========================================================================== */
 #google_translate_element,
 .goog-te-gadget,
@@ -645,19 +645,40 @@ img, video, canvas, [role="img"] {
   left: -9999px !important;
 }
 
+/* Hide top banner bar (both legacy and modern Google Translate) */
+body > .skiptranslate,
+.skiptranslate:not(.goog-te-combo),
 .goog-te-banner-frame,
 .goog-te-banner-frame.skiptranslate,
-iframe.goog-te-banner-frame {
+iframe.goog-te-banner-frame,
+iframe[class*="VIpgJd"],
+iframe[class*="skiptranslate"],
+iframe[id*=".container"],
+iframe[id*=":"],
+div[id*=".container"],
+div[id*=":"],
+.VIpgJd-ZVi9od-ORHb-OEVmcd,
+.VIpgJd-ZVi9od-aZ2wEe-wOHMyf,
+.VIpgJd-ZVi9od-ORHb {
   display: none !important;
   visibility: hidden !important;
   height: 0 !important;
+  width: 0 !important;
   opacity: 0 !important;
   pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -9999 !important;
 }
 
+/* Prevent Google Translate from displacing html/body down */
+html,
+html body,
 body {
   top: 0px !important;
   position: static !important;
+  transform: none !important;
 }
 
 #goog-gt-tt,
