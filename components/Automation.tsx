@@ -2,132 +2,141 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Plus, Sparkles, Check, Download, Layers, Play, Pause, RotateCcw } from 'lucide-react';
+import { ArrowRight, Plus, Sparkles, Check, Play, Pause, RotateCcw, Zap } from 'lucide-react';
 
-const FULL_TEXT = 'Create an 8-slide presentation on photosynthesis for my biology assignment.';
+const PROMPT_TEXT = 'Launch a festive marketing campaign for our business — 25% discount offer, viral Instagram reels, and customer WhatsApp broadcast.';
 
-const SLIDES = [
-  {
-    num: '01',
-    title: 'Introduction to Photosynthesis',
-    subtitle: 'The biochemical engine converting solar radiation into chemical energy.',
-    tag: 'Core Concept',
-    gradient: 'from-emerald-500 to-teal-600',
-    bullets: ['Equation: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂', 'Chloroplast structure & thylakoid membranes', 'Autotrophic nutrition fundamentals'],
-  },
-  {
-    num: '02',
-    title: 'Light-Dependent Reactions',
-    subtitle: 'Harvesting photons to synthesize ATP and NADPH.',
-    tag: 'Phase 1',
-    gradient: 'from-teal-500 to-cyan-600',
-    bullets: ['Photosystem II & I photon absorption', 'Photolysis of water & oxygen release', 'Proton gradient across thylakoid'],
-  },
-  {
-    num: '03',
-    title: 'The Calvin Cycle (Dark Phase)',
-    subtitle: 'Enzymatic carbon fixation inside the stroma.',
-    tag: 'Phase 2',
-    gradient: 'from-indigo-500 to-purple-600',
-    bullets: ['RuBisCO enzyme catalytic role', 'Reduction of 3-PGA to G3P', 'Regeneration of RuBP molecule'],
-  },
-  {
-    num: '04',
-    title: 'Exam Summary & Key Takeaways',
-    subtitle: 'Crucial definitions, formulas and comparison tables.',
-    tag: 'High Yield',
-    gradient: 'from-emerald-600 to-indigo-600',
-    bullets: ['Limiting factors: light, CO₂, temperature', 'C3 vs C4 vs CAM plant adaptations', 'Model exam questions & answers'],
-  },
-];
+const MODEL_RESPONSES = {
+  gpt: 'Lead with the headline 25% discount in the first 3 seconds of your Reel. Follow with customer testimonial clips, post at 7 PM when traffic peaks, and trigger the WhatsApp broadcast with a direct payment link.',
+  claude: 'Center the campaign around festive emotional storytelling rather than just price cuts. Pair high-energy Instagram Reels with interactive polls, and send a personalized VIP early-access broadcast to repeat buyers.',
+  gemini: 'Maximize multichannel ROI: sync the 25% festive promo across Instagram, Facebook, and Google Ads. Automate WhatsApp follow-ups for abandoned carts to convert 3x more local customers before the weekend.',
+};
+
+// Crisp SVGs for AI Model Badges
+const OpenAIIcon = () => (
+  <svg className="w-5 h-5 shrink-0 text-slate-900" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9 6.07 6.07 0 0 0-10.27 2.17 5.98 5.98 0 0 0-4 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.51 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07zm-9.02 12.61a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.78-2.76a.79.79 0 0 0 .39-.68v-6.74l2.02 1.17a.07.07 0 0 1 .04.05v5.58a4.5 4.5 0 0 1-4.49 4.5zm-9.66-4.13a4.47 4.47 0 0 1-.53-3.01l.14.09 4.78 2.75a.77.77 0 0 0 .78 0l5.85-3.37v2.33a.08.08 0 0 1-.04.06l-4.84 2.8a4.5 4.5 0 0 1-6.14-1.65zM2.34 7.9a4.49 4.49 0 0 1 2.37-1.98v5.68c0 .28.15.54.39.68l5.81 3.35-2.02 1.17a.08.08 0 0 1-.07 0l-4.83-2.79A4.5 4.5 0 0 1 2.34 7.9zm16.1 3.85-5.84-3.37 2.02-1.16a.08.08 0 0 1 .07 0l4.83 2.79a4.5 4.5 0 0 1-.68 8.1v-5.67a.79.79 0 0 0-.4-.69zm2.01-3.02-.14-.08-4.77-2.79a.78.78 0 0 0-.79 0L9.41 9.23V6.9a.07.07 0 0 1 .03-.06l4.83-2.79a4.5 4.5 0 0 1 6.68 4.66zM8.31 12.86l-2.02-1.16a.08.08 0 0 1-.04-.06V6.07a4.5 4.5 0 0 1 7.38-3.45l-.14.08-4.79 2.76a.79.79 0 0 0-.39.68v6.72z" />
+  </svg>
+);
+
+const ClaudeIcon = () => (
+  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="#D97706">
+    <path d="M13.5 2H10.5V8.5L6 4L3.8 6.2L8.5 10.5H2V13.5H8.5L4 18L6.2 20.2L10.5 15.5V22H13.5V15.5L18 20L20.2 17.8L15.5 13.5H22V10.5H15.5L20 6L17.8 3.8L13.5 8.5V2Z" />
+  </svg>
+);
+
+const GeminiIcon = () => (
+  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z"
+      fill="url(#gemini-grad-autodemo)"
+    />
+    <defs>
+      <linearGradient id="gemini-grad-autodemo" x1="0" y1="0" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#1BA1E3" />
+        <stop offset="0.5" stopColor="#5B76FB" />
+        <stop offset="1" stopColor="#D96570" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 export function Automation() {
-  const [phase, setPhase] = useState<'typing' | 'clicking' | 'generating' | 'completed'>('typing');
+  const [phase, setPhase] = useState<'typing' | 'clicking' | 'answering' | 'completed'>('typing');
   const [typedChars, setTypedChars] = useState(0);
+  const [answerProgress, setAnswerProgress] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [progress, setProgress] = useState(0);
 
-  // Typewriter effect
+  // 1. Typewriter for input prompt
   useEffect(() => {
     if (phase !== 'typing') return;
-    if (typedChars < FULL_TEXT.length) {
+    if (typedChars < PROMPT_TEXT.length) {
       const timeout = setTimeout(() => {
         setTypedChars((prev) => prev + 1);
-      }, 42);
+      }, 32);
       return () => clearTimeout(timeout);
     } else {
-      // Done typing, move to clicking phase
       const timeout = setTimeout(() => {
         setPhase('clicking');
-      }, 600);
+      }, 500);
       return () => clearTimeout(timeout);
     }
   }, [phase, typedChars]);
 
-  // Click & transition to generating
+  // 2. Click button phase
   useEffect(() => {
     if (phase !== 'clicking') return;
     const timeout = setTimeout(() => {
-      setPhase('generating');
-      setProgress(0);
-    }, 1200);
+      setPhase('answering');
+      setAnswerProgress(0);
+    }, 1000);
     return () => clearTimeout(timeout);
   }, [phase]);
 
-  // Generating progress bar
+  // 3. Multi-model parallel answers typing phase (Image 1)
   useEffect(() => {
-    if (phase !== 'generating') return;
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setPhase('completed');
-          return 100;
-        }
-        return prev + 5;
-      });
-    }, 70);
-    return () => clearInterval(interval);
-  }, [phase]);
+    if (phase !== 'answering') return;
+    const maxLen = Math.max(
+      MODEL_RESPONSES.gpt.length,
+      MODEL_RESPONSES.claude.length,
+      MODEL_RESPONSES.gemini.length
+    );
+    if (answerProgress < maxLen) {
+      const timeout = setTimeout(() => {
+        setAnswerProgress((prev) => prev + 2);
+      }, 28);
+      return () => clearTimeout(timeout);
+    } else {
+      const timeout = setTimeout(() => {
+        setPhase('completed');
+      }, 600);
+      return () => clearTimeout(timeout);
+    }
+  }, [phase, answerProgress]);
 
-  // Completed display pause before restarting loop
+  // 4. Completed hold pause before restarting loop
   useEffect(() => {
     if (phase !== 'completed' || isPaused) return;
     const timeout = setTimeout(() => {
       setTypedChars(0);
-      setProgress(0);
+      setAnswerProgress(0);
       setPhase('typing');
-    }, 5500);
+    }, 6000);
     return () => clearTimeout(timeout);
   }, [phase, isPaused]);
 
   const handleManualRestart = () => {
     setTypedChars(0);
-    setProgress(0);
+    setAnswerProgress(0);
     setPhase('typing');
   };
 
-  const handleSkipToResult = () => {
-    setTypedChars(FULL_TEXT.length);
-    setProgress(100);
+  const handleSkipToAnswer = () => {
+    setTypedChars(PROMPT_TEXT.length);
+    setAnswerProgress(250);
     setPhase('completed');
   };
 
   return (
     <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-[#F7FAF8] relative overflow-hidden border-t border-slate-100 scroll-mt-20">
-      {/* Background Soft Glows */}
+      {/* Background Subtle Gradient Accents */}
       <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-100/40 blur-[140px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-100/35 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Section Header as requested in Image 1 */}
+        {/* Section Header adapted to DhandaGrow */}
         <div className="flex flex-col items-center text-center mb-8 sm:mb-10 w-full">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-emerald-200/90 text-xs text-emerald-800 font-semibold mb-3 shadow-2xs">
+            <Zap className="w-3.5 h-3.5 text-emerald-600" />
+            <span>AI Business Autopilot</span>
+          </div>
+
           <h2 className="text-3xl sm:text-4xl md:text-[42px] font-bold text-slate-900 tracking-tight leading-tight">
-            What presentation do you need?
+            What campaign do you need?
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-500 font-normal mt-2.5 max-w-xl mx-auto leading-relaxed">
-            Describe it in a sentence. We draft the outline first, then build the slides.
+            Describe it in a sentence. We compare top AI models to craft the highest-converting strategy, reels, and ads.
           </p>
 
           {/* Interactive controls pill */}
@@ -154,29 +163,29 @@ export function Automation() {
                 <span className="text-slate-300">•</span>
                 <button
                   type="button"
-                  onClick={handleSkipToResult}
+                  onClick={handleSkipToAnswer}
                   className="hover:text-emerald-700 font-medium cursor-pointer"
                 >
-                  Skip to Slides →
+                  View AI Comparison →
                 </button>
               </>
             )}
           </div>
         </div>
 
-        {/* ================= MAIN INTERACTIVE DEMO CARD CONTAINER ================= */}
+        {/* ================= MAIN INTERACTIVE DEMO CARD ================= */}
         <div
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           className="w-full max-w-4xl mx-auto"
         >
-          {/* Top Generator Input Box matching Image 1 */}
+          {/* Top Generator Input Box matching Image 2 & Image 1 design */}
           <div className="w-full bg-white rounded-[26px] sm:rounded-[32px] border-2 border-[#52C595] p-5 sm:p-7 shadow-[0_15px_45px_-12px_rgba(82,197,149,0.22)] relative transition-all duration-300">
 
             {/* Prompt Typewriter Area */}
             <div className="min-h-[58px] sm:min-h-[68px] flex items-start">
-              <p className="text-[17px] sm:text-[21px] md:text-[23px] font-medium text-slate-900 tracking-tight leading-snug">
-                {FULL_TEXT.slice(0, typedChars)}
+              <p className="text-[17px] sm:text-[20px] md:text-[22px] font-medium text-slate-900 tracking-tight leading-snug">
+                {PROMPT_TEXT.slice(0, typedChars)}
                 {/* Blinking Typing Cursor */}
                 <span className="inline-block w-[2.5px] h-5 sm:h-6 bg-slate-900 ml-1 translate-y-0.5 animate-pulse" />
               </p>
@@ -185,7 +194,7 @@ export function Automation() {
             {/* Bottom Controls Row: Pill Badges + Green Action Button */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100/80 mt-4">
 
-              {/* Left Control Pills */}
+              {/* Left Control Pills tailored to DhandaGrow */}
               <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
                 {/* Plus Button */}
                 <button
@@ -195,24 +204,24 @@ export function Automation() {
                   <Plus className="w-4 h-4 stroke-[2.5]" />
                 </button>
 
-                {/* Slides Count */}
+                {/* Offer Pill */}
                 <span className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
-                  8
+                  25% Off
                 </span>
 
                 {/* Tone Pill */}
                 <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs">
-                  Professional
+                  High Conversion
                 </span>
 
-                {/* Format Pill */}
+                {/* Channel Pill */}
                 <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden min-[480px]:inline-block">
-                  Standard
+                  Reels + Ads
                 </span>
 
-                {/* Image Style Pill */}
+                {/* Broadcast Pill */}
                 <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden sm:inline-block">
-                  Stock
+                  WhatsApp Auto
                 </span>
               </div>
 
@@ -220,11 +229,11 @@ export function Automation() {
               <div className="relative">
                 <motion.button
                   type="button"
-                  onClick={handleSkipToResult}
+                  onClick={handleSkipToAnswer}
                   animate={phase === 'clicking' ? { scale: [1, 0.9, 1] } : { scale: 1 }}
                   transition={{ duration: 0.35 }}
                   className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#00875A] hover:bg-[#007048] flex items-center justify-center text-white shadow-md shadow-emerald-700/25 cursor-pointer relative"
-                  title="Generate Presentation"
+                  title="Generate Campaign Comparison"
                 >
                   <ArrowRight className="w-5 h-5 stroke-[2.5]" />
 
@@ -248,130 +257,110 @@ export function Automation() {
 
           </div>
 
-          {/* ================= GENERATING & SLIDES PREVIEW VIDEO SEQUENCE ================= */}
+          {/* ================= 3 MODELS COMPARISON VIEW (Matching Image 1) ================= */}
           <AnimatePresence mode="wait">
-            {phase === 'generating' && (
+            {(phase === 'answering' || phase === 'completed') && (
               <motion.div
-                key="generating-view"
-                initial={{ opacity: 0, y: 16 }}
+                key="model-answers-view"
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.35 }}
-                className="mt-6 w-full bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-sm flex flex-col items-center text-center"
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
+                className="mt-6 w-full bg-white rounded-[26px] sm:rounded-[32px] border border-slate-200/90 p-5 sm:p-7 md:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col gap-6"
               >
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs sm:text-sm font-semibold mb-4">
-                  <Sparkles className="w-4 h-4 text-emerald-600 animate-spin" />
-                  <span>AI Drafting Presentation Outline & Visuals...</span>
+                {/* Top User Prompt Bubble as shown in Image 1 */}
+                <div className="flex justify-end w-full">
+                  <div className="inline-flex items-center px-4 sm:px-6 py-2.5 rounded-full border border-slate-200/90 bg-white text-slate-800 text-xs sm:text-sm md:text-[14.5px] font-medium shadow-xs max-w-2xl text-right">
+                    {PROMPT_TEXT}
+                  </div>
                 </div>
 
-                <div className="w-full max-w-md h-2.5 bg-slate-100 rounded-full overflow-hidden mb-3">
-                  <motion.div
-                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-[#00875A] rounded-full"
-                    style={{ width: `${progress}%` }}
-                    transition={{ ease: 'linear' }}
-                  />
-                </div>
-                <span className="text-xs font-semibold text-slate-400">
-                  {progress}% Complete • Generating 8 high-res slides with charts & notes
-                </span>
-              </motion.div>
-            )}
+                {/* 3 Model Answer Cards Side-by-Side (Image 1 Layout) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
 
-            {phase === 'completed' && (
-              <motion.div
-                key="completed-view"
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.97 }}
-                transition={{ duration: 0.4 }}
-                className="mt-6 w-full bg-white rounded-3xl border border-slate-200/90 p-5 sm:p-7 shadow-lg shadow-emerald-950/5 flex flex-col gap-5"
-              >
-                {/* Result Top Bar */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700">
-                      <Check className="w-4 h-4 stroke-[3]" />
-                    </div>
+                  {/* Card 1: GPT-5.6 Luna */}
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
                     <div>
-                      <h4 className="text-sm sm:text-base font-bold text-slate-900 leading-tight">
-                        Photosynthesis Biology Assignment (8 Slides)
-                      </h4>
-                      <p className="text-xs text-slate-500">Drafted outline & built slides in 3.4 seconds</p>
+                      {/* Model Header */}
+                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                        <OpenAIIcon />
+                        <span className="font-semibold text-slate-900 text-sm sm:text-base">GPT-5.6 Luna</span>
+                      </div>
+                      {/* Live Typed Answer */}
+                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
+                        {MODEL_RESPONSES.gpt.slice(0, answerProgress)}
+                        {phase === 'answering' && answerProgress < MODEL_RESPONSES.gpt.length && (
+                          <span className="inline-block w-[2px] h-3.5 bg-slate-800 ml-0.5 animate-pulse" />
+                        )}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-                      <Layers className="w-3.5 h-3.5" /> 8 Slides
-                    </span>
-                    <button
-                      type="button"
-                      onClick={handleManualRestart}
-                      className="px-3.5 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-xs flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5" />
-                      <span>Export Deck</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* 4 Slide Cards Grid representing the generated deck */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 w-full">
-                  {SLIDES.map((slide, idx) => (
-                    <motion.div
-                      key={slide.num}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1, duration: 0.35 }}
-                      className="rounded-2xl border border-slate-200/90 bg-slate-50/60 p-4 flex flex-col justify-between hover:bg-white hover:border-emerald-300 hover:shadow-md transition-all duration-200 group"
-                    >
-                      <div>
-                        {/* Slide Card Header Badge */}
-                        <div className="flex items-center justify-between mb-2.5">
-                          <span className="text-[11px] font-bold text-slate-400">SLIDE {slide.num}</span>
-                          <span className={`text-[10px] font-semibold text-white px-2 py-0.5 rounded-full bg-gradient-to-r ${slide.gradient}`}>
-                            {slide.tag}
-                          </span>
-                        </div>
-
-                        {/* Title */}
-                        <h5 className="font-bold text-slate-900 text-[13.5px] leading-tight mb-1.5 group-hover:text-emerald-700 transition-colors">
-                          {slide.title}
-                        </h5>
-
-                        {/* Subtitle */}
-                        <p className="text-[11.5px] text-slate-500 leading-snug mb-3 line-clamp-2">
-                          {slide.subtitle}
-                        </p>
-
-                        {/* Bullets */}
-                        <ul className="space-y-1.5 text-[11px] text-slate-600 border-t border-slate-200/60 pt-2.5">
-                          {slide.bullets.map((b, bIdx) => (
-                            <li key={bIdx} className="flex items-start gap-1.5">
-                              <span className="w-1 h-1 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                              <span className="line-clamp-1">{b}</span>
-                            </li>
-                          ))}
-                        </ul>
+                  {/* Card 2: Claude Sonnet 5 */}
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+                    <div>
+                      {/* Model Header */}
+                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                        <ClaudeIcon />
+                        <span className="font-semibold text-slate-900 text-sm sm:text-base">Claude Sonnet 5</span>
                       </div>
-                    </motion.div>
-                  ))}
+                      {/* Live Typed Answer */}
+                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
+                        {MODEL_RESPONSES.claude.slice(0, answerProgress)}
+                        {phase === 'answering' && answerProgress < MODEL_RESPONSES.claude.length && (
+                          <span className="inline-block w-[2px] h-3.5 bg-slate-800 ml-0.5 animate-pulse" />
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Gemini 3.1 Pro */}
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+                    <div>
+                      {/* Model Header */}
+                      <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
+                        <GeminiIcon />
+                        <span className="font-semibold text-slate-900 text-sm sm:text-base">Gemini 3.1 Pro</span>
+                      </div>
+                      {/* Live Typed Answer */}
+                      <p className="text-slate-600 text-xs sm:text-[13.5px] leading-relaxed pt-3">
+                        {MODEL_RESPONSES.gemini.slice(0, answerProgress)}
+                        {phase === 'answering' && answerProgress < MODEL_RESPONSES.gemini.length && (
+                          <span className="inline-block w-[2px] h-3.5 bg-slate-800 ml-0.5 animate-pulse" />
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
                 </div>
 
-                {/* Looping indicator bar */}
-                <div className="pt-2 flex items-center justify-between text-[11.5px] text-slate-400">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    Live animated demo • Replaying automatically...
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleManualRestart}
-                    className="text-emerald-700 font-semibold hover:underline cursor-pointer"
+                {/* Bottom Status & Replay Bar */}
+                {phase === 'completed' && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 text-xs text-slate-500"
                   >
-                    Type New Prompt ↺
-                  </button>
-                </div>
+                    <div className="flex items-center gap-2 font-medium text-emerald-700">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-700" />
+                      </div>
+                      <span>Consensus Ready • 3 AI strategies generated for DhandaGrow</span>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={handleManualRestart}
+                        className="text-slate-600 hover:text-emerald-700 font-semibold cursor-pointer flex items-center gap-1"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        <span>Replay Demo</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
               </motion.div>
             )}
           </AnimatePresence>
