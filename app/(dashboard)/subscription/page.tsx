@@ -233,8 +233,8 @@ export default function SubscriptionPage() {
       setUpgradeSuccess(null);
       setPaymentFailurePopup(null);
 
-      // Default to AUTOPAY recurring mandate (UPI AutoPay & e-NACH)
-      const selectedMode = mode || "AUTOPAY";
+      // Default to ALL payment methods (Cards, UPI, NetBanking) so Cards are ALWAYS available
+      const selectedMode = mode || "ALL";
       const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, selectedMode);
         const sessionId = response.payment_session_id || response.subscription_session_id;
         const orderId = response.order_id || response.subscription_id;

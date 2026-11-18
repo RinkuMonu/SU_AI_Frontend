@@ -41,12 +41,12 @@ function CheckoutContent() {
   const paramPlan = (searchParams.get("plan") || "PRO_STARTER").toUpperCase().trim();
   const paramCycle = (searchParams.get("cycle") || searchParams.get("billing_cycle") || "monthly").toLowerCase() as BillingCycle;
   const paramAmount = searchParams.get("amount") ? parseFloat(searchParams.get("amount") || "0") : 0;
-  const paramMode = "AUTOPAY";
+  const paramMode = (searchParams.get("mode") || "ALL").toUpperCase() as "ALL" | "AUTOPAY";
 
   // State
   const [selectedPlanId, setSelectedPlanId] = useState<string>(paramPlan);
   const [selectedCycle, setSelectedCycle] = useState<BillingCycle>(paramCycle);
-  const [paymentMode, setPaymentMode] = useState<"ALL" | "AUTOPAY">("AUTOPAY");
+  const [paymentMode, setPaymentMode] = useState<"ALL" | "AUTOPAY">(paramMode);
   const [sessionId, setSessionId] = useState<string>(paramSessionId);
   const [orderId, setOrderId] = useState<string>(paramOrderId);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -225,41 +225,40 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* AutoPay Mandate (Primary Recurring Auto-Debit) */}
-            <div className="p-6 rounded-2xl bg-white/[0.03] border border-fuchsia-500/40 bg-gradient-to-r from-fuchsia-500/10 via-purple-500/5 to-transparent backdrop-blur-xl space-y-4">
+            {/* Payment Method Details (Cards, UPI, NetBanking) */}
+            <div className="p-6 rounded-2xl bg-white/[0.03] border border-pink-500/40 bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-transparent backdrop-blur-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-fuchsia-400" />
-                  <span className="text-sm font-semibold text-white">Payment Method: AutoPay Mandate</span>
+                  <CreditCard className="w-4 h-4 text-pink-400" />
+                  <span className="text-sm font-semibold text-white">Payment Method: Cards, UPI & Net Banking</span>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                  Recommended • Instant Mandate
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                  Cards Enabled • Instant
                 </span>
               </div>
 
               <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C026D3] to-[#9333EA] flex items-center justify-center text-white shrink-0 shadow-md">
-                    <RefreshCw className="w-5 h-5" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                    <CreditCard className="w-5 h-5" />
                   </div>
                   <div>
                     <h5 className="font-semibold text-sm text-white">
-                      UPI AutoPay &amp; Bank e-NACH Mandate
+                      All Credit &amp; Debit Cards, UPI &amp; Net Banking
                     </h5>
                     <p className="text-xs text-gray-300 mt-0.5">
-                      100% automated monthly renewal via Google Pay, PhonePe, Paytm, BHIM, or your Bank Account.
+                      Pay securely with any Visa, MasterCard, RuPay debit/credit card, Google Pay, PhonePe, Paytm, or 50+ Banks.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* Supported AutoPay Methods */}
+              {/* Supported Payment Badges */}
               <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Google Pay AutoPay</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">PhonePe AutoPay</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Paytm AutoPay</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">BHIM UPI Mandate</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-200">Bank e-NACH Mandate</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-pink-500/30 text-pink-300 font-medium">💳 Credit Cards (Visa, MC, RuPay)</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-purple-500/30 text-purple-300 font-medium">💳 Debit Cards (All Banks)</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-300 font-medium">⚡ Instant UPI (GPay, PhonePe, Paytm)</span>
+                <span className="px-3 py-1 rounded-full bg-white/5 border border-blue-500/30 text-blue-300 font-medium">🏦 50+ Net Banking Banks</span>
               </div>
             </div>
 
