@@ -16,19 +16,14 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-gradient-to-br from-[#1a0e44] via-[#2b1e7e] to-[#12082b] isolate">
-
-      {/* Dynamic Ambient Gradient Glows (Matching DhandaGrow Logo Palette: Indigo, Purple, Pink & Orange) */}
-      <div className="absolute -top-24 right-0 w-[550px] sm:w-[650px] h-[550px] sm:h-[650px] bg-gradient-to-br from-[#fc9a5d]/25 via-[#f0449b]/25 to-transparent blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 -left-24 w-[500px] sm:w-[600px] h-[500px] sm:h-[600px] bg-gradient-to-tr from-[#2b1e7e]/70 via-[#be32ff]/30 to-transparent blur-[130px] rounded-full pointer-events-none" />
-      <div className="absolute -bottom-16 left-1/4 w-[600px] sm:w-[700px] h-[350px] bg-gradient-to-t from-[#be32ff]/20 via-[#f0449b]/15 to-transparent blur-[110px] rounded-full pointer-events-none" />
+    <section className="relative flex flex-col justify-start pt-[52px] sm:pt-[56px] lg:pt-[58px] pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-[#321367] isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <FallingIcons />
       </div>
       {/* Soft gradient overlay for text readability */}
-      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-[#1a0e44]/65 via-[#2b1e7e]/40  to-transparent  w-[60%] pointer-events-none" />
+      <div className=" hidden lg:block  absolute inset-0 z-[1] bg-gradient-to-r from-[#321367] via-[#321367]/80  to-transparent  w-[60%] pointer-events-none" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 w-full flex flex-col lg:flex-row items-center lg:items-center justify-between gap-6 lg:gap-12">
 
