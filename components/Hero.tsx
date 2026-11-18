@@ -16,7 +16,7 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative flex flex-col justify-start pt-10 sm:pt-11 lg:pt-12 pb-2 sm:pb-4 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-16 sm:pt-18 lg:pt-20 pb-10 sm:pb-14 lg:pb-16 overflow-hidden bg-background isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -91,7 +91,7 @@ export function Hero() {
       </div>
 
       {/* AI Models Marquee - directly on the dark screen below the checkmarks */}
-      <div className="relative z-10 w-full mt-3 sm:mt-4 mb-0">
+      <div className="relative z-10 w-full mt-4 sm:mt-6 mb-2 sm:mb-4">
         <AIModelsMarquee />
       </div>
 
