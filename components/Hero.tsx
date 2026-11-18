@@ -30,9 +30,9 @@ export function Hero() {
         {/* Left Content Area */}
         <div className="flex flex-col items-start text-left w-full max-w-2xl py-0 relative z-10" >
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-2 sm:mb-3 shadow-lg max-w-full">
+          <div className="inline-flex items-center gap-2 px-3 sm:px-3.5  py-1.5 rounded-full border border-[#535353] bg-[#B1B1B1]/[0.12] backdrop-blur-md mb-2 sm:mb-3 shadow-lg max-w-full">
             <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" />
-            <span className="text-[11px] sm:text-sm text-white/90 font-medium">
+            <span className="text-[11px] sm:text-sm text-white font-medium">
               AI-Powered Business Growth Platform</span>
           </div>
 
@@ -55,7 +55,7 @@ export function Hero() {
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-11 sm:h-12 px-6 sm:px-7 bg-black/20 backdrop-blur-md border-white/20 hover:bg-white/10 font-semibold text-white shadow-lg">
+            <Button variant="outline" size="lg" className="w-full sm:w-auto text-sm sm:text-base h-11 sm:h-12 px-6 sm:px-7 bg-[#B1B1B1]/[0.12] hover:bg-[#B1B1B1]/[0.22] border border-[#535353] backdrop-blur-md font-semibold text-white shadow-lg">
               <PlayCircle className="w-5 h-5 mr-2" />
               Watch Demo
             </Button>
