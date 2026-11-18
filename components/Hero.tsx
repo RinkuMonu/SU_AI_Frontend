@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { Button } from './ui/button';
 import { Sparkles, ArrowRight, PlayCircle, Check } from 'lucide-react';
+import { AIModelsMarquee } from './AIModelsMarquee';
 
 import { PhoneModel } from './PhoneModel';
 
@@ -15,7 +16,7 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative flex flex-col justify-start pt-16 sm:pt-18 lg:pt-20 pb-10 sm:pb-12 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-16 sm:pt-18 lg:pt-20 pb-12 sm:pb-16 overflow-hidden bg-background isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -87,6 +88,11 @@ export function Hero() {
         <div className="hidden lg:flex w-full lg:w-1/2 h-[260px] sm:h-[340px] lg:h-[440px] items-center justify-center relative z-20 pointer-events-none">
           {/* <PhoneModel /> */}
         </div>
+      </div>
+
+      {/* AI Models Marquee - directly on the dark screen below the checkmarks */}
+      <div className="relative z-10 w-full mt-6 sm:mt-8 mb-6 sm:mb-10">
+        <AIModelsMarquee />
       </div>
 
       {/* Bottom Curved Divider */}

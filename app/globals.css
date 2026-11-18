@@ -198,6 +198,43 @@ html:focus-within {
   animation-play-state: paused;
 }
 
+@keyframes ai-models-scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes ai-models-scroll-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.ai-models-marquee-left {
+  display: flex;
+  width: max-content;
+  animation: ai-models-scroll-left 34s linear infinite;
+  will-change: transform;
+}
+
+.ai-models-marquee-right {
+  display: flex;
+  width: max-content;
+  animation: ai-models-scroll-right 38s linear infinite;
+  will-change: transform;
+}
+
+.ai-models-marquee-left:hover,
+.ai-models-marquee-right:hover {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .trust-logo-track {
     animation: none;
