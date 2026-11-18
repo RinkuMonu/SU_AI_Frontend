@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { Sparkles, Gift, Check } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
 
 export type BillingCycle = 'monthly' | 'quarterly' | 'yearly';
 
@@ -247,7 +245,6 @@ export const LANDING_PLANS: PlanItem[] = [
 ];
 
 export function Pricing() {
-  const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('yearly');
   const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
@@ -523,22 +520,16 @@ export function Pricing() {
               </div>
             </div>
 
-            {/* Bottom Buy Now Button with DhandaGrow Signature Brand Gradient */}
+            {/* Bottom Buy Now Button with DhandaGrow Signature Brand Gradient (Redirection disabled) */}
             <div className="mt-8 w-full">
-              <Link
-                href={user ? "/subscription" : `/login/user?redirect=/subscription`}
-                onClick={() => {
-                  if (typeof window !== 'undefined') {
-                    sessionStorage.setItem('pending_plan', activePlan.id);
-                    sessionStorage.setItem('pending_billing', billingCycle);
-                  }
-                }}
+              <button
+                type="button"
                 className="w-full py-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
                 {activePlan.id === 'FREE'
                   ? 'Get Started Free'
                   : `Buy Now — ₹${currentPricing.price.toLocaleString('en-IN')}${currentPricing.period}`}
-              </Link>
+              </button>
               <p className="text-center text-xs text-slate-400 mt-2.5">
                 {activePlan.id === 'FREE' ? 'No credit card required' : '+ 18% GST where applicable • Instant activation'}
               </p>
