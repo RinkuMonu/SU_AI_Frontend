@@ -15,7 +15,7 @@ const FallingIcons = dynamic(
 
 export function Hero() {
   return (
-    <section className="relative min-h-[90svh] lg:min-h-[92svh] flex items-center pt-16 sm:pt-20 lg:pt-22 pb-12 sm:pb-10 overflow-hidden bg-background isolate">
+    <section className="relative flex flex-col justify-start pt-16 sm:pt-18 lg:pt-20 pb-10 sm:pb-12 overflow-hidden bg-background isolate">
 
       {/* 3D Physics Bouncing Background */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -84,7 +84,7 @@ export function Hero() {
         </div>
 
         {/* Right Content Area: 3D Phone Model */}
-        <div className=" w-full lg:w-1/2 h-[260px] sm:h-[340px] lg:h-[440px] flex items-center justify-center relative z-20 pointer-events-none">
+        <div className="hidden lg:flex w-full lg:w-1/2 h-[260px] sm:h-[340px] lg:h-[440px] items-center justify-center relative z-20 pointer-events-none">
           {/* <PhoneModel /> */}
         </div>
       </div>
