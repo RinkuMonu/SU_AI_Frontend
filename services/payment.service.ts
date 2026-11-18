@@ -58,7 +58,8 @@ export const paymentService = {
   async createPayment(
     planId: string,
     billingCycle: string = "monthly",
-    customerPhone?: string
+    customerPhone?: string,
+    paymentMode?: "ALL" | "AUTOPAY" | "CARD"
   ): Promise<CreatePaymentResponse> {
     const normalizedPlan = (planId || "").trim().toUpperCase();
     if (normalizedPlan === "FREE") {
@@ -79,6 +80,10 @@ export const paymentService = {
 
     if (customerPhone) {
       payload.customer_phone = customerPhone;
+    }
+
+    if (paymentMode) {
+      payload.payment_mode = paymentMode;
     }
 
     // Pass dynamic return URL matching current origin so Cashfree redirects back accurately.

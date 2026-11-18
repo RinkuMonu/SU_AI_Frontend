@@ -26,6 +26,7 @@ export function Navbar() {
   const isLightPage = !isDarkFeaturePage && (
     pathname.startsWith('/legal') ||
     pathname === '/careers' ||
+    pathname === '/contact' ||
     pathname.startsWith('/blog') ||
     pathname.startsWith('/features') ||
     pathname === '/download'

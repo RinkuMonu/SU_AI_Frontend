@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-white text-slate-900 selection:bg-brand-purple/20 selection:text-slate-900 relative overflow-hidden font-sans">
-      <Navbar isLightPage={true} />
+      <Navbar />
 
       {/* Top spacing to account for fixed navbar */}
       <div className="pt-24 sm:pt-28">

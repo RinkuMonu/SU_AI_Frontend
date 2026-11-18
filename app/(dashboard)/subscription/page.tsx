@@ -17,6 +17,9 @@ import {
   FileText,
   CreditCard,
   Sparkles,
+  RefreshCw,
+  ShieldCheck,
+  X,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,6 +52,7 @@ export default function SubscriptionPage() {
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState<boolean>(false);
+  const [paymentChoicePlan, setPaymentChoicePlan] = useState<PlanDefinition | null>(null);
   const [paymentFailurePopup, setPaymentFailurePopup] = useState<{
     open: boolean;
     title: string;
@@ -199,8 +203,36 @@ export default function SubscriptionPage() {
     }
   };
 
-  const handleSelectPlan = async (plan: PlanDefinition) => {
+  const handleSelectPlan = async (plan: PlanDefinition, mode?: "ALL" | "AUTOPAY") => {
     if (isCreatingPayment) return;
+
+    if (plan.monthlyPrice === 0 || plan.id === "FREE") {
+      try {
+        setIsCreatingPayment(true);
+        setUpgradingPlan(plan.id);
+        setUpgradeError(null);
+        setUpgradeSuccess(null);
+        setPaymentFailurePopup(null);
+
+        await subscriptionService.upgradePlan("FREE");
+        const updatedSub = await subscriptionService.getMySubscription();
+        setSubscription(updatedSub);
+        setUpgradeSuccess("Free Plan activated successfully!");
+      } catch (err: any) {
+        setUpgradeError(err?.message || "Failed to activate Free plan.");
+      } finally {
+        setIsCreatingPayment(false);
+        setUpgradingPlan(null);
+      }
+      return;
+    }
+
+    if (!mode) {
+      setPaymentChoicePlan(plan);
+      return;
+    }
+
+    setPaymentChoicePlan(null);
 
     try {
       setIsCreatingPayment(true);
@@ -209,13 +241,7 @@ export default function SubscriptionPage() {
       setUpgradeSuccess(null);
       setPaymentFailurePopup(null);
 
-      if (plan.monthlyPrice === 0 || plan.id === "FREE") {
-        await subscriptionService.upgradePlan("FREE");
-        const updatedSub = await subscriptionService.getMySubscription();
-        setSubscription(updatedSub);
-        setUpgradeSuccess("Free Plan activated successfully!");
-      } else {
-        const response = await paymentService.createPayment(plan.id, selectedCycle);
+      const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, mode);
         const sessionId = response.payment_session_id || response.subscription_session_id;
         const orderId = response.order_id || response.subscription_id;
 
@@ -270,7 +296,6 @@ export default function SubscriptionPage() {
           return;
         }
         return;
-      }
     } catch (err: any) {
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("pending_payment_order_id");
@@ -754,6 +779,113 @@ export default function SubscriptionPage() {
           })}
         </div>
       </div>
+
+      {/* Payment Method Choice Modal (AutoPay vs All Payment Methods) */}
+      {paymentChoicePlan && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-md bg-[#131124] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4 text-white animate-in zoom-in-95">
+            <button
+              type="button"
+              onClick={() => setPaymentChoicePlan(null)}
+              className="absolute top-4 right-4 p-1 rounded-full text-gray-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-fuchsia-400">
+                Payment Option
+              </span>
+              <h3 className="text-lg font-bold text-white mt-0.5">
+                Upgrade to {paymentChoicePlan.name}
+              </h3>
+              <p className="text-xs text-gray-400 mt-1">
+                Select your preferred payment method for the{" "}
+                <span className="text-white font-medium capitalize">{selectedCycle}</span> billing:
+              </p>
+            </div>
+
+            {/* Price breakdown pill */}
+            <div className="p-3 rounded-xl bg-white/5 border border-white/10 flex items-center justify-between text-xs">
+              <span className="text-gray-300">Total Payable:</span>
+              <span className="text-base font-bold text-white">
+                {formatCurrencyINR(
+                  calculatePlanPriceWithGST(paymentChoicePlan.monthlyPrice, selectedCycle).totalPayable
+                )}
+                <span className="text-[10px] font-normal text-gray-400 ml-1">
+                  (incl. 18% GST)
+                </span>
+              </span>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              {/* Option 1: AutoPay (Recurring Mandate) */}
+              <button
+                type="button"
+                onClick={() => handleSelectPlan(paymentChoicePlan, "AUTOPAY")}
+                className="w-full text-left p-3.5 rounded-xl border border-fuchsia-500/30 bg-gradient-to-r from-fuchsia-500/10 via-purple-500/5 to-transparent hover:border-fuchsia-400 hover:bg-fuchsia-500/20 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#C026D3] to-[#9333EA] flex items-center justify-center text-white shrink-0 shadow-md">
+                      <RefreshCw className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-xs text-white group-hover:text-fuchsia-300 transition-colors">
+                          AutoPay (Recurring Mandate)
+                        </span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                          Recommended
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        UPI AutoPay (Google Pay, PhonePe, Paytm) & Bank e-NACH mandate. Automatic monthly renewals.
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-fuchsia-300 group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                </div>
+              </button>
+
+              {/* Option 2: Cards, UPI & Net Banking (All Methods) */}
+              <button
+                type="button"
+                onClick={() => handleSelectPlan(paymentChoicePlan, "ALL")}
+                className="w-full text-left p-3.5 rounded-xl border border-white/10 bg-white/5 hover:border-white/30 hover:bg-white/10 transition-all group cursor-pointer"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shrink-0">
+                      <CreditCard className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="font-semibold text-xs text-white group-hover:text-gray-200 transition-colors">
+                          Cards, UPI & Net Banking
+                        </span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          All Cards
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 mt-0.5">
+                        Credit Cards, Debit Cards (Visa, Mastercard, RuPay), UPI Apps & QR, and 50+ Banks.
+                      </p>
+                    </div>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all shrink-0 ml-2" />
+                </div>
+              </button>
+            </div>
+
+            <div className="flex items-center justify-center gap-1.5 text-[10px] text-gray-400 pt-1">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Secured by Cashfree Payments • 256-bit bank encryption</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Payment Failure / Cancelled Popup Dialog */}
       {paymentFailurePopup?.open && (
