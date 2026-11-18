@@ -79,6 +79,48 @@ export default function RootLayout({
                     };
                   } catch (_) {}
                 }
+
+                // Protect React DOM reconciliation from Google Translate node mutation crashes (removeChild / insertBefore)
+                if (typeof Node === "function" && Node.prototype) {
+                  var origRemoveChild = Node.prototype.removeChild;
+                  Node.prototype.removeChild = function(child) {
+                    try {
+                      if (child.parentNode !== this) {
+                        if (child.parentNode) {
+                          return child.parentNode.removeChild(child);
+                        }
+                        return child;
+                      }
+                      return origRemoveChild.apply(this, arguments);
+                    } catch (e) {
+                      try {
+                        if (child && child.parentNode) {
+                          return child.parentNode.removeChild(child);
+                        }
+                      } catch (_) {}
+                      return child;
+                    }
+                  };
+
+                  var origInsertBefore = Node.prototype.insertBefore;
+                  Node.prototype.insertBefore = function(newNode, referenceNode) {
+                    try {
+                      if (referenceNode && referenceNode.parentNode !== this) {
+                        if (referenceNode.parentNode) {
+                          return referenceNode.parentNode.insertBefore(newNode, referenceNode);
+                        }
+                        return this.appendChild(newNode);
+                      }
+                      return origInsertBefore.apply(this, arguments);
+                    } catch (e) {
+                      try {
+                        return this.appendChild(newNode);
+                      } catch (_) {
+                        return newNode;
+                      }
+                    }
+                  };
+                }
               } catch(_) {}
             `,
           }}
