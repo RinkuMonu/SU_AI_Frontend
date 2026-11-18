@@ -2,9 +2,12 @@ import api from "@/lib/api";
 
 export interface CreatePaymentResponse {
   success?: boolean;
+  message?: string;
   payment_url: string;
+  payment_link?: string;
   upi_url?: string;
   order_id: string;
+  reference?: string;
   subscription_id?: string;
   subscription_session_id?: string;
   payment_session_id?: string;
@@ -277,5 +280,33 @@ export const paymentService = {
         message: "Payment cancelled",
       };
     }
+  },
+
+  /**
+   * Direct Cashfree Payin (Orders API) matching PHP cashfreePayin($data, $user).
+   * Supports all payment methods (Cards, UPI, NetBanking).
+   */
+  async cashfreePayin(data: {
+    amount: number;
+    reference?: string;
+    email?: string;
+    name?: string;
+    mobile?: string;
+    note?: string;
+    plan_id?: string;
+    plan_name?: string;
+    billing_cycle?: string;
+    return_url?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    payment_session_id: string;
+    payment_link: string;
+    reference: string;
+    order_id: string;
+    amount: number;
+  }> {
+    const res = await api.post("/api/v1/payments/cashfree/payin", data);
+    return res.data?.data || res.data;
   },
 };
