@@ -212,7 +212,7 @@ export function AvailablePlansModal({
         setSuccessMessage("Free Plan activated successfully!");
         if (onPlanActivated) onPlanActivated("FREE");
       } else {
-        const response = await paymentService.createPayment(plan.id, selectedCycle);
+        const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, "ALL");
         const sessionId = response.payment_session_id || response.subscription_session_id;
         const orderId = response.order_id || response.subscription_id;
 

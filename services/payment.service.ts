@@ -62,7 +62,7 @@ export const paymentService = {
     planId: string,
     billingCycle: string = "monthly",
     customerPhone?: string,
-    paymentMode?: "ALL" | "AUTOPAY" | "CARD"
+    paymentMode: "ALL" | "AUTOPAY" | "CARD" = "ALL"
   ): Promise<CreatePaymentResponse> {
     const normalizedPlan = (planId || "").trim().toUpperCase();
     if (normalizedPlan === "FREE") {
@@ -79,6 +79,7 @@ export const paymentService = {
     const payload: Record<string, any> = {
       plan_id: normalizedPlan,
       billing_cycle: billingCycle.toLowerCase(),
+      payment_mode: paymentMode || "ALL",
     };
 
     if (customerPhone) {
