@@ -124,7 +124,7 @@ body {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(90deg, #FF7E38 0%, #FF2E93 50%, #D44FFF 100%);
+    background-image: linear-gradient(to right, #fc9a5d 0%, #fc9a5d 35%, #f0449b 65%, #be32ff 85%, #7d36fa 100%);
   }
 
   .glass-card {
@@ -144,8 +144,7 @@ body {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    background-image: linear-gradient(90deg, #FF7E38 0%, #FF2E93 50%, #D44FFF 100%);
-    filter: drop-shadow(0 2px 14px rgba(255, 46, 147, 0.4));
+    background-image: linear-gradient(to right, #fc9a5d 0%, #fc9a5d 35%, #f0449b 65%, #be32ff 85%, #7d36fa 100%);
   }
 
   .bg-brand-gradient {
