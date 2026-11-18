@@ -308,8 +308,6 @@ export function Automation() {
                       </div>
                       <span>Consensus Ready • 3 AI strategies generated for DhandaGrow</span>
                     </div>
-
-
                   </motion.div>
                 )}
 
