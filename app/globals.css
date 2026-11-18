@@ -219,14 +219,14 @@ html:focus-within {
 .ai-models-marquee-left {
   display: flex;
   width: max-content;
-  animation: ai-models-scroll-left 34s linear infinite;
+  animation: ai-models-scroll-left 56s linear infinite;
   will-change: transform;
 }
 
 .ai-models-marquee-right {
   display: flex;
   width: max-content;
-  animation: ai-models-scroll-right 38s linear infinite;
+  animation: ai-models-scroll-right 62s linear infinite;
   will-change: transform;
 }
 
