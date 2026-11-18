@@ -72,7 +72,12 @@ export default function DownloadPage() {
               </div>
               
               <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 w-full">
-                <button className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center">
+                <a
+                  href="https://play.google.com/store/apps/details?id=com.dhandagrow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center"
+                >
                   <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.609 1.814L13.792 12 3.61 22.186c-.164-.176-.265-.436-.265-.746V2.56c0-.31.101-.57.264-.746zm10.978 10.932l2.368 2.368-4.887 2.822-1.996-1.996 4.515-3.194zm4.515-3.194l-4.515-3.194 1.996-1.996 4.887 2.822-2.368 2.368zm-5.836 2.477L2.83 2.593c.189-.115.424-.182.68-.182.235 0 .452.057.632.155l14.863 8.58-5.74 5.883zM3.51 22.775c.18.098.397.155.632.155.256 0 .491-.067.68-.182l14.863-8.58-5.74-5.883-10.435 14.49z"/>
                   </svg>
@@ -80,8 +85,13 @@ export default function DownloadPage() {
                     <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none">GET IT ON</span>
                     <span className="text-xl text-white font-semibold leading-tight">Google Play</span>
                   </div>
-                </button>
-                <button className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center">
+                </a>
+                <a
+                  href="https://apps.apple.com/app/idcom.dhandagrow"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center"
+                >
                   <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.03 2.88.54 3.92 1.44-2.58 1.63-2.12 4.79.52 5.86-1.01 2.36-2.1 4.54-3.02 5.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                   </svg>
@@ -89,7 +99,7 @@ export default function DownloadPage() {
                     <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none">Download on the</span>
                     <span className="text-xl text-white font-semibold leading-tight">App Store</span>
                   </div>
-                </button>
+                </a>
               </div>
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
@@ -261,14 +271,24 @@ export default function DownloadPage() {
                   </div>
                   
                   <div className="flex flex-col sm:flex-row gap-4 relative z-10 w-full max-w-[320px]">
-                     <button className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4">
+                     <a
+                        href="https://play.google.com/store/apps/details?id=com.dhandagrow"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4"
+                     >
                         <Play className="w-4 h-4 text-white fill-current" />
                         <div className="flex flex-col items-start">
                            <span className="text-[8px] text-white/80 font-medium leading-none">GET IT ON</span>
                            <span className="text-sm text-white font-semibold leading-tight whitespace-nowrap">Google Play</span>
                         </div>
-                     </button>
-                     <button className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4">
+                     </a>
+                     <a
+                        href="https://apps.apple.com/app/idcom.dhandagrow"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4"
+                     >
                         <svg viewBox="0 0 24 24" className="w-4 h-4 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
                           <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.03 2.88.54 3.92 1.44-2.58 1.63-2.12 4.79.52 5.86-1.01 2.36-2.1 4.54-3.02 5.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                         </svg>
@@ -276,7 +296,7 @@ export default function DownloadPage() {
                            <span className="text-[8px] text-white/80 font-medium leading-none">Download on the</span>
                            <span className="text-sm text-white font-semibold leading-tight whitespace-nowrap">App Store</span>
                         </div>
-                     </button>
+                     </a>
                   </div>
                </div>
             </div>
