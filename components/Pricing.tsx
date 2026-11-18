@@ -10,7 +10,6 @@ export type BillingCycle = 'monthly' | 'quarterly' | 'yearly';
 export interface PlanPricing {
   price: number;
   originalPrice?: number;
-  pricePrefix?: string;
   period: string;
   gstText: string;
   billedText?: string;
@@ -18,27 +17,26 @@ export interface PlanPricing {
 
 export interface PlanItem {
   id: string;
+  planBadge: string;
   name: string;
   tagline: string;
-  accentColor: string;
+  creditBadge: string;
   description: string;
-  shortBenefits: string;
-  credits: string;
   popular: boolean;
-  features: string[];
-  ctaText: string;
   pricing: Record<BillingCycle, PlanPricing>;
+  highlights: string[];
+  allFeatures: string[];
+  ctaText: string;
 }
 
 export const LANDING_PLANS: PlanItem[] = [
   {
     id: "FREE",
-    name: "FREE",
+    planBadge: "FREE",
+    name: "Free",
     tagline: "Explore AI",
-    accentColor: "#7C3AED",
+    creditBadge: "50 Credits · one time",
     description: "For students, beginners and first-time users.",
-    shortBenefits: "50 one-time credits; limited posts and reels; basic captions; 1 brand profile.",
-    credits: "50 one-time credits",
     popular: false,
     pricing: {
       monthly: {
@@ -57,50 +55,60 @@ export const LANDING_PLANS: PlanItem[] = [
         gstText: "No GST shown"
       }
     },
-    features: [
+    highlights: [
       "5 AI social media posts/month",
       "1 AI reel/month",
-      "50 AI credits (one time)",
-      "Basic caption generation",
-      "1 brand profile"
+      "50 AI credits (one time)"
+    ],
+    allFeatures: [
+      "Basic AI Caption & Post Generator",
+      "1 AI Reel creation per month",
+      "50 one-time AI Credits",
+      "1 Connected Social Media Account",
+      "Standard Community Support"
     ],
     ctaText: "Get Started Free"
   },
   {
     id: "PRO_STARTER",
-    name: "PRO",
+    planBadge: "PLAN 1",
+    name: "Pro",
     tagline: "Create",
-    accentColor: "#7C3AED",
+    creditBadge: "300 monthly + 50 signup bonus",
     description: "AI creation, marketing, publishing and business tools.",
-    shortBenefits: "300 monthly credits; 50 one-time signup bonus; AI creation, marketing and publishing tools.",
-    credits: "300 monthly credits",
     popular: false,
     pricing: {
       monthly: {
         price: 799,
-        period: "/mo",
+        period: "/month",
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
         price: 2157,
         originalPrice: 2397,
-        period: "/qtr",
+        period: "/quarter",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹240 (10% off)"
       },
       yearly: {
         price: 7670,
         originalPrice: 9588,
-        period: "/yr",
+        period: "/year",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹1,918 (20% off)"
       }
     },
-    features: [
+    highlights: [
+      "300 monthly credits",
+      "50 signup bonus credits (one time)",
+      "AI creation, marketing and publishing tools"
+    ],
+    allFeatures: [
       "AI Post Maker, Image Generator and Content + Image",
       "AI Photoshoot, Reel Maker, Avatar, Actor and Photobooth",
       "AI Advertisement Maker and Marketing Agent",
-      "Social Media Calendar, Indian Festival Engine and AI messaging",
+      "Social Media Calendar and Indian Festival Engine",
+      "Instagram DM AI and AI Review Manager",
       "AI Website Builder",
       "50 signup bonus credits on first paid subscription"
     ],
@@ -108,35 +116,39 @@ export const LANDING_PLANS: PlanItem[] = [
   },
   {
     id: "PRO_PLUS",
-    name: "PRO PLUS",
+    planBadge: "PLAN 2",
+    name: "Pro Plus",
     tagline: "Market",
-    accentColor: "#7C3AED",
+    creditBadge: "1,500 monthly + 50 signup bonus",
     description: "Everything in Pro, plus advanced intelligence and business tools.",
-    shortBenefits: "1,500 monthly credits; 50 one-time signup bonus; analytics, CRM and AI intelligence.",
-    credits: "1,500 monthly credits",
     popular: true,
     pricing: {
       monthly: {
         price: 2999,
-        period: "/mo",
+        period: "/month",
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
         price: 8097,
         originalPrice: 8997,
-        period: "/qtr",
+        period: "/quarter",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹900 (10% off)"
       },
       yearly: {
         price: 28790,
         originalPrice: 35988,
-        period: "/yr",
+        period: "/year",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹7,198 (20% off)"
       }
     },
-    features: [
+    highlights: [
+      "1,500 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Business analytics, CRM and AI intelligence"
+    ],
+    allFeatures: [
       "Everything included in Pro",
       "Business Analytics, Leads CRM and Product Catalogue",
       "AI Brand Brain and UGC AI",
@@ -147,35 +159,39 @@ export const LANDING_PLANS: PlanItem[] = [
   },
   {
     id: "BUSINESS",
-    name: "BUSINESS",
+    planBadge: "PLAN 3",
+    name: "Business",
     tagline: "Automate",
-    accentColor: "#7C3AED",
+    creditBadge: "2,500 monthly + 50 signup bonus",
     description: "Everything in Pro Plus, with the complete business service suite.",
-    shortBenefits: "2,500 monthly credits; 50 one-time signup bonus; complete AI and business intelligence suite.",
-    credits: "2,500 monthly credits",
     popular: false,
     pricing: {
       monthly: {
         price: 4999,
-        period: "/mo",
+        period: "/month",
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
         price: 13497,
         originalPrice: 14997,
-        period: "/qtr",
+        period: "/quarter",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹1,500 (10% off)"
       },
       yearly: {
         price: 47990,
         originalPrice: 59988,
-        period: "/yr",
+        period: "/year",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹11,998 (20% off)"
       }
     },
-    features: [
+    highlights: [
+      "2,500 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Complete AI creation and business intelligence suite"
+    ],
+    allFeatures: [
       "Everything included in Pro Plus",
       "Business Analytics, Leads CRM and Product Catalogue",
       "AI Brand Brain and UGC AI",
@@ -186,39 +202,44 @@ export const LANDING_PLANS: PlanItem[] = [
   },
   {
     id: "BUSINESS_PREMIUM",
-    name: "BUSINESS PREMIUM",
+    planBadge: "PLAN 4",
+    name: "Business Premium",
     tagline: "Premium",
-    accentColor: "#7C3AED",
+    creditBadge: "5,000 monthly + 50 signup bonus",
     description: "Everything in Business, plus premium services and company brand kit.",
-    shortBenefits: "5,000 monthly credits; 50 one-time signup bonus; premium services and company brand kit.",
-    credits: "5,000 monthly credits",
     popular: false,
     pricing: {
       monthly: {
         price: 9999,
-        period: "/mo",
+        period: "/month",
         gstText: "+ 18% GST where applicable"
       },
       quarterly: {
         price: 26997,
         originalPrice: 29997,
-        period: "/qtr",
+        period: "/quarter",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹3,000 (10% off)"
       },
       yearly: {
         price: 95990,
         originalPrice: 119988,
-        period: "/yr",
+        period: "/year",
         gstText: "+ 18% GST where applicable",
         billedText: "Save ₹23,998 (20% off)"
       }
     },
-    features: [
+    highlights: [
+      "5,000 monthly credits",
+      "50 signup bonus credits (one time)",
+      "Premium services and company brand kit"
+    ],
+    allFeatures: [
       "Everything included in Business",
       "Premium Influencer Marketing and Customer Support",
       "Physical Training Provider and 24/7 Website Technical Support",
       "Company Logo, Visiting Cards, Employee ID Cards, Company Letterhead and Stamp",
+      "5,000 monthly credits",
       "50 signup bonus credits on first paid subscription"
     ],
     ctaText: "Choose Business Premium"
@@ -227,12 +248,14 @@ export const LANDING_PLANS: PlanItem[] = [
 
 export function Pricing() {
   const { user } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('yearly');
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('yearly');
   const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
   const activePlan = LANDING_PLANS.find((p) => p.id === selectedPlanId) || LANDING_PLANS[2];
   const monthlyPricing = activePlan.pricing.monthly;
+  const quarterlyPricing = activePlan.pricing.quarterly;
   const yearlyPricing = activePlan.pricing.yearly;
+  const currentPricing = activePlan.pricing[billingCycle];
 
   return (
     <section id="pricing" className="w-full max-w-full pt-10 sm:pt-14 pb-14 sm:pb-20 relative bg-white overflow-hidden border-t border-slate-100 scroll-mt-24">
@@ -288,24 +311,52 @@ export function Pricing() {
         </div>
 
         {/* ================= MODERN PRICING CARD WITH DHANDAGROW SIGNATURE GRADIENT ================= */}
-        <div className="p-[2.5px] rounded-[28px] sm:rounded-[36px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_20px_60px_-15px_rgba(240,68,155,0.25)] relative w-full max-w-2xl mx-auto transition-all duration-300">
+        <div className="p-[2.5px] rounded-[28px] sm:rounded-[36px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_20px_60px_-15px_rgba(240,68,155,0.25)] relative w-full max-w-3xl mx-auto transition-all duration-300">
           <div className="w-full bg-white rounded-[26px] sm:rounded-[34px] p-6 sm:p-8 md:p-10">
 
-            {/* Top Billing Selector (Side-by-Side as in Image 2) */}
+            {/* Plan Header Info (Matching Image 2 & 3: Plan Badge, Credit Badge, Title & Tagline) */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-6 border-b border-slate-100">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
+                    {activePlan.planBadge}
+                  </span>
+                  {activePlan.popular && (
+                    <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] text-white shadow-2xs">
+                      Most Popular
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  {activePlan.name}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium leading-relaxed">
+                  {activePlan.description}
+                </p>
+              </div>
+
+              <div className="shrink-0 self-start sm:self-center">
+                <span className="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-900 text-white shadow-2xs">
+                  {activePlan.creditBadge}
+                </span>
+              </div>
+            </div>
+
+            {/* Top Billing Selector: ALL 3 PERIODS (Monthly, Quarterly, Yearly) */}
             {activePlan.id !== 'FREE' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 w-full">
-                {/* Option 1: Pay monthly */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-3.5 w-full">
+                {/* 1. Pay Monthly */}
                 <div
                   onClick={() => setBillingCycle('monthly')}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between ${
+                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between ${
                     billingCycle === 'monthly'
-                      ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/40 via-purple-50/20 to-orange-50/20 shadow-xs'
-                      : 'border-slate-200 bg-slate-50/40 hover:bg-slate-50'
+                      ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
+                      : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-bold text-slate-900">Pay monthly</span>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                       billingCycle === 'monthly' ? 'bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] border-transparent' : 'border-slate-300 bg-white'
                     }`}>
                       {billingCycle === 'monthly' && <div className="w-2 h-2 rounded-full bg-white" />}
@@ -313,53 +364,93 @@ export function Pricing() {
                   </div>
                   <div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
                         ₹{monthlyPricing.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs sm:text-sm font-medium text-slate-500">/month</span>
+                      <span className="text-xs font-semibold text-slate-500">/mo</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      That's ₹{(monthlyPricing.price * 12).toLocaleString('en-IN')} a year
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      ₹{(monthlyPricing.price * 12).toLocaleString('en-IN')} billed yearly
                     </p>
                   </div>
                 </div>
 
-                {/* Option 2: Pay once a year (Highlighted with brand gradient) */}
+                {/* 2. Pay Quarterly (Save 10%) */}
                 <div
-                  onClick={() => setBillingCycle('yearly')}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
-                    billingCycle === 'yearly'
-                      ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/40 via-purple-50/20 to-orange-50/20 shadow-xs'
-                      : 'border-slate-200 bg-slate-50/40 hover:bg-slate-50'
+                  onClick={() => setBillingCycle('quarterly')}
+                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
+                    billingCycle === 'quarterly'
+                      ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
+                      : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
                   }`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-bold text-slate-900">Pay once a year</span>
-                      <span className="text-[10px] font-bold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-2 py-0.5 rounded-full shadow-2xs">
-                        Save 20%
+                  <div className="flex items-center justify-between mb-2 gap-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-sm font-bold text-slate-900 truncate">Quarterly</span>
+                      <span className="text-[10px] font-extrabold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-2 py-0.5 rounded-full shadow-2xs shrink-0">
+                        10% OFF
                       </span>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
+                      billingCycle === 'quarterly' ? 'bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] border-transparent' : 'border-slate-300 bg-white'
+                    }`}>
+                      {billingCycle === 'quarterly' && <div className="w-2 h-2 rounded-full bg-white" />}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
+                        ₹{quarterlyPricing.price.toLocaleString('en-IN')}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-500">/qtr</span>
+                      {quarterlyPricing.originalPrice && (
+                        <span className="text-xs text-slate-400 line-through font-medium">
+                          ₹{quarterlyPricing.originalPrice.toLocaleString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      ₹{Math.round(quarterlyPricing.price / 3).toLocaleString('en-IN')}/mo, billed quarterly
+                    </p>
+                  </div>
+                </div>
+
+                {/* 3. Pay Once a Year (Save 20%) */}
+                <div
+                  onClick={() => setBillingCycle('yearly')}
+                  className={`p-4 sm:p-4.5 rounded-2xl border transition-all cursor-pointer select-none flex flex-col justify-between relative ${
+                    billingCycle === 'yearly'
+                      ? 'border-2 border-pink-400 bg-gradient-to-br from-pink-50/50 via-purple-50/30 to-orange-50/20 shadow-xs'
+                      : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-2 gap-1">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-sm font-bold text-slate-900 truncate">Pay yearly</span>
+                      <span className="text-[10px] font-extrabold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-2 py-0.5 rounded-full shadow-2xs shrink-0">
+                        20% OFF
+                      </span>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
                       billingCycle === 'yearly' ? 'bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] border-transparent' : 'border-slate-300 bg-white'
                     }`}>
                       {billingCycle === 'yearly' && <div className="w-2 h-2 rounded-full bg-white" />}
                     </div>
                   </div>
                   <div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                      <span className="text-2xl sm:text-[26px] font-black text-slate-900 tracking-tight">
                         ₹{yearlyPricing.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs sm:text-sm font-medium text-slate-500">/year</span>
+                      <span className="text-xs font-semibold text-slate-500">/year</span>
                       {yearlyPricing.originalPrice && (
-                        <span className="text-xs sm:text-sm text-slate-400 line-through font-medium">
+                        <span className="text-xs text-slate-400 line-through font-medium">
                           ₹{yearlyPricing.originalPrice.toLocaleString('en-IN')}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Just ₹{Math.round(yearlyPricing.price / 12).toLocaleString('en-IN')}/month, billed yearly
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      ₹{Math.round(yearlyPricing.price / 12).toLocaleString('en-IN')}/mo, billed yearly
                     </p>
                   </div>
                 </div>
@@ -367,45 +458,69 @@ export function Pricing() {
             ) : (
               <div className="p-4 sm:p-5 rounded-2xl border-2 border-pink-400 bg-gradient-to-br from-pink-50/40 via-purple-50/20 to-orange-50/20 w-full flex items-center justify-between">
                 <div>
-                  <span className="text-sm font-bold text-slate-900">Free Starter Plan</span>
+                  <span className="text-sm font-bold text-slate-900">Free Starter Tier</span>
                   <div className="flex items-baseline gap-1 mt-1">
                     <span className="text-2xl sm:text-3xl font-black text-slate-900">₹0</span>
                     <span className="text-xs sm:text-sm text-slate-500">/forever</span>
                   </div>
                 </div>
-                <span className="text-xs font-semibold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-3 py-1 rounded-full shadow-2xs">
+                <span className="text-xs font-semibold text-white bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] px-3.5 py-1.5 rounded-full shadow-2xs">
                   No Payment Required
                 </span>
               </div>
             )}
 
-            {/* Bonus / Promo Banner in Soft Brand Theme */}
+            {/* Bonus Banner in Signature Theme */}
             <div className="w-full p-4 sm:p-4.5 rounded-2xl bg-gradient-to-r from-orange-50/60 via-pink-50/60 to-purple-50/60 border border-pink-200/80 flex items-center gap-3.5 my-6">
               <div className="w-10 h-10 rounded-xl bg-white border border-pink-200/90 flex items-center justify-center text-[#f0449b] shadow-2xs shrink-0">
                 <Gift className="w-5 h-5 text-[#f0449b]" />
               </div>
               <div className="flex flex-col">
                 <span className="text-sm sm:text-[15px] font-bold text-slate-900 leading-snug">
-                  Get {activePlan.credits}
+                  Get {activePlan.creditBadge}
                 </span>
                 <span className="text-xs sm:text-[13px] text-pink-900/80 font-medium">
-                  {activePlan.shortBenefits}
+                  {activePlan.description}
                 </span>
               </div>
             </div>
 
-            {/* Feature Checklist with Theme Gradient Checkmarks */}
-            <div className="flex flex-col divide-y divide-slate-100 my-2">
-              {activePlan.features.map((feature, idx) => (
-                <div key={idx} className="py-3.5 sm:py-4 flex items-start gap-3">
-                  <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-2xs">
-                    <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+            {/* KEY HIGHLIGHTS (Matching Image 2 & 3) */}
+            <div className="my-6">
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-3.5">
+                Key Highlights
+              </h4>
+              <div className="space-y-2.5">
+                {activePlan.highlights.map((highlight, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] flex items-center justify-center text-white shrink-0 mt-0.5 shadow-2xs">
+                      <Check className="w-3.5 h-3.5 stroke-[3] text-white" />
+                    </div>
+                    <span className="text-xs sm:text-sm font-semibold text-slate-800">
+                      {highlight}
+                    </span>
                   </div>
-                  <span className="text-xs sm:text-sm md:text-[15px] leading-relaxed font-normal text-slate-700">
-                    {feature}
-                  </span>
-                </div>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* ALL FEATURES INCLUDED (Matching Image 2 & 3) */}
+            <div className="my-6 pt-6 border-t border-slate-100">
+              <h4 className="text-xs font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] mb-3.5">
+                All Features Included
+              </h4>
+              <div className="space-y-2.5">
+                {activePlan.allFeatures.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded-full border border-pink-300 bg-pink-50/70 flex items-center justify-center text-[#f0449b] shrink-0 mt-0.5">
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </div>
+                    <span className="text-xs sm:text-sm text-slate-600 font-normal">
+                      {feature}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Bottom Buy Now Button with DhandaGrow Signature Brand Gradient */}
@@ -420,7 +535,9 @@ export function Pricing() {
                 }}
                 className="w-full py-4 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-base sm:text-lg flex items-center justify-center shadow-lg shadow-pink-500/25 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
               >
-                {activePlan.id === 'FREE' ? 'Get Started Free' : 'Buy Now'}
+                {activePlan.id === 'FREE'
+                  ? 'Get Started Free'
+                  : `Buy Now — ₹${currentPricing.price.toLocaleString('en-IN')}${currentPricing.period}`}
               </Link>
               <p className="text-center text-xs text-slate-400 mt-2.5">
                 {activePlan.id === 'FREE' ? 'No credit card required' : '+ 18% GST where applicable • Instant activation'}
