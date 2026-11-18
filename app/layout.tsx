@@ -150,7 +150,7 @@ export default function RootLayout({
                 if (window.google && window.google.translate) {
                   new window.google.translate.TranslateElement({
                     pageLanguage: 'en',
-                    includedLanguages: 'en,hi,mr,gu,pa,bn,ta,te,kn,ml',
+                    includedLanguages: 'en,hi,mr,gu,pa,bn,ur,ne,ta,te,kn,ml',
                     autoDisplay: false
                   }, 'google_translate_element');
                 }

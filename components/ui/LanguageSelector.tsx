@@ -80,7 +80,7 @@ export function LanguageSelector({
           } mt-2 w-52 max-h-72 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-[0_12px_40px_rgba(0,0,0,0.18)] py-1.5 z-50 animate-in fade-in zoom-in-95 scrollbar-thin scrollbar-thumb-slate-300`}
         >
           <div className="px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase text-slate-400 border-b border-slate-100 mb-1">
-            Regional & Vernacular (11)
+            Regional & Vernacular ({supportedLanguages.length})
           </div>
           {supportedLanguages.map((item) => {
             const isSelected = item.code === language;

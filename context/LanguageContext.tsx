@@ -10,6 +10,8 @@ export type SupportedLanguage =
   | "gu"
   | "pa"
   | "bn"
+  | "ur"
+  | "ne"
   | "ta"
   | "te"
   | "kn"
@@ -30,6 +32,8 @@ export const SUPPORTED_LANGUAGES: LanguageInfo[] = [
   { code: "gu", name: "ગુજરાતી (Gujarati)", shortName: "ગુજરાતી", englishName: "Gujarati" },
   { code: "pa", name: "ਪੰਜਾਬੀ (Punjabi)", shortName: "ਪੰਜਾਬੀ", englishName: "Punjabi" },
   { code: "bn", name: "বাংলা (Bengali)", shortName: "বাংলা", englishName: "Bengali" },
+  { code: "ur", name: "اردو (Urdu)", shortName: "اردو", englishName: "Urdu" },
+  { code: "ne", name: "नेपाली (Nepali)", shortName: "नेपाली", englishName: "Nepali" },
   { code: "ta", name: "தமிழ் (Tamil)", shortName: "தமிழ்", englishName: "Tamil" },
   { code: "te", name: "తెలుగు (Telugu)", shortName: "తెలుగు", englishName: "Telugu" },
   { code: "kn", name: "ಕನ್ನಡ (Kannada)", shortName: "ಕನ್ನಡ", englishName: "Kannada" },
@@ -705,6 +709,128 @@ export const TRANSLATIONS: Record<SupportedLanguage, Record<string, string>> = {
     "terms": "നിബന്ധനകൾ",
     "privacy": "സ്വകാര്യത",
     "need_help": "സഹായം വേണോ?",
+    "version": "v1.9.7"
+  },
+
+  ur: {
+    "lang_prefix": "زبان:",
+    "theme_light": "لائٹ موڈ",
+    "theme_dark": "ڈارک موڈ",
+
+    // Banner
+    "banner_badge": "ایپ حاصل کریں • DhandaGrow AI",
+    "banner_badge_new": "نیا اکاؤنٹ • DhandaGrow AI",
+    "banner_title": "دیکھنے والوں کو خریدار بنائیں",
+    "banner_desc": "اپنے کاروبار کو ہزاروں لوگوں کے سامنے لائیں۔ وائرل ریلز، اسٹوڈیو فوٹوشوٹس، اور اشتہارات بنائیں جو ہر فیڈ پر نمایاں ہوں اور انہیں گاہکوں میں تبدیل کریں۔",
+
+    // Login Screen
+    "welcome_title": "DhandaGrow میں خوش آمدید",
+    "phone_label": "اپنا فون نمبر درج کریں",
+    "phone_placeholder": "7857889083",
+    "send_otp": "او ٹی پی بھیجیں",
+    "sending_otp": "او ٹی پی بھیجا جا رہا ہے...",
+    "or_divider": "یا",
+    "google_login_title": "گوگل کے ساتھ سائن ان کریں",
+    "whatsapp_login_title": "واٹس ایپ کے ساتھ جاری رکھیں",
+    "no_account": "اکاؤنٹ نہیں ہے؟",
+    "signup_link": "سائن اپ کریں",
+
+    // Signup Screen Specifics
+    "signup_welcome_title": "DhandaGrow میں خوش آمدید",
+    "signup_welcome_desc": "اپنے کاروبار کو بڑھانے کے لیے اپنا اکاؤنٹ بنائیں",
+    "phone_verified_title": "فون تصدیق شدہ!",
+    "phone_verified_desc": "اپنے اکاؤنٹ کو محفوظ بنانے کے لیے گوگل کے ساتھ رجسٹریشن مکمل کریں۔",
+    "continue_google_signup": "گوگل کے ساتھ جاری رکھیں",
+    "go_to_login": "لاگ ان پر جائیں",
+    "already_account": "پہلے سے اکاؤنٹ ہے؟",
+
+    // OTP Screen
+    "enter_otp_title": "اپنا او ٹی پی درج کریں",
+    "otp_sent_to": "او ٹی پی بھیجا گیا برائے:",
+    "change_mobile_number": "موبائل نمبر تبدیل کریں",
+    "verify_otp": "او ٹی پی کی تصدیق کریں",
+    "verifying_otp": "تصدیق ہو رہی ہے...",
+    "didnt_receive_otp": "او ٹی پی موصول نہیں ہوا؟",
+    "resend_in": "دوبارہ بھیجیں برائے:",
+    "resend_code": "کوڈ دوبارہ بھیجیں",
+    "sending": "بھیجا جا رہا ہے...",
+    "try_other_method": "دوسرا طریقہ آزمائیں:",
+    "send_via_sms": "ایس ایم ایس کے ذریعے بھیجیں",
+    "send_via_whatsapp": "واٹس ایپ کے ذریعے بھیجیں",
+    "right_number_alert_part1": "او ٹی پی بھیجا گیا",
+    "right_number_alert_part2": "کو۔ کیا یہ درست نمبر ہے؟",
+    "keep_waiting": "انتظار کریں",
+    "change_number": "نمبر تبدیل کریں",
+
+    // Validation & Errors
+    "valid_phone_error": "براہ کرم درست موبائل نمبر درج کریں۔",
+    "otp_length_error": "براہ کرم مکمل 6 ہندسوں کا او ٹی پی درج کریں۔",
+
+    // Footer Links
+    "terms": "شرائط",
+    "privacy": "رازداری",
+    "need_help": "مدد چاہیے؟",
+    "version": "v1.9.7"
+  },
+
+  ne: {
+    "lang_prefix": "भाषा:",
+    "theme_light": "लाइट मोड",
+    "theme_dark": "डार्क मोड",
+
+    // Banner
+    "banner_badge": "एप प्राप्त गर्नुहोस् • DhandaGrow AI",
+    "banner_badge_new": "नयाँ खाता • DhandaGrow AI",
+    "banner_title": "दर्शकहरूलाई ग्राहकमा बदल्नुहोस्",
+    "banner_desc": "आफ्नो व्यापारलाई हजारौं मानिसहरू सामु पुर्‍याउनुहोस्। भाइरल रिल्स, स्टुडियो फोटोसुट र विज्ञापनहरू सिर्जना गर्नुहोस् जसले ग्राहकहरू ल्याउँछन्।",
+
+    // Login Screen
+    "welcome_title": "DhandaGrow मा स्वागत छ",
+    "phone_label": "आफ्नो फोन नम्बर प्रविष्ट गर्नुहोस्",
+    "phone_placeholder": "7857889083",
+    "send_otp": "OTP पठाउनुहोस्",
+    "sending_otp": "OTP पठाउँदै...",
+    "or_divider": "वा",
+    "google_login_title": "Google मार्फत साइन इन गर्नुहोस्",
+    "whatsapp_login_title": "WhatsApp मार्फत जारी राख्नुहोस्",
+    "no_account": "खाता छैन?",
+    "signup_link": "साइन अप गर्नुहोस्",
+
+    // Signup Screen Specifics
+    "signup_welcome_title": "DhandaGrow मा स्वागत छ",
+    "signup_welcome_desc": "व्यापार बढाउन नयाँ खाता सिर्जना गर्नुहोस्",
+    "phone_verified_title": "फोन प्रमाणित भयो!",
+    "phone_verified_desc": "खाता सुरक्षित गर्न Google मार्फत दर्ता पूरा गर्नुहोस्।",
+    "continue_google_signup": "Google मार्फत जारी राख्नुहोस्",
+    "go_to_login": "लगइनमा जानुहोस्",
+    "already_account": "पहिले नै खाता छ?",
+
+    // OTP Screen
+    "enter_otp_title": "आफ्नो OTP प्रविष्ट गर्नुहोस्",
+    "otp_sent_to": "OTP पठाइएको नम्बर:",
+    "change_mobile_number": "मोबाइल नम्बर परिवर्तन गर्नुहोस्",
+    "verify_otp": "OTP प्रमाणित गर्नुहोस्",
+    "verifying_otp": "प्रमाणित गर्दै...",
+    "didnt_receive_otp": "OTP आएन?",
+    "resend_in": "पुनः पठाउने समय:",
+    "resend_code": "कोड पुनः पठाउनुहोस्",
+    "sending": "पठाउँदै...",
+    "try_other_method": "अर्को तरिका रोज्नुहोस्:",
+    "send_via_sms": "SMS मार्फत पठाउनुहोस्",
+    "send_via_whatsapp": "WhatsApp मार्फत पठाउनुहोस्",
+    "right_number_alert_part1": "OTP",
+    "right_number_alert_part2": "मा पठाइयो। के यो नम्बर सही छ?",
+    "keep_waiting": "पर्खनुहोस्",
+    "change_number": "नम्बर परिवर्तन गर्नुहोस्",
+
+    // Validation & Errors
+    "valid_phone_error": "कृपया मान्य मोबाइल नम्बर प्रविष्ट गर्नुहोस्।",
+    "otp_length_error": "कृपया पूरा ६ अंकको OTP प्रविष्ट गर्नुहोस्।",
+
+    // Footer Links
+    "terms": "सर्तहरू",
+    "privacy": "गोपनीयता",
+    "need_help": "मद्दत चाहिन्छ?",
     "version": "v1.9.7"
   }
 };
