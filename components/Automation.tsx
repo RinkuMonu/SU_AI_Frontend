@@ -118,22 +118,25 @@ export function Automation() {
   };
 
   return (
-    <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-[#F7FAF8] relative overflow-hidden border-t border-slate-100 scroll-mt-20">
-      {/* Background Subtle Gradient Accents */}
-      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-emerald-100/40 blur-[140px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-teal-100/35 blur-[120px] rounded-full pointer-events-none" />
+    <section id="automation" className="w-full max-w-full pt-12 sm:pt-16 pb-14 sm:pb-20 bg-slate-50/70 relative overflow-hidden border-t border-slate-100 scroll-mt-20">
+      {/* Background DhandaGrow Brand Theme Glows */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-orange-100/40 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-100/40 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 right-1/3 w-[400px] h-[400px] bg-pink-100/30 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
-        {/* Section Header adapted to DhandaGrow */}
+        {/* Section Header with DhandaGrow Signature Gradient */}
         <div className="flex flex-col items-center text-center mb-8 sm:mb-10 w-full">
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-emerald-200/90 text-xs text-emerald-800 font-semibold mb-3 shadow-2xs">
-            <Zap className="w-3.5 h-3.5 text-emerald-600" />
-            <span>AI Business Autopilot</span>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white border border-pink-200/90 text-xs font-semibold mb-3 shadow-2xs">
+            <Zap className="w-3.5 h-3.5 text-[#f0449b]" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">
+              AI Business Autopilot
+            </span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-[42px] font-bold text-slate-900 tracking-tight leading-tight">
-            What campaign do you need?
+            What campaign <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">do you need?</span>
           </h2>
           <p className="text-sm sm:text-base md:text-lg text-slate-500 font-normal mt-2.5 max-w-xl mx-auto leading-relaxed">
             Describe it in a sentence. We compare top AI models to craft the highest-converting strategy, reels, and ads.
@@ -144,16 +147,16 @@ export function Automation() {
             <button
               type="button"
               onClick={() => setIsPaused((prev) => !prev)}
-              className="flex items-center gap-1 hover:text-emerald-700 font-medium cursor-pointer"
+              className="flex items-center gap-1 hover:text-pink-600 font-medium cursor-pointer"
             >
-              {isPaused ? <Play className="w-3 h-3 text-emerald-600 fill-emerald-600" /> : <Pause className="w-3 h-3 text-amber-600 fill-amber-600" />}
+              {isPaused ? <Play className="w-3 h-3 text-[#f0449b] fill-[#f0449b]" /> : <Pause className="w-3 h-3 text-amber-600 fill-amber-600" />}
               <span>{isPaused ? 'Resume Demo' : 'Pause Demo'}</span>
             </button>
             <span className="text-slate-300">•</span>
             <button
               type="button"
               onClick={handleManualRestart}
-              className="flex items-center gap-1 hover:text-emerald-700 font-medium cursor-pointer"
+              className="flex items-center gap-1 hover:text-pink-600 font-medium cursor-pointer"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Replay</span>
@@ -164,7 +167,7 @@ export function Automation() {
                 <button
                   type="button"
                   onClick={handleSkipToAnswer}
-                  className="hover:text-emerald-700 font-medium cursor-pointer"
+                  className="hover:text-pink-600 font-medium cursor-pointer"
                 >
                   View AI Comparison →
                 </button>
@@ -173,88 +176,90 @@ export function Automation() {
           </div>
         </div>
 
-        {/* ================= MAIN INTERACTIVE DEMO CARD ================= */}
+        {/* ================= MAIN INTERACTIVE DEMO CARD WITH BRAND GRADIENT ================= */}
         <div
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           className="w-full max-w-4xl mx-auto"
         >
-          {/* Top Generator Input Box matching Image 2 & Image 1 design */}
-          <div className="w-full bg-white rounded-[26px] sm:rounded-[32px] border-2 border-[#52C595] p-5 sm:p-7 shadow-[0_15px_45px_-12px_rgba(82,197,149,0.22)] relative transition-all duration-300">
+          {/* Top Generator Input Box wrapped in DhandaGrow Signature Gradient Outline */}
+          <div className="p-[2.5px] rounded-[28px] sm:rounded-[34px] bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_15px_50px_-10px_rgba(240,68,155,0.25)] relative transition-all duration-300">
+            <div className="w-full bg-white rounded-[26px] sm:rounded-[32px] p-5 sm:p-7">
 
-            {/* Prompt Typewriter Area */}
-            <div className="min-h-[58px] sm:min-h-[68px] flex items-start">
-              <p className="text-[17px] sm:text-[20px] md:text-[22px] font-medium text-slate-900 tracking-tight leading-snug">
-                {PROMPT_TEXT.slice(0, typedChars)}
-                {/* Blinking Typing Cursor */}
-                <span className="inline-block w-[2.5px] h-5 sm:h-6 bg-slate-900 ml-1 translate-y-0.5 animate-pulse" />
-              </p>
-            </div>
-
-            {/* Bottom Controls Row: Pill Badges + Green Action Button */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100/80 mt-4">
-
-              {/* Left Control Pills tailored to DhandaGrow */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                {/* Plus Button */}
-                <button
-                  type="button"
-                  className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 text-sm font-semibold transition-colors"
-                >
-                  <Plus className="w-4 h-4 stroke-[2.5]" />
-                </button>
-
-                {/* Offer Pill */}
-                <span className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
-                  25% Off
-                </span>
-
-                {/* Tone Pill */}
-                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs">
-                  High Conversion
-                </span>
-
-                {/* Channel Pill */}
-                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden min-[480px]:inline-block">
-                  Reels + Ads
-                </span>
-
-                {/* Broadcast Pill */}
-                <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden sm:inline-block">
-                  WhatsApp Auto
-                </span>
+              {/* Prompt Typewriter Area */}
+              <div className="min-h-[58px] sm:min-h-[68px] flex items-start">
+                <p className="text-[17px] sm:text-[20px] md:text-[22px] font-medium text-slate-900 tracking-tight leading-snug">
+                  {PROMPT_TEXT.slice(0, typedChars)}
+                  {/* Blinking Typing Cursor */}
+                  <span className="inline-block w-[2.5px] h-5 sm:h-6 bg-slate-900 ml-1 translate-y-0.5 animate-pulse" />
+                </p>
               </div>
 
-              {/* Right Action Button with Animated Click Cursor */}
-              <div className="relative">
-                <motion.button
-                  type="button"
-                  onClick={handleSkipToAnswer}
-                  animate={phase === 'clicking' ? { scale: [1, 0.9, 1] } : { scale: 1 }}
-                  transition={{ duration: 0.35 }}
-                  className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#00875A] hover:bg-[#007048] flex items-center justify-center text-white shadow-md shadow-emerald-700/25 cursor-pointer relative"
-                  title="Generate Campaign Comparison"
-                >
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+              {/* Bottom Controls Row: Pill Badges + Brand Gradient Action Button */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100/80 mt-4">
 
-                  {/* Animated Simulated Cursor moving in clicking phase */}
-                  {phase === 'clicking' && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 24, y: 24 }}
-                      animate={{ opacity: 1, x: 2, y: 4 }}
-                      transition={{ duration: 0.6, ease: 'easeOut' }}
-                      className="absolute -bottom-2 -right-1 pointer-events-none select-none z-30"
-                    >
-                      <svg className="w-6 h-6 text-slate-900 drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M4 2L20 12L13 14L10 21L4 2Z" />
-                      </svg>
-                    </motion.div>
-                  )}
-                </motion.button>
+                {/* Left Control Pills tailored to DhandaGrow */}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                  {/* Plus Button */}
+                  <button
+                    type="button"
+                    className="w-8 h-8 rounded-full border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 text-sm font-semibold transition-colors"
+                  >
+                    <Plus className="w-4 h-4 stroke-[2.5]" />
+                  </button>
+
+                  {/* Offer Pill */}
+                  <span className="px-3.5 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-700 shadow-2xs">
+                    25% Off
+                  </span>
+
+                  {/* Tone Pill */}
+                  <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-800 shadow-2xs">
+                    High Conversion
+                  </span>
+
+                  {/* Channel Pill */}
+                  <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden min-[480px]:inline-block">
+                    Reels + Ads
+                  </span>
+
+                  {/* Broadcast Pill */}
+                  <span className="px-4 py-1.5 rounded-full border border-slate-200 bg-white text-xs sm:text-sm font-medium text-slate-600 hidden sm:inline-block">
+                    WhatsApp Auto
+                  </span>
+                </div>
+
+                {/* Right Action Button with Theme Gradient */}
+                <div className="relative">
+                  <motion.button
+                    type="button"
+                    onClick={handleSkipToAnswer}
+                    animate={phase === 'clicking' ? { scale: [1, 0.9, 1] } : { scale: 1 }}
+                    transition={{ duration: 0.35 }}
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 flex items-center justify-center text-white shadow-md shadow-pink-500/30 cursor-pointer relative"
+                    title="Generate Campaign Comparison"
+                  >
+                    <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+
+                    {/* Animated Simulated Cursor moving in clicking phase */}
+                    {phase === 'clicking' && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 24, y: 24 }}
+                        animate={{ opacity: 1, x: 2, y: 4 }}
+                        transition={{ duration: 0.6, ease: 'easeOut' }}
+                        className="absolute -bottom-2 -right-1 pointer-events-none select-none z-30"
+                      >
+                        <svg className="w-6 h-6 text-slate-900 drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M4 2L20 12L13 14L10 21L4 2Z" />
+                        </svg>
+                      </motion.div>
+                    )}
+                  </motion.button>
+                </div>
+
               </div>
 
             </div>
-
           </div>
 
           {/* ================= 3 MODELS COMPARISON VIEW (Matching Image 1) ================= */}
@@ -268,18 +273,18 @@ export function Automation() {
                 transition={{ duration: 0.4, ease: 'easeInOut' }}
                 className="mt-6 w-full bg-white rounded-[26px] sm:rounded-[32px] border border-slate-200/90 p-5 sm:p-7 md:p-8 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.06)] flex flex-col gap-6"
               >
-                {/* Top User Prompt Bubble as shown in Image 1 */}
+                {/* Top User Prompt Bubble */}
                 <div className="flex justify-end w-full">
-                  <div className="inline-flex items-center px-4 sm:px-6 py-2.5 rounded-full border border-slate-200/90 bg-white text-slate-800 text-xs sm:text-sm md:text-[14.5px] font-medium shadow-xs max-w-2xl text-right">
+                  <div className="inline-flex items-center px-4 sm:px-6 py-2.5 rounded-full border border-slate-200/90 bg-slate-50/80 text-slate-800 text-xs sm:text-sm md:text-[14.5px] font-medium shadow-xs max-w-2xl text-right">
                     {PROMPT_TEXT}
                   </div>
                 </div>
 
-                {/* 3 Model Answer Cards Side-by-Side (Image 1 Layout) */}
+                {/* 3 Model Answer Cards Side-by-Side */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 w-full">
 
                   {/* Card 1: GPT-5.6 Luna */}
-                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-pink-300 hover:shadow-md hover:shadow-pink-500/5 transition-all duration-200">
                     <div>
                       {/* Model Header */}
                       <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
@@ -297,7 +302,7 @@ export function Automation() {
                   </div>
 
                   {/* Card 2: Claude Sonnet 5 */}
-                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-pink-300 hover:shadow-md hover:shadow-pink-500/5 transition-all duration-200">
                     <div>
                       {/* Model Header */}
                       <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
@@ -315,7 +320,7 @@ export function Automation() {
                   </div>
 
                   {/* Card 3: Gemini 3.1 Pro */}
-                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all duration-200">
+                  <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between shadow-2xs hover:border-pink-300 hover:shadow-md hover:shadow-pink-500/5 transition-all duration-200">
                     <div>
                       {/* Model Header */}
                       <div className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
@@ -341,9 +346,9 @@ export function Automation() {
                     animate={{ opacity: 1, y: 0 }}
                     className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 text-xs text-slate-500"
                   >
-                    <div className="flex items-center gap-2 font-medium text-emerald-700">
-                      <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                        <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-700" />
+                    <div className="flex items-center gap-2 font-medium text-slate-800">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-r from-[#fc9a5d] to-[#f0449b] flex items-center justify-center text-white shadow-2xs">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
                       </div>
                       <span>Consensus Ready • 3 AI strategies generated for DhandaGrow</span>
                     </div>
@@ -352,7 +357,7 @@ export function Automation() {
                       <button
                         type="button"
                         onClick={handleManualRestart}
-                        className="text-slate-600 hover:text-emerald-700 font-semibold cursor-pointer flex items-center gap-1"
+                        className="text-slate-600 hover:text-pink-600 font-semibold cursor-pointer flex items-center gap-1"
                       >
                         <RotateCcw className="w-3 h-3" />
                         <span>Replay Demo</span>
