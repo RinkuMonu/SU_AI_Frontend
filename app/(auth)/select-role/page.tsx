@@ -216,7 +216,10 @@ export default function SelectRolePage() {
     const isCompleted = Boolean(
       user?.onboardingCompleted === true ||
       (user as any)?.onboarding_completed === true ||
-      (user as any)?.is_completed === true
+      (user as any)?.is_completed === true ||
+      (user as any)?.businessName ||
+      (user as any)?.business_name ||
+      (user as any)?.onboarding_status === "completed"
     );
 
     // Authenticated user selecting/updating their role
@@ -241,7 +244,7 @@ export default function SelectRolePage() {
       }
       const authoritativeRole = updatedUser?.role || selectedRole;
       if (authoritativeRole === "businessman") {
-        if (isCompleted) {
+        if (isCompleted || updatedUser?.businessName || (user as any)?.businessName) {
           router.replace(getDashboardRouteForRole(authoritativeRole));
         } else {
           router.replace("/onboarding");

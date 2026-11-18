@@ -49,6 +49,56 @@ export default function SubscriptionPage() {
   const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const [generatingReport, setGeneratingReport] = useState<boolean>(false);
   const [isCreatingPayment, setIsCreatingPayment] = useState<boolean>(false);
+  const [paymentFailurePopup, setPaymentFailurePopup] = useState<{
+    open: boolean;
+    title: string;
+    message: string;
+  } | null>(null);
+
+  // Reset processing and listen for Back Button / bfcache restoration
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const resetProcessing = () => {
+      setUpgradingPlan(null);
+      setIsCreatingPayment(false);
+    };
+
+    const handlePageShow = (e: PageTransitionEvent) => {
+      resetProcessing();
+      const pendingOrder = sessionStorage.getItem("pending_payment_order_id");
+      if (pendingOrder) {
+        sessionStorage.removeItem("pending_payment_order_id");
+        // User pressed back button or cancelled without completing payment
+        setPaymentFailurePopup({
+          open: true,
+          title: "Payment Not Completed",
+          message: "Transaction was not completed. No amount was deducted. You can try again anytime.",
+        });
+      }
+    };
+
+    const handlePopState = () => {
+      resetProcessing();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        setUpgradingPlan((curr) => (curr === "VERIFYING" ? curr : null));
+        setIsCreatingPayment(false);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    window.addEventListener("popstate", handlePopState);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("pageshow", handlePageShow);
+      window.removeEventListener("popstate", handlePopState);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   const loadData = async () => {
     try {
@@ -157,6 +207,7 @@ export default function SubscriptionPage() {
       setUpgradingPlan(plan.id);
       setUpgradeError(null);
       setUpgradeSuccess(null);
+      setPaymentFailurePopup(null);
 
       if (plan.monthlyPrice === 0 || plan.id === "FREE") {
         await subscriptionService.upgradePlan("FREE");
@@ -166,24 +217,78 @@ export default function SubscriptionPage() {
       } else {
         const response = await paymentService.createPayment(plan.id, selectedCycle);
         const sessionId = response.payment_session_id || response.subscription_session_id;
+        const orderId = response.order_id || response.subscription_id;
 
-        await launchCashfreeCheckout({
-          paymentSessionId: sessionId,
-          environment: response.environment || "production",
-          fallbackUrl: response.payment_url,
-        });
+        if (sessionId) {
+          if (typeof window !== "undefined" && orderId) {
+            sessionStorage.setItem("pending_payment_order_id", orderId);
+          }
+
+          const res = await launchCashfreeCheckout({
+            paymentSessionId: sessionId,
+            environment: response.environment || "production",
+            fallbackUrl: response.payment_url,
+            redirectTarget: "_self",
+          });
+
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("pending_payment_order_id");
+          }
+
+          if (res?.status === "CANCELLED") {
+            setPaymentFailurePopup({
+              open: true,
+              title: "Payment Cancelled",
+              message: "Payment was cancelled. No deduction was made from your account. Please try again when ready.",
+            });
+            return;
+          }
+
+          if (res?.status === "FAILED") {
+            setPaymentFailurePopup({
+              open: true,
+              title: "Payment Failed",
+              message: res.error || "Payment was not successful. Please try again or use another payment method.",
+            });
+            return;
+          }
+
+          if (res?.status === "SUCCESS") {
+            if (orderId) {
+              await verifyPaymentOrder(orderId);
+            }
+            return;
+          }
+          return;
+        }
+
+        if (response.payment_url && typeof window !== "undefined") {
+          if (orderId) {
+            sessionStorage.setItem("pending_payment_order_id", orderId);
+          }
+          window.location.href = response.payment_url;
+          return;
+        }
         return;
       }
     } catch (err: any) {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("pending_payment_order_id");
+      }
       console.error("Failed to initiate payment", err);
       if (err?.response?.status === 401) {
         window.location.href = "/login/user";
       } else {
-        setUpgradeError(
+        const detail =
           err?.response?.data?.detail ||
-            err?.message ||
-            "Failed to initiate secure payment. Please try again."
-        );
+          err?.message ||
+          "Failed to initiate secure payment. Please try again.";
+        setUpgradeError(detail);
+        setPaymentFailurePopup({
+          open: true,
+          title: "Payment Initiation Failed",
+          message: detail,
+        });
         if (typeof window !== "undefined") {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }
@@ -499,21 +604,29 @@ export default function SubscriptionPage() {
               >
                 {/* Popular or Current Badge */}
                 {plan.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-[#C026D3] to-[#9333EA] text-white text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap z-10">
                     Most Popular
                   </div>
                 )}
                 {isCurrent && !plan.isPopular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-500 text-black text-[10px] font-extrabold uppercase px-3 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap z-10">
                     Current Plan
                   </div>
                 )}
 
                 <div>
                   <div className="mb-3">
-                    <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
-                      {plan.planBadge || "Plan"}
-                    </span>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider block">
+                        {plan.planBadge || "Plan"}
+                      </span>
+                      {isCurrent && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-300 uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">
+                          <Check className="w-3 h-3 text-emerald-400" />
+                          Active
+                        </span>
+                      )}
+                    </div>
                     <h3 className="text-xl font-bold text-white mt-0.5">{plan.name}</h3>
                     <div className="mt-2 inline-flex items-center gap-1.5 bg-white/10 text-white text-[10.5px] xl:text-[11px] font-medium px-2.5 py-1 rounded-full border border-white/10 max-w-full">
                       <Zap className="w-3 h-3 text-brand-purple fill-brand-purple shrink-0" />
@@ -531,17 +644,17 @@ export default function SubscriptionPage() {
                       <div>
                         <div className="flex items-baseline gap-1">
                           <span className="text-2xl xl:text-3xl font-extrabold text-white">₹0</span>
-                          <span className="text-xs text-gray-400">free forever</span>
+                          <span className="text-xs text-gray-400 font-medium">free forever</span>
                         </div>
                         <p className="text-[11px] text-gray-400 mt-1">No payment or card required.</p>
                       </div>
                     ) : (
                       <div>
                         <div className="flex items-baseline gap-1">
-                          <span className="text-2xl xl:text-3xl font-extrabold text-white">
+                          <span className="text-2xl xl:text-3xl font-extrabold text-white tracking-tight">
                             {formatCurrencyINR(priceInfo.displayPrice)}
                           </span>
-                          <span className="text-[11px] xl:text-xs text-gray-400">
+                          <span className="text-[11px] xl:text-xs text-gray-400 font-medium">
                             {selectedCycle === "monthly"
                               ? "/month"
                               : selectedCycle === "quarterly"
@@ -551,11 +664,11 @@ export default function SubscriptionPage() {
                         </div>
 
                         {selectedCycle !== "monthly" && (
-                          <div className="flex items-center gap-1.5 mt-1">
+                          <div className="flex items-center gap-2 mt-1.5">
                             <span className="text-[11px] text-gray-500 line-through">
                               {formatCurrencyINR(plan.monthlyPrice)}/mo
                             </span>
-                            <span className="text-[11px] font-semibold text-emerald-400">
+                            <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                               {selectedCycle === "quarterly" ? "Save 10%" : "Save 20%"}
                             </span>
                           </div>
@@ -641,6 +754,36 @@ export default function SubscriptionPage() {
           })}
         </div>
       </div>
+
+      {/* Payment Failure / Cancelled Popup Dialog */}
+      {paymentFailurePopup?.open && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-sm bg-[#151124] border border-red-500/30 rounded-2xl p-6 shadow-2xl text-center space-y-4 animate-in zoom-in-95">
+            <div className="w-12 h-12 mx-auto rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400">
+              <AlertCircle className="w-6 h-6 text-red-400" />
+            </div>
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold text-white">
+                {paymentFailurePopup.title}
+              </h3>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {paymentFailurePopup.message}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentFailurePopup(null);
+                setUpgradingPlan(null);
+                setIsCreatingPayment(false);
+              }}
+              className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white text-xs font-semibold shadow-lg transition-all active:scale-98 cursor-pointer"
+            >
+              OK, Try Again
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

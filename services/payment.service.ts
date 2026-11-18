@@ -88,31 +88,28 @@ export const paymentService = {
       const origin = isLocal
         ? window.location.origin
         : window.location.origin.replace(/^http:\/\//i, "https://");
-      payload.return_url = `${origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
+      payload.return_url = `${origin}/payment/success?order_id={order_id}&sub_id={order_id}`;
     }
 
-    // Call official Cashfree Subscriptions & AutoPay endpoint
+    // Call Cashfree Payment Gateway endpoint
     const response = await api.post("/api/v1/payments/subscription/create", payload);
     const data = response.data?.data || response.data;
 
     const subId = data?.subscription_id || data?.order_id || "";
 
     // Guarantee payment gateway redirect URL
+    const sessionId = data?.payment_session_id || data?.subscription_session_id;
+    const isProd = (data?.environment || "production").toLowerCase() !== "sandbox";
     let paymentUrl = data?.payment_url;
-    if (!paymentUrl) {
-      const sessionId = data?.subscription_session_id || data?.payment_session_id;
-      if (sessionId) {
-        paymentUrl = `https://payments.cashfree.com/order/#${sessionId}`;
-      } else if (subId) {
-        paymentUrl = `https://payments.cashfree.com/order/#${subId}`;
-      }
+    // Discard any legacy broken hash URLs
+    if (paymentUrl && (paymentUrl.includes("/order/#") || paymentUrl.includes("/subscriptions/#"))) {
+      paymentUrl = undefined;
     }
 
-    if (!paymentUrl && !subId) {
+    if (!paymentUrl && !sessionId && !subId) {
       throw new Error(data?.detail || "Invalid response received from Cashfree payment service.");
     }
 
-    const sessionId = data?.payment_session_id || data?.subscription_session_id;
     const env = ((data?.environment || "production").toLowerCase() === "sandbox" ? "sandbox" : "production") as "production" | "sandbox";
 
     return {

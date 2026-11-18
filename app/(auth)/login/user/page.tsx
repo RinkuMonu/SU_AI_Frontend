@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowRight,
+  ArrowLeft,
   ShieldCheck,
   RefreshCw,
   Sparkles,
@@ -177,7 +178,7 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
   if (pendingPlan) {
     sessionStorage.removeItem("pending_plan");
     sessionStorage.removeItem("pending_billing");
-    router.push(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
+    router.replace(`/subscription?plan=${pendingPlan}&billing=${pendingBilling}`);
     return;
   }
 
@@ -188,7 +189,7 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
     if (typeof window !== "undefined") {
       sessionStorage.setItem("show_onboarding_plan", "true");
     }
-    router.push("/select-role");
+    router.replace("/select-role");
     return;
   }
 
@@ -197,12 +198,12 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
     try {
       const onbStatus = await creatorOnboardingService.getInfluencerOnboardingStatus();
       if (onbStatus.isCompleted) {
-        router.push("/influencer");
+        router.replace("/influencer");
       } else {
-        router.push("/onboarding/influencer");
+        router.replace("/onboarding/influencer");
       }
     } catch (_) {
-      router.push("/onboarding/influencer");
+      router.replace("/onboarding/influencer");
     }
     return;
   }
@@ -211,29 +212,82 @@ async function navigateAfterAuth(user: any, router: any, explicitRoute?: string)
   const isCompleted = Boolean(
     user?.onboardingCompleted === true ||
     user?.onboarding_completed === true ||
-    user?.is_completed === true
+    user?.is_completed === true ||
+    user?.businessName ||
+    user?.business_name ||
+    user?.onboarding_status === "completed"
   );
 
-  if (explicitRoute && explicitRoute !== "/influencer") {
-    const targetRoute = mapBackendDashboardRoute(explicitRoute, user?.role);
-    router.push(targetRoute);
+  if (isCompleted) {
+    router.replace(getDashboardRouteForRole(user?.role || role));
     return;
   }
 
-  if (isCompleted) {
-    router.push(getDashboardRouteForRole(user?.role));
-  } else {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("show_onboarding_plan", "true");
-    }
-    router.push("/select-role");
+  if (explicitRoute && explicitRoute !== "/influencer" && !explicitRoute.includes("onboarding") && !explicitRoute.includes("select-role")) {
+    const targetRoute = mapBackendDashboardRoute(explicitRoute, user?.role);
+    router.replace(targetRoute);
+    return;
   }
+
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("show_onboarding_plan", "true");
+  }
+  router.replace("/select-role");
 }
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, user, isLoading: isAuthLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
+
+  // If user is already authenticated and NOT processing an OAuth callback, redirect away!
+  useEffect(() => {
+    if (typeof window === "undefined" || isAuthLoading) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get("code");
+    if (user && !code) {
+      const entryReferrer = sessionStorage.getItem("auth_entry_referrer");
+      if (entryReferrer && !entryReferrer.startsWith("/login") && !entryReferrer.startsWith("/signup")) {
+        sessionStorage.removeItem("auth_entry_referrer");
+        router.replace(entryReferrer);
+      } else {
+        router.replace(getDashboardRouteForRole(user?.role));
+      }
+    }
+  }, [user, isAuthLoading, router]);
+
+  // Track the initial page/route user came from before reaching auth
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const returnTo = searchParams.get("return_to") || searchParams.get("redirect");
+    if (returnTo && returnTo.startsWith("/")) {
+      sessionStorage.setItem("auth_entry_referrer", returnTo);
+      return;
+    }
+    if (!sessionStorage.getItem("auth_entry_referrer")) {
+      const referrer = document.referrer;
+      if (referrer) {
+        try {
+          const refUrl = new URL(referrer);
+          if (
+            refUrl.origin === window.location.origin &&
+            !refUrl.pathname.startsWith("/login") &&
+            !refUrl.pathname.startsWith("/signup")
+          ) {
+            sessionStorage.setItem("auth_entry_referrer", refUrl.pathname + refUrl.search);
+          }
+        } catch (_) {}
+      }
+    }
+
+    const reason = searchParams.get("reason");
+    const conflictNotice = sessionStorage.getItem("device_conflict_notice");
+    if (reason === "device_conflict" || conflictNotice) {
+      setError(conflictNotice || "Your session expired because your account was logged in on another device.");
+      sessionStorage.removeItem("device_conflict_notice");
+    }
+  }, []);
 
   // Screen flow: "phone" -> "otp"
   const [step, setStep] = useState<"phone" | "otp" | "get_started" | "details">("phone");
@@ -454,6 +508,8 @@ export default function LoginPage() {
 
         const finalUser = {
           ...user,
+          token: token,
+          access_token: token,
           phone_verified: true,
           onboardingCompleted: isDone,
         };
@@ -476,12 +532,12 @@ export default function LoginPage() {
           }
           setPendingAuthUser(finalUser);
           setPendingDashboardRoute((response as any).dashboard_route);
-          login(finalUser);
+          login(token, finalUser);
           setStep("details");
           return;
         }
 
-        login(finalUser);
+        login(token, finalUser);
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("onboarding_step");
           sessionStorage.removeItem("show_onboarding_plan");
@@ -517,22 +573,49 @@ export default function LoginPage() {
 
     try {
       const fullName = cleanLast ? `${cleanFirst} ${cleanLast}` : cleanFirst;
-      const updatedProfile = await userService.updateProfile({
-        firstName: cleanFirst,
-        lastName: cleanLast,
-        name: fullName,
-      });
+      let updatedProfile: any = null;
+      try {
+        updatedProfile = await userService.updateProfile({
+          firstName: cleanFirst,
+          lastName: cleanLast,
+          name: fullName,
+          fullName: fullName,
+        });
+      } catch (saveErr: any) {
+        console.warn("Could not save name via updateProfile:", saveErr);
+        try {
+          updatedProfile = await userService.updateMe({
+            firstName: cleanFirst,
+            lastName: cleanLast,
+            name: fullName,
+          });
+        } catch (subErr: any) {
+          console.warn("updateMe fallback also failed:", subErr);
+        }
+      }
+
+      const effectiveToken =
+        pendingAuthUser?.access_token ||
+        pendingAuthUser?.token ||
+        (typeof window !== "undefined" ? localStorage.getItem("access_token") : null);
 
       const finalUser = {
         ...(pendingAuthUser || {}),
-        ...updatedProfile,
+        ...(updatedProfile || {}),
+        token: effectiveToken,
+        access_token: effectiveToken,
         firstName: cleanFirst,
         lastName: cleanLast,
         name: fullName,
         fullName: fullName,
       };
 
-      login(finalUser);
+      if (effectiveToken && typeof window !== "undefined") {
+        localStorage.setItem("access_token", effectiveToken);
+        localStorage.setItem("token", effectiveToken);
+      }
+
+      login(effectiveToken, finalUser);
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("onboarding_step");
         sessionStorage.removeItem("show_onboarding_plan");
@@ -582,6 +665,21 @@ export default function LoginPage() {
     handleSendOtp("whatsapp", validation.e164);
   };
 
+  const getGoogleRedirectUri = (): string => {
+    if (typeof window !== "undefined") {
+      const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      if (isLocal) {
+        return `${window.location.origin}/login/user`;
+      }
+    }
+    return (
+      process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
+      "https://api.dhandagrow.com/api/v1/auth/google/callback"
+    );
+  };
+
   /**
    * Launch standard Google OAuth account chooser screen (Screenshot 3)
    */
@@ -598,15 +696,17 @@ export default function LoginPage() {
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-      const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
+      const redirectUri = getGoogleRedirectUri();
       const clientId =
         (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
         "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
       const scope = "openid email profile";
-      const state = "login_" + Math.random().toString(36).substring(7);
+      const originEncoded = typeof window !== "undefined" ? btoa(window.location.origin).replace(/=/g, "") : "";
+      const state = `login_origin_${originEncoded}_${Math.random().toString(36).substring(7)}`;
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("google_auth_mode", "login");
+        sessionStorage.setItem("google_redirect_uri", redirectUri);
         if (phone.trim()) {
           const validation = validatePhoneNumber(countryCode, phone);
           if (validation.isValid) {
@@ -633,7 +733,7 @@ export default function LoginPage() {
       });
 
       setTimeout(() => {
-        window.location.href = authUrl;
+        window.location.replace(authUrl);
       }, 250);
     } catch (err: any) {
       console.warn("Google connect error:", err?.message || err);
@@ -695,7 +795,9 @@ export default function LoginPage() {
         });
 
         try {
-          const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
+          const savedRedirectUri = sessionStorage.getItem("google_redirect_uri");
+          const searchRedirectUri = searchParams.get("redirect_uri");
+          const redirectUri = searchRedirectUri || savedRedirectUri || getGoogleRedirectUri();
           const res = await authService.googleLogin({
             code,
             redirect_uri: redirectUri,
@@ -725,6 +827,7 @@ export default function LoginPage() {
                 actionHref: "/login/user",
               });
               sessionStorage.removeItem("google_auth_mode");
+              sessionStorage.removeItem("google_redirect_uri");
               sessionStorage.removeItem("google_auth_phone");
               sessionStorage.removeItem("google_auth_country_code");
               sessionStorage.removeItem("google_auth_verification_token");
@@ -740,12 +843,15 @@ export default function LoginPage() {
 
             const finalUser = {
               ...userObj,
+              token: token || (userObj as any).token || (userObj as any).access_token,
+              access_token: token || (userObj as any).access_token || (userObj as any).token,
               auth_provider: "google",
               phone_verified: true,
               onboardingCompleted: isDone,
             };
-            login(finalUser);
+            login(token, finalUser);
             sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_redirect_uri");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
             sessionStorage.removeItem("google_auth_verification_token");
@@ -820,6 +926,7 @@ export default function LoginPage() {
               actionHref: "/login/user",
             });
             sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_redirect_uri");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
             sessionStorage.removeItem("google_auth_verification_token");
@@ -857,6 +964,7 @@ export default function LoginPage() {
               actionHref: "/login/user",
             });
             sessionStorage.removeItem("google_auth_mode");
+            sessionStorage.removeItem("google_redirect_uri");
             sessionStorage.removeItem("google_auth_phone");
             sessionStorage.removeItem("google_auth_country_code");
             sessionStorage.removeItem(`google_code_processed_${code}`);
