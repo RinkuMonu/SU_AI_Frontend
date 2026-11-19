@@ -26,6 +26,7 @@ import {
   normalizePlanId,
 } from "@/lib/plan-onboarding";
 import { launchCashfreeCheckout } from "@/lib/cashfree";
+import { useRouter } from "next/navigation";
 
 interface AvailablePlansModalProps {
   isOpen: boolean;
@@ -40,6 +41,7 @@ export function AvailablePlansModal({
   onPlanActivated,
   isModal = true,
 }: AvailablePlansModalProps) {
+  const router = useRouter();
   const [selectedCycle, setSelectedCycle] = useState<BillingCycle>("monthly");
   const [currentSubscription, setCurrentSubscription] = useState<Subscription | null>(null);
   const [backendPlans, setBackendPlans] = useState<Record<string, PlanConfig>>({});
@@ -212,70 +214,8 @@ export function AvailablePlansModal({
         setSuccessMessage("Free Plan activated successfully!");
         if (onPlanActivated) onPlanActivated("FREE");
       } else {
-        const response = await paymentService.createPayment(plan.id, selectedCycle, undefined, "AUTOPAY");
-        const sessionId = response.payment_session_id || response.subscription_session_id;
-        const orderId = response.order_id || response.subscription_id;
-
-        // If direct Cashfree checkout URL is available, redirect directly without intermediate page
-        if (response.payment_url && response.payment_url.includes("cashfree.com")) {
-          if (typeof window !== "undefined" && orderId) {
-            sessionStorage.setItem("pending_payment_order_id", orderId);
-          }
-          window.location.href = response.payment_url;
-          return;
-        }
-
-        if (sessionId) {
-          if (typeof window !== "undefined" && orderId) {
-            sessionStorage.setItem("pending_payment_order_id", orderId);
-          }
-
-          const res = await launchCashfreeCheckout({
-            paymentSessionId: sessionId,
-            environment: response.environment || "production",
-            fallbackUrl: response.payment_url,
-            redirectTarget: "_self",
-          });
-
-          if (typeof window !== "undefined") {
-            sessionStorage.removeItem("pending_payment_order_id");
-          }
-
-          if (res?.status === "CANCELLED") {
-            setPaymentFailurePopup({
-              open: true,
-              title: "Payment Cancelled",
-              message: "Payment was cancelled. No deduction was made from your account. Please try again when ready.",
-            });
-            return;
-          }
-
-          if (res?.status === "FAILED") {
-            setPaymentFailurePopup({
-              open: true,
-              title: "Payment Failed",
-              message: res.error || "Payment was not successful. Please try again or use another payment method.",
-            });
-            return;
-          }
-
-          if (res?.status === "SUCCESS") {
-            if (orderId) {
-              await verifyPaymentOrder(orderId);
-            }
-            return;
-          }
-          return;
-        }
-
-        if (response.payment_url && typeof window !== "undefined") {
-          if (orderId) {
-            sessionStorage.setItem("pending_payment_order_id", orderId);
-          }
-          window.location.href = response.payment_url;
-          return;
-        }
-        return;
+        router.push(`/checkout?plan=${encodeURIComponent(plan.id)}&cycle=${encodeURIComponent(selectedCycle)}`);
+        if (onClose) onClose();
       }
     } catch (err: any) {
       if (typeof window !== "undefined") {

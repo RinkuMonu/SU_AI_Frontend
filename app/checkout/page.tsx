@@ -17,6 +17,9 @@ import {
   Smartphone,
   CheckCircle2,
   Building,
+  UserCheck,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { paymentService } from "@/services/payment.service";
 import { subscriptionService } from "@/services/subscription.service";
@@ -33,7 +36,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 function CheckoutContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
 
   // Extract query parameters
   const paramSessionId = searchParams.get("session_id") || searchParams.get("payment_session_id") || "";
@@ -41,7 +44,7 @@ function CheckoutContent() {
   const paramPlan = (searchParams.get("plan") || "PRO_STARTER").toUpperCase().trim();
   const paramCycle = (searchParams.get("cycle") || searchParams.get("billing_cycle") || "monthly").toLowerCase() as BillingCycle;
   const paramAmount = searchParams.get("amount") ? parseFloat(searchParams.get("amount") || "0") : 0;
-  const paramMode = (searchParams.get("mode") || "ALL").toUpperCase() as "ALL" | "AUTOPAY";
+  const paramMode = (searchParams.get("mode") || "AUTOPAY").toUpperCase() as "ALL" | "AUTOPAY";
 
   // State
   const [selectedPlanId, setSelectedPlanId] = useState<string>(paramPlan);
@@ -52,6 +55,14 @@ function CheckoutContent() {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [phone, setPhone] = useState<string>("");
+
+  // Redirect to login if user is not authenticated once auth loading completes
+  useEffect(() => {
+    if (!isLoading && !user) {
+      const redirectUrl = `/checkout?plan=${encodeURIComponent(selectedPlanId)}&cycle=${encodeURIComponent(selectedCycle)}`;
+      router.push(`/login/user?redirect=${encodeURIComponent(redirectUrl)}`);
+    }
+  }, [user, isLoading, selectedPlanId, selectedCycle, router]);
 
   // Find plan details
   const activePlan: PlanDefinition =
@@ -68,7 +79,7 @@ function CheckoutContent() {
   // Initialize phone from user if logged in
   useEffect(() => {
     if (user) {
-      const rawUserPhone = user.phone || (user as any).phone_number || "";
+      const rawUserPhone = user.phone || (user as any).phone_number || (user as any).mobile || "";
       const uPhone = String(rawUserPhone).replace(/\D/g, "");
       if (uPhone) setPhone(uPhone.slice(-10));
     }
@@ -90,18 +101,24 @@ function CheckoutContent() {
           selectedPlanId,
           selectedCycle,
           phone || undefined,
-          paymentMode
+          "AUTOPAY"
         );
 
         activeSession = (createRes.payment_session_id || createRes.subscription_session_id || "").trim();
         activeOrder = createRes.order_id || createRes.subscription_id || "";
 
+        // Direct Cashfree hosted URL redirection (no intermediate page)
+        if (createRes.payment_url && createRes.payment_url.includes("cashfree.com")) {
+          if (typeof window !== "undefined" && activeOrder) {
+            sessionStorage.setItem("pending_payment_order_id", activeOrder);
+          }
+          window.location.href = createRes.payment_url;
+          return;
+        }
+
         if (activeSession) {
           setSessionId(activeSession);
           setOrderId(activeOrder);
-        } else if (createRes.payment_url) {
-          window.location.href = createRes.payment_url;
-          return;
         } else {
           throw new Error("Unable to create Cashfree payment session. Please retry.");
         }
@@ -109,6 +126,12 @@ function CheckoutContent() {
 
       if (typeof window !== "undefined" && activeOrder) {
         sessionStorage.setItem("pending_payment_order_id", activeOrder);
+      }
+
+      // If activeSession is a Cashfree subscription session, redirect directly to hosted checkout
+      if (activeSession.startsWith("sub_session_")) {
+        window.location.href = `https://api.cashfree.com/checkout/subscriptions?pt=${encodeURIComponent(activeSession)}`;
+        return;
       }
 
       // Launch Cashfree SDK checkout
@@ -197,6 +220,29 @@ function CheckoutContent() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Left Column: Plan Info & Payment Methods (7 cols) */}
           <div className="md:col-span-7 space-y-6">
+            {/* Account / User Session Card */}
+            <div className="p-5 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-gray-300 flex items-center gap-2">
+                  <UserCheck className="w-4 h-4 text-emerald-400" />
+                  <span>Logged in Account Session</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/20">
+                  Active Session
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                <div>
+                  <span className="text-gray-400 block text-[11px]">Subscriber Name</span>
+                  <span className="font-semibold text-white">{user?.name || (user as any)?.fullName || "Valued Subscriber"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block text-[11px]">Email Address</span>
+                  <span className="font-semibold text-white truncate block">{user?.email || "user@example.com"}</span>
+                </div>
+              </div>
+            </div>
+
             {/* Selected Plan Details Card */}
             <div className="p-6 rounded-2xl bg-white/[0.03] border border-white/10 backdrop-blur-xl relative overflow-hidden">
               <div className="flex items-start justify-between">
