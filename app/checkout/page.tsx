@@ -271,55 +271,15 @@ function CheckoutContent() {
               </div>
             </div>
 
-            {/* Payment Method Details (Cards, UPI, NetBanking) */}
-            <div className="p-6 rounded-2xl bg-white/[0.03] border border-pink-500/40 bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-transparent backdrop-blur-xl space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-pink-400" />
-                  <span className="text-sm font-semibold text-white">Payment Method: Cards, UPI & Net Banking</span>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Cards Enabled • Instant
-                </span>
+            {/* Secure Cashfree Redirection Info */}
+            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between text-xs text-gray-400">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>Payment options (UPI AutoPay, Cards, Bank Account) are selected on Cashfree</span>
               </div>
-
-              <div className="p-4 rounded-xl bg-white/5 border border-white/10 space-y-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
-                    <CreditCard className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h5 className="font-semibold text-sm text-white">
-                      All Credit &amp; Debit Cards, UPI &amp; Net Banking
-                    </h5>
-                    <p className="text-xs text-gray-300 mt-0.5">
-                      Pay securely with any Visa, MasterCard, RuPay debit/credit card, Google Pay, PhonePe, Paytm, or 50+ Banks.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Supported Payment Badges */}
-              <div className="pt-2 flex flex-wrap items-center gap-2 text-xs">
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-pink-500/30 text-pink-300 font-medium">💳 Credit Cards (Visa, MC, RuPay)</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-purple-500/30 text-purple-300 font-medium">💳 Debit Cards (All Banks)</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-emerald-500/30 text-emerald-300 font-medium">⚡ Instant UPI (GPay, PhonePe, Paytm)</span>
-                <span className="px-3 py-1 rounded-full bg-white/5 border border-blue-500/30 text-blue-300 font-medium">🏦 50+ Net Banking Banks</span>
-              </div>
-            </div>
-
-            {/* Supported Payment Logos & Security Badges */}
-            <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-3">
-              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
-                Accepted Payment Methods
+              <span className="text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                Cashfree Hosted
               </span>
-              <div className="flex flex-wrap items-center gap-2 text-xs text-gray-300">
-                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">Credit Cards</span>
-                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">Debit Cards</span>
-                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">UPI (GPay / PhonePe / Paytm)</span>
-                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">50+ Net Banking Banks</span>
-                <span className="px-2.5 py-1 rounded-md bg-white/5 border border-white/10">AutoPay Mandate</span>
-              </div>
             </div>
           </div>
 
@@ -369,7 +329,7 @@ function CheckoutContent() {
                   ) : (
                     <>
                       <Lock className="w-4 h-4" />
-                      <span>Pay {formatCurrencyINR(displayTotal)} Securely</span>
+                      <span>Proceed to Pay {formatCurrencyINR(displayTotal)}</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   )}
