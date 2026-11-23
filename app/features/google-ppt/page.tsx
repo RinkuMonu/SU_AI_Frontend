@@ -951,6 +951,112 @@ export default function GooglePPTPage() {
         </div>
       </section>
 
+      {/* Comparison Section (Matching User Image Exactly) */}
+      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        {/* Pill Badge */}
+        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#FFF0E6] border border-[#FFE0CC] text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
+          SAVE 95% PRESENTATION TIME
+        </div>
+
+        {/* Heading */}
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-12 sm:mb-14">
+          Manual Slide Making vs.{' '}
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#FF8C00]">
+            DhandaGrow AI
+          </span>
+        </h2>
+
+        {/* Comparison Table Card */}
+        <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-orange-200/80 shadow-[0_15px_40px_rgba(255,107,0,0.05)] overflow-hidden text-left">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-[#FFFDFB]/60">
+                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-900 w-[30%]">
+                    Feature
+                  </th>
+                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-600 w-[35%]">
+                    Manual Google Slides
+                  </th>
+                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-[#FF6B00] w-[35%]">
+                    DhandaGrow Google PPT AI
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
+                {/* Row 1 */}
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Time to Create 10 Slides
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                    3 to 5 Hours
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-emerald-600">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span>Under 45 Seconds</span>
+                      <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                    </span>
+                  </td>
+                </tr>
+
+                {/* Row 2 */}
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Content & Copywriting
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                    Write everything from scratch
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    AI-researched & structured
+                  </td>
+                </tr>
+
+                {/* Row 3 */}
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Hindi & Regional Languages
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                    Slow manual typing
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Native 1-click generation
+                  </td>
+                </tr>
+
+                {/* Row 4 */}
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Brand Colors & Fonts
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                    Manual formatting per slide
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Auto-synced Brand Kit
+                  </td>
+                </tr>
+
+                {/* Row 5 */}
+                <tr className="hover:bg-slate-50/50 transition-colors">
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                    Google Slides & PPTX Export
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                    Built-in
+                  </td>
+                  <td className="py-4.5 px-6 sm:px-8 font-bold text-emerald-600">
+                    100% Editable Native Export
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
       {/* Bottom CTA Banner */}
       <section className="py-16 sm:py-20 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
