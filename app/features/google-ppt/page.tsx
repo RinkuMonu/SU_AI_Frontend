@@ -560,6 +560,67 @@ export default function GooglePPTPage() {
         </div>
       </section>
 
+      {/* Simple 3-Step Workflow Section (Matching User Design Exactly) */}
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center relative">
+        <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#FFF0E6] border border-[#FFE0CC] text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-5 shadow-2xs">
+          SIMPLE 3-STEP WORKFLOW
+        </div>
+
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
+          From Idea to Google Slides in{' '}
+          <span className="text-[#FF6B00]">30</span>
+          <br />
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#E11D48]">
+            Seconds
+          </span>
+        </h2>
+
+        <p className="max-w-xl mx-auto text-slate-500 sm:text-slate-600 text-sm sm:text-base leading-relaxed mb-12 sm:mb-16 font-medium">
+          No formatting headaches, no blank-slide anxiety. Just type what you need and export ready-to-present slides.
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto text-left">
+          {/* Step 1 */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_35px_rgba(255,107,0,0.06)] hover:border-orange-200/80 transition-all">
+            <div className="w-10 h-10 rounded-xl border border-amber-300 bg-amber-50/70 flex items-center justify-center text-amber-700 font-bold text-sm mb-6">
+              01
+            </div>
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-3 tracking-tight">
+              Enter Topic or Paste Notes
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+              Type a one-line prompt, paste rough meeting bullet points, or choose from 50+ Indian & global business deck structures.
+            </p>
+          </div>
+
+          {/* Step 2 */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_35px_rgba(255,107,0,0.06)] hover:border-orange-200/80 transition-all">
+            <div className="w-10 h-10 rounded-xl border border-pink-300 bg-pink-50/70 flex items-center justify-center text-pink-600 font-bold text-sm mb-6">
+              02
+            </div>
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-3 tracking-tight">
+              AI Writes & Designs Slides
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+              DhandaGrow AI structures your narrative, writes persuasive slide copy, adds KPI callouts, and applies clean visual hierarchy automatically.
+            </p>
+          </div>
+
+          {/* Step 3 */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-7 sm:p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-[0_15px_35px_rgba(255,107,0,0.06)] hover:border-orange-200/80 transition-all">
+            <div className="w-10 h-10 rounded-xl border border-amber-300 bg-amber-50/70 flex items-center justify-center text-amber-600 font-bold text-sm mb-6">
+              03
+            </div>
+            <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 mb-3 tracking-tight">
+              1-Click Export to Google PPT
+            </h3>
+            <p className="text-sm text-slate-600 leading-relaxed font-normal">
+              Open directly in <strong className="font-semibold text-slate-900">Google Slides</strong> or download as a standard <strong className="font-semibold text-slate-900">.PPTX</strong> file. Every text box, chart, and shape stays 100% editable.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Feature Capabilities */}
       <section className="py-20 sm:py-24 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -632,44 +693,6 @@ export default function GooglePPTPage() {
                 Change tone, lengthen points, or simplify into executive takeaways with one-click AI rewrite actions.
               </p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Steps Section */}
-      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold mb-4">
-            HOW IT WORKS
-          </div>
-          <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-slate-900">
-            From an Idea to a Deck in 3 Simple Steps
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="relative p-8 rounded-3xl bg-white border border-slate-200 shadow-xs">
-            <div className="text-4xl font-black text-amber-500/30 mb-4">01</div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Describe Your Objective</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Provide your topic, target audience, and key points in plain words or paste your existing notes.
-            </p>
-          </div>
-
-          <div className="relative p-8 rounded-3xl bg-white border border-slate-200 shadow-xs">
-            <div className="text-4xl font-black text-amber-500/30 mb-4">02</div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">AI Outlines & Styles</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              DhandaGrow builds a logical slide sequence, designs charts, and crafts clean headers and bullet points.
-            </p>
-          </div>
-
-          <div className="relative p-8 rounded-3xl bg-white border border-slate-200 shadow-xs">
-            <div className="text-4xl font-black text-amber-500/30 mb-4">03</div>
-            <h3 className="text-xl font-bold text-slate-900 mb-2">Export & Present</h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Open directly inside Google Slides to collaborate with your team, or download as a PowerPoint file.
-            </p>
           </div>
         </div>
       </section>
