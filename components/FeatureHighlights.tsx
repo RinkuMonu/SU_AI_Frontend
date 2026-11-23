@@ -22,7 +22,8 @@ import {
   Sparkles,
   Languages,
   Pin,
-  Send
+  Send,
+  Presentation
 } from 'lucide-react';
 
 const allFeatures = [
@@ -50,6 +51,12 @@ const allFeatures = [
     icon: UserCircle,
     route: '/features/ai-avatar',
     colorClass: 'bg-indigo-50 text-indigo-600 border border-indigo-100',
+  },
+  {
+    name: 'Google PPT',
+    icon: Presentation,
+    route: '/features/google-ppt',
+    colorClass: 'bg-amber-50 text-amber-600 border border-amber-100',
   },
   // 2. Marketing
   {
