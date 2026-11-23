@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { smoothScrollTo } from '@/lib/scroll';
 import {
   ShieldCheck,
   ChevronDown,
@@ -41,15 +42,11 @@ export function Footer() {
   };
 
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/#')) {
-      const targetId = href.replace('/#', '');
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      const targetId = href.replace('/#', '').replace('#', '');
       if (typeof window !== 'undefined' && window.location.pathname === '/') {
-        const el = document.getElementById(targetId);
-        if (el) {
-          e.preventDefault();
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          window.history.pushState(null, '', href);
-        }
+        e.preventDefault();
+        smoothScrollTo(targetId);
       }
     }
   };
@@ -185,7 +182,7 @@ export function Footer() {
                   { title: 'About Us', desc: 'Our mission and story', href: '/about' },
                   { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
                   { title: 'Features', desc: 'Explore all features', href: '/#features' },
-                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/pricing' },
+                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/#pricing' },
                   { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/#blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
                   { title: 'Contact Us', desc: 'Get in touch with support', href: '/contact' },

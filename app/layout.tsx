@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { SecurityShield } from "@/components/security/SecurityShield";
+import { SmoothScrollProvider } from "@/components/providers/SmoothScrollProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -39,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
-      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground overflow-x-hidden min-h-screen`} suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${inter.variable} ${roboto.variable} font-sans antialiased bg-background text-foreground min-h-screen`} suppressHydrationWarning>
         <script
           id="anti-screenshare-early"
           dangerouslySetInnerHTML={{
@@ -127,16 +128,58 @@ export default function RootLayout({
                     }
                   };
                 }
+
+                // Suppress browser autofill & password manager extension hydration mismatch (fdprocessedid)
+                if (typeof Element !== "undefined" && Element.prototype) {
+                  var origSetAttribute = Element.prototype.setAttribute;
+                  Element.prototype.setAttribute = function(name, value) {
+                    if (name === "fdprocessedid") {
+                      return;
+                    }
+                    return origSetAttribute.apply(this, arguments);
+                  };
+                }
+
+                if (typeof console !== "undefined" && console.error) {
+                  var _origError = console.error;
+                  console.error = function() {
+                    for (var i = 0; i < arguments.length; i++) {
+                      var arg = arguments[i];
+                      if (typeof arg === "string" && (arg.indexOf("fdprocessedid") !== -1 || (arg.indexOf("hydration-mismatch") !== -1 && arg.indexOf("extension") !== -1))) {
+                        return;
+                      }
+                    }
+                    return _origError.apply(console, arguments);
+                  };
+                }
+
+                if (typeof MutationObserver !== "undefined") {
+                  try {
+                    var fdObserver = new MutationObserver(function(mutations) {
+                      for (var i = 0; i < mutations.length; i++) {
+                        var m = mutations[i];
+                        if (m.type === "attributes" && m.attributeName === "fdprocessedid" && m.target && m.target.removeAttribute) {
+                          m.target.removeAttribute("fdprocessedid");
+                        }
+                      }
+                    });
+                    if (document.documentElement) {
+                      fdObserver.observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ["fdprocessedid"] });
+                    }
+                  } catch (_) {}
+                }
               } catch(_) {}
             `,
           }}
         />
-        <SecurityShield />
-        <LanguageProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </LanguageProvider>
+        <SmoothScrollProvider>
+          <SecurityShield />
+          <LanguageProvider>
+            <AuthProvider>
+              {children}
+            </AuthProvider>
+          </LanguageProvider>
+        </SmoothScrollProvider>
 
         {/* Hidden Google Translate Mount */}
         <div id="google_translate_element" aria-hidden="true" className="hidden" />
