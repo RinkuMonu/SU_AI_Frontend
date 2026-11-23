@@ -426,30 +426,30 @@ export default function GooglePPTPage() {
             <span className="text-xs font-bold text-amber-800 uppercase tracking-widest">Google PPT & AI Slides</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight leading-[1.1] text-slate-900 max-w-4xl">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-[1.15] sm:leading-[1.1] text-slate-900 max-w-4xl">
             Create Stunning <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500">Google PPT & Slides</span> with AI.
           </h1>
 
-          <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-8 font-medium max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg md:text-xl text-slate-600 leading-relaxed mb-6 sm:mb-8 font-medium max-w-2xl mx-auto px-2">
             Generate complete business presentations, investor pitch decks, and sales slides in seconds. Fully editable and exportable directly to Google Slides and Microsoft PowerPoint.
           </p>
 
           {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-5">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8 w-full sm:w-auto">
             <button
               type="button"
               onClick={handlePreviewClick}
-              className="inline-flex items-center gap-2.5 h-13 px-8 text-base rounded-full bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#9333EA] text-white font-bold shadow-[0_12px_30px_-6px_rgba(255,107,0,0.45)] hover:shadow-[0_16px_36px_-6px_rgba(255,107,0,0.55)] select-none cursor-pointer hover:opacity-95 active:scale-95 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 h-12 sm:h-13 px-6 sm:px-8 text-sm sm:text-base rounded-full bg-gradient-to-r from-[#FF6B00] via-[#E11D48] to-[#9333EA] text-white font-bold shadow-[0_12px_30px_-6px_rgba(255,107,0,0.45)] hover:shadow-[0_16px_36px_-6px_rgba(255,107,0,0.55)] select-none cursor-pointer hover:opacity-95 active:scale-95 transition-all"
             >
-              <Sparkles className="w-4 h-4 text-amber-200 fill-amber-200" />
+              <Sparkles className="w-4 h-4 text-amber-200 fill-amber-200 shrink-0" />
               <span>Generate Google PPT Free</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </button>
             <Button
               asChild
               variant="outline"
               size="lg"
-              className="h-13 px-8 text-base rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-semibold shadow-xs"
+              className="w-full sm:w-auto h-12 sm:h-13 px-8 text-sm sm:text-base rounded-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-800 font-semibold shadow-xs justify-center"
             >
               <Link href="/download">
                 Get the App
@@ -458,7 +458,7 @@ export default function GooglePPTPage() {
           </div>
 
           {/* Checkmarks Line */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-8 text-xs sm:text-sm text-slate-600 font-medium">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 mb-6 sm:mb-8 text-xs sm:text-sm text-slate-600 font-medium px-2">
             <div className="flex items-center gap-1.5">
               <span className="text-emerald-500 font-bold text-sm">✓</span>
               <span>No credit card required</span>
@@ -474,34 +474,36 @@ export default function GooglePPTPage() {
           </div>
 
           {/* Interactive Topic Generator Input Box */}
-          <div className="w-full max-w-4xl mx-auto rounded-3xl border border-orange-200/80 bg-white shadow-[0_15px_40px_-15px_rgba(255,107,0,0.08)] p-3 sm:p-5 mb-8 text-left">
+          <div className="w-full max-w-4xl mx-auto rounded-2xl sm:rounded-3xl border border-orange-200/80 bg-white shadow-[0_15px_40px_-15px_rgba(255,107,0,0.08)] p-2.5 sm:p-5 mb-8 text-left">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handlePreviewClick();
               }}
-              className="flex items-center gap-2 sm:gap-3 rounded-2xl border border-slate-200/90 bg-white px-3 sm:px-4 py-1.5 sm:py-2 shadow-2xs focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-200/50 transition-all"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 rounded-xl sm:rounded-2xl border border-slate-200/90 bg-white p-2 sm:px-4 sm:py-2 shadow-2xs focus-within:border-amber-400 focus-within:ring-2 focus-within:ring-amber-200/50 transition-all"
             >
-              <Zap className="w-5 h-5 text-amber-500 shrink-0 fill-amber-500/20" />
-              <input
-                type="text"
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                placeholder="Enter any topic (e.g., Investor Pitch Deck for Solar Startup in Jaipur)..."
-                className="flex-1 min-w-0 bg-transparent border-0 outline-none text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 font-medium"
-              />
+              <div className="flex items-center gap-2 flex-1 min-w-0 px-1 sm:px-0">
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 shrink-0 fill-amber-500/20" />
+                <input
+                  type="text"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  placeholder="Enter any topic (e.g., Investor Pitch Deck for Solar Startup in Jaipur)..."
+                  className="w-full min-w-0 bg-transparent border-0 outline-none text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 font-medium"
+                />
+              </div>
               <button
                 type="submit"
-                className="shrink-0 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[#090F1E] hover:bg-[#151f38] text-white font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
+                className="w-full sm:w-auto shrink-0 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-[#090F1E] hover:bg-[#151f38] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
               >
                 <span>Preview Slides</span>
-                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400" />
+                <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 fill-amber-400 shrink-0" />
               </button>
             </form>
 
             {/* Sample Decks Chips */}
-            <div className="flex flex-wrap items-center gap-2 mt-3.5 sm:mt-4 pt-1">
-              <span className="text-xs sm:text-[13px] text-slate-500 font-medium shrink-0 mr-1">
+            <div className="flex items-center gap-1.5 sm:gap-2 mt-3 sm:mt-4 pt-1 overflow-x-auto sm:flex-wrap pb-1.5 sm:pb-0 scrollbar-none">
+              <span className="text-xs sm:text-[13px] text-slate-500 font-medium shrink-0 mr-1 whitespace-nowrap">
                 Try sample decks:
               </span>
               {sampleDecks.map((deck) => {
@@ -512,7 +514,7 @@ export default function GooglePPTPage() {
                     type="button"
                     onClick={() => handleSelectDeck(deck)}
                     className={cn(
-                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer shadow-2xs active:scale-95',
+                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0 whitespace-nowrap',
                       isSelected
                         ? 'bg-[#FFE8D6] text-amber-950 border-amber-300 ring-2 ring-amber-200/50'
                         : deck.badgeClass
@@ -533,28 +535,28 @@ export default function GooglePPTPage() {
           {/* Interactive Slide Deck Preview Container (Matching User Screenshot Exactly) */}
           <div
             id="slide-preview-container"
-            className="w-full max-w-4xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden text-left"
+            className="w-full max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden text-left"
           >
             {/* Top Bar simulating Google Slides UI */}
-            <div className="px-5 sm:px-6 py-4 bg-white border-b border-slate-100 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-500 shrink-0">
+            <div className="px-4 sm:px-6 py-3.5 sm:py-4 bg-white border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-500 shrink-0">
                   <Presentation className="w-4 h-4" />
                 </div>
-                <div>
-                  <div className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
-                    <span>{activeDeck.fileName}</span>
-                    <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-[#FFF0D4] text-amber-900 border border-amber-200/60">
+                <div className="min-w-0">
+                  <div className="text-xs sm:text-sm md:text-base font-bold text-slate-900 flex items-center gap-2 flex-wrap">
+                    <span className="truncate max-w-[180px] sm:max-w-xs md:max-w-none">{activeDeck.fileName}</span>
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase px-1.5 sm:px-2 py-0.5 rounded bg-[#FFF0D4] text-amber-900 border border-amber-200/60 shrink-0">
                       AI SYNCED
                     </span>
                   </div>
-                  <div className="text-xs text-slate-400 mt-0.5">
+                  <div className="text-[11px] sm:text-xs text-slate-400 mt-0.5 truncate">
                     Exportable to Google Slides & PPTX • 16:9 Widescreen
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                 <span className="text-xs sm:text-sm font-medium text-slate-500 whitespace-nowrap">
                   Slide {currentSlideIndex + 1} of {activeDeck.slides.length}
                 </span>
@@ -578,32 +580,32 @@ export default function GooglePPTPage() {
             </div>
 
             {/* Slide Body */}
-            <div className="p-6 sm:p-10 bg-white min-h-[330px] flex flex-col justify-between relative">
+            <div className="p-4 sm:p-8 lg:p-10 bg-white min-h-[280px] sm:min-h-[330px] flex flex-col justify-between relative">
               <div>
                 {/* Tag pill */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF7EB] border border-amber-200/70 text-amber-900 text-xs font-semibold mb-4">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF7EB] border border-amber-200/70 text-amber-900 text-xs font-semibold mb-3 sm:mb-4">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                   <span>{activeSlide.tag}</span>
                 </div>
 
                 {/* Title */}
-                <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-black text-slate-900 tracking-tight leading-tight mb-2">
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black text-slate-900 tracking-tight leading-tight mb-2">
                   {activeSlide.title}
                 </h2>
 
                 {/* Subtitle */}
-                <p className="text-sm sm:text-base text-slate-500 font-medium mb-6 leading-relaxed">
+                <p className="text-xs sm:text-sm md:text-base text-slate-500 font-medium mb-4 sm:mb-6 leading-relaxed">
                   {activeSlide.subtitle}
                 </p>
 
                 {/* Bullet Points */}
-                <div className="space-y-3.5 max-w-2xl">
+                <div className="space-y-3 sm:space-y-3.5 max-w-2xl">
                   {activeSlide.bulletPoints.map((point, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
+                    <div key={idx} className="flex items-start gap-2.5 sm:gap-3">
                       <div className="w-5 h-5 rounded-full bg-[#FFEADA] text-[#FF6B00] flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-3 h-3 stroke-[2.8]" />
                       </div>
-                      <span className="text-sm sm:text-[15px] text-slate-700 font-medium leading-snug">
+                      <span className="text-xs sm:text-sm md:text-[15px] text-slate-700 font-medium leading-snug">
                         {point}
                       </span>
                     </div>
@@ -612,9 +614,9 @@ export default function GooglePPTPage() {
               </div>
 
               {/* Bottom Stat Bar & Action Buttons */}
-              <div className="pt-8 mt-6 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+              <div className="pt-6 sm:pt-8 mt-6 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-baseline gap-2">
-                  <span className={cn('text-3xl sm:text-4xl font-black tracking-tight', activeSlide.statColor || 'text-[#FF6B00]')}>
+                  <span className={cn('text-2xl sm:text-3xl md:text-4xl font-black tracking-tight', activeSlide.statColor || 'text-[#FF6B00]')}>
                     {activeSlide.stat}
                   </span>
                   <span className="text-xs sm:text-sm text-slate-500 font-medium">
@@ -622,12 +624,12 @@ export default function GooglePPTPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2.5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
                   <Button
                     asChild
                     variant="outline"
                     size="sm"
-                    className="h-10 px-4 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs sm:text-sm shadow-2xs"
+                    className="w-full sm:w-auto h-10 px-4 rounded-full border-slate-200 text-slate-700 hover:bg-slate-50 font-semibold text-xs sm:text-sm shadow-2xs justify-center"
                   >
                     <Link href="/download">
                       Download .PPTX
@@ -637,7 +639,7 @@ export default function GooglePPTPage() {
                   <Button
                     asChild
                     size="sm"
-                    className="h-10 px-5 rounded-full bg-[#0a0f1d] hover:bg-slate-900 text-white font-bold text-xs sm:text-sm shadow-md flex items-center gap-1.5"
+                    className="w-full sm:w-auto h-10 px-5 rounded-full bg-[#0a0f1d] hover:bg-slate-900 text-white font-bold text-xs sm:text-sm shadow-md flex items-center justify-center gap-1.5"
                   >
                     <Link href="/download">
                       <ExternalLink className="w-3.5 h-3.5" />
@@ -649,8 +651,8 @@ export default function GooglePPTPage() {
             </div>
 
             {/* Bottom Tabs Strip (Matching User Screenshot Exactly) */}
-            <div className="px-5 sm:px-6 py-3 bg-[#FBFBFC] border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2">
+            <div className="px-4 sm:px-6 py-3 bg-[#FBFBFC] border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs">
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none w-full sm:w-auto">
                 {activeDeck.slides.map((slide, idx) => {
                   const isActive = currentSlideIndex === idx;
                   return (
@@ -659,7 +661,7 @@ export default function GooglePPTPage() {
                       type="button"
                       onClick={() => setCurrentSlideIndex(idx)}
                       className={cn(
-                        'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer',
+                        'px-3 sm:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer whitespace-nowrap shrink-0',
                         isActive
                           ? 'border border-orange-300 bg-[#FFF3E8] text-orange-950 shadow-2xs'
                           : 'text-slate-500 hover:text-slate-900'
@@ -671,7 +673,7 @@ export default function GooglePPTPage() {
                 })}
               </div>
 
-              <span className="text-[11px] sm:text-xs text-slate-400 font-normal">
+              <span className="text-[11px] sm:text-xs text-slate-400 font-normal shrink-0">
                 Click arrows or tabs to preview deck
               </span>
             </div>
@@ -867,19 +869,19 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Ready-to-Use Decks Section (Matching User Image Exactly) */}
-      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-14">
+      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-14">
           <div>
-            <div className="text-xs font-extrabold uppercase tracking-widest text-[#FF4D6D] mb-2.5">
+            <div className="text-xs font-extrabold uppercase tracking-widest text-[#FF4D6D] mb-2 sm:mb-2.5">
               READY-TO-USE DECKS
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-[40px] font-black tracking-tight text-slate-900 leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-[40px] font-black tracking-tight text-slate-900 leading-tight">
               Built for Every Business Goal
             </h2>
           </div>
 
           {/* Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none w-full md:w-auto flex-nowrap md:flex-wrap">
             {[
               { id: 'all', label: 'All Decks' },
               { id: 'startup', label: 'Startup & Funding' },
@@ -893,7 +895,7 @@ export default function GooglePPTPage() {
                   type="button"
                   onClick={() => setSelectedCategory(tab.id)}
                   className={cn(
-                    'px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs',
+                    'px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs whitespace-nowrap shrink-0',
                     isActive
                       ? 'bg-slate-900 text-white shadow-sm'
                       : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -907,17 +909,17 @@ export default function GooglePPTPage() {
         </div>
 
         {/* 6 Decks Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-7">
           {filteredTemplates.map((deck) => (
             <div
               key={deck.id}
-              className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl hover:border-orange-200/80 transition-all flex flex-col justify-between text-left group"
+              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl hover:border-orange-200/80 transition-all flex flex-col justify-between text-left group"
             >
               <div>
                 {/* Visual Slide Banner */}
                 <div
                   className={cn(
-                    'h-40 sm:h-44 rounded-2xl p-5 text-white flex flex-col justify-between relative overflow-hidden mb-5 shadow-xs transition-transform duration-300 group-hover:scale-[1.01]',
+                    'h-36 sm:h-44 rounded-xl sm:rounded-2xl p-4 sm:p-5 text-white flex flex-col justify-between relative overflow-hidden mb-4 sm:mb-5 shadow-xs transition-transform duration-300 group-hover:scale-[1.01]',
                     deck.gradientClass
                   )}
                 >
@@ -926,12 +928,12 @@ export default function GooglePPTPage() {
 
                   {/* Top Badges */}
                   <div className="flex items-center justify-between gap-2 relative z-10">
-                    <span className="text-[10px] font-extrabold tracking-wider px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-xs text-white uppercase">
+                    <span className="text-[10px] font-extrabold tracking-wider px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md bg-white/20 backdrop-blur-xs text-white uppercase">
                       {deck.slideCount}
                     </span>
                     <span
                       className={cn(
-                        'text-[10px] font-extrabold tracking-wider px-2.5 py-1 rounded-md uppercase backdrop-blur-xs',
+                        'text-[10px] font-extrabold tracking-wider px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md uppercase backdrop-blur-xs',
                         deck.badgeRightClass || 'bg-white/20 text-white'
                       )}
                     >
@@ -949,17 +951,17 @@ export default function GooglePPTPage() {
                     >
                       {deck.categorySubtitle}
                     </div>
-                    <div className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
+                    <div className="text-base sm:text-xl font-black text-white tracking-tight leading-snug">
                       {deck.bannerTitle}
                     </div>
                   </div>
                 </div>
 
                 {/* Card Title & Description */}
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2 tracking-tight">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1.5 sm:mb-2 tracking-tight">
                   {deck.title}
                 </h3>
-                <p className="text-xs sm:text-[13px] text-slate-500 font-normal leading-relaxed mb-6">
+                <p className="text-xs sm:text-[13px] text-slate-500 font-normal leading-relaxed mb-5 sm:mb-6">
                   {deck.description}
                 </p>
               </div>
@@ -978,14 +980,14 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Comparison Section (Matching User Image Exactly) */}
-      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
         {/* Pill Badge */}
         <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#FFF0E6] border border-[#FFE0CC] text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
           SAVE 95% PRESENTATION TIME
         </div>
 
         {/* Heading */}
-        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-12 sm:mb-14">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-8 sm:mb-14 px-2">
           Manual Slide Making vs.{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#FF8C00]">
             DhandaGrow AI
@@ -993,18 +995,18 @@ export default function GooglePPTPage() {
         </h2>
 
         {/* Comparison Table Card */}
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-orange-200/80 shadow-[0_15px_40px_rgba(255,107,0,0.05)] overflow-hidden text-left">
+        <div className="max-w-4xl mx-auto bg-white rounded-2xl sm:rounded-3xl border border-orange-200/80 shadow-[0_15px_40px_rgba(255,107,0,0.05)] overflow-hidden text-left">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full min-w-[560px] text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-[#FFFDFB]/60">
-                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-900 w-[30%]">
+                  <th className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-900 w-[30%]">
                     Feature
                   </th>
-                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-600 w-[35%]">
+                  <th className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-xs sm:text-sm font-extrabold text-slate-600 w-[35%]">
                     Manual Google Slides
                   </th>
-                  <th className="py-4.5 px-6 sm:px-8 text-xs sm:text-sm font-extrabold text-[#FF6B00] w-[35%]">
+                  <th className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-xs sm:text-sm font-extrabold text-[#FF6B00] w-[35%]">
                     DhandaGrow Google PPT AI
                   </th>
                 </tr>
@@ -1012,13 +1014,13 @@ export default function GooglePPTPage() {
               <tbody className="divide-y divide-slate-100 text-xs sm:text-sm">
                 {/* Row 1 */}
                 <tr className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Time to Create 10 Slides
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-slate-500 font-medium">
                     3 to 5 Hours
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-emerald-600">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-emerald-600">
                     <span className="inline-flex items-center gap-1.5">
                       <span>Under 45 Seconds</span>
                       <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
@@ -1028,52 +1030,52 @@ export default function GooglePPTPage() {
 
                 {/* Row 2 */}
                 <tr className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Content & Copywriting
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-slate-500 font-medium">
                     Write everything from scratch
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     AI-researched & structured
                   </td>
                 </tr>
 
                 {/* Row 3 */}
                 <tr className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Hindi & Regional Languages
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-slate-500 font-medium">
                     Slow manual typing
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Native 1-click generation
                   </td>
                 </tr>
 
                 {/* Row 4 */}
                 <tr className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Brand Colors & Fonts
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-slate-500 font-medium">
                     Manual formatting per slide
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Auto-synced Brand Kit
                   </td>
                 </tr>
 
                 {/* Row 5 */}
                 <tr className="hover:bg-slate-50/50 transition-colors">
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-slate-900">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-slate-900">
                     Google Slides & PPTX Export
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 text-slate-500 font-medium">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 text-slate-500 font-medium">
                     Built-in
                   </td>
-                  <td className="py-4.5 px-6 sm:px-8 font-bold text-emerald-600">
+                  <td className="py-3.5 sm:py-4.5 px-4 sm:px-8 font-bold text-emerald-600">
                     100% Editable Native Export
                   </td>
                 </tr>
@@ -1084,11 +1086,11 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Frequently Asked Questions Section (Matching User Image Exactly) */}
-      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight mb-3">
+      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        <h2 className="text-2xl sm:text-3xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight mb-2.5 sm:mb-3">
           Frequently Asked Questions
         </h2>
-        <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-10 sm:mb-14">
+        <p className="text-slate-500 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-8 sm:mb-14 px-2">
           Everything you need to know about generating and exporting Google Slides with DhandaGrow AI.
         </p>
 
@@ -1099,7 +1101,7 @@ export default function GooglePPTPage() {
               <div
                 key={index}
                 className={cn(
-                  'bg-white rounded-2xl border transition-all overflow-hidden shadow-2xs',
+                  'bg-white rounded-xl sm:rounded-2xl border transition-all overflow-hidden shadow-2xs',
                   isOpen
                     ? 'border-orange-300 ring-2 ring-orange-200/40 shadow-xs'
                     : 'border-slate-200/90 hover:border-orange-200/90'
@@ -1108,7 +1110,7 @@ export default function GooglePPTPage() {
                 <button
                   type="button"
                   onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                  className="w-full py-4.5 px-6 flex items-center justify-between gap-4 text-left cursor-pointer transition-colors"
+                  className="w-full py-3.5 sm:py-4.5 px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4 text-left cursor-pointer transition-colors"
                 >
                   <span className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
                     {faq.question}
@@ -1123,7 +1125,7 @@ export default function GooglePPTPage() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-6 pb-5 pt-1 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed border-t border-slate-100">
+                  <div className="px-4 sm:px-6 pb-4 sm:pb-5 pt-1 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed border-t border-slate-100">
                     {faq.answer}
                   </div>
                 )}
@@ -1134,34 +1136,34 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Bottom Final CTA Section (Matching User Image Exactly) */}
-      <section className="py-24 sm:py-32 bg-[#FFF4E8] text-center border-t border-orange-100/80 relative overflow-hidden">
+      <section className="py-16 sm:py-24 lg:py-32 bg-[#FFF4E8] text-center border-t border-orange-100/80 relative overflow-hidden">
         {/* Soft Background Blur Orbs */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-orange-300/15 blur-[90px] rounded-full pointer-events-none -z-10" />
 
         <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
           {/* Centered Top Icon Squircle */}
-          <div className="w-13 h-13 rounded-2xl bg-white border border-orange-200/90 shadow-sm flex items-center justify-center text-[#FF6B00] mb-6 mx-auto">
-            <Presentation className="w-6 h-6 stroke-[2.2]" />
+          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-white border border-orange-200/90 shadow-sm flex items-center justify-center text-[#FF6B00] mb-5 sm:mb-6 mx-auto">
+            <Presentation className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
           </div>
 
           {/* Heading */}
-          <h2 className="text-3xl sm:text-4xl md:text-[44px] font-black tracking-tight text-slate-900 leading-[1.18] mb-4">
+          <h2 className="text-2xl sm:text-3xl md:text-[44px] font-black tracking-tight text-slate-900 leading-[1.18] mb-3 sm:mb-4 px-2">
             Build your next presentation in under
             <br />
             60 seconds.
           </h2>
 
           {/* Subtitle */}
-          <p className="text-slate-600 font-medium text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-9">
+          <p className="text-slate-600 font-medium text-xs sm:text-sm md:text-base max-w-xl mx-auto leading-relaxed mb-7 sm:mb-9 px-2">
             Say goodbye to blank slide anxiety. Let AI write, design, and structure your Google PPT decks today.
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-3.5">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto">
             <Button
               asChild
               size="lg"
-              className="h-12 px-8 text-sm sm:text-base rounded-full bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#E11D48] text-white font-bold shadow-[0_10px_25px_-5px_rgba(255,107,0,0.45)] hover:shadow-[0_12px_28px_-5px_rgba(255,107,0,0.55)] hover:opacity-95 transition-all"
+              className="w-full sm:w-auto h-12 px-8 text-sm sm:text-base rounded-full bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#E11D48] text-white font-bold shadow-[0_10px_25px_-5px_rgba(255,107,0,0.45)] hover:shadow-[0_12px_28px_-5px_rgba(255,107,0,0.55)] hover:opacity-95 transition-all justify-center"
             >
               <Link href="/download">
                 Start Creating Free
@@ -1172,7 +1174,7 @@ export default function GooglePPTPage() {
               asChild
               variant="outline"
               size="lg"
-              className="h-12 px-8 text-sm sm:text-base rounded-full bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-800 font-semibold shadow-2xs transition-all"
+              className="w-full sm:w-auto h-12 px-8 text-sm sm:text-base rounded-full bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-800 font-semibold shadow-2xs transition-all justify-center"
             >
               <Link href="/">
                 Back to Home
