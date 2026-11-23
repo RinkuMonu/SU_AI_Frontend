@@ -188,7 +188,7 @@ export function Footer() {
                   { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/pricing' },
                   { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/#blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
-                  { title: 'Contact Us', desc: 'Get in touch with support', href: '/#contact' },
+                  { title: 'Contact Us', desc: 'Get in touch with support', href: '/contact' },
                 ].map((item, i) => (
                   <li key={i}>
                     <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">
@@ -209,7 +209,7 @@ export function Footer() {
                   { title: 'How It Works', desc: 'Step-by-step workflow to get started', href: '/#how-it-works' },
                   { title: 'Mobile App Download', desc: 'Get DhandaGrow on Android & iOS', href: '/download' },
                   { title: 'Payment & Subscription Help', desc: 'Manage your billing and plans', href: '/pricing' },
-                  { title: 'Contact Support', desc: "We're here 24/7 to help", href: '/#contact' },
+                  { title: 'Contact Support', desc: "We're here 24/7 to help", href: '/contact' },
                 ].map((item, i) => (
                   <li key={i}>
                     <Link href={item.href} onClick={(e) => handleAnchorClick(e, item.href)} className="group block">

@@ -2,6 +2,13 @@ export interface CashfreeCheckoutOptions {
   paymentSessionId?: string | null;
   environment?: "production" | "sandbox";
   fallbackUrl?: string | null;
+  redirectTarget?: "_modal" | "_self";
+}
+
+export interface CashfreeCheckoutResult {
+  status: "SUCCESS" | "FAILED" | "CANCELLED" | "REDIRECTED";
+  error?: string;
+  paymentDetails?: any;
 }
 
 /**
@@ -63,58 +70,148 @@ async function loadCashfree(mode: "production" | "sandbox"): Promise<any> {
 }
 
 /**
- * Initiates direct Cashfree checkout redirection using the official Cashfree JS SDK v3.
- * Eliminates "client session is invalid" errors by establishing an authenticated session handshake.
+ * Initiates direct Cashfree hosted checkout page redirection.
+ * Launches the official Cashfree JS SDK v3 or submits the authentic Cashfree POST form,
+ * completely avoiding "client session is invalid" errors caused by unauthenticated GET hash navigation.
  */
 export async function launchCashfreeCheckout({
   paymentSessionId,
   environment = "production",
   fallbackUrl,
-}: CashfreeCheckoutOptions): Promise<void> {
-  // If running on localhost / 127.0.0.1 in production mode, Cashfree JS SDK blocks
-  // with "http://localhost:3000/ is not enabled or approved. Please whitelist your domain..."
-  // because Cashfree does not whitelist localhost in the production dashboard.
-  // Directly redirecting to Cashfree's official hosted checkout URL bypasses the SDK domain block!
-  const isLocalhost =
-    typeof window !== "undefined" &&
-    (window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1");
-
-  if (isLocalhost && environment === "production" && fallbackUrl) {
-    window.location.href = fallbackUrl;
-    return;
+  redirectTarget = "_self",
+}: CashfreeCheckoutOptions): Promise<CashfreeCheckoutResult> {
+  if (typeof window === "undefined") {
+    return { status: "FAILED", error: "Window undefined" };
   }
 
+  const mode = environment === "production" ? "production" : "sandbox";
+
+  // 1. Prioritize official Cashfree JS SDK v3 checkout
   if (paymentSessionId) {
     try {
-      const mode = environment === "production" ? "production" : "sandbox";
       const cashfree = await loadCashfree(mode);
-
       if (cashfree) {
         if (paymentSessionId.startsWith("sub_session_")) {
-          // Official Cashfree AutoPay & Recurring Subscriptions mandate checkout
-          await cashfree.subscriptionsCheckout({
+          const res = await cashfree.subscriptionsCheckout({
             subsSessionId: paymentSessionId,
-            redirectTarget: "_self", // Directly redirects current browser window to Cashfree AutoPay
+            redirectTarget,
           });
+
+          if (res?.error) {
+            const isAborted =
+              res.error.code === "user_dropped_error" ||
+              res.error.message?.toLowerCase().includes("user aborted") ||
+              res.error.message?.toLowerCase().includes("cancelled");
+            return {
+              status: isAborted ? "CANCELLED" : "FAILED",
+              error: isAborted
+                ? "Payment was cancelled. You have not been charged."
+                : res.error.message || "Payment could not be completed.",
+            };
+          }
+          if (res?.paymentDetails?.paymentStatus === "SUCCESS") {
+            return { status: "SUCCESS", paymentDetails: res.paymentDetails };
+          }
+          return { status: "REDIRECTED" };
         } else {
-          // Standard Cashfree Order checkout
-          await cashfree.checkout({
+          const res = await cashfree.checkout({
             paymentSessionId,
-            redirectTarget: "_self",
+            redirectTarget,
           });
+
+          if (res?.error) {
+            const isAborted =
+              res.error.code === "user_dropped_error" ||
+              res.error.message?.toLowerCase().includes("user aborted") ||
+              res.error.message?.toLowerCase().includes("cancelled");
+            return {
+              status: isAborted ? "CANCELLED" : "FAILED",
+              error: isAborted
+                ? "Payment was cancelled. You have not been charged."
+                : res.error.message || "Payment could not be completed.",
+            };
+          }
+
+          if (res?.paymentDetails?.paymentStatus === "SUCCESS") {
+            return { status: "SUCCESS", paymentDetails: res.paymentDetails };
+          }
+
+          if (res?.paymentDetails?.paymentStatus === "FAILED") {
+            return {
+              status: "FAILED",
+              error: "Payment was not successful. Please try again.",
+            };
+          }
+
+          return { status: "REDIRECTED" };
         }
-        return;
       }
-    } catch (err) {
-      console.warn("Cashfree JS SDK launch failed, falling back to direct URL:", err);
+    } catch (err: any) {
+      console.warn("Cashfree JS SDK launch failed, falling back to direct POST form:", err);
+    }
+
+    // 2. Direct POST Form Submission Fallback:
+    // Submits the official Cashfree PG v3 sessions checkout form directly to api.cashfree.com
+    try {
+      const isSub = paymentSessionId.startsWith("sub_session_");
+      const actionUrl =
+        mode === "production"
+          ? isSub
+            ? "https://api.cashfree.com/pg/view/sessions/checkout/subs"
+            : "https://api.cashfree.com/pg/view/sessions/checkout"
+          : isSub
+          ? "https://sandbox.cashfree.com/pg/view/sessions/checkout/subs"
+          : "https://sandbox.cashfree.com/pg/view/sessions/checkout";
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = actionUrl;
+      form.style.display = "none";
+
+      const fields: Record<string, string> = isSub
+        ? {
+            subs_session_id: paymentSessionId,
+            form_id: "form_subs_id_atom",
+            x_request_id: "x_request_id_form_subs_atom",
+            platform: "c_xx",
+            checkForPayFast: "false",
+          }
+        : {
+            payment_session_id: paymentSessionId,
+            form_id: "form_id_atom",
+            x_request_id: "x_request_id_form_atom",
+            platform: "c_xx",
+            checkForPayFast: "false",
+          };
+
+      try {
+        fields.browser_meta = btoa(JSON.stringify({ userAgent: navigator.userAgent }));
+      } catch (_) {}
+
+      for (const [key, val] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = val;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+      form.submit();
+      return { status: "REDIRECTED" };
+    } catch (formErr) {
+      console.warn("Cashfree form submission fallback failed:", formErr);
     }
   }
 
-  // Fallback to direct redirect URL if provided
-  if (fallbackUrl && typeof window !== "undefined") {
+  // 3. Fallback direct URL if valid (excluding any broken /order/# URLs)
+  if (
+    fallbackUrl &&
+    !fallbackUrl.includes("/order/#") &&
+    !fallbackUrl.includes("/subscriptions/#")
+  ) {
     window.location.href = fallbackUrl;
-    return;
+    return { status: "REDIRECTED" };
   }
 
   throw new Error("Unable to open Cashfree payment checkout. Please retry.");

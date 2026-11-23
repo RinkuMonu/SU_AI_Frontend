@@ -411,6 +411,21 @@ export default function SignupPage() {
     handleSendOtp("whatsapp", validation.e164);
   };
 
+  const getGoogleRedirectUri = (): string => {
+    if (typeof window !== "undefined") {
+      const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname === "127.0.0.1";
+      if (isLocal) {
+        return `${window.location.origin}/login/user`;
+      }
+    }
+    return (
+      process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI ||
+      "https://api.dhandagrow.com/api/v1/auth/google/callback"
+    );
+  };
+
   /**
    * Launch Google Authentication for Signup (Screenshot 3)
    */
@@ -426,18 +441,20 @@ export default function SignupPage() {
 
     try {
       const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-      const redirectUri = process.env.NEXT_PUBLIC_GOOGLE_REDIRECT_URI || "https://api.dhandagrow.com/api/v1/auth/google/callback";
+      const redirectUri = getGoogleRedirectUri();
       const clientId =
         (process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "").trim() ||
         "260412504334-00s4ah5tslv9rgso3g86fcb079bb84nr.apps.googleusercontent.com";
       const scope = "openid email profile";
-      const state = "signup_" + Math.random().toString(36).substring(7);
+      const originEncoded = typeof window !== "undefined" ? btoa(window.location.origin).replace(/=/g, "") : "";
+      const state = `signup_origin_${originEncoded}_${Math.random().toString(36).substring(7)}`;
 
       const effectivePhone = customPhone || phone;
       const effectiveCc = customCountryCode || countryCode;
 
       if (typeof window !== "undefined") {
         sessionStorage.setItem("google_auth_mode", "signup");
+        sessionStorage.setItem("google_redirect_uri", redirectUri);
         if (effectivePhone && effectivePhone.trim()) {
           const validation = validatePhoneNumber(effectiveCc, effectivePhone);
           if (validation.isValid) {
@@ -471,7 +488,7 @@ export default function SignupPage() {
       });
 
       setTimeout(() => {
-        window.location.href = authUrl;
+        window.location.replace(authUrl);
       }, 250);
     } catch (err: any) {
       console.warn("Google connect error:", err?.message || err);
