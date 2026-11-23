@@ -21,7 +21,10 @@ import {
   Palette,
   Layout,
   Globe2,
-  Layers
+  Layers,
+  BarChart3,
+  Languages,
+  Users
 } from 'lucide-react';
 
 interface SlideItem {
@@ -621,77 +624,127 @@ export default function GooglePPTPage() {
         </div>
       </section>
 
-      {/* Feature Capabilities */}
+      {/* Why Create Presentations Section (Matching User Image Exactly) */}
       <section className="py-20 sm:py-24 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4 text-slate-900">
-              Why create presentations with DhandaGrow Google PPT?
+          <div className="text-center mb-14 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-4 leading-tight">
+              Why create presentations with
+              <br className="hidden sm:inline" /> DhandaGrow Google PPT?
             </h2>
-            <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+            <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal">
               Transform a single business idea or product description into fully formatted, persuasive slide decks ready to present or export.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-200 flex items-center justify-center text-amber-600 mb-6">
-                <Wand2 className="w-6 h-6" />
+          {/* Top Row: 4 Vertical Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-6">
+            {/* Card 1: Google Slides Native */}
+            <div className="bg-white rounded-3xl border border-amber-200/70 p-6 sm:p-7 shadow-[0_8px_25px_rgba(255,180,0,0.04)] hover:shadow-md transition-all text-left flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-500 mb-6">
+                  <Presentation className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2.5 tracking-tight">
+                  Google Slides Native
+                </h3>
+                <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed font-normal">
+                  Export directly to your Google Drive as editable Google Slides or download as standard .pptx files in 1 click.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">One-Prompt Generation</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Type what your presentation is about. DhandaGrow outlines the storyline, organizes sections, and writes concise bullet points.
-              </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-200 flex items-center justify-center text-orange-600 mb-6">
-                <Globe2 className="w-6 h-6" />
+            {/* Card 2: Automated Brand Kit */}
+            <div className="bg-white rounded-3xl border border-orange-200/70 p-6 sm:p-7 shadow-[0_8px_25px_rgba(255,107,0,0.04)] hover:shadow-md transition-all text-left flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-orange-50 border border-orange-200/80 flex items-center justify-center text-orange-500 mb-6">
+                  <Palette className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2.5 tracking-tight">
+                  Automated Brand Kit
+                </h3>
+                <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed font-normal">
+                  Applies your company&apos;s brand logo, colors, typography, and visual assets across every slide automatically.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Multilingual Slides</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Present to regional dealers or global investors. Generates fluent slides in Hindi, Hinglish, Marathi, Bengali, and English.
-              </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-200 flex items-center justify-center text-amber-600 mb-6">
-                <FileSpreadsheet className="w-6 h-6" />
+            {/* Card 3: Vernacular & Regional */}
+            <div className="bg-white rounded-3xl border border-rose-200/70 p-6 sm:p-7 shadow-[0_8px_25px_rgba(244,63,94,0.04)] hover:shadow-md transition-all text-left flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-500 mb-6">
+                  <Languages className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2.5 tracking-tight">
+                  Vernacular & Regional
+                </h3>
+                <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed font-normal">
+                  Generate presentations in English, Hindi, Hinglish, Marathi, Gujarati, Bengali, Tamil, and 8+ regional languages.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Google Slides & PPTX Sync</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Export directly into Google Slides or download as a .pptx file. Fully native text blocks and shapes that your team can edit.
-              </p>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-200 flex items-center justify-center text-rose-600 mb-6">
-                <Palette className="w-6 h-6" />
+            {/* Card 4: Instant Pitch Decks */}
+            <div className="bg-white rounded-3xl border border-amber-200/70 p-6 sm:p-7 shadow-[0_8px_25px_rgba(255,180,0,0.04)] hover:shadow-md transition-all text-left flex flex-col justify-between">
+              <div>
+                <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-500 mb-6">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2.5 tracking-tight">
+                  Instant Pitch Decks
+                </h3>
+                <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed font-normal">
+                  Pre-trained templates for investor decks, client proposals, product launches, and monthly business reviews.
+                </p>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Brand Theme Integration</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Colors, typography, and logos from your Brand Brain automatically format every slide to maintain enterprise consistency.
-              </p>
+            </div>
+          </div>
+
+          {/* Bottom Row: 3 Horizontal Feature Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-6xl mx-auto">
+            {/* Card 5: Smart Charts & Tables */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:shadow-sm transition-all flex items-start gap-3.5 text-left">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
+                  Smart Charts & Tables
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                  Turn raw numbers into clean comparison tables, growth timelines, and KPI cards.
+                </p>
+              </div>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-200 flex items-center justify-center text-amber-600 mb-6">
-                <Layout className="w-6 h-6" />
+            {/* Card 6: AI Slide Rewriter & Expand */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:shadow-sm transition-all flex items-start gap-3.5 text-left">
+              <div className="w-9 h-9 rounded-xl bg-rose-50 border border-rose-200/80 flex items-center justify-center text-rose-500 shrink-0 mt-0.5">
+                <Wand2 className="w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Modern Visual Layouts</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Includes metric callouts, timeline steps, comparison tables, and customer quote cards designed by professional presentation designers.
-              </p>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
+                  AI Slide Rewriter & Expand
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                  Shorten bulky paragraphs into crisp bullet points or regenerate any single slide.
+                </p>
+              </div>
             </div>
 
-            <div className="p-8 rounded-3xl bg-slate-50 border border-slate-200/80 hover:border-amber-300 transition-all">
-              <div className="w-12 h-12 rounded-2xl bg-orange-500/10 border border-orange-200 flex items-center justify-center text-orange-600 mb-6">
-                <Layers className="w-6 h-6" />
+            {/* Card 7: Team Sharing & Co-Editing */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-2xs hover:shadow-sm transition-all flex items-start gap-3.5 text-left">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-500 shrink-0 mt-0.5">
+                <Users className="w-4 h-4" />
               </div>
-              <h3 className="text-xl font-bold text-slate-900 mb-3">Instant Re-Layout & Variations</h3>
-              <p className="text-slate-600 text-sm leading-relaxed">
-                Change tone, lengthen points, or simplify into executive takeaways with one-click AI rewrite actions.
-              </p>
+              <div>
+                <h4 className="text-sm font-bold text-slate-900 mb-1">
+                  Team Sharing & Co-Editing
+                </h4>
+                <p className="text-xs text-slate-500 leading-relaxed font-normal">
+                  Share Google Slides links directly with co-founders, clients, and sales teams.
+                </p>
+              </div>
             </div>
           </div>
         </div>
