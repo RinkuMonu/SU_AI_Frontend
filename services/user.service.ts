@@ -78,7 +78,20 @@ export const userService = {
 
   updateProfile: async (payload: UpdateUserProfilePayload): Promise<User> => {
     try {
-      const response = await api.patch('/api/v1/users/me', payload);
+      const normalizedPayload: Record<string, any> = { ...payload };
+      if (payload.firstName && !normalizedPayload.first_name) {
+        normalizedPayload.first_name = payload.firstName;
+      }
+      if (payload.lastName && !normalizedPayload.last_name) {
+        normalizedPayload.last_name = payload.lastName;
+      }
+      if ((payload.name || payload.fullName) && !normalizedPayload.full_name) {
+        normalizedPayload.full_name = payload.name || payload.fullName;
+      }
+      if (payload.businessName && !normalizedPayload.business_name) {
+        normalizedPayload.business_name = payload.businessName;
+      }
+      const response = await api.patch('/api/v1/users/me', normalizedPayload);
       const data = response.data?.data || response.data;
       return data;
     } catch (error: any) {

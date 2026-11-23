@@ -175,6 +175,39 @@ api.interceptors.response.use(
       // 2. Mark error as handled so global unhandledrejection listener knows not to crash.
       (error as any).__isHandled401 = true;
 
+      // 3. Strict Single Device Login Conflict Check:
+      // If user was logged in on another device, do NOT attempt token refresh. Immediately clear and redirect!
+      const sessionHeader = String(error.response?.headers?.["x-session-status"] || "");
+      const errorDetail = String((error.response?.data as any)?.detail || "").toLowerCase();
+      const isDeviceConflict =
+        sessionHeader === "LOGGED_OUT_BY_ANOTHER_DEVICE" ||
+        errorDetail.includes("another device");
+
+      if (isDeviceConflict) {
+        try {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          sessionStorage.setItem(
+            "device_conflict_notice",
+            "Your session expired because your account was logged in on another device."
+          );
+          if (typeof document !== "undefined") {
+            document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax";
+          }
+        } catch (_) {}
+
+        // Never redirect or reload if the user is ALREADY on the login or auth pages
+        const isAlreadyOnAuth = path.startsWith("/login") || path.startsWith("/signup");
+        if (!isAlreadyOnAuth && !isRedirecting) {
+          isRedirecting = true;
+          setTimeout(() => {
+            window.location.replace("/login/user?reason=device_conflict");
+          }, 100);
+        }
+        return Promise.reject(error);
+      }
+
       if (!isAuthAction) {
         if (config && !config._refreshRetry) {
           config._refreshRetry = true;

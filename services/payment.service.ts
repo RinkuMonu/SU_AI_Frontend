@@ -2,9 +2,12 @@ import api from "@/lib/api";
 
 export interface CreatePaymentResponse {
   success?: boolean;
+  message?: string;
   payment_url: string;
+  payment_link?: string;
   upi_url?: string;
   order_id: string;
+  reference?: string;
   subscription_id?: string;
   subscription_session_id?: string;
   payment_session_id?: string;
@@ -58,7 +61,8 @@ export const paymentService = {
   async createPayment(
     planId: string,
     billingCycle: string = "monthly",
-    customerPhone?: string
+    customerPhone?: string,
+    paymentMode: "ALL" | "AUTOPAY" | "CARD" = "AUTOPAY"
   ): Promise<CreatePaymentResponse> {
     const normalizedPlan = (planId || "").trim().toUpperCase();
     if (normalizedPlan === "FREE") {
@@ -75,10 +79,15 @@ export const paymentService = {
     const payload: Record<string, any> = {
       plan_id: normalizedPlan,
       billing_cycle: billingCycle.toLowerCase(),
+      payment_mode: paymentMode || "AUTOPAY",
     };
 
     if (customerPhone) {
       payload.customer_phone = customerPhone;
+    }
+
+    if (paymentMode) {
+      payload.payment_mode = paymentMode;
     }
 
     // Pass dynamic return URL matching current origin so Cashfree redirects back accurately.
@@ -88,31 +97,28 @@ export const paymentService = {
       const origin = isLocal
         ? window.location.origin
         : window.location.origin.replace(/^http:\/\//i, "https://");
-      payload.return_url = `${origin}/payment/success?order_id={subscription_id}&sub_id={subscription_id}`;
+      payload.return_url = `${origin}/payment/success?order_id={order_id}&sub_id={order_id}`;
     }
 
-    // Call official Cashfree Subscriptions & AutoPay endpoint
+    // Call Cashfree Payment Gateway endpoint
     const response = await api.post("/api/v1/payments/subscription/create", payload);
     const data = response.data?.data || response.data;
 
     const subId = data?.subscription_id || data?.order_id || "";
 
     // Guarantee payment gateway redirect URL
+    const sessionId = data?.payment_session_id || data?.subscription_session_id;
+    const isProd = (data?.environment || "production").toLowerCase() !== "sandbox";
     let paymentUrl = data?.payment_url;
-    if (!paymentUrl) {
-      const sessionId = data?.subscription_session_id || data?.payment_session_id;
-      if (sessionId) {
-        paymentUrl = `https://payments.cashfree.com/order/#${sessionId}`;
-      } else if (subId) {
-        paymentUrl = `https://payments.cashfree.com/order/#${subId}`;
-      }
+    // Discard any legacy broken hash URLs
+    if (paymentUrl && (paymentUrl.includes("/order/#") || paymentUrl.includes("/subscriptions/#"))) {
+      paymentUrl = undefined;
     }
 
-    if (!paymentUrl && !subId) {
+    if (!paymentUrl && !sessionId && !subId) {
       throw new Error(data?.detail || "Invalid response received from Cashfree payment service.");
     }
 
-    const sessionId = data?.payment_session_id || data?.subscription_session_id;
     const env = ((data?.environment || "production").toLowerCase() === "sandbox" ? "sandbox" : "production") as "production" | "sandbox";
 
     return {
@@ -275,5 +281,33 @@ export const paymentService = {
         message: "Payment cancelled",
       };
     }
+  },
+
+  /**
+   * Direct Cashfree Payin (Orders API) matching PHP cashfreePayin($data, $user).
+   * Supports all payment methods (Cards, UPI, NetBanking).
+   */
+  async cashfreePayin(data: {
+    amount: number;
+    reference?: string;
+    email?: string;
+    name?: string;
+    mobile?: string;
+    note?: string;
+    plan_id?: string;
+    plan_name?: string;
+    billing_cycle?: string;
+    return_url?: string;
+  }): Promise<{
+    success: boolean;
+    message: string;
+    payment_session_id: string;
+    payment_link: string;
+    reference: string;
+    order_id: string;
+    amount: number;
+  }> {
+    const res = await api.post("/api/v1/payments/cashfree/payin", data);
+    return res.data?.data || res.data;
   },
 };

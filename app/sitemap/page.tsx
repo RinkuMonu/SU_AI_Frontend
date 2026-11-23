@@ -32,7 +32,7 @@ const sitemapData = [
       { name: "Features", href: "/#features", icon: Star },
       { name: "Pricing", href: "/pricing", icon: CreditCard },
       { name: "Blog", href: "/#blog", icon: PenTool },
-      { name: "Contact", href: "/#contact", icon: Phone },
+      { name: "Contact", href: "/contact", icon: Phone },
     ]
   },
   {
@@ -106,7 +106,7 @@ const sitemapData = [
       { name: "Our Mission", href: "/about", icon: Target },
       { name: "Our Vision", href: "/about", icon: Compass },
       { name: "Careers", href: "/careers", icon: Briefcase },
-      { name: "Contact Us", href: "/#contact", icon: Phone },
+      { name: "Contact Us", href: "/contact", icon: Phone },
       { name: "Support", href: "/help", icon: HelpCircle },
     ]
   },
