@@ -274,13 +274,103 @@ const sampleDecks: SampleDeck[] = [
   }
 ];
 
+interface TemplateCardItem {
+  id: string;
+  category: 'startup' | 'sales' | 'reports';
+  slideCount: string;
+  badgeRight: string;
+  badgeRightClass?: string;
+  gradientClass: string;
+  categorySubtitle: string;
+  subtitleClass?: string;
+  bannerTitle: string;
+  title: string;
+  description: string;
+}
+
+const templateDecks: TemplateCardItem[] = [
+  {
+    id: 'deck-1',
+    category: 'startup',
+    slideCount: '12 SLIDES',
+    badgeRight: 'GOOGLE SLIDES',
+    gradientClass: 'bg-gradient-to-br from-[#FF5E62] via-[#FF6B00] to-[#E11D48]',
+    categorySubtitle: 'Series A / Seed',
+    bannerTitle: 'Investor Pitch Deck',
+    title: 'Startup Investor Pitch Deck',
+    description: 'Includes Problem, Solution, TAM/SAM/SOM Market Size, Business Model, Traction, and Funding Ask slides.'
+  },
+  {
+    id: 'deck-2',
+    category: 'sales',
+    slideCount: '10 SLIDES',
+    badgeRight: 'PPTX + GSLIDES',
+    badgeRightClass: 'bg-amber-400/20 text-amber-300 border border-amber-300/30',
+    gradientClass: 'bg-[#151D2A]',
+    categorySubtitle: 'High-Converting',
+    subtitleClass: 'text-amber-400',
+    bannerTitle: 'B2B Sales Proposal',
+    title: 'B2B Client Sales Proposal',
+    description: 'Structured to close enterprise & MSME deals with pain-point diagnosis, ROI calculator, case studies, and pricing tiers.'
+  },
+  {
+    id: 'deck-3',
+    category: 'reports',
+    slideCount: '8 SLIDES',
+    badgeRight: 'HINDI & ENGLISH',
+    gradientClass: 'bg-gradient-to-br from-[#FF7A00] via-[#FF9900] to-[#FF5E00]',
+    categorySubtitle: 'Monthly / Quarterly',
+    bannerTitle: 'Business Growth Review',
+    title: 'Quarterly Business Review (QBR)',
+    description: 'Present revenue growth, sales team KPIs, regional performance, and next quarter targets in clean visual slides.'
+  },
+  {
+    id: 'deck-4',
+    category: 'sales',
+    slideCount: '9 SLIDES',
+    badgeRight: 'GOOGLE SLIDES',
+    gradientClass: 'bg-gradient-to-br from-[#7C3AED] via-[#C026D3] to-[#DB2777]',
+    categorySubtitle: 'Go-To-Market',
+    bannerTitle: 'Social & Digital Campaign',
+    title: 'Marketing & Festival Campaign',
+    description: 'Complete campaign roadmap covering audience personas, Instagram/YouTube funnel, ad budget split, and expected ROAS.'
+  },
+  {
+    id: 'deck-5',
+    category: 'startup',
+    slideCount: '11 SLIDES',
+    badgeRight: 'PPTX + GSLIDES',
+    gradientClass: 'bg-gradient-to-br from-[#EA580C] via-[#DC2626] to-[#E11D48]',
+    categorySubtitle: 'New Feature / App',
+    bannerTitle: 'Product Launch Deck',
+    title: 'Product Launch Keynote',
+    description: 'Showcase product features, competitive edge, customer testimonials, and launch timeline with bold hero slides.'
+  },
+  {
+    id: 'deck-6',
+    category: 'reports',
+    slideCount: '10 SLIDES',
+    badgeRight: '8+ LANGUAGES',
+    gradientClass: 'bg-gradient-to-br from-[#4F46E5] via-[#7C3AED] to-[#C026D3]',
+    categorySubtitle: 'Training & Seminar',
+    bannerTitle: 'Workshop & Course Deck',
+    title: 'Training & Educational Slides',
+    description: 'Ideal for teachers, coaches, and corporate trainers to create structured lesson modules, diagrams, and quiz slides.'
+  }
+];
+
 export default function GooglePPTPage() {
   const [selectedDeckId, setSelectedDeckId] = useState<string>('startup');
   const [prompt, setPrompt] = useState<string>('');
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const activeDeck = sampleDecks.find((d) => d.id === selectedDeckId) || sampleDecks[0];
   const activeSlide = activeDeck.slides[currentSlideIndex] || activeDeck.slides[0];
+
+  const filteredTemplates = selectedCategory === 'all'
+    ? templateDecks
+    : templateDecks.filter((d) => d.category === selectedCategory);
 
   const handleSelectDeck = (deck: SampleDeck) => {
     setSelectedDeckId(deck.id);
@@ -747,6 +837,117 @@ export default function GooglePPTPage() {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Ready-to-Use Decks Section (Matching User Image Exactly) */}
+      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 sm:mb-14">
+          <div>
+            <div className="text-xs font-extrabold uppercase tracking-widest text-[#FF4D6D] mb-2.5">
+              READY-TO-USE DECKS
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-[40px] font-black tracking-tight text-slate-900 leading-tight">
+              Built for Every Business Goal
+            </h2>
+          </div>
+
+          {/* Filter Pills */}
+          <div className="flex flex-wrap items-center gap-2">
+            {[
+              { id: 'all', label: 'All Decks' },
+              { id: 'startup', label: 'Startup & Funding' },
+              { id: 'sales', label: 'Sales & Marketing' },
+              { id: 'reports', label: 'Reports & Education' }
+            ].map((tab) => {
+              const isActive = selectedCategory === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setSelectedCategory(tab.id)}
+                  className={cn(
+                    'px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer shadow-2xs',
+                    isActive
+                      ? 'bg-slate-900 text-white shadow-sm'
+                      : 'bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 6 Decks Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7">
+          {filteredTemplates.map((deck) => (
+            <div
+              key={deck.id}
+              className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.03)] hover:shadow-xl hover:border-orange-200/80 transition-all flex flex-col justify-between text-left group"
+            >
+              <div>
+                {/* Visual Slide Banner */}
+                <div
+                  className={cn(
+                    'h-40 sm:h-44 rounded-2xl p-5 text-white flex flex-col justify-between relative overflow-hidden mb-5 shadow-xs transition-transform duration-300 group-hover:scale-[1.01]',
+                    deck.gradientClass
+                  )}
+                >
+                  {/* Subtle decorative glow */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+
+                  {/* Top Badges */}
+                  <div className="flex items-center justify-between gap-2 relative z-10">
+                    <span className="text-[10px] font-extrabold tracking-wider px-2.5 py-1 rounded-md bg-white/20 backdrop-blur-xs text-white uppercase">
+                      {deck.slideCount}
+                    </span>
+                    <span
+                      className={cn(
+                        'text-[10px] font-extrabold tracking-wider px-2.5 py-1 rounded-md uppercase backdrop-blur-xs',
+                        deck.badgeRightClass || 'bg-white/20 text-white'
+                      )}
+                    >
+                      {deck.badgeRight}
+                    </span>
+                  </div>
+
+                  {/* Banner Title Block */}
+                  <div className="relative z-10">
+                    <div
+                      className={cn(
+                        'text-xs font-semibold mb-1',
+                        deck.subtitleClass || 'text-white/80'
+                      )}
+                    >
+                      {deck.categorySubtitle}
+                    </div>
+                    <div className="text-lg sm:text-xl font-black text-white tracking-tight leading-snug">
+                      {deck.bannerTitle}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Title & Description */}
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2 tracking-tight">
+                  {deck.title}
+                </h3>
+                <p className="text-xs sm:text-[13px] text-slate-500 font-normal leading-relaxed mb-6">
+                  {deck.description}
+                </p>
+              </div>
+
+              {/* Bottom CTA Button */}
+              <Link
+                href="/download"
+                className="w-full py-2.5 px-4 rounded-full border border-orange-200/90 hover:border-orange-400 bg-white hover:bg-orange-50/60 text-[#FF6B00] text-xs font-bold flex items-center justify-center gap-1.5 transition-all text-center shadow-2xs group-hover:shadow-xs"
+              >
+                <span>Use This Template</span>
+                <span className="text-sm font-semibold transition-transform group-hover:translate-x-1">→</span>
+              </Link>
+            </div>
+          ))}
         </div>
       </section>
 
