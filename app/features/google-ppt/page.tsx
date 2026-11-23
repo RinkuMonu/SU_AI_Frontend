@@ -1133,23 +1133,49 @@ export default function GooglePPTPage() {
         </div>
       </section>
 
-      {/* Bottom CTA Banner */}
-      <section className="py-16 sm:py-20 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 text-white text-center">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight mb-6">
-            Ready to Build Your Next Presentation with AI?
+      {/* Bottom Final CTA Section (Matching User Image Exactly) */}
+      <section className="py-24 sm:py-32 bg-[#FFF4E8] text-center border-t border-orange-100/80 relative overflow-hidden">
+        {/* Soft Background Blur Orbs */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-orange-300/15 blur-[90px] rounded-full pointer-events-none -z-10" />
+
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
+          {/* Centered Top Icon Squircle */}
+          <div className="w-13 h-13 rounded-2xl bg-white border border-orange-200/90 shadow-sm flex items-center justify-center text-[#FF6B00] mb-6 mx-auto">
+            <Presentation className="w-6 h-6 stroke-[2.2]" />
+          </div>
+
+          {/* Heading */}
+          <h2 className="text-3xl sm:text-4xl md:text-[44px] font-black tracking-tight text-slate-900 leading-[1.18] mb-4">
+            Build your next presentation in under
+            <br />
+            60 seconds.
           </h2>
-          <p className="text-amber-100 text-base sm:text-lg mb-8 max-w-2xl mx-auto font-medium">
-            Join thousands of Indian founders, business owners, and sales teams who save hours every week using DhandaGrow.
+
+          {/* Subtitle */}
+          <p className="text-slate-600 font-medium text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-9">
+            Say goodbye to blank slide anxiety. Let AI write, design, and structure your Google PPT decks today.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+
+          {/* Buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3.5">
             <Button
               asChild
               size="lg"
-              className="h-13 px-8 text-base rounded-full bg-white hover:bg-slate-50 text-slate-900 font-bold shadow-xl"
+              className="h-12 px-8 text-sm sm:text-base rounded-full bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#E11D48] text-white font-bold shadow-[0_10px_25px_-5px_rgba(255,107,0,0.45)] hover:shadow-[0_12px_28px_-5px_rgba(255,107,0,0.55)] hover:opacity-95 transition-all"
             >
               <Link href="/download">
-                Get Started Free
+                Start Creating Free
+              </Link>
+            </Button>
+
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="h-12 px-8 text-sm sm:text-base rounded-full bg-white border border-slate-200/90 hover:bg-slate-50 text-slate-800 font-semibold shadow-2xs transition-all"
+            >
+              <Link href="/">
+                Back to Home
               </Link>
             </Button>
           </div>
