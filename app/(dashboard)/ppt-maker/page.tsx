@@ -32,11 +32,28 @@ import {
   Zap,
   TrendingUp,
   GraduationCap,
-  DollarSign
+  DollarSign,
+  Palette,
+  Type,
+  Layout,
+  MessageSquare,
+  ShieldCheck,
+  FileSpreadsheet,
+  Maximize2,
+  ChevronLeft,
+  Sliders,
+  Sparkle,
+  Share2,
+  Eye,
+  CheckCircle,
+  Clock,
+  Coins,
+  Target,
+  Compass,
 } from "lucide-react";
 
 export default function PPTMakerPage() {
-  // Form State
+  // Form State - Step 1: Basic Information
   const [topic, setTopic] = useState("AI in Digital Marketing");
   const [presentationType, setPresentationType] = useState("Select Type");
   const [targetAudience, setTargetAudience] = useState("Professionals");
@@ -45,12 +62,33 @@ export default function PPTMakerPage() {
   const [numberOfSlides, setNumberOfSlides] = useState<number | string>(10);
   const [language, setLanguage] = useState("English");
 
-  // Feature Toggles (Switches)
+  // Step 2: Content Settings
+  const [tone, setTone] = useState("Professional");
+  const [contentDensity, setContentDensity] = useState("Balanced");
+  const [keyFocusPoints, setKeyFocusPoints] = useState("Market size, Problem statement, Solution, Business traction");
+  const [includeCta, setIncludeCta] = useState(true);
+  const [ctaText, setCtaText] = useState("Book a demo at dhandagrow.com");
+
+  // Step 3: Design & Style
+  const [designTheme, setDesignTheme] = useState("Deep Midnight");
+  const [fontStyle, setFontStyle] = useState("Modern Sans");
+  const [aspectRatio, setAspectRatio] = useState("16:9 Widescreen");
+  const [layoutStyle, setLayoutStyle] = useState("Modern Gradient");
+
+  // Step 4: Media & Features
   const [includeAIImages, setIncludeAIImages] = useState(true);
   const [includeCharts, setIncludeCharts] = useState(true);
   const [includeSpeakerNotes, setIncludeSpeakerNotes] = useState(true);
+  const [includeIcons, setIncludeIcons] = useState(true);
+  const [includeTables, setIncludeTables] = useState(true);
+  const [imageStyle, setImageStyle] = useState("Photorealistic 3D");
+  const [includeBrandLogo, setIncludeBrandLogo] = useState(true);
+  const [brandName, setBrandName] = useState("DhandaGrow AI");
 
-  // Stepper state
+  // Step 5: Review & Export
+  const [exportFormat, setExportFormat] = useState("Google Slides");
+
+  // Stepper state (1: Basic Information, 2: Content Settings, 3: Design & Style, 4: Media & Features, 5: Review & Generate)
   const [currentStep, setCurrentStep] = useState(1);
 
   // Modals & UI states
@@ -66,16 +104,36 @@ export default function PPTMakerPage() {
   };
 
   const handleNextStep = () => {
-    if (!topic.trim()) {
-      showToast("Please enter a presentation topic!");
-      return;
+    if (currentStep === 1) {
+      if (!topic.trim()) {
+        showToast("Please enter a presentation topic!");
+        return;
+      }
+      setCurrentStep(2);
+    } else if (currentStep === 2) {
+      setCurrentStep(3);
+    } else if (currentStep === 3) {
+      setCurrentStep(4);
+    } else if (currentStep === 4) {
+      setCurrentStep(5);
+    } else if (currentStep === 5) {
+      handleGenerate();
     }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep((prev) => prev - 1);
+    }
+  };
+
+  const handleGenerate = () => {
     setIsGenerating(true);
     setTimeout(() => {
       setIsGenerating(false);
       setIsGeneratedModalOpen(true);
       showToast("✨ AI Presentation generated successfully!");
-    }, 1000);
+    }, 1200);
   };
 
   const templates = [
@@ -302,9 +360,9 @@ export default function PPTMakerPage() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. MAIN FORM CARD: CREATE YOUR AI PRESENTATION (Exact Match with Image 2) */}
+      {/* 3. MAIN FORM CARD: CREATE YOUR AI PRESENTATION                            */}
       {/* ========================================================================= */}
-      <div className="rounded-3xl bg-[#0c142c]/95 border border-white/10 p-6 sm:p-8 md:p-9 shadow-2xl space-y-7 relative">
+      <div id="presentation-builder-card" className="rounded-3xl bg-[#0c142c]/95 border border-white/10 p-6 sm:p-8 md:p-9 shadow-2xl space-y-7 relative">
         {/* Card Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -312,11 +370,20 @@ export default function PPTMakerPage() {
               <Wand2 className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
-                Create Your AI Presentation
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+                  Create Your AI Presentation
+                </h2>
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+                  Step {currentStep} of 5
+                </span>
+              </div>
               <p className="text-xs text-slate-400">
-                Just fill in few details and let AI do the magic!
+                {currentStep === 1 && "Fill in the basic presentation details to get started."}
+                {currentStep === 2 && "Customize content tone, density, and key agenda topics."}
+                {currentStep === 3 && "Select color palette, typography, and slide layout format."}
+                {currentStep === 4 && "Configure AI images, interactive charts, and speaker notes."}
+                {currentStep === 5 && "Review your configuration and generate your presentation deck."}
               </p>
             </div>
           </div>
@@ -334,398 +401,958 @@ export default function PPTMakerPage() {
         {/* Stepper Progress Bar (1: Basic Information, 2: Content Settings, 3: Design & Style, 4: Media & Features, 5: Review & Generate) */}
         <div className="relative py-2 max-w-4xl mx-auto">
           {/* Horizontal Connecting Line */}
-          <div className="absolute top-5 left-6 right-6 h-0.5 bg-white/10 -z-0" />
+          <div className="absolute top-5 left-6 right-6 h-0.5 bg-white/10 -z-0">
+            <div
+              className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#be32ff] to-[#7d36fa] transition-all duration-300"
+              style={{ width: `${((currentStep - 1) / 4) * 100}%` }}
+            />
+          </div>
 
           <div className="grid grid-cols-5 gap-2 relative z-10 text-center">
-            {/* Step 1: Basic Information (Active) */}
-            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(1)}>
-              <div
-                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
-                  currentStep === 1
-                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
-                    : "bg-[#0a1024] border border-white/20 text-slate-400"
-                }`}
-              >
-                1
-              </div>
-              <span className={`text-[11px] sm:text-xs font-semibold ${currentStep === 1 ? "text-purple-300" : "text-slate-400"}`}>
-                Basic Information
-              </span>
-            </div>
-
-            {/* Step 2: Content Settings */}
-            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(2)}>
-              <div
-                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
-                  currentStep === 2
-                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
-                    : "bg-[#0a1024] border border-white/20 text-slate-400"
-                }`}
-              >
-                2
-              </div>
-              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 2 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
-                Content Settings
-              </span>
-            </div>
-
-            {/* Step 3: Design & Style */}
-            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(3)}>
-              <div
-                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
-                  currentStep === 3
-                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
-                    : "bg-[#0a1024] border border-white/20 text-slate-400"
-                }`}
-              >
-                3
-              </div>
-              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 3 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
-                Design & Style
-              </span>
-            </div>
-
-            {/* Step 4: Media & Features */}
-            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(4)}>
-              <div
-                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
-                  currentStep === 4
-                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
-                    : "bg-[#0a1024] border border-white/20 text-slate-400"
-                }`}
-              >
-                4
-              </div>
-              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 4 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
-                Media & Features
-              </span>
-            </div>
-
-            {/* Step 5: Review & Generate */}
-            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(5)}>
-              <div
-                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
-                  currentStep === 5
-                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
-                    : "bg-[#0a1024] border border-white/20 text-slate-400"
-                }`}
-              >
-                5
-              </div>
-              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 5 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
-                Review & Generate
-              </span>
-            </div>
+            {[
+              { num: 1, title: "Basic Information" },
+              { num: 2, title: "Content Settings" },
+              { num: 3, title: "Design & Style" },
+              { num: 4, title: "Media & Features" },
+              { num: 5, title: "Review & Generate" },
+            ].map((step) => {
+              const isActive = currentStep === step.num;
+              const isPast = currentStep > step.num;
+              return (
+                <div
+                  key={step.num}
+                  className="flex flex-col items-center gap-2 cursor-pointer group"
+                  onClick={() => setCurrentStep(step.num)}
+                >
+                  <div
+                    className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                      isActive
+                        ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30 scale-105"
+                        : isPast
+                        ? "bg-purple-900/70 border border-purple-400/60 text-purple-200"
+                        : "bg-[#0a1024] border border-white/20 text-slate-400 group-hover:border-purple-400/50 group-hover:text-slate-200"
+                    }`}
+                  >
+                    {isPast ? <Check className="w-4 h-4 text-purple-300" /> : step.num}
+                  </div>
+                  <span
+                    className={`text-[11px] sm:text-xs transition-colors ${
+                      isActive
+                        ? "text-purple-300 font-bold"
+                        : isPast
+                        ? "text-purple-200 font-medium"
+                        : "text-slate-400 font-medium group-hover:text-slate-200"
+                    }`}
+                  >
+                    {step.title}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* Form Body: 2 Columns (Left 3D Illustration Graphic + Right Form Fields) */}
+        {/* Form Body: 2 Columns (Left Dynamic 3D Illustration Graphic + Right Form Fields) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start pt-2">
-          {/* Left Column (3.5 cols): 3D Presentation Slides Illustration with PowerPoint Tile */}
-          <div className="lg:col-span-4 flex items-center justify-center pt-4">
-            <div className="relative w-full max-w-[280px] aspect-[4/5] rounded-3xl bg-gradient-to-b from-[#101b3d] to-[#070e22] border border-white/10 p-5 flex flex-col justify-between shadow-2xl overflow-hidden">
+          {/* Left Column (4 cols): Dynamic 3D Illustration Graphic for each step */}
+          <div className="lg:col-span-4 flex items-center justify-center pt-2">
+            <div className="relative w-full max-w-[300px] aspect-[4/5] rounded-3xl bg-gradient-to-b from-[#101b3d] to-[#070e22] border border-white/10 p-5 flex flex-col justify-between shadow-2xl overflow-hidden">
               <div className="absolute top-0 right-0 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
-              {/* Top Slide Card: Business Growth with Rising Bar Chart */}
-              <div className="rounded-2xl bg-white p-3.5 text-slate-900 shadow-xl space-y-2 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-slate-800">Business Growth</span>
-                  <span className="text-[9px] font-mono text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full font-bold">+140%</span>
-                </div>
-                {/* Visual Chart */}
-                <div className="h-14 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-end justify-between gap-1.5">
-                  <div className="w-full h-4 rounded-sm bg-blue-300" />
-                  <div className="w-full h-7 rounded-sm bg-blue-400" />
-                  <div className="w-full h-10 rounded-sm bg-blue-500" />
-                  <div className="w-full h-13 rounded-sm bg-gradient-to-t from-blue-600 to-indigo-600" />
-                </div>
-              </div>
+              {/* Step 1 Graphic: Business Growth Chart + PowerPoint Tile */}
+              {currentStep === 1 && (
+                <>
+                  <div className="rounded-2xl bg-white p-3.5 text-slate-900 shadow-xl space-y-2 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-slate-800">Business Growth</span>
+                      <span className="text-[9px] font-mono text-emerald-600 bg-emerald-100 px-1.5 py-0.5 rounded-full font-bold">+140%</span>
+                    </div>
+                    <div className="h-14 rounded-lg bg-slate-50 border border-slate-200 p-1 flex items-end justify-between gap-1.5">
+                      <div className="w-full h-4 rounded-sm bg-blue-300" />
+                      <div className="w-full h-7 rounded-sm bg-blue-400" />
+                      <div className="w-full h-10 rounded-sm bg-blue-500" />
+                      <div className="w-full h-13 rounded-sm bg-gradient-to-t from-blue-600 to-indigo-600" />
+                    </div>
+                  </div>
 
-              {/* Lower Layer: Large 3D PowerPoint Tile Floating */}
-              <div className="flex flex-col items-center justify-center py-2 relative">
-                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#ea580c] via-[#f97316] to-[#fb923c] p-1 shadow-2xl shadow-orange-500/50 transform rotate-6 hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                  <span className="text-white font-black text-4xl drop-shadow-md">P</span>
-                </div>
-              </div>
+                  <div className="flex flex-col items-center justify-center py-2 relative">
+                    <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-[#ea580c] via-[#f97316] to-[#fb923c] p-1 shadow-2xl shadow-orange-500/50 transform rotate-6 hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                      <span className="text-white font-black text-4xl drop-shadow-md">P</span>
+                    </div>
+                  </div>
 
-              <div className="text-center space-y-1">
-                <div className="text-xs font-bold text-white tracking-wide">Multi-Format Presentation</div>
-                <div className="text-[10px] text-slate-400">Exportable to PowerPoint & Google Slides</div>
-              </div>
+                  <div className="text-center space-y-1">
+                    <div className="text-xs font-bold text-white tracking-wide">Multi-Format Presentation</div>
+                    <div className="text-[10px] text-slate-400">Exportable to PowerPoint &amp; Google Slides</div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 2 Graphic: AI Outline & Content Engine */}
+              {currentStep === 2 && (
+                <>
+                  <div className="rounded-2xl bg-[#142145] border border-purple-500/30 p-3.5 text-white shadow-xl space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-[11px] font-bold text-purple-300">
+                        <Wand2 className="w-3.5 h-3.5 text-purple-400" />
+                        <span>AI Content Outline</span>
+                      </div>
+                      <span className="text-[9px] bg-purple-500/20 text-purple-300 border border-purple-500/40 px-2 py-0.5 rounded-full font-semibold">
+                        Auto-Structured
+                      </span>
+                    </div>
+                    <div className="space-y-1.5 text-[10px] text-slate-300">
+                      <div className="p-1.5 rounded-lg bg-black/25 flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-purple-500/30 text-purple-300 flex items-center justify-center text-[9px] font-bold">1</span>
+                        <span className="truncate">Executive Problem &amp; Opportunity</span>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-black/25 flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-purple-500/30 text-purple-300 flex items-center justify-center text-[9px] font-bold">2</span>
+                        <span className="truncate">Target Market &amp; Value Proposition</span>
+                      </div>
+                      <div className="p-1.5 rounded-lg bg-black/25 flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-purple-500/30 text-purple-300 flex items-center justify-center text-[9px] font-bold">3</span>
+                        <span className="truncate">Financial Forecast &amp; Traction</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center py-2 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6366f1] p-1 shadow-xl shadow-purple-600/40 flex items-center justify-center">
+                      <FileText className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-1">
+                    <div className="text-xs font-bold text-white tracking-wide">Structured Storytelling</div>
+                    <div className="text-[10px] text-slate-400">Tone: {tone} • Density: {contentDensity}</div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 3 Graphic: Theme & Palette Showcase */}
+              {currentStep === 3 && (
+                <>
+                  <div className="rounded-2xl bg-[#091124] border border-cyan-500/30 p-3.5 text-white shadow-xl space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-cyan-300 flex items-center gap-1.5">
+                        <Palette className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Theme Preview</span>
+                      </span>
+                      <span className="text-[9px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full font-bold">
+                        {aspectRatio}
+                      </span>
+                    </div>
+                    {/* Live palette bar */}
+                    <div className="h-10 rounded-xl overflow-hidden flex shadow-inner border border-white/10">
+                      <div className="flex-1 bg-[#081226]" />
+                      <div className="flex-1 bg-[#251545]" />
+                      <div className="flex-1 bg-[#be32ff]" />
+                      <div className="flex-1 bg-[#fc9a5d]" />
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400">
+                      <span>Font: {fontStyle}</span>
+                      <span className="text-purple-300">{designTheme}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center py-2 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#06b6d4] to-[#3b82f6] p-1 shadow-xl shadow-cyan-600/40 flex items-center justify-center">
+                      <Layout className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-1">
+                    <div className="text-xs font-bold text-white tracking-wide">Design System &amp; Layout</div>
+                    <div className="text-[10px] text-slate-400">Adaptive contrast &amp; modern typography</div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 4 Graphic: Media & Features Preview */}
+              {currentStep === 4 && (
+                <>
+                  <div className="rounded-2xl bg-[#131b38] border border-pink-500/30 p-3.5 text-white shadow-xl space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-pink-300 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-pink-400" />
+                        <span>Media Engine</span>
+                      </span>
+                      <span className="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full font-bold">
+                        Active
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1.5 text-center text-[10px]">
+                      <div className={`p-2 rounded-xl border ${includeAIImages ? "bg-purple-950/60 border-purple-500/40 text-purple-200" : "bg-black/20 border-white/5 text-slate-500"}`}>
+                        <ImageIcon className="w-3.5 h-3.5 mx-auto mb-1" />
+                        <span>AI Images</span>
+                      </div>
+                      <div className={`p-2 rounded-xl border ${includeCharts ? "bg-blue-950/60 border-blue-500/40 text-blue-200" : "bg-black/20 border-white/5 text-slate-500"}`}>
+                        <BarChart2 className="w-3.5 h-3.5 mx-auto mb-1" />
+                        <span>Charts</span>
+                      </div>
+                      <div className={`p-2 rounded-xl border ${includeSpeakerNotes ? "bg-emerald-950/60 border-emerald-500/40 text-emerald-200" : "bg-black/20 border-white/5 text-slate-500"}`}>
+                        <Mic className="w-3.5 h-3.5 mx-auto mb-1" />
+                        <span>Notes</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center py-2 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#ec4899] to-[#be32ff] p-1 shadow-xl shadow-pink-600/40 flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-1">
+                    <div className="text-xs font-bold text-white tracking-wide">Visual Asset Generator</div>
+                    <div className="text-[10px] text-slate-400">Style: {imageStyle}</div>
+                  </div>
+                </>
+              )}
+
+              {/* Step 5 Graphic: Deck Ready to Build */}
+              {currentStep === 5 && (
+                <>
+                  <div className="rounded-2xl bg-[#09152e] border border-emerald-500/40 p-3.5 text-white shadow-xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Deck Ready</span>
+                      </span>
+                      <span className="text-[9px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                        100% Configured
+                      </span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-black/30 border border-white/5 space-y-1 text-[10px]">
+                      <div className="flex justify-between text-slate-300">
+                        <span>Total Slides:</span>
+                        <strong className="text-white">{numberOfSlides} Slides</strong>
+                      </div>
+                      <div className="flex justify-between text-slate-300">
+                        <span>Format:</span>
+                        <strong className="text-purple-300">{exportFormat}</strong>
+                      </div>
+                      <div className="flex justify-between text-slate-300">
+                        <span>Est. Generation:</span>
+                        <strong className="text-emerald-400">~12 seconds</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center py-2 relative">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#10b981] via-[#059669] to-[#047857] p-1 shadow-xl shadow-emerald-600/40 flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-white" />
+                    </div>
+                  </div>
+
+                  <div className="text-center space-y-1">
+                    <div className="text-xs font-bold text-white tracking-wide">Ready for Generation</div>
+                    <div className="text-[10px] text-slate-400">Cost: 10 Credits (47 available)</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Right Column (8.5 cols): All Input Fields & Toggles */}
+          {/* Right Column (8 cols): Step Specific Form Fields */}
           <div className="lg:col-span-8 space-y-5">
-            {/* Row 1: Topic, Presentation Type, Target Audience */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Presentation Topic */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <label className="flex items-center gap-1.5">
-                    <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                    <span>Presentation Topic</span>
-                    <span className="text-purple-400">*</span>
-                  </label>
-                  <span className="text-[10px] text-slate-500">{topic.length}/100</span>
-                </div>
-                <input
-                  type="text"
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  placeholder="e.g. AI in Digital Marketing"
-                  maxLength={100}
-                  className="w-full h-11 px-3.5 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors"
-                />
-              </div>
+            {/* ================================================================= */}
+            {/* STEP 1: BASIC INFORMATION                                         */}
+            {/* ================================================================= */}
+            {currentStep === 1 && (
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* Row 1: Topic, Presentation Type, Target Audience */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Presentation Topic */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                      <label className="flex items-center gap-1.5">
+                        <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                        <span>Presentation Topic</span>
+                        <span className="text-purple-400">*</span>
+                      </label>
+                      <span className="text-[10px] text-slate-500">{topic.length}/100</span>
+                    </div>
+                    <input
+                      type="text"
+                      value={topic}
+                      onChange={(e) => setTopic(e.target.value)}
+                      placeholder="e.g. AI in Digital Marketing"
+                      maxLength={100}
+                      className="w-full h-11 px-3.5 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors"
+                    />
+                  </div>
 
-              {/* Presentation Type */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Rocket className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Presentation Type</span>
-                </label>
-                <div className="relative">
-                  <select
-                    value={presentationType}
-                    onChange={(e) => setPresentationType(e.target.value)}
-                    className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
-                  >
-                    <option value="Select Type">Select Type</option>
-                    <option value="Pitch Deck">Pitch Deck</option>
-                    <option value="Business Sales">Business Sales</option>
-                    <option value="Marketing Strategy">Marketing Strategy</option>
-                    <option value="Training & Workshop">Training & Workshop</option>
-                    <option value="Quarterly Report">Quarterly Report</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Target Audience */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Target Audience</span>
-                </label>
-                <div className="relative">
-                  <select
-                    value={targetAudience}
-                    onChange={(e) => setTargetAudience(e.target.value)}
-                    className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
-                  >
-                    <option value="Professionals">Professionals</option>
-                    <option value="Investors">Investors & VC</option>
-                    <option value="Clients">Potential Clients</option>
-                    <option value="Students">Students & Learners</option>
-                    <option value="Internal Team">Internal Team</option>
-                  </select>
-                  <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                </div>
-              </div>
-            </div>
-
-            {/* Row 2: Description (Left) + Number of Slides & Language (Right) */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-              {/* Description */}
-              <div className="md:col-span-6 space-y-1.5">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
-                  <label className="flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Description (Optional)</span>
-                  </label>
-                  <span className="text-[10px] text-slate-500">{description.length}/500</span>
-                </div>
-                <textarea
-                  rows={4}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Tell us more about your presentation..."
-                  maxLength={500}
-                  className="w-full p-3 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors resize-none"
-                />
-              </div>
-
-              {/* Number of Slides & Language */}
-              <div className="md:col-span-6 space-y-4">
-                {/* Number of Slides */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-purple-400" />
-                    <span>Number of Slides</span>
-                  </label>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {[5, 10, 15, 20].map((num) => (
-                      <button
-                        key={num}
-                        type="button"
-                        onClick={() => setNumberOfSlides(num)}
-                        className={`w-11 h-10 rounded-xl text-xs font-bold transition-all ${
-                          numberOfSlides === num
-                            ? "bg-purple-600 text-white shadow-md shadow-purple-600/40 ring-2 ring-purple-400"
-                            : "bg-[#070d1e] border border-white/15 text-slate-300 hover:border-white/30"
-                        }`}
+                  {/* Presentation Type */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Rocket className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Presentation Type</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={presentationType}
+                        onChange={(e) => setPresentationType(e.target.value)}
+                        className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
                       >
-                        {num}
-                      </button>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => setNumberOfSlides(12)}
-                      className={`px-3 h-10 rounded-xl text-xs font-semibold transition-all ${
-                        typeof numberOfSlides === "string" || numberOfSlides === 12
-                          ? "bg-purple-600/30 border border-purple-400 text-purple-200"
-                          : "bg-[#070d1e] border border-white/15 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      Custom
-                    </button>
+                        <option value="Select Type">Select Type</option>
+                        <option value="Pitch Deck">Pitch Deck</option>
+                        <option value="Business Sales">Business Sales</option>
+                        <option value="Marketing Strategy">Marketing Strategy</option>
+                        <option value="Training & Workshop">Training & Workshop</option>
+                        <option value="Quarterly Report">Quarterly Report</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Target Audience */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Target Audience</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={targetAudience}
+                        onChange={(e) => setTargetAudience(e.target.value)}
+                        className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
+                      >
+                        <option value="Professionals">Professionals</option>
+                        <option value="Investors">Investors & VC</option>
+                        <option value="Clients">Potential Clients</option>
+                        <option value="Students">Students & Learners</option>
+                        <option value="Internal Team">Internal Team</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
                   </div>
                 </div>
 
-                {/* Language */}
+                {/* Row 2: Description (Left) + Number of Slides & Language (Right) */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                  {/* Description */}
+                  <div className="md:col-span-6 space-y-1.5">
+                    <div className="flex items-center justify-between text-xs font-semibold text-slate-300">
+                      <label className="flex items-center gap-1.5">
+                        <FileText className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Description (Optional)</span>
+                      </label>
+                      <span className="text-[10px] text-slate-500">{description.length}/500</span>
+                    </div>
+                    <textarea
+                      rows={4}
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Tell us more about your presentation objectives, company background, or specific topics..."
+                      maxLength={500}
+                      className="w-full p-3 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors resize-none"
+                    />
+                  </div>
+
+                  {/* Number of Slides & Language */}
+                  <div className="md:col-span-6 space-y-4">
+                    {/* Number of Slides */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <Layers className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Number of Slides</span>
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        {[5, 10, 15, 20].map((num) => (
+                          <button
+                            key={num}
+                            type="button"
+                            onClick={() => setNumberOfSlides(num)}
+                            className={`w-11 h-10 rounded-xl text-xs font-bold transition-all ${
+                              numberOfSlides === num
+                                ? "bg-purple-600 text-white shadow-md shadow-purple-600/40 ring-2 ring-purple-400"
+                                : "bg-[#070d1e] border border-white/15 text-slate-300 hover:border-white/30"
+                            }`}
+                          >
+                            {num}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => setNumberOfSlides(12)}
+                          className={`px-3 h-10 rounded-xl text-xs font-semibold transition-all ${
+                            typeof numberOfSlides === "string" || numberOfSlides === 12
+                              ? "bg-purple-600/30 border border-purple-400 text-purple-200"
+                              : "bg-[#070d1e] border border-white/15 text-slate-400 hover:text-white"
+                          }`}
+                        >
+                          Custom (12)
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Language */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                        <Globe2 className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Language</span>
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                          className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
+                        >
+                          <option value="English">🇮🇳 English</option>
+                          <option value="Hinglish">🇮🇳 Hinglish</option>
+                          <option value="Hindi">🇮🇳 Hindi (हिंदी)</option>
+                          <option value="Marathi">🇮🇳 Marathi (मराठी)</option>
+                          <option value="Gujarati">🇮🇳 Gujarati (ગુજરાતી)</option>
+                        </select>
+                        <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Category */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <Globe2 className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Language</span>
+                    <Briefcase className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Industry &amp; Category</span>
                   </label>
                   <div className="relative">
                     <select
-                      value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
                       className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
                     >
-                      <option value="English">🇮🇳 English</option>
-                      <option value="Hinglish">🇮🇳 Hinglish</option>
-                      <option value="Hindi">🇮🇳 Hindi (हिंदी)</option>
-                      <option value="Marathi">🇮🇳 Marathi (मराठी)</option>
-                      <option value="Gujarati">🇮🇳 Gujarati (ગુજરાતી)</option>
+                      <option value="Business">💼 Business &amp; Startup</option>
+                      <option value="Marketing">📈 Digital Marketing &amp; Sales</option>
+                      <option value="Education">🎓 Education &amp; Training</option>
+                      <option value="Finance">💰 Finance &amp; Investment</option>
+                      <option value="Technology">⚡ Technology &amp; AI</option>
                     </select>
                     <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Row 3: Category */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-purple-400" />
-                <span>Category</span>
-              </label>
-              <div className="relative">
-                <select
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
-                >
-                  <option value="Business">💼 Business</option>
-                  <option value="Marketing">📈 Marketing</option>
-                  <option value="Education">🎓 Education</option>
-                  <option value="Finance">💰 Finance</option>
-                  <option value="Technology">⚡ Technology</option>
-                </select>
-                <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            {/* ================================================================= */}
+            {/* STEP 2: CONTENT SETTINGS                                          */}
+            {/* ================================================================= */}
+            {currentStep === 2 && (
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* Tone of Voice */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <MessageSquare className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Tone &amp; Voice of Presentation</span>
+                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                    {[
+                      { id: "Professional", icon: "💼", label: "Professional", desc: "Corporate & Formal" },
+                      { id: "Inspiring", icon: "🚀", label: "Inspiring", desc: "Bold & Visionary" },
+                      { id: "Persuasive", icon: "🎯", label: "Persuasive", desc: "Sales & Pitching" },
+                      { id: "Conversational", icon: "💬", label: "Conversational", desc: "Engaging & Story" },
+                      { id: "Technical", icon: "🔬", label: "Technical", desc: "Detailed & Exact" },
+                    ].map((item) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setTone(item.id)}
+                        className={`p-3 rounded-2xl text-left border transition-all ${
+                          tone === item.id
+                            ? "bg-purple-600/25 border-purple-400 shadow-lg shadow-purple-600/30 text-white ring-2 ring-purple-500/50"
+                            : "bg-[#070d1e] border-white/10 hover:border-white/25 text-slate-300"
+                        }`}
+                      >
+                        <div className="text-lg mb-1">{item.icon}</div>
+                        <div className="text-xs font-bold">{item.label}</div>
+                        <div className="text-[10px] text-slate-400">{item.desc}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Content Density */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Sliders className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Content Density &amp; Slide Depth</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { id: "Concise", title: "Concise & Punchy", desc: "Key bullet points, minimal text, high visual emphasis" },
+                      { id: "Balanced", title: "Balanced (Recommended)", desc: "Optimal mix of headlines, 3-4 bullet takeaways & summary" },
+                      { id: "In-Depth", title: "In-Depth & Detailed", desc: "Comprehensive explanations, perfect for training & deep analysis" },
+                    ].map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => setContentDensity(item.id)}
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                          contentDensity === item.id
+                            ? "bg-purple-950/40 border-purple-400 text-white shadow-md ring-1 ring-purple-400/50"
+                            : "bg-[#070d1e] border-white/10 hover:border-white/20 text-slate-300"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-white">{item.title}</span>
+                          {contentDensity === item.id && <Check className="w-3.5 h-3.5 text-purple-400" />}
+                        </div>
+                        <p className="text-[10.5px] text-slate-400 leading-snug">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Key Points / Focus Agenda */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Target className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Key Agenda / Points to Cover (Optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={keyFocusPoints}
+                    onChange={(e) => setKeyFocusPoints(e.target.value)}
+                    placeholder="e.g. Market size, Problem, Solution, Traction, Team, Financial Ask"
+                    className="w-full h-11 px-3.5 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors"
+                  />
+                </div>
+
+                {/* Call To Action Slide Toggle */}
+                <div className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
+                        <Rocket className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Include Call-to-Action (CTA) Slide</div>
+                        <div className="text-[10px] text-slate-400">Add a dedicated closing slide with contact / next steps</div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={() => setIncludeCta(!includeCta)}
+                      className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center cursor-pointer ${
+                        includeCta ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"
+                      }`}
+                    >
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
+                  </div>
+
+                  {includeCta && (
+                    <input
+                      type="text"
+                      value={ctaText}
+                      onChange={(e) => setCtaText(e.target.value)}
+                      placeholder="e.g. Schedule a demo: dhandagrow.com | contact@company.com"
+                      className="w-full h-10 px-3.5 rounded-xl bg-black/40 border border-white/15 text-white text-xs focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors"
+                    />
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Row 4: 3 Feature Toggles (Include AI Images, Include Charts, Speaker Notes) */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
-              {/* Toggle 1: Include AI Images */}
-              <div
-                onClick={() => setIncludeAIImages(!includeAIImages)}
-                className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
-                    <ImageIcon className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">Include AI Images</div>
-                    <div className="text-[10px] text-slate-400">Get stunning visuals</div>
+            {/* ================================================================= */}
+            {/* STEP 3: DESIGN & STYLE                                            */}
+            {/* ================================================================= */}
+            {currentStep === 3 && (
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* Visual Theme Selection */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Palette className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Visual Theme &amp; Color Scheme</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {[
+                      { id: "Deep Midnight", name: "Deep Midnight", preview: "from-[#081226] via-[#151b3d] to-[#be32ff]", badge: "Cyber Navy & Purple", tag: "Most Popular" },
+                      { id: "Sunset Glow", name: "Sunset Glow", preview: "from-[#1a0c1e] via-[#ea580c] to-[#f0449b]", badge: "Warm Coral & Pink", tag: "Vibrant" },
+                      { id: "Emerald Growth", name: "Emerald Growth", preview: "from-[#051c14] via-[#065f46] to-[#10b981]", badge: "Deep Teal & Mint", tag: "Finance & ESG" },
+                      { id: "Royal Amethyst", name: "Royal Amethyst", preview: "from-[#130728] via-[#6b21a8] to-[#c026d3]", badge: "Regal Magenta & Violet", tag: "Luxury" },
+                      { id: "Minimalist Slate", name: "Minimalist Slate", preview: "from-[#0b0f19] via-[#1e293b] to-[#64748b]", badge: "Clean Monochrome", tag: "Minimal" },
+                    ].map((theme) => (
+                      <div
+                        key={theme.id}
+                        onClick={() => setDesignTheme(theme.id)}
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all ${
+                          designTheme === theme.id
+                            ? "bg-purple-950/40 border-purple-400 ring-2 ring-purple-500/50 shadow-lg shadow-purple-600/20"
+                            : "bg-[#070d1e] border-white/10 hover:border-white/20"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-bold text-white">{theme.name}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-medium">{theme.tag}</span>
+                        </div>
+                        <div className={`h-8 rounded-xl bg-gradient-to-r ${theme.preview} shadow-sm border border-white/10 mb-2`} />
+                        <span className="text-[10px] text-slate-400">{theme.badge}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
-                {/* Switch */}
-                <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeAIImages ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
-                  <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                {/* Typography & Aspect Ratio */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Typography */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Type className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Typography Pairing</span>
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        { id: "Modern Sans", title: "Modern Sans (Inter & Plus Jakarta)", desc: "Clean, high-tech, optimal readability" },
+                        { id: "Executive Serif", title: "Executive Serif (Playfair & Merriweather)", desc: "Formal, luxury, financial & legal" },
+                        { id: "Bold Impact", title: "Bold Impact (Syne & Outfit)", desc: "Marketing, creative & dynamic startup" },
+                      ].map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => setFontStyle(item.id)}
+                          className={`p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                            fontStyle === item.id
+                              ? "bg-cyan-950/30 border-cyan-400 text-white font-semibold"
+                              : "bg-[#070d1e] border-white/10 text-slate-300 hover:border-white/20"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{item.title}</span>
+                            {fontStyle === item.id && <Check className="w-3 h-3 text-cyan-400" />}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Aspect Ratio */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <Maximize2 className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Slide Aspect Ratio</span>
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        { id: "16:9 Widescreen", title: "🖥️ 16:9 Widescreen (Standard)", desc: "Best for monitors, Zoom & Google Slides" },
+                        { id: "4:3 Standard", title: "📽️ 4:3 Standard (Classic)", desc: "Legacy projectors & tablets" },
+                        { id: "9:16 Vertical", title: "📱 9:16 Vertical (Mobile)", desc: "Instagram Stories, Reels & Mobile Pitch" },
+                      ].map((item) => (
+                        <div
+                          key={item.id}
+                          onClick={() => setAspectRatio(item.id)}
+                          className={`p-2.5 rounded-xl border cursor-pointer text-xs transition-all ${
+                            aspectRatio === item.id
+                              ? "bg-amber-950/30 border-amber-400 text-white font-semibold"
+                              : "bg-[#070d1e] border-white/10 text-slate-300 hover:border-white/20"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span>{item.title}</span>
+                            {aspectRatio === item.id && <Check className="w-3 h-3 text-amber-400" />}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Toggle 2: Include Charts */}
-              <div
-                onClick={() => setIncludeCharts(!includeCharts)}
-                className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
-                    <BarChart2 className="w-4 h-4" />
+            {/* ================================================================= */}
+            {/* STEP 4: MEDIA & FEATURES                                          */}
+            {/* ================================================================= */}
+            {currentStep === 4 && (
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* 5 Feature Toggles */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {/* Toggle 1: Include AI Images */}
+                  <div
+                    onClick={() => setIncludeAIImages(!includeAIImages)}
+                    className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center shrink-0">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Include AI Images</div>
+                        <div className="text-[10px] text-slate-400">Get stunning visuals</div>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeAIImages ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">Include Charts</div>
-                    <div className="text-[10px] text-slate-400">Add data insights</div>
+
+                  {/* Toggle 2: Include Charts */}
+                  <div
+                    onClick={() => setIncludeCharts(!includeCharts)}
+                    className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center shrink-0">
+                        <BarChart2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Include Charts</div>
+                        <div className="text-[10px] text-slate-400">Add data insights</div>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeCharts ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
+                  </div>
+
+                  {/* Toggle 3: Speaker Notes */}
+                  <div
+                    onClick={() => setIncludeSpeakerNotes(!includeSpeakerNotes)}
+                    className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
+                        <Mic className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Speaker Notes</div>
+                        <div className="text-[10px] text-slate-400">Get talking points</div>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeSpeakerNotes ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
+                  </div>
+
+                  {/* Toggle 4: Vector Icons */}
+                  <div
+                    onClick={() => setIncludeIcons(!includeIcons)}
+                    className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center shrink-0">
+                        <Sparkle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Icons &amp; Badges</div>
+                        <div className="text-[10px] text-slate-400">Illustrative markers</div>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeIcons ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
+                  </div>
+
+                  {/* Toggle 5: Tables & Matrix */}
+                  <div
+                    onClick={() => setIncludeTables(!includeTables)}
+                    className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0">
+                        <FileSpreadsheet className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-white">Comparison Tables</div>
+                        <div className="text-[10px] text-slate-400">Structured matrices</div>
+                      </div>
+                    </div>
+                    <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeTables ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
+                      <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                    </div>
                   </div>
                 </div>
 
-                {/* Switch */}
-                <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeCharts ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
-                  <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                {/* AI Image Style & Branding */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  {/* AI Image Style */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                      <span>Visual Image Art Style</span>
+                    </label>
+                    <div className="relative">
+                      <select
+                        value={imageStyle}
+                        onChange={(e) => setImageStyle(e.target.value)}
+                        className="w-full h-11 px-3.5 pr-8 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 appearance-none transition-colors"
+                      >
+                        <option value="Photorealistic 3D">🎨 Photorealistic 3D Render</option>
+                        <option value="Flat Vector Illustration">📐 Modern Flat Vector Illustration</option>
+                        <option value="Abstract Tech">⚡ Abstract Tech &amp; Neon Glow</option>
+                        <option value="Corporate Photography">🏢 Corporate Studio Photography</option>
+                      </select>
+                      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Brand Kit Logo */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Brand Name &amp; Logo Watermark</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={brandName}
+                      onChange={(e) => setBrandName(e.target.value)}
+                      placeholder="e.g. DhandaGrow AI / MyCompany"
+                      className="w-full h-11 px-3.5 rounded-xl bg-[#070d1e] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-purple-400 placeholder-slate-500 transition-colors"
+                    />
+                  </div>
                 </div>
               </div>
+            )}
 
-              {/* Toggle 3: Speaker Notes */}
-              <div
-                onClick={() => setIncludeSpeakerNotes(!includeSpeakerNotes)}
-                className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/15 hover:border-white/30 transition-all cursor-pointer flex items-center justify-between shadow-sm select-none"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-cyan-500/15 text-cyan-400 flex items-center justify-center shrink-0">
-                    <Mic className="w-4 h-4" />
+            {/* ================================================================= */}
+            {/* STEP 5: REVIEW & GENERATE                                         */}
+            {/* ================================================================= */}
+            {currentStep === 5 && (
+              <div className="space-y-5 animate-in fade-in duration-200">
+                {/* Summary Configuration Review Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/10 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-purple-400 tracking-wider">Presentation Scope</span>
+                    <div className="text-sm font-bold text-white truncate">{topic || "Untitled Presentation"}</div>
+                    <div className="text-xs text-slate-400">{presentationType} • {category}</div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-white">Speaker Notes</div>
-                    <div className="text-[10px] text-slate-400">Get talking points</div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/10 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">Length &amp; Audience</span>
+                    <div className="text-sm font-bold text-white">{numberOfSlides} Slides ({language})</div>
+                    <div className="text-xs text-slate-400">Tone: {tone} • Audience: {targetAudience}</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/10 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-amber-400 tracking-wider">Design System</span>
+                    <div className="text-sm font-bold text-white">{designTheme} Theme</div>
+                    <div className="text-xs text-slate-400">{fontStyle} • {aspectRatio}</div>
+                  </div>
+
+                  <div className="p-3.5 rounded-2xl bg-[#070d1e] border border-white/10 space-y-1">
+                    <span className="text-[10px] uppercase font-bold text-emerald-400 tracking-wider">Enabled Assets</span>
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {includeAIImages && <span className="text-[10px] px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 font-semibold">AI Images</span>}
+                      {includeCharts && <span className="text-[10px] px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 font-semibold">Charts</span>}
+                      {includeSpeakerNotes && <span className="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-semibold">Notes</span>}
+                      {includeCta && <span className="text-[10px] px-2 py-0.5 rounded-md bg-pink-500/20 text-pink-300 font-semibold">CTA Slide</span>}
+                    </div>
                   </div>
                 </div>
 
-                {/* Switch */}
-                <div className={`w-10 h-5.5 rounded-full transition-colors p-0.5 flex items-center ${includeSpeakerNotes ? "bg-purple-600 justify-end" : "bg-slate-700 justify-start"}`}>
-                  <div className="w-4.5 h-4.5 rounded-full bg-white shadow-md" />
+                {/* Export Format Selection */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                    <Download className="w-3.5 h-3.5 text-purple-400" />
+                    <span>Select Export Format</span>
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { id: "Google Slides", title: "Google Slides", desc: "Sync to Drive, edit in cloud", icon: "🌐" },
+                      { id: "PowerPoint PPTX", title: "PowerPoint (.pptx)", desc: "Download editable deck", icon: "💻" },
+                      { id: "PDF Deck", title: "PDF Presentation", desc: "Ready to present & share", icon: "📄" },
+                    ].map((item) => (
+                      <div
+                        key={item.id}
+                        onClick={() => setExportFormat(item.id)}
+                        className={`p-3 rounded-2xl border cursor-pointer transition-all ${
+                          exportFormat === item.id
+                            ? "bg-purple-950/40 border-purple-400 text-white shadow-md ring-2 ring-purple-500/50"
+                            : "bg-[#070d1e] border-white/10 hover:border-white/20 text-slate-300"
+                        }`}
+                      >
+                        <div className="text-xl mb-1">{item.icon}</div>
+                        <div className="text-xs font-bold text-white">{item.title}</div>
+                        <div className="text-[10px] text-slate-400">{item.desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Credits & Timing Banner */}
+                <div className="p-3.5 rounded-2xl bg-gradient-to-r from-purple-950/40 to-blue-950/40 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <Zap className="w-4 h-4 text-amber-400 shrink-0 fill-amber-400" />
+                    <span className="text-slate-300">
+                      Generation cost: <strong className="text-white">10 Credits</strong> • Available balance: <strong className="text-purple-300">47 Credits</strong>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-emerald-400 font-semibold">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Estimated time: ~12s</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
-        {/* Card Footer: Pro Tip (Left) + Gradient Next Step Button (Right) */}
+        {/* Card Footer: Pro Tip (Left) + Previous & Next Buttons (Right) */}
         <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs font-medium text-slate-300">
             <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
             <span>
-              <strong className="text-amber-300">Pro Tip:</strong> Be specific about your topic for better results!
+              <strong className="text-amber-300">Pro Tip:</strong>{" "}
+              {currentStep === 1 && "Be specific about your topic for better AI presentation results!"}
+              {currentStep === 2 && "Choosing 'Persuasive' tone increases pitch deck engagement by 40%!"}
+              {currentStep === 3 && "Deep Midnight is the highest-rated theme for modern investor pitch decks."}
+              {currentStep === 4 && "Presentations with AI images retain viewer attention 3.2x longer than text."}
+              {currentStep === 5 && "You can freely edit slide contents and design afterwards in Slide Studio!"}
             </span>
           </div>
 
-          <button
-            onClick={handleNextStep}
-            disabled={isGenerating}
-            style={{
-              background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
-            }}
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl hover:opacity-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#f0449b]/25 group disabled:opacity-50"
-          >
-            {isGenerating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                <span>Generating Presentation...</span>
-              </>
-            ) : (
-              <>
-                <span>Next Step: Content Settings</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </>
+          <div className="flex items-center gap-3 self-end sm:self-auto">
+            {currentStep > 1 && (
+              <button
+                type="button"
+                onClick={handlePrevStep}
+                className="inline-flex items-center gap-1.5 px-5 py-3.5 rounded-2xl bg-[#0d1633] hover:bg-[#121f47] border border-white/15 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-md"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous</span>
+              </button>
             )}
-          </button>
+
+            <button
+              onClick={handleNextStep}
+              disabled={isGenerating}
+              style={{
+                background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+              }}
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl hover:opacity-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#f0449b]/25 group disabled:opacity-50"
+            >
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Generating Presentation...</span>
+                </>
+              ) : currentStep === 1 ? (
+                <>
+                  <span>Next Step: Content Settings</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              ) : currentStep === 2 ? (
+                <>
+                  <span>Next Step: Design &amp; Style</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              ) : currentStep === 3 ? (
+                <>
+                  <span>Next Step: Media &amp; Features</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              ) : currentStep === 4 ? (
+                <>
+                  <span>Next Step: Review &amp; Generate</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-white" />
+                  <span>Generate Presentation Now</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
