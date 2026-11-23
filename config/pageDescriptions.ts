@@ -80,6 +80,14 @@ export const PAGE_DESCRIPTIONS: Record<string, PageMeta> = {
     shortDescription: "Generate and launch high-converting, mobile-friendly websites in minutes.",
     detailedDescription: "No-code AI website generator featuring responsive layouts, lead capture forms, WhatsApp chat, and custom domains.",
   },
+  "/ppt-maker": {
+    path: "/ppt-maker",
+    name: "AI PPT Maker",
+    badge: "Google Slides & PPT",
+    category: "Presentation Studio",
+    shortDescription: "Generate stunning presentations & Google Slides decks with multi-modal AI.",
+    detailedDescription: "Create investor pitch decks, business proposals, and sales presentations in seconds. Export directly to Google Slides or download PPTX.",
+  },
   "/festivals": {
     path: "/festivals",
     name: "Festival Engine",
