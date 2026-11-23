@@ -128,9 +128,9 @@ export default function PPTMakerPage() {
             <div className="flex flex-wrap items-center gap-3.5 pt-2">
               <button
                 onClick={handleNextStep}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-[#7c3aed] via-[#9333ea] to-[#c026d3] hover:opacity-95 text-white text-sm font-bold transition-all shadow-lg shadow-purple-600/30 group"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-2xl bg-[#081226] hover:bg-[#0d1c3a] border border-purple-500/40 hover:border-purple-400 text-white text-sm font-bold transition-all shadow-lg shadow-black/50 group"
               >
-                <Sparkles className="w-4 h-4 text-purple-200 group-hover:rotate-12 transition-transform" />
+                <Sparkles className="w-4 h-4 text-purple-400 group-hover:rotate-12 transition-transform" />
                 <span>Create New Presentation</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </button>
@@ -331,42 +331,90 @@ export default function PPTMakerPage() {
           </button>
         </div>
 
-        {/* Stepper Progress Bar (1: Basic Information, 3: Design & Style, 4: Media, 5: Review) */}
+        {/* Stepper Progress Bar (1: Basic Information, 2: Content Settings, 3: Design & Style, 4: Media & Features, 5: Review & Generate) */}
         <div className="relative py-2 max-w-4xl mx-auto">
           {/* Horizontal Connecting Line */}
-          <div className="absolute top-5 left-8 right-8 h-0.5 bg-white/10 -z-0" />
+          <div className="absolute top-5 left-6 right-6 h-0.5 bg-white/10 -z-0" />
 
-          <div className="grid grid-cols-4 gap-2 relative z-10 text-center">
+          <div className="grid grid-cols-5 gap-2 relative z-10 text-center">
             {/* Step 1: Basic Information (Active) */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-lg shadow-purple-600/50 ring-4 ring-purple-500/30">
+            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(1)}>
+              <div
+                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                  currentStep === 1
+                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
+                    : "bg-[#0a1024] border border-white/20 text-slate-400"
+                }`}
+              >
                 1
               </div>
-              <span className="text-xs font-semibold text-purple-300">Basic Information</span>
+              <span className={`text-[11px] sm:text-xs font-semibold ${currentStep === 1 ? "text-purple-300" : "text-slate-400"}`}>
+                Basic Information
+              </span>
+            </div>
+
+            {/* Step 2: Content Settings */}
+            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(2)}>
+              <div
+                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                  currentStep === 2
+                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
+                    : "bg-[#0a1024] border border-white/20 text-slate-400"
+                }`}
+              >
+                2
+              </div>
+              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 2 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
+                Content Settings
+              </span>
             </div>
 
             {/* Step 3: Design & Style */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0a1024] border border-white/20 text-slate-400 font-semibold text-xs flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(3)}>
+              <div
+                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                  currentStep === 3
+                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
+                    : "bg-[#0a1024] border border-white/20 text-slate-400"
+                }`}
+              >
                 3
               </div>
-              <span className="text-xs font-medium text-slate-400">Design & Style</span>
+              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 3 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
+                Design & Style
+              </span>
             </div>
 
             {/* Step 4: Media & Features */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0a1024] border border-white/20 text-slate-400 font-semibold text-xs flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(4)}>
+              <div
+                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                  currentStep === 4
+                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
+                    : "bg-[#0a1024] border border-white/20 text-slate-400"
+                }`}
+              >
                 4
               </div>
-              <span className="text-xs font-medium text-slate-400">Media & Features</span>
+              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 4 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
+                Media & Features
+              </span>
             </div>
 
             {/* Step 5: Review & Generate */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0a1024] border border-white/20 text-slate-400 font-semibold text-xs flex items-center justify-center">
+            <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setCurrentStep(5)}>
+              <div
+                className={`w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center transition-all ${
+                  currentStep === 5
+                    ? "bg-[#be32ff] text-white shadow-lg shadow-[#be32ff]/50 ring-4 ring-[#be32ff]/30"
+                    : "bg-[#0a1024] border border-white/20 text-slate-400"
+                }`}
+              >
                 5
               </div>
-              <span className="text-xs font-medium text-slate-400">Review & Generate</span>
+              <span className={`text-[11px] sm:text-xs font-medium ${currentStep === 5 ? "text-purple-300 font-semibold" : "text-slate-400"}`}>
+                Review & Generate
+              </span>
             </div>
           </div>
         </div>
@@ -661,7 +709,10 @@ export default function PPTMakerPage() {
           <button
             onClick={handleNextStep}
             disabled={isGenerating}
-            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] hover:opacity-95 text-white font-bold text-sm transition-all shadow-lg shadow-pink-600/25 group disabled:opacity-50"
+            style={{
+              background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+            }}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl hover:opacity-95 text-white font-bold text-sm transition-all shadow-lg shadow-[#f0449b]/25 group disabled:opacity-50"
           >
             {isGenerating ? (
               <>
