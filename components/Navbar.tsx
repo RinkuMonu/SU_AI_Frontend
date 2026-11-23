@@ -131,22 +131,22 @@ export function Navbar({ isLightPage: propIsLightPage }: NavbarProps = {}) {
               {/* Invisible bridge to keep hover active */}
               <div className="absolute -top-4 left-0 w-full h-8 bg-transparent" />
 
-              <div className="w-[1040px] max-w-[calc(100vw-32px)] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-8 grid grid-cols-5 gap-6">
+              <div className="w-[1040px] max-w-[calc(100vw-32px)] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.12)] border border-slate-100 p-6 lg:p-7 grid grid-cols-5 gap-4 lg:gap-5">
                 {featuresMenu.categories.map((category, idx) => (
-                  <div key={idx} className="flex flex-col">
-                    <div className="flex items-center gap-2 mb-4 pb-4 border-b border-slate-100">
+                  <div key={idx} className="flex flex-col min-w-0">
+                    <div className="flex items-center gap-2 mb-3 pb-3 border-b border-slate-100">
                       <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                         <category.icon className="w-4 h-4" />
                       </div>
                       <h3 className="font-semibold text-slate-900 text-sm tracking-tight">{category.title}</h3>
                     </div>
-                    <div className="flex flex-col gap-5">
+                    <div className="flex flex-col gap-4">
                       {category.items.map((item, itemIdx) => (
-                        <Link key={itemIdx} href={item.route} className="group/item flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:bg-indigo-50 group-hover/item:text-indigo-600 group-hover/item:border-indigo-100 transition-colors shrink-0">
+                        <Link key={itemIdx} href={item.route} className="group/item flex items-start gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 group-hover/item:bg-indigo-50 group-hover/item:text-indigo-600 group-hover/item:border-indigo-100 transition-colors shrink-0 mt-0.5">
                             <item.icon className="w-4 h-4" />
                           </div>
-                          <div className="flex flex-col">
+                          <div className="flex flex-col min-w-0">
                             <span className="text-sm font-medium text-slate-700 group-hover/item:text-indigo-600 transition-colors leading-tight">{item.name}</span>
                             <span className="text-[11px] text-slate-500 line-clamp-2 leading-snug mt-1 transition-colors">{item.description}</span>
                           </div>
