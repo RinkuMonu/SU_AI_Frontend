@@ -24,7 +24,9 @@ import {
   Layers,
   BarChart3,
   Languages,
-  Users
+  Users,
+  Plus,
+  Minus
 } from 'lucide-react';
 
 interface SlideItem {
@@ -359,11 +361,35 @@ const templateDecks: TemplateCardItem[] = [
   }
 ];
 
+const faqs = [
+  {
+    question: 'Can I directly open and edit generated presentations in Google Slides?',
+    answer: 'Yes! DhandaGrow generates 100% native Google Slides presentations. You can export them directly to your Google Drive with a single click, or download them as standard .pptx files that work seamlessly with Google Slides and Microsoft PowerPoint. Every text box, image, chart, and layout remains fully editable.'
+  },
+  {
+    question: 'Can I generate Google PPT slides in Hindi, Hinglish, or regional Indian languages?',
+    answer: 'Absolutely. DhandaGrow is built natively for Indian businesses. You can create complete decks in Hindi, Hinglish, Gujarati, Marathi, Bengali, Tamil, Telugu, and English. The AI understands regional business contexts, local idioms, and festive nuances.'
+  },
+  {
+    question: 'What types of presentations can DhandaGrow AI create?',
+    answer: 'You can generate investor pitch decks, B2B sales proposals, marketing campaign strategies, quarterly business reviews (QBRs), product launch keynotes, training modules, and educational webinars. Just provide a brief topic or prompt, and DhandaGrow structures the entire presentation.'
+  },
+  {
+    question: 'Does it automatically apply my company logo and brand colors?',
+    answer: "Yes. With DhandaGrow's Brand Brain feature, your logo, brand color palettes, fonts, and visual guidelines are automatically applied across every slide, ensuring complete enterprise brand consistency without manual formatting."
+  },
+  {
+    question: 'Is DhandaGrow Google PPT generator free to try?',
+    answer: 'Yes, you can generate and preview Google PPT decks for free. Download the DhandaGrow mobile or desktop app to start creating and exporting unlimited presentations today.'
+  }
+];
+
 export default function GooglePPTPage() {
   const [selectedDeckId, setSelectedDeckId] = useState<string>('startup');
   const [prompt, setPrompt] = useState<string>('');
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const activeDeck = sampleDecks.find((d) => d.id === selectedDeckId) || sampleDecks[0];
   const activeSlide = activeDeck.slides[currentSlideIndex] || activeDeck.slides[0];
@@ -1054,6 +1080,56 @@ export default function GooglePPTPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      </section>
+
+      {/* Frequently Asked Questions Section (Matching User Image Exactly) */}
+      <section className="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        <h2 className="text-3xl sm:text-4xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight mb-3">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-slate-500 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-10 sm:mb-14">
+          Everything you need to know about generating and exporting Google Slides with DhandaGrow AI.
+        </p>
+
+        <div className="max-w-3xl mx-auto space-y-3 text-left">
+          {faqs.map((faq, index) => {
+            const isOpen = openFaqIndex === index;
+            return (
+              <div
+                key={index}
+                className={cn(
+                  'bg-white rounded-2xl border transition-all overflow-hidden shadow-2xs',
+                  isOpen
+                    ? 'border-orange-300 ring-2 ring-orange-200/40 shadow-xs'
+                    : 'border-slate-200/90 hover:border-orange-200/90'
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                  className="w-full py-4.5 px-6 flex items-center justify-between gap-4 text-left cursor-pointer transition-colors"
+                >
+                  <span className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                    {faq.question}
+                  </span>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-[#FF6B00] shrink-0 font-bold">
+                    {isOpen ? (
+                      <Minus className="w-4 h-4 stroke-[2.5]" />
+                    ) : (
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                    )}
+                  </div>
+                </button>
+
+                {isOpen && (
+                  <div className="px-6 pb-5 pt-1 text-xs sm:text-sm text-slate-600 font-normal leading-relaxed border-t border-slate-100">
+                    {faq.answer}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </section>
 
