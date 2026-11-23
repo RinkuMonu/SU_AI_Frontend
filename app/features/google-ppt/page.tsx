@@ -98,17 +98,11 @@ export default function GooglePPTPage() {
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mb-14">
-            <Button
-              asChild
-              size="lg"
-              className="h-13 px-8 text-base rounded-full bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white font-bold shadow-lg hover:opacity-95 transition-all"
-            >
-              <Link href="/dashboard" className="flex items-center gap-2">
-                <Wand2 className="w-4 h-4" />
-                Generate Google PPT Free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </Button>
+            <div className="inline-flex items-center gap-2 h-13 px-8 text-base rounded-full bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white font-bold shadow-lg select-none cursor-default">
+              <Wand2 className="w-4 h-4" />
+              Generate Google PPT Free
+              <ArrowRight className="w-4 h-4" />
+            </div>
             <Button
               asChild
               variant="outline"
@@ -202,13 +196,12 @@ export default function GooglePPTPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Link
-                    href="/dashboard"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all shadow-xs"
+                  <div
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold select-none cursor-default shadow-xs"
                   >
                     <Download className="w-3.5 h-3.5" />
                     Open in Google Slides
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>
@@ -283,15 +276,11 @@ export default function GooglePPTPage() {
             Say goodbye to blank slide anxiety. Let AI write, design, and structure your Google PPT decks today.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="h-13 px-8 text-base rounded-full bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white font-bold shadow-lg hover:opacity-95 transition-all"
+            <div
+              className="inline-flex items-center justify-center h-13 px-8 text-base rounded-full bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white font-bold shadow-lg select-none cursor-default"
             >
-              <Link href="/dashboard">
-                Start Creating Free
-              </Link>
-            </Button>
+              Start Creating Free
+            </div>
             <Button
               asChild
               variant="outline"
