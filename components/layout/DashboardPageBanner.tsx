@@ -12,10 +12,10 @@ export function DashboardPageBanner() {
   const [dismissedPages, setDismissedPages] = useState<Record<string, boolean>>({});
 
   // Reset or check dismissal on path change
-  const isDashboard = pathname === "/dashboard" || pathname === "/";
+  const isDashboard = pathname === "/dashboard" || pathname === "/" || pathname === "/ppt-maker";
   const meta = getPageMeta(pathname);
 
-  // If on main dashboard, the dashboard already has its dedicated hero greeting
+  // If on main dashboard or dedicated studio pages, skip the generic banner
   if (isDashboard) {
     return null;
   }
