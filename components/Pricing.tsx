@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Sparkles, Gift, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export type BillingCycle = 'monthly' | 'quarterly' | 'yearly';
 
@@ -244,7 +245,7 @@ export const LANDING_PLANS: PlanItem[] = [
   },
 ];
 
-export function Pricing() {
+export function Pricing({ className }: { className?: string } = {}) {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>('yearly');
   const [selectedPlanId, setSelectedPlanId] = useState<string>("PRO_PLUS");
 
@@ -255,7 +256,7 @@ export function Pricing() {
   const currentPricing = activePlan.pricing[billingCycle];
 
   return (
-    <section id="pricing" className="w-full max-w-full pt-10 sm:pt-14 pb-14 sm:pb-20 relative bg-white overflow-hidden border-t border-slate-100 scroll-mt-24">
+    <section id="pricing" className={cn("w-full max-w-full pt-10 sm:pt-14 pb-14 sm:pb-20 relative bg-white overflow-hidden border-t border-slate-100 scroll-mt-24", className)}>
       {/* Soft ambient background glow effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/30 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-100/30 blur-[130px] rounded-full pointer-events-none" />

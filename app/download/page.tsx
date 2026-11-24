@@ -24,7 +24,7 @@ export default function DownloadPage() {
       <Navbar />
       
       {/* Hero Section */}
-      <section className="pt-20 pb-16 sm:pt-24 lg:pt-24 lg:pb-20 overflow-hidden relative">
+      <section className="pt-16 pb-16 sm:pt-20 lg:pt-20 lg:pb-20 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-br from-indigo-100/50 via-purple-50/50 to-transparent blur-3xl rounded-full pointer-events-none -translate-y-1/4 translate-x-1/4" />
         <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gradient-to-tr from-blue-50/50 via-transparent to-transparent blur-3xl rounded-full pointer-events-none translate-y-1/4 -translate-x-1/4" />
         
@@ -32,7 +32,7 @@ export default function DownloadPage() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
             
             {/* Left Content */}
-            <div className="w-full lg:w-[45%] flex flex-col items-start pt-2 lg:pt-4">
+            <div className="w-full lg:w-[45%] flex flex-col items-start pt-0">
               <div className="flex items-center gap-3 mb-6">
                 <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white shadow-sm border border-slate-100">
                   <span className="text-xs font-bold text-slate-700">DhandaGrow Mobile App</span>
