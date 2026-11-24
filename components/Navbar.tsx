@@ -29,7 +29,9 @@ export function Navbar() {
     pathname === '/contact' ||
     pathname.startsWith('/blog') ||
     pathname.startsWith('/features') ||
-    pathname === '/download'
+    pathname === '/download' ||
+    pathname === '/pricing' ||
+    pathname.startsWith('/pricing')
   );
 
   useEffect(() => {
