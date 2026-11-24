@@ -15,8 +15,13 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { featuresMenu } from '@/data/features';
 import { LanguageSelector } from '@/components/ui/LanguageSelector';
+import { smoothScrollTo } from '@/lib/scroll';
 
-export function Navbar() {
+interface NavbarProps {
+  isLightPage?: boolean;
+}
+
+export function Navbar({ isLightPage: propIsLightPage }: NavbarProps = {}) {
   const [mounted, setMounted] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,6 +32,7 @@ export function Navbar() {
     pathname.startsWith('/legal') ||
     pathname === '/careers' ||
     pathname === '/contact' ||
+    pathname.startsWith('/pricing') ||
     pathname.startsWith('/blog') ||
     pathname.startsWith('/features') ||
     pathname === '/download' ||
@@ -37,12 +43,30 @@ export function Navbar() {
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      const scrollY = window.scrollY || document.documentElement.scrollTop || window.pageYOffset || 0;
+      const hash = typeof window !== 'undefined' ? window.location.hash : '';
+      const isLightHash = hash === '#pricing' || hash === '#blog' || hash === '#contact';
+      setIsScrolled(scrollY > 20 || isLightHash);
     };
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('hashchange', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('hashchange', handleScroll);
+    };
   }, []);
+
+  const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      const targetId = href.replace('/#', '').replace('#', '');
+      if (pathname === '/') {
+        e.preventDefault();
+        setIsScrolled(true);
+        smoothScrollTo(targetId);
+      }
+    }
+  };
 
   const { user, logout } = useAuth();
   const webHref = '/login/user';
@@ -97,7 +121,8 @@ export function Navbar() {
           <div className="group">
             <Link
               href="/#features"
-              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-1', textColorClass)}
+              onClick={(e) => handleAnchorClick(e, '/#features')}
+              className={cn('text-sm font-medium transition-colors flex items-center gap-1 py-2', textColorClass)}
             >
               Features
               <ChevronDown className="w-4 h-4 opacity-50 group-hover:opacity-100 group-hover:-rotate-180 transition-all duration-300" />
@@ -169,13 +194,25 @@ export function Navbar() {
             </div>
           </div>
 
-          <Link href="/#blog" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
+          <Link
+            href="/#blog"
+            onClick={(e) => handleAnchorClick(e, '/#blog')}
+            className={cn('text-sm font-medium transition-colors py-1', textColorClass)}
+          >
             Blog
           </Link>
-          <Link href="/pricing" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
+          <Link
+            href="/#pricing"
+            onClick={(e) => handleAnchorClick(e, '/#pricing')}
+            className={cn('text-sm font-medium transition-colors py-1', textColorClass)}
+          >
             Pricing
           </Link>
-          <Link href="/#contact" className={cn('text-sm font-medium transition-colors py-1', textColorClass)}>
+          <Link
+            href="/#contact"
+            onClick={(e) => handleAnchorClick(e, '/#contact')}
+            className={cn('text-sm font-medium transition-colors py-1', textColorClass)}
+          >
             Contact
           </Link>
         </nav>
@@ -284,9 +321,36 @@ export function Navbar() {
             </div>
           </div>
 
-          <Link href="/#blog" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg  font-medium text-white/90 hover:text-white transition-colors">Blog</Link>
-          <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors">Pricing</Link>
-          <Link href="/contact" onClick={() => setIsMobileMenuOpen(false)} className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors">Contact</Link>
+          <Link
+            href="/#blog"
+            onClick={(e) => {
+              setIsMobileMenuOpen(false);
+              handleAnchorClick(e, '/#blog');
+            }}
+            className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors"
+          >
+            Blog
+          </Link>
+          <Link
+            href="/#pricing"
+            onClick={(e) => {
+              setIsMobileMenuOpen(false);
+              handleAnchorClick(e, '/#pricing');
+            }}
+            className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors"
+          >
+            Pricing
+          </Link>
+          <Link
+            href="/#contact"
+            onClick={(e) => {
+              setIsMobileMenuOpen(false);
+              handleAnchorClick(e, '/#contact');
+            }}
+            className="text-base sm:text-lg font-medium text-white/90 hover:text-white transition-colors"
+          >
+            Contact
+          </Link>
 
           <div className="flex items-center justify-between py-2 border-t border-white/10">
             <span className="text-sm font-medium text-white/80">Language</span>
