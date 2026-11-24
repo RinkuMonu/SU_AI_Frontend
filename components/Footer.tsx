@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { smoothScrollTo } from '@/lib/scroll';
 import {
   ShieldCheck,
   ChevronDown,
-  Globe2,
-  Check
+  Globe2
 } from 'lucide-react';
 
 const InstagramIcon = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>;
@@ -28,28 +28,12 @@ const AppStoreIcon = () => (
 );
 
 export function Footer() {
-  const [email, setEmail] = useState('');
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setIsSubscribed(true);
-      setEmail('');
-      setTimeout(() => setIsSubscribed(false), 5000);
-    }
-  };
-
   const handleAnchorClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href.startsWith('/#')) {
-      const targetId = href.replace('/#', '');
+    if (href.startsWith('/#') || href.startsWith('#')) {
+      const targetId = href.replace('/#', '').replace('#', '');
       if (typeof window !== 'undefined' && window.location.pathname === '/') {
-        const el = document.getElementById(targetId);
-        if (el) {
-          e.preventDefault();
-          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          window.history.pushState(null, '', href);
-        }
+        e.preventDefault();
+        smoothScrollTo(targetId);
       }
     }
   };
@@ -82,7 +66,7 @@ export function Footer() {
             </p>
 
             {/* Social Icons */}
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-3">
               <a
                 href="https://www.instagram.com/dhandagrow"
                 target="_blank"
@@ -119,34 +103,6 @@ export function Footer() {
               >
                 <FacebookIcon />
               </a>
-            </div>
-
-            {/* Newsletter Box */}
-            <div className="bg-purple-50/80 rounded-2xl p-6 border border-purple-100">
-              <h4 className="text-slate-900 font-bold text-[15px] mb-2">Get AI Marketing Tips & Updates</h4>
-              <p className="text-slate-500 text-xs leading-relaxed mb-4">
-                Join our newsletter and get the latest features, growth ideas and exclusive offers.
-              </p>
-              {isSubscribed ? (
-                <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold bg-emerald-50 border border-emerald-200 rounded-lg p-3">
-                  <Check className="w-4 h-4 shrink-0" />
-                  <span>Thank you for subscribing! We&apos;ll be in touch.</span>
-                </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex gap-2">
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email address"
-                    className="w-full px-3 py-2.5 rounded-lg border border-slate-200 text-sm focus:outline-none focus:border-purple-400 bg-white"
-                  />
-                  <button type="submit" className="bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-purple-700 transition-colors shrink-0">
-                    Subscribe
-                  </button>
-                </form>
-              )}
             </div>
           </div>
 
@@ -185,7 +141,7 @@ export function Footer() {
                   { title: 'About Us', desc: 'Our mission and story', href: '/about' },
                   { title: 'Mission & Vision', desc: 'Digitally empowered India', href: '/about#mission' },
                   { title: 'Features', desc: 'Explore all features', href: '/#features' },
-                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/pricing' },
+                  { title: 'Pricing Plans', desc: 'Simple and affordable plans', href: '/#pricing' },
                   { title: 'Blog & Articles', desc: 'Latest news and insights', href: '/#blog' },
                   { title: 'Careers', desc: 'Join our team', href: '/careers' },
                   { title: 'Contact Us', desc: 'Get in touch with support', href: '/contact' },

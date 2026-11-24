@@ -88,7 +88,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="pt-6 sm:pt-8 pb-14 sm:pb-18 relative bg-white overflow-hidden border-t border-slate-100">
+    <section id="contact" className="pt-6 sm:pt-8 pb-14 sm:pb-18 relative bg-white overflow-hidden border-t border-slate-100 scroll-mt-24">
       {/* Soft brand gradient glows */}
       <div className="absolute top-1/2 right-0 w-[500px] h-[500px] bg-gradient-to-br from-orange-100/40 via-pink-100/40 to-transparent blur-[140px] rounded-full pointer-events-none translate-x-1/3 -translate-y-1/2" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-purple-100/40 via-indigo-100/40 to-transparent blur-[140px] rounded-full pointer-events-none -translate-x-1/3 translate-y-1/3" />
