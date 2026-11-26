@@ -35,7 +35,7 @@ export default function AdminBusinessesPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-500 p-4 rounded-md">
+      <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">
         {error}
       </div>
     );
@@ -43,45 +43,45 @@ export default function AdminBusinessesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Platform Businesses</h1>
-      <Card>
+      <h1 className="text-2xl font-bold text-white">Platform Businesses</h1>
+      <Card className="bg-surface border-border">
         <CardHeader>
-          <CardTitle>All Businesses</CardTitle>
+          <CardTitle className="text-white">All Businesses</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {businesses.map((business) => (
-              <Card key={business.id} className="overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                <CardHeader className="bg-slate-50 pb-4">
-                  <CardTitle className="text-lg truncate" title={business.name}>
+              <Card key={business.id} className="overflow-hidden border-border bg-surface-elevated/30 hover:border-brand-pink/50 transition-all">
+                <CardHeader className="bg-surface-elevated/50 pb-4 border-b border-border">
+                  <CardTitle className="text-lg truncate text-white" title={business.name}>
                     {business.name}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center text-sm text-slate-600">
-                    <Tag className="w-4 h-4 mr-2 text-slate-400" />
+                  <div className="flex items-center text-sm text-text-secondary">
+                    <Tag className="w-4 h-4 mr-2 text-text-muted" />
                     <span className="truncate">{business.category || 'Uncategorized'}</span>
                   </div>
-                  <div className="flex items-center text-sm text-slate-600">
-                    <MapPin className="w-4 h-4 mr-2 text-slate-400" />
+                  <div className="flex items-center text-sm text-text-secondary">
+                    <MapPin className="w-4 h-4 mr-2 text-text-muted" />
                     <span className="truncate">{business.location || 'No location'}</span>
                   </div>
                   {business.website && (
-                    <div className="flex items-center text-sm text-slate-600">
-                      <Globe className="w-4 h-4 mr-2 text-slate-400" />
-                      <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
+                    <div className="flex items-center text-sm text-text-secondary">
+                      <Globe className="w-4 h-4 mr-2 text-text-muted" />
+                      <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-brand-pink hover:underline truncate">
                         {business.website}
                       </a>
                     </div>
                   )}
-                  <div className="pt-2 text-xs text-slate-400 font-mono break-all">
+                  <div className="pt-2 text-xs text-text-muted font-mono break-all">
                     ID: {business.id}
                   </div>
                 </CardContent>
               </Card>
             ))}
             {businesses.length === 0 && (
-              <div className="col-span-full py-8 text-center text-slate-500">
+              <div className="col-span-full py-8 text-center text-text-muted">
                 No businesses found.
               </div>
             )}

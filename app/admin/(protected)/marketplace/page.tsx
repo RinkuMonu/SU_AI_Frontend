@@ -254,11 +254,11 @@ export default function AdminMarketplacePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Sparkles className="w-6 h-6 text-brand-pink" />
             Influencer Marketplace Oversight
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-text-secondary mt-1">
             Audit hiring requests, bilateral agreements, platform service fees, and mediate collaboration disputes.
           </p>
         </div>
@@ -266,7 +266,6 @@ export default function AdminMarketplacePage() {
           onClick={() => fetchData()}
           variant="outline"
           size="sm"
-          className="border-slate-300 text-slate-700 hover:bg-slate-100"
         >
           <RefreshCw className="w-4 h-4 mr-1.5" /> Refresh Data
         </Button>
