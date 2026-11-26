@@ -251,7 +251,7 @@ export default function BrandDealsPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
               <Briefcase className="w-6 h-6 text-[#f0449b]" />
               Brand Deals Marketplace
             </h1>
@@ -338,7 +338,7 @@ export default function BrandDealsPage() {
         {filteredDeals.length === 0 ? (
           <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
             <Briefcase className="w-12 h-12 text-neutral-600 mx-auto" />
-            <h3 className="text-base font-bold text-white">No Brand Deals Found</h3>
+            <h3 className="text-base font-semibold text-white">No Brand Deals Found</h3>
             <p className="text-xs text-neutral-400">
               Try adjusting your search keywords or switching category filters.
             </p>
@@ -363,7 +363,7 @@ export default function BrandDealsPage() {
                       />
                       <div>
                         <div className="flex items-center gap-1">
-                          <span className="text-xs font-black text-white">{deal.brand_name}</span>
+                          <span className="text-xs font-bold text-white">{deal.brand_name}</span>
                           {deal.is_verified && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-[#38bdf8]" />
                           )}
@@ -399,7 +399,7 @@ export default function BrandDealsPage() {
 
                   {/* Title & Description */}
                   <div className="space-y-1.5">
-                    <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">
                       {deal.campaign_title}
                     </h3>
                     <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
@@ -429,7 +429,7 @@ export default function BrandDealsPage() {
 
                   {/* Payout */}
                   <div className="pt-3">
-                    <span className="text-xs font-black text-white">
+                    <span className="text-xs font-bold text-white">
                       {deal.payout_range}
                     </span>
                   </div>
@@ -457,7 +457,7 @@ export default function BrandDealsPage() {
         <Dialog open={!!pitchDeal} onOpenChange={() => setPitchDeal(null)}>
           <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+              <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
                 Apply to {pitchDeal.brand_name}
               </DialogTitle>
@@ -471,7 +471,7 @@ export default function BrandDealsPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
-                <h3 className="text-sm font-bold text-white">Pitch Proposal Sent!</h3>
+                <h3 className="text-sm font-semibold text-white">Pitch Proposal Sent!</h3>
                 <p className="text-xs text-neutral-400">
                   Opening your chat thread with {pitchDeal.brand_name}...
                 </p>

@@ -78,7 +78,7 @@ export default function InfluencerAIStudioPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
               <Sparkles className="w-6 h-6 text-[#fc9a5d]" />
               Creator AI Content Studio
             </h1>
@@ -119,7 +119,7 @@ export default function InfluencerAIStudioPage() {
         >
           <Zap className={`w-5 h-5 ${activeTool === 'hooks' ? 'text-[#fc9a5d]' : 'text-neutral-400'}`} />
           <div>
-            <span className="text-xs font-black text-white block">Viral Reel Hooks</span>
+            <span className="text-xs font-bold text-white block">Viral Reel Hooks</span>
             <span className="text-[10px] text-neutral-400">Stop the scroll in 3 seconds</span>
           </div>
         </button>
@@ -136,7 +136,7 @@ export default function InfluencerAIStudioPage() {
         >
           <Film className={`w-5 h-5 ${activeTool === 'scripts' ? 'text-[#be32ff]' : 'text-neutral-400'}`} />
           <div>
-            <span className="text-xs font-black text-white block">Brand Scriptwriter</span>
+            <span className="text-xs font-bold text-white block">Brand Scriptwriter</span>
             <span className="text-[10px] text-neutral-400">3-act reel structure</span>
           </div>
         </button>
@@ -153,7 +153,7 @@ export default function InfluencerAIStudioPage() {
         >
           <Hash className={`w-5 h-5 ${activeTool === 'captions' ? 'text-[#f0449b]' : 'text-neutral-400'}`} />
           <div>
-            <span className="text-xs font-black text-white block">Captions &amp; Tags</span>
+            <span className="text-xs font-bold text-white block">Captions &amp; Tags</span>
             <span className="text-[10px] text-neutral-400">SEO optimized engagement</span>
           </div>
         </button>
@@ -170,7 +170,7 @@ export default function InfluencerAIStudioPage() {
         >
           <Send className={`w-5 h-5 ${activeTool === 'pitches' ? 'text-emerald-400' : 'text-neutral-400'}`} />
           <div>
-            <span className="text-xs font-black text-white block">Brand Pitch Proposal</span>
+            <span className="text-xs font-bold text-white block">Brand Pitch Proposal</span>
             <span className="text-[10px] text-neutral-400">Land high-ticket sponsors</span>
           </div>
         </button>
@@ -181,7 +181,7 @@ export default function InfluencerAIStudioPage() {
         
         {/* Left Inputs (5 cols) */}
         <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 space-y-4 shadow-lg">
-          <h3 className="text-sm font-black text-white flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
             <Wand2 className="w-4 h-4 text-[#be32ff]" />
             Prompt &amp; Creative Brief
           </h3>
@@ -247,7 +247,7 @@ export default function InfluencerAIStudioPage() {
         <div className="lg:col-span-7 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 flex flex-col justify-between shadow-lg min-h-[360px]">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-              <h3 className="text-sm font-black text-white">
+              <h3 className="text-sm font-semibold text-white">
                 Generated Outputs
               </h3>
               {generatedResults.length > 0 && (

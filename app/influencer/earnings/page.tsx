@@ -60,7 +60,7 @@ export default function InfluencerWalletPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
             <Wallet className="w-6 h-6 text-[#be32ff]" /> Creator Wallet
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
@@ -106,7 +106,7 @@ export default function InfluencerWalletPage() {
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Escrow Creator Wallet</span>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-extrabold text-white">Active Verified Account</h3>
+                  <h3 className="text-sm font-semibold text-white">Active Verified Account</h3>
                   <ShieldCheck className="w-4 h-4 text-emerald-400" />
                 </div>
               </div>
@@ -124,7 +124,7 @@ export default function InfluencerWalletPage() {
               Available Wallet Balance
             </span>
             <div className="flex items-baseline gap-2 mt-1">
-              <span className="text-4xl sm:text-5xl font-black text-white tracking-tight">
+              <span className="text-4xl sm:text-5xl font-semibold text-white tracking-tight">
                 ₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
               <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
@@ -143,7 +143,7 @@ export default function InfluencerWalletPage() {
                 <span className="text-neutral-400 text-xs">Total Credited by Admin</span>
                 <ArrowUpRight className="w-4 h-4 text-emerald-400" />
               </div>
-              <p className="text-lg font-black text-emerald-400">
+              <p className="text-lg font-bold text-emerald-400">
                 ₹{totalEarned.toLocaleString('en-IN')}
               </p>
               <span className="text-[10px] text-neutral-500 block">All-time wallet deposits</span>
@@ -154,7 +154,7 @@ export default function InfluencerWalletPage() {
                 <span className="text-neutral-400 text-xs">In-Escrow Pending Release</span>
                 <Lock className="w-4 h-4 text-[#fc9a5d]" />
               </div>
-              <p className="text-lg font-black text-[#fc9a5d]">
+              <p className="text-lg font-bold text-[#fc9a5d]">
                 ₹{pendingEscrow.toLocaleString('en-IN')}
               </p>
               <span className="text-[10px] text-neutral-500 block">Funds deposited by Hirers</span>
@@ -165,7 +165,7 @@ export default function InfluencerWalletPage() {
                 <span className="text-neutral-400 text-xs">Settled Campaigns</span>
                 <CheckCircle2 className="w-4 h-4 text-purple-400" />
               </div>
-              <p className="text-lg font-black text-purple-300">
+              <p className="text-lg font-bold text-purple-300">
                 {transactions.length} Deals
               </p>
               <span className="text-[10px] text-neutral-500 block">Approved &amp; wallet paid</span>
@@ -178,7 +178,7 @@ export default function InfluencerWalletPage() {
       <div className="rounded-2xl bg-[#0e0f17] border border-white/10 overflow-hidden shadow-xl">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <h3 className="text-base font-semibold text-white flex items-center gap-2">
               <History className="w-4 h-4 text-[#fc9a5d]" /> Wallet Passbook &amp; Credit Ledger
             </h3>
             <p className="text-xs text-neutral-400 mt-0.5">
@@ -223,7 +223,7 @@ export default function InfluencerWalletPage() {
                       <td className="py-4 px-4 text-right font-medium text-neutral-300">
                         ₹{gross.toLocaleString('en-IN')}
                       </td>
-                      <td className="py-4 px-4 text-right font-black text-emerald-400 text-sm">
+                      <td className="py-4 px-4 text-right font-bold text-emerald-400 text-sm">
                         +₹{net.toLocaleString('en-IN')}
                       </td>
                       <td className="py-4 px-4 text-center">
@@ -248,7 +248,7 @@ export default function InfluencerWalletPage() {
             <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400">
               <Wallet className="w-7 h-7 text-[#fc9a5d]" />
             </div>
-            <h4 className="text-sm font-bold text-white">Your Creator Wallet is Active</h4>
+            <h4 className="text-sm font-semibold text-white">Your Creator Wallet is Active</h4>
             <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
               When business clients hire you and approve your deliverables, the Platform Admin deposits your payment directly into this wallet. No bank account linking required.
             </p>
@@ -263,7 +263,7 @@ export default function InfluencerWalletPage() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white">Guaranteed Escrow Protection</h4>
+            <h4 className="text-sm font-semibold text-white">Guaranteed Escrow Protection</h4>
             <p className="text-xs text-neutral-400 mt-0.5">
               Every campaign budget is prepaid into Zaakpay escrow by the hiring brand. As soon as the work is delivered, the Admin releases funds directly into your wallet.
             </p>

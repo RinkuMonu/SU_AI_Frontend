@@ -250,11 +250,11 @@ function InfluencerChatsContent() {
                   <ArrowLeft className="w-4 h-4" />
                 </Link>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-base sm:text-lg font-black text-white tracking-tight">
+                  <h1 className="text-base sm:text-lg font-semibold text-white tracking-tight">
                     Chats
                   </h1>
                   {totalUnread > 0 && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#f0449b] text-white shadow-sm shadow-pink-500/30">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#f0449b] text-white shadow-sm shadow-pink-500/30">
                       {totalUnread}
                     </span>
                   )}
@@ -420,7 +420,7 @@ function InfluencerChatsContent() {
                       {/* Fallback avatar initial if image missing */}
                       <div
                         style={{ display: conv.business_logo ? 'none' : 'flex' }}
-                        className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 items-center justify-center font-black text-sm text-white border border-white/10"
+                        className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 items-center justify-center font-bold text-sm text-white border border-white/10"
                       >
                         {conv.business_name.charAt(0)}
                       </div>
@@ -465,7 +465,7 @@ function InfluencerChatsContent() {
 
                     {/* Unread badge */}
                     {conv.unread_count > 0 && (
-                      <span className="self-center px-1.5 py-0.5 rounded-full text-[10px] font-black bg-[#f0449b] text-white shrink-0 shadow-sm shadow-pink-500/30">
+                      <span className="self-center px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[#f0449b] text-white shrink-0 shadow-sm shadow-pink-500/30">
                         {conv.unread_count}
                       </span>
                     )}
@@ -514,7 +514,7 @@ function InfluencerChatsContent() {
                   {/* Brand Details */}
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <h2 className="text-xs sm:text-sm font-black text-white truncate">
+                      <h2 className="text-xs sm:text-sm font-semibold text-white truncate">
                         {activeConversation.business_name}
                       </h2>
                       {activeConversation.is_verified && (
@@ -578,7 +578,7 @@ function InfluencerChatsContent() {
 
                     <div className="flex items-center gap-3 text-[11px] text-neutral-300">
                       {activeConversation.campaign_budget && (
-                        <span className="font-black text-emerald-400">
+                        <span className="font-bold text-emerald-400">
                           ₹{activeConversation.campaign_budget.toLocaleString('en-IN')} Payout
                         </span>
                       )}
@@ -620,7 +620,7 @@ function InfluencerChatsContent() {
                     <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
                       <Sparkles className="w-6 h-6 text-[#be32ff]" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">Start the conversation</h3>
+                    <h3 className="text-sm font-semibold text-white">Start the conversation</h3>
                     <p className="text-xs text-neutral-400 max-w-sm">
                       Pitch your creative concepts, ask questions about campaign briefs, or agree on deliverables.
                     </p>
@@ -837,7 +837,7 @@ function InfluencerChatsContent() {
                 <MessageSquare className="w-8 h-8 text-[#be32ff]" />
               </div>
               <div className="space-y-1 max-w-sm">
-                <h2 className="text-lg font-black text-white">Your Conversations Start Here</h2>
+                <h2 className="text-lg font-semibold text-white">Your Conversations Start Here</h2>
                 <p className="text-xs text-neutral-400 leading-relaxed">
                   Select a brand from the list on the left to review messages, negotiate sponsorship rates, or submit campaign deliverables.
                 </p>

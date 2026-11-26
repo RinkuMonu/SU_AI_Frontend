@@ -158,7 +158,7 @@ export default function InfluencerCollaborationsPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
               <Handshake className="w-6 h-6 text-[#be32ff]" />
               My Collaborations
             </h1>
@@ -208,7 +208,7 @@ export default function InfluencerCollaborationsPage() {
         {filteredCollabs.length === 0 ? (
           <div className="py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
             <Handshake className="w-12 h-12 text-neutral-600 mx-auto" />
-            <h3 className="text-base font-bold text-white">No Collaborations in this state</h3>
+            <h3 className="text-base font-semibold text-white">No Collaborations in this state</h3>
             <p className="text-xs text-neutral-400">
               Apply to open brand campaigns in the Brand Deals marketplace to start collaborating.
             </p>
@@ -234,7 +234,7 @@ export default function InfluencerCollaborationsPage() {
                     />
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h3 className="text-sm sm:text-base font-black text-white">
+                        <h3 className="text-sm sm:text-base font-semibold text-white">
                           {collab.campaign_title}
                         </h3>
                         <span className="text-neutral-500">&bull;</span>
@@ -359,7 +359,7 @@ export default function InfluencerCollaborationsPage() {
         <Dialog open={!!submitCollab} onOpenChange={() => setSubmitCollab(null)}>
           <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+              <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Upload className="w-5 h-5 text-[#f0449b]" />
                 Submit Content for {submitCollab.brand_name}
               </DialogTitle>
@@ -373,7 +373,7 @@ export default function InfluencerCollaborationsPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
-                <h3 className="text-sm font-bold text-white">Deliverables Submitted!</h3>
+                <h3 className="text-sm font-semibold text-white">Deliverables Submitted!</h3>
                 <p className="text-xs text-neutral-400">
                   {submitCollab.brand_name}&apos;s marketing team has been notified for review.
                 </p>

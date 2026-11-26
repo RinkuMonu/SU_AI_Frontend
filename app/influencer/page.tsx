@@ -257,6 +257,41 @@ export default function InfluencerDashboard() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [favorites, setFavorites] = useState<Record<string, boolean>>({});
   const [analyticsRange, setAnalyticsRange] = useState<'7d' | '30d' | '90d'>('30d');
+  const performanceMetrics = {
+    '7d': {
+      reach: '21.4K',
+      reachDelta: '+6.1%',
+      engagement: '4.3%',
+      engagementNote: 'Industry: 2.1%',
+      followers: '42.8K',
+      followersDelta: '+120 this week',
+      views: '412',
+      viewsNote: 'By 48 businesses',
+      momentum: [35, 50, 45, 60, 55, 72, 68],
+    },
+    '30d': {
+      reach: '85.4K',
+      reachDelta: '+14.2%',
+      engagement: '4.82%',
+      engagementNote: 'Industry: 2.1%',
+      followers: '42.8K',
+      followersDelta: '+340 this week',
+      views: '1,420',
+      viewsNote: 'By 48 businesses',
+      momentum: [45, 65, 55, 80, 70, 95, 85],
+    },
+    '90d': {
+      reach: '240K',
+      reachDelta: '+22.8%',
+      engagement: '5.1%',
+      engagementNote: 'Industry: 2.1%',
+      followers: '42.8K',
+      followersDelta: '+1.1K this quarter',
+      views: '4,860',
+      viewsNote: 'By 48 businesses',
+      momentum: [55, 60, 70, 75, 82, 90, 100],
+    },
+  } as const;
 
   // Banner Customization States (YouTube/LinkedIn style)
   const [bannerImage, setBannerImage] = useState<string>('');
@@ -538,7 +573,7 @@ export default function InfluencerDashboard() {
             <span className="text-[11px] font-bold text-purple-300/80 tracking-wider block mb-0.5 uppercase">
               Creator Dashboard
             </span>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2 flex-wrap">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-white tracking-tight flex items-center gap-2 flex-wrap">
               <span className="break-words">Hey {firstName}!</span>
               <span className="text-xl sm:text-2xl animate-bounce shrink-0">👋</span>
             </h1>
@@ -698,7 +733,7 @@ export default function InfluencerDashboard() {
           <div className="space-y-1.5 min-w-0 flex-1 w-full">
             {/* Name + Dynamic Verification Badge */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight break-words">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold text-white tracking-tight break-words">
                 {displayName}
               </h2>
 
@@ -762,7 +797,7 @@ export default function InfluencerDashboard() {
               <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-[#d87aff]" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
+              <div className="text-xl sm:text-2xl font-semibold text-white leading-none tracking-tight truncate">
                 {summary.active_collaborations || 5}
               </div>
               <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Active Collaborations</p>
@@ -775,7 +810,7 @@ export default function InfluencerDashboard() {
               <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#d87aff]" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
+              <div className="text-xl sm:text-2xl font-semibold text-white leading-none tracking-tight truncate">
                 {summary.new_opportunities || 3}
               </div>
               <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Collaboration Requests</p>
@@ -788,7 +823,7 @@ export default function InfluencerDashboard() {
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#fbbf24]" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight break-words">
+              <div className="text-xl sm:text-2xl font-semibold text-white leading-none tracking-tight break-words">
                 ₹{summary.total_earnings ? summary.total_earnings.toLocaleString() : '45,000'}
               </div>
               <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Total Earnings</p>
@@ -801,7 +836,7 @@ export default function InfluencerDashboard() {
               <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#22d3ee]" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
+              <div className="text-xl sm:text-2xl font-semibold text-white leading-none tracking-tight truncate">
                 {completionPercent}%
               </div>
               <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Profile Score</p>
@@ -817,7 +852,7 @@ export default function InfluencerDashboard() {
       <section className="space-y-3.5 min-w-0 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <h2 className="text-base sm:text-lg font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-semibold text-white tracking-tight flex items-center gap-2">
               <Store className="w-5 h-5 text-[#f0449b]" />
               Recommended Businesses &amp; Opportunities
             </h2>
@@ -908,10 +943,10 @@ export default function InfluencerDashboard() {
 
                     {/* Campaign Title & Compensation */}
                     <div className="space-y-0.5 min-w-0">
-                      <h3 className="text-xs font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
+                      <h3 className="text-xs font-semibold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
                         {opp.campaign_title}
                       </h3>
-                      <p className="text-[11px] font-black text-emerald-400">
+                      <p className="text-[11px] font-bold text-emerald-400">
                         {opp.compensation_range}
                       </p>
                     </div>
@@ -955,7 +990,7 @@ export default function InfluencerDashboard() {
           <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-sm sm:text-base font-black text-white tracking-tight flex items-center gap-2">
+                <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
                   <Briefcase className="w-4 h-4 text-[#be32ff]" />
                   My Business Collaborations
                 </h2>
@@ -974,11 +1009,11 @@ export default function InfluencerDashboard() {
               {/* Item 1 */}
               <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
                     R
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white break-words sm:truncate">The Roastery &ndash; Brunch Tasting Reel</h4>
+                    <h4 className="text-xs font-semibold text-white break-words sm:truncate">The Roastery &ndash; Brunch Tasting Reel</h4>
                     <span className="text-[10px] text-emerald-400 font-semibold block break-words">In Progress &bull; Due in 3 days</span>
                   </div>
                 </div>
@@ -994,11 +1029,11 @@ export default function InfluencerDashboard() {
               {/* Item 2 */}
               <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
                     A
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white break-words sm:truncate">Anokhi Boutique &ndash; Summer Lookbook</h4>
+                    <h4 className="text-xs font-semibold text-white break-words sm:truncate">Anokhi Boutique &ndash; Summer Lookbook</h4>
                     <span className="text-[10px] text-amber-400 font-semibold block break-words">Pending Review &bull; Submitted</span>
                   </div>
                 </div>
@@ -1014,11 +1049,11 @@ export default function InfluencerDashboard() {
               {/* Item 3 */}
               <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
                     O
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white break-words sm:truncate">Ozone Fitness &ndash; Workout Reel</h4>
+                    <h4 className="text-xs font-semibold text-white break-words sm:truncate">Ozone Fitness &ndash; Workout Reel</h4>
                     <span className="text-[10px] text-purple-400 font-semibold block break-words">Completed &bull; Payout Credited</span>
                   </div>
                 </div>
@@ -1037,9 +1072,9 @@ export default function InfluencerDashboard() {
         {/* Right Column (5 cols): Performance Overview */}
         <div className="lg:col-span-5 space-y-3 min-w-0">
           <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-sm sm:text-base font-black text-white tracking-tight flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-[#f0449b]" />
                   Performance Overview
                 </h2>
@@ -1047,12 +1082,13 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Date Filters */}
-              <div className="flex items-center gap-1 p-0.5 rounded-lg bg-black/40 border border-white/5 text-[10px] font-bold shrink-0">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-white/5 text-[10px] font-bold shrink-0 self-start sm:self-auto">
                 {(['7d', '30d', '90d'] as const).map(tab => (
                   <button
                     key={tab}
+                    type="button"
                     onClick={() => setAnalyticsRange(tab)}
-                    className={`px-2 py-0.5 rounded-md transition-colors ${analyticsRange === tab ? 'bg-[#be32ff] text-white' : 'text-neutral-400 hover:text-white'}`}
+                    className={`px-2.5 py-1 rounded-md transition-colors ${analyticsRange === tab ? 'bg-[#be32ff] text-white shadow-sm' : 'text-neutral-400 hover:text-white'}`}
                   >
                     {tab.toUpperCase()}
                   </button>
@@ -1064,26 +1100,26 @@ export default function InfluencerDashboard() {
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Total Reach</span>
-                <p className="text-base sm:text-lg font-black text-white break-words">85.4K</p>
-                <span className="text-[9px] text-emerald-400 font-semibold block">+14.2%</span>
+                <p className="text-base sm:text-lg font-bold text-white break-words">{performanceMetrics[analyticsRange].reach}</p>
+                <span className="text-[9px] text-emerald-400 font-semibold block">{performanceMetrics[analyticsRange].reachDelta}</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Avg. Engagement</span>
-                <p className="text-base sm:text-lg font-black text-[#f0449b] break-words">4.82%</p>
-                <span className="text-[9px] text-neutral-400 block">Industry: 2.1%</span>
+                <p className="text-base sm:text-lg font-bold text-[#f0449b] break-words">{performanceMetrics[analyticsRange].engagement}</p>
+                <span className="text-[9px] text-neutral-400 block">{performanceMetrics[analyticsRange].engagementNote}</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Followers</span>
-                <p className="text-base sm:text-lg font-black text-white break-words">42.8K</p>
-                <span className="text-[9px] text-emerald-400 font-semibold block">+340 this week</span>
+                <p className="text-base sm:text-lg font-bold text-white break-words">{performanceMetrics[analyticsRange].followers}</p>
+                <span className="text-[9px] text-emerald-400 font-semibold block">{performanceMetrics[analyticsRange].followersDelta}</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Profile Views</span>
-                <p className="text-base sm:text-lg font-black text-[#be32ff] break-words">1,420</p>
-                <span className="text-[9px] text-neutral-400 block">By 48 businesses</span>
+                <p className="text-base sm:text-lg font-bold text-[#be32ff] break-words">{performanceMetrics[analyticsRange].views}</p>
+                <span className="text-[9px] text-neutral-400 block">{performanceMetrics[analyticsRange].viewsNote}</span>
               </div>
             </div>
 
@@ -1094,7 +1130,7 @@ export default function InfluencerDashboard() {
                 <span className="text-white font-bold">Active</span>
               </div>
               <div className="flex items-end gap-1.5 h-9 pt-1">
-                {[45, 65, 55, 80, 70, 95, 85].map((h, i) => (
+                {performanceMetrics[analyticsRange].momentum.map((h, i) => (
                   <div key={i} className="flex-1 bg-white/5 rounded-t-sm h-full flex items-end overflow-hidden">
                     <div 
                       className="w-full bg-gradient-to-t from-[#be32ff] to-[#f0449b] rounded-t-sm transition-all duration-500"
@@ -1117,7 +1153,7 @@ export default function InfluencerDashboard() {
         {/* Left Column (7 cols): Recent Activity Feed */}
         <div className="lg:col-span-7 min-w-0">
           <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0">
-            <h2 className="text-sm sm:text-base font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#fc9a5d]" />
               Recent Activity
             </h2>
@@ -1153,7 +1189,7 @@ export default function InfluencerDashboard() {
         {/* Right Column (5 cols): Quick Actions */}
         <div className="lg:col-span-5 min-w-0">
           <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0">
-            <h2 className="text-sm sm:text-base font-black text-white tracking-tight">
+            <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
               Quick Actions
             </h2>
 
@@ -1175,7 +1211,7 @@ export default function InfluencerDashboard() {
                   <span className="break-words leading-snug">Open Chats</span>
                 </div>
                 {unreadCount > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-[#f0449b] text-white shrink-0">
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-[#f0449b] text-white shrink-0">
                     {unreadCount}
                   </span>
                 )}
@@ -1208,7 +1244,7 @@ export default function InfluencerDashboard() {
       <Dialog open={showBannerModal} onOpenChange={() => setShowBannerModal(false)}>
         <DialogContent className="sm:max-w-lg bg-[#0e0f19] border border-white/15 text-white rounded-2xl p-6 shadow-2xl">
           <DialogHeader className="space-y-1">
-            <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+            <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <Camera className="w-5 h-5 text-[#f0449b]" />
               Customize Creator Cover Banner
             </DialogTitle>
@@ -1303,7 +1339,7 @@ export default function InfluencerDashboard() {
         <Dialog open={showPitchModal} onOpenChange={() => setShowPitchModal(false)}>
           <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+              <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
                 Collaborate with {selectedOpp.business_name}
               </DialogTitle>
@@ -1317,7 +1353,7 @@ export default function InfluencerDashboard() {
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
-                <h3 className="text-sm font-bold text-white">Proposal Submitted!</h3>
+                <h3 className="text-sm font-semibold text-white">Proposal Submitted!</h3>
                 <p className="text-xs text-neutral-400">
                   Opening your chat thread with {selectedOpp.business_name}...
                 </p>

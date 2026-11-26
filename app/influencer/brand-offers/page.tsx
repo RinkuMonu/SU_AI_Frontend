@@ -395,7 +395,7 @@ export default function BrandOffersPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-[#be32ff]" /> Brand Hiring Offers
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
@@ -474,7 +474,7 @@ export default function BrandOffersPage() {
             <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400">
               <Sparkles className="w-7 h-7 text-[#fc9a5d]" />
             </div>
-            <h3 className="text-base font-bold text-white">No Offers Found in this Category</h3>
+            <h3 className="text-base font-semibold text-white">No Offers Found in this Category</h3>
             <p className="text-xs text-neutral-400 max-w-md mx-auto">
               When brands discover your profile and send hiring proposals, they will appear here with compensation, deliverables, and legal agreement tools.
             </p>
@@ -508,7 +508,7 @@ export default function BrandOffersPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-base font-bold text-white">
+                      <h3 className="text-base font-semibold text-white">
                         {offer.campaign_name || "Sponsored Campaign"}
                       </h3>
                       <Badge className="text-[10px] bg-white/5 text-neutral-300 border-white/10 capitalize">
@@ -526,7 +526,7 @@ export default function BrandOffersPage() {
 
                   <div className="text-left sm:text-right">
                     <span className="text-[11px] text-neutral-400 block">Agreed Compensation</span>
-                    <span className="text-lg font-black text-[#fc9a5d]">
+                    <span className="text-lg font-bold text-[#fc9a5d]">
                       ₹{Number(offer.proposed_compensation || 0).toLocaleString()}
                     </span>
                   </div>
@@ -687,7 +687,7 @@ export default function BrandOffersPage() {
         <Dialog open={!!actionType} onOpenChange={() => { setSelectedOffer(null); setActionType(null); }}>
           <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold capitalize flex items-center gap-2">
+              <DialogTitle className="text-lg font-semibold capitalize flex items-center gap-2">
                 {actionType === 'accept' && <CheckCircle2 className="w-5 h-5 text-emerald-400" />}
                 {actionType === 'negotiate' && <Clock className="w-5 h-5 text-amber-400" />}
                 {actionType === 'decline' && <XCircle className="w-5 h-5 text-rose-400" />}
@@ -773,7 +773,7 @@ export default function BrandOffersPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-white tracking-tight">Collaboration Messages</h2>
+                    <h2 className="text-lg font-semibold text-white tracking-tight">Collaboration Messages</h2>
                     <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       <ShieldCheck className="w-3 h-3" /> End-to-End Escrow Protected
                     </span>
@@ -873,7 +873,7 @@ export default function BrandOffersPage() {
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-1 mb-0.5">
-                            <h4 className="text-xs font-bold text-white truncate">
+                            <h4 className="text-xs font-semibold text-white truncate">
                               {camp.campaign_name || "Brand Campaign"}
                             </h4>
                             <span className="text-[10px] text-neutral-400 font-mono shrink-0">#{reqId?.slice(-4)}</span>
@@ -916,7 +916,7 @@ export default function BrandOffersPage() {
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="text-sm font-bold text-white truncate">
+                        <h3 className="text-sm font-semibold text-white truncate">
                           {chatCampaign.campaign_name || "Brand Collaboration"}
                         </h3>
                         <Badge className={`text-[10px] capitalize border ${
@@ -980,7 +980,7 @@ export default function BrandOffersPage() {
                       <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-lg">
                         <Lock className="w-6 h-6" />
                       </div>
-                      <h4 className="text-sm font-bold text-white">Collaboration Chat Locked</h4>
+                      <h4 className="text-sm font-semibold text-white">Collaboration Chat Locked</h4>
                       <p className="text-xs text-neutral-400 max-w-sm leading-relaxed">
                         Under marketplace security rules, private collaboration messaging unlocks automatically once both parties sign the bilateral agreement and the brand deposits the hiring compensation into escrow.
                       </p>
@@ -998,7 +998,7 @@ export default function BrandOffersPage() {
                         </div>
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-white">Direct Channel with {chatCampaign.business_name || chatCampaign.hirer_name || "Brand"}</h4>
+                        <h4 className="text-sm font-semibold text-white">Direct Channel with {chatCampaign.business_name || chatCampaign.hirer_name || "Brand"}</h4>
                         <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
                           Coordinate creative briefs, scripts, revisions, and deliverable deadlines directly with the hiring team.
                         </p>
@@ -1141,7 +1141,7 @@ export default function BrandOffersPage() {
         <Dialog open={!!signCampaign} onOpenChange={() => setSignCampaign(null)}>
           <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-2xl max-h-[85vh] flex flex-col p-0 overflow-hidden">
             <DialogHeader className="p-5 border-b border-white/10 shrink-0">
-              <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
+              <DialogTitle className="text-base font-semibold text-white flex items-center gap-2">
                 <FileText className="w-5 h-5 text-[#be32ff]" /> Bilateral Legal Agreement &amp; E-Sign
               </DialogTitle>
               <DialogDescription className="text-xs text-neutral-400">
@@ -1220,7 +1220,7 @@ export default function BrandOffersPage() {
                   {/* Signing input if not signed yet */}
                   {!agreementDetail.signatures?.influencer?.signed && (
                     <div className="space-y-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                      <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                      <h4 className="text-xs font-semibold text-white flex items-center gap-2">
                         <PenTool className="w-4 h-4 text-[#be32ff]" /> Provide Electronic Signature
                       </h4>
                       <p className="text-[11px] text-neutral-300">
@@ -1293,7 +1293,7 @@ export default function BrandOffersPage() {
         <Dialog open={!!deliverableCampaign} onOpenChange={() => setDeliverableCampaign(null)}>
           <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-base font-bold text-white flex items-center gap-2">
+              <DialogTitle className="text-base font-semibold text-white flex items-center gap-2">
                 <Upload className="w-4 h-4 text-emerald-400" /> Submit Campaign Deliverables
               </DialogTitle>
               <DialogDescription className="text-xs text-neutral-400">

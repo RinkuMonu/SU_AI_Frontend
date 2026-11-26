@@ -108,12 +108,12 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
       <header className="lg:hidden flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0d0e15]/95 backdrop-blur-md sticky top-0 z-40">
         <Link href="/influencer" className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-md shadow-purple-500/30 shrink-0">
-            <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center font-black text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] to-[#BE32FF]">
+            <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center font-bold text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] to-[#BE32FF]">
               DG
             </div>
           </div>
           <div className="min-w-0">
-            <span className="font-extrabold text-sm text-white tracking-tight">DhandaGrow</span>
+            <span className="font-semibold text-sm text-white tracking-tight">DhandaGrow</span>
             <span className="text-[10px] font-bold text-[#f0449b] ml-1">AI</span>
           </div>
         </Link>
@@ -134,15 +134,15 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
           <Link href="/influencer" className="flex items-center gap-2.5 min-w-0 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
               <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center">
-                <span className="font-black text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF]">
+                <span className="font-bold text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF]">
                   DG
                 </span>
               </div>
             </div>
             <div className="leading-tight min-w-0">
               <div className="flex items-center gap-1">
-                <span className="font-extrabold text-sm text-white tracking-tight">DhandaGrow</span>
-                <span className="text-[10px] font-black text-[#f0449b]">AI</span>
+                <span className="font-semibold text-sm text-white tracking-tight">DhandaGrow</span>
+                <span className="text-[10px] font-bold text-[#f0449b]">AI</span>
               </div>
               <p className="text-[10px] font-medium text-neutral-400 tracking-wider">Creator Hub</p>
             </div>
@@ -249,7 +249,7 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
           <div className="relative w-[min(20rem,calc(100vw-2.5rem))] bg-[#0b0c13] h-full border-r border-white/10 flex flex-col p-4 animate-in slide-in-from-left duration-200 shadow-2xl">
             <div className="flex items-center justify-between pb-4 border-b border-white/10 gap-2">
               <Link href="/influencer" className="flex items-center gap-2 min-w-0" onClick={() => setMobileMenuOpen(false)}>
-                <span className="font-extrabold text-sm text-white truncate">DhandaGrow AI</span>
+                <span className="font-semibold text-sm text-white truncate">DhandaGrow AI</span>
                 <span className="text-[10px] text-[#f0449b] shrink-0">Creator Hub</span>
               </Link>
               <button

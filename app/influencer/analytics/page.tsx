@@ -46,7 +46,7 @@ export default function InfluencerAnalyticsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-[#be32ff]" /> Social Analytics &amp; Portfolio
           </h1>
           <p className="text-xs text-neutral-400 mt-1">
@@ -64,7 +64,7 @@ export default function InfluencerAnalyticsPage() {
               <Users className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-2">
+          <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : Number(followerCount).toLocaleString()}
           </p>
           <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-1">
@@ -79,7 +79,7 @@ export default function InfluencerAnalyticsPage() {
               <Heart className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-2">
+          <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : `${engagementRate}%`}
           </p>
           <span className="text-[11px] text-neutral-400 mt-1 block">
@@ -99,7 +99,7 @@ export default function InfluencerAnalyticsPage() {
               {showReach ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </button>
           </div>
-          <p className="text-2xl font-black text-white mt-2">
+          <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : showReach ? Number(estReach).toLocaleString() : "••••"}
           </p>
           <span className="text-[11px] text-neutral-400 mt-1 block">
@@ -114,7 +114,7 @@ export default function InfluencerAnalyticsPage() {
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-white mt-2">
+          <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : Number(estImpressions).toLocaleString()}
           </p>
           <span className="text-[11px] text-neutral-400 mt-1 block">
@@ -125,7 +125,7 @@ export default function InfluencerAnalyticsPage() {
 
       {/* Media Kit Breakdown */}
       <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-emerald-400" /> Public Media Kit &amp; Rate Structure
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">

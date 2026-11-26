@@ -332,7 +332,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
             <FileImage className="w-6 h-6 text-[#be32ff]" />
             Brand Collaboration Deals &amp; Content Hub
           </h1>
@@ -356,7 +356,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
       ) : deals.length === 0 && legacyCollabs.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-[#0f1017]/60 p-12 text-center space-y-4">
           <Layers className="w-12 h-12 text-neutral-500 mx-auto" />
-          <h3 className="text-base font-bold text-white">No Active Collaboration Deals Yet</h3>
+          <h3 className="text-base font-semibold text-white">No Active Collaboration Deals Yet</h3>
           <p className="text-xs text-neutral-400 max-w-sm mx-auto">
             When brands send you hiring proposals, they will appear right here with full contract terms.
           </p>
@@ -375,7 +375,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
             >
               <div className="space-y-2 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h4 className="text-base font-bold text-white">{deal.campaign_name}</h4>
+                  <h4 className="text-base font-semibold text-white">{deal.campaign_name}</h4>
                   {getStatusBadge(deal.status)}
                 </div>
 
@@ -488,7 +488,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
       <Dialog open={showSubmitModal} onOpenChange={setShowSubmitModal}>
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+            <DialogTitle className="text-xl font-semibold flex items-center gap-2">
               <UploadCloud className="text-[#fc9a5d] w-5 h-5" /> Submit Deliverables
             </DialogTitle>
             <DialogDescription className="text-white/60">
@@ -537,7 +537,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-3xl max-h-[90vh] overflow-y-auto custom-scrollbar">
           <DialogHeader>
             <div className="flex items-center justify-between">
-              <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <DialogTitle className="text-xl font-semibold flex items-center gap-2">
                 <FileText className="text-brand-purple w-5 h-5" /> 
                 Bilateral Influencer Marketing Agreement
               </DialogTitle>
@@ -615,7 +615,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
               {/* Document Header */}
               <div className="p-3 bg-white/5 border border-white/10 rounded-xl flex justify-between items-center">
                 <div>
-                  <h4 className="font-bold text-white text-sm">{agreementDoc.title}</h4>
+                  <h4 className="font-semibold text-white text-sm">{agreementDoc.title}</h4>
                   <p className="text-white/50 text-[11px]">Agreement No: {agreementDoc.agreement_number} | Version {agreementDoc.version}</p>
                 </div>
                 <Badge className="bg-brand-purple/20 text-brand-purple border-brand-purple/30">
@@ -648,7 +648,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
               {/* Scope of Work */}
               <div className="p-3.5 bg-white/[0.02] border border-white/10 rounded-xl space-y-2">
-                <h5 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <h5 className="font-semibold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d]" /> Scope of Work & Deliverables
                 </h5>
                 <div className="space-y-1 text-xs text-white/80">
@@ -675,13 +675,13 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
 
               {/* Financial Terms & Escrow Schedule */}
               <div className="p-3.5 bg-white/[0.02] border border-white/10 rounded-xl space-y-2">
-                <h5 className="font-bold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <h5 className="font-semibold text-white text-xs uppercase tracking-wider flex items-center gap-1.5">
                   <IndianRupee className="w-3.5 h-3.5 text-emerald-400" /> Financial Terms & Escrow Payout
                 </h5>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                   <div className="p-2.5 bg-white/5 rounded-lg border border-white/10">
                     <span className="text-white/40 block text-[10px]">Agreed Creator Compensation:</span>
-                    <span className="font-extrabold text-emerald-400 text-sm">₹{(agreementDoc.financial_terms?.agreed_compensation || activeDeal?.proposed_compensation || 0).toLocaleString()}</span>
+                    <span className="font-semibold text-emerald-400 text-sm">₹{(agreementDoc.financial_terms?.agreed_compensation || activeDeal?.proposed_compensation || 0).toLocaleString()}</span>
                   </div>
                   <div className="p-2.5 bg-white/5 rounded-lg border border-white/10">
                     <span className="text-white/40 block text-[10px]">Escrow Release Schedule:</span>
@@ -695,7 +695,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                 <div className="text-[11px] font-bold text-white/40 uppercase tracking-wider mb-1">Enforceable Legal Clauses</div>
                 {agreementDoc.legal_clauses?.map((c, i) => (
                   <div key={i} className="space-y-1 p-2 rounded-lg bg-white/[0.02]">
-                    <h5 className="font-bold text-white text-xs flex items-center gap-1.5">
+                    <h5 className="font-semibold text-white text-xs flex items-center gap-1.5">
                       <ShieldCheck className="w-3.5 h-3.5 text-brand-purple shrink-0" />
                       <span>{c.clause_title}</span>
                     </h5>
@@ -789,7 +789,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                 /* Influencer E-Signature Execution Form */
                 <div className="p-4 bg-brand-purple/10 border border-brand-purple/30 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
-                    <h5 className="font-bold text-white text-sm flex items-center gap-2">
+                    <h5 className="font-semibold text-white text-sm flex items-center gap-2">
                       <FileText className="w-4 h-4 text-brand-purple" />
                       <span>Execute Electronic Signature (Content Creator)</span>
                     </h5>
@@ -992,7 +992,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
       <Dialog open={showChatModal} onOpenChange={setShowChatModal}>
         <DialogContent className="bg-[#141522] border-white/10 text-white sm:max-w-2xl h-[75vh] flex flex-col p-0 overflow-hidden">
           <div className="p-4 bg-white/5 border-b border-white/10">
-            <h4 className="font-bold text-white text-sm">{activeDeal?.campaign_name}</h4>
+            <h4 className="font-semibold text-white text-sm">{activeDeal?.campaign_name}</h4>
             <p className="text-xs text-white/50">Chatting with Brand: {activeDeal?.business_name}</p>
           </div>
 

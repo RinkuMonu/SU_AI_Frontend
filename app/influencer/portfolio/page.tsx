@@ -256,7 +256,7 @@ export default function InfluencerPortfolioPage() {
           {/* Identity & Bio */}
           <div className="space-y-2 flex-1">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-              <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
                 {fullName}
               </h1>
               <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#be32ff]/20 border border-[#be32ff]/40 text-[#d87aff]">
@@ -305,7 +305,7 @@ export default function InfluencerPortfolioPage() {
                   <span>{s.label}</span>
                   <Icon className={`w-4 h-4 ${s.color}`} />
                 </div>
-                <div className="text-xl sm:text-2xl font-black text-white">
+                <div className="text-xl sm:text-2xl font-semibold text-white">
                   {s.value}
                 </div>
                 <div className="text-[10px] text-emerald-400 font-semibold">
@@ -321,7 +321,7 @@ export default function InfluencerPortfolioPage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
+            <h2 className="text-lg sm:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
               <FolderGit2 className="w-5 h-5 text-[#f0449b]" />
               Featured Campaign Deliverables
             </h2>
@@ -366,7 +366,7 @@ export default function InfluencerPortfolioPage() {
                   <span className="text-[10px] font-bold text-[#f0449b] uppercase tracking-wider block">
                     {item.brand}
                   </span>
-                  <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
+                  <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
                     {item.title}
                   </h3>
                   <p className="text-[11px] text-neutral-400 mt-0.5">
@@ -390,7 +390,7 @@ export default function InfluencerPortfolioPage() {
       {/* Pricing & Commercial Packages */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg sm:text-xl font-black text-white tracking-tight flex items-center gap-2">
+          <h2 className="text-lg sm:text-xl font-semibold text-white tracking-tight flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-emerald-400" />
             Standard Collaboration Rates
           </h2>
@@ -410,18 +410,18 @@ export default function InfluencerPortfolioPage() {
               }`}
             >
               {pkg.popular && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-[10px] font-black text-white uppercase tracking-wider shadow">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-0.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-[10px] font-bold text-white uppercase tracking-wider shadow">
                   Most Popular
                 </span>
               )}
 
               <div className="space-y-3">
                 <div>
-                  <h3 className="text-base font-bold text-white">{pkg.name}</h3>
+                  <h3 className="text-base font-semibold text-white">{pkg.name}</h3>
                   <p className="text-xs text-neutral-400 mt-0.5">{pkg.duration}</p>
                 </div>
 
-                <div className="text-2xl sm:text-3xl font-black text-white">
+                <div className="text-2xl sm:text-3xl font-semibold text-white">
                   {pkg.price}
                 </div>
 

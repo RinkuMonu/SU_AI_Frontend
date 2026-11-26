@@ -205,7 +205,7 @@ function SocialAccountsContent() {
             <Sparkles className="w-3.5 h-3.5" />
             <span>Channel Verification &amp; Reach</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-white flex items-center gap-2.5">
             <Share2 className="w-7 h-7 text-[#be32ff]" /> Connected Social Accounts
           </h1>
           <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-2xl">
@@ -269,7 +269,7 @@ function SocialAccountsContent() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+            <h4 className="text-xs font-semibold text-white uppercase tracking-wider">
               Authoritative Verification Standards
             </h4>
             <p className="text-[11px] text-neutral-300 mt-0.5">
@@ -326,7 +326,7 @@ function SocialAccountsContent() {
                         <Icon className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="text-base font-bold text-white">{p.name}</h3>
+                        <h3 className="text-base font-semibold text-white">{p.name}</h3>
                         <p className="text-[11px] text-neutral-400">
                           {p.id === 'instagram' ? 'Reels & Media' : p.id === 'facebook' ? 'Pages & Groups' : 'Professional & B2B'}
                         </p>
@@ -469,7 +469,7 @@ function SocialAccountsContent() {
         <Dialog open={!!manualPlatform} onOpenChange={() => setManualPlatform(null)}>
           <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md rounded-3xl">
             <DialogHeader>
-              <DialogTitle className="text-base font-bold capitalize flex items-center gap-2">
+              <DialogTitle className="text-base font-semibold capitalize flex items-center gap-2">
                 <LinkIcon className="w-5 h-5 text-purple-400" /> Enter {manualPlatform} Profile Link
               </DialogTitle>
               <DialogDescription className="text-xs text-neutral-400">

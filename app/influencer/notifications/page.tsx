@@ -21,7 +21,7 @@ export default function InfluencerNotificationsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-white/10">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
           <Bell className="w-6 h-6 text-[#be32ff]" /> Notifications &amp; Alerts
         </h1>
         <p className="text-xs text-neutral-400 mt-1">
@@ -37,7 +37,7 @@ export default function InfluencerNotificationsPage() {
                 <Sparkles className="w-4 h-4" />
               </div>
               <div className="space-y-0.5">
-                <h4 className="text-xs font-bold text-white">Campaign Update: {c.campaign_name}</h4>
+                <h4 className="text-xs font-semibold text-white">Campaign Update: {c.campaign_name}</h4>
                 <p className="text-[11px] text-neutral-400">Status is currently <strong className="text-white capitalize">{c.status?.replace(/_/g, ' ')}</strong></p>
               </div>
             </div>

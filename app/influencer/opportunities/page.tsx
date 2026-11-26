@@ -285,7 +285,7 @@ export default function OpportunitiesPage() {
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
               <Briefcase className="w-6 h-6 text-[#f0449b]" />
               Opportunities Marketplace
             </h1>
@@ -372,7 +372,7 @@ export default function OpportunitiesPage() {
         {filteredOpps.length === 0 ? (
           <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
             <Store className="w-12 h-12 text-neutral-600 mx-auto" />
-            <h3 className="text-base font-bold text-white">No Opportunities Found</h3>
+            <h3 className="text-base font-semibold text-white">No Opportunities Found</h3>
             <p className="text-xs text-neutral-400">
               Try adjusting your search keywords or switching category filters.
             </p>
@@ -397,7 +397,7 @@ export default function OpportunitiesPage() {
                       />
                       <div>
                         <div className="flex items-center gap-1">
-                          <span className="text-xs font-black text-white">{opp.business_name}</span>
+                          <span className="text-xs font-bold text-white">{opp.business_name}</span>
                           {opp.is_verified && (
                             <CheckCircle2 className="w-3.5 h-3.5 text-[#38bdf8]" />
                           )}
@@ -439,7 +439,7 @@ export default function OpportunitiesPage() {
 
                   {/* Title & Description */}
                   <div className="space-y-1.5">
-                    <h3 className="text-sm font-bold text-white group-hover:text-purple-300 transition-colors">
+                    <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors">
                       {opp.campaign_title}
                     </h3>
                     <p className="text-[11px] text-neutral-400 line-clamp-2 leading-relaxed">
@@ -461,7 +461,7 @@ export default function OpportunitiesPage() {
                   <div className="pt-3 flex items-center justify-between">
                     <div>
                       <span className="text-[10px] text-neutral-400 font-medium block">Expected Compensation</span>
-                      <span className="text-xs font-black text-white">
+                      <span className="text-xs font-bold text-white">
                         {opp.compensation_range}
                       </span>
                     </div>
@@ -493,7 +493,7 @@ export default function OpportunitiesPage() {
         <Dialog open={!!selectedOpp} onOpenChange={() => setSelectedOpp(null)}>
           <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
             <DialogHeader className="space-y-1">
-              <DialogTitle className="text-base sm:text-lg font-black flex items-center gap-2">
+              <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
                 Collaborate with {selectedOpp.business_name}
               </DialogTitle>
@@ -507,7 +507,7 @@ export default function OpportunitiesPage() {
                 <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
-                <h3 className="text-sm font-bold text-white">Collaboration Proposal Sent!</h3>
+                <h3 className="text-sm font-semibold text-white">Collaboration Proposal Sent!</h3>
                 <p className="text-xs text-neutral-400">
                   Opening your chat thread with {selectedOpp.business_name}...
                 </p>

@@ -24,7 +24,7 @@ export default function InfluencerMarketplacePage() {
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="border-b border-white/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
             <Briefcase className="w-6 h-6 text-[#fc9a5d]" />
             Brand Collaboration Marketplace
           </h1>
@@ -48,7 +48,7 @@ export default function InfluencerMarketplacePage() {
       ) : opportunities.length === 0 ? (
         <div className="rounded-3xl border border-white/10 bg-[#0f1017]/60 p-12 text-center space-y-3">
           <Briefcase className="w-12 h-12 text-neutral-500 mx-auto" />
-          <h3 className="text-base font-bold text-white">No Marketplace Deals Open Right Now</h3>
+          <h3 className="text-base font-semibold text-white">No Marketplace Deals Open Right Now</h3>
           <p className="text-xs text-neutral-400">Registered businesses post briefs daily. Check back soon!</p>
         </div>
       ) : (
@@ -61,17 +61,17 @@ export default function InfluencerMarketplacePage() {
                     {opp.business.name.charAt(0)}
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-white">{opp.business.name}</h4>
+                    <h4 className="text-xs font-semibold text-white">{opp.business.name}</h4>
                     <p className="text-[11px] text-neutral-400">{opp.business.category} &bull; {opp.business.location}</p>
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">{opp.campaign.title}</h3>
+                  <h3 className="text-sm font-semibold text-white">{opp.campaign.title}</h3>
                   <p className="text-xs text-neutral-400 mt-1 line-clamp-2">{opp.campaign.description}</p>
                 </div>
                 <div className="flex items-center justify-between text-xs pt-2 border-t border-white/5">
                   <span className="text-[11px] text-neutral-400">Budget:</span>
-                  <span className="font-extrabold text-white">{opp.campaign.budget_display || 'Barter Package'}</span>
+                  <span className="font-semibold text-white">{opp.campaign.budget_display || 'Barter Package'}</span>
                 </div>
               </div>
               <div className="pt-4 mt-4 border-t border-white/5 flex items-center justify-between">

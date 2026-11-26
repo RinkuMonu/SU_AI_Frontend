@@ -19,7 +19,7 @@ export default function InfluencerSettingsPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       <div className="pb-4 border-b border-white/10">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+        <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
           <Settings className="w-6 h-6 text-[#be32ff]" /> Creator Settings &amp; Support
         </h1>
         <p className="text-xs text-neutral-400 mt-1">
@@ -29,7 +29,7 @@ export default function InfluencerSettingsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
             <Bell className="w-4 h-4 text-purple-400" /> Notification Preferences
           </h3>
           <div className="space-y-3 text-xs">
@@ -53,7 +53,7 @@ export default function InfluencerSettingsPage() {
         </Card>
 
         <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2">
+          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-emerald-400" /> Dedicated Creator Support
           </h3>
           <p className="text-xs text-neutral-400 leading-relaxed">
