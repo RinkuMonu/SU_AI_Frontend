@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from 'react';
+
 type FeatureShowcaseKey =
   | 'ai-ads'
   | 'ai-avatar'
@@ -266,6 +270,35 @@ const showcaseContent: Record<FeatureShowcaseKey, ShowcaseContent> = {
 
 export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKey }) {
   const content = showcaseContent[feature];
+  const isPostMaker = feature === 'ai-post-maker';
+  const [mounted, setMounted] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+  const showAnimations = mounted && isPostMaker && revealed;
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    if (!isPostMaker) return () => cancelAnimationFrame(frame);
+    const el = gridRef.current;
+    if (!el) return () => cancelAnimationFrame(frame);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setRevealed(true);
+            observer.disconnect();
+            return;
+          }
+        }
+      },
+      { threshold: 0.2 }
+    );
+    observer.observe(el);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, [isPostMaker]);
 
   return (
     <section className="relative overflow-hidden bg-white py-8 sm:py-12">
@@ -294,11 +327,19 @@ export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKe
           <div className="pointer-events-none absolute inset-0 opacity-25" aria-hidden="true">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.9)_1px,transparent_1.5px)] bg-[size:14px_14px]" />
           </div>
-          <div className="relative grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+          <div ref={gridRef} className="relative grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
             {content.items.map((item, index) => (
               <article
                 key={item.category}
-                className="mx-auto w-full max-w-[250px] rounded-[24px] border border-white/25 bg-slate-950 p-1.5 shadow-[0_18px_45px_rgba(0,0,0,0.4)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[30px] sm:p-2"
+                className={
+                  'mx-auto w-full max-w-[250px] rounded-[24px] border border-white/25 bg-slate-950 p-1.5 sm:rounded-[30px] sm:p-2 ' +
+                  (isPostMaker
+                    ? 'shadow-[0_18px_45px_rgba(0,0,0,0.4)] transition-all duration-300 hover:-translate-y-6 hover:shadow-[0_24px_60px_rgba(0,0,0,0.5)]'
+                    : 'shadow-[0_18px_45px_rgba(0,0,0,0.4)] transition-transform duration-300 hover:-translate-y-1') +
+                  (mounted && isPostMaker && !revealed ? ' opacity-0 translate-y-3' : '') +
+                  (mounted && isPostMaker && revealed ? ' fs-fade-up' : '')
+                }
+                style={mounted && isPostMaker && revealed ? { animationDelay: `${index * 150}ms` } : undefined}
               >
                 <div className="relative flex min-h-[230px] flex-col overflow-hidden rounded-[19px] bg-white sm:min-h-[330px] sm:rounded-[23px]">
                   <div className="relative flex items-center justify-center px-3 pt-3 sm:px-4 sm:pt-4">
@@ -320,14 +361,48 @@ export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKe
                       background: `radial-gradient(circle at ${index % 2 === 0 ? '80% 20%' : '20% 80%'}, ${content.accent} 0%, transparent 55%), linear-gradient(${135 + index * 18}deg, #10172d, #30114a 65%, #111827)`,
                     }}
                   >
-                    <span className="relative z-10 w-fit rounded-full border border-white/30 bg-black/20 px-2 py-1 text-[7px] font-bold uppercase tracking-[0.14em] text-white/90 sm:text-[8px]">
+                    <span
+                      className={
+                        'relative z-10 w-fit rounded-full border border-white/30 bg-black/20 px-2 py-1 text-[7px] font-bold uppercase tracking-[0.14em] text-white/90 sm:text-[8px]' +
+                        (index === 2 && showAnimations ? ' fs-pill-bounce' : '')
+                      }
+                    >
                       {item.category}
                     </span>
-                    <div className="pointer-events-none absolute -right-6 top-1/4 h-24 w-24 rounded-full border border-white/20 sm:h-36 sm:w-36" aria-hidden="true" />
-                    <div className="pointer-events-none absolute -right-1 top-1/3 h-16 w-16 rounded-full border border-white/20 sm:h-24 sm:w-24" aria-hidden="true" />
-                    <h3 className="relative z-10 max-w-[13ch] text-base font-extrabold leading-tight tracking-tight sm:text-xl">
-                      {item.title}
-                    </h3>
+                    {showAnimations && index === 0 && (
+                      <>
+                        <div className="fs-shine" style={{ zIndex: 8 }} />
+                        <div className="fs-sparkle" style={{ left: '16%', top: '24%', width: 5, height: 5, animationDelay: '0.5s', zIndex: 8 }} />
+                        <div className="fs-sparkle" style={{ left: '64%', top: '28%', width: 4, height: 4, animationDelay: '1s', zIndex: 8 }} />
+                        <div className="fs-sparkle" style={{ left: '42%', top: '16%', width: 6, height: 6, animationDelay: '1.5s', zIndex: 8 }} />
+                      </>
+                    )}
+                    <div
+                      className={
+                        'pointer-events-none absolute -right-6 top-1/4 h-24 w-24 rounded-full border border-white/20' +
+                        (index === 3 && showAnimations ? ' fs-rotate fs-float' : '') +
+                        ' sm:h-36 sm:w-36'
+                      }
+                      aria-hidden="true"
+                    />
+                    <div
+                      className={
+                        'pointer-events-none absolute -right-1 top-1/3 h-16 w-16 rounded-full border border-white/20' +
+                        (index === 3 && showAnimations ? ' fs-rotate fs-float' : '') +
+                        ' sm:h-24 sm:w-24'
+                      }
+                      aria-hidden="true"
+                    />
+                    {showAnimations && index === 1 && (
+                      <div className="fs-glow" style={{ left: '38%', top: '36%', width: 100, height: 100, zIndex: 8 }} />
+                    )}
+                    <div className="relative z-10 inline-block" style={index === 3 && showAnimations ? { animation: 'fs-fade-in 0.8s ease-out both' } : undefined}>
+                      <h3 className="max-w-[13ch] text-base font-extrabold leading-tight tracking-tight sm:text-xl">
+                        {item.title}
+                      </h3>
+                      {showAnimations && index === 1 && <div className="fs-underline absolute -bottom-2 left-0" />}
+                    </div>
+                    {showAnimations && index === 2 && <div className="fs-shimmer" style={{ zIndex: 8 }} />}
                   </div>
                   <div className="flex min-h-[70px] flex-col justify-center px-3 py-2.5 sm:min-h-[86px] sm:px-4 sm:py-3">
                     <p className="line-clamp-2 text-[10px] leading-4 text-slate-600 sm:text-xs sm:leading-5">

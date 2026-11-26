@@ -533,27 +533,27 @@ export default function InfluencerDashboard() {
         <div className="absolute inset-0 bg-gradient-to-t from-[#080516] via-transparent to-black/50 pointer-events-none" />
 
         {/* Top Header Utilities: Greeting on Left | Change Banner, Search, Notifications, Avatar on Right */}
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 min-w-0">
-          <div className="min-w-0 flex-1">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+          <div className="min-w-0 w-full sm:flex-1">
             <span className="text-[11px] font-bold text-purple-300/80 tracking-wider block mb-0.5 uppercase">
               Creator Dashboard
             </span>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2">
-              <span>Hey {firstName}!</span>
-              <span className="text-xl sm:text-2xl animate-bounce">👋</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2 flex-wrap">
+              <span className="break-words">Hey {firstName}!</span>
+              <span className="text-xl sm:text-2xl animate-bounce shrink-0">👋</span>
             </h1>
-            <p className="text-xs text-neutral-400 font-medium">
+            <p className="text-xs text-neutral-400 font-medium break-words">
               Here&apos;s your creator journey at a glance.
             </p>
           </div>
 
-          {/* Action Utilities (Right side) - Fully responsive, no cut-off */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Action Utilities - below greeting on mobile, right on desktop */}
+          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:shrink-0">
             {/* YouTube/LinkedIn Style Upload Banner Button */}
             <button
               type="button"
               onClick={() => setShowBannerModal(true)}
-              className="h-8 sm:h-9 px-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-md cursor-pointer hover:scale-105 shrink-0"
+              className="h-9 px-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold flex items-center gap-1.5 backdrop-blur-md transition-all shadow-md cursor-pointer hover:scale-[1.02] shrink-0"
               title="Upload or change cover banner like YouTube and LinkedIn"
             >
               <Camera className="w-3.5 h-3.5 text-[#f0449b]" />
@@ -561,22 +561,22 @@ export default function InfluencerDashboard() {
             </button>
 
             {/* Expandable Search Button */}
-            <div className="relative flex items-center">
+            <div className="relative flex items-center min-w-0 flex-1 sm:flex-none">
               {showSearchInput ? (
-                <div className="relative animate-in fade-in duration-200">
+                <div className="relative animate-in fade-in duration-200 w-full sm:w-auto">
                   <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-neutral-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="w-32 sm:w-44 h-8 sm:h-9 pl-7 pr-6 rounded-full bg-black/80 border border-white/20 text-xs text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#be32ff] backdrop-blur-md"
+                    className="w-full min-w-0 sm:w-44 h-9 pl-7 pr-8 rounded-full bg-black/80 border border-white/20 text-xs text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#be32ff] backdrop-blur-md"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={() => { setShowSearchInput(false); setSearchQuery(''); }}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-white"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -585,7 +585,7 @@ export default function InfluencerDashboard() {
                 <button
                   type="button"
                   onClick={() => setShowSearchInput(true)}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white transition-colors cursor-pointer shrink-0"
+                  className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white transition-colors cursor-pointer shrink-0"
                   title="Search opportunities"
                 >
                   <Search className="w-3.5 h-3.5" />
@@ -596,7 +596,7 @@ export default function InfluencerDashboard() {
             {/* Notification Bell */}
             <Link
               href="/influencer/notifications"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white transition-colors relative shrink-0"
+              className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center text-neutral-300 hover:text-white transition-colors relative shrink-0"
               title="Notifications"
             >
               <Bell className="w-3.5 h-3.5" />
@@ -606,7 +606,7 @@ export default function InfluencerDashboard() {
             {/* Profile Avatar Thumbnail */}
             <Link
               href="/influencer/profile"
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full p-0.5 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-md shrink-0 cursor-pointer hover:scale-105 transition-transform"
+              className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-md shrink-0 cursor-pointer hover:scale-105 transition-transform"
               title="View Profile"
             >
               <div className="w-full h-full rounded-full bg-[#0b0c13] overflow-hidden flex items-center justify-center">
@@ -634,10 +634,10 @@ export default function InfluencerDashboard() {
         </div>
 
         {/* Middle Row: Creator Profile Details & DYNAMIC VERIFICATION */}
-        <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 pt-1 min-w-0">
+        <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5 pt-1 min-w-0 text-center sm:text-left">
           {/* Avatar with Neon Glow Ring & Dynamic Badges */}
-          <div className="relative shrink-0">
-            <div className="w-18 h-18 sm:w-22 sm:h-22 rounded-full p-1 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_0_25px_rgba(190,50,255,0.5)]">
+          <div className="relative shrink-0 mx-auto sm:mx-0">
+            <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-full p-1 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-[0_0_25px_rgba(190,50,255,0.5)]">
               <div className="w-full h-full rounded-full bg-[#0b0c13] overflow-hidden">
                 <img
                   src={resolveAvatarUrl(profile?.profile_image) || '/team/avatar-sejal-gupta.webp'}
@@ -660,7 +660,7 @@ export default function InfluencerDashboard() {
             {/* Top-Right Crown Badge: Only for verified creators */}
             {isVerified && (
               <div 
-                className="absolute -top-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-tr from-[#f0449b] to-[#ff6baf] text-white flex items-center justify-center shadow-lg shadow-pink-500/50 ring-2 ring-[#0d0722]"
+                className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-gradient-to-tr from-[#f0449b] to-[#ff6baf] text-white flex items-center justify-center shadow-lg shadow-pink-500/50 ring-2 ring-[#0d0722]"
                 title="Verified Creator"
               >
                 <Crown className="w-3 h-3 fill-white stroke-none" />
@@ -670,14 +670,14 @@ export default function InfluencerDashboard() {
             {/* Bottom-Right Badge: Dynamic depending on actual verification */}
             {isVerified ? (
               <div 
-                className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#10b981] text-white flex items-center justify-center shadow-lg shadow-emerald-500/50 ring-2 ring-[#0d0722]"
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#10b981] text-white flex items-center justify-center shadow-lg shadow-emerald-500/50 ring-2 ring-[#0d0722]"
                 title="Verified Creator Profile"
               >
                 <Check className="w-3 h-3 stroke-[3]" />
               </div>
             ) : isPending ? (
               <div 
-                className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/50 ring-2 ring-[#0d0722]"
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/50 ring-2 ring-[#0d0722]"
                 title="Verification Pending"
               >
                 <Clock className="w-3 h-3 stroke-[2.5]" />
@@ -686,35 +686,35 @@ export default function InfluencerDashboard() {
               <button
                 type="button"
                 onClick={() => setShowSocialModal(true)}
-                className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#1e1136] hover:bg-[#be32ff] border border-pink-500/40 text-pink-300 hover:text-white flex items-center justify-center shadow-lg ring-2 ring-[#0d0722] transition-colors cursor-pointer group"
+                className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#1e1136] hover:bg-[#be32ff] border border-pink-500/40 text-pink-300 hover:text-white flex items-center justify-center shadow-lg ring-2 ring-[#0d0722] transition-colors cursor-pointer group"
                 title="Unverified - Click to connect social accounts"
               >
-                <Sparkles className="w-2.5 h-2.5 sm:w-3 sm:h-3 group-hover:scale-110 transition-transform" />
+                <Sparkles className="w-3 h-3 group-hover:scale-110 transition-transform" />
               </button>
             )}
           </div>
 
           {/* Identity Info */}
-          <div className="space-y-1.5 min-w-0 flex-1">
+          <div className="space-y-1.5 min-w-0 flex-1 w-full">
             {/* Name + Dynamic Verification Badge */}
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-black text-white tracking-tight break-words">
                 {displayName}
               </h2>
 
               {/* Dynamic Badge Display */}
               {isVerified ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-sm backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-sm backdrop-blur-sm shrink-0">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Verified Creator</span>
                 </span>
               ) : isPending ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-sm backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-sm backdrop-blur-sm shrink-0">
                   <Clock className="w-3.5 h-3.5 text-amber-400" />
                   <span>Verification Pending</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 border border-white/20 text-neutral-300 shadow-sm backdrop-blur-sm">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 border border-white/20 text-neutral-300 shadow-sm backdrop-blur-sm shrink-0">
                   <AlertCircle className="w-3.5 h-3.5 text-neutral-400" />
                   <span>Unverified</span>
                 </span>
@@ -722,29 +722,29 @@ export default function InfluencerDashboard() {
             </div>
 
             {/* Handle */}
-            <div className="text-xs sm:text-sm text-neutral-300 font-medium">
+            <div className="text-xs sm:text-sm text-neutral-300 font-medium break-all sm:break-normal">
               @{displayUsername}
             </div>
 
             {/* Niches Individual Tags + Location + Connect Social */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-0.5 text-xs">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-0.5 text-xs">
               {niches.map((n: string, idx: number) => (
-                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-neutral-300 font-medium text-[11px] backdrop-blur-sm">
-                  <Tag className="w-2.5 h-2.5 text-neutral-400" />
-                  <span>{n}</span>
+                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-neutral-300 font-medium text-[11px] backdrop-blur-sm max-w-full">
+                  <Tag className="w-2.5 h-2.5 text-neutral-400 shrink-0" />
+                  <span className="break-words">{n}</span>
                 </span>
               ))}
 
-              <span className="inline-flex items-center gap-1 text-neutral-300 font-medium text-xs ml-0.5">
-                <MapPin className="w-3 h-3 text-[#f0449b]" />
-                <span>{displayLocation}</span>
+              <span className="inline-flex items-center gap-1 text-neutral-300 font-medium text-xs ml-0.5 max-w-full">
+                <MapPin className="w-3 h-3 text-[#f0449b] shrink-0" />
+                <span className="break-words">{displayLocation}</span>
               </span>
 
               {/* Connect Social Accounts Button */}
               <button
                 type="button"
                 onClick={() => setShowSocialModal(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-[11px] font-bold text-purple-200 transition-colors cursor-pointer ml-1"
+                className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-[11px] font-bold text-purple-200 transition-colors cursor-pointer sm:ml-1 shrink-0"
                 title="Manage connected social accounts"
               >
                 <Sparkles className="w-3 h-3 text-[#f0449b]" />
@@ -755,7 +755,7 @@ export default function InfluencerDashboard() {
         </div>
 
         {/* Bottom Row: 4 Dynamic Statistics Cards */}
-        <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 pt-2 min-w-0 w-full">
+        <div className="relative z-10 grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 pt-2 min-w-0 w-full">
           {/* Card 1: Active Collaborations */}
           <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group">
             <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#26133d] border border-[#be32ff]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
@@ -765,7 +765,7 @@ export default function InfluencerDashboard() {
               <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
                 {summary.active_collaborations || 5}
               </div>
-              <p className="text-[11px] text-neutral-400 font-medium mt-1 truncate">Active Collaborations</p>
+              <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Active Collaborations</p>
             </div>
           </div>
 
@@ -778,7 +778,7 @@ export default function InfluencerDashboard() {
               <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
                 {summary.new_opportunities || 3}
               </div>
-              <p className="text-[11px] text-neutral-400 font-medium mt-1 truncate">Collaboration Requests</p>
+              <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Collaboration Requests</p>
             </div>
           </div>
 
@@ -788,10 +788,10 @@ export default function InfluencerDashboard() {
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#fbbf24]" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
+              <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight break-words">
                 ₹{summary.total_earnings ? summary.total_earnings.toLocaleString() : '45,000'}
               </div>
-              <p className="text-[11px] text-neutral-400 font-medium mt-1 truncate">Total Earnings</p>
+              <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Total Earnings</p>
             </div>
           </div>
 
@@ -804,7 +804,7 @@ export default function InfluencerDashboard() {
               <div className="text-xl sm:text-2xl font-black text-white leading-none tracking-tight truncate">
                 {completionPercent}%
               </div>
-              <p className="text-[11px] text-neutral-400 font-medium mt-1 truncate">Profile Score</p>
+              <p className="text-[11px] text-neutral-300 font-medium mt-1 break-words leading-snug">Profile Score</p>
             </div>
           </div>
         </div>
@@ -972,19 +972,19 @@ export default function InfluencerDashboard() {
 
             <div className="space-y-2.5">
               {/* Item 1 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
                     R
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white truncate">The Roastery &ndash; Brunch Tasting Reel</h4>
-                    <span className="text-[10px] text-emerald-400 font-semibold block truncate">In Progress &bull; Due in 3 days</span>
+                    <h4 className="text-xs font-bold text-white break-words sm:truncate">The Roastery &ndash; Brunch Tasting Reel</h4>
+                    <span className="text-[10px] text-emerald-400 font-semibold block break-words">In Progress &bull; Due in 3 days</span>
                   </div>
                 </div>
                 <Link
                   href="/influencer/chats?brand=The%20Roastery"
-                  className="h-7 px-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-200 hover:text-white flex items-center gap-1 transition-colors shrink-0"
+                  className="h-auto min-h-7 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-200 hover:text-white flex items-center justify-center gap-1 transition-colors shrink-0 whitespace-nowrap self-start sm:self-auto"
                 >
                   <MessageSquare className="w-3 h-3 text-[#be32ff]" />
                   <span>Message Business</span>
@@ -992,19 +992,19 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Item 2 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
                     A
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white truncate">Anokhi Boutique &ndash; Summer Lookbook</h4>
-                    <span className="text-[10px] text-amber-400 font-semibold block truncate">Pending Review &bull; Submitted</span>
+                    <h4 className="text-xs font-bold text-white break-words sm:truncate">Anokhi Boutique &ndash; Summer Lookbook</h4>
+                    <span className="text-[10px] text-amber-400 font-semibold block break-words">Pending Review &bull; Submitted</span>
                   </div>
                 </div>
                 <Link
                   href="/influencer/chats?brand=Anokhi"
-                  className="h-7 px-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-200 hover:text-white flex items-center gap-1 transition-colors shrink-0"
+                  className="h-auto min-h-7 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-200 hover:text-white flex items-center justify-center gap-1 transition-colors shrink-0 whitespace-nowrap self-start sm:self-auto"
                 >
                   <MessageSquare className="w-3 h-3 text-[#be32ff]" />
                   <span>Message Business</span>
@@ -1012,19 +1012,19 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Item 3 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-black text-white shrink-0">
                     O
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-white truncate">Ozone Fitness &ndash; Workout Reel</h4>
-                    <span className="text-[10px] text-purple-400 font-semibold block truncate">Completed &bull; Payout Credited</span>
+                    <h4 className="text-xs font-bold text-white break-words sm:truncate">Ozone Fitness &ndash; Workout Reel</h4>
+                    <span className="text-[10px] text-purple-400 font-semibold block break-words">Completed &bull; Payout Credited</span>
                   </div>
                 </div>
                 <Link
                   href="/influencer/collaborations"
-                  className="h-7 px-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-300 flex items-center gap-1 transition-colors shrink-0"
+                  className="h-auto min-h-7 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-bold text-neutral-300 flex items-center justify-center gap-1 transition-colors shrink-0 whitespace-nowrap self-start sm:self-auto"
                 >
                   <span>Details</span>
                   <ChevronRight className="w-3 h-3" />
@@ -1063,26 +1063,26 @@ export default function InfluencerDashboard() {
             {/* Metrics 2x2 Grid */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
-                <span className="text-[10px] text-neutral-400 font-medium truncate block">Total Reach</span>
-                <p className="text-base sm:text-lg font-black text-white truncate">85.4K</p>
+                <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Total Reach</span>
+                <p className="text-base sm:text-lg font-black text-white break-words">85.4K</p>
                 <span className="text-[9px] text-emerald-400 font-semibold block">+14.2%</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
-                <span className="text-[10px] text-neutral-400 font-medium truncate block">Avg. Engagement</span>
-                <p className="text-base sm:text-lg font-black text-[#f0449b] truncate">4.82%</p>
+                <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Avg. Engagement</span>
+                <p className="text-base sm:text-lg font-black text-[#f0449b] break-words">4.82%</p>
                 <span className="text-[9px] text-neutral-400 block">Industry: 2.1%</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
-                <span className="text-[10px] text-neutral-400 font-medium truncate block">Followers</span>
-                <p className="text-base sm:text-lg font-black text-white truncate">42.8K</p>
+                <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Followers</span>
+                <p className="text-base sm:text-lg font-black text-white break-words">42.8K</p>
                 <span className="text-[9px] text-emerald-400 font-semibold block">+340 this week</span>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
-                <span className="text-[10px] text-neutral-400 font-medium truncate block">Profile Views</span>
-                <p className="text-base sm:text-lg font-black text-[#be32ff] truncate">1,420</p>
+                <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Profile Views</span>
+                <p className="text-base sm:text-lg font-black text-[#be32ff] break-words">1,420</p>
                 <span className="text-[9px] text-neutral-400 block">By 48 businesses</span>
               </div>
             </div>
@@ -1126,7 +1126,7 @@ export default function InfluencerDashboard() {
               <div className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white/[0.01]">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <span className="w-2 h-2 rounded-full bg-[#f0449b] shrink-0" />
-                  <span className="text-neutral-200 truncate">New collaboration request from <strong className="text-white">The Roastery Coffee House</strong></span>
+                  <span className="text-neutral-200 break-words min-w-0">New collaboration request from <strong className="text-white">The Roastery Coffee House</strong></span>
                 </div>
                 <span className="text-[10px] text-neutral-500 shrink-0">1h ago</span>
               </div>
@@ -1134,7 +1134,7 @@ export default function InfluencerDashboard() {
               <div className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white/[0.01]">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <MessageSquare className="w-3.5 h-3.5 text-[#be32ff] shrink-0" />
-                  <span className="text-neutral-200 truncate">New message from <strong className="text-white">Anokhi Boutique</strong></span>
+                  <span className="text-neutral-200 break-words min-w-0">New message from <strong className="text-white">Anokhi Boutique</strong></span>
                 </div>
                 <span className="text-[10px] text-neutral-500 shrink-0">3h ago</span>
               </div>
@@ -1142,7 +1142,7 @@ export default function InfluencerDashboard() {
               <div className="flex items-start justify-between gap-2 p-2 rounded-lg bg-white/[0.01]">
                 <div className="flex items-center gap-2.5 min-w-0">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                  <span className="text-neutral-200 truncate">Deliverables approved by <strong className="text-white">Ozone Fitness Club</strong></span>
+                  <span className="text-neutral-200 break-words min-w-0">Deliverables approved by <strong className="text-white">Ozone Fitness Club</strong></span>
                 </div>
                 <span className="text-[10px] text-neutral-500 shrink-0">Yesterday</span>
               </div>
@@ -1163,7 +1163,7 @@ export default function InfluencerDashboard() {
                 className="p-3 rounded-xl bg-[#11121d] hover:bg-white/[0.05] border border-white/10 text-xs font-bold text-white flex items-center gap-2 transition-all group min-w-0"
               >
                 <Send className="w-3.5 h-3.5 text-[#f0449b] group-hover:scale-110 transition-transform shrink-0" />
-                <span className="truncate">Explore Businesses</span>
+                <span className="break-words leading-snug">Explore Businesses</span>
               </Link>
 
               <Link
@@ -1172,7 +1172,7 @@ export default function InfluencerDashboard() {
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <MessageSquare className="w-3.5 h-3.5 text-[#be32ff] group-hover:scale-110 transition-transform shrink-0" />
-                  <span className="truncate">Open Chats</span>
+                  <span className="break-words leading-snug">Open Chats</span>
                 </div>
                 {unreadCount > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full text-[10px] font-black bg-[#f0449b] text-white shrink-0">
@@ -1186,7 +1186,7 @@ export default function InfluencerDashboard() {
                 className="p-3 rounded-xl bg-[#11121d] hover:bg-white/[0.05] border border-white/10 text-xs font-bold text-white flex items-center gap-2 transition-all group min-w-0"
               >
                 <FolderGit2 className="w-3.5 h-3.5 text-emerald-400 group-hover:scale-110 transition-transform shrink-0" />
-                <span className="truncate">Update Portfolio</span>
+                <span className="break-words leading-snug">Update Portfolio</span>
               </Link>
 
               <Link
@@ -1194,7 +1194,7 @@ export default function InfluencerDashboard() {
                 className="p-3 rounded-xl bg-gradient-to-r from-[#be32ff]/20 to-[#f0449b]/20 hover:from-[#be32ff]/30 hover:to-[#f0449b]/30 border border-[#be32ff]/40 text-xs font-bold text-white flex items-center gap-2 transition-all group min-w-0"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#fc9a5d] group-hover:rotate-12 transition-transform shrink-0" />
-                <span className="truncate">Create with AI</span>
+                <span className="break-words leading-snug">Create with AI</span>
               </Link>
             </div>
           </div>

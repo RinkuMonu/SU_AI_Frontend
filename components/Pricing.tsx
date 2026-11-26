@@ -255,7 +255,7 @@ export function Pricing() {
   const currentPricing = activePlan.pricing[billingCycle];
 
   return (
-    <section id="pricing" className="w-full max-w-full pt-10 sm:pt-14 pb-14 sm:pb-20 relative bg-white overflow-hidden border-t border-slate-100 scroll-mt-24">
+    <section id="pricing" className="w-full max-w-full pt-10 sm:pt-14 pb-14 sm:pb-20 relative bg-white border-t border-slate-100 scroll-mt-32">
       {/* Soft ambient background glow effects */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[300px] bg-orange-100/30 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-100/30 blur-[130px] rounded-full pointer-events-none" />
@@ -274,7 +274,7 @@ export function Pricing() {
           <h2 className="text-2xl sm:text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2.5">
             Predictable Pricing, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff]">Zero Surprises</span>
           </h2>
-          <p className="text-xs sm:text-sm md:text-base text-slate-500 max-w-xl mx-auto font-medium leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-slate-500 max-w-xl mx-auto font-medium leading-relaxed">
             Choose the plan that fits your business stage. Upgrade, downgrade, or cancel anytime.
           </p>
 

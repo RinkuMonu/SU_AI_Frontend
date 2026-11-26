@@ -415,7 +415,7 @@ export default function FestivalEnginePage() {
                 Launch Festival Engine <PartyPopper className="w-5 h-5" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-16 px-8 text-base rounded-full border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold" asChild>
+            <Button size="lg" variant="outline" className="h-16 px-8 text-base rounded-full border-slate-300 hover:bg-slate-800 text-white font-semibold" asChild>
               <a href="#interactive-simulator">
                 Test Festival Demo <Sparkles className="w-4 h-4 ml-2 text-amber-500" />
               </a>

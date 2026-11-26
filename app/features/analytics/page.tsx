@@ -812,7 +812,7 @@ export default function AnalyticsPage() {
           <p className="text-slate-400 text-lg max-w-2xl mx-auto mb-10">
             Track your entire content engine, evaluate your marketing score, and double down on what actually drives sales with DhandaGrow AI Analytics.
           </p>
-          <Button size="lg" className="h-16 px-12 text-lg rounded-full bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white font-bold shadow-xl shadow-cyan-500/25 border-0" asChild>
+          <Button size="lg" className="w-full sm:w-auto max-w-[320px] sm:max-w-none mx-auto sm:mx-0 min-h-[56px] sm:h-16 px-6 sm:px-12 text-base sm:text-lg rounded-full bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white font-bold shadow-xl shadow-cyan-500/25 border-0 flex items-center justify-center gap-2" asChild>
             <Link href="/login/user">
               Access Your Analytics Dashboard <ArrowRight className="w-5 h-5 ml-2" />
             </Link>

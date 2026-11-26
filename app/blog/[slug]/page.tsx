@@ -4,6 +4,7 @@ import { blogPosts } from '@/data/blog';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { ShareBar } from '@/components/blog/ShareBar';
+import { CountUpValue } from '@/components/blog/CountUpValue';
 import Image from 'next/image';
 import Link from 'next/link';
 import { 
@@ -112,9 +113,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   key={idx} 
                   className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm text-center flex flex-col items-center justify-center transition-all hover:border-purple-300 hover:shadow-md"
                 >
-                  <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-[#7d36fa] to-[#f0449b] bg-clip-text text-transparent tracking-tight">
-                    {stat.value}
-                  </span>
+                  <CountUpValue
+                    value={stat.value}
+                    index={idx}
+                    className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-[#7d36fa] to-[#f0449b] bg-clip-text text-transparent tracking-tight"
+                  />
                   <span className="text-xs font-bold text-slate-900 mt-1 uppercase tracking-wider">
                     {stat.label}
                   </span>

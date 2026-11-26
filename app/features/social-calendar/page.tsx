@@ -37,58 +37,70 @@ export default function SocialCalendarPage() {
       <section className="pb-24 px-4 sm:px-6 lg:px-8 max-w-[1400px] mx-auto">
         <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden flex flex-col">
           {/* Calendar Header */}
-          <div className="h-16 border-b border-slate-100 flex items-center justify-between px-6 bg-slate-50">
-             <div className="flex items-center gap-4">
-                <h3 className="text-lg font-bold">October 2026</h3>
+          <div className="flex flex-col sm:flex-row items-center sm:justify-between gap-3 sm:gap-0 px-6 sm:px-6 bg-slate-50 border-b border-slate-100 h-auto">
+             <div className="flex items-center gap-3 sm:gap-4">
+                <h3 className="text-lg sm:text-xl font-bold">October 2026</h3>
                 <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-                  <div className="px-3 py-1 bg-slate-100 rounded text-sm font-semibold">Month</div>
-                  <div className="px-3 py-1 text-slate-500 rounded text-sm font-medium hover:bg-slate-50 cursor-pointer">Week</div>
+                  <div className="px-2 sm:px-3 py-1 bg-slate-100 rounded text-xs sm:text-sm font-semibold">Month</div>
+                  <div className="px-2 sm:px-3 py-1 text-slate-500 rounded text-xs sm:text-sm font-medium hover:bg-slate-50 cursor-pointer">Week</div>
                 </div>
              </div>
-             <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" className="h-9 gap-2 font-semibold">
-                  <LayoutGrid className="w-4 h-4" /> Board View
+             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <Button variant="outline" size="sm" className="h-8 sm:h-9 gap-2 font-semibold text-xs sm:text-sm shrink-0">
+                  <LayoutGrid className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> Board View
                 </Button>
-                <Button size="sm" className="h-9 gap-2 bg-orange-600 hover:bg-orange-500 font-semibold text-white">
-                  <Plus className="w-4 h-4" /> New Post
+                <Button size="sm" className="h-8 sm:h-9 gap-2 bg-orange-600 hover:bg-orange-500 font-semibold text-white text-xs sm:text-sm shrink-0">
+                  <Plus className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> New Post
                 </Button>
              </div>
           </div>
           
           {/* Calendar Grid */}
-          <div className="flex-1 bg-slate-50/50 p-6">
-            <div className="grid grid-cols-7 gap-4">
+          <div className="flex-1 bg-slate-50/50 p-3 sm:p-6 overflow-x-hidden">
+            <div className="grid grid-cols-7 gap-2 sm:gap-4">
               {/* Days Header */}
-              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
-                <div key={day} className="text-xs font-bold text-slate-400 uppercase tracking-wider text-center mb-2">{day}</div>
+              {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day, idx) => (
+                <div key={day} className="text-center mb-1 sm:mb-2">
+                  <span className="inline sm:hidden text-[9px] font-bold text-slate-400">{'MTWTFSS'[idx]}</span>
+                  <span className="hidden sm:inline text-xs sm:text-sm font-bold text-slate-400 uppercase tracking-wider">{day}</span>
+                </div>
               ))}
               
               {/* Fake Calendar Cells */}
               {Array.from({ length: 14 }).map((_, i) => (
-                <div key={i} className={`min-h-[120px] bg-white rounded-xl border border-slate-100 p-2 flex flex-col gap-2 ${i === 3 ? 'ring-2 ring-orange-500 ring-offset-2' : ''} hover:border-orange-200 transition-colors cursor-pointer group relative`}>
+                <div key={i} className={`min-h-[80px] sm:min-h-[120px] bg-white rounded-xl border border-slate-100 p-1 sm:p-2 flex flex-col gap-1 sm:gap-2 ${i === 3 ? 'ring-2 ring-orange-500 ring-offset-2' : ''} hover:border-orange-200 transition-colors cursor-pointer group relative`}>
                   <div className="flex justify-between items-start">
-                    <span className={`text-sm font-bold ${i === 3 ? 'text-orange-600 bg-orange-50 w-6 h-6 rounded-full flex items-center justify-center' : 'text-slate-400'}`}>{i + 1}</span>
-                    <MoreHorizontal className="w-4 h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <span className={`text-[10px] sm:text-sm font-bold ${i === 3 ? 'text-orange-600 bg-orange-50 w-5 sm:w-6 h-5 sm:h-6 rounded-full flex items-center justify-center' : 'text-slate-400'}`}>{i + 1}</span>
+                    <MoreHorizontal className="w-3 sm:w-4 h-3 sm:h-4 text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
                   
-                  {/* Fake Post Cards */}
+                  {/* Posts: colored dot on mobile, full card on tablet+ */}
                   {i === 1 && (
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-2 flex flex-col gap-1">
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-blue-600 uppercase"><Clock className="w-3 h-3" /> 10:00 AM</div>
-                      <span className="text-xs font-semibold text-slate-700 truncate">Product Launch Carousel</span>
-                    </div>
+                    <>
+                      <div className="flex sm:hidden w-2 h-2 rounded-full bg-blue-600 mx-auto mt-1" />
+                      <div className="hidden sm:flex bg-blue-50 border border-blue-100 rounded-lg p-1.5 sm:p-2 flex flex-col gap-1">
+                        <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-blue-600 uppercase"><Clock className="w-2.5 sm:w-3 h-2.5 sm:h-3" /> 10:00 AM</div>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-700 truncate">Product Launch Carousel</span>
+                      </div>
+                    </>
                   )}
                   {i === 3 && (
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-2 flex flex-col gap-1 shadow-sm">
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-orange-600 uppercase"><Bell className="w-3 h-3" /> 6:00 PM (Optimal)</div>
-                      <span className="text-xs font-semibold text-slate-900 line-clamp-2">Diwali Mega Sale Announcement Reel</span>
-                    </div>
+                    <>
+                      <div className="flex sm:hidden w-2 h-2 rounded-full bg-orange-500 mx-auto mt-1" />
+                      <div className="hidden sm:flex bg-orange-50 border border-orange-200 rounded-lg p-1.5 sm:p-2 flex flex-col gap-1 shadow-sm">
+                        <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-orange-600 uppercase"><Bell className="w-2.5 sm:w-3 h-2.5 sm:h-3" /> 6:00 PM (Optimal)</div>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-900 line-clamp-2">Diwali Mega Sale Announcement Reel</span>
+                      </div>
+                    </>
                   )}
                   {i === 5 && (
-                    <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-2 flex flex-col gap-1">
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 uppercase"><CheckCircle2 className="w-3 h-3" /> Published</div>
-                      <span className="text-xs font-semibold text-slate-700 truncate">Customer Testimonial</span>
-                    </div>
+                    <>
+                      <div className="flex sm:hidden w-2 h-2 rounded-full bg-emerald-500 mx-auto mt-1" />
+                      <div className="hidden sm:flex bg-emerald-50 border border-emerald-100 rounded-lg p-1.5 sm:p-2 flex flex-col gap-1">
+                        <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase"><CheckCircle2 className="w-2.5 sm:w-3 h-2.5 sm:h-3" /> Published</div>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-700 truncate">Customer Testimonial</span>
+                      </div>
+                    </>
                   )}
                 </div>
               ))}

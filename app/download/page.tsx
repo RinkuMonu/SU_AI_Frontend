@@ -3,12 +3,73 @@ import { Navbar } from '@/components/Navbar';
 import { PhoneModel } from '@/components/PhoneModel';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { ShieldCheck, Layers, RefreshCw, MessageSquare, Image as ImageIcon, Video, Code, FileText, Mic, CheckCircle2, Download, Search, Play, ChevronLeft, ChevronRight, Star, Plus, ArrowRight, Zap, TrendingUp } from 'lucide-react';
 import Image from 'next/image';
 
 export default function DownloadPage() {
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+  const [stepPx, setStepPx] = useState(264); // default: 240 + 24 gap
+  const [maxIndex, setMaxIndex] = useState(0);
+  const [cardWidth, setCardWidth] = useState(0);
+  const [reduceMotion, setReduceMotion] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  );
+
+  const cards = [
+    { title: "AI Chat", desc: "Get instant answers and creative ideas", color: "bg-blue-600", image: "/images/about-analytics.jpg" },
+    { title: "Image Generation", desc: "Turn your imagination into reality", color: "bg-purple-600", image: "/images/about-reels.jpg" },
+    { title: "Video Creation", desc: "Generate high-quality videos in seconds", color: "bg-pink-600", image: "/images/about-campaigns.jpg" },
+    { title: "Code Assistant", desc: "Write, debug and learn code easily", color: "bg-emerald-600", image: "/images/about-social-posts.jpg" },
+    { title: "Document Tools", desc: "Work smarter with your documents", color: "bg-orange-600", image: "/images/about-calendar.jpg" },
+    { title: "Voice Assistant", desc: "Talk naturally and get instant replies", color: "bg-teal-600", image: "/images/download/voice.jpg" },
+    { title: "Data Analysis", desc: "Turn your data into clear insights", color: "bg-amber-600", image: "/images/download/data.jpg" },
+    { title: "Translation", desc: "Break language barriers in seconds", color: "bg-indigo-600", image: "/images/download/translate.jpg" }
+  ];
+
+  const [maxTranslate, setMaxTranslate] = useState(0);
+
+  const measure = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    const row = carouselRef.current;
+    if (!wrapper || !row) return;
+    const gap = 16;
+    const wrapperWidth = wrapper.clientWidth;
+    const visibleCount = wrapperWidth < 640 ? 1 : wrapperWidth < 1024 ? 2 : 3;
+    const slotWidth = Math.max(120, (wrapperWidth - gap * (visibleCount - 1)) / visibleCount);
+    const step = slotWidth + gap;
+    setCardWidth(slotWidth);
+    setStepPx(step);
+    const rowWidth = row.scrollWidth;
+    const maxTrans = Math.max(0, rowWidth - wrapperWidth);
+    setMaxTranslate(maxTrans);
+    const newMaxIndex = Math.max(0, cards.length - visibleCount);
+    setMaxIndex(newMaxIndex);
+    if (index > newMaxIndex) {
+      setIndex(newMaxIndex);
+    }
+  }, [index, cards.length]);
+
+  useEffect(() => {
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [measure]);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = () => setReduceMotion(mq.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const currentTranslate = Math.min(index * stepPx, maxTranslate);
+
+  const goPrev = () => setIndex(i => Math.max(0, i - 1));
+  const goNext = () => setIndex(i => Math.min(maxIndex, i + 1));
 
   const faqs = [
     { question: "Is the DhandaGrow app free to use?", answer: "Yes, the basic version is free." },
@@ -20,7 +81,8 @@ export default function DownloadPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-[#f8f9fc] selection:bg-primary/30 selection:text-white pb-0">
+    <>
+      <main className="min-h-screen bg-[#f8f9fc] selection:bg-primary/30 selection:text-white pb-0">
       <Navbar />
       
       {/* Hero Section */}
@@ -71,53 +133,55 @@ export default function DownloadPage() {
                 </div>
               </div>
               
-              <div className="flex flex-col sm:flex-row items-center gap-4 mb-8 w-full">
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 mb-8 w-full">
                 <a
                   href="https://play.google.com/store/apps/details?id=com.dhandagrow"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center"
+                  className="h-14 w-full max-w-[240px] sm:w-auto sm:max-w-none bg-black border border-white/20 rounded-xl px-5 flex items-center justify-center gap-3 hover:scale-105 transition-transform "
                 >
-                  <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M3.609 1.814L13.792 12 3.61 22.186c-.164-.176-.265-.436-.265-.746V2.56c0-.31.101-.57.264-.746zm10.978 10.932l2.368 2.368-4.887 2.822-1.996-1.996 4.515-3.194zm4.515-3.194l-4.515-3.194 1.996-1.996 4.887 2.822-2.368 2.368zm-5.836 2.477L2.83 2.593c.189-.115.424-.182.68-.182.235 0 .452.057.632.155l14.863 8.58-5.74 5.883zM3.51 22.775c.18.098.397.155.632.155.256 0 .491-.067.68-.182l14.863-8.58-5.74-5.883-10.435 14.49z"/>
                   </svg>
-                  <div className="flex flex-col items-start">
-                    <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none">GET IT ON</span>
-                    <span className="text-xl text-white font-semibold leading-tight">Google Play</span>
+                  <div className="flex flex-col items-start gap-0.5 text-left">
+                    <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none whitespace-nowrap">GET IT ON</span>
+                    <span className="text-lg text-white font-semibold leading-tight whitespace-nowrap">Google Play</span>
                   </div>
                 </a>
                 <a
                   href="https://apps.apple.com/app/idcom.dhandagrow"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="h-[60px] bg-black rounded-xl px-6 flex items-center gap-3 hover:scale-105 transition-transform w-full sm:w-auto justify-center"
+                  className="h-14 w-full max-w-[240px] sm:w-auto sm:max-w-none bg-black border border-white/20 rounded-xl px-5 flex items-center justify-center gap-3 hover:scale-105 transition-transform"
                 >
-                  <svg viewBox="0 0 24 24" className="w-8 h-8 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
+                  <svg viewBox="0 0 24 24" className="w-7 h-7 shrink-0 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.03 2.88.54 3.92 1.44-2.58 1.63-2.12 4.79.52 5.86-1.01 2.36-2.1 4.54-3.02 5.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
                   </svg>
-                  <div className="flex flex-col items-start">
-                    <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none">Download on the</span>
-                    <span className="text-xl text-white font-semibold leading-tight">App Store</span>
+                  <div className="flex flex-col items-start gap-0.5 text-left">
+                    <span className="text-[10px] text-white/80 font-medium uppercase tracking-wider leading-none whitespace-nowrap">Download on the</span>
+                    <span className="text-lg text-white font-semibold leading-tight whitespace-nowrap">App Store</span>
                   </div>
                 </a>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+              <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-6 mt-5">
                 <div className="flex items-center gap-4 bg-white p-2 pr-6 rounded-2xl shadow-sm border border-slate-100">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://su-ai.com/download" alt="QR Code" className="w-16 h-16 rounded-xl" />
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=8&data=https://su-ai.com/download" alt="QR Code" className="w-16 h-16 shrink-0 rounded-md bg-white object-contain p-1" />
                   <div className="flex flex-col">
                     <span className="text-sm font-bold text-slate-900">Scan QR Code</span>
                     <span className="text-xs text-slate-500">to Download App</span>
                   </div>
                 </div>
-                <div className="flex flex-col hidden sm:flex">
-                  <div className="flex -space-x-2 mb-1">
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex -space-x-2">
                     <img src="https://i.pravatar.cc/100?img=1" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
                     <img src="https://i.pravatar.cc/100?img=2" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
                     <img src="https://i.pravatar.cc/100?img=3" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
                   </div>
-                  <span className="text-[11px] font-semibold text-slate-600">Trusted by <span className="text-slate-900">1M+ users</span></span>
-                  <span className="text-[11px] text-slate-500">worldwide</span>
+                  <div className="text-center">
+  <span className="block text-[11px] font-semibold text-slate-600">Trusted by <span className="text-slate-900">1M+ users</span></span>
+  <span className="block text-[11px] text-slate-500">worldwide</span>
+</div>
                 </div>
               </div>
             </div>
@@ -270,34 +334,34 @@ export default function DownloadPage() {
                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://su-ai.com/download" alt="QR Code" className="w-32 h-32" />
                   </div>
                   
-                  <div className="flex flex-col sm:flex-row gap-4 relative z-10 w-full max-w-[320px]">
-                     <a
-                        href="https://play.google.com/store/apps/details?id=com.dhandagrow"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4"
-                     >
-                        <Play className="w-4 h-4 text-white fill-current" />
-                        <div className="flex flex-col items-start">
-                           <span className="text-[8px] text-white/80 font-medium leading-none">GET IT ON</span>
-                           <span className="text-sm text-white font-semibold leading-tight whitespace-nowrap">Google Play</span>
-                        </div>
-                     </a>
-                     <a
-                        href="https://apps.apple.com/app/idcom.dhandagrow"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="h-[48px] bg-black rounded-xl flex-1 flex items-center justify-center gap-2 hover:scale-105 transition-transform px-4"
-                     >
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.03 2.88.54 3.92 1.44-2.58 1.63-2.12 4.79.52 5.86-1.01 2.36-2.1 4.54-3.02 5.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-                        </svg>
-                        <div className="flex flex-col items-start">
-                           <span className="text-[8px] text-white/80 font-medium leading-none">Download on the</span>
-                           <span className="text-sm text-white font-semibold leading-tight whitespace-nowrap">App Store</span>
-                        </div>
-                     </a>
-                  </div>
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 relative z-10 w-full max-w-[260px] sm:max-w-[320px]">
+  <a
+    href="https://play.google.com/store/apps/details?id=com.dhandagrow"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="h-14 w-full sm:w-auto sm:flex-1 bg-black border border-white/20 rounded-xl flex items-center justify-center gap-3 px-4 hover:scale-105 transition-transform"
+  >
+    <Play className="w-6 h-6 shrink-0 text-white fill-current" />
+    <div className="flex flex-col items-start gap-0.5">
+      <span className="text-[10px] text-white/80 font-medium uppercase leading-none whitespace-nowrap">GET IT ON</span>
+      <span className="text-base text-white font-semibold leading-tight whitespace-nowrap">Google Play</span>
+    </div>
+  </a>
+  <a
+    href="https://apps.apple.com/app/idcom.dhandagrow"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="h-14 w-full sm:w-auto sm:flex-1 bg-black border border-white/20 rounded-xl flex items-center justify-center gap-3 px-4 hover:scale-105 transition-transform"
+  >
+    <svg viewBox="0 0 24 24" className="w-6 h-6 shrink-0 text-white fill-current" xmlns="http://www.w3.org/2000/svg">
+      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.19 2.31-.88 3.5-.8 1.56.03 2.88.54 3.92 1.44-2.58 1.63-2.12 4.79.52 5.86-1.01 2.36-2.1 4.54-3.02 5.67zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+    </svg>
+    <div className="flex flex-col items-start gap-0.5">
+      <span className="text-[10px] text-white/80 font-medium uppercase leading-none whitespace-nowrap">Download on the</span>
+      <span className="text-base text-white font-semibold leading-tight whitespace-nowrap">App Store</span>
+    </div>
+  </a>
+</div>
                </div>
             </div>
           </div>
@@ -316,96 +380,101 @@ export default function DownloadPage() {
             </p>
           </div>
           
-          <div className="relative">
-            <div className="flex justify-center items-center gap-6 overflow-hidden py-10 px-4">
-              {/* Dummy Screenshots Carousel */}
-              {[
-                { title: "AI Chat", desc: "Get instant answers and creative ideas", color: "bg-blue-600", image: "/images/about-analytics.jpg" },
-                { title: "Image Generation", desc: "Turn your imagination into reality", color: "bg-purple-600", image: "/images/about-reels.jpg" },
-                { title: "Video Creation", desc: "Generate high-quality videos in seconds", color: "bg-pink-600", image: "/images/about-campaigns.jpg" },
-                { title: "Code Assistant", desc: "Write, debug and learn code easily", color: "bg-emerald-600", image: "/images/about-social-posts.jpg" },
-                { title: "Document Tools", desc: "Work smarter with your documents", color: "bg-orange-600", image: "/images/about-calendar.jpg" }
-              ].map((item, idx) => (
-                <div key={idx} className="flex flex-col items-center min-w-[240px] hidden md:flex">
-                  <div className="w-[240px] h-[500px] bg-slate-900 rounded-[35px] border-[6px] border-black shadow-2xl relative mb-6 overflow-hidden">
-                    <div className="absolute top-0 w-full h-5 bg-black rounded-b-2xl z-10 mx-auto left-0 right-0 max-w-[100px]" />
-                    <div className={`w-full h-full bg-slate-900 flex flex-col p-4 pt-10`}>
-                       {/* Mock UI */}
-                       <div className="w-full flex items-center justify-between mb-4 relative z-10">
-                          <ChevronLeft className="w-5 h-5 text-white/50" />
-                          <span className="text-white text-sm font-semibold">{item.title}</span>
-                          <div className="w-5 h-5" />
-                       </div>
-                       <div className="flex-1 rounded-2xl bg-slate-800 border border-white/5 overflow-hidden flex items-center justify-center relative z-10">
-                          <img src={item.image} alt="mock" className="w-full h-full object-cover opacity-60" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                          
-                          {/* Floating UI Elements based on title */}
-                          {item.title === 'Video Creation' && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
-                              <Play className="w-5 h-5 text-white fill-current" />
-                            </div>
-                          )}
-                          {item.title === 'Code Assistant' && (
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 p-3 bg-slate-800 rounded-lg border border-slate-700 shadow-xl">
-                              <div className="h-2 w-16 bg-blue-500 rounded mb-2"></div>
-                              <div className="h-2 w-20 bg-green-400 rounded mb-2"></div>
-                              <div className="h-2 w-12 bg-purple-400 rounded"></div>
-                            </div>
-                          )}
-                       </div>
-                       
-                       <div className="mt-4 flex gap-2 relative z-10">
-                          <div className="flex-1 bg-slate-800 rounded-xl h-10 flex items-center px-3 border border-slate-700">
-                            <span className="text-white/30 text-[10px]">Type a message...</span>
+<div className="relative px-4 sm:px-6 lg:px-14">
+              <button
+                className={`absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 z-20 hidden sm:flex ${
+                  index === 0 ? 'opacity-40 cursor-not-allowed' : ''
+                }`}
+                aria-label="Previous"
+                disabled={index === 0}
+                onClick={goPrev}
+              >
+                <ChevronLeft className="w-6 h-6 text-slate-700" />
+              </button>
+              <button
+                className={`absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 z-20 hidden sm:flex ${
+                  currentTranslate >= maxTranslate - 1 ? 'opacity-40 cursor-not-allowed' : ''
+                }`}
+                aria-label="Next"
+                disabled={currentTranslate >= maxTranslate - 1}
+                onClick={goNext}
+              >
+                <ChevronRight className="w-6 h-6 text-slate-700" />
+              </button>
+              <div ref={wrapperRef} className="overflow-x-hidden relative">
+             <div
+               ref={carouselRef}
+               className={`flex justify-start items-start gap-4 py-10 ${reduceMotion ? 'transition-none' : 'transition-transform duration-500 ease-in-out'}`}
+               style={{ gap: 16, transform: `translateX(-${currentTranslate}px)` }}
+             >
+               {cards.map((item, idx) => (
+                                    <div key={idx} className="flex flex-col items-center shrink-0" style={{ width: cardWidth || 240 }}>
+                   <div className="w-[240px] h-[500px] bg-slate-900 rounded-[35px] border-[6px] border-black shadow-2xl relative mb-6 overflow-hidden group">
+                     <div className="absolute top-0 w-full h-5 bg-black rounded-b-2xl z-10 mx-auto left-0 right-0 max-w-[100px]" />
+                     <div className={`w-full h-full bg-slate-900 flex flex-col p-4 pt-10`}>
+                        {/* Mock UI */}
+                        <div className="w-full flex items-center justify-between mb-4 relative z-10">
+                           <ChevronLeft className="w-5 h-5 text-white/50" />
+                           <span className="text-white text-sm font-semibold">{item.title}</span>
+                           <div className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 rounded-2xl bg-slate-800 border border-white/5 overflow-hidden flex items-center justify-center relative z-10 group-hover:-translate-y-1 transition-transform duration-300">
+                            <img src={item.image} alt={item.title} className="w-full h-full object-cover opacity-60" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
+                            {/* Existing floating UI elements */}
+                            {item.title === 'Video Creation' && (
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                                <Play className="w-5 h-5 text-white fill-current" />
+                              </div>
+                            )}
+                            {item.title === 'Code Assistant' && (
+                              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 p-3 bg-slate-800 rounded-lg border border-slate-700 shadow-xl">
+                                <div className="h-2 w-16 bg-blue-500 rounded mb-2"></div>
+                                <div className="h-2 w-20 bg-green-400 rounded mb-2"></div>
+                                <div className="h-2 w-12 bg-purple-400 rounded"></div>
+                              </div>
+                            )}
                           </div>
-                          <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center`}>
-                             <ArrowRight className="w-4 h-4 text-white" />
-                          </div>
-                       </div>
-                    </div>
-                  </div>
-                  <h4 className="font-bold text-slate-900">{item.title}</h4>
-                  <p className="text-[11px] text-slate-500 text-center w-[200px]">{item.desc}</p>
-                </div>
-              ))}
-              
-              {/* Mobile Fallback View (Just 1 card) */}
-              <div className="flex flex-col items-center min-w-[240px] md:hidden">
-                  <div className="w-[280px] h-[580px] bg-slate-900 rounded-[40px] border-[8px] border-black shadow-2xl relative mb-6 overflow-hidden">
-                    <div className="absolute top-0 w-full h-6 bg-black rounded-b-2xl z-10 mx-auto left-0 right-0 max-w-[120px]" />
-                    <div className={`w-full h-full bg-slate-900 flex flex-col p-4 pt-12`}>
-                       <div className="w-full flex items-center justify-between mb-4 relative z-10">
-                          <ChevronLeft className="w-5 h-5 text-white/50" />
-                          <span className="text-white text-sm font-semibold">AI Chat</span>
-                          <div className="w-5 h-5" />
-                       </div>
-                       <div className="flex-1 rounded-3xl bg-slate-800 border border-white/5 overflow-hidden flex items-center justify-center relative z-10">
-                          <img src="/images/about-analytics.jpg" alt="mock" className="w-full h-full object-cover opacity-60" />
-                          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent" />
-                       </div>
-                       <div className="mt-4 flex gap-2 relative z-10">
-                          <div className="flex-1 bg-slate-800 rounded-xl h-12 flex items-center px-4 border border-slate-700">
-                            <span className="text-white/30 text-xs">Type a message...</span>
-                          </div>
-                          <div className={`w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center`}>
-                             <ArrowRight className="w-5 h-5 text-white" />
-                          </div>
-                       </div>
-                    </div>
-                  </div>
-                  <h4 className="font-bold text-slate-900">AI Chat</h4>
-                  <p className="text-xs text-slate-500 text-center">Get instant answers and creative ideas</p>
-                </div>
-            </div>
-            
-            <button className="absolute left-0 top-[40%] -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-20 hidden md:flex">
-              <ChevronLeft className="w-6 h-6 text-slate-700" />
-            </button>
-            <button className="absolute right-0 top-[40%] -translate-y-1/2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-transform z-20 hidden md:flex">
-              <ChevronRight className="w-6 h-6 text-slate-700" />
-            </button>
-          </div>
+                        
+                        <div className="mt-4 flex gap-2 relative z-10">
+                           <div className="flex-1 bg-slate-800 rounded-xl h-10 flex items-center px-3 border border-slate-700">
+                             <span className="text-white/30 text-[10px]">Type a message...</span>
+                           </div>
+                           <div className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center`}>
+                              <ArrowRight className="w-4 h-4 text-white" />
+                           </div>
+                        </div>
+                     </div>
+                   </div>
+                   <h4 className="font-bold text-slate-900">{item.title}</h4>
+                   <p className="text-[11px] text-slate-500 text-center w-[200px]">{item.desc}</p>
+                 </div>
+                 ))}
+             </div>
+             <div className="sm:hidden flex justify-center gap-12 pt-6">
+               <button
+                 className={`w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 ${
+                   index === 0 ? 'opacity-40 cursor-not-allowed' : ''
+                 }`}
+                 aria-label="Previous"
+                 disabled={index === 0}
+                 onClick={goPrev}
+               >
+                 <ChevronLeft className="w-6 h-6 text-slate-700" />
+               </button>
+               <button
+                 className={`w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 ${
+                   currentTranslate >= maxTranslate - 1 ? 'opacity-40 cursor-not-allowed' : ''
+                 }`}
+                 aria-label="Next"
+                 disabled={currentTranslate >= maxTranslate - 1}
+                 onClick={goNext}
+               >
+                 <ChevronRight className="w-6 h-6 text-slate-700" />
+               </button>
+             </div>
+           </div>
+        </div>
         </div>
       </section>
 
@@ -481,7 +550,8 @@ export default function DownloadPage() {
         </div>
       </section>
 
-      <Footer />
-    </main>
+<Footer />
+      </main>
+    </>
   );
 }

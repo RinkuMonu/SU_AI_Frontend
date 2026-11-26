@@ -262,6 +262,19 @@ html:focus-within {
   .feature-marquee-group[aria-hidden='true'] {
     display: none;
   }
+
+  .fs-fade-up,
+  .fs-shine,
+  .fs-sparkle,
+  .fs-glow,
+  .fs-underline,
+  .fs-pill-bounce,
+  .fs-shimmer,
+  .fs-rotate,
+  .fs-float,
+  .fs-fade-in {
+    animation: none !important;
+  }
 }
 
 /* ==========================================================================
@@ -693,4 +706,121 @@ body {
   background-color: transparent !important;
   box-shadow: none !important;
   border: none !important;
+}
+
+@keyframes fs-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fs-fade-up {
+  animation: fs-fade-up 0.6s ease-out forwards;
+}
+
+@keyframes fs-shine {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(140%); }
+}
+.fs-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 45%, rgba(255,255,255,0.32) 50%, rgba(255,255,255,0.18) 55%, transparent 100%);
+  animation: fs-shine 3s ease-out forwards;
+  pointer-events: none;
+  z-index: 25;
+  border-radius: inherit;
+  mask-image: linear-gradient(to bottom, #000 25%, transparent 25%, transparent 75%, #000 75%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 25%, transparent 25%, transparent 75%, #000 75%);
+}
+
+@keyframes fs-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(1) translateY(0); }
+  50% { opacity: 0.95; transform: scale(1.3) translateY(-2px); }
+}
+.fs-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  background: #fff;
+  pointer-events: none;
+  z-index: 30;
+  animation: fs-twinkle 4s ease-in-out infinite;
+}
+
+@keyframes fs-pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(147, 51, 234, 0); opacity: 0.55; }
+  50% { box-shadow: 0 0 16px 7px rgba(147, 51, 234, 0.5); opacity: 0.9; }
+}
+.fs-glow {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 10;
+  animation: fs-pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes fs-draw-underline {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+.fs-underline {
+  position: absolute;
+  height: 1.5px;
+  background: rgba(255,255,255,0.7);
+  border-radius: 2px;
+  pointer-events: none;
+  animation: fs-draw-underline 0.8s ease-out both;
+}
+
+@keyframes fs-pill-bounce {
+  0%, 100% { transform: scale(1); }
+  40%, 60% { transform: scale(1.1); }
+}
+.fs-pill-bounce {
+  display: inline-block;
+  animation: fs-pill-bounce 4s ease-in-out infinite;
+}
+
+@keyframes fs-shimmer {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(120%); }
+}
+.fs-shimmer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 160%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 45%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.12) 55%, transparent 100%);
+  animation: fs-shimmer 4s ease-out infinite;
+  pointer-events: none;
+  z-index: 20;
+  border-radius: inherit;
+  mask-image: linear-gradient(to bottom, #000 20%, transparent 20%, transparent 80%, #000 80%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 20%, transparent 20%, transparent 80%, #000 80%);
+}
+
+@keyframes fs-rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.fs-rotate {
+  animation: fs-rotate-slow 10s linear infinite;
+}
+
+@keyframes fs-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.fs-float {
+  animation: fs-float 5s ease-in-out infinite;
+}
+
+@keyframes fs-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fs-fade-in {
+  animation: fs-fade-in 0.8s ease-out both;
 }

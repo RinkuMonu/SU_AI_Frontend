@@ -887,13 +887,13 @@ export function AIPostMaker() {
               </div>
 
               {/* Status Footer */}
-              <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+              <div className="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs font-semibold text-slate-500">
                 <span className="flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full ${phase === 'published_popup' ? 'bg-emerald-500' : phase === 'publishing' ? 'bg-blue-500 animate-ping' : 'bg-cyan-500 animate-pulse'}`} />
                   {phase === 'publishing' ? '1-Click Multi-Channel Publishing' : phase === 'published_popup' ? 'Live on 5 Platforms' : 'Target: ' + activePreset.targetAudience}
                 </span>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-1 sm:gap-2">
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">IG Feed</span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">FB Page</span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-600">LinkedIn</span>

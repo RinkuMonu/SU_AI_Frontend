@@ -243,17 +243,17 @@ export default function AIAdsPage() {
 
             {/* Right Column: Hero Ad Studio Mockup */}
             <div className="lg:col-span-6 relative">
-              <div className="relative rounded-[28px] sm:rounded-[36px] overflow-hidden border border-emerald-500/30 bg-[#0d1322] shadow-[0_20px_70px_rgba(16,185,129,0.18)] p-4 sm:p-5 group">
+              <div className="relative rounded-[28px] sm:rounded-[36px] overflow-hidden border border-emerald-500/30 bg-[#0d1322] shadow-[0_20px_70px_rgba(16,185,129,0.18)] max-w-[480px] mx-auto lg:max-w-none lg:mx-0 p-4 sm:p-5 group">
                 
                 {/* Header Bar */}
                 <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
-                  <div className="flex items-center gap-2">
+                  <div className="flex-1 min-w-0 flex items-center gap-2">
                     <div className="w-3 h-3 rounded-full bg-rose-500" />
                     <div className="w-3 h-3 rounded-full bg-amber-500" />
                     <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="ml-2 text-xs font-mono text-slate-400">DhandaGrow-Meta-AdStudio.ai</span>
+                    <span className="ml-2 text-xs font-mono text-slate-400 truncate">DhandaGrow-Meta-AdStudio.ai</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="shrink-0 flex items-center gap-2">
                     <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
                       <Flame className="w-3 h-3" /> 4.8x ROAS Winner
                     </span>
@@ -279,7 +279,7 @@ export default function AIAdsPage() {
                     </div>
 
                     {/* Price & COD Banner */}
-                    <div className="absolute bottom-3 left-3 right-3 bg-black/85 backdrop-blur-md border border-white/15 p-3 rounded-xl flex items-center justify-between gap-3">
+                    <div className="absolute bottom-3 left-3 right-3 bg-black/85 backdrop-blur-md border border-white/15 p-3 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-3">
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="text-base sm:text-lg font-black text-white">₹1,999</span>
@@ -291,7 +291,7 @@ export default function AIAdsPage() {
                         <p className="text-[11px] text-slate-300 truncate max-w-[220px]">Pure Handloom Banarasi Silk · Free Shipping</p>
                       </div>
 
-                      <div className="shrink-0 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-500/25">
+                      <div className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-lg flex items-center gap-1.5 shadow-md shadow-emerald-500/25">
                         <MessageCircle className="w-3.5 h-3.5" />
                         <span>Order via Social Media</span>
                       </div>
@@ -300,18 +300,18 @@ export default function AIAdsPage() {
                 </div>
 
                 {/* Sub-bar stats */}
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center pt-2">
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">CTR Lift</p>
-                    <p className="text-base font-black text-emerald-400">+340%</p>
+                <div className="mt-4 grid grid-cols-3 gap-2 sm:gap-3 text-center pt-2 sm:pt-2.5">
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase">CTR Lift</p>
+                    <p className="text-sm sm:text-base font-black text-emerald-400">+340%</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Cost Per Lead</p>
-                    <p className="text-base font-black text-white">₹8.50</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase">Cost Per Lead</p>
+                    <p className="text-sm sm:text-base font-black text-white">₹8.50</p>
                   </div>
-                  <div className="p-2.5 rounded-xl bg-white/5 border border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase">Meta Sync</p>
-                    <p className="text-base font-black text-cyan-400">Instant</p>
+                  <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase">Meta Sync</p>
+                    <p className="text-sm sm:text-base font-black text-cyan-400">Instant</p>
                   </div>
                 </div>
 

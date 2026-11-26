@@ -29,7 +29,8 @@ export function Navbar() {
     pathname === '/contact' ||
     pathname.startsWith('/blog') ||
     pathname.startsWith('/features') ||
-    pathname === '/download'
+    pathname === '/download' ||
+    pathname === '/pricing'
   );
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export function Navbar() {
       >
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" onClick={(e) => { if (pathname === '/') { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); } }} className="flex items-center gap-2 group">
           <Image
             src="/images/dhandagrow.png"
             alt="DhandaGrow"

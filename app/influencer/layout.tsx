@@ -104,29 +104,31 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen bg-[#08090d] text-white antialiased selection:bg-[#be32ff]/30 relative">
-      {/* Mobile Top Header */}
-      <header className="md:hidden flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0d0e15]/95 backdrop-blur-md sticky top-0 z-40">
-        <Link href="/influencer" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-md shadow-purple-500/30">
+      {/* Mobile/Tablet Top Header */}
+      <header className="lg:hidden flex items-center justify-between px-4 h-16 border-b border-white/10 bg-[#0d0e15]/95 backdrop-blur-md sticky top-0 z-40">
+        <Link href="/influencer" className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FC9A5D] via-[#F0449B] to-[#BE32FF] p-0.5 shadow-md shadow-purple-500/30 shrink-0">
             <div className="w-full h-full bg-[#0B0C13] rounded-[10px] flex items-center justify-center font-black text-xs text-transparent bg-clip-text bg-gradient-to-tr from-[#FC9A5D] to-[#BE32FF]">
               DG
             </div>
           </div>
-          <div>
+          <div className="min-w-0">
             <span className="font-extrabold text-sm text-white tracking-tight">DhandaGrow</span>
             <span className="text-[10px] font-bold text-[#f0449b] ml-1">AI</span>
           </div>
         </Link>
         <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-xl bg-white/5 border border-white/10 text-neutral-300 hover:text-white"
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          aria-label="Open menu"
+          className="p-2 rounded-xl bg-white/5 border border-white/10 text-neutral-300 hover:text-white shrink-0"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          <Menu className="w-5 h-5" />
         </button>
       </header>
 
       {/* Desktop Fixed Sidebar */}
-      <aside className="w-64 border-r border-white/10 bg-[#0b0c13] flex-col hidden md:flex fixed top-0 left-0 h-full z-30 shadow-2xl">
+      <aside className="w-64 border-r border-white/10 bg-[#0b0c13] flex-col hidden lg:flex fixed top-0 left-0 h-full z-30 shadow-2xl">
         {/* Brand Header */}
         <div className="h-20 flex items-center justify-between px-5 border-b border-white/10 bg-gradient-to-b from-white/[0.02] to-transparent">
           <Link href="/influencer" className="flex items-center gap-2.5 min-w-0 group">
@@ -240,18 +242,21 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
         </div>
       </aside>
 
-      {/* Mobile Drawer */}
+      {/* Mobile/Tablet Drawer */}
       {mobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex">
-          <div className="w-72 bg-[#0b0c13] h-full border-r border-white/10 flex flex-col p-4 animate-in slide-in-from-left duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <Link href="/influencer" className="flex items-center gap-2">
-                <span className="font-extrabold text-sm text-white">DhandaGrow AI</span>
-                <span className="text-[10px] text-[#f0449b]">Creator Hub</span>
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+          <div className="relative w-[min(20rem,calc(100vw-2.5rem))] bg-[#0b0c13] h-full border-r border-white/10 flex flex-col p-4 animate-in slide-in-from-left duration-200 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10 gap-2">
+              <Link href="/influencer" className="flex items-center gap-2 min-w-0" onClick={() => setMobileMenuOpen(false)}>
+                <span className="font-extrabold text-sm text-white truncate">DhandaGrow AI</span>
+                <span className="text-[10px] text-[#f0449b] shrink-0">Creator Hub</span>
               </Link>
               <button
+                type="button"
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 rounded-lg bg-white/5 text-neutral-400 hover:text-white"
+                aria-label="Close menu"
+                className="p-1.5 rounded-lg bg-white/5 text-neutral-400 hover:text-white shrink-0"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -271,12 +276,12 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
                         : "text-neutral-300 hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 text-white" />
-                      <span>{item.name}</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Icon className="w-4 h-4 text-white shrink-0" />
+                      <span className="truncate">{item.name}</span>
                     </div>
                     {item.badge !== undefined && item.badge !== null && Number(item.badge) > 0 && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#be32ff]">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#be32ff] shrink-0">
                         {item.badge}
                       </span>
                     )}
@@ -294,13 +299,12 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
               </button>
             </div>
           </div>
-          <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
         </div>
       )}
 
       {/* Main Content Area */}
-      <div className="w-full md:pl-64 flex flex-col min-h-screen bg-[#08090d] min-w-0 overflow-x-hidden">
-        <main className="flex-1 p-3 sm:p-5 md:p-6 w-full max-w-7xl mx-auto min-w-0">
+      <div className="w-full lg:pl-64 flex flex-col min-h-screen bg-[#08090d] min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-3 sm:p-5 md:p-6 w-full max-w-7xl mx-auto min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>
