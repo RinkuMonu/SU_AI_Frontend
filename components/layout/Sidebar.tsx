@@ -104,7 +104,7 @@ export const navigation = [
   { id: "tour-nav-website-builder", name: "Website Builder", href: "/website-builder", icon: Globe },
   { id: "tour-nav-ppt-maker", name: "PPT Maker", href: "/ppt-maker", icon: Presentation },
   { id: "tour-nav-festivals", name: "Festival Engine", href: "/festivals", icon: PartyPopper },
-  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users, comingSoon: true },
+  { id: "tour-nav-influencers", name: "Influencers", href: "/influencers", icon: Users },
   { id: "tour-nav-content-library", name: "Plan Content (Calendar)", href: "/content-library", icon: Library },
   { id: "tour-nav-uni-ai", name: "UNI AI (Hinglish)", href: "/uni-ai", icon: Sparkles },
   {
