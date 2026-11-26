@@ -305,7 +305,7 @@ export default function OpportunitiesPage() {
           </Link>
           <Link
             href="/influencer/chats"
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-xs font-bold text-white shadow-md shadow-purple-500/20 hover:opacity-90 transition-opacity"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-xs font-bold text-white shadow-md shadow-purple-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
           >
             Open Chats
           </Link>
@@ -357,7 +357,7 @@ export default function OpportunitiesPage() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-4 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap ${
                 selectedCategory === cat
-                  ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md shadow-pink-500/20'
+                  ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md shadow-pink-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer'
                   : 'bg-[#0e0f19] text-neutral-400 hover:text-white border border-white/5 hover:border-white/15'
               }`}
             >
@@ -476,10 +476,10 @@ export default function OpportunitiesPage() {
                   <button
                     type="button"
                     onClick={() => handleOpenPitch(opp)}
-                    className="w-full h-9 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-xs shadow-md shadow-purple-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02]"
+                    className="w-full h-9 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-md shadow-purple-500/20 flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                   >
                     <span>Collaborate Now</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+                    <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                   </button>
                 </div>
               </div>
@@ -561,7 +561,7 @@ export default function OpportunitiesPage() {
                   type="button"
                   onClick={handleSubmitPitch}
                   disabled={submittingPitch || !pitchMessage.trim()}
-                  className="w-full h-10 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 disabled:opacity-40 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full h-10 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] disabled:opacity-40 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{submittingPitch ? 'Sending Proposal...' : 'Send Proposal & Message Business'}</span>

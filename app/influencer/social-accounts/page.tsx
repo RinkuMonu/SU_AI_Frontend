@@ -430,7 +430,7 @@ function SocialAccountsContent() {
                         size="sm"
                         disabled={isConnecting}
                         onClick={() => handleConnectOAuth(p.id)}
-                        className="w-full h-10 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-purple-500/20 cursor-pointer transition-all flex items-center justify-center gap-1.5"
+                        className="w-full h-10 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                       >
                         {isConnecting ? (
                           <>
@@ -440,7 +440,7 @@ function SocialAccountsContent() {
                         ) : (
                           <>
                             <span>Connect via OAuth</span>
-                            <ArrowRight className="w-3.5 h-3.5" />
+                            <ArrowRight className="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                           </>
                         )}
                       </Button>
@@ -511,7 +511,7 @@ function SocialAccountsContent() {
                 size="sm"
                 disabled={isSavingManual}
                 onClick={handleSaveManual}
-                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold h-10 px-5 rounded-xl"
+                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold h-10 px-5 rounded-xl group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               >
                 {isSavingManual ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" /> : null}
                 Save Link

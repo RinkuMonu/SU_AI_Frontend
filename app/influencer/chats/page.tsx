@@ -822,7 +822,7 @@ function InfluencerChatsContent() {
                   <button
                     type="submit"
                     disabled={(!messageInput.trim() && !pendingAttachment) || sending}
-                    className="w-11 h-11 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-lg shadow-purple-500/20 cursor-pointer shrink-0 transition-transform active:scale-95"
+                    className="w-11 h-11 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0 active:scale-95 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                     title="Send message"
                   >
                     <Send className="w-4 h-4" />
@@ -844,7 +844,7 @@ function InfluencerChatsContent() {
               </div>
               <Link
                 href="/influencer/brand-deals"
-                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-lg shadow-purple-500/30 hover:scale-105 transition-transform"
+                className="px-5 py-2.5 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-lg shadow-purple-500/30 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               >
                 Explore Brand Deals &rarr;
               </Link>

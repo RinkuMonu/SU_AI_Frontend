@@ -33,7 +33,7 @@ export default function InfluencerMarketplacePage() {
           </p>
         </div>
         <Link href="/influencer">
-          <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl border-white/15 bg-white/5 text-xs text-white">
+          <Button variant="outline" size="sm" className="h-9 px-4 rounded-xl border-white/15 bg-white/5 text-xs text-white hover:bg-slate-100 transition-all duration-200 cursor-pointer">
             &larr; Back to Dashboard
           </Button>
         </Link>

@@ -3313,7 +3313,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
               <Button
                 type="submit"
                 disabled={sendingMessage || (!newChatMessage.trim() && !chatAttachment)}
-                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white h-10 px-5 rounded-xl shrink-0 shadow-lg font-semibold"
+                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white h-10 px-5 rounded-xl shrink-0 shadow-lg font-semibold group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               >
                 {sendingMessage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>

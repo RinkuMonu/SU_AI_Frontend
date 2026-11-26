@@ -4,16 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "group inline-flex items-center justify-center whitespace-nowrap rounded-full text-sm font-medium ring-offset-background transition-all duration-200 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white shadow-[0_4px_20px_rgba(255,46,147,0.35)] hover:shadow-[0_4px_25px_rgba(255,46,147,0.55)] hover:brightness-110 active:scale-[0.98] transition-all rounded-full border border-white/20",
-        destructive: "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 hover:text-red-400 transition-all rounded-full",
-        outline: "border border-border bg-surface text-white hover:bg-surface-elevated transition-all rounded-full",
-        secondary: "bg-surface-elevated text-white hover:bg-surface-secondary transition-all rounded-full",
-        ghost: "hover:bg-surface-secondary hover:text-white transition-all rounded-full",
-        link: "text-brand-pink underline-offset-4 hover:underline",
+        default: "bg-gradient-to-r from-[#FF7E38] via-[#FF2E93] to-[#C438FF] text-white shadow-[0_4px_20px_rgba(255,46,147,0.35)] hover:brightness-110 hover:shadow-lg hover:shadow-pink-500/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 rounded-full border border-white/20",
+        destructive: "bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all duration-200 rounded-full",
+        outline: "border border-border bg-surface text-white hover:bg-surface-elevated hover:border-white/20 transition-all duration-200 rounded-full",
+        secondary: "bg-surface-elevated text-white hover:bg-surface-secondary hover:brightness-110 transition-all duration-200 rounded-full",
+        ghost: "hover:bg-surface-secondary hover:text-white transition-all duration-200 rounded-full",
+        link: "text-brand-pink underline-offset-4 hover:underline cursor-pointer",
       },
       size: {
         default: "h-10 px-4 py-2",

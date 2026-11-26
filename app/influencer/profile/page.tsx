@@ -181,7 +181,7 @@ export default function InfluencerProfilePage() {
         </div>
         <Link
           href="/influencer/social-accounts"
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold shadow-md hover:opacity-90 shrink-0 inline-flex items-center gap-1"
+          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold shadow-md shrink-0 inline-flex items-center gap-1 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
         >
           <span>Manage Social Accounts</span>
           <ArrowUpRight className="w-3.5 h-3.5" />
@@ -347,7 +347,7 @@ export default function InfluencerProfilePage() {
             <Button
               type="submit"
               disabled={saving}
-              className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-90 text-white font-bold text-xs shadow-lg shadow-purple-500/20 cursor-pointer flex items-center gap-2"
+              className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center gap-2 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
             >
               <Save className="w-4 h-4" />
               <span>{saving ? 'Saving...' : 'Save Media Kit'}</span>

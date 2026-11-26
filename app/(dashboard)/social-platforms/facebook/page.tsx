@@ -698,7 +698,7 @@ export default function FacebookIntegrationPage() {
                 <p className="text-red-400/90 text-xs sm:text-sm mt-0.5 leading-relaxed">{errorMessage}</p>
               </div>
             </div>
-            <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0">
+            <button onClick={() => setErrorMessage(null)} className="text-xs hover:underline ml-4 text-red-300 shrink-0 cursor-pointer transition-all duration-200">
               Dismiss
             </button>
           </div>
@@ -711,7 +711,7 @@ export default function FacebookIntegrationPage() {
               <CheckCircle2 className="w-5 h-5 shrink-0 text-emerald-400" />
               <p className="text-emerald-300 text-xs sm:text-sm">{successMessage}</p>
             </div>
-            <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0">
+            <button onClick={() => setSuccessMessage(null)} className="text-xs hover:underline ml-4 text-emerald-300 shrink-0 cursor-pointer transition-all duration-200">
               Dismiss
             </button>
           </div>

@@ -38,7 +38,7 @@ export function CTA() {
             Get Started Free <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
           
-          <button className="w-full sm:w-auto px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white text-slate-900 font-semibold border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer">
+          <button className="w-full sm:w-auto px-6 sm:px-7 py-2.5 sm:py-3 rounded-full bg-white text-slate-900 font-semibold border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all shadow-xs flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer enabled:active:scale-[0.98]">
             <div className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
               <Play className="w-2.5 h-2.5 ml-0.5 fill-current" />
             </div>

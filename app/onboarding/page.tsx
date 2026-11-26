@@ -5372,7 +5372,7 @@ export default function OnboardingPage() {
                   }}
                   className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
                     connectedSocialAccounts.instagram
-                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 enabled:active:scale-[0.98]"
                       : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
                   }`}
                   style={connectedSocialAccounts.instagram ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
@@ -5411,7 +5411,7 @@ export default function OnboardingPage() {
                   }}
                   className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
                     connectedSocialAccounts.facebook
-                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 enabled:active:scale-[0.98]"
                       : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
                   }`}
                   style={connectedSocialAccounts.facebook ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
@@ -5450,7 +5450,7 @@ export default function OnboardingPage() {
                   }}
                   className={`px-5 sm:px-6 py-2 rounded-full font-medium text-xs sm:text-sm transition-all cursor-pointer ${
                     connectedSocialAccounts.linkedin
-                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 active:scale-[0.98]"
+                      ? "text-white shadow-md shadow-[#f0449b]/25 hover:brightness-110 enabled:active:scale-[0.98]"
                       : "bg-[#222c42] hover:bg-[#2b3752] text-slate-200 border border-white/5"
                   }`}
                   style={connectedSocialAccounts.linkedin ? { background: "linear-gradient(90deg, #be32ff 0%, #f0449b 100%)" } : {}}
@@ -5467,7 +5467,7 @@ export default function OnboardingPage() {
               type="button"
               onClick={handleSocialPlatformsContinue}
               disabled={isSavingSocialPlatforms}
-              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]"
+              className="w-full max-w-sm sm:max-w-md h-11 sm:h-12 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:opacity-95 enabled:active:scale-[0.98]"
               style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
             >
               {isSavingSocialPlatforms ? (
@@ -5796,7 +5796,7 @@ export default function OnboardingPage() {
                     type="button"
                     onClick={handleSubmitSocialAuth}
                     disabled={isSubmittingSocialAuth}
-                    className="w-full h-11 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:brightness-110 active:scale-[0.98]"
+                    className="w-full h-11 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer shadow-lg shadow-[#be32ff]/25 hover:brightness-110 enabled:active:scale-[0.98]"
                     style={{ background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" }}
                   >
                     {isSubmittingSocialAuth ? (
@@ -6013,7 +6013,7 @@ export default function OnboardingPage() {
                     onClick={handleWebsiteUrlContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingWebsite}
                     className={`w-full h-[48px] sm:h-[50px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingWebsite
-                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 enabled:active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
                   >
@@ -8166,7 +8166,7 @@ export default function OnboardingPage() {
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedListings.length > 0 &&
                   !isSavingMarketplace &&
                   (!selectedListings.includes("other") || customListingName.trim())
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)] group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
                 }`}
             >
@@ -8178,7 +8178,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
                 </>
               )}
             </button>
@@ -8328,7 +8328,7 @@ export default function OnboardingPage() {
                     onClick={handleMarketplaceWebsiteContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingMarketplace}
                     className={`w-full max-w-md sm:max-w-lg h-[46px] sm:h-[48px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingMarketplace
-                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 enabled:active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
                   >
@@ -8582,7 +8582,7 @@ export default function OnboardingPage() {
               className={`w-full h-13 sm:h-14 rounded-full font-bold text-base flex items-center justify-center gap-2 transition-all cursor-pointer ${selectedB2bListings.length > 0 &&
                   !isSavingB2b &&
                   (!selectedB2bListings.includes("other") || customB2bListingName.trim())
-                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 active:scale-[0.98] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)]"
+                  ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-[0_8px_30px_rgba(240,68,155,0.4)] group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                   : "bg-white/10 text-neutral-500 cursor-not-allowed border border-white/5 opacity-60"
                 }`}
             >
@@ -8594,7 +8594,7 @@ export default function OnboardingPage() {
               ) : (
                 <>
                   <span>Continue</span>
-                  <ArrowRight className="w-5 h-5 stroke-[2.5]" />
+                  <ArrowRight className="w-5 h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
                 </>
               )}
             </button>
@@ -8744,7 +8744,7 @@ export default function OnboardingPage() {
                     onClick={handleB2bWebsiteContinue}
                     disabled={!isValidWebsiteUrl(websiteUrl) || isSavingB2b}
                     className={`w-full max-w-md sm:max-w-lg h-[46px] sm:h-[48px] rounded-full font-normal text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-200 cursor-pointer shadow-lg shadow-[#be32ff]/25 ${isValidWebsiteUrl(websiteUrl) && !isSavingB2b
-                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 active:scale-[0.98]"
+                        ? "bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] text-white hover:brightness-110 enabled:active:scale-[0.98]"
                         : "bg-white/10 text-white/40 cursor-not-allowed opacity-60 pointer-events-none"
                       }`}
                   >
@@ -9269,7 +9269,7 @@ export default function OnboardingPage() {
                   className={`w-full max-w-sm sm:max-w-md h-10 sm:h-11 rounded-full font-semibold text-sm sm:text-base text-white flex items-center justify-center gap-2 transition-all ${
                     isGeneratingPosts
                       ? "opacity-75 cursor-not-allowed bg-purple-900/60"
-                      : "cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 hover:opacity-95 active:scale-[0.98]"
+                      : "cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-lg shadow-[#be32ff]/25 hover:opacity-95 enabled:active:scale-[0.98]"
                   }`}
                   style={!isGeneratingPosts ? { background: "linear-gradient(90deg, #7d36fa 0%, #be32ff 33%, #f0449b 67%, #fc9a5d 100%)" } : undefined}
                 >
@@ -9381,7 +9381,7 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => setShowPlansModal(true)}
-              className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 active:scale-[0.98]"
+              className="w-full max-w-sm h-12 rounded-full font-normal text-base text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_8px_25px_rgba(190,50,255,0.25)] hover:opacity-95 enabled:active:scale-[0.98]"
             >
               <span>Upgrade to see your output</span>
               <ArrowRight className="w-4 h-4 stroke-[2]" />
@@ -10234,7 +10234,7 @@ export default function OnboardingPage() {
                     }
                   }}
                   disabled={isSubmitting}
-                  className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-xs tracking-wide shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_30px_rgba(190,50,255,0.5)] transition-all cursor-pointer min-w-[140px]"
+                  className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs tracking-wide shadow-[0_4px_25px_rgba(240,68,155,0.35)] min-w-[140px] group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <span className="flex items-center gap-2">
@@ -10242,7 +10242,7 @@ export default function OnboardingPage() {
                     </span>
                   ) : isLastStep ? (
                     <span className="flex items-center gap-1.5">
-                      {accountType === "influencer" ? "Go to Creator Dashboard" : "Go to Dashboard"} <ArrowRight className="w-4 h-4" />
+                      {accountType === "influencer" ? "Go to Creator Dashboard" : "Go to Dashboard"} <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </span>
                   ) : currentStep === activeSteps.length - 2 ? (
                     <span className="flex items-center gap-1.5">
@@ -10250,7 +10250,7 @@ export default function OnboardingPage() {
                     </span>
                   ) : (
                     <span className="flex items-center gap-1.5">
-                      Continue <ArrowRight className="w-4 h-4" />
+                      Continue <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </span>
                   )}
                 </Button>
@@ -10337,7 +10337,7 @@ export default function OnboardingPage() {
                   setLimitModal(null);
                   setShowPlansModal(true);
                 }}
-                className="w-full sm:flex-1 py-3 px-5 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_4px_25px_rgba(190,50,255,0.4)] hover:opacity-95 active:scale-[0.98]"
+                className="w-full sm:flex-1 py-3 px-5 rounded-full font-semibold text-sm text-white flex items-center justify-center gap-2 transition-all cursor-pointer bg-gradient-to-r from-[#7d36fa] via-[#be32ff] via-[#f0449b] to-[#fc9a5d] shadow-[0_4px_25px_rgba(190,50,255,0.4)] hover:opacity-95 enabled:active:scale-[0.98]"
               >
                 <span>{limitModal.actionText}</span>
                 <ArrowRight className="w-4 h-4 stroke-[2]" />

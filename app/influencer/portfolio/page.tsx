@@ -225,7 +225,7 @@ export default function InfluencerPortfolioPage() {
             onClick={() => {
               if (typeof window !== 'undefined') window.print();
             }}
-            className="h-8 px-3 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-90 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-500/20 transition-all cursor-pointer"
+            className="h-8 px-3 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export PDF</span>
@@ -335,52 +335,50 @@ export default function InfluencerPortfolioPage() {
           {contentShowcase.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl bg-[#0e0f19] border border-white/10 hover:border-purple-500/40 p-4 space-y-3 transition-all group shadow-lg flex flex-col justify-between"
+              className="rounded-2xl bg-[#0e0f19] border border-white/10 hover:border-purple-500/40 p-4 transition-all group shadow-lg flex flex-col h-full"
             >
-              <div className="space-y-2.5">
-                {/* Media Image */}
-                <div className="h-44 rounded-xl overflow-hidden relative border border-white/5 bg-black/40">
-                  <img
-                    src={item.thumbnail}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">
-                    {item.type}
+              {/* Media Image */}
+              <div className="h-44 rounded-xl overflow-hidden relative border border-white/5 bg-black/40 shrink-0">
+                <img
+                  src={item.thumbnail}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">
+                  {item.type}
+                </span>
+                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[11px] font-bold text-white">
+                  <span className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                    <Eye className="w-3 h-3 text-[#be32ff]" />
+                    <span>{item.views}</span>
                   </span>
-                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[11px] font-bold text-white">
-                    <span className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                      <Eye className="w-3 h-3 text-[#be32ff]" />
-                      <span>{item.views}</span>
-                    </span>
-                    <span className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm">
-                      <Heart className="w-3 h-3 text-rose-400" />
-                      <span>{item.likes}</span>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Info */}
-                <div>
-                  <span className="text-[10px] font-bold text-[#f0449b] uppercase tracking-wider block">
-                    {item.brand}
+                  <span className="flex items-center gap-1 bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm">
+                    <Heart className="w-3 h-3 text-rose-400" />
+                    <span>{item.likes}</span>
                   </span>
-                  <h3 className="text-sm font-semibold text-white group-hover:text-purple-300 transition-colors line-clamp-1">
-                    {item.title}
-                  </h3>
-                  <p className="text-[11px] text-neutral-400 mt-0.5">
-                    {item.deliverables} &bull; {item.compensation}
-                  </p>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-white/5 flex items-center justify-between text-xs">
-                <span className="text-neutral-400 text-[11px]">Category: {item.category}</span>
-                <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
-                  <CheckCircle2 className="w-3 h-3" />
-                  Verified Deal
+              {/* Info */}
+              <div className="px-1 pt-[14px] pb-3 flex-1 flex flex-col min-w-0">
+                <span className="text-[10px] font-bold text-[#f0449b] uppercase tracking-wider block">
+                  {item.brand}
                 </span>
+                <h3 className="mt-1 text-base font-semibold text-white group-hover:text-purple-300 transition-colors break-words">
+                  {item.title}
+                </h3>
+                <p className="mt-1.5 text-[11px] text-neutral-400 break-words">
+                  {item.deliverables} &bull; {item.compensation}
+                </p>
+
+                <div className="mt-auto pt-3 border-t border-white/5 flex items-center justify-between gap-3 text-xs">
+                  <span className="text-neutral-400 text-[11px] break-words">Category: {item.category}</span>
+                  <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1 shrink-0">
+                    <CheckCircle2 className="w-3 h-3" />
+                    Verified Deal
+                  </span>
+                </div>
               </div>
             </div>
           ))}
@@ -439,7 +437,7 @@ export default function InfluencerPortfolioPage() {
                 href="/influencer/opportunities"
                 className={`w-full h-10 rounded-xl font-bold text-xs flex items-center justify-center transition-all cursor-pointer ${
                   pkg.popular
-                    ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white shadow-md'
+                    ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer'
                     : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
                 }`}
               >

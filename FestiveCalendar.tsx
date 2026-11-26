@@ -33,10 +33,10 @@ export default function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
             </h2>
           </div>
           <div className="flex gap-2">
-            <button className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10">
+            <button className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10 cursor-pointer enabled:active:scale-[0.98]">
               <ChevronUp className="w-5 h-5 -rotate-90" />
             </button>
-            <button className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10">
+            <button className="p-2 rounded-xl hover:bg-white/10 text-white/60 hover:text-white transition-colors bg-white/5 border border-white/10 cursor-pointer enabled:active:scale-[0.98]">
               <ChevronDown className="w-5 h-5 -rotate-90" />
             </button>
           </div>
@@ -91,7 +91,7 @@ export default function FestiveCalendar({ plan }: { plan?: DayPlan[] | null }) {
             </div>
           ))}
           <div className="pt-4 mt-2 border-t border-white/5">
-             <button className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+             <button className="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2 cursor-pointer enabled:active:scale-[0.98]">
                <Plus className="w-4 h-4" /> Add Custom Event
              </button>
           </div>

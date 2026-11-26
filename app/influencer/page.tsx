@@ -641,7 +641,7 @@ export default function InfluencerDashboard() {
             {/* Profile Avatar Thumbnail */}
             <Link
               href="/influencer/profile"
-              className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-md shrink-0 cursor-pointer hover:scale-105 transition-transform"
+              className="w-9 h-9 rounded-full p-0.5 bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-md shrink-0 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               title="View Profile"
             >
               <div className="w-full h-full rounded-full bg-[#0b0c13] overflow-hidden flex items-center justify-center">
@@ -879,7 +879,7 @@ export default function InfluencerDashboard() {
               onClick={() => setSelectedCategory(cat)}
               className={`px-3 py-1.5 rounded-full transition-all cursor-pointer whitespace-nowrap text-xs ${
                 selectedCategory === cat
-                  ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md shadow-pink-500/20'
+                  ? 'bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md shadow-pink-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer'
                   : 'bg-[#0e0f19] text-neutral-400 hover:text-white border border-white/5 hover:border-white/15'
               }`}
             >
@@ -967,10 +967,10 @@ export default function InfluencerDashboard() {
                     <button
                       type="button"
                       onClick={() => handleOpenPitch(opp)}
-                      className="w-full h-8 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 text-white font-bold text-xs shadow-md shadow-purple-500/20 flex items-center justify-center gap-1.5 transition-all cursor-pointer hover:scale-[1.02]"
+                      className="w-full h-8 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-md shadow-purple-500/20 flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                     >
                       <span>Collaborate Now</span>
-                      <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                      <ArrowRight className="w-3 h-3 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5" />
                     </button>
                   </div>
                 </div>
@@ -1410,7 +1410,7 @@ export default function InfluencerDashboard() {
                   type="button"
                   onClick={handleSubmitPitch}
                   disabled={submittingPitch || !pitchMessage.trim()}
-                  className="w-full h-10 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 disabled:opacity-40 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full h-10 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] disabled:opacity-40 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>{submittingPitch ? 'Sending Proposal...' : 'Send Proposal & Message Business'}</span>

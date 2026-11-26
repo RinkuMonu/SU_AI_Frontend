@@ -56,7 +56,7 @@ export function LanguageSelector({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         aria-label="Select Language"
-        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer shadow-sm active:scale-[0.98]"
+        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-300 transition-all cursor-pointer shadow-sm enabled:active:scale-[0.98]"
       >
         <span>
           {showLabel && <span className="text-slate-500 font-medium">{t("lang_prefix", "Language:")} </span>}

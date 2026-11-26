@@ -382,7 +382,7 @@ export default function SignupPage() {
                             <Button type="button" variant="outline" className="w-full h-11 bg-transparent border-border/50 text-white font-bold hover:bg-white/5">Download Logo</Button>
                           </a>
                         ) : (
-                           <Button type="button" disabled variant="outline" className="w-full h-11 bg-transparent border-border/50 text-white/70 font-bold">Download Logo</Button>
+                           <Button type="button" disabled variant="outline" className="w-full h-11 bg-transparent border-border/50 text-white/70 font-bold hover:bg-white/10 hover:border-white/20 transition-all duration-200 cursor-pointer">Download Logo</Button>
                         )}
                       </div>
                     </div>
@@ -602,7 +602,7 @@ export default function SignupPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full h-12 text-base font-bold bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white shadow-[0_4px_25px_rgba(240,68,155,0.35)] hover:shadow-[0_6px_35px_rgba(190,50,255,0.55)] transition-all cursor-pointer" 
+                    className="w-full h-12 text-base font-bold bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-[0_4px_25px_rgba(240,68,155,0.35)] group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer" 
                     disabled={isLoading}
                   >
                     {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : "Register Business & Submit"}
@@ -700,10 +700,10 @@ export default function SignupPage() {
                 onClick={() => {
                   window.location.href = "/dashboard";
                 }}
-                className="w-full mt-6 h-12 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:to-[#7d36fa] text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_30px_rgba(240,68,155,0.4)] hover:shadow-[0_6px_40px_rgba(190,50,255,0.6)] hover:brightness-110 transition-all cursor-pointer relative z-10 active:scale-[0.98]"
+                className="w-full mt-6 h-12 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 shadow-[0_4px_30px_rgba(240,68,155,0.4)] relative z-10 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               >
                 <span>Launch Dashboard Workspace</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
               </button>
             </div>
           </div>

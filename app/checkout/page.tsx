@@ -319,7 +319,7 @@ function CheckoutContent() {
                   type="button"
                   onClick={handleProceedToPayment}
                   disabled={isProcessing}
-                  className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:opacity-95 active:scale-[0.98] transition-all shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 px-6 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                 >
                   {isProcessing ? (
                     <>
@@ -330,7 +330,7 @@ function CheckoutContent() {
                     <>
                       <Lock className="w-4 h-4" />
                       <span>Proceed to Pay {formatCurrencyINR(displayTotal)}</span>
-                      <ArrowRight className="w-4 h-4" />
+                      <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                     </>
                   )}
                 </button>

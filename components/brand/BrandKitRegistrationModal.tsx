@@ -1219,7 +1219,7 @@ export function BrandKitRegistrationModal({
             <p className="font-semibold text-red-200">Attention Required</p>
             <p className="text-red-300/90 mt-0.5">{formError}</p>
           </div>
-          <button type="button" onClick={() => setFormError(null)} className="text-red-400 hover:text-white">
+          <button type="button" onClick={() => setFormError(null)} className="text-red-400 hover:text-white cursor-pointer transition-all duration-200 enabled:active:scale-[0.98]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -1231,7 +1231,7 @@ export function BrandKitRegistrationModal({
             <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
             <span>{formSuccess}</span>
           </div>
-          <button type="button" onClick={() => setFormSuccess(null)} className="text-emerald-400 hover:text-white">
+          <button type="button" onClick={() => setFormSuccess(null)} className="text-emerald-400 hover:text-white cursor-pointer transition-all duration-200 enabled:active:scale-[0.98]">
             <X className="w-4 h-4" />
           </button>
         </div>

@@ -110,7 +110,7 @@ export default function ReviewManagerPage() {
                  <p className="text-xs font-bold text-red-800">Critical Alert: Poor Service Flag</p>
                  <p className="text-[10px] text-red-600">AI paused auto-reply and escalated to Manager.</p>
                </div>
-               <Button size="sm" variant="outline" className="h-7 text-xs border-red-200 text-red-700 bg-white">Handle Manually</Button>
+               <Button size="sm" variant="outline" className="h-7 text-xs border-red-200 text-red-700 bg-white hover:bg-slate-100 transition-all duration-200 cursor-pointer">Handle Manually</Button>
              </div>
            </div>
            

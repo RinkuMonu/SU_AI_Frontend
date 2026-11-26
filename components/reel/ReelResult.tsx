@@ -934,7 +934,7 @@ export function ReelResult({ result, onReset }: ReelResultProps) {
                         placeholder="Add a comment..." 
                         className="flex-1 bg-white/10 text-white placeholder-neutral-400 text-xs px-3 py-1.5 rounded-full border border-white/10 outline-none focus:border-purple-400" 
                       />
-                      <button type="button" className="text-xs font-bold text-purple-400 hover:text-purple-300 px-2 py-1 cursor-pointer">
+                      <button type="button" className="text-xs font-bold text-purple-400 hover:text-purple-300 px-2 py-1 cursor-pointer transition-all duration-200 enabled:active:scale-[0.98]">
                         Post
                       </button>
                     </div>

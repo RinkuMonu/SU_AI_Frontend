@@ -353,7 +353,7 @@ function PaymentSuccessContent() {
         <Button
           onClick={handleDownloadReceipt}
           disabled={isDownloading}
-          className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold py-3 rounded-2xl shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all active:scale-[0.98]"
+          className="w-full bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-bold py-3 rounded-2xl shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all enabled:active:scale-[0.98]"
         >
           {isDownloading ? (
             <>

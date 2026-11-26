@@ -223,7 +223,7 @@ export function Navbar() {
               <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] origin-top-right rounded-xl bg-surface-elevated py-1 shadow-2xl border border-border ring-1 ring-black/20 focus:outline-none animate-in fade-in slide-in-from-top-2 z-50">
                 <div className="px-4 py-3 border-b border-border flex justify-between items-center bg-white/[0.02]">
                   <h3 className="text-sm font-semibold text-white">Notifications</h3>
-                  <button className="text-xs text-brand-coral hover:text-brand-pink font-medium transition-colors" onClick={markAllAsRead}>
+                  <button className="text-xs text-brand-coral hover:text-brand-pink font-medium transition-colors cursor-pointer enabled:active:scale-[0.98]" onClick={markAllAsRead}>
                     Mark all as read
                   </button>
                 </div>
@@ -246,7 +246,7 @@ export function Navbar() {
                   ))}
                 </div>
                 <div className="px-4 py-2.5 border-t border-border text-center bg-white/[0.01]">
-                  <button className="text-xs text-text-muted hover:text-white font-medium transition-colors" onClick={() => setShowNotifications(false)}>
+                  <button className="text-xs text-text-muted hover:text-white font-medium transition-colors cursor-pointer enabled:active:scale-[0.98]" onClick={() => setShowNotifications(false)}>
                     View all notifications
                   </button>
                 </div>

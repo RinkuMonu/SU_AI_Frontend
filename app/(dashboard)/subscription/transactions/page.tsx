@@ -637,7 +637,7 @@ export default function TransactionReportPage() {
                 }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
                   statusFilter === st
-                    ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md"
+                    ? "bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white shadow-md group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
                     : "text-text-muted hover:text-white"
                 }`}
               >
@@ -1229,7 +1229,7 @@ export default function TransactionReportPage() {
               <Button
                 size="sm"
                 onClick={() => handleDownloadReceipt(selectedTxForDetails)}
-                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] hover:brightness-110 text-white text-xs font-bold shadow-md cursor-pointer flex items-center gap-1.5"
+                className="bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold shadow-md flex items-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Download Official Receipt</span>

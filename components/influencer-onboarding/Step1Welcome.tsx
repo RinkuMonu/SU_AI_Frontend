@@ -62,7 +62,7 @@ export const Step1Welcome: React.FC<Step1WelcomeProps> = ({ onNext }) => {
           <button
             type="button"
             onClick={onNext}
-            className="w-full sm:w-auto px-9 py-3.5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-sm shadow-[0_0_25px_rgba(236,72,153,0.45)] transition-all flex items-center justify-center gap-2.5 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+            className="w-full sm:w-auto px-9 py-3.5 rounded-full bg-gradient-to-r from-[#A855F7] to-[#EC4899] hover:opacity-95 text-white font-bold text-sm shadow-[0_0_25px_rgba(236,72,153,0.45)] transition-all flex items-center justify-center gap-2.5 cursor-pointer hover:scale-[1.02] enabled:active:scale-[0.98]"
           >
             <span>Get Started</span>
             <ArrowRight className="w-4 h-4" />

@@ -279,7 +279,7 @@ export default function HelpCenterPage() {
               <div className="flex flex-wrap gap-2">
                 <span className="text-sm font-medium text-slate-500 mr-2 py-1">Example questions:</span>
                 {["How do I create a Reel?", "How do I connect Instagram?", "How do AI credits work?"].map((q) => (
-                  <button key={q} className="text-sm text-purple-400 bg-purple-400/10 hover:bg-purple-400/20 px-3 py-1 rounded-full transition-colors font-medium">
+                  <button key={q} className="text-sm text-purple-400 bg-purple-400/10 hover:bg-purple-400/20 px-3 py-1 rounded-full transition-colors font-medium cursor-pointer enabled:active:scale-[0.98]">
                     "{q}"
                   </button>
                 ))}

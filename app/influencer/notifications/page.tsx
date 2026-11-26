@@ -42,7 +42,7 @@ export default function InfluencerNotificationsPage() {
               </div>
             </div>
             <Link href="/influencer/brand-offers">
-              <Button size="sm" variant="outline" className="border-white/10 bg-white/5 text-xs text-white h-8">
+              <Button size="sm" variant="outline" className="border-white/10 bg-white/5 text-xs text-white h-8 hover:bg-slate-100 transition-all duration-200 cursor-pointer">
                 View <ArrowRight className="w-3.5 h-3.5 ml-1" />
               </Button>
             </Link>

@@ -153,7 +153,7 @@ export default function CreateAdPage() {
                 href={"/products"}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-center w-full rounded-lg bg-brand-gradient p-3 font-semibold text-white hover:opacity-90 transition-opacity active:scale-[0.98]"
+                className="block text-center w-full rounded-lg bg-brand-gradient p-3 font-semibold text-white hover:opacity-90 transition-opacity enabled:active:scale-[0.98]"
               >
                 {result.cta}
               </a>
