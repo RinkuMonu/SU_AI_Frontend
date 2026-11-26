@@ -4,7 +4,8 @@ import {
   BarChart3, 
   TrendingUp, 
   Users, 
-  Eye, 
+  Eye,
+  EyeOff, 
   Heart, 
   Share2, 
   Sparkles, 
@@ -25,6 +26,7 @@ import marketplaceService from '@/services/marketplace.service';
 export default function InfluencerAnalyticsPage() {
   const [profile, setProfile] = useState<InfluencerProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showReach, setShowReach] = useState(true);
 
   useEffect(() => {
     influencerService.getMyProfile()
@@ -88,12 +90,17 @@ export default function InfluencerAnalyticsPage() {
         <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5">
           <div className="flex items-center justify-between">
             <span className="text-xs text-neutral-400 font-medium">Estimated Monthly Reach</span>
-            <div className="p-2 rounded-xl bg-orange-500/10 text-[#fc9a5d]">
-              <Eye className="w-4 h-4" />
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowReach((v) => !v)}
+              aria-label="Show or hide reach"
+              className="p-2 rounded-xl bg-orange-500/10 text-[#fc9a5d] cursor-pointer transition-colors hover:bg-orange-500/20"
+            >
+              {showReach ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+            </button>
           </div>
           <p className="text-2xl font-black text-white mt-2">
-            {loading ? "..." : Number(estReach).toLocaleString()}
+            {loading ? "..." : showReach ? Number(estReach).toLocaleString() : "••••"}
           </p>
           <span className="text-[11px] text-neutral-400 mt-1 block">
             Unique profile accounts

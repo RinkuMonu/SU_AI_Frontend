@@ -414,14 +414,24 @@ export const authService = {
       if (
         code === 'SERVER_500' ||
         code === 'SMS_GATEWAY_ERROR' ||
+        code === 'WHATSAPP_GATEWAY_ERROR' ||
         error.response?.status === 500 ||
         finalMsg.toLowerCase().includes('internal server error')
       ) {
+        const isGeneric500 =
+          !finalMsg ||
+          finalMsg.toLowerCase().includes('internal server error') ||
+          finalMsg.toLowerCase().includes('temporarily unavailable');
+
         if (activeChannel === 'sms') {
-          finalMsg = 'SMS delivery is temporarily unavailable. Please choose WhatsApp or try again shortly.';
+          if (isGeneric500) {
+            finalMsg = 'SMS delivery is temporarily unavailable. Please choose WhatsApp or try again shortly.';
+          }
           finalCode = 'SMS_GATEWAY_ERROR';
         } else {
-          finalMsg = 'WhatsApp delivery is temporarily unavailable. Please choose SMS or try again shortly.';
+          if (isGeneric500) {
+            finalMsg = 'WhatsApp delivery is temporarily unavailable. Please choose SMS or try again shortly.';
+          }
           finalCode = 'WHATSAPP_GATEWAY_ERROR';
         }
       }
