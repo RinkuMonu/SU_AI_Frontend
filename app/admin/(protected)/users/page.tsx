@@ -35,7 +35,7 @@ export default function AdminUsersPage() {
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-500 p-4 rounded-md">
+      <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">
         {error}
       </div>
     );
@@ -43,15 +43,15 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-800">Platform Users</h1>
-      <Card>
+      <h1 className="text-2xl font-bold text-white">Platform Users</h1>
+      <Card className="bg-surface border-border">
         <CardHeader>
-          <CardTitle>All Users</CardTitle>
+          <CardTitle className="text-white">All Users</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b">
+              <thead className="text-xs text-text-muted uppercase bg-surface-elevated/50 border-b border-border">
                 <tr>
                   <th className="px-6 py-3">Name</th>
                   <th className="px-6 py-3">Email</th>
@@ -59,22 +59,22 @@ export default function AdminUsersPage() {
                   <th className="px-6 py-3">ID</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-border">
                 {users.map((user) => (
-                  <tr key={user.id} className="bg-white border-b hover:bg-slate-50">
-                    <td className="px-6 py-4 font-medium text-slate-900">{user.name}</td>
-                    <td className="px-6 py-4">{user.email}</td>
+                  <tr key={user.id} className="bg-surface hover:bg-surface-elevated/40 transition-colors">
+                    <td className="px-6 py-4 font-medium text-white">{user.name}</td>
+                    <td className="px-6 py-4 text-text-secondary">{user.email}</td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800'}`}>
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${user.role === 'admin' ? 'bg-purple-500/10 text-purple-400 border-purple-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'}`}>
                         {user.role || 'user'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-slate-500 font-mono text-xs">{user.id}</td>
+                    <td className="px-6 py-4 text-text-muted font-mono text-xs">{user.id}</td>
                   </tr>
                 ))}
                 {users.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-6 py-4 text-center text-slate-500">
+                    <td colSpan={4} className="px-6 py-8 text-center text-text-muted">
                       No users found.
                     </td>
                   </tr>
