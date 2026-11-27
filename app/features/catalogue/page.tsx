@@ -382,9 +382,9 @@ export default function CataloguePage() {
       </section>
 
       {/* Real-time Omnichannel Sync Animation Visualizer */}
-      <section className="py-20 lg:py-28 bg-[#04070D] border-t border-slate-800/80 relative overflow-hidden">
+      <section className="pt-14 pb-6 lg:pt-16 lg:pb-8 bg-[#04070D] border-t border-slate-800/80 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 lg:mb-12">
             <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-3">
               Zero Double-Selling • 100% Real-time
             </span>
@@ -397,7 +397,7 @@ export default function CataloguePage() {
           </div>
 
           {/* Sync Animation UI Hub */}
-          <div className="relative mx-auto w-full max-w-5xl py-8">
+          <div className="relative mx-auto w-full max-w-5xl pt-2 pb-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
               {/* Left Endpoints: Instagram & Facebook */}
               <div className="space-y-4">
@@ -487,9 +487,9 @@ export default function CataloguePage() {
       </section>
 
       {/* 6 AI Superpowers Grid */}
-      <section className="py-20 lg:py-28 bg-[#070B14]">
+      <section className="pt-6 pb-16 lg:pt-8 lg:pb-20 bg-[#070B14]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 lg:mb-12">
             <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest block mb-3">
               Engineered for Indian Retailers & D2C Brands
             </span>
