@@ -869,8 +869,8 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Ready-to-Use Decks Section (Matching User Image Exactly) */}
-      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-14">
+      <section className="pt-10 sm:pt-14 pb-8 sm:pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-10">
           <div>
             <div className="text-xs font-extrabold uppercase tracking-widest text-[#FF4D6D] mb-2 sm:mb-2.5">
               READY-TO-USE DECKS
@@ -980,14 +980,14 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Comparison Section (Matching User Image Exactly) */}
-      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+      <section className="pt-8 sm:pt-10 pb-8 sm:pb-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
         {/* Pill Badge */}
         <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-[#FFF0E6] border border-[#FFE0CC] text-[#FF6B00] text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
           SAVE 95% PRESENTATION TIME
         </div>
 
         {/* Heading */}
-        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-8 sm:mb-14 px-2">
+        <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-6 sm:mb-8 px-2">
           Manual Slide Making vs.{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF6B00] via-[#FF5E62] to-[#FF8C00]">
             DhandaGrow AI
@@ -1086,11 +1086,11 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Frequently Asked Questions Section (Matching User Image Exactly) */}
-      <section className="py-16 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
-        <h2 className="text-2xl sm:text-3xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight mb-2.5 sm:mb-3">
+      <section className="pt-8 sm:pt-10 pb-8 sm:pb-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+        <h2 className="text-2xl sm:text-3xl md:text-[42px] font-black text-slate-900 tracking-tight leading-tight mb-2 sm:mb-2.5">
           Frequently Asked Questions
         </h2>
-        <p className="text-slate-500 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-8 sm:mb-14 px-2">
+        <p className="text-slate-500 text-xs sm:text-sm md:text-base max-w-2xl mx-auto leading-relaxed font-normal mb-6 sm:mb-8 px-2">
           Everything you need to know about generating and exporting Google Slides with DhandaGrow AI.
         </p>
 
@@ -1136,7 +1136,7 @@ export default function GooglePPTPage() {
       </section>
 
       {/* Bottom Final CTA Section (Matching User Image Exactly) */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-[#FFF4E8] text-center border-t border-orange-100/80 relative overflow-hidden">
+      <section className="py-12 sm:py-16 lg:py-20 bg-[#FFF4E8] text-center border-t border-orange-100/80 relative overflow-hidden">
         {/* Soft Background Blur Orbs */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-orange-300/15 blur-[90px] rounded-full pointer-events-none -z-10" />
 
