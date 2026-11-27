@@ -40,7 +40,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <div className="flex items-center justify-start mb-8">
             <Link 
               href="/#blog" 
-              className="inline-flex items-center text-xs sm:text-sm font-semibold text-slate-500 hover:text-[#7d36fa] transition-colors group px-3.5 py-1.5 rounded-full bg-slate-100/90 hover:bg-purple-50 border border-slate-200/60"
+              className="inline-flex items-center text-xs sm:text-sm font-bold text-slate-600 hover:text-[#7d36fa] transition-all group px-4 py-2 rounded-full bg-white hover:bg-purple-50/80 border border-slate-200/90 hover:border-purple-300 shadow-2xs hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
             >
               <ArrowLeft className="w-3.5 h-3.5 mr-1.5 transition-transform group-hover:-translate-x-1" />
               Back to all insights
@@ -62,12 +62,40 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 {post.subtitle}
               </p>
             )}
+
+            {/* Author & Publication Metadata */}
+            <div className="mt-8 pt-6 border-t border-slate-200/70 flex flex-wrap items-center justify-center gap-6 text-xs sm:text-sm text-slate-600">
+              {post.author && (
+                <div className="flex items-center gap-3">
+                  <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-purple-200 shadow-xs bg-purple-100 flex items-center justify-center font-bold text-purple-700 shrink-0">
+                    {post.author.avatar ? (
+                      <img src={post.author.avatar} alt={post.author.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span>{post.author.name[0]}</span>
+                    )}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-slate-900">{post.author.name}</div>
+                    <div className="text-[11px] text-slate-500">{post.author.role}</div>
+                  </div>
+                </div>
+              )}
+              <div className="hidden sm:block w-px h-6 bg-slate-200" />
+              <div className="flex items-center gap-4 text-xs font-semibold text-slate-500">
+                <span className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-purple-500" />
+                  {post.readTime}
+                </span>
+                <span>•</span>
+                <span>{post.date}</span>
+              </div>
+            </div>
           </div>
         </header>
 
         {/* Featured Banner Image */}
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-14">
-          <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-[28px] overflow-hidden shadow-2xl shadow-purple-950/10 border border-slate-200/80">
+          <div className="relative aspect-[16/9] md:aspect-[21/9] rounded-[32px] overflow-hidden shadow-2xl shadow-purple-950/10 border border-slate-200/80 group">
             <Image 
               src={post.image}
               alt={post.title}
@@ -85,7 +113,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           
           {/* Key Takeaways Box */}
           {post.keyTakeaways && post.keyTakeaways.length > 0 && (
-            <div className="mb-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-50/90 via-white to-pink-50/60 border border-purple-200/70 shadow-sm relative overflow-hidden">
+            <div className="mb-14 p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-purple-50/90 via-white to-pink-50/60 border border-purple-200/80 shadow-2xs hover:shadow-xl transition-all duration-300 relative overflow-hidden">
               <div className="flex items-center gap-2.5 text-slate-900 font-bold text-lg mb-5">
                 <div className="w-8 h-8 rounded-xl bg-[#7d36fa] flex items-center justify-center text-white shadow-md shadow-purple-500/20">
                   <Sparkles className="w-4 h-4" />
@@ -110,7 +138,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               {post.stats.map((stat, idx) => (
                 <div 
                   key={idx} 
-                  className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/80 shadow-sm text-center flex flex-col items-center justify-center transition-all hover:border-purple-300 hover:shadow-md"
+                  className="group bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/90 shadow-2xs hover:shadow-xl hover:border-purple-300 hover:-translate-y-1.5 transition-all duration-300 text-center flex flex-col items-center justify-between cursor-pointer"
                 >
                   <span className="text-2xl sm:text-3xl font-extrabold bg-gradient-to-r from-[#7d36fa] to-[#f0449b] bg-clip-text text-transparent tracking-tight">
                     {stat.value}
@@ -190,9 +218,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     {section.checklist.map((item, cIdx) => (
                       <div 
                         key={cIdx} 
-                        className="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-start gap-3.5 transition-all hover:border-purple-200"
+                        className="group p-4 sm:p-5 rounded-2xl bg-white hover:bg-purple-50/40 border border-slate-200/80 hover:border-purple-300 shadow-2xs hover:shadow-md hover:translate-x-1.5 transition-all duration-300 flex items-start gap-3.5 cursor-pointer"
                       >
-                        <div className="w-6 h-6 rounded-lg bg-purple-100 text-[#7d36fa] flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        <div className="w-6 h-6 rounded-lg bg-purple-100 text-[#7d36fa] group-hover:bg-[#7d36fa] group-hover:text-white group-hover:scale-105 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5 transition-all duration-300">
                           {cIdx + 1}
                         </div>
                         <div className="text-sm sm:text-base text-slate-800 leading-snug font-medium">
@@ -249,11 +277,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <Button 
                   asChild
                   size="lg"
-                  className="rounded-xl px-8 py-6 text-sm font-bold bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white hover:opacity-95 shadow-[0_0_30px_rgba(240,68,155,0.4)] transition-all scale-100 hover:scale-105"
+                  className="rounded-2xl px-9 py-6 text-sm font-bold bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#7d36fa] text-white hover:opacity-95 shadow-[0_10px_35px_rgba(240,68,155,0.45)] hover:shadow-[0_15px_45px_rgba(240,68,155,0.6)] hover:-translate-y-1 hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 inline-flex items-center justify-center gap-2 cursor-pointer group"
                 >
                   <Link href={post.cta.buttonHref}>
                     {post.cta.buttonText}
-                    <ArrowRight className="w-4 h-4 ml-2" />
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1.5 transition-transform duration-300" />
                   </Link>
                 </Button>
               </div>
@@ -290,7 +318,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               <Link 
                 href={`/blog/${relatedPost.slug}`} 
                 key={relatedPost.id} 
-                className="group block bg-white rounded-3xl p-4 shadow-sm border border-slate-200/80 hover:border-purple-300 hover:shadow-lg transition-all"
+                className="group block bg-white rounded-3xl p-5 shadow-2xs border border-slate-200/80 hover:border-purple-300 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer"
               >
                 <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-5">
                   <Image 
