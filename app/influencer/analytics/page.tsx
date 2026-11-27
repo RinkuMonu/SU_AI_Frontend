@@ -45,56 +45,56 @@ export default function InfluencerAnalyticsPage() {
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3">
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold text-white flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-[#be32ff]" /> Social Analytics &amp; Portfolio
+            <BarChart3 className="w-6 h-6 text-[#be32ff] shrink-0" /> <span className="truncate">Social Analytics &amp; Portfolio</span>
           </h1>
-          <p className="text-xs text-neutral-400 mt-1">
+          <p className="text-base text-slate-300 mt-1">
             Verified platform reach, authentic engagement metrics, and completed brand campaign deliverables.
           </p>
         </div>
       </div>
 
       {/* Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400 font-medium">Total Followers</span>
-            <div className="p-2 rounded-xl bg-purple-500/10 text-[#be32ff]">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <Card className="bg-[#0e0f17] border border-white/10 hover:border-pink-500/60 transition-all duration-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm sm:text-base text-slate-100 font-medium">Total Followers</span>
+            <div className="p-2 rounded-xl bg-purple-500/10 text-[#be32ff] shrink-0">
               <Users className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : Number(followerCount).toLocaleString()}
           </p>
-          <span className="text-[11px] text-emerald-400 font-semibold flex items-center gap-1 mt-1">
-            <TrendingUp className="w-3 h-3" /> Live verified audience
+          <span className="text-sm text-slate-300 font-medium flex items-center gap-1.5 mt-2">
+            <TrendingUp className="w-3.5 h-3.5 text-emerald-400 shrink-0" /> <span>Live verified audience</span>
           </span>
         </Card>
 
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400 font-medium">Avg Engagement Rate</span>
-            <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400">
+        <Card className="bg-[#0e0f17] border border-white/10 hover:border-pink-500/60 transition-all duration-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm sm:text-base text-slate-100 font-medium">Avg Engagement Rate</span>
+            <div className="p-2 rounded-xl bg-pink-500/10 text-pink-400 shrink-0">
               <Heart className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : `${engagementRate}%`}
           </p>
-          <span className="text-[11px] text-neutral-400 mt-1 block">
+          <span className="text-sm text-slate-300 mt-2 block">
             Across recent Reels &amp; Posts
           </span>
         </Card>
 
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400 font-medium">Estimated Monthly Reach</span>
+        <Card className="bg-[#0e0f17] border border-white/10 hover:border-pink-500/60 transition-all duration-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm sm:text-base text-slate-100 font-medium">Estimated Monthly Reach</span>
             <button
               type="button"
               onClick={() => setShowReach((v) => !v)}
               aria-label="Show or hide reach"
-              className="p-2 rounded-xl bg-orange-500/10 text-[#fc9a5d] cursor-pointer transition-colors hover:bg-orange-500/20"
+              className="p-2 rounded-xl bg-orange-500/10 text-[#fc9a5d] cursor-pointer transition-colors hover:bg-orange-500/20 shrink-0"
             >
               {showReach ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </button>
@@ -102,47 +102,47 @@ export default function InfluencerAnalyticsPage() {
           <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : showReach ? Number(estReach).toLocaleString() : "••••"}
           </p>
-          <span className="text-[11px] text-neutral-400 mt-1 block">
+          <span className="text-sm text-slate-300 mt-2 block">
             Unique profile accounts
           </span>
         </Card>
 
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-neutral-400 font-medium">Est. Impressions</span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+        <Card className="bg-[#0e0f17] border border-white/10 hover:border-pink-500/60 transition-all duration-200 rounded-2xl p-5">
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm sm:text-base text-slate-100 font-medium">Est. Impressions</span>
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 shrink-0">
               <Sparkles className="w-4 h-4" />
             </div>
           </div>
           <p className="text-2xl font-semibold text-white mt-2">
             {loading ? "..." : Number(estImpressions).toLocaleString()}
           </p>
-          <span className="text-[11px] text-neutral-400 mt-1 block">
+          <span className="text-sm text-slate-300 mt-2 block">
             Estimated campaign views
           </span>
         </Card>
       </div>
 
       {/* Media Kit Breakdown */}
-      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" /> Public Media Kit &amp; Rate Structure
+      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-5">
+        <h3 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" /> Public Media Kit &amp; Rate Structure
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-            <span className="text-neutral-400">Standard Reel Deliverable</span>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs">
+          <div className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-pink-500/60 transition-all duration-200 space-y-1.5">
+            <span className="text-sm sm:text-base text-slate-100 font-medium block">Standard Reel Deliverable</span>
             <p className="text-lg font-bold text-white">₹{Number(profile?.expectedPricePerPost || 5000).toLocaleString()}</p>
-            <p className="text-[11px] text-neutral-500">Includes 30-60s Reel, caption, and 30-day usage.</p>
+            <p className="text-sm text-slate-300 leading-relaxed">Includes 30-60s Reel, caption, and 30-day usage.</p>
           </div>
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-            <span className="text-neutral-400">Story Series (3 Slides)</span>
+          <div className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-pink-500/60 transition-all duration-200 space-y-1.5">
+            <span className="text-sm sm:text-base text-slate-100 font-medium block">Story Series (3 Slides)</span>
             <p className="text-lg font-bold text-white">₹{Math.round(Number(profile?.expectedPricePerPost || 5000) * 0.5).toLocaleString()}</p>
-            <p className="text-[11px] text-neutral-500">Includes sticker links and swipe-up CTAs.</p>
+            <p className="text-sm text-slate-300 leading-relaxed">Includes sticker links and swipe-up CTAs.</p>
           </div>
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-1">
-            <span className="text-neutral-400">Dedicated YouTube Video</span>
+          <div className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-pink-500/60 transition-all duration-200 space-y-1.5">
+            <span className="text-sm sm:text-base text-slate-100 font-medium block">Dedicated YouTube Video</span>
             <p className="text-lg font-bold text-white">₹{Math.round(Number(profile?.expectedPricePerPost || 5000) * 2.2).toLocaleString()}</p>
-            <p className="text-[11px] text-neutral-500">Includes dedicated review and description links.</p>
+            <p className="text-sm text-slate-300 leading-relaxed">Includes dedicated review and description links.</p>
           </div>
         </div>
       </Card>
