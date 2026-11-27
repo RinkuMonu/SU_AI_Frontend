@@ -30,12 +30,12 @@ export default function AIAvatarPage() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Button size="lg" className="h-14 px-8 text-base rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/30 border-0 flex items-center gap-2" asChild>
+            <Button size="lg" className="h-14 px-8 text-base rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 border-0 flex items-center gap-2 cursor-pointer group" asChild>
               <a href="/download">
-                Create First Video <Play className="w-4 h-4 fill-current" />
+                Create First Video <Play className="w-4 h-4 fill-current group-hover:translate-x-1 transition-transform duration-300" />
               </a>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 text-base rounded-2xl border-slate-200 hover:bg-slate-100 text-slate-700 font-bold flex items-center gap-2" asChild>
+            <Button size="lg" variant="outline" className="h-14 px-8 text-base rounded-2xl bg-white hover:bg-slate-50 text-slate-800 hover:text-blue-600 border-2 border-slate-200 hover:border-blue-300 shadow-sm hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 font-bold flex items-center gap-2 cursor-pointer" asChild>
               <a href="/features/ai-reel-maker">
                 View Reels Example
               </a>
@@ -184,8 +184,8 @@ export default function AIAvatarPage() {
                <h3 className="text-2xl font-bold mb-2">Generate Video</h3>
                <p className="text-slate-400">The AI handles lip-sync, gestures, and rendering instantly.</p>
              </div>
-             <Button className="h-14 px-8 rounded-xl bg-white text-black hover:bg-slate-200 font-bold text-lg shrink-0">
-               <Sparkles className="w-5 h-5 mr-2 text-purple-600" /> Generate Now
+             <Button className="h-14 px-8 rounded-xl bg-white text-black hover:bg-slate-100 hover:shadow-lg hover:shadow-white/20 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 font-bold text-lg shrink-0 cursor-pointer group">
+               <Sparkles className="w-5 h-5 mr-2 text-purple-600 group-hover:rotate-12 transition-transform duration-300" /> Generate Now
              </Button>
            </div>
         </div>
@@ -202,7 +202,7 @@ export default function AIAvatarPage() {
           <p className="text-slate-500 text-lg sm:text-xl max-w-2xl mx-auto mb-6">
             Join modern creators and businesses who use AI Avatars to scale their video production by 100x.
           </p>
-          <Button size="lg" className="h-16 px-12 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-500/20 border-0" asChild>
+          <Button size="lg" className="h-16 px-12 text-lg rounded-full bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-500/25 hover:shadow-2xl hover:shadow-blue-500/50 hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 border-0 cursor-pointer" asChild>
             <a href="/download">Get Started for Free</a>
           </Button>
         </div>
