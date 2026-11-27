@@ -189,152 +189,155 @@ export default function InfluencerProfilePage() {
       </div>
 
       <form onSubmit={handleSave}>
-        <Card className="bg-[#0f1017] border-white/10 rounded-3xl p-6 sm:p-8 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-neutral-300 font-semibold">Full Creator Name</Label>
+        <Card className="bg-[#0f1017] border-white/10 rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-7 overflow-hidden">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="min-w-0">
+              <Label className="block mb-2 text-base font-semibold text-white">Full Creator Name</Label>
               <Input
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Maya Patel"
-                className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 required
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-neutral-300 font-semibold">Username / Handle</Label>
+            <div className="min-w-0">
+              <Label className="block mb-2 text-base font-semibold text-white">Username / Handle</Label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. @mayacreates"
-                className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <Label className="text-xs text-neutral-300 font-semibold">Bio / Media Kit Summary</Label>
+          <div className="min-w-0">
+            <Label className="block mb-2 text-base font-semibold text-white">Bio / Media Kit Summary</Label>
             <textarea
-              rows={3}
+              rows={4}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell brands about your aesthetic, audience demographics, and top achievements..."
-              className="w-full rounded-xl bg-black/40 border border-white/10 p-3 text-xs text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#be32ff] resize-none"
+              className="w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30 resize-y min-h-[120px]"
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-1.5">
-              <Label className="text-xs text-neutral-300 font-semibold">Primary Niche</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            <div className="min-w-0">
+              <Label className="block mb-2 text-base font-semibold text-white">Primary Niche</Label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full h-11 rounded-xl bg-black/40 border border-white/10 px-3 text-xs text-neutral-200 cursor-pointer"
+                className="w-full min-h-12 rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white cursor-pointer focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30"
               >
-                <option value="Fashion & Lifestyle">Fashion &amp; Lifestyle</option>
-                <option value="Beauty & Skincare">Beauty &amp; Skincare</option>
-                <option value="Food & Travel">Food &amp; Travel</option>
-                <option value="Tech & Gaming">Tech &amp; Gaming</option>
-                <option value="Fitness & Health">Fitness &amp; Health</option>
+                <option value="Fashion & Lifestyle" className="bg-[#0f1017] text-white">Fashion &amp; Lifestyle</option>
+                <option value="Beauty & Skincare" className="bg-[#0f1017] text-white">Beauty &amp; Skincare</option>
+                <option value="Food & Travel" className="bg-[#0f1017] text-white">Food &amp; Travel</option>
+                <option value="Tech & Gaming" className="bg-[#0f1017] text-white">Tech &amp; Gaming</option>
+                <option value="Fitness & Health" className="bg-[#0f1017] text-white">Fitness &amp; Health</option>
               </select>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-neutral-300 font-semibold">Location / Base City</Label>
+            <div className="min-w-0">
+              <Label className="block mb-2 text-base font-semibold text-white">Location / Base City</Label>
               <Input
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. Mumbai, India"
-                className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs text-neutral-300 font-semibold">Expected Rate / Reel (₹)</Label>
+            <div className="min-w-0 md:col-span-2 xl:col-span-1">
+              <Label className="block mb-2 text-base font-semibold text-white">Expected Rate / Reel (₹)</Label>
               <Input
                 type="number"
                 value={expectedRate}
                 onChange={(e) => setExpectedRate(e.target.value ? Number(e.target.value) : '')}
                 placeholder="e.g. 5000"
-                className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
               />
             </div>
           </div>
 
           {/* Social Handles Section (Instagram, Facebook, LinkedIn ONLY) */}
-          <div className="pt-4 border-t border-white/10 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[#fc9a5d] flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" />
-                Social Handles &amp; Audience Reach
+          <div className="pt-6 border-t border-white/10 space-y-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <h3 className="text-base sm:text-lg font-bold uppercase tracking-wider text-[#fc9a5d] flex items-center gap-2">
+                <Sparkles className="w-4 h-4 shrink-0" />
+                <span>Social Handles &amp; Audience Reach</span>
               </h3>
-              <span className="text-[11px] text-neutral-400">
+              <span className="text-sm text-slate-300">
                 Only Instagram, Facebook &amp; LinkedIn supported
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-neutral-300 font-semibold flex items-center gap-1.5">
-                  <InstagramIcon className="w-3.5 h-3.5" /> Instagram Profile URL
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div className="min-w-0">
+                <Label className="mb-2 text-base font-semibold text-white flex items-center gap-2">
+                  <InstagramIcon className="w-4 h-4 shrink-0" />
+                  <span className="break-words">Instagram Profile URL</span>
                 </Label>
                 <Input
                   value={instagramUrl}
                   onChange={(e) => setInstagramUrl(e.target.value)}
                   placeholder="https://instagram.com/yourhandle"
-                  className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs text-neutral-300 font-semibold flex items-center gap-1.5">
-                  <FacebookIcon className="w-3.5 h-3.5" /> Facebook Page URL
+              <div className="min-w-0">
+                <Label className="mb-2 text-base font-semibold text-white flex items-center gap-2">
+                  <FacebookIcon className="w-4 h-4 shrink-0" />
+                  <span className="break-words">Facebook Page URL</span>
                 </Label>
                 <Input
                   value={facebookUrl}
                   onChange={(e) => setFacebookUrl(e.target.value)}
                   placeholder="https://facebook.com/yourpage"
-                  className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 />
               </div>
 
-              <div className="space-y-1.5">
-                <Label className="text-xs text-neutral-300 font-semibold flex items-center gap-1.5">
-                  <LinkedInIcon className="w-3.5 h-3.5" /> LinkedIn Profile URL
+              <div className="min-w-0 md:col-span-2 xl:col-span-1">
+                <Label className="mb-2 text-base font-semibold text-white flex items-center gap-2">
+                  <LinkedInIcon className="w-4 h-4 shrink-0" />
+                  <span className="break-words">LinkedIn Profile URL</span>
                 </Label>
                 <Input
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
                   placeholder="https://linkedin.com/in/yourprofile"
-                  className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs text-neutral-300 font-semibold">Total Follower Count (Estimate)</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
+              <div className="min-w-0">
+                <Label className="block mb-2 text-base font-semibold text-white break-words">Total Follower Count (Estimate)</Label>
                 <Input
                   type="number"
                   value={followerCount}
                   onChange={(e) => setFollowerCount(e.target.value ? Number(e.target.value) : '')}
                   placeholder="e.g. 25000"
-                  className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 />
               </div>
-              <div className="space-y-1.5">
-                <Label className="text-xs text-neutral-300 font-semibold">Avg Engagement Rate (%)</Label>
+              <div className="min-w-0">
+                <Label className="block mb-2 text-base font-semibold text-white break-words">Avg Engagement Rate (%)</Label>
                 <Input
                   type="number"
                   step="0.1"
                   value={engagementRate}
                   onChange={(e) => setEngagementRate(e.target.value ? Number(e.target.value) : '')}
                   placeholder="e.g. 4.5"
-                  className="h-11 rounded-xl bg-black/40 border-white/10 text-xs text-white"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
                 />
               </div>
             </div>
 
-            <p className="text-[11px] text-neutral-400 bg-white/[0.02] p-3 rounded-xl border border-white/5">
+            <p className="text-sm leading-relaxed text-slate-300 bg-white/[0.04] p-4 rounded-xl border border-white/10">
               💡 Note: Manually entered handles above will appear as unverified. To display the official green Verified badge on your creator card, link your platforms via OAuth in{' '}
               <Link href="/influencer/social-accounts" className="text-[#d87aff] hover:underline font-semibold">
                 Social Accounts
