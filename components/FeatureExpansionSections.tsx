@@ -405,22 +405,25 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
                   { icon: MessageSquare, label: 'Social content', value: '3 short-form concepts', state: 'Drafted' },
                   { icon: LineChart, label: 'Performance check', value: 'Review campaign signals', state: 'Next step' },
                 ].map(({ icon: Icon, label, value, state }, index) => (
-                  <div key={label} className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-400/10 text-indigo-300">
+                  <div
+                    key={label}
+                    className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950/70 hover:bg-slate-900/90 hover:border-indigo-400/40 hover:translate-x-1.5 hover:shadow-lg hover:shadow-indigo-500/10 p-4 transition-all duration-300 group cursor-pointer"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-400/10 text-indigo-300 border border-indigo-400/20 group-hover:scale-110 group-hover:bg-indigo-500/20 group-hover:text-indigo-200 transition-all duration-300">
                       <Icon className="h-5 w-5" />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs text-slate-400">{label}</p>
+                      <p className="text-xs text-slate-400 group-hover:text-indigo-300 transition-colors">{label}</p>
                       <p className="mt-1 truncate text-sm font-semibold text-white">{value}</p>
                     </div>
                     <span className={`hidden text-right text-xs font-medium sm:block ${index < 2 ? 'text-emerald-300' : 'text-slate-400'}`}>{state}</span>
-                    <CheckCircle2 className={`h-4 w-4 shrink-0 ${index < 2 ? 'text-emerald-400' : 'text-slate-600'}`} />
+                    <CheckCircle2 className={`h-4 w-4 shrink-0 transition-transform duration-300 group-hover:scale-110 ${index < 2 ? 'text-emerald-400' : 'text-slate-600'}`} />
                   </div>
                 ))}
               </div>
             </div>
 
-            <aside className="flex flex-col justify-between rounded-3xl border border-indigo-300/20 bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-slate-950 p-6 sm:p-8">
+            <aside className="flex flex-col justify-between rounded-3xl border border-indigo-300/20 hover:border-indigo-400/40 bg-gradient-to-br from-indigo-500/15 via-violet-500/10 to-slate-950 hover:shadow-[0_15px_35px_rgba(99,102,241,0.2)] hover:-translate-y-1 p-6 sm:p-8 transition-all duration-300 group cursor-pointer">
               <div>
                 <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-indigo-300/20 bg-indigo-300/10 text-indigo-200">
                   <Bot className="h-6 w-6" />
@@ -456,12 +459,32 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
           </div>
           <div className="grid gap-5 md:grid-cols-3">
             {content.benefits.map((benefit, index) => (
-              <article key={benefit.title} className={`rounded-2xl p-6 sm:p-8 ${cardClass}`}>
-                <span className={`mb-5 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold ${content.dark ? 'bg-violet-400/15 text-violet-200' : 'bg-violet-100 text-violet-800'}`}>
-                  0{index + 1}
-                </span>
-                <h3 className="text-xl font-bold">{benefit.title}</h3>
-                <p className={`mt-3 leading-7 ${mutedTextClass}`}>{benefit.description}</p>
+              <article
+                key={benefit.title}
+                className={`group relative rounded-3xl p-6 sm:p-8 border transition-all duration-300 ease-out cursor-pointer hover:-translate-y-2 hover:shadow-2xl ${
+                  content.dark
+                    ? 'border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-indigo-500/50 hover:shadow-indigo-500/10'
+                    : 'border-slate-200 bg-white hover:border-indigo-300 hover:shadow-indigo-500/10'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-5">
+                  <span className={`flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-extrabold shadow-sm group-hover:scale-110 transition-all duration-300 ${
+                    content.dark 
+                      ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 group-hover:bg-indigo-600 group-hover:text-white' 
+                      : 'bg-indigo-100 text-indigo-700 border border-indigo-200 group-hover:bg-indigo-600 group-hover:text-white'
+                  }`}>
+                    0{index + 1}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-800/50 text-slate-400 border border-slate-700/50 group-hover:border-indigo-500/30 group-hover:text-indigo-300 transition-colors">
+                    Core Benefit
+                  </span>
+                </div>
+                <h3 className={`text-xl font-bold transition-colors duration-300 ${
+                  content.dark ? 'text-white group-hover:text-indigo-300' : 'text-slate-900 group-hover:text-indigo-600'
+                }`}>
+                  {benefit.title}
+                </h3>
+                <p className={`mt-3 leading-7 text-sm sm:text-base ${mutedTextClass}`}>{benefit.description}</p>
               </article>
             ))}
           </div>
@@ -483,12 +506,29 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
           </div>
           <ol className="grid gap-5 md:grid-cols-3">
             {content.steps.map((step, index) => (
-              <li key={step.title} className={`relative rounded-2xl p-6 sm:p-8 ${cardClass}`}>
-                <span className="mb-5 block text-sm font-bold text-white/80">
-                  STEP 0{index + 1}
-                </span>
-                <h3 className={`text-xl font-bold ${content.dark ? 'text-white' : 'text-slate-900'}`}>{step.title}</h3>
-                <p className={`mt-3 leading-7 ${mutedTextClass}`}>{step.description}</p>
+              <li
+                key={step.title}
+                className="group relative rounded-3xl p-6 sm:p-8 backdrop-blur-xl bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/50 shadow-lg hover:shadow-[0_20px_45px_rgba(0,0,0,0.3)] hover:-translate-y-2.5 transition-all duration-300 ease-out cursor-pointer overflow-hidden"
+              >
+                <div className="absolute -top-12 -right-12 w-28 h-28 bg-white/10 rounded-full blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-500" />
+                <div className="flex items-center justify-between mb-5">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-white/20 border border-white/30 text-white shadow-xs group-hover:bg-white group-hover:text-purple-900 group-hover:scale-105 transition-all duration-300">
+                    STEP 0{index + 1}
+                  </span>
+                  <span className="text-white/50 group-hover:text-white/90 text-xs font-mono font-bold transition-colors">
+                    Phase {index + 1}
+                  </span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight group-hover:translate-x-1 transition-transform duration-300">
+                  {step.title}
+                </h3>
+                <p className="mt-3 leading-relaxed text-white/90 text-sm sm:text-base font-medium">
+                  {step.description}
+                </p>
+                <div className="mt-5 flex items-center gap-2 text-white/70 group-hover:text-white text-xs font-semibold uppercase tracking-wider transition-colors">
+                  <span>Explore Phase</span>
+                  <span className="group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+                </div>
               </li>
             ))}
           </ol>
@@ -505,8 +545,15 @@ export function FeatureExpansionSections({ feature }: { feature: FeatureKey }) {
           </div>
           <div className="space-y-3">
             {content.faqs.map((faq) => (
-              <details key={faq.title} className={`rounded-xl p-5 sm:p-6 ${cardClass}`}>
-                <summary className="cursor-pointer pr-8 text-lg font-semibold">
+              <details
+                key={faq.title}
+                className={`rounded-2xl p-5 sm:p-6 transition-all duration-300 border ${
+                  content.dark
+                    ? 'border-slate-800 bg-slate-900/50 hover:bg-slate-900/90 hover:border-indigo-500/40 hover:shadow-md'
+                    : 'border-slate-200 bg-white hover:border-indigo-300 hover:shadow-md'
+                }`}
+              >
+                <summary className="cursor-pointer pr-8 text-lg font-semibold hover:text-indigo-400 transition-colors">
                   {faq.title}
                 </summary>
                 <p className={`mt-3 leading-7 ${mutedTextClass}`}>{faq.description}</p>
