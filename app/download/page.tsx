@@ -102,24 +102,6 @@ export default function DownloadPage() {
                 </a>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                <div className="flex items-center gap-4 bg-white p-2 pr-6 rounded-2xl shadow-sm border border-slate-100">
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://su-ai.com/download" alt="QR Code" className="w-16 h-16 rounded-xl" />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-slate-900">Scan QR Code</span>
-                    <span className="text-xs text-slate-500">to Download App</span>
-                  </div>
-                </div>
-                <div className="flex flex-col hidden sm:flex">
-                  <div className="flex -space-x-2 mb-1">
-                    <img src="https://i.pravatar.cc/100?img=1" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
-                    <img src="https://i.pravatar.cc/100?img=2" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
-                    <img src="https://i.pravatar.cc/100?img=3" className="w-8 h-8 rounded-full border-2 border-[#f8f9fc]" alt="user" />
-                  </div>
-                  <span className="text-[11px] font-semibold text-slate-600">Trusted by <span className="text-slate-900">1M+ users</span></span>
-                  <span className="text-[11px] text-slate-500">worldwide</span>
-                </div>
-              </div>
             </div>
             
             {/* Right Hero Image */}
@@ -142,27 +124,36 @@ export default function DownloadPage() {
         </div>
       </section>
 
-      {/* Tools Grid */}
-      <section className="py-8 lg:py-10 bg-white relative z-20 border-b border-slate-100 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
-            {[
-              { icon: MessageSquare, color: "bg-blue-100 text-blue-600", title: "AI Chat", desc: "Get instant answers to any question" },
-              { icon: ImageIcon, color: "bg-purple-100 text-purple-600", title: "Image Generation", desc: "Create stunning images with AI" },
-              { icon: Video, color: "bg-pink-100 text-pink-600", title: "Video Creation", desc: "Generate videos in seconds" },
-              { icon: Code, color: "bg-emerald-100 text-emerald-600", title: "Code Assistant", desc: "Write, debug and learn code" },
-              { icon: FileText, color: "bg-orange-100 text-orange-600", title: "Document Tools", desc: "Summarize, rewrite and analyze files" },
-              { icon: Mic, color: "bg-indigo-100 text-indigo-600", title: "Voice & More", desc: "Speak, transcribe and explore more" }
-            ].map((tool, idx) => (
-              <div key={idx} className="flex flex-col items-center bg-white p-6 rounded-3xl hover:shadow-xl transition-all border border-slate-50 hover:border-slate-100 group">
-                <div className={`w-14 h-14 rounded-2xl ${tool.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <tool.icon className="w-6 h-6" />
-                </div>
-                <h3 className="font-bold text-slate-900 mb-2 text-sm">{tool.title}</h3>
-                <p className="text-[11px] text-slate-500 leading-relaxed font-medium">{tool.desc}</p>
+      {/* Tools Marquee (Horizontally Moving) */}
+      <section className="py-6 bg-white relative z-20 border-b border-slate-100 shadow-xs overflow-hidden">
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-white to-transparent z-10" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-white to-transparent z-10" />
+        <div className="feature-marquee-track py-2">
+          {[
+            { icon: MessageSquare, color: "bg-blue-100 text-blue-600", title: "AI Chat", desc: "Get instant answers to any question" },
+            { icon: ImageIcon, color: "bg-purple-100 text-purple-600", title: "Image Generation", desc: "Create stunning images with AI" },
+            { icon: Video, color: "bg-pink-100 text-pink-600", title: "Video Creation", desc: "Generate videos in seconds" },
+            { icon: Code, color: "bg-emerald-100 text-emerald-600", title: "Code Assistant", desc: "Write, debug and learn code" },
+            { icon: FileText, color: "bg-orange-100 text-orange-600", title: "Document Tools", desc: "Summarize, rewrite and analyze files" },
+            { icon: Mic, color: "bg-indigo-100 text-indigo-600", title: "Voice & More", desc: "Speak, transcribe and explore more" },
+            { icon: MessageSquare, color: "bg-blue-100 text-blue-600", title: "AI Chat", desc: "Get instant answers to any question" },
+            { icon: ImageIcon, color: "bg-purple-100 text-purple-600", title: "Image Generation", desc: "Create stunning images with AI" },
+            { icon: Video, color: "bg-pink-100 text-pink-600", title: "Video Creation", desc: "Generate videos in seconds" },
+            { icon: Code, color: "bg-emerald-100 text-emerald-600", title: "Code Assistant", desc: "Write, debug and learn code" },
+            { icon: FileText, color: "bg-orange-100 text-orange-600", title: "Document Tools", desc: "Summarize, rewrite and analyze files" },
+            { icon: Mic, color: "bg-indigo-100 text-indigo-600", title: "Voice & More", desc: "Speak, transcribe and explore more" }
+          ].map((tool, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col items-center justify-center text-center bg-white p-5 rounded-2xl hover:shadow-xl transition-all border border-slate-100 hover:border-slate-200 shrink-0 mx-3 w-[190px] group cursor-pointer"
+            >
+              <div className={`w-12 h-12 rounded-2xl ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                <tool.icon className="w-5 h-5" />
               </div>
-            ))}
-          </div>
+              <h3 className="font-bold text-slate-900 mb-1.5 text-sm whitespace-nowrap">{tool.title}</h3>
+              <p className="text-[11px] text-slate-500 leading-snug font-medium line-clamp-2">{tool.desc}</p>
+            </div>
+          ))}
         </div>
       </section>
 
