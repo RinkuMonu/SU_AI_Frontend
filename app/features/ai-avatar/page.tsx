@@ -107,7 +107,7 @@ export default function AIAvatarPage() {
             {/* Feature Box 1 */}
             <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-purple-300 flex flex-col h-full hover:shadow-2xl hover:shadow-purple-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
               <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-purple-50 group-hover:border-purple-200 group-hover:shadow-md transition-all duration-300 ease-out">
-                <Globe className="w-6 h-6 text-blue-500 group-hover:text-purple-600 transition-colors duration-300" />
+                <Globe className="w-6 h-6 text-purple-500 group-hover:text-purple-600 transition-colors duration-300" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-purple-600 transition-colors duration-300">100+ Diverse Avatars</h3>
               <p className="text-slate-600 leading-relaxed flex-1">
@@ -118,7 +118,7 @@ export default function AIAvatarPage() {
             {/* Feature Box 2 */}
             <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-purple-300 flex flex-col h-full hover:shadow-2xl hover:shadow-purple-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
               <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-purple-50 group-hover:border-purple-200 group-hover:shadow-md transition-all duration-300 ease-out">
-                <UserPlus className="w-6 h-6 text-indigo-500 group-hover:text-purple-600 transition-colors duration-300" />
+                <UserPlus className="w-6 h-6 text-purple-500 group-hover:text-purple-600 transition-colors duration-300" />
               </div>
               <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-purple-600 transition-colors duration-300">Clone Yourself</h3>
               <p className="text-slate-600 leading-relaxed flex-1">
