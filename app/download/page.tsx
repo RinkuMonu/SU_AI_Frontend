@@ -143,7 +143,7 @@ export default function DownloadPage() {
       </section>
 
       {/* Tools Grid */}
-      <section className="py-12 bg-white relative z-20 border-b border-slate-100 shadow-sm">
+      <section className="py-8 lg:py-10 bg-white relative z-20 border-b border-slate-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-center">
             {[
@@ -167,7 +167,7 @@ export default function DownloadPage() {
       </section>
 
       {/* Dark Section - One App Endless Possibilities */}
-      <section className="py-24 bg-[#090b14] relative overflow-hidden">
+      <section className="pt-10 pb-12 lg:pt-14 lg:pb-16 bg-[#090b14] relative overflow-hidden">
         <div className="absolute top-1/2 left-1/4 w-[500px] h-[500px] bg-indigo-600/20 blur-[120px] rounded-full pointer-events-none -translate-y-1/2" />
         <div className="absolute top-1/2 right-1/4 w-[500px] h-[500px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none -translate-y-1/2" />
         
@@ -209,7 +209,7 @@ export default function DownloadPage() {
       </section>
 
       {/* How to Get the App */}
-      <section className="py-24 bg-white relative">
+      <section className="pt-10 pb-12 lg:pt-14 lg:pb-16 bg-white relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
             
@@ -217,7 +217,7 @@ export default function DownloadPage() {
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
                 How to <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500">Get the App</span>
               </h2>
-              <p className="text-lg text-slate-500 mb-12 font-medium">
+              <p className="text-lg text-slate-500 mb-8 font-medium">
                 Download and start using DhandaGrow in just a few simple steps.
               </p>
               
@@ -259,14 +259,14 @@ export default function DownloadPage() {
 
             {/* Right QR Box */}
             <div className="w-full lg:w-2/5">
-               <div className="bg-[#f8f9fc] rounded-[40px] p-10 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm relative overflow-hidden">
+               <div className="bg-[#f8f9fc] rounded-[40px] p-6 lg:p-8 flex flex-col items-center justify-center text-center border border-slate-100 shadow-sm relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-200/40 blur-[50px] rounded-full pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-purple-200/40 blur-[50px] rounded-full pointer-events-none" />
                   
                   <h3 className="text-2xl font-bold text-slate-900 mb-2 relative z-10">Download Now</h3>
-                  <p className="text-sm text-slate-500 mb-8 relative z-10">Scan the QR code or click below to get the app on your device.</p>
+                  <p className="text-sm text-slate-500 mb-6 relative z-10">Scan the QR code or click below to get the app on your device.</p>
                   
-                  <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-8 relative z-10">
+                  <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 mb-6 relative z-10">
                      <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://su-ai.com/download" alt="QR Code" className="w-32 h-32" />
                   </div>
                   
@@ -305,9 +305,9 @@ export default function DownloadPage() {
       </section>
 
       {/* A Glimpse Inside the App */}
-      <section className="py-24 bg-[#f8f9fc] relative">
+      <section className="pt-10 pb-12 lg:pt-14 lg:pb-16 bg-[#f8f9fc] relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8 lg:mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
               A Glimpse <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Inside</span> the App
             </h2>
@@ -317,7 +317,7 @@ export default function DownloadPage() {
           </div>
           
           <div className="relative">
-            <div className="flex justify-center items-center gap-6 overflow-hidden py-10 px-4">
+            <div className="flex justify-center items-center gap-6 overflow-hidden py-4 lg:py-6 px-4">
               {/* Dummy Screenshots Carousel */}
               {[
                 { title: "AI Chat", desc: "Get instant answers and creative ideas", color: "bg-blue-600", image: "/images/about-analytics.jpg" },
@@ -410,9 +410,9 @@ export default function DownloadPage() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-24 bg-white relative border-b border-slate-100">
+      <section className="py-12 lg:py-16 bg-white relative border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
               Loved by <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">Users</span> Worldwide
             </h2>
@@ -446,9 +446,9 @@ export default function DownloadPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-24 bg-[#f8f9fc] relative">
+      <section className="py-12 lg:py-16 bg-[#f8f9fc] relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-12 gap-6">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-8 gap-6">
             <div>
               <h2 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
                 Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Questions</span>
