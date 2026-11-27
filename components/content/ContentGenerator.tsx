@@ -384,7 +384,7 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
               <ShoppingBag className="h-5 w-5" />
             </div>
             <div>
-              <CardTitle className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+              <CardTitle className="text-xl font-normal text-white tracking-tight flex items-center gap-2">
                 Product-Based AI Studio
               </CardTitle>
               <CardDescription className="text-xs text-text-muted mt-0.5">
@@ -393,7 +393,7 @@ export function ContentGenerator({ initialType, initialProductId, onGenerate, is
             </div>
           </div>
 
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-xs font-semibold self-start sm:self-auto">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-xs font-normal self-start sm:self-auto">
             <Sparkles className="w-3.5 h-3.5 animate-pulse" />
             <span>AI Copywriter &amp; Visuals</span>
           </div>
