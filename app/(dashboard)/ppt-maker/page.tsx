@@ -1299,14 +1299,14 @@ export default function PPTMakerPage() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3 self-end sm:self-auto">
+          <div className="flex items-center gap-3 self-end sm:self-auto shrink-0">
             {currentStep > 1 && (
               <button
                 type="button"
                 onClick={handlePrevStep}
-                className="inline-flex items-center gap-1.5 px-5 py-3.5 rounded-2xl bg-[#0d1633] hover:bg-[#121f47] border border-white/15 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-md"
+                className="h-11 sm:h-12 inline-flex items-center justify-center gap-1.5 px-4 sm:px-5 rounded-xl bg-[#0d1633] hover:bg-[#121f47] border border-white/15 text-slate-300 hover:text-white text-xs sm:text-sm font-semibold transition-all shadow-md shrink-0 whitespace-nowrap cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
               >
-                <ChevronLeft className="w-4 h-4" />
+                <ChevronLeft className="w-4 h-4 shrink-0" />
                 <span>Previous</span>
               </button>
             )}
@@ -1317,7 +1317,7 @@ export default function PPTMakerPage() {
               style={{
                 background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
               }}
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl hover:opacity-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#f0449b]/25 group disabled:opacity-50"
+              className="h-11 sm:h-12 inline-flex items-center justify-center gap-2 px-5 sm:px-6 rounded-xl hover:opacity-95 text-white font-bold text-xs sm:text-sm transition-all shadow-lg shadow-[#f0449b]/25 group disabled:opacity-50 shrink-0 whitespace-nowrap cursor-pointer hover:-translate-y-0.5 active:translate-y-0"
             >
               {isGenerating ? (
                 <>
