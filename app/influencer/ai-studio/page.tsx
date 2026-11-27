@@ -181,7 +181,7 @@ export default function InfluencerAIStudioPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
         
         {/* Left Inputs (5 cols) */}
-        <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px]">
+        <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px] hover:border-pink-500/60 transition-colors duration-200">
           <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
             <Wand2 className="w-5 h-5 text-[#be32ff] shrink-0" />
             <span>Prompt &amp; Creative Brief</span>
@@ -205,7 +205,7 @@ export default function InfluencerAIStudioPage() {
                     ? 'e.g. Golden hour styling reel'
                     : 'e.g. Nykaa Skincare Serum launch'
                 }
-                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white placeholder:text-slate-400 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30"
+                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white placeholder:text-slate-400 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30 hover:border-pink-500/60 transition-colors duration-200"
               />
             </div>
 
@@ -247,13 +247,13 @@ export default function InfluencerAIStudioPage() {
         </div>
 
         {/* Right Output Area (7 cols) */}
-        <div className="lg:col-span-7 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px]">
+        <div className="lg:col-span-7 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px] hover:border-pink-500/60 transition-colors duration-200">
           <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5 gap-3">
             <h3 className="text-lg font-semibold text-white">
               Generated Outputs
             </h3>
             {generatedResults.length > 0 && (
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 shrink-0">
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                 Ready to copy
               </span>
             )}
@@ -272,7 +272,7 @@ export default function InfluencerAIStudioPage() {
               {generatedResults.map((result, idx) => (
                 <div
                   key={idx}
-                  className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-purple-500/30 transition-all space-y-3 relative group"
+                  className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-pink-500/60 transition-all space-y-3 relative group duration-200"
                 >
                   <p className="text-sm sm:text-base text-neutral-200 leading-relaxed whitespace-pre-wrap select-text break-words">
                     {result}

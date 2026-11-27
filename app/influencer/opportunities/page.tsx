@@ -370,7 +370,7 @@ export default function OpportunitiesPage() {
       {/* Grid of Opportunities */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredOpps.length === 0 ? (
-          <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
+          <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
             <Store className="w-12 h-12 text-neutral-600 mx-auto" />
             <h3 className="text-base font-semibold text-white">No Opportunities Found</h3>
             <p className="text-xs text-neutral-400">
@@ -384,7 +384,7 @@ export default function OpportunitiesPage() {
             return (
               <div
                 key={opp.id}
-                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-purple-500/30 transition-all p-4 flex flex-col justify-between group shadow-lg"
+                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-pink-500/60 transition-all p-4 flex flex-col justify-between group shadow-lg duration-200"
               >
                 <div>
                   {/* Top: Business Logo + Name + Category + Save Heart */}
@@ -426,13 +426,13 @@ export default function OpportunitiesPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     
                     {/* Location Badge on cover */}
-                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 flex items-center gap-1">
+                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 flex items-center gap-1 hover:border-pink-500/60 transition-colors duration-200">
                       <MapPin className="w-3 h-3 text-[#f0449b]" />
                       <span>{opp.location} {opp.distance ? `• ${opp.distance}` : ''}</span>
                     </span>
 
                     {/* Deadline Badge */}
-                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-purple-900/80 backdrop-blur-md text-[10px] font-bold text-purple-200 border border-purple-500/30">
+                    <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-purple-900/80 backdrop-blur-md text-[10px] font-bold text-purple-200 border border-purple-500/30 hover:border-pink-500/60 transition-colors duration-200">
                       {opp.deadline}
                     </span>
                   </div>
@@ -465,7 +465,7 @@ export default function OpportunitiesPage() {
                         {opp.compensation_range}
                       </span>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:border-pink-500/60 transition-colors duration-200">
                       {opp.collaboration_type}
                     </span>
                   </div>
@@ -491,7 +491,7 @@ export default function OpportunitiesPage() {
       {/* Collaboration Pitch Proposal Modal */}
       {selectedOpp && (
         <Dialog open={!!selectedOpp} onOpenChange={() => setSelectedOpp(null)}>
-          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
+          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6 hover:border-pink-500/60 transition-colors duration-200">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
@@ -504,7 +504,7 @@ export default function OpportunitiesPage() {
 
             {pitchSuccess ? (
               <div className="py-8 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <h3 className="text-sm font-semibold text-white">Collaboration Proposal Sent!</h3>
@@ -546,7 +546,7 @@ export default function OpportunitiesPage() {
                 </div>
 
                 {/* Deliverables Confirmation */}
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1">
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1 hover:border-pink-500/60 transition-colors duration-200">
                   <span className="text-neutral-400 font-semibold block">Deliverables Required:</span>
                   {selectedOpp.deliverables.map((deliv, idx) => (
                     <div key={idx} className="flex items-center gap-1.5 text-neutral-300">

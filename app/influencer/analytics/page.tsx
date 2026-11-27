@@ -124,7 +124,7 @@ export default function InfluencerAnalyticsPage() {
       </div>
 
       {/* Media Kit Breakdown */}
-      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-5">
+      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-5 hover:border-pink-500/60 transition-colors duration-200">
         <h3 className="text-base sm:text-lg font-semibold text-white flex items-center gap-2">
           <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" /> Public Media Kit &amp; Rate Structure
         </h3>

@@ -234,7 +234,7 @@ export default function InfluencerPortfolioPage() {
       </div>
 
       {/* Hero Media Kit Banner */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#120726] via-[#0d091f] to-[#070514] p-6 sm:p-8 shadow-2xl">
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#120726] via-[#0d091f] to-[#070514] p-6 sm:p-8 shadow-2xl hover:border-pink-500/60 transition-colors duration-200">
         <div className="absolute top-0 right-0 w-96 h-96 bg-[#be32ff]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-96 h-96 bg-[#f0449b]/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -259,7 +259,7 @@ export default function InfluencerPortfolioPage() {
               <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
                 {fullName}
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#be32ff]/20 border border-[#be32ff]/40 text-[#d87aff]">
+              <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#be32ff]/20 border border-[#be32ff]/40 text-[#d87aff] hover:border-pink-500/60 transition-colors duration-200">
                 Media Kit 2026
               </span>
             </div>
@@ -277,14 +277,14 @@ export default function InfluencerPortfolioPage() {
               {niches.map((n, idx) => (
                 <span
                   key={idx}
-                  className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center gap-1"
+                  className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center gap-1 hover:border-pink-500/60 transition-colors duration-200"
                 >
                   <Tag className="w-3 h-3 text-[#f0449b]" />
                   <span>{n}</span>
                 </span>
               ))}
 
-              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center gap-1">
+              <span className="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-neutral-300 flex items-center gap-1 hover:border-pink-500/60 transition-colors duration-200">
                 <MapPin className="w-3 h-3 text-[#be32ff]" />
                 <span>{location}</span>
               </span>
@@ -299,7 +299,7 @@ export default function InfluencerPortfolioPage() {
             return (
               <div
                 key={idx}
-                className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 hover:border-purple-500/30 transition-all"
+                className="p-3 sm:p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 hover:border-pink-500/60 transition-all duration-200"
               >
                 <div className="flex items-center justify-between text-xs text-neutral-400">
                   <span>{s.label}</span>
@@ -335,17 +335,17 @@ export default function InfluencerPortfolioPage() {
           {contentShowcase.map((item) => (
             <div
               key={item.id}
-              className="rounded-2xl bg-[#0e0f19] border border-white/10 hover:border-purple-500/40 p-4 transition-all group shadow-lg flex flex-col h-full"
+              className="rounded-2xl bg-[#0e0f19] border border-white/10 hover:border-pink-500/60 p-4 transition-all group shadow-lg flex flex-col h-full duration-200"
             >
               {/* Media Image */}
-              <div className="h-44 rounded-xl overflow-hidden relative border border-white/5 bg-black/40 shrink-0">
+              <div className="h-44 rounded-xl overflow-hidden relative border border-white/5 bg-black/40 shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                 <img
                   src={item.thumbnail}
                   alt={item.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">
+                <span className="absolute top-2 left-2 px-2.5 py-0.5 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                   {item.type}
                 </span>
                 <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between text-[11px] font-bold text-white">

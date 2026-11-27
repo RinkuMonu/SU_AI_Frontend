@@ -31,7 +31,7 @@ export default function InfluencerNotificationsPage() {
 
       <div className="space-y-3">
         {campaigns.map((c, i) => (
-          <Card key={i} className="bg-[#0e0f17] border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3">
+          <Card key={i} className="bg-[#0e0f17] border-white/10 rounded-2xl p-4 flex items-center justify-between gap-3 hover:border-pink-500/60 transition-colors duration-200">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
                 <Sparkles className="w-4 h-4" />
@@ -50,7 +50,7 @@ export default function InfluencerNotificationsPage() {
         ))}
 
         {campaigns.length === 0 && !loading && (
-          <Card className="bg-[#0e0f17] border-white/10 p-8 text-center rounded-2xl">
+          <Card className="bg-[#0e0f17] border-white/10 p-8 text-center rounded-2xl hover:border-pink-500/60 transition-colors duration-200">
             <Bell className="w-7 h-7 text-neutral-500 mx-auto mb-2" />
             <p className="text-xs text-neutral-400">All caught up! No unread notifications.</p>
           </Card>

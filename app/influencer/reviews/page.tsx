@@ -17,7 +17,7 @@ export default function InfluencerReviewsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5 text-center space-y-2">
+        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5 text-center space-y-2 hover:border-pink-500/60 transition-colors duration-200">
           <span className="text-xs text-neutral-400">Overall Rating</span>
           <p className="text-4xl font-semibold text-white">5.0</p>
           <div className="flex justify-center gap-1 text-amber-400">
@@ -26,7 +26,7 @@ export default function InfluencerReviewsPage() {
           <span className="text-[11px] text-emerald-400 font-semibold block">100% On-Time Delivery</span>
         </Card>
 
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5 space-y-2 md:col-span-2">
+        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-5 space-y-2 md:col-span-2 hover:border-pink-500/60 transition-colors duration-200">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-neutral-400">Rating Breakdown</h4>
           <div className="space-y-2 text-xs">
             <div className="flex items-center justify-between">
@@ -45,7 +45,7 @@ export default function InfluencerReviewsPage() {
         </Card>
       </div>
 
-      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-8 text-center">
+      <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-8 text-center hover:border-pink-500/60 transition-colors duration-200">
         <CardContent className="space-y-2">
           <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto" />
           <h3 className="text-sm font-semibold text-white">Verified Feedback System</h3>

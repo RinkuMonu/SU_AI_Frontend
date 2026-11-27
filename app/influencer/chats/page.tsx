@@ -224,7 +224,7 @@ function InfluencerChatsContent() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4.5rem)] md:h-[calc(100vh-3rem)] max-w-7xl mx-auto rounded-2xl md:rounded-3xl border border-white/10 bg-[#08090d] overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-[calc(100vh-4.5rem)] md:h-[calc(100vh-3rem)] max-w-7xl mx-auto rounded-2xl md:rounded-3xl border border-white/10 bg-[#08090d] overflow-hidden shadow-2xl hover:border-pink-500/60 transition-colors duration-200">
       
       {/* Split-Screen Container */}
       <div className="flex flex-1 min-h-0 overflow-hidden relative">
@@ -420,7 +420,7 @@ function InfluencerChatsContent() {
                       {/* Fallback avatar initial if image missing */}
                       <div
                         style={{ display: conv.business_logo ? 'none' : 'flex' }}
-                        className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 items-center justify-center font-bold text-sm text-white border border-white/10"
+                        className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-700 to-pink-600 items-center justify-center font-bold text-sm text-white border border-white/10 hover:border-pink-500/60 transition-colors duration-200"
                       >
                         {conv.business_name.charAt(0)}
                       </div>
@@ -428,7 +428,7 @@ function InfluencerChatsContent() {
                       {/* Online indicator */}
                       {conv.is_online && (
                         <span 
-                          className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0c0d15]"
+                          className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-[#0c0d15] hover:border-pink-500/60 transition-colors duration-200"
                           title="Online now"
                         />
                       )}
@@ -507,7 +507,7 @@ function InfluencerChatsContent() {
                       className="w-10 h-10 rounded-full object-cover border border-white/10"
                     />
                     {activeConversation.is_online && (
-                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#090a12]" />
+                      <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-[#090a12] hover:border-pink-500/60 transition-colors duration-200" />
                     )}
                   </div>
 
@@ -568,7 +568,7 @@ function InfluencerChatsContent() {
                 <div className={`border-b border-white/10 bg-[#121320] px-4 py-2.5 transition-all text-xs ${showCampaignDetails ? 'block' : 'hidden sm:block'}`}>
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded-md bg-[#be32ff]/20 text-[#d87aff] font-bold text-[10px] border border-[#be32ff]/30">
+                      <span className="px-2 py-0.5 rounded-md bg-[#be32ff]/20 text-[#d87aff] font-bold text-[10px] border border-[#be32ff]/30 hover:border-pink-500/60 transition-colors duration-200">
                         {activeConversation.campaign_status || 'Active Deal'}
                       </span>
                       <span className="font-bold text-white truncate">
@@ -597,7 +597,7 @@ function InfluencerChatsContent() {
                     <div className="mt-2.5 pt-2 border-t border-white/5 flex flex-wrap gap-2 text-[10px]">
                       <span className="text-neutral-400 font-medium">Deliverables:</span>
                       {activeConversation.campaign_deliverables.map((deliv, idx) => (
-                        <span key={idx} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-neutral-300">
+                        <span key={idx} className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-neutral-300 hover:border-pink-500/60 transition-colors duration-200">
                           {deliv}
                         </span>
                       ))}
@@ -610,14 +610,14 @@ function InfluencerChatsContent() {
               <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
                 {/* Date separator */}
                 <div className="flex items-center justify-center my-2">
-                  <span className="px-3 py-1 rounded-full bg-white/5 text-[10px] font-semibold text-neutral-400 border border-white/5">
+                  <span className="px-3 py-1 rounded-full bg-white/5 text-[10px] font-semibold text-neutral-400 border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                     Today
                   </span>
                 </div>
 
                 {messages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-                    <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                       <Sparkles className="w-6 h-6 text-[#be32ff]" />
                     </div>
                     <h3 className="text-sm font-semibold text-white">Start the conversation</h3>
@@ -673,7 +673,7 @@ function InfluencerChatsContent() {
                               {msg.attachments.map((att) => (
                                 <div
                                   key={att.id}
-                                  className="flex items-center justify-between gap-3 p-2 rounded-xl bg-black/20 border border-white/10 text-xs"
+                                  className="flex items-center justify-between gap-3 p-2 rounded-xl bg-black/20 border border-white/10 text-xs hover:border-pink-500/60 transition-colors duration-200"
                                 >
                                   <div className="flex items-center gap-2 min-w-0">
                                     <FileText className="w-4 h-4 text-[#fc9a5d] shrink-0" />
@@ -753,7 +753,7 @@ function InfluencerChatsContent() {
               <div className="p-3 sm:p-4 border-t border-white/10 bg-[#0c0d17] relative">
                 {/* Emoji Picker Popup */}
                 {showEmojiPicker && (
-                  <div className="absolute bottom-16 left-4 p-2.5 rounded-2xl bg-[#161726] border border-white/15 shadow-xl flex items-center gap-2 z-20 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="absolute bottom-16 left-4 p-2.5 rounded-2xl bg-[#161726] border border-white/15 shadow-xl flex items-center gap-2 z-20 animate-in fade-in slide-in-from-bottom-2 hover:border-pink-500/60 transition-colors duration-200">
                     {quickEmojis.map((emoji) => (
                       <button
                         key={emoji}
@@ -805,7 +805,7 @@ function InfluencerChatsContent() {
                       value={messageInput}
                       onChange={(e) => setMessageInput(e.target.value)}
                       placeholder="Type a message..."
-                      className="w-full h-11 pl-4 pr-10 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#be32ff] transition-colors"
+                      className="w-full h-11 pl-4 pr-10 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#be32ff] transition-colors hover:border-pink-500/60 duration-200"
                     />
                     {/* Emoji toggle inside input */}
                     <button
@@ -833,7 +833,7 @@ function InfluencerChatsContent() {
           ) : (
             /* Empty State: No active conversation */
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/20 border border-white/10 flex items-center justify-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#fc9a5d]/20 via-[#f0449b]/20 to-[#be32ff]/20 border border-white/10 flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                 <MessageSquare className="w-8 h-8 text-[#be32ff]" />
               </div>
               <div className="space-y-1 max-w-sm">

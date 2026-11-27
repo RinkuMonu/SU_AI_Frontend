@@ -197,7 +197,7 @@ export default function InfluencerLayout({ children }: { children: React.ReactNo
 
         {/* Creator Identity & Logout */}
         <div className="p-3 border-t border-white/10 bg-[#07080d]/90 space-y-2">
-          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/5">
+          <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/[0.03] border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
             <div 
               suppressHydrationWarning 
               className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#fc9a5d] via-[#f0449b] to-[#be32ff] p-0.5 shadow-md shrink-0 overflow-hidden"

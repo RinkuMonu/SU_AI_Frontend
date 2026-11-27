@@ -739,17 +739,17 @@ export default function InfluencerDashboard() {
 
               {/* Dynamic Badge Display */}
               {isVerified ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-sm backdrop-blur-sm shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 shadow-sm backdrop-blur-sm shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Verified Creator</span>
                 </span>
               ) : isPending ? (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-sm backdrop-blur-sm shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300 shadow-sm backdrop-blur-sm shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                   <Clock className="w-3.5 h-3.5 text-amber-400" />
                   <span>Verification Pending</span>
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 border border-white/20 text-neutral-300 shadow-sm backdrop-blur-sm shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/10 border border-white/20 text-neutral-300 shadow-sm backdrop-blur-sm shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                   <AlertCircle className="w-3.5 h-3.5 text-neutral-400" />
                   <span>Unverified</span>
                 </span>
@@ -764,7 +764,7 @@ export default function InfluencerDashboard() {
             {/* Niches Individual Tags + Location + Connect Social */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-0.5 text-xs">
               {niches.map((n: string, idx: number) => (
-                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-neutral-300 font-medium text-[11px] backdrop-blur-sm max-w-full">
+                <span key={idx} className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/10 text-neutral-300 font-medium text-[11px] backdrop-blur-sm max-w-full hover:border-pink-500/60 transition-colors duration-200">
                   <Tag className="w-2.5 h-2.5 text-neutral-400 shrink-0" />
                   <span className="break-words">{n}</span>
                 </span>
@@ -792,8 +792,8 @@ export default function InfluencerDashboard() {
         {/* Bottom Row: 4 Dynamic Statistics Cards */}
         <div className="relative z-10 grid grid-cols-1 min-[480px]:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5 pt-2 min-w-0 w-full">
           {/* Card 1: Active Collaborations */}
-          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#26133d] border border-[#be32ff]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-pink-500/60 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group duration-200">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#26133d] border border-[#be32ff]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform hover:border-pink-500/60 transition-colors duration-200">
               <Megaphone className="w-4 h-4 sm:w-5 sm:h-5 text-[#d87aff]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -805,8 +805,8 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Card 2: Collaboration Requests */}
-          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-purple-500/40 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#26133d] border border-[#be32ff]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-pink-500/60 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group duration-200">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#26133d] border border-[#be32ff]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform hover:border-pink-500/60 transition-colors duration-200">
               <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-[#d87aff]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -818,8 +818,8 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Card 3: Total Earnings */}
-          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-amber-500/40 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#361f18] border border-[#f59e0b]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-pink-500/60 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group duration-200">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#361f18] border border-[#f59e0b]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform hover:border-pink-500/60 transition-colors duration-200">
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-[#fbbf24]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -831,8 +831,8 @@ export default function InfluencerDashboard() {
           </div>
 
           {/* Card 4: Profile Completion (Dynamically calculated based on verified social media) */}
-          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-cyan-500/40 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0f2838] border border-[#06b6d4]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+          <div className="p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-[#140e2b]/80 backdrop-blur-md border border-white/10 hover:border-pink-500/60 transition-all flex items-center gap-2.5 sm:gap-3 shadow-lg min-w-0 group duration-200">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#0f2838] border border-[#06b6d4]/30 flex items-center justify-center text-white shrink-0 shadow-inner group-hover:scale-105 transition-transform hover:border-pink-500/60 transition-colors duration-200">
               <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-[#22d3ee]" />
             </div>
             <div className="min-w-0 flex-1">
@@ -891,7 +891,7 @@ export default function InfluencerDashboard() {
         {/* Opportunity Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 min-w-0">
           {filteredOpportunities.length === 0 ? (
-            <div className="col-span-full py-12 text-center space-y-2 rounded-2xl bg-[#0c0d15] border border-white/10">
+            <div className="col-span-full py-12 text-center space-y-2 rounded-2xl bg-[#0c0d15] border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
               <Store className="w-10 h-10 text-neutral-600 mx-auto" />
               <p className="text-xs font-bold text-white">No opportunities found in this category</p>
               <p className="text-[11px] text-neutral-400">Switch category or search for other local businesses.</p>
@@ -902,7 +902,7 @@ export default function InfluencerDashboard() {
               return (
                 <div
                   key={opp.id}
-                  className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-purple-500/40 transition-all p-3.5 flex flex-col justify-between group shadow-lg min-w-0"
+                  className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-pink-500/60 transition-all p-3.5 flex flex-col justify-between group shadow-lg min-w-0 duration-200"
                 >
                   <div className="space-y-2.5 min-w-0">
                     {/* Top Business Row + Fav */}
@@ -928,14 +928,14 @@ export default function InfluencerDashboard() {
                     </div>
 
                     {/* Image Preview with Location */}
-                    <div className="h-28 rounded-xl overflow-hidden bg-black/40 relative border border-white/5">
+                    <div className="h-28 rounded-xl overflow-hidden bg-black/40 relative border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                       <img
                         src={opp.cover_image}
                         alt={opp.campaign_title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-sm text-[10px] font-bold text-white border border-white/10 flex items-center gap-1">
+                      <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full bg-black/70 backdrop-blur-sm text-[10px] font-bold text-white border border-white/10 flex items-center gap-1 hover:border-pink-500/60 transition-colors duration-200">
                         <MapPin className="w-2.5 h-2.5 text-[#f0449b]" />
                         <span>{opp.location}</span>
                       </span>
@@ -987,7 +987,7 @@ export default function InfluencerDashboard() {
         
         {/* Left Column (7 cols): My Collaborations */}
         <div className="lg:col-span-7 space-y-3 min-w-0">
-          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0">
+          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0 hover:border-pink-500/60 transition-colors duration-200">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
@@ -1007,9 +1007,9 @@ export default function InfluencerDashboard() {
 
             <div className="space-y-2.5">
               {/* Item 1 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0 hover:border-pink-500/60 duration-200">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                     R
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1027,9 +1027,9 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Item 2 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0 hover:border-pink-500/60 duration-200">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                     A
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1047,9 +1047,9 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Item 3 */}
-              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0">
+              <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 hover:bg-white/[0.04] transition-colors min-w-0 hover:border-pink-500/60 duration-200">
                 <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-xs font-bold text-white shrink-0 hover:border-pink-500/60 transition-colors duration-200">
                     O
                   </div>
                   <div className="min-w-0 flex-1">
@@ -1071,7 +1071,7 @@ export default function InfluencerDashboard() {
 
         {/* Right Column (5 cols): Performance Overview */}
         <div className="lg:col-span-5 space-y-3 min-w-0">
-          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0">
+          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3.5 shadow-lg min-w-0 hover:border-pink-500/60 transition-colors duration-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
@@ -1082,7 +1082,7 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Date Filters */}
-              <div className="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-white/5 text-[10px] font-bold shrink-0 self-start sm:self-auto">
+              <div className="flex items-center gap-1 p-1 rounded-lg bg-black/40 border border-white/5 text-[10px] font-bold shrink-0 self-start sm:self-auto hover:border-pink-500/60 transition-colors duration-200">
                 {(['7d', '30d', '90d'] as const).map(tab => (
                   <button
                     key={tab}
@@ -1098,25 +1098,25 @@ export default function InfluencerDashboard() {
 
             {/* Metrics 2x2 Grid */}
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0 hover:border-pink-500/60 transition-colors duration-200">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Total Reach</span>
                 <p className="text-base sm:text-lg font-bold text-white break-words">{performanceMetrics[analyticsRange].reach}</p>
                 <span className="text-[9px] text-emerald-400 font-semibold block">{performanceMetrics[analyticsRange].reachDelta}</span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0 hover:border-pink-500/60 transition-colors duration-200">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Avg. Engagement</span>
                 <p className="text-base sm:text-lg font-bold text-[#f0449b] break-words">{performanceMetrics[analyticsRange].engagement}</p>
                 <span className="text-[9px] text-neutral-400 block">{performanceMetrics[analyticsRange].engagementNote}</span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0 hover:border-pink-500/60 transition-colors duration-200">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Followers</span>
                 <p className="text-base sm:text-lg font-bold text-white break-words">{performanceMetrics[analyticsRange].followers}</p>
                 <span className="text-[9px] text-emerald-400 font-semibold block">{performanceMetrics[analyticsRange].followersDelta}</span>
               </div>
 
-              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0">
+              <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-0.5 min-w-0 hover:border-pink-500/60 transition-colors duration-200">
                 <span className="text-[10px] text-neutral-300 font-medium break-words block leading-snug">Profile Views</span>
                 <p className="text-base sm:text-lg font-bold text-[#be32ff] break-words">{performanceMetrics[analyticsRange].views}</p>
                 <span className="text-[9px] text-neutral-400 block">{performanceMetrics[analyticsRange].viewsNote}</span>
@@ -1152,7 +1152,7 @@ export default function InfluencerDashboard() {
         
         {/* Left Column (7 cols): Recent Activity Feed */}
         <div className="lg:col-span-7 min-w-0">
-          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0">
+          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0 hover:border-pink-500/60 transition-colors duration-200">
             <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight flex items-center gap-2">
               <Clock className="w-4 h-4 text-[#fc9a5d]" />
               Recent Activity
@@ -1188,7 +1188,7 @@ export default function InfluencerDashboard() {
 
         {/* Right Column (5 cols): Quick Actions */}
         <div className="lg:col-span-5 min-w-0">
-          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0">
+          <div className="rounded-2xl bg-[#0e0f19] border border-white/10 p-4 sm:p-5 space-y-3 shadow-lg min-w-0 hover:border-pink-500/60 transition-colors duration-200">
             <h2 className="text-sm sm:text-base font-semibold text-white tracking-tight">
               Quick Actions
             </h2>
@@ -1242,7 +1242,7 @@ export default function InfluencerDashboard() {
           5. MODAL: YOUTUBE / LINKEDIN STYLE BANNER UPLOAD & PRESETS
          ======================================================== */}
       <Dialog open={showBannerModal} onOpenChange={() => setShowBannerModal(false)}>
-        <DialogContent className="sm:max-w-lg bg-[#0e0f19] border border-white/15 text-white rounded-2xl p-6 shadow-2xl">
+        <DialogContent className="sm:max-w-lg bg-[#0e0f19] border border-white/15 text-white rounded-2xl p-6 shadow-2xl hover:border-pink-500/60 transition-colors duration-200">
           <DialogHeader className="space-y-1">
             <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
               <Camera className="w-5 h-5 text-[#f0449b]" />
@@ -1265,7 +1265,7 @@ export default function InfluencerDashboard() {
                 disabled={uploadingBanner}
                 className="w-full py-6 rounded-2xl border-2 border-dashed border-white/20 hover:border-purple-500/50 bg-white/[0.02] hover:bg-white/[0.04] transition-all flex flex-col items-center justify-center gap-2 cursor-pointer group"
               >
-                <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform">
+                <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-[#be32ff] group-hover:scale-110 transition-transform hover:border-pink-500/60 transition-colors duration-200">
                   <Upload className="w-5 h-5" />
                 </div>
                 <div className="text-center">
@@ -1337,7 +1337,7 @@ export default function InfluencerDashboard() {
       {/* Collaboration Pitch Proposal Modal */}
       {selectedOpp && (
         <Dialog open={showPitchModal} onOpenChange={() => setShowPitchModal(false)}>
-          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
+          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6 hover:border-pink-500/60 transition-colors duration-200">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
@@ -1350,7 +1350,7 @@ export default function InfluencerDashboard() {
 
             {pitchSuccess ? (
               <div className="py-8 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <h3 className="text-sm font-semibold text-white">Proposal Submitted!</h3>
@@ -1361,7 +1361,7 @@ export default function InfluencerDashboard() {
             ) : (
               <div className="space-y-4 pt-2">
                 {pitchError && (
-                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                  <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{pitchError}</span>
                   </div>
@@ -1396,7 +1396,7 @@ export default function InfluencerDashboard() {
                   />
                 </div>
 
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1">
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1 hover:border-pink-500/60 transition-colors duration-200">
                   <span className="text-neutral-400 font-semibold block">Required Deliverables:</span>
                   {selectedOpp.deliverables.map((deliv, idx) => (
                     <div key={idx} className="flex items-center gap-1.5 text-neutral-300">

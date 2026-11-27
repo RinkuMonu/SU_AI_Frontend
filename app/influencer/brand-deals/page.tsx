@@ -336,7 +336,7 @@ export default function BrandDealsPage() {
       {/* Grid of Deals */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredDeals.length === 0 ? (
-          <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
+          <div className="col-span-full py-16 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
             <Briefcase className="w-12 h-12 text-neutral-600 mx-auto" />
             <h3 className="text-base font-semibold text-white">No Brand Deals Found</h3>
             <p className="text-xs text-neutral-400">
@@ -350,7 +350,7 @@ export default function BrandDealsPage() {
             return (
               <div
                 key={deal.id}
-                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-purple-500/30 transition-all p-3.5 flex flex-col justify-between group shadow-lg"
+                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-pink-500/60 transition-all p-3.5 flex flex-col justify-between group shadow-lg duration-200"
               >
                 <div>
                   {/* Top: Brand Logo + Verified + Save Heart */}
@@ -392,7 +392,7 @@ export default function BrandDealsPage() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     
                     {/* Badge on cover */}
-                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/10">
+                    <span className="absolute bottom-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-bold text-white border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                       {deal.deadline}
                     </span>
                   </div>
@@ -409,10 +409,10 @@ export default function BrandDealsPage() {
 
                   {/* Tags */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-2.5">
-                    <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-semibold text-neutral-300 border border-white/10">
+                    <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-semibold text-neutral-300 border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                       {deal.category}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-semibold text-neutral-300 border border-white/10">
+                    <span className="px-2 py-0.5 rounded-md bg-white/5 text-[10px] font-semibold text-neutral-300 border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                       {deal.format}
                     </span>
                   </div>
@@ -455,7 +455,7 @@ export default function BrandDealsPage() {
       {/* Pitch Proposal Modal */}
       {pitchDeal && (
         <Dialog open={!!pitchDeal} onOpenChange={() => setPitchDeal(null)}>
-          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
+          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6 hover:border-pink-500/60 transition-colors duration-200">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-[#f0449b]" />
@@ -468,7 +468,7 @@ export default function BrandDealsPage() {
 
             {pitchSuccess ? (
               <div className="py-8 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <h3 className="text-sm font-semibold text-white">Pitch Proposal Sent!</h3>
@@ -510,7 +510,7 @@ export default function BrandDealsPage() {
                 </div>
 
                 {/* Deliverables Confirmation */}
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1">
+                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] space-y-1 hover:border-pink-500/60 transition-colors duration-200">
                   <span className="text-neutral-400 font-semibold block">Required Deliverables:</span>
                   {pitchDeal.deliverables.map((deliv, idx) => (
                     <div key={idx} className="flex items-center gap-1.5 text-neutral-300">

@@ -201,7 +201,7 @@ function SocialAccountsContent() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-white/10 gap-4">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#d87aff] text-xs font-bold uppercase tracking-wider mb-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#be32ff]/15 border border-[#be32ff]/30 text-[#d87aff] text-xs font-bold uppercase tracking-wider mb-2 hover:border-pink-500/60 transition-colors duration-200">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Channel Verification &amp; Reach</span>
           </div>
@@ -256,14 +256,14 @@ function SocialAccountsContent() {
       )}
 
       {error && !loading && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-xs text-rose-300 flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Policy Notice: Real Verification Only */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-black/40 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-black/40 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-pink-500/60 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-purple-500/20 text-[#d87aff] shrink-0">
             <ShieldCheck className="w-5 h-5" />
@@ -283,7 +283,7 @@ function SocialAccountsContent() {
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="h-56 rounded-3xl bg-white/[0.03] border border-white/10 animate-pulse" />
+            <div key={n} className="h-56 rounded-3xl bg-white/[0.03] border border-white/10 animate-pulse hover:border-pink-500/60 transition-colors duration-200" />
           ))}
         </div>
       )}
@@ -335,17 +335,17 @@ function SocialAccountsContent() {
 
                     {/* Verification Status Pill */}
                     {isOAuthVerified ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:border-pink-500/60 transition-colors duration-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-400" />
                         <span>Verified</span>
                       </span>
                     ) : hasManualUrl ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30" title="Manual URL - OAuth verification pending">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:border-pink-500/60 transition-colors duration-200" title="Manual URL - OAuth verification pending">
                         <AlertCircle className="w-3 h-3 text-amber-400" />
                         <span>Unverified</span>
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-white/5 text-neutral-400 border border-white/10">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-white/5 text-neutral-400 border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                         <Clock className="w-3 h-3" />
                         <span>Not Linked</span>
                       </span>
@@ -354,7 +354,7 @@ function SocialAccountsContent() {
 
                   {/* Channel Details */}
                   {isOAuthVerified ? (
-                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 text-xs">
+                    <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 text-xs hover:border-pink-500/60 transition-colors duration-200">
                       <div className="flex items-center justify-between">
                         <span className="text-neutral-400 text-[11px]">Verified Handle:</span>
                         <span className="text-emerald-300 font-bold truncate max-w-[150px]">
@@ -381,7 +381,7 @@ function SocialAccountsContent() {
                       </div>
                     </div>
                   ) : hasManualUrl ? (
-                    <div className="p-3.5 rounded-2xl bg-amber-500/[0.04] border border-amber-500/20 space-y-2 text-xs">
+                    <div className="p-3.5 rounded-2xl bg-amber-500/[0.04] border border-amber-500/20 space-y-2 text-xs hover:border-pink-500/60 transition-colors duration-200">
                       <div className="flex items-center justify-between">
                         <span className="text-neutral-400 text-[11px]">Manual Link:</span>
                         <a
@@ -399,7 +399,7 @@ function SocialAccountsContent() {
                       </p>
                     </div>
                   ) : (
-                    <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 text-xs text-neutral-400 space-y-1">
+                    <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 text-xs text-neutral-400 space-y-1 hover:border-pink-500/60 transition-colors duration-200">
                       <p className="text-[11px] leading-relaxed">
                         Connect {p.name} to authenticate your follower reach and enable automated campaign performance metrics.
                       </p>
@@ -467,7 +467,7 @@ function SocialAccountsContent() {
       {/* Manual Link Input Dialog */}
       {manualPlatform && (
         <Dialog open={!!manualPlatform} onOpenChange={() => setManualPlatform(null)}>
-          <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md rounded-3xl">
+          <DialogContent className="bg-[#0e0f17] border-white/10 text-white max-w-md rounded-3xl hover:border-pink-500/60 transition-colors duration-200">
             <DialogHeader>
               <DialogTitle className="text-base font-semibold capitalize flex items-center gap-2">
                 <LinkIcon className="w-5 h-5 text-purple-400" /> Enter {manualPlatform} Profile Link
@@ -491,9 +491,9 @@ function SocialAccountsContent() {
                     ? 'https://facebook.com/yourpage'
                     : 'https://linkedin.com/in/yourprofile'
                 }
-                className="bg-white/5 border-white/10 text-white text-xs h-11 rounded-xl"
+                className="bg-white/5 border-white/10 text-white text-xs h-11 rounded-xl hover:border-pink-500/60 transition-colors duration-200"
               />
-              <p className="text-[11px] text-amber-300/80 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+              <p className="text-[11px] text-amber-300/80 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20 hover:border-pink-500/60 transition-colors duration-200">
                 ⚠️ Notice: Manually entered links will be marked &quot;Unverified&quot;. Official verification requires direct OAuth authorization.
               </p>
             </div>

@@ -207,7 +207,7 @@ export default function InfluencerCollaborationsPage() {
       {/* Collaborations List */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
         {filteredCollabs.length === 0 ? (
-          <div className="col-span-full py-16 px-4 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10">
+          <div className="col-span-full py-16 px-4 text-center space-y-3 rounded-2xl bg-[#0c0d15] border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
             <Handshake className="w-12 h-12 text-neutral-600 mx-auto" />
             <h3 className="text-base font-semibold text-white">No Collaborations in this state</h3>
             <p className="text-xs text-neutral-400 max-w-md mx-auto">
@@ -223,7 +223,7 @@ export default function InfluencerCollaborationsPage() {
             return (
               <div
                 key={collab.id}
-                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-purple-500/30 transition-all p-4 sm:p-5 shadow-lg min-w-0 flex flex-col h-full"
+                className="rounded-2xl bg-[#0d0e17] border border-white/10 hover:border-pink-500/60 transition-all p-4 sm:p-5 shadow-lg min-w-0 flex flex-col h-full duration-200"
               >
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center gap-3 min-w-0">
@@ -242,19 +242,19 @@ export default function InfluencerCollaborationsPage() {
 
                   <div className="flex flex-wrap items-center gap-2">
                     {isInProgress && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:border-pink-500/60 transition-colors duration-200">
                         <Clock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                         <span>In Progress</span>
                       </span>
                     )}
                     {isPending && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:border-pink-500/60 transition-colors duration-200">
                         <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <span>Pending Review</span>
                       </span>
                     )}
                     {isCompleted && (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:border-pink-500/60 transition-colors duration-200">
                         <CheckCheck className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                         <span>Completed</span>
                       </span>
@@ -276,7 +276,7 @@ export default function InfluencerCollaborationsPage() {
                       <span className="text-neutral-400 font-medium">Deliverables Completion</span>
                       <span className="font-bold text-white shrink-0">{collab.progress_percent}%</span>
                     </div>
-                    <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5">
+                    <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                       <div
                         className="h-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] rounded-full transition-all duration-500"
                         style={{ width: `${collab.progress_percent}%` }}
@@ -284,7 +284,7 @@ export default function InfluencerCollaborationsPage() {
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2 flex-1">
+                  <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/5 space-y-2 flex-1 hover:border-pink-500/60 transition-colors duration-200">
                     <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block">
                       Deliverables Checklist
                     </span>
@@ -292,7 +292,7 @@ export default function InfluencerCollaborationsPage() {
                       {collab.deliverables.map((deliv, idx) => (
                         <div
                           key={idx}
-                          className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-black/20 border border-white/5 text-xs min-w-0"
+                          className="flex items-center justify-between gap-2 p-2.5 rounded-lg bg-black/20 border border-white/5 text-xs min-w-0 hover:border-pink-500/60 transition-colors duration-200"
                         >
                           <div className="flex items-center gap-2 min-w-0">
                             {deliv.submitted ? (
@@ -339,7 +339,7 @@ export default function InfluencerCollaborationsPage() {
                         <span>Submit Deliverables</span>
                       </button>
                     ) : (
-                      <div className="h-10 px-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 flex items-center justify-center gap-1.5 w-full sm:flex-1">
+                      <div className="h-10 px-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-xs font-bold text-purple-300 flex items-center justify-center gap-1.5 w-full sm:flex-1 hover:border-pink-500/60 transition-colors duration-200">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Details</span>
                       </div>
@@ -355,7 +355,7 @@ export default function InfluencerCollaborationsPage() {
       {/* Submit Deliverables Modal */}
       {submitCollab && (
         <Dialog open={!!submitCollab} onOpenChange={() => setSubmitCollab(null)}>
-          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6">
+          <DialogContent className="sm:max-w-md bg-[#0e0f19] border border-white/10 text-white rounded-2xl p-6 hover:border-pink-500/60 transition-colors duration-200">
             <DialogHeader className="space-y-1">
               <DialogTitle className="text-base sm:text-lg font-semibold flex items-center gap-2">
                 <Upload className="w-5 h-5 text-[#f0449b]" />
@@ -368,7 +368,7 @@ export default function InfluencerCollaborationsPage() {
 
             {submitSuccess ? (
               <div className="py-8 text-center space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 mx-auto flex items-center justify-center hover:border-pink-500/60 transition-colors duration-200">
                   <Check className="w-6 h-6 stroke-[3]" />
                 </div>
                 <h3 className="text-sm font-semibold text-white">Deliverables Submitted!</h3>
@@ -387,7 +387,7 @@ export default function InfluencerCollaborationsPage() {
                     value={deliverableLink}
                     onChange={(e) => setDeliverableLink(e.target.value)}
                     placeholder="https://instagram.com/reel/... or Google Drive link"
-                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff]"
+                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] hover:border-pink-500/60 transition-colors duration-200"
                   />
                 </div>
 
@@ -400,7 +400,7 @@ export default function InfluencerCollaborationsPage() {
                     value={deliverableNotes}
                     onChange={(e) => setDeliverableNotes(e.target.value)}
                     placeholder="Provide details such as posting time, swipe-up tags, or initial view stats..."
-                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] resize-none"
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] resize-none hover:border-pink-500/60 transition-colors duration-200"
                   />
                 </div>
 

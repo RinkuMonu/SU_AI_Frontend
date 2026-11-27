@@ -42,11 +42,11 @@ export default function InfluencerMarketplacePage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} className="h-60 rounded-2xl bg-[#0f1017] p-6 border border-white/5 animate-pulse" />
+            <div key={i} className="h-60 rounded-2xl bg-[#0f1017] p-6 border border-white/5 animate-pulse hover:border-pink-500/60 transition-colors duration-200" />
           ))}
         </div>
       ) : opportunities.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-[#0f1017]/60 p-12 text-center space-y-3">
+        <div className="rounded-3xl border border-white/10 bg-[#0f1017]/60 p-12 text-center space-y-3 hover:border-pink-500/60 transition-colors duration-200">
           <Briefcase className="w-12 h-12 text-neutral-500 mx-auto" />
           <h3 className="text-base font-semibold text-white">No Marketplace Deals Open Right Now</h3>
           <p className="text-xs text-neutral-400">Registered businesses post briefs daily. Check back soon!</p>
@@ -54,7 +54,7 @@ export default function InfluencerMarketplacePage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {opportunities.map((opp) => (
-            <Card key={opp.id} className="bg-[#0f1017] border-white/10 hover:border-white/20 rounded-2xl p-5 flex flex-col justify-between">
+            <Card key={opp.id} className="bg-[#0f1017] border-white/10 hover:border-pink-500/60 rounded-2xl p-5 flex flex-col justify-between transition-colors duration-200">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#fc9a5d] to-[#be32ff] flex items-center justify-center font-bold text-white text-sm">

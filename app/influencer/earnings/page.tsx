@@ -84,14 +84,14 @@ export default function InfluencerWalletPage() {
 
       {/* Error Notice */}
       {error && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
           <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {/* Hero Wallet Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1a1329] via-[#11121d] to-[#151124] border border-[#be32ff]/30 p-6 sm:p-8 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1a1329] via-[#11121d] to-[#151124] border border-[#be32ff]/30 p-6 sm:p-8 shadow-2xl hover:border-pink-500/60 transition-colors duration-200">
         {/* Glow ambient effects */}
         <div className="absolute top-0 right-0 w-80 h-80 bg-[#be32ff]/15 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#fc9a5d]/10 rounded-full blur-3xl pointer-events-none" />
@@ -112,7 +112,7 @@ export default function InfluencerWalletPage() {
               </div>
             </div>
 
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:border-pink-500/60 transition-colors duration-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               Admin Disbursed
             </span>
@@ -127,7 +127,7 @@ export default function InfluencerWalletPage() {
               <span className="text-4xl sm:text-5xl font-semibold text-white tracking-tight">
                 ₹{walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
-              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 hover:border-pink-500/60 transition-colors duration-200">
                 INR Guaranteed
               </span>
             </div>
@@ -138,7 +138,7 @@ export default function InfluencerWalletPage() {
 
           {/* Bottom Grid: Breakdown Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4 border-t border-white/10">
-            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 hover:border-pink-500/60 transition-colors duration-200">
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-xs">Total Credited by Admin</span>
                 <ArrowUpRight className="w-4 h-4 text-emerald-400" />
@@ -149,7 +149,7 @@ export default function InfluencerWalletPage() {
               <span className="text-[10px] text-neutral-500 block">All-time wallet deposits</span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 hover:border-pink-500/60 transition-colors duration-200">
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-xs">In-Escrow Pending Release</span>
                 <Lock className="w-4 h-4 text-[#fc9a5d]" />
@@ -160,7 +160,7 @@ export default function InfluencerWalletPage() {
               <span className="text-[10px] text-neutral-500 block">Funds deposited by Hirers</span>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+            <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 hover:border-pink-500/60 transition-colors duration-200">
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-xs">Settled Campaigns</span>
                 <CheckCircle2 className="w-4 h-4 text-purple-400" />
@@ -175,7 +175,7 @@ export default function InfluencerWalletPage() {
       </div>
 
       {/* Wallet Passbook & Transaction Ledger */}
-      <div className="rounded-2xl bg-[#0e0f17] border border-white/10 overflow-hidden shadow-xl">
+      <div className="rounded-2xl bg-[#0e0f17] border border-white/10 overflow-hidden shadow-xl hover:border-pink-500/60 transition-colors duration-200">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div>
             <h3 className="text-base font-semibold text-white flex items-center gap-2">
@@ -185,7 +185,7 @@ export default function InfluencerWalletPage() {
               Official log of campaign funds deposited into your wallet by Platform Admin.
             </p>
           </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/5 text-neutral-300 border border-white/10">
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-white/5 text-neutral-300 border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
             {transactions.length} Records
           </span>
         </div>
@@ -227,12 +227,12 @@ export default function InfluencerWalletPage() {
                         +₹{net.toLocaleString('en-IN')}
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 text-[10px] font-bold border border-purple-500/20">
+                        <span className="px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 text-[10px] font-bold border border-purple-500/20 hover:border-pink-500/60 transition-colors duration-200">
                           {t.credited_by || "Admin"}
                         </span>
                       </td>
                       <td className="py-4 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:border-pink-500/60 transition-colors duration-200">
                           <CheckCircle2 className="w-3 h-3" />
                           Credited to Wallet
                         </span>
@@ -245,7 +245,7 @@ export default function InfluencerWalletPage() {
           </div>
         ) : (
           <div className="p-12 text-center space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:border-pink-500/60 transition-colors duration-200">
               <Wallet className="w-7 h-7 text-[#fc9a5d]" />
             </div>
             <h4 className="text-sm font-semibold text-white">Your Creator Wallet is Active</h4>
@@ -257,7 +257,7 @@ export default function InfluencerWalletPage() {
       </div>
 
       {/* Escrow Guarantee Info Card */}
-      <div className="p-6 rounded-2xl bg-[#0e0f17] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+      <div className="p-6 rounded-2xl bg-[#0e0f17] border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-pink-500/60 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-5 h-5" />

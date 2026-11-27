@@ -454,14 +454,14 @@ export default function BrandOffersPage() {
       {loading && (
         <div className="space-y-3">
           {[1, 2, 3].map(n => (
-            <div key={n} className="h-40 rounded-2xl bg-white/[0.03] border border-white/10 animate-pulse" />
+            <div key={n} className="h-40 rounded-2xl bg-white/[0.03] border border-white/10 animate-pulse hover:border-pink-500/60 transition-colors duration-200" />
           ))}
         </div>
       )}
 
       {/* Error state */}
       {error && !loading && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-xs text-red-300 flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
           <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
           <span>{error}</span>
         </div>
@@ -469,9 +469,9 @@ export default function BrandOffersPage() {
 
       {/* Empty State */}
       {!loading && !error && filteredOffers.length === 0 && (
-        <Card className="bg-[#0e0f17] border-white/10 p-10 text-center rounded-2xl">
+        <Card className="bg-[#0e0f17] border-white/10 p-10 text-center rounded-2xl hover:border-pink-500/60 transition-colors duration-200">
           <CardContent className="space-y-3">
-            <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:border-pink-500/60 transition-colors duration-200">
               <Sparkles className="w-7 h-7 text-[#fc9a5d]" />
             </div>
             <h3 className="text-base font-semibold text-white">No Offers Found in this Category</h3>
@@ -502,7 +502,7 @@ export default function BrandOffersPage() {
             return (
               <Card 
                 key={reqId}
-                className="bg-[#0e0f17] border-white/10 hover:border-[#be32ff]/40 transition-all rounded-2xl overflow-hidden p-5 space-y-4 shadow-xl"
+                className="bg-[#0e0f17] border-white/10 hover:border-pink-500/60#be32ff]/40 transition-all rounded-2xl overflow-hidden p-5 space-y-4 shadow-xl duration-200"
               >
                 {/* Top Row: Title, Status Badge, Short ID, Compensation */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -533,7 +533,7 @@ export default function BrandOffersPage() {
                 </div>
 
                 {/* 3-Column Box (Agreement, Escrow Status, Next Action Required) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 rounded-xl bg-white/[0.02] border border-white/5 text-xs hover:border-pink-500/60 transition-colors duration-200">
                   <div>
                     <span className="text-neutral-400 block text-[11px]">Agreement</span>
                     <span className="font-semibold text-white capitalize flex items-center gap-1.5 mt-0.5">
@@ -640,7 +640,7 @@ export default function BrandOffersPage() {
                       }
                     }}
                     disabled={makingAgreementId === reqId}
-                    className="border-[#be32ff]/30 bg-[#be32ff]/10 hover:bg-[#be32ff]/20 text-[#be32ff] hover:text-white text-xs h-8 rounded-lg font-medium cursor-pointer"
+                    className="border-[#be32ff]/30 bg-[#be32ff]/10 hover:bg-[#be32ff]/20 text-[#be32ff] hover:text-white text-xs h-8 rounded-lg font-medium cursor-pointer hover:border-pink-500/60 transition-colors duration-200"
                   >
                     {makingAgreementId === reqId ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" />
@@ -700,7 +700,7 @@ export default function BrandOffersPage() {
 
             <div className="space-y-3 py-2 text-xs">
               {actionType === 'accept' && (
-                <p className="text-neutral-300 leading-relaxed bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
+                <p className="text-neutral-300 leading-relaxed bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20 hover:border-pink-500/60 transition-colors duration-200">
                   Accepting this offer confirms your participation. You can then click <strong className="text-white">&quot;Make an Agreement&quot;</strong> to send the bilateral contract directly to the Admin Panel for verification &amp; official platform seal!
                 </p>
               )}
@@ -712,7 +712,7 @@ export default function BrandOffersPage() {
                     value={notes}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                     placeholder="Enter revised compensation request or deliverables adjustment..."
-                    className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl focus:outline-none focus:border-[#be32ff]"
+                    className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl focus:outline-none focus:border-[#be32ff] hover:border-pink-500/60 transition-colors duration-200"
                   />
                 </div>
               )}
@@ -726,7 +726,7 @@ export default function BrandOffersPage() {
                     value={notes}
                     onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                     placeholder="Provide a mandatory professional reason (e.g., schedule conflict, niche misalignment)..."
-                    className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl focus:outline-none focus:border-[#be32ff]"
+                    className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl focus:outline-none focus:border-[#be32ff] hover:border-pink-500/60 transition-colors duration-200"
                   />
                 </div>
               )}
@@ -764,7 +764,7 @@ export default function BrandOffersPage() {
       {/* 2. Modal: Direct Chat between Business & Influencer */}
       {chatCampaign && (
         <Dialog open={!!chatCampaign} onOpenChange={() => setChatCampaign(null)}>
-          <DialogContent className="bg-[#08090d] border border-white/10 text-white max-w-6xl w-[96vw] h-[88vh] p-6 flex flex-col overflow-hidden rounded-2xl shadow-2xl">
+          <DialogContent className="bg-[#08090d] border border-white/10 text-white max-w-6xl w-[96vw] h-[88vh] p-6 flex flex-col overflow-hidden rounded-2xl shadow-2xl hover:border-pink-500/60 transition-colors duration-200">
             {/* Top Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-white/10 gap-3 shrink-0 pr-10">
               <div className="flex items-center gap-3">
@@ -774,7 +774,7 @@ export default function BrandOffersPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className="text-lg font-semibold text-white tracking-tight">Collaboration Messages</h2>
-                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:border-pink-500/60 transition-colors duration-200">
                       <ShieldCheck className="w-3 h-3" /> End-to-End Escrow Protected
                     </span>
                   </div>
@@ -801,7 +801,7 @@ export default function BrandOffersPage() {
             {/* 2-Column Chat Interface */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0 mt-4 overflow-hidden">
               {/* Left Column (md:col-span-4): Campaign Conversations List */}
-              <div className="md:col-span-4 bg-[#0e0f17] border border-white/10 rounded-2xl flex flex-col overflow-hidden">
+              <div className="md:col-span-4 bg-[#0e0f17] border border-white/10 rounded-2xl flex flex-col overflow-hidden hover:border-pink-500/60 transition-colors duration-200">
                 <div className="p-3 border-b border-white/10 space-y-2">
                   <div className="relative">
                     <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
@@ -823,7 +823,7 @@ export default function BrandOffersPage() {
                   </div>
                   <div className="flex items-center justify-between text-[11px] text-neutral-400 px-1">
                     <span>Direct Conversations</span>
-                    <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                    <span className="font-mono text-[10px] bg-white/5 px-2 py-0.5 rounded-full border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
                       {offers.filter(c => {
                         const q = chatSearchQuery.toLowerCase();
                         const reqId = c.hiring_request_id || c.id || '';
@@ -905,7 +905,7 @@ export default function BrandOffersPage() {
               </div>
 
               {/* Right Column (md:col-span-8): Active Conversation Thread */}
-              <div className="md:col-span-8 bg-[#0e0f17] border border-white/10 rounded-2xl flex flex-col overflow-hidden">
+              <div className="md:col-span-8 bg-[#0e0f17] border border-white/10 rounded-2xl flex flex-col overflow-hidden hover:border-pink-500/60 transition-colors duration-200">
                 {/* Chat Header */}
                 <div className="p-4 border-b border-white/10 bg-white/[0.02] flex items-center justify-between gap-3 shrink-0">
                   <div className="flex items-center gap-3 min-w-0">
@@ -977,7 +977,7 @@ export default function BrandOffersPage() {
                 <div className="flex-1 overflow-y-auto p-4 space-y-3.5 custom-scrollbar bg-[#090a10]">
                   {chatGated ? (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-3">
-                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-lg">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-lg hover:border-pink-500/60 transition-colors duration-200">
                         <Lock className="w-6 h-6" />
                       </div>
                       <h4 className="text-sm font-semibold text-white">Collaboration Chat Locked</h4>
@@ -1040,8 +1040,8 @@ export default function BrandOffersPage() {
                       if (isSystem) {
                         return (
                           <div key={m.id || idx} className="flex justify-center my-3 px-2">
-                            <div className="max-w-lg w-full p-4 rounded-2xl bg-gradient-to-b from-[#be32ff]/10 via-[#be32ff]/5 to-transparent border border-[#be32ff]/25 text-center shadow-lg backdrop-blur-sm">
-                              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#be32ff]/20 text-[#fc9a5d] text-[10px] font-bold uppercase tracking-wider mb-2 border border-[#be32ff]/30">
+                            <div className="max-w-lg w-full p-4 rounded-2xl bg-gradient-to-b from-[#be32ff]/10 via-[#be32ff]/5 to-transparent border border-[#be32ff]/25 text-center shadow-lg backdrop-blur-sm hover:border-pink-500/60 transition-colors duration-200">
+                              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#be32ff]/20 text-[#fc9a5d] text-[10px] font-bold uppercase tracking-wider mb-2 border border-[#be32ff]/30 hover:border-pink-500/60 transition-colors duration-200">
                                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                                 <span>Collaboration Security Verified</span>
                               </div>
@@ -1076,7 +1076,7 @@ export default function BrandOffersPage() {
 
                           <div className="flex items-end gap-2 max-w-[85%]">
                             {!isMe && (
-                              <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white shrink-0 mb-1">
+                              <div className="w-6 h-6 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white shrink-0 mb-1 hover:border-pink-500/60 transition-colors duration-200">
                                 {(m.sender_name || chatCampaign.business_name || 'B')[0].toUpperCase()}
                               </div>
                             )}
@@ -1112,7 +1112,7 @@ export default function BrandOffersPage() {
                         value={chatText}
                         onChange={e => setChatText(e.target.value)}
                         placeholder={chatGated ? "Chat locked until payment verification..." : "Type your message or delivery update..."}
-                        className="bg-white/5 border-white/10 text-white text-xs h-11 px-4 rounded-xl focus:border-[#be32ff] focus:ring-1 focus:ring-[#be32ff]/40 transition-all placeholder:text-neutral-500"
+                        className="bg-white/5 border-white/10 text-white text-xs h-11 px-4 rounded-xl focus:border-[#be32ff] focus:ring-1 focus:ring-[#be32ff]/40 transition-all placeholder:text-neutral-500 hover:border-pink-500/60 duration-200"
                       />
                     </div>
                     <Button
@@ -1157,7 +1157,7 @@ export default function BrandOffersPage() {
               ) : agreementDetail ? (
                 <>
                   {/* Status Banner */}
-                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between">
+                  <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 flex items-center justify-between hover:border-pink-500/60 transition-colors duration-200">
                     <div>
                       <span className="text-neutral-400 block text-[11px]">Agreement Number</span>
                       <span className="text-white font-mono font-bold">{agreementDetail.agreement_number}</span>
@@ -1176,7 +1176,7 @@ export default function BrandOffersPage() {
 
                   {/* Signatures Status */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                       <span className="text-neutral-400 block text-[11px]">Hirer / Business Signature</span>
                       <span className="text-white font-medium flex items-center gap-1.5 mt-1">
                         {agreementDetail.signatures?.hirer?.signed ? (
@@ -1191,7 +1191,7 @@ export default function BrandOffersPage() {
                       </span>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                    <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                       <span className="text-neutral-400 block text-[11px]">Influencer Signature &amp; Seal</span>
                       <span className="text-white font-medium flex items-center gap-1.5 mt-1">
                         {agreementDetail.signatures?.influencer?.signed ? (
@@ -1208,7 +1208,7 @@ export default function BrandOffersPage() {
                   </div>
 
                   {/* Legal Clauses Extract */}
-                  <div className="space-y-2 p-3 rounded-xl bg-[#08090d] border border-white/5">
+                  <div className="space-y-2 p-3 rounded-xl bg-[#08090d] border border-white/5 hover:border-pink-500/60 transition-colors duration-200">
                     <span className="text-neutral-300 font-semibold block">Key Binding Clauses:</span>
                     <ul className="space-y-1.5 text-neutral-400 text-[11px] list-disc pl-4 leading-relaxed">
                       <li>Deliverables must conform to agreed brief and quality standards.</li>
@@ -1219,7 +1219,7 @@ export default function BrandOffersPage() {
 
                   {/* Signing input if not signed yet */}
                   {!agreementDetail.signatures?.influencer?.signed && (
-                    <div className="space-y-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                    <div className="space-y-3 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 hover:border-pink-500/60 transition-colors duration-200">
                       <h4 className="text-xs font-semibold text-white flex items-center gap-2">
                         <PenTool className="w-4 h-4 text-[#be32ff]" /> Provide Electronic Signature
                       </h4>

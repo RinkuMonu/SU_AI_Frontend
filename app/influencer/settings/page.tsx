@@ -28,20 +28,20 @@ export default function InfluencerSettingsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
+        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4 hover:border-pink-500/60 transition-colors duration-200">
           <h3 className="text-sm font-semibold text-white flex items-center gap-2">
             <Bell className="w-4 h-4 text-purple-400" /> Notification Preferences
           </h3>
           <div className="space-y-3 text-xs">
-            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer">
+            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Email alerts for new Brand Hiring Requests</span>
               <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
             </label>
-            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer">
+            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Escrow payment deposit notifications</span>
               <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
             </label>
-            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer">
+            <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Revision request alerts</span>
               <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
             </label>
@@ -52,14 +52,14 @@ export default function InfluencerSettingsPage() {
           </Button>
         </Card>
 
-        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4">
+        <Card className="bg-[#0e0f17] border-white/10 rounded-2xl p-6 space-y-4 hover:border-pink-500/60 transition-colors duration-200">
           <h3 className="text-sm font-semibold text-white flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-emerald-400" /> Dedicated Creator Support
           </h3>
           <p className="text-xs text-neutral-400 leading-relaxed">
             Need assistance with a bilateral contract, payment dispute, or deliverable verification? Our marketplace dispute arbitration team is available 24/7.
           </p>
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-1 text-xs">
+          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 space-y-1 text-xs hover:border-pink-500/60 transition-colors duration-200">
             <p className="text-neutral-300">Marketplace Concierge: <strong className="text-white">support@sevenunique.ai</strong></p>
             <p className="text-neutral-300">Escrow Helpdesk: <strong className="text-white">payments@sevenunique.ai</strong></p>
           </div>

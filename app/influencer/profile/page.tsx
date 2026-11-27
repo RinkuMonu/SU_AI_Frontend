@@ -151,21 +151,21 @@ export default function InfluencerProfilePage() {
       </div>
 
       {success && (
-        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>Profile &amp; Media Kit updated successfully!</span>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2">
+        <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-xs font-semibold flex items-center gap-2 hover:border-pink-500/60 transition-colors duration-200">
           <AlertCircle className="w-4 h-4 text-rose-400" />
           <span>{error}</span>
         </div>
       )}
 
       {/* OAuth Verification Promotion Banner */}
-      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-black/40 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-purple-950/40 via-blue-950/30 to-black/40 border border-purple-500/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:border-pink-500/60 transition-colors duration-200">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-[#be32ff]/20 text-[#d87aff] shrink-0">
             <Sparkles className="w-5 h-5" />
@@ -189,7 +189,7 @@ export default function InfluencerProfilePage() {
       </div>
 
       <form onSubmit={handleSave}>
-        <Card className="bg-[#0f1017] border-white/10 rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-7 overflow-hidden">
+        <Card className="bg-[#0f1017] border-white/10 rounded-3xl p-5 sm:p-8 space-y-6 sm:space-y-7 overflow-hidden hover:border-pink-500/60 transition-colors duration-200">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div className="min-w-0">
               <Label className="block mb-2 text-base font-semibold text-white">Full Creator Name</Label>
@@ -332,12 +332,12 @@ export default function InfluencerProfilePage() {
                   value={engagementRate}
                   onChange={(e) => setEngagementRate(e.target.value ? Number(e.target.value) : '')}
                   placeholder="e.g. 4.5"
-                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 hover:border-pink-500/60 transition-colors duration-200"
                 />
               </div>
             </div>
 
-            <p className="text-sm leading-relaxed text-slate-300 bg-white/[0.04] p-4 rounded-xl border border-white/10">
+            <p className="text-sm leading-relaxed text-slate-300 bg-white/[0.04] p-4 rounded-xl border border-white/10 hover:border-pink-500/60 transition-colors duration-200">
               💡 Note: Manually entered handles above will appear as unverified. To display the official green Verified badge on your creator card, link your platforms via OAuth in{' '}
               <Link href="/influencer/social-accounts" className="text-[#d87aff] hover:underline font-semibold">
                 Social Accounts
