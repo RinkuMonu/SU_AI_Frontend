@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import {
   Presentation,
@@ -97,6 +97,21 @@ export default function PPTMakerPage() {
   const [isGeneratedModalOpen, setIsGeneratedModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Smooth scroll to top of wizard card when step changes
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const el = document.getElementById("presentation-builder-card");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  }, [currentStep]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -362,7 +377,7 @@ export default function PPTMakerPage() {
       {/* ========================================================================= */}
       {/* 3. MAIN FORM CARD: CREATE YOUR AI PRESENTATION                            */}
       {/* ========================================================================= */}
-      <div id="presentation-builder-card" className="rounded-3xl bg-[#0c142c]/95 border border-white/10 p-6 sm:p-8 md:p-9 shadow-2xl space-y-7 relative">
+      <div id="presentation-builder-card" className="scroll-mt-6 rounded-3xl bg-[#0c142c]/95 border border-white/10 p-6 sm:p-8 md:p-9 shadow-2xl space-y-7 relative">
         {/* Card Top Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-white/10">
           <div className="flex items-center gap-3">
