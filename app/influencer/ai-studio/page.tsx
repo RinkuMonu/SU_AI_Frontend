@@ -69,36 +69,37 @@ export default function InfluencerAIStudioPage() {
     <div className="space-y-6 max-w-7xl mx-auto pb-12 animate-in fade-in duration-300">
       
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between pb-4 border-b border-white/10 gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-white/10">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1.5 min-w-0">
             <Link
               href="/influencer"
-              className="p-1 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white transition-colors shrink-0"
+              aria-label="Back to dashboard"
             >
               <ArrowLeft className="w-4 h-4" />
             </Link>
-            <h1 className="text-xl sm:text-2xl font-semibold text-white tracking-tight flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-[#fc9a5d]" />
-              Creator AI Content Studio
+            <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight flex items-center gap-2 min-w-0">
+              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-[#fc9a5d] shrink-0" />
+              <span className="truncate">Creator AI Content Studio</span>
             </h1>
           </div>
-          <p className="text-xs sm:text-sm text-neutral-400">
+          <p className="text-sm sm:text-base text-neutral-400 pl-9 sm:pl-11 max-w-3xl">
             Generate viral reel hooks, high-converting brand integration scripts, and persuasive brand pitches with AI.
           </p>
         </div>
 
         {/* Quick Links */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto shrink-0">
           <Link
             href="/influencer/brand-deals"
-            className="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-white transition-colors"
+            className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-bold text-white transition-colors text-center"
           >
             Explore Deals
           </Link>
           <Link
             href="/influencer/chats"
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-xs font-bold text-white shadow-md shadow-purple-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-sm font-bold text-white shadow-md shadow-purple-500/20 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer text-center"
           >
             Open Chats
           </Link>
@@ -106,21 +107,21 @@ export default function InfluencerAIStudioPage() {
       </div>
 
       {/* Tool Selector Tabs */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Tool 1 */}
         <button
           type="button"
           onClick={() => { setActiveTool('hooks'); setGeneratedResults([]); }}
-          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+          className={`p-5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start gap-3 min-h-[132px] h-full ${
             activeTool === 'hooks'
               ? 'bg-[#1a0f2c] border-[#be32ff] shadow-lg shadow-purple-500/10'
               : 'bg-[#0c0d15] border-white/10 hover:border-white/20'
           }`}
         >
-          <Zap className={`w-5 h-5 ${activeTool === 'hooks' ? 'text-[#fc9a5d]' : 'text-neutral-400'}`} />
-          <div>
-            <span className="text-xs font-bold text-white block">Viral Reel Hooks</span>
-            <span className="text-[10px] text-neutral-400">Stop the scroll in 3 seconds</span>
+          <Zap className={`w-6 h-6 shrink-0 ${activeTool === 'hooks' ? 'text-[#fc9a5d]' : 'text-neutral-400'}`} />
+          <div className="min-w-0">
+            <span className="text-base font-semibold text-white block">Viral Reel Hooks</span>
+            <span className="text-sm text-neutral-400 block mt-1 leading-snug">Stop the scroll in 3 seconds</span>
           </div>
         </button>
 
@@ -128,16 +129,16 @@ export default function InfluencerAIStudioPage() {
         <button
           type="button"
           onClick={() => { setActiveTool('scripts'); setGeneratedResults([]); }}
-          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+          className={`p-5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start gap-3 min-h-[132px] h-full ${
             activeTool === 'scripts'
               ? 'bg-[#1a0f2c] border-[#be32ff] shadow-lg shadow-purple-500/10'
               : 'bg-[#0c0d15] border-white/10 hover:border-white/20'
           }`}
         >
-          <Film className={`w-5 h-5 ${activeTool === 'scripts' ? 'text-[#be32ff]' : 'text-neutral-400'}`} />
-          <div>
-            <span className="text-xs font-bold text-white block">Brand Scriptwriter</span>
-            <span className="text-[10px] text-neutral-400">3-act reel structure</span>
+          <Film className={`w-6 h-6 shrink-0 ${activeTool === 'scripts' ? 'text-[#be32ff]' : 'text-neutral-400'}`} />
+          <div className="min-w-0">
+            <span className="text-base font-semibold text-white block">Brand Scriptwriter</span>
+            <span className="text-sm text-neutral-400 block mt-1 leading-snug">3-act reel structure</span>
           </div>
         </button>
 
@@ -145,16 +146,16 @@ export default function InfluencerAIStudioPage() {
         <button
           type="button"
           onClick={() => { setActiveTool('captions'); setGeneratedResults([]); }}
-          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+          className={`p-5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start gap-3 min-h-[132px] h-full ${
             activeTool === 'captions'
               ? 'bg-[#1a0f2c] border-[#be32ff] shadow-lg shadow-purple-500/10'
               : 'bg-[#0c0d15] border-white/10 hover:border-white/20'
           }`}
         >
-          <Hash className={`w-5 h-5 ${activeTool === 'captions' ? 'text-[#f0449b]' : 'text-neutral-400'}`} />
-          <div>
-            <span className="text-xs font-bold text-white block">Captions &amp; Tags</span>
-            <span className="text-[10px] text-neutral-400">SEO optimized engagement</span>
+          <Hash className={`w-6 h-6 shrink-0 ${activeTool === 'captions' ? 'text-[#f0449b]' : 'text-neutral-400'}`} />
+          <div className="min-w-0">
+            <span className="text-base font-semibold text-white block">Captions &amp; Tags</span>
+            <span className="text-sm text-neutral-400 block mt-1 leading-snug">SEO optimized engagement</span>
           </div>
         </button>
 
@@ -162,81 +163,83 @@ export default function InfluencerAIStudioPage() {
         <button
           type="button"
           onClick={() => { setActiveTool('pitches'); setGeneratedResults([]); }}
-          className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+          className={`p-5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-start gap-3 min-h-[132px] h-full ${
             activeTool === 'pitches'
               ? 'bg-[#1a0f2c] border-[#be32ff] shadow-lg shadow-purple-500/10'
               : 'bg-[#0c0d15] border-white/10 hover:border-white/20'
           }`}
         >
-          <Send className={`w-5 h-5 ${activeTool === 'pitches' ? 'text-emerald-400' : 'text-neutral-400'}`} />
-          <div>
-            <span className="text-xs font-bold text-white block">Brand Pitch Proposal</span>
-            <span className="text-[10px] text-neutral-400">Land high-ticket sponsors</span>
+          <Send className={`w-6 h-6 shrink-0 ${activeTool === 'pitches' ? 'text-emerald-400' : 'text-neutral-400'}`} />
+          <div className="min-w-0">
+            <span className="text-base font-semibold text-white block">Brand Pitch Proposal</span>
+            <span className="text-sm text-neutral-400 block mt-1 leading-snug">Land high-ticket sponsors</span>
           </div>
         </button>
       </div>
 
       {/* Main Studio Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6">
         
         {/* Left Inputs (5 cols) */}
-        <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 space-y-4 shadow-lg">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Wand2 className="w-4 h-4 text-[#be32ff]" />
-            Prompt &amp; Creative Brief
+        <div className="lg:col-span-5 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px]">
+          <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
+            <Wand2 className="w-5 h-5 text-[#be32ff] shrink-0" />
+            <span>Prompt &amp; Creative Brief</span>
           </h3>
 
-          <div>
-            <label className="text-[11px] font-bold text-neutral-300 block mb-1">
-              {activeTool === 'pitches' ? 'Brand Name & Product' : 'Topic or Campaign Concept'}
-            </label>
-            <input
-              type="text"
-              value={promptInput}
-              onChange={(e) => setPromptInput(e.target.value)}
-              placeholder={
-                activeTool === 'hooks'
-                  ? 'e.g. Summer styling hacks or Skincare barrier repair'
-                  : activeTool === 'scripts'
-                  ? 'e.g. Myntra Summer Linen Collection unboxing'
-                  : activeTool === 'captions'
-                  ? 'e.g. Golden hour styling reel'
-                  : 'e.g. Nykaa Skincare Serum launch'
-              }
-              className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-[#be32ff]"
-            />
-          </div>
+          <div className="space-y-5 flex-1">
+            <div>
+              <label className="text-sm sm:text-base font-semibold text-neutral-200 block mb-2">
+                {activeTool === 'pitches' ? 'Brand Name & Product' : 'Topic or Campaign Concept'}
+              </label>
+              <input
+                type="text"
+                value={promptInput}
+                onChange={(e) => setPromptInput(e.target.value)}
+                placeholder={
+                  activeTool === 'hooks'
+                    ? 'e.g. Summer styling hacks or Skincare barrier repair'
+                    : activeTool === 'scripts'
+                    ? 'e.g. Myntra Summer Linen Collection unboxing'
+                    : activeTool === 'captions'
+                    ? 'e.g. Golden hour styling reel'
+                    : 'e.g. Nykaa Skincare Serum launch'
+                }
+                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white placeholder:text-slate-400 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30"
+              />
+            </div>
 
-          <div>
-            <label className="text-[11px] font-bold text-neutral-300 block mb-1">
-              Your Primary Niche / Tone
-            </label>
-            <select
-              value={brandOrNiche}
-              onChange={(e) => setBrandOrNiche(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl bg-[#121320] border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] cursor-pointer"
-            >
-              <option value="Fashion & Lifestyle">Fashion &amp; Lifestyle (Aesthetic &amp; Chic)</option>
-              <option value="Beauty & Skincare">Beauty &amp; Skincare (Educational &amp; Honest)</option>
-              <option value="Fitness & Health">Fitness &amp; Health (Energetic &amp; Motivating)</option>
-              <option value="Tech & Gadgets">Tech &amp; Gadgets (Review &amp; Testing)</option>
-            </select>
+            <div>
+              <label className="text-sm sm:text-base font-semibold text-neutral-200 block mb-2">
+                Your Primary Niche / Tone
+              </label>
+              <select
+                value={brandOrNiche}
+                onChange={(e) => setBrandOrNiche(e.target.value)}
+                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30 cursor-pointer"
+              >
+                <option value="Fashion & Lifestyle" className="bg-[#121320] text-white">Fashion &amp; Lifestyle (Aesthetic &amp; Chic)</option>
+                <option value="Beauty & Skincare" className="bg-[#121320] text-white">Beauty &amp; Skincare (Educational &amp; Honest)</option>
+                <option value="Fitness & Health" className="bg-[#121320] text-white">Fitness &amp; Health (Energetic &amp; Motivating)</option>
+                <option value="Tech & Gadgets" className="bg-[#121320] text-white">Tech &amp; Gadgets (Review &amp; Testing)</option>
+              </select>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={handleGenerate}
             disabled={generating}
-            className="w-full h-11 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] disabled:opacity-40 text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 active:scale-95 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+            className="mt-6 w-full h-14 rounded-full bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] disabled:opacity-40 text-white font-bold text-base shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
           >
             {generating ? (
               <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
+                <RefreshCw className="w-5 h-5 animate-spin" />
                 <span>Generating with AI...</span>
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-5 h-5" />
                 <span>Generate Creative Content</span>
               </>
             )}
@@ -244,62 +247,60 @@ export default function InfluencerAIStudioPage() {
         </div>
 
         {/* Right Output Area (7 cols) */}
-        <div className="lg:col-span-7 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 flex flex-col justify-between shadow-lg min-h-[360px]">
-          <div>
-            <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-              <h3 className="text-sm font-semibold text-white">
-                Generated Outputs
-              </h3>
-              {generatedResults.length > 0 && (
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Ready to copy
-                </span>
-              )}
-            </div>
-
-            {generatedResults.length === 0 ? (
-              <div className="py-16 text-center space-y-2">
-                <Sparkles className="w-8 h-8 text-neutral-600 mx-auto" />
-                <p className="text-xs font-bold text-white">No content generated yet</p>
-                <p className="text-[11px] text-neutral-400">
-                  Enter your topic on the left and click &quot;Generate Creative Content&quot;.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {generatedResults.map((result, idx) => (
-                  <div
-                    key={idx}
-                    className="p-4 rounded-xl bg-white/[0.02] border border-white/10 hover:border-purple-500/30 transition-all space-y-2 relative group"
-                  >
-                    <p className="text-xs text-neutral-200 leading-relaxed whitespace-pre-wrap select-text">
-                      {result}
-                    </p>
-
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
-                      <button
-                        type="button"
-                        onClick={() => handleCopy(result, idx)}
-                        className="px-3 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-[11px] font-bold text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-                      >
-                        {copiedIdx === idx ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                            <span className="text-emerald-400">Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5 text-neutral-400" />
-                            <span>Copy</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+        <div className="lg:col-span-7 p-5 sm:p-6 rounded-2xl bg-[#0c0d15] border border-white/10 shadow-lg flex flex-col lg:min-h-[520px]">
+          <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-5 gap-3">
+            <h3 className="text-lg font-semibold text-white">
+              Generated Outputs
+            </h3>
+            {generatedResults.length > 0 && (
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20 shrink-0">
+                Ready to copy
+              </span>
             )}
           </div>
+
+          {generatedResults.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center py-10 px-4 min-h-[280px]">
+              <Sparkles className="w-12 h-12 text-neutral-600 mb-4" />
+              <p className="text-lg font-semibold text-white">No content generated yet</p>
+              <p className="text-sm text-neutral-400 mt-2 max-w-md leading-relaxed">
+                Enter your topic on the left and click &quot;Generate Creative Content&quot;.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4 flex-1 overflow-y-auto min-h-0">
+              {generatedResults.map((result, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 sm:p-5 rounded-xl bg-white/[0.02] border border-white/10 hover:border-purple-500/30 transition-all space-y-3 relative group"
+                >
+                  <p className="text-sm sm:text-base text-neutral-200 leading-relaxed whitespace-pre-wrap select-text break-words">
+                    {result}
+                  </p>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(result, idx)}
+                      className="px-3.5 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-semibold text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      {copiedIdx === idx ? (
+                        <>
+                          <Check className="w-4 h-4 text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4 text-neutral-400" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
