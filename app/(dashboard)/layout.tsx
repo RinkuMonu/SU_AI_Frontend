@@ -56,7 +56,7 @@ export default function DashboardLayout({
         <Sidebar />
         <div className="flex flex-col flex-1 w-0 min-w-0 overflow-hidden">
           <Navbar />
-          <main className="flex-1 relative overflow-y-auto overflow-x-hidden focus:outline-none custom-scrollbar">
+          <main className="flex-1 relative overflow-y-auto overflow-x-hidden focus:outline-none custom-scrollbar scroll-smooth">
             <div className="py-6 px-4 sm:px-6 md:px-8 max-w-[1600px] 2xl:max-w-[1720px] mx-auto w-full">
               <OnboardingProvider>
                 <DashboardPageBanner />
