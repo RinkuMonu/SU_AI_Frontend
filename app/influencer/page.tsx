@@ -539,13 +539,7 @@ export default function InfluencerDashboard() {
     <div className="space-y-6 sm:space-y-7 animate-in fade-in duration-300 font-sans pb-12 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Hidden File Input for Banner Upload (YouTube/LinkedIn feature) */}
-      <input
-        type="file"
-        ref={bannerFileInputRef}
-        onChange={handleBannerFileChange}
-        accept="image/png,image/jpeg,image/webp"
-        className="hidden"
-      />
+      <input type="file" ref={bannerFileInputRef} onChange={handleBannerFileChange} accept="image/png,image/jpeg,image/webp" className="hidden transition-colors duration-200 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none" />
 
       {/* ========================================================
           1. CREATOR HERO WITH CUSTOMIZABLE COVER BANNER
@@ -605,7 +599,7 @@ export default function InfluencerDashboard() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search..."
-                    className="w-full min-w-0 sm:w-44 h-9 pl-7 pr-8 rounded-full bg-black/80 border border-white/20 text-xs text-white placeholder:text-neutral-400 focus:outline-none focus:border-[#be32ff] backdrop-blur-md"
+                    className="w-full min-w-0 sm:w-44 h-9 pl-7 pr-8 rounded-full bg-black/80 border border-white/20 text-xs text-white placeholder:text-neutral-400 backdrop-blur-md [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     autoFocus
                   />
                   <button
@@ -1375,7 +1369,7 @@ export default function InfluencerDashboard() {
                     type="number"
                     value={proposedBudget}
                     onChange={(e) => setProposedBudget(e.target.value ? Number(e.target.value) : '')}
-                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     placeholder="Enter amount in ₹"
                   />
                   <span className="text-[10px] text-neutral-500 mt-1 block">
@@ -1391,7 +1385,7 @@ export default function InfluencerDashboard() {
                     rows={4}
                     value={pitchMessage}
                     onChange={(e) => setPitchMessage(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] resize-none"
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white resize-none [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     placeholder="Describe your shooting concept, hook idea, and why your audience is the perfect match..."
                   />
                 </div>

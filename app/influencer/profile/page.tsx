@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -116,12 +117,15 @@ export default function InfluencerProfilePage() {
       if (res.success) {
         setSuccess(true);
         setProfile(res.data);
+        toast.success('Profile & Media Kit updated successfully!');
         setTimeout(() => setSuccess(false), 3000);
       } else {
         setError(res.message || 'Failed to update profile.');
+        toast.error(res.message || 'Failed to update profile.');
       }
     } catch (err: any) {
       setError(err?.response?.data?.detail || err.message || 'Failed to update profile.');
+      toast.error('Failed to update profile.');
     } finally {
       setSaving(false);
     }
@@ -142,11 +146,11 @@ export default function InfluencerProfilePage() {
 
         <Link
           href="/influencer/social-accounts"
-          className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white border border-white/10 text-xs font-semibold inline-flex items-center gap-1.5 transition-all self-start sm:self-auto cursor-pointer"
+          className="h-11 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-neutral-200 hover:text-white border border-white/10 hover:border-white/20 text-sm font-semibold inline-flex items-center justify-center gap-1.5 transition-colors duration-200 self-start sm:self-auto cursor-pointer w-full sm:w-auto"
         >
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>Social Accounts &amp; OAuth</span>
-          <ArrowUpRight className="w-3.5 h-3.5" />
+          <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+          <span className="truncate">Social Accounts &amp; OAuth</span>
+          <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
         </Link>
       </div>
 
@@ -181,10 +185,10 @@ export default function InfluencerProfilePage() {
         </div>
         <Link
           href="/influencer/social-accounts"
-          className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-xs font-bold shadow-md shrink-0 inline-flex items-center gap-1 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white text-sm font-bold shadow-md shrink-0 inline-flex items-center justify-center gap-1.5 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer w-full sm:w-auto"
         >
           <span>Manage Social Accounts</span>
-          <ArrowUpRight className="w-3.5 h-3.5" />
+          <ArrowUpRight className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:translate-x-0.5" />
         </Link>
       </div>
 
@@ -197,7 +201,7 @@ export default function InfluencerProfilePage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Maya Patel"
-                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 required
               />
             </div>
@@ -207,7 +211,7 @@ export default function InfluencerProfilePage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="e.g. @mayacreates"
-                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 required
               />
             </div>
@@ -220,7 +224,7 @@ export default function InfluencerProfilePage() {
               value={bio}
               onChange={(e) => setBio(e.target.value)}
               placeholder="Tell brands about your aesthetic, audience demographics, and top achievements..."
-              className="w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30 resize-y min-h-[120px]"
+              className="w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 resize-y min-h-[120px] [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
             />
           </div>
 
@@ -230,7 +234,7 @@ export default function InfluencerProfilePage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full min-h-12 rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white cursor-pointer focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30"
+                className="w-full min-h-12 rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white cursor-pointer [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
               >
                 <option value="Fashion & Lifestyle" className="bg-[#0f1017] text-white">Fashion &amp; Lifestyle</option>
                 <option value="Beauty & Skincare" className="bg-[#0f1017] text-white">Beauty &amp; Skincare</option>
@@ -245,7 +249,7 @@ export default function InfluencerProfilePage() {
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="e.g. Mumbai, India"
-                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
               />
             </div>
             <div className="min-w-0 md:col-span-2 xl:col-span-1">
@@ -255,7 +259,7 @@ export default function InfluencerProfilePage() {
                 value={expectedRate}
                 onChange={(e) => setExpectedRate(e.target.value ? Number(e.target.value) : '')}
                 placeholder="e.g. 5000"
-                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
               />
             </div>
           </div>
@@ -282,7 +286,7 @@ export default function InfluencerProfilePage() {
                   value={instagramUrl}
                   onChange={(e) => setInstagramUrl(e.target.value)}
                   placeholder="https://instagram.com/yourhandle"
-                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
 
@@ -295,7 +299,7 @@ export default function InfluencerProfilePage() {
                   value={facebookUrl}
                   onChange={(e) => setFacebookUrl(e.target.value)}
                   placeholder="https://facebook.com/yourpage"
-                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
 
@@ -308,7 +312,7 @@ export default function InfluencerProfilePage() {
                   value={linkedinUrl}
                   onChange={(e) => setLinkedinUrl(e.target.value)}
                   placeholder="https://linkedin.com/in/yourprofile"
-                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
             </div>
@@ -321,7 +325,7 @@ export default function InfluencerProfilePage() {
                   value={followerCount}
                   onChange={(e) => setFollowerCount(e.target.value ? Number(e.target.value) : '')}
                   placeholder="e.g. 25000"
-                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400"
+                  className="h-auto min-h-12 w-full rounded-xl bg-white/[0.07] border border-white/20 px-4 py-3.5 text-base text-white placeholder:text-slate-400 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
               <div className="min-w-0">
@@ -350,9 +354,9 @@ export default function InfluencerProfilePage() {
             <Button
               type="submit"
               disabled={saving}
-              className="h-11 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-xs shadow-lg shadow-purple-500/20 flex items-center gap-2 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+              className="h-12 px-6 rounded-xl bg-gradient-to-r from-[#fc9a5d] via-[#f0449b] to-[#be32ff] text-white font-bold text-sm shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 group enabled:hover:brightness-110 enabled:hover:shadow-lg enabled:hover:shadow-pink-500/30 enabled:hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-200 cursor-pointer w-full sm:w-auto disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              <Save className="w-4 h-4" />
+              <Save className="w-4 h-4 shrink-0" />
               <span>{saving ? 'Saving...' : 'Save Media Kit'}</span>
             </Button>
           </div>

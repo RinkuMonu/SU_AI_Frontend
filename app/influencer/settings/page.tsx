@@ -35,15 +35,15 @@ export default function InfluencerSettingsPage() {
           <div className="space-y-3 text-xs">
             <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Email alerts for new Brand Hiring Requests</span>
-              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
+              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff] transition-colors duration-200 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none" />
             </label>
             <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Escrow payment deposit notifications</span>
-              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
+              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff] transition-colors duration-200 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none" />
             </label>
             <label className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5 cursor-pointer hover:border-pink-500/60 transition-colors duration-200">
               <span className="text-neutral-300">Revision request alerts</span>
-              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff]" />
+              <input type="checkbox" defaultChecked className="rounded accent-[#be32ff] transition-colors duration-200 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none" />
             </label>
           </div>
           <Button size="sm" onClick={handleSave} className="bg-gradient-to-r from-[#fc9a5d] to-[#be32ff] text-white text-xs font-semibold">

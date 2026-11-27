@@ -216,7 +216,7 @@ export default function InfluencerAIStudioPage() {
               <select
                 value={brandOrNiche}
                 onChange={(e) => setBrandOrNiche(e.target.value)}
-                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white focus:outline-none focus:border-[#be32ff] focus:ring-2 focus:ring-[#be32ff]/30 cursor-pointer"
+                className="w-full min-h-12 px-4 py-3.5 rounded-xl bg-white/[0.07] border border-white/20 text-base text-white cursor-pointer [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
               >
                 <option value="Fashion & Lifestyle" className="bg-[#121320] text-white">Fashion &amp; Lifestyle (Aesthetic &amp; Chic)</option>
                 <option value="Beauty & Skincare" className="bg-[#121320] text-white">Beauty &amp; Skincare (Educational &amp; Honest)</option>

@@ -503,9 +503,9 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                 type="url"
                 required
                 value={liveUrl}
-                onChange={e => setLiveUrl(e.target.value)}
+                onChange={(e) => setLiveUrl(e.target.value)}
                 placeholder="https://www.instagram.com/reel/..."
-                className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none"
+                className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
               />
             </div>
             <div className="space-y-1.5">
@@ -513,7 +513,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
               <textarea 
                 rows={3}
                 value={submissionNotes}
-                onChange={e => setSubmissionNotes(e.target.value)}
+                onChange={(e) => setSubmissionNotes(e.target.value)}
                 placeholder="Content published as agreed with required hashtag and brand tag..."
                 className="w-full p-2.5 bg-white/5 border border-white/10 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none hover:border-pink-500/60 transition-colors duration-200"
               />
@@ -804,9 +804,9 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                       <input 
                         type="text" 
                         value={signerLegalName}
-                        onChange={e => setSignerLegalName(e.target.value)}
+                        onChange={(e) => setSignerLegalName(e.target.value)}
                         placeholder="e.g. John Doe"
-                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none"
+                        className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                       />
                     </div>
                     <div className="space-y-1">
@@ -814,7 +814,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                       <input 
                         type="text" 
                         value={signerTitle}
-                        onChange={e => setSignerTitle(e.target.value)}
+                        onChange={(e) => setSignerTitle(e.target.value)}
                         placeholder="e.g. Content Creator / Influencer"
                         className="w-full p-2 bg-white/10 border border-white/20 rounded-lg text-white text-xs focus:border-brand-purple focus:outline-none hover:border-pink-500/60 transition-colors duration-200"
                       />
@@ -845,13 +845,7 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                       )}
                     </div>
 
-                    <input 
-                      type="file"
-                      ref={signatureFileInputRef}
-                      accept="image/png, image/jpeg, image/jpg, image/webp"
-                      onChange={handleSignatureFileChange}
-                      className="hidden"
-                    />
+                    <input type="file" ref={signatureFileInputRef} accept="image/png, image/jpeg, image/jpg, image/webp" onChange={handleSignatureFileChange} className="hidden transition-colors duration-200 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none" />
 
                     {uploadedSignature ? (
                       <div className="p-3 bg-white/5 border border-emerald-500/40 rounded-xl flex items-center justify-between gap-4 hover:border-pink-500/60 transition-colors duration-200">
@@ -918,8 +912,8 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
                       type="checkbox" 
                       id="creator-declaration"
                       checked={declarationAccepted}
-                      onChange={e => setDeclarationAccepted(e.target.checked)}
-                      className="mt-0.5 rounded border-white/30"
+                      onChange={(e) => setDeclarationAccepted(e.target.checked)}
+                      className="mt-0.5 rounded border-white/30 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     />
                     <label htmlFor="creator-declaration" className="text-[11px] text-white/80 cursor-pointer">
                       I declare that I am the authorized content creator named above, and I agree to be legally bound by all terms, deliverables, revision policies, and advertising compliance standards in this agreement.
@@ -1020,9 +1014,9 @@ const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
             <input 
               type="text"
               value={newChatMessage}
-              onChange={e => setNewChatMessage(e.target.value)}
+              onChange={(e) => setNewChatMessage(e.target.value)}
               placeholder="Type message to the brand..."
-              className="flex-1 p-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
+              className="flex-1 p-2 bg-white/5 border border-white/10 rounded-xl text-white text-xs [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
             />
             <Button type="submit" disabled={sendingMessage || !newChatMessage.trim()} className="bg-brand-purple text-white h-9 px-4">
               <Send className="w-4 h-4" />

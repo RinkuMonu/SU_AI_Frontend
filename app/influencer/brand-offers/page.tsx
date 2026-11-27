@@ -443,9 +443,9 @@ export default function BrandOffersPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
           <Input
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search campaigns by name, deliverable, or ID..."
-            className="pl-10 bg-[#0e0f17] border-white/10 text-white text-xs h-10 rounded-xl"
+            className="pl-10 bg-[#0e0f17] border-white/10 text-white text-xs h-10 rounded-xl [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
           />
         </div>
       </div>
@@ -807,9 +807,9 @@ export default function BrandOffersPage() {
                     <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
                     <Input
                       value={chatSearchQuery}
-                      onChange={e => setChatSearchQuery(e.target.value)}
+                      onChange={(e) => setChatSearchQuery(e.target.value)}
                       placeholder="Search conversations..."
-                      className="pl-9 pr-7 bg-white/5 border-white/10 text-white text-xs h-9 rounded-xl focus:border-[#be32ff]"
+                      className="pl-9 pr-7 bg-white/5 border-white/10 text-white text-xs h-9 rounded-xl [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     />
                     {chatSearchQuery && (
                       <button
@@ -1110,7 +1110,7 @@ export default function BrandOffersPage() {
                       <Input
                         disabled={chatGated || chatLoading || chatSending}
                         value={chatText}
-                        onChange={e => setChatText(e.target.value)}
+                        onChange={(e) => setChatText(e.target.value)}
                         placeholder={chatGated ? "Chat locked until payment verification..." : "Type your message or delivery update..."}
                         className="bg-white/5 border-white/10 text-white text-xs h-11 px-4 rounded-xl focus:border-[#be32ff] focus:ring-1 focus:ring-[#be32ff]/40 transition-all placeholder:text-neutral-500 hover:border-pink-500/60 duration-200"
                       />
@@ -1230,9 +1230,9 @@ export default function BrandOffersPage() {
                         <label className="text-[11px] text-neutral-400">Legal Signer Name</label>
                         <Input
                           value={signerName}
-                          onChange={e => setSignerName(e.target.value)}
+                          onChange={(e) => setSignerName(e.target.value)}
                           placeholder="e.g. Sejal Gupta"
-                          className="bg-white/5 border-white/10 text-white text-xs h-9"
+                          className="bg-white/5 border-white/10 text-white text-xs h-9 [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1306,9 +1306,9 @@ export default function BrandOffersPage() {
                 <label className="text-neutral-300 font-semibold block">Live Content Links (One per line) *</label>
                 <textarea
                   value={liveLinks}
-                  onChange={e => setLiveLinks(e.target.value)}
+                  onChange={(e) => setLiveLinks(e.target.value)}
                   placeholder="https://www.instagram.com/reel/...&#10;https://www.youtube.com/watch?v=..."
-                  className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[90px] rounded-xl [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
 
@@ -1316,9 +1316,9 @@ export default function BrandOffersPage() {
                 <label className="text-neutral-300 font-semibold block">Notes for Brand Review (Optional)</label>
                 <textarea
                   value={deliverableNotes}
-                  onChange={e => setDeliverableNotes(e.target.value)}
+                  onChange={(e) => setDeliverableNotes(e.target.value)}
                   placeholder="Mention view counts, tags included, or analytics summary..."
-                  className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[70px] rounded-xl focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white/5 border border-white/10 text-white text-xs p-3 min-h-[70px] rounded-xl [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                 />
               </div>
             </div>

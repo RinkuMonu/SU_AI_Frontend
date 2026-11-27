@@ -323,7 +323,7 @@ export default function OpportunitiesPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by business name, campaign, city or category..."
-              className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#0c0d15] border border-white/10 text-xs sm:text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#be32ff] transition-colors"
+              className="w-full h-11 pl-10 pr-4 rounded-xl bg-[#0c0d15] border border-white/10 text-xs sm:text-sm text-white placeholder-neutral-500 transition-colors [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
             />
             {searchQuery && (
               <button
@@ -339,7 +339,7 @@ export default function OpportunitiesPage() {
           <select
             value={selectedCompensation}
             onChange={(e) => setSelectedCompensation(e.target.value)}
-            className="h-11 px-3.5 rounded-xl bg-[#0c0d15] border border-white/10 text-xs font-bold text-neutral-300 focus:outline-none focus:border-[#be32ff] cursor-pointer"
+            className="h-11 px-3.5 rounded-xl bg-[#0c0d15] border border-white/10 text-xs font-bold text-neutral-300 cursor-pointer [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
           >
             <option value="All">All Compensation</option>
             <option value="under15">Under ₹15,000</option>
@@ -523,7 +523,7 @@ export default function OpportunitiesPage() {
                     type="number"
                     value={proposedBudget}
                     onChange={(e) => setProposedBudget(e.target.value)}
-                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white focus:outline-none focus:border-[#be32ff]"
+                    className="w-full h-10 px-3.5 rounded-xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     placeholder="Enter amount in ₹"
                   />
                   <span className="text-[10px] text-neutral-500 mt-1 block">
@@ -540,7 +540,7 @@ export default function OpportunitiesPage() {
                     rows={4}
                     value={pitchMessage}
                     onChange={(e) => setPitchMessage(e.target.value)}
-                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white focus:outline-none focus:border-[#be32ff] resize-none"
+                    className="w-full p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white resize-none [&:not(:disabled):not([readonly])]:hover:border-pink-500/60 transition-colors duration-200 focus:border-pink-500 focus:ring-1 focus:ring-pink-500/40 focus:outline-none"
                     placeholder="Explain your creative concept, shooting plan, and why your audience matches this business..."
                   />
                 </div>
