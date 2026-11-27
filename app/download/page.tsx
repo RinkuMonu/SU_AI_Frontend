@@ -4,7 +4,7 @@ import { PhoneModel } from '@/components/PhoneModel';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { ShieldCheck, Layers, RefreshCw, MessageSquare, Image as ImageIcon, Video, Code, FileText, Mic, CheckCircle2, Download, Search, Play, ChevronLeft, ChevronRight, Star, Plus, ArrowRight, Zap, TrendingUp } from 'lucide-react';
+import { ShieldCheck, Layers, RefreshCw, MessageSquare, Image as ImageIcon, Video, Code, FileText, Mic, CheckCircle2, Download, Search, Play, ChevronLeft, ChevronRight, Star, Plus, ArrowRight, Zap, TrendingUp, Presentation } from 'lucide-react';
 import Image from 'next/image';
 
 export default function DownloadPage() {
@@ -132,12 +132,14 @@ export default function DownloadPage() {
           {[
             { icon: MessageSquare, color: "bg-blue-100 text-blue-600", title: "AI Chat", desc: "Get instant answers to any question" },
             { icon: ImageIcon, color: "bg-purple-100 text-purple-600", title: "Image Generation", desc: "Create stunning images with AI" },
+            { icon: Presentation, color: "bg-amber-100 text-amber-600", title: "Google PPT", desc: "Generate & export AI presentations" },
             { icon: Video, color: "bg-pink-100 text-pink-600", title: "Video Creation", desc: "Generate videos in seconds" },
             { icon: Code, color: "bg-emerald-100 text-emerald-600", title: "Code Assistant", desc: "Write, debug and learn code" },
             { icon: FileText, color: "bg-orange-100 text-orange-600", title: "Document Tools", desc: "Summarize, rewrite and analyze files" },
             { icon: Mic, color: "bg-indigo-100 text-indigo-600", title: "Voice & More", desc: "Speak, transcribe and explore more" },
             { icon: MessageSquare, color: "bg-blue-100 text-blue-600", title: "AI Chat", desc: "Get instant answers to any question" },
             { icon: ImageIcon, color: "bg-purple-100 text-purple-600", title: "Image Generation", desc: "Create stunning images with AI" },
+            { icon: Presentation, color: "bg-amber-100 text-amber-600", title: "Google PPT", desc: "Generate & export AI presentations" },
             { icon: Video, color: "bg-pink-100 text-pink-600", title: "Video Creation", desc: "Generate videos in seconds" },
             { icon: Code, color: "bg-emerald-100 text-emerald-600", title: "Code Assistant", desc: "Write, debug and learn code" },
             { icon: FileText, color: "bg-orange-100 text-orange-600", title: "Document Tools", desc: "Summarize, rewrite and analyze files" },
