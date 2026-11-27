@@ -94,10 +94,10 @@ function ContentStudioContent() {
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+              <h1 className="text-2xl sm:text-3xl font-normal tracking-tight text-white">
                 AI Content Generation
               </h1>
-              <span className="px-2.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-bold uppercase tracking-wider border border-brand-purple/30">
+              <span className="px-2.5 py-0.5 rounded-full bg-brand-purple/20 text-brand-purple text-xs font-normal uppercase tracking-wider border border-brand-purple/30">
                 Product Studio
               </span>
             </div>
@@ -111,7 +111,7 @@ function ContentStudioContent() {
           <Button 
             variant="outline" 
             asChild
-            className="border-border bg-surface hover:bg-surface-elevated text-slate-200 hover:text-white rounded-xl shadow-sm text-xs font-semibold h-10 px-4 cursor-pointer"
+            className="border-border bg-surface hover:bg-surface-elevated text-slate-200 hover:text-white rounded-xl shadow-sm text-xs font-normal h-10 px-4 cursor-pointer"
           >
             <Link href="/content-library">
               <History className="h-4 w-4 mr-2 text-brand-purple" />
