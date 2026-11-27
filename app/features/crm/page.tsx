@@ -440,7 +440,10 @@ export default function LeadsCRMPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-14">
             <Button
               size="lg"
-              className="w-full sm:w-auto h-14 px-9 text-base rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold shadow-[0_0_35px_rgba(20,184,166,0.35)] transition-all hover:scale-[1.02] border-0"
+              className="w-full sm:w-auto h-14 px-9 text-base rounded-full text-white font-bold shadow-[0_0_35px_rgba(240,68,155,0.4)] transition-all hover:scale-[1.02] border-0 hover:opacity-95"
+              style={{
+                background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+              }}
               asChild
             >
               <Link href="/download" className="flex items-center gap-2">
@@ -1256,7 +1259,10 @@ export default function LeadsCRMPage() {
               </div>
 
               <Button
-                className="mt-6 w-full h-12 bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-slate-950 font-bold rounded-xl"
+                className="mt-6 w-full h-12 text-white font-bold rounded-xl shadow-[0_0_25px_rgba(240,68,155,0.35)] transition-all hover:scale-[1.01] border-0 hover:opacity-95"
+                style={{
+                  background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+                }}
                 asChild
               >
                 <Link href="/download">Unlock This Revenue Now</Link>
@@ -1351,7 +1357,10 @@ export default function LeadsCRMPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button
               size="lg"
-              className="w-full sm:w-auto h-16 px-10 text-lg rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold shadow-[0_0_40px_rgba(20,184,166,0.35)] transition-all hover:scale-105 border-0"
+              className="w-full sm:w-auto h-16 px-10 text-lg rounded-full text-white font-bold shadow-[0_0_40px_rgba(240,68,155,0.4)] transition-all hover:scale-105 border-0 hover:opacity-95"
+              style={{
+                background: "linear-gradient(90deg, #fc9a5d 0%, #f0449b 35%, #be32ff 70%, #7d36fa 100%)",
+              }}
               asChild
             >
               <Link href="/download">Launch Leads CRM Free</Link>
