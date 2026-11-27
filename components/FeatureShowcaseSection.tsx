@@ -298,7 +298,7 @@ export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKe
             {content.items.map((item, index) => (
               <article
                 key={item.category}
-                className="mx-auto w-full max-w-[250px] rounded-[24px] border border-white/25 bg-slate-950 p-1.5 shadow-[0_18px_45px_rgba(0,0,0,0.4)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[30px] sm:p-2"
+                className="mx-auto w-full max-w-[250px] rounded-[24px] border border-white/25 hover:border-indigo-400/50 bg-slate-950 p-1.5 shadow-[0_18px_45px_rgba(0,0,0,0.4)] hover:shadow-[0_25px_55px_rgba(0,0,0,0.6)] transition-all duration-300 hover:-translate-y-2 cursor-pointer group sm:rounded-[30px] sm:p-2"
               >
                 <div className="relative flex min-h-[230px] flex-col overflow-hidden rounded-[19px] bg-white sm:min-h-[330px] sm:rounded-[23px]">
                   <div className="relative flex items-center justify-center px-3 pt-3 sm:px-4 sm:pt-4">
@@ -346,7 +346,7 @@ export function FeatureShowcaseSection({ feature }: { feature: FeatureShowcaseKe
 
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {content.items.map((item, index) => (
-            <article key={item.category} className="rounded-2xl border border-slate-200 bg-[#faf9f6] p-5 transition-colors hover:border-slate-300 sm:p-6">
+            <article key={item.category} className="rounded-2xl border border-slate-200 hover:border-indigo-300 bg-[#faf9f6] hover:bg-white p-5 transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 cursor-pointer group sm:p-6">
               <span
                 className="mb-3 inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider"
                 style={{ color: content.accent, backgroundColor: `${content.accent}14` }}

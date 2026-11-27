@@ -553,12 +553,15 @@ export default function MarketingAgentPage() {
                   </h4>
                   <div className="space-y-2">
                     {activePlaybook.milestones.map((m, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-xs">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800 hover:border-indigo-500/40 hover:translate-x-1.5 hover:shadow-md transition-all duration-200 text-xs cursor-pointer group"
+                      >
                         <div className="flex items-center gap-3">
-                          <span className="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 font-bold text-[11px] border border-indigo-500/20">
+                          <span className="px-2.5 py-0.5 rounded bg-indigo-500/10 text-indigo-300 font-bold text-[11px] border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
                             {m.day}
                           </span>
-                          <span className="text-slate-200 font-medium">{m.action}</span>
+                          <span className="text-slate-200 font-medium group-hover:text-white transition-colors">{m.action}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-slate-400 font-semibold uppercase bg-slate-800 px-2 py-0.5 rounded">
@@ -605,17 +608,20 @@ export default function MarketingAgentPage() {
                   </h4>
                   <div className="space-y-2.5">
                     {activePlaybook.generatedAssets.map((asset, index) => (
-                      <div key={index} className="p-2.5 rounded-xl bg-[#070B14] border border-slate-800/80 flex items-start justify-between gap-3 text-xs">
+                      <div
+                        key={index}
+                        className="p-3 rounded-xl bg-[#070B14] hover:bg-slate-950 border border-slate-800/80 hover:border-indigo-500/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-200 flex items-start justify-between gap-3 text-xs cursor-pointer group"
+                      >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-white">{asset.title}</span>
-                            <span className="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.2 rounded border border-indigo-500/20 font-bold">
+                            <span className="font-semibold text-white group-hover:text-indigo-300 transition-colors">{asset.title}</span>
+                            <span className="text-[10px] text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-bold">
                               {asset.format}
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-400 mt-1">{asset.description}</p>
                         </div>
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-1" />
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-1 group-hover:scale-110 transition-transform" />
                       </div>
                     ))}
                   </div>
@@ -656,13 +662,13 @@ export default function MarketingAgentPage() {
               return (
                 <div 
                   key={i} 
-                  className="rounded-3xl border border-slate-800/90 bg-gradient-to-b from-slate-900/70 to-[#0A0E1A]/70 p-6 sm:p-8 backdrop-blur-xl hover:border-indigo-500/40 transition-all duration-300 hover:-translate-y-1 group"
+                  className="rounded-3xl border border-slate-800/90 bg-gradient-to-b from-slate-900/80 to-[#0A0E1A]/80 p-6 sm:p-8 backdrop-blur-xl hover:border-indigo-400/60 hover:shadow-[0_22px_50px_-10px_rgba(99,102,241,0.25)] transition-all duration-300 hover:-translate-y-2 cursor-pointer group"
                 >
                   <div className="flex items-center justify-between mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500/25 group-hover:border-indigo-400/50 group-hover:shadow-[0_0_25px_rgba(99,102,241,0.4)] transition-all duration-300">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-800/90 text-slate-300 border border-slate-700/80 group-hover:border-indigo-500/40 group-hover:text-indigo-300 transition-colors">
                       {cap.tag}
                     </span>
                   </div>
@@ -782,7 +788,7 @@ export default function MarketingAgentPage() {
               return (
                 <div 
                   key={index}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-all duration-200"
+                  className="rounded-2xl border border-slate-800 hover:border-indigo-500/40 bg-slate-900/60 hover:bg-slate-900/80 hover:shadow-lg hover:shadow-indigo-500/5 overflow-hidden transition-all duration-200"
                 >
                   <button
                     onClick={() => setOpenFaqIndex(isOpen ? null : index)}
