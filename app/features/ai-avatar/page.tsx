@@ -105,22 +105,22 @@ export default function AIAvatarPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature Box 1 */}
-            <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-blue-300 flex flex-col h-full hover:shadow-2xl hover:shadow-blue-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
-              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-blue-50 group-hover:border-blue-200 group-hover:shadow-md transition-all duration-300 ease-out">
-                <Globe className="w-6 h-6 text-blue-500 group-hover:text-blue-600 transition-colors duration-300" />
+            <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-purple-300 flex flex-col h-full hover:shadow-2xl hover:shadow-purple-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
+              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-purple-50 group-hover:border-purple-200 group-hover:shadow-md transition-all duration-300 ease-out">
+                <Globe className="w-6 h-6 text-blue-500 group-hover:text-purple-600 transition-colors duration-300" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors duration-300">100+ Diverse Avatars</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-purple-600 transition-colors duration-300">100+ Diverse Avatars</h3>
               <p className="text-slate-600 leading-relaxed flex-1">
                 Choose from a vast library of professional AI actors of different ages, ethnicities, and professional attire. Perfect for training videos, sales pitches, or social media.
               </p>
             </div>
 
             {/* Feature Box 2 */}
-            <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-indigo-300 flex flex-col h-full hover:shadow-2xl hover:shadow-indigo-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
-              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-indigo-50 group-hover:border-indigo-200 group-hover:shadow-md transition-all duration-300 ease-out">
-                <UserPlus className="w-6 h-6 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-300" />
+            <div className="group relative bg-slate-50 hover:bg-white rounded-[32px] p-8 border border-slate-200/80 hover:border-purple-300 flex flex-col h-full hover:shadow-2xl hover:shadow-purple-500/15 hover:-translate-y-2 transition-all duration-300 ease-out cursor-pointer">
+              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-purple-50 group-hover:border-purple-200 group-hover:shadow-md transition-all duration-300 ease-out">
+                <UserPlus className="w-6 h-6 text-indigo-500 group-hover:text-purple-600 transition-colors duration-300" />
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-indigo-600 transition-colors duration-300">Clone Yourself</h3>
+              <h3 className="text-2xl font-bold text-slate-900 mb-3 group-hover:text-purple-600 transition-colors duration-300">Clone Yourself</h3>
               <p className="text-slate-600 leading-relaxed flex-1">
                 Upload a 2-minute video of yourself speaking, and our AI will create your exact digital twin. Type a script anytime, and your clone will say it with your voice and gestures.
               </p>
